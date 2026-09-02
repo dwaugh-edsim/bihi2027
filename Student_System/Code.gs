@@ -1,12 +1,12 @@
 /**
- * Bicentennial Junior High School — Student Webhook Backend (V2 Persistence)
+ * Bicentennial Junior High School — Student Webhook Backend (V3 with Locker Master Sync)
  * Mr. Waugh (Room 8)
  * 
  * Supports:
- * - Multi-class sections (e.g. 801, 802, 803, 804, 901, 902, 903)
+ * - Multi-class sections (801, 802, 803, 804, 901, 902, 903)
  * - 3-Letter PIN + First Name verification
- * - Full cross-device state persistence (loads previously submitted data on login)
- * - Intake, Health Audit, and "WHERE" Profile storage
+ * - Cross-device persistence (Intake, Diagnostic & "WHERE" profile)
+ * - Dedicated Locker & Combination Master Sync (`Lockers_902` tab)
  */
 
 function getSheetForClass(ss, className) {
@@ -35,23 +35,121 @@ function getSheetForClass(ss, className) {
   return sheet;
 }
 
+function getLockerSheet(ss, className) {
+  const tabName = 'Lockers_' + String(className || '902').trim();
+  let sheet = ss.getSheetByName(tabName);
+  if (!sheet) {
+    sheet = ss.insertSheet(tabName);
+    sheet.appendRow([
+      'Locker #',        // A
+      'Student Name',    // B
+      'Student ID',      // C
+      'PIN',             // D
+      'Combination',     // E
+      'Notes / Status',  // F
+      'Last Updated'     // G
+    ]);
+    sheet.getRange("A1:G1").setFontWeight("bold").setBackground('#e0f2fe').setFontColor('#0369a1');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 90);
+    sheet.setColumnWidth(2, 180);
+    sheet.setColumnWidth(3, 120);
+    sheet.setColumnWidth(4, 80);
+    sheet.setColumnWidth(5, 140);
+    sheet.setColumnWidth(6, 180);
+    sheet.setColumnWidth(7, 160);
+  }
+  return sheet;
+}
+
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action; 
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // ==========================================
+    // ACTION: SAVE LOCKERS (Bulk or Single Sync)
+    // ==========================================
+    if (action === 'save_lockers') {
+      const className = String(payload.className || '902').trim();
+      const lockerData = payload.lockers || []; // Array of { locker, name, id, pin, combo, notes }
+      const sheet = getLockerSheet(ss, className);
+
+      // If full array provided, rewrite cleanly from row 2
+      if (Array.isArray(lockerData) && lockerData.length > 0) {
+        // Clear old rows below header
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) {
+          sheet.getRange(2, 1, lastRow - 1, 7).clearContent();
+        }
+
+        const now = new Date();
+        const rows = lockerData.map(item => [
+          item.locker,
+          item.name,
+          item.id,
+          item.pin,
+          item.combo || '',
+          item.notes || '',
+          now
+        ]);
+
+        sheet.getRange(2, 1, rows.length, 7).setValues(rows);
+        return successJSON({ 
+          status: 'lockers_saved',
+          count: rows.length,
+          timestamp: now
+        });
+      }
+
+      return successJSON({ status: 'no_data_provided' });
+    }
+
+    // ==========================================
+    // ACTION: GET LOCKERS
+    // ==========================================
+    else if (action === 'get_lockers') {
+      const className = String(payload.className || '902').trim();
+      const sheet = getLockerSheet(ss, className);
+      const data = sheet.getDataRange().getValues();
+      const result = {};
+
+      for (let i = 1; i < data.length; i++) {
+        const id = String(data[i][2]).trim();
+        if (id) {
+          result[id] = {
+            locker: data[i][0],
+            name: data[i][1],
+            id: id,
+            pin: data[i][3],
+            combo: data[i][4],
+            notes: data[i][5],
+            updated: data[i][6]
+          };
+        }
+      }
+
+      return successJSON({ 
+        status: 'lockers_fetched',
+        lockers: result
+      });
+    }
+
+    // ==========================================
+    // DEFAULT STUDENT WORKFLOW ACTIONS
+    // ==========================================
     const pin = String(payload.pin || '').trim().toUpperCase();
     const className = String(payload.className || 'General').trim();
     
     if (!pin) throw new Error("3-Letter PIN is required.");
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = getSheetForClass(ss, className);
-    
     const data = sheet.getDataRange().getValues();
     let rowIndex = -1;
-    for (let i = 1; i < data.length; i++) { // Skip header
+    for (let i = 1; i < data.length; i++) {
       if (String(data[i][0]).trim().toUpperCase() === pin) {
-        rowIndex = i + 1; // 1-indexed for Sheets
+        rowIndex = i + 1;
         break;
       }
     }
@@ -61,7 +159,6 @@ function doPost(e) {
       const name = (payload.name || '').trim();
       
       if (rowIndex !== -1) {
-        // PIN exists in sheet! Retrieve full saved state
         const savedName = data[rowIndex-1][1];
         const savedEmail = data[rowIndex-1][3];
         const savedPronouns = data[rowIndex-1][4];
@@ -83,12 +180,11 @@ function doPost(e) {
           className: className
         });
       } else {
-        // New PIN. Create starter record.
         sheet.appendRow([
           pin,
           name,
           className,
-          '', '', // email, pronouns
+          '', '',
           'Active / Logged In',
           '{}',
           'Initial Login',
@@ -116,7 +212,6 @@ function doPost(e) {
       const summary = payload.summary || '';
       
       if (rowIndex !== -1) {
-        // Update existing row
         if (studentName) sheet.getRange(rowIndex, 2).setValue(studentName);
         if (email) sheet.getRange(rowIndex, 4).setValue(email);
         if (pronouns) sheet.getRange(rowIndex, 5).setValue(pronouns);
@@ -125,7 +220,6 @@ function doPost(e) {
         sheet.getRange(rowIndex, 8).setValue(summary);
         sheet.getRange(rowIndex, 9).setValue(new Date());
       } else {
-        // Append new row
         sheet.appendRow([
           pin,
           studentName,
