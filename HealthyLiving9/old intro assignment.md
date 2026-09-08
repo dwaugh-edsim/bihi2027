@@ -6,6 +6,23 @@
 
 ---
 
+> ### 🎯 Nova Scotia Department of Education Curriculum Alignment
+> 
+> * **Primary Outcome 4 (Communication Skills):**  
+>   *“Learners will develop communication skills that support the growth and maintenance of healthy relationships.”*  
+>   *(Focus: Assertiveness, active listening, de-escalation, conflict resolution, and professional language online/offline).*
+> 
+> * **Primary Outcome 9 (Navigating Change & Resiliency):**  
+>   *“Learners will evaluate healthy ways to navigate change and/or challenging life circumstances.”*  
+>   *(Focus: Identifying protective factors, coping with stress and burnout, and building resiliency for the high school transition).*
+> 
+> * **Supporting Outcomes:**  
+>   * **Outcome 1 (Health Behaviours):** Evaluating the impact of sleep, screens, and identity on short/long-term well-being.  
+>   * **Outcome 11 (Help-Seeking Efficacy):** Developing communication skills to seek help and advocate for oneself.  
+> * **Core Competencies:** Personal and Career Development (PCD), Communication (COM), Critical Thinking (CT).
+
+---
+
 ## The Scenario
 
 Congratulations! You and a partner have just been appointed as **Lead Career & Academic Advisors for the incoming Grade 10 class at Dartmouth High School**. 
