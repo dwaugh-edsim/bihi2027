@@ -3,7 +3,7 @@
 
 **Structure:** 11 outcomes × 4–5 classes + 4-class capstone = 55. Summatives drop from 9 to 8 + capstone (the O4+O5, O6+O7, O9+O10 merges from the assessment plan are now structural). Sim spans compress from 4–5 sessions to 2–3 (exhibit-per-session becomes exhibit-per-half-session or paper version).
 
-**Three reporting terms:** T1 ends **Nov 20** (classes 1–14/17), T2 ends **Mar 4** (through ~class 36), T3 ends June. **June thin-out rule:** last summative = Class 51 (May 26); Classes 52–55 (capstone, project window) land May 27–Jun 17. No new content after Jun 10.
+**Three reporting terms:** T1 ends **Nov 20** (classes 1–15, covering O1 + HS Trans + O2-A + O3 + start of O4), T2 ends **Mar 4** (through class 34, covering O4 completion + O2-B + O5 + O6 + O7), T3 ends June. **June thin-out rule:** last summative = Class 51 (May 26); Classes 52–55 (capstone, project window) land May 27–Jun 17. No new content after Jun 10.
 
 **Section drift:** 902 runs ~4–7 school days behind 901/903 all year. Full date table is the appendix — plan by date, not by class number. (No HL9 section meets Nov 4, so Take-Our-Kids-to-Work Day costs nothing here.)
 
@@ -11,9 +11,11 @@
 > Day 1 prior-learning diagnostics revealed that **>70% of incoming G9 students classify "Screens & Sleep" (HL8 Out. 2) as Over-Covered** ("We did this basically the whole year") while **~72% have little or no prior instruction on STBBIs, Contraception & Consent (HL8 Out. 4)** and **~66% lack operational boundary skills (HL8 Out. 5)**. Format preferences show **0 votes for poster projects** (universal revolt) and strong demand for structured debates, video deconstruction, and collaborative problem-solving. Over 6+ students independently asked about **high school transition**. Consequently:
 > - **Outcome 1 compressed from 5 → 3 classes** (zero generic sleep/blue-light lectures; reframed around algorithmic attention capture and athletic cognitive performance).
 > - **1 class reallocated to High School Transition & Academic Agency** (addresses top unprompted student inquiry).
-> - **Outcome 2 expanded from 5 → 6 classes** (remediates the critical STBBI/consent knowledge vacuum with Anonymous Question Box).
+> - **Outcome 2 split into two phases:** O2-A (Grade 8 STBBI/consent remediation, 4 classes in Term 1) + O2-B (applied consent scripts & digital intimacy, 3 classes in Term 2 *after* students acquire O4 communication/refusal skills). Total O2 = 7 classes (was 5).
+> - **O5 compressed from 5 → 4 classes** (Equality Action Plan folded into O4+O5 project) to offset O2 expansion. Net class count unchanged.
+> - **O4 starts 2 classes earlier** (Class 14) to fill Term 1 and ensure communication skills precede O2-B consent practice.
 > - **All poster-based activities replaced** with digital case studies, video autopsies, branching sims, and structured debates.
-> - Total class count unchanged at 55. Terms 2–3 structurally preserved.
+> - Total class count unchanged at 55.
 > - *(902 survey pending; expect comparable findings. Plan will absorb minor adjustments.)*
 
 ---
@@ -36,46 +38,58 @@
 |---|---|---|---|---|
 | 4 | NEW | High School Navigation Blueprint | Direct answers to top student question: NS high school graduation requirements (18 credits), transcript anatomy, course leveling (Academic vs. Advanced vs. Graduation), teacher self-advocacy language, and exam study systems. Interactive transcript simulator. | Grade 10 Target Matrix (formative) |
 
-### OUTCOME 2 — Sexual & Reproductive Health (Classes 5–10) · Sim: **Decision Fork** (expanded)
-*Expanded from 5 → 6 classes. Audit mandate: 79% of Class 903 and 58% of Class 901 reported HL8 Outcome 4 (Contraception, STBBIs & Consent) was Never or only Briefly covered. Multiple students asked "What is an STBBI?" Anonymous Question Box is a permanent, non-negotiable ritual throughout.*
+### OUTCOME 2-A — Sexual & Reproductive Health: Grade 8 Remediation (Classes 5–8) · Sim: **Decision Fork** setup
+*Phase A of a two-part split. Audit mandate: 79% of Class 903 and 58% of Class 901 reported HL8 Outcome 4 (Contraception, STBBIs & Consent) was Never or only Briefly covered. Multiple students asked "What is an STBBI?" This phase delivers the factual knowledge baseline they should have received in Grade 8. Anonymous Question Box launches here and collects submissions through Phase B.*
 
 | # | Orig | Class | Core activity | Assessment |
 |---|---|---|---|---|
 | 5 | 10 | Ground Rules + Anonymous Q&A Launch | Ground rules + anonymous question routines (required practice); launch physical + digital Anonymous Question Box; review boundaries of confidential healthcare in NS; Decision Fork sim setup. | — |
 | 6 | 11 | STBBI Biology & Source Check | **Remediation of Grade 8 gap:** bacterial vs. viral STBBIs, asymptomatic transmission, barrier methods, testing clinics, local NS supports. Claim-sorter (myth/fact/half-truth); source-reliability rubric. | Source ratings + rationale |
-| 7 | 12+13 | Contraception Science + Consent | Stigma-free breakdown of hormonal, barrier, and emergency contraception; accessing Youth Health Centres and 811; consent as informed, ongoing, sober, reversible; power-imbalance recognition. | Scenario responses |
-| 8 | 14 | Decision Factors + Digital Intimacy | Values vs. pressure vs. knowledge; substance use × consent; partner communication; non-consensual image sharing; Cybertip sextortion lesson; reporting mechanisms. | Exit ticket + boundary scripts |
-| 9 | NEW | Anonymous Q&A Resolution + Review | Full class addressing all accumulated Anonymous Question Box submissions with clear, factual answers. Targeted review and scenario practice. | Practice quiz (formative) |
-| 10 | 16+17 | Review + **📋 Quiz 2** | Final targeted review; **Quiz 2 (anonymous submission options throughout; 15–20 items incl. consent scenarios, STBBI facts, and boundary scripts)**. | **Summative 2 — 5%** |
+| 7 | 12+13 | Contraception Science + Consent Defined | Stigma-free breakdown of hormonal, barrier, and emergency contraception; accessing Youth Health Centres and 811; consent as informed, ongoing, sober, reversible; power-imbalance recognition. | Scenario responses |
+| 8 | 16+17 | Review + **📋 Quiz 2** | Targeted review of STBBI biology, contraception, and consent definitions; **Quiz 2 (anonymous submission options; 15–18 items)**. | **Summative 2 — 5%** |
 
-### OUTCOME 3 — Health Literacy & Accessing Resources (Classes 11–15) · Sim: **Clinic Navigator** · *Theme 3 folder empty — sim carries unit; fill from July 1 brief*
+### OUTCOME 3 — Health Literacy & Accessing Resources (Classes 9–13) · Sim: **Clinic Navigator** · *Theme 3 folder empty — sim carries unit; fill from July 1 brief*
 | # | Orig | Class | Core activity | Assessment |
 |---|---|---|---|---|
-| 11 | 18 | Can You Read the Label? | Medicine/food labels; health-claim decoding; app privacy checks. | Label interpretations |
-| 12 | 19 | Where Do I Go? | Scenario sorter: walk-in vs. pharmacist vs. 811/Health811 vs. ER vs. school counsellor; confidentiality limits. | Sorter + rationale |
-| 13 | 20+21 | Through the Door + Building the Map | Intake-form walkthrough; start the **NS resource map** (6+ resources — the unit's central artifact). | Map draft |
-| 14 | 22+23 | Project Work + Check-Ins | **Navigator mini-project** work session + teacher conferences. | Conference notes |
-| 15 | 24+25 | Peer Review + **📋 Project Due** | Glow/grow/question peer swap; submit. | **Summative 3 — 6%** *(T1 report anchor)* |
+| 9 | 18 | Can You Read the Label? | Medicine/food labels; health-claim decoding; app privacy checks. | Label interpretations |
+| 10 | 19 | Where Do I Go? | Scenario sorter: walk-in vs. pharmacist vs. 811/Health811 vs. ER vs. school counsellor; confidentiality limits. | Sorter + rationale |
+| 11 | 20+21 | Through the Door + Building the Map | Intake-form walkthrough; start the **NS resource map** (6+ resources — the unit's central artifact). | Map draft |
+| 12 | 22+23 | Project Work + Check-Ins | **Navigator mini-project** work session + teacher conferences. | Conference notes |
+| 13 | 24+25 | Peer Review + **📋 Project Due** | Glow/grow/question peer swap; submit. | **Summative 3 — 6%** *(T1 report anchor)* |
+
+### OUTCOME 4 — Communication Skills (Classes 14–18) · Sim: **Words That Heal / Words That Hurt** (light) · *starts late T1, completes early T2*
+*Pulled forward 2 classes. These communication, refusal, and assertiveness skills are PREREQUISITES for the applied consent work in O2-B. 901/903 begin O4 Nov 3; T1 report captures Summatives 1–3 + formative O4 progress.*
+
+| # | Orig | Class | Core activity | Assessment |
+|---|---|---|---|---|
+| 14 | 26 | 'I' Statements + Language Autopsy | Real/fictional exchanges analyzed online vs. offline; needs without blame. | Rewrite exercise |
+| 15 | 27 | Expressing Needs | Problem-solving-focused language; what compromise sounds like. | Script practice |
 
 ---
 
-## Term 2 (Nov 23 – Mar 4) — Classes 16–36
+## Term 2 (Nov 23 – Mar 4) — Classes 16–34
 
-### OUTCOME 4 — Communication Skills (Classes 16–20) · Sim: **Words That Heal / Words That Hurt** (light)
+### OUTCOME 4 — Communication Skills *(continued from T1)*
 | # | Orig | Class | Core activity | Assessment |
 |---|---|---|---|---|
-| 16 | 26 | 'I' Statements + Language Autopsy | Real/fictional exchanges analyzed online vs. offline; needs without blame. | Rewrite exercise |
-| 17 | 27 | Expressing Needs | Problem-solving-focused language; what compromise sounds like. | Script practice |
-| 18 | 28+29 | Disagreeing + Refusal Lab | Constructive disagreement; assertiveness across escalating scenarios. | Role-play observation |
-| 19 | 31+32 | Conflict Strategies + Online Language | Five resolution strategies; how online/offline language differs. | Strategy analysis |
-| 20 | 33 | Communication Playbook | Assemble personal playbook — feeds the O4+O5 project. | Playbook draft |
+| 16 | 28+29 | Disagreeing + Refusal Lab | Constructive disagreement; assertiveness across escalating scenarios. | Role-play observation |
+| 17 | 31+32 | Conflict Strategies + Online Language | Five resolution strategies; how online/offline language differs. | Strategy analysis |
+| 18 | 33 | Communication Playbook | Assemble personal playbook — feeds the O4+O5 project. | Playbook draft |
 
-### OUTCOME 5 — Gender Norms, Stereotypes & Biases (Classes 21–25) · Sim: **Norm Machine** · *spans Christmas break (ground rules re-set Jan)*
+### OUTCOME 2-B — Sexual & Reproductive Health: Applied Depth (Classes 19–21)
+*Phase B. Students now have O4 communication and refusal skills — they can PRACTICE consent conversations, not just define them. Picks up Anonymous Question Box submissions from O2-A. Feeds directly into O5 (Gender Norms) → O6 (GBV) → O7 (Personal Safety).*
+
 | # | Orig | Class | Core activity | Assessment |
 |---|---|---|---|---|
-| 21 | 34 | Where Norms Come From | Norm Machine exhibit 1: media assembly line; helpful/harmful/neutral classification. | Classification + rationale |
-| 22 | 35+36 | Family, Tradition, Peers + Power Mapping | Exhibits 2–3; power-mapping friendship and dating scenarios. | Power maps |
-| 23 | 37 | Equality Action Plan | Rewrite station: equitable alternatives; personal Equality Commitment. | Norm Audit Report |
+| 19 | 14 | Decision Factors Under Pressure | Values vs. pressure vs. knowledge; substance use × consent; partner communication scripts using O4 refusal language; Decision Fork scenario culmination. | Script practice + exit ticket |
+| 20 | NEW | Digital Intimacy + Boundary Defense | Non-consensual image sharing; Cybertip sextortion lesson; recognizing digital coercion; boundary scripts for online pressure situations; reporting mechanisms. | Boundary script rubric |
+| 21 | NEW | Anonymous Q&A Resolution + Bridge to O5 | Full class addressing all accumulated Anonymous Question Box submissions with clear, factual answers. Bridge to gender norms and power dynamics. | Participation + reflection |
+
+### OUTCOME 5 — Gender Norms, Stereotypes & Biases (Classes 22–25) · Sim: **Norm Machine** · *compressed 5→4; Equality Action Plan folded into O4+O5 project*
+| # | Orig | Class | Core activity | Assessment |
+|---|---|---|---|---|
+| 22 | 34 | Where Norms Come From | Norm Machine exhibit 1: media assembly line; helpful/harmful/neutral classification. | Classification + rationale |
+| 23 | 35+36+37 | Family, Peers, Power + Equality Action | Exhibits 2–3; power-mapping friendship and dating scenarios; equitable alternatives exercise; personal Equality Commitment. | Power maps + Norm Audit Report |
 | 24 | 38+39 | **O4+O5 Major Project** Kickoff + Work | Assigned (Parts A/B/C per assessment plan); work session + check-ins. | Conference notes |
 | 25 | 40+41 | Peer Review + **📋 Project Due** | Structured peer feedback; submit. | **Summative 4 — 8%** |
 
@@ -92,7 +106,7 @@
 |---|---|---|---|---|
 | 30 | 49 | Why Teens? Injury Risk Factors | Age-related risk; teen brain vs. risk assessment. | Risk analysis |
 | 31 | 50+51 | Injury Briefs + Breach Autopsy | Real-style injury reports; compromised-account autopsy; online rights/responsibilities. | Brief analyses |
-| 32 | 52+53 | Grooming + Sextortion | Online victimization scenarios; Cybertip sextortion lesson (Theme 7 PDFs); responding/reporting. | Response plans |
+| 32 | 52+53 | Grooming + Sextortion Reinforcement | Online victimization scenarios; Cybertip sextortion lesson (Theme 7 PDFs); responding/reporting. *Reinforces O2-B digital intimacy work.* | Response plans |
 | 33 | 54+55 | Boundaries + Digital Safety Plan | Personal boundaries online/offline; assemble the Safety Plan. | Safety Plan |
 | 34 | 56+57 | Review + **📋 Safety Scenario Assessment** | Practice scenarios; **O6+O7 combined assessment (20–25 items, 4 extended scenarios incl. Priya)**. | **Summative 5 — 8%** *(T2 report anchor)* |
 
@@ -176,4 +190,4 @@
 | 27 | Jan 21 | Feb 02 | Jan 21 | | 55 | Jun 10 | Jun 17 | Jun 10 |
 | 28 | Jan 25 | Feb 03 | Jan 25 | | | | | |
 
-**Term windows per section:** 901: T1 = 17 classes · T2 = 19 · T3 = 23. 902: T1 = 14 · T2 = 20 · T3 = 23. 903: T1 = 17 · T2 = 19 · T3 = 23. T1 report (Nov 20) captures Summatives 1–3 for 901/903 and 1–2 + project-in-progress for 902 — collect the O3 project from 902 before Nov 19 if you want it in the T1 mark.
+**Term windows per section:** 901: T1 = 17 classes · T2 = 19 · T3 = 23. 902: T1 = 14 · T2 = 20 · T3 = 23. 903: T1 = 17 · T2 = 19 · T3 = 23. T1 report (Nov 20) captures Summatives 1–3 + formative O4 progress for 901/903, and Summatives 1–2 + O3 project-in-progress for 902 — collect the O3 project from 902 before Nov 19 if you want it in the T1 mark.
