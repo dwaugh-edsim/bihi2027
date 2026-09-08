@@ -11,7 +11,7 @@ LESSONS = [
         "id": 1,
         "filename": "lesson-01-career-exploration.html",
         "image": "images/pic01.jpg",
-        "school": "Leslie Thomas Junior High School",
+        "school": "Junior High Pilot Exemplar",
         "title": "Career & Lifestyle Exploration",
         "subtitle": "Navigating Personal Identity, Economic Realities & Digital Portfolios",
         "category": "Career & Life Planning",
@@ -79,7 +79,7 @@ LESSONS = [
         "id": 2,
         "filename": "lesson-02-skill-rotation.html",
         "image": "images/pic02.jpg",
-        "school": "Oyster Pond Academy",
+        "school": "Junior High Pilot Exemplar",
         "title": "Multi-Module Skill Rotation & School Design Challenge",
         "subtitle": "A Year-Long Interdisciplinary Journey Across Continuum Competencies",
         "category": "Multi-Unit Rotation & Design Challenge",
@@ -87,7 +87,7 @@ LESSONS = [
         "duration_bucket": "extended",
         "grade_level": "Grade 7–9",
         "summary": "A school-wide year-long rotating modular program where students rotated through specialized teacher-led modules: Mental & Physical Coping Strategies, Nova Scotia Continuum Skill Deconstruction, Space Race Astro-Egg Drop Challenge, Growth Mindset in Personal Role Models, and the Sky's the Limit School Design Challenge.",
-        "rationale": "Rather than treating Integrated Learning Time as unstructured study hall, Oyster Pond Academy built a coherent pedagogical continuum. Grounded in Trevor MacKenzie's guided inquiry framework, it systematically moves students from structured skill fluency toward complex architectural and civic design autonomy.",
+        "rationale": "Rather than treating Integrated Learning Time as unstructured study hall, Junior High Pilot Exemplar built a coherent pedagogical continuum. Grounded in Trevor MacKenzie's guided inquiry framework, it systematically moves students from structured skill fluency toward complex architectural and civic design autonomy.",
         "outcomes": [
             "Healthy Living: Learners will analyze relationships between health behaviours and physical, mental, emotional, social, and spiritual health.",
             "Healthy Living: Learners will analyze how life skills influence holistic wellness (Growth Mindset).",
@@ -125,7 +125,7 @@ LESSONS = [
         "scaffolding_lessons": [
             {
                 "title": "Continuum Skill Deconstruction & Self-Auditing",
-                "desc": "Explicit dissection of curriculum verbs (Analyse vs. Evaluate vs. Formulate) using HRCE sample lessons so learners understand the cognitive levels demanded."
+                "desc": "Explicit dissection of curriculum verbs (Analyse vs. Evaluate vs. Formulate) using provincial sample lessons so learners understand the cognitive levels demanded."
             },
             {
                 "title": "Guided Inquiry Foundations (Trevor MacKenzie Model)",
@@ -153,7 +153,7 @@ LESSONS = [
             "summative": "Capstone evaluation during the student-led school expo featuring defense presentations before faculty panels."
         },
         "sharing": "Multi-stage public showcases: mechanical drop trials were conducted in front of peers, and the final 'Sky's the Limit' school blueprints were exhibited in an all-school student-led symposium.",
-        "reflection": "Oyster Pond educators noted that 6–8 week blocks sometimes lost focus toward the end. For the upcoming year, they planned to streamline into 4-week high-impact modules, calibrate skills collaboratively among teachers prior to school launch, and permit iterative curriculum tweaks mid-year.",
+        "reflection": "Pilot educators noted that 6–8 week blocks sometimes lost focus toward the end. For the upcoming year, they planned to streamline into 4-week high-impact modules, calibrate skills collaboratively among teachers prior to school launch, and permit iterative curriculum tweaks mid-year.",
         "toolkit": [
             "Prototyping materials: balsa wood, recycled cardstock, fabric, parachutes, adhesives, testing weights",
             "Blueprint grid paper, architectural drafting software / SketchUp",
@@ -165,7 +165,7 @@ LESSONS = [
         "id": 3,
         "filename": "lesson-03-future-cities.html",
         "image": "images/pic03.jpg",
-        "school": "Brookside Junior High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Future Cities & Sustainable Urban Planning",
         "subtitle": "Engineering Resilient Metropolises for Climate Adaptation",
         "category": "STEM & Urban Planning",
@@ -229,7 +229,7 @@ LESSONS = [
             "peer": "Touring student exit tickets assessing technological ingenuity and realistic ecological planning.",
             "summative": "Comprehensive project rubric evaluating research depth, design innovation, structural execution, and oral presentation."
         },
-        "sharing": "During the final 3 weeks of the term, students transformed their classrooms into a Future Cities Expo. A scheduled rotation enabled classes throughout Brookside Junior High to complete interactive walkthroughs, interview the student architects, and evaluate innovations using rubric exit slips.",
+        "sharing": "During the final 3 weeks of the term, students transformed their classrooms into a Future Cities Expo. A scheduled rotation enabled classes throughout Junior High Pilot Exemplar to complete interactive walkthroughs, interview the student architects, and evaluate innovations using rubric exit slips.",
         "reflection": "The faculty observed that back-loading hands-on building into the final month caused anxiety for students who were eager to prototype earlier. In future iterations, tactile modeling will begin in week two to parallel theoretical research and allow continuous formative assessment throughout the year.",
         "toolkit": [
             "Scale modeling supplies: foam board, recycled cardboard, timber dowels, craft wire, non-toxic adhesives",
@@ -242,7 +242,7 @@ LESSONS = [
         "id": 4,
         "filename": "lesson-04-community-action.html",
         "image": "images/pic04.jpg",
-        "school": "Cunard Jr High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Community Action, Upcycling & Multicultural Rotations",
         "subtitle": "Homeroom Anchoring Meets Specialized Interdisciplinary Challenges",
         "category": "Community Action & Maker Challenges",
@@ -250,7 +250,7 @@ LESSONS = [
         "duration_bucket": "extended",
         "grade_level": "Grade 7–8",
         "summary": "A dynamic rotational curriculum organized into 3-to-5-week thematic blocks. Students remained anchored in homerooms while specialist educators rotated through, facilitating deep dives into local homelessness alleviation, positive civic leadership, cultural heritage fairs, and cardboard engineering.",
-        "rationale": "By keeping adolescent students anchored in their supportive homeroom peer groups while cycling enthusiastic teachers through diverse thematic modules, Cunard balanced social-emotional security with diverse intellectual challenges.",
+        "rationale": "By keeping adolescent students anchored in their supportive homeroom peer groups while cycling enthusiastic teachers through diverse thematic modules, the school balanced social-emotional security with diverse intellectual challenges.",
         "outcomes": [
             "Cross-curricular outcomes spanning ELA (persuasive discourse), Social Studies (civic structures & poverty), Visual Arts / Family Studies (upcycled craft), and Mathematics (materials optimization)."
         ],
@@ -297,7 +297,7 @@ LESSONS = [
             "summative": "Authentic performance assessment during public fairs evaluated against rubrics for empathy, craftsmanship, and research depth."
         },
         "sharing": "Celebrated through public exhibitions including an all-school Multicultural Fair and an interactive Cardboard Challenge arcade where peer classes played student-engineered games.",
-        "reflection": "Cunard teachers recognized that having teachers move between homerooms created logistical bottlenecks with materials. Recommendations for future cycles included curating benchmark exemplars beforehand, building a shared digital repository of student work, and piloting student movement between specialized studio spaces.",
+        "reflection": "Pilot teachers recognized that having teachers move between homerooms created logistical bottlenecks with materials. Recommendations for future cycles included curating benchmark exemplars beforehand, building a shared digital repository of student work, and piloting student movement between specialized studio spaces.",
         "toolkit": [
             "Corrugated cardboard sheets, safe cardboard saws (Makedo), brass brads, PVA adhesive",
             "Municipal census data, local non-profit reports",
@@ -308,7 +308,7 @@ LESSONS = [
         "id": 5,
         "filename": "lesson-05-teamwork-towers.html",
         "image": "images/pic05.jpg",
-        "school": "Georges P Vanier Jr High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Teamwork Towers & Upcycled Structural Engineering",
         "subtitle": "High-Velocity Engineering, Persuasive Discourse & Stress-Testing",
         "category": "Engineering & Team Collaboration",
@@ -369,7 +369,7 @@ LESSONS = [
             "summative": "Structural performance index scoring (Height x Load Supported / Total Material Mass)."
         },
         "sharing": "Demonstrated live in front of the assembled grade cohort with calibrated digital scales and weights. High-stakes live testing generated immense peer excitement and collective analysis of mechanical physics in real time.",
-        "reflection": "The Vanier team found that isolated 1-hour weekly classes disrupted project momentum. They recommended grouping sessions into linked 2-week continuous workshop blocks, allowing students to design on day one and build/test without tearing down materials mid-stride.",
+        "reflection": "The instructional team found that isolated 1-hour weekly classes disrupted project momentum. They recommended grouping sessions into linked 2-week continuous workshop blocks, allowing students to design on day one and build/test without tearing down materials mid-stride.",
         "toolkit": [
             "Upcycled materials: pop bottles, cardboard rolls, popsicle sticks, wooden skewers, newspapers",
             "Fasteners: masking tape (rationed to 2 meters per team), hot glue guns, elastic bands",
@@ -380,7 +380,7 @@ LESSONS = [
         "id": 6,
         "filename": "lesson-06-personal-project.html",
         "image": "images/pic06.jpg",
-        "school": "Sackville Heights Junior High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Choose Your Own Adventure Personal Project",
         "subtitle": "Radical Student Autonomy, Passion Inquiries & Tailored Mentorship",
         "category": "Inquiry & Passion-Based Learning",
@@ -388,7 +388,7 @@ LESSONS = [
         "duration_bucket": "medium",
         "grade_level": "Grade 7",
         "summary": "A purely student-centered inquiry model where learners formulate authentic driving questions and produce original passion artifacts ranging from hand-laminated hockey sticks and athletic training regimens to Ukraine humanitarian campaigns, brass instrument mastery, fantasy novels, and pastel art.",
-        "rationale": "When adolescents possess genuine agency over their learning targets, disengagement evaporates. By providing rigorous scaffolding around self-management, project planning, and communication, Sackville Heights proved that student autonomy yields profound academic excellence.",
+        "rationale": "When adolescents possess genuine agency over their learning targets, disengagement evaporates. By providing rigorous scaffolding around self-management, project planning, and communication, Pilot teachers proved that student autonomy yields profound academic excellence.",
         "outcomes": [
             "ELA 7: Learners will create oral, written, and visual communication forms for a range of audiences and purposes.",
             "ELA 7: Learners will implement speaking and writing strategies for effective communication in relation to audience and purpose.",
@@ -444,7 +444,7 @@ LESSONS = [
         "id": 7,
         "filename": "lesson-07-competency-recovery.html",
         "image": "images/pic07.jpg",
-        "school": "Herring Cove Jr High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Collaborative Competency Recovery & Academic Discourse",
         "subtitle": "Rebuilding Interpersonal Stamina Through Debate, Beaver Math & Kinetic Breaks",
         "category": "Cross-Curricular Competency Recovery",
@@ -452,7 +452,7 @@ LESSONS = [
         "duration_bucket": "extended",
         "grade_level": "Grade 7–9",
         "summary": "A holistic instructional intervention engineered to repair collaboration gaps, social communication anxiety, and problem-solving stamina through structured debate protocols and the Beaver Computing Challenge, interleaved with scheduled physical gym movement breaks.",
-        "rationale": "Following significant disruptions to adolescent schooling, students exhibited marked deficits in working collaboratively without teacher intervention. Herring Cove recognized that students cannot simply be told to 'group up'; collaborative discourse requires explicit scaffolding, safe debate frameworks, and physical endorphin resets.",
+        "rationale": "Following significant disruptions to adolescent schooling, students exhibited marked deficits in working collaboratively without teacher intervention. Educators recognized that students cannot simply be told to 'group up'; collaborative discourse requires explicit scaffolding, safe debate frameworks, and physical endorphin resets.",
         "outcomes": [
             "Atlantic Canada Competencies: Explicit mastery of Collaboration, Communication, Critical Thinking, and Technological Fluency across all subject areas."
         ],
@@ -517,7 +517,7 @@ LESSONS = [
         "id": 8,
         "filename": "lesson-08-improving-communities.html",
         "image": "images/pic08.jpg",
-        "school": "Leslie Thomas Junior High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Improving Our Communities Civic Challenge",
         "subtitle": "Human-Centered Design, Social Innovation & Public Website Publishing",
         "category": "Civic Innovation & Digital Media",
@@ -584,7 +584,7 @@ LESSONS = [
         "id": 9,
         "filename": "lesson-09-bridge-engineering.html",
         "image": "images/pic09.jpg",
-        "school": "Leslie Thomas Junior High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Bridge Engineering & Structural Mechanics",
         "subtitle": "Connecting Science Theory to Hands-On Prototyping & Destructive Testing",
         "category": "Physics & Engineering",
@@ -646,7 +646,7 @@ LESSONS = [
         "id": 10,
         "filename": "lesson-10-teacher-passion.html",
         "image": "images/pic10.jpg",
-        "school": "Five Bridges Jr High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Teacher Passion Rotation & Student Guided Inquiry",
         "subtitle": "From Educator Inspiration to Autonomous Passion Projects",
         "category": "Multi-Phase Inquiry & Skill Workshops",
@@ -708,7 +708,7 @@ LESSONS = [
         "id": 11,
         "filename": "lesson-11-fluid-power.html",
         "image": "images/pic11.jpg",
-        "school": "Leslie Thomas Junior High",
+        "school": "Junior High Pilot Exemplar",
         "title": "Fluid Power Challenge: Hydraulic vs. Pneumatic Lifts",
         "subtitle": "Applied Fluid Dynamics, Mechanical Advantage & Competitive Engineering",
         "category": "Applied Physics & Pneumatics",
@@ -1573,44 +1573,720 @@ PROPOSALS = [
     },
 ]
 
-def render_sidebar(active_page="index.html"):
-    # Group lessons by school
-    schools = {}
-    for l in LESSONS:
-        s = l["school"]
-        if s not in schools:
-            schools[s] = []
-        schools[s].append(l)
+# ---------------------------------------------------------------------------
+# ONE-DAY ILT ACTIVITIES
+# Ten quick-deploy drama games and teambuilding activities designed for a
+# single ILT block (45–90 min). Grade 7–9, minimal or no resources required.
+# Ideal for first-week community building, transition days, or substitute
+# teacher days.
+# ---------------------------------------------------------------------------
 
-    # Submenu by school items
-    school_items = []
-    for s_name, s_lessons in sorted(schools.items()):
-        sub_links = "".join([f'<li><a href="{l["filename"]}">{html.escape(l["title"])}</a></li>' for l in s_lessons])
-        school_items.append(f'''<li>
-  <span class="opener">{html.escape(s_name)} ({len(s_lessons)})</span>
+ONE_DAY_ACTIVITIES = [
+    {
+        "id": 1,
+        "filename": "oneday-01-human-knot.html",
+        "image": "images/oneday01.jpg",
+        "school": "1-Day Activity",
+        "title": "Human Knot & Untangle Challenge",
+        "subtitle": "Physical Problem Solving, Communication & Collaborative Strategy",
+        "category": "Teambuilding & Problem Solving",
+        "duration": "45–60 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "Students form circles of 8–12, reach across to grab two different hands, and must untangle their human knot into a clean circle without releasing grips. Progressive rounds add constraints — silence, blindfolds for one member, time pressure — to deepen communication strategy and leadership emergence.",
+        "rationale": "The Human Knot is a deceptively simple constraint that forces adolescents to negotiate physical proximity, verbal direction-giving, spatial reasoning, and patience simultaneously. It exposes natural leadership dynamics and rewards collaborative problem solving over individual heroics — precisely the social-emotional competencies junior high students need to practise in low-stakes environments.",
+        "outcomes": [
+            "Healthy Living: Learners will demonstrate interpersonal skills that contribute to positive relationships and group dynamics.",
+            "ELA / FLA: Learners will use oral communication strategies to give and follow multi-step spatial directions clearly."
+        ],
+        "cross_curricular": ["Healthy Living", "ELA / FLA", "Physical Education"],
+        "competencies": ["Communication", "Critical Thinking", "Citizenship"],
+        "continuum_skills": [
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Problem Solve", "fr": "Trouver une solution"},
+            {"en": "Plan", "fr": "Planifier"}
+        ],
+        "essential_questions": [
+            "What communication strategies help a group solve a physical puzzle when no single person can see the full picture?",
+            "How does removing one communication channel (e.g. voice) force the group to develop alternative strategies?",
+            "What leadership behaviours emerge naturally under time pressure, and are they always the most effective?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Warm-Up: Name & Action Circle",
+                "desc": "Each student says their name and performs a unique physical action; the whole group mirrors it. Builds names, comfort with movement, and group rhythm."
+            },
+            {
+                "title": "Debrief Protocol: What Worked / What Shifted",
+                "desc": "After each round, a structured 3-minute partner debrief: What strategy worked? What did you change? What would you try next time?"
+            }
+        ],
+        "pacing": [
+            {"phase": "Warm-Up: Name & Action Circle", "duration": "5–8 min", "details": "Students stand in a circle; each shares name + action; group echoes. Builds names, comfort, group energy."},
+            {"phase": "Round 1: Basic Human Knot", "duration": "10–12 min", "details": "Groups of 8–12. Reach across, grab two different hands. Untangle into a circle. Full verbal communication allowed."},
+            {"phase": "Debrief 1", "duration": "3 min", "details": "Partner debrief: What strategies emerged? Who gave directions? Who followed?"},
+            {"phase": "Round 2: Silent Knot", "duration": "10–12 min", "details": "Same task, no talking. Only gestures, eye contact, and gentle physical guidance allowed."},
+            {"phase": "Debrief 2", "duration": "3 min", "details": "Whole-group discussion: How did removing voice change leadership and strategy?"},
+            {"phase": "Round 3: Timed Challenge or Blindfold Variation", "duration": "10–12 min", "details": "Competitive: fastest untangle wins. Or: one member per group is blindfolded and must be guided by touch only."},
+            {"phase": "Final Reflection", "duration": "5–8 min", "details": "Written or verbal: What did I learn about how I communicate under pressure? Connection to broader collaboration skills."}
+        ],
+        "engagement": {
+            "cognitive": "Spatial reasoning and sequential planning — students must mentally model the knot's topology and predict which moves will create or resolve tangles.",
+            "social": "Negotiating physical proximity, turn-taking in direction-giving, and managing frustration when strategies fail.",
+            "physical": "Continuous standing, stepping over/under arms, rotating, and balancing while maintaining hand grips."
+        },
+        "assessment": {
+            "formative": "Teacher observation of communication behaviours: who directs, who listens, who adapts strategy mid-round.",
+            "peer": "Partner debrief after each round with structured prompts about strategy shifts.",
+            "summative": "Optional written reflection (exit ticket): Describe one communication strategy your group used and how it evolved across rounds."
+        },
+        "sharing": "Groups demonstrate their untangling process to the class after the timed round, narrating the strategy they used and the moment it clicked.",
+        "reflection": "This activity works best with groups of 8–12. Larger groups become frustratingly slow; smaller groups solve too quickly. Teachers should circulate and coach groups that get stuck by asking guiding questions rather than giving solutions. Having one adult join a struggling group can model collaborative language.",
+        "toolkit": [
+            "Open floor space (gymnasium, cleared classroom, or outdoor area)",
+            "Optional: blindfolds (scarves or bandanas) for advanced rounds",
+            "Timer (phone or classroom clock) for competitive rounds",
+            "Exit ticket templates for written reflection"
+        ]
+    },
+    {
+        "id": 2,
+        "filename": "oneday-02-freeze-frame.html",
+        "image": "images/oneday02.jpg",
+        "school": "1-Day Activity",
+        "title": "Freeze Frame Tableaux",
+        "subtitle": "Visual Storytelling, Body Language & Interpretive Drama",
+        "category": "Drama & Visual Storytelling",
+        "duration": "60–75 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "Students create frozen, silent 'photographs' using their bodies to represent concepts, emotions, historical moments, or story scenes. Groups sculpt tableaux, the audience interprets them, and progressive rounds add complexity — thought-tracking (speaking inner monologue while frozen), transition sequences between two tableaux, and audience-directed reshaping.",
+        "rationale": "Tableaux work removes the anxiety of memorised lines and puts the focus on physical expression, spatial composition, and collaborative meaning-making. For reluctant performers, freezing is far less threatening than speaking, yet it demands the same interpretive depth. It is also a powerful cross-curricular tool: any subject's key concept can be 'frozen' and debated.",
+        "outcomes": [
+            "ELA / FLA: Learners will use visual and dramatic forms to communicate ideas and represent perspectives for a range of audiences.",
+            "Visual Arts: Learners will explore composition, focal point, and gesture to convey meaning through physical arrangement."
+        ],
+        "cross_curricular": ["ELA / FLA", "Visual Arts", "Social Studies", "Healthy Living"],
+        "competencies": ["Communication", "Creativity & Innovation", "Critical Thinking"],
+        "continuum_skills": [
+            {"en": "Create", "fr": "Créer"},
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Reflect", "fr": "Réfléchir"}
+        ],
+        "essential_questions": [
+            "How can a single frozen image tell a complete story without words?",
+            "What choices about level, proximity, and facial expression change the audience's interpretation of a scene?",
+            "Whose perspective is centred in our tableau, and whose is missing?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Sculptor & Clay Warm-Up",
+                "desc": "In pairs, one student is the 'clay' and the other 'sculpts' them into a shape representing a given emotion. Swap roles. Builds comfort with gentle physical direction."
+            },
+            {
+                "title": "Levels & Focus Mini-Lesson",
+                "desc": "Brief instruction on high/mid/low body levels, eye-line focus, and how spatial relationships between bodies create implied narrative tension."
+            }
+        ],
+        "pacing": [
+            {"phase": "Warm-Up: Sculptor & Clay", "duration": "8–10 min", "details": "Pairs take turns sculpting each other into emotion-statues. Teacher side-coaches on levels and facial expression."},
+            {"phase": "Round 1: Single-Word Tableaux", "duration": "10–12 min", "details": "Groups of 4–5 receive a single word (Justice, Conflict, Discovery). 2 min to create a frozen image. Audience interprets before the group reveals their intent."},
+            {"phase": "Gallery Walk & Interpretation", "duration": "5 min", "details": "Groups hold their freeze while the rest of the class walks around, observing from multiple angles. Written or verbal interpretation shared."},
+            {"phase": "Round 2: Thought-Tracking", "duration": "12–15 min", "details": "Same tableaux, but the teacher taps each frozen figure on the shoulder — they speak one sentence of inner monologue in character."},
+            {"phase": "Round 3: Transition Tableaux", "duration": "12–15 min", "details": "Groups create TWO tableaux showing 'before' and 'after' a key moment. On a signal, they transition between them in slow motion."},
+            {"phase": "Whole-Class Debrief", "duration": "8–10 min", "details": "Discussion: What compositional choices were most powerful? How did thought-tracking change interpretation? Connection to narrative structure."}
+        ],
+        "engagement": {
+            "cognitive": "Interpreting abstract concepts through physical metaphor; analysing compositional choices and their narrative implications.",
+            "social": "Collaborative decision-making within tight time constraints; respectful physical contact and trust during sculpting.",
+            "physical": "Sustained stillness (isometric hold), controlled slow-motion transitions, and deliberate use of levels and gesture."
+        },
+        "assessment": {
+            "formative": "Teacher observation during creation: Are all group members contributing? Is the composition intentional or accidental?",
+            "peer": "Audience interpretation — if the audience reads the intended meaning, the tableau communicates effectively.",
+            "summative": "Optional: groups sketch their strongest tableau with annotations explaining compositional choices (level, focus, proximity)."
+        },
+        "sharing": "Each group presents their transition tableaux to the class with thought-tracking, creating a mini-performance that the audience interprets and discusses.",
+        "reflection": "Tableaux work beautifully as a cross-curricular tool — freeze a moment from a novel study, a historical event, or a science concept. For anxious students, the 'frozen' aspect removes the pressure of improvised dialogue. Teachers should model the sculptor/clay warm-up first to establish norms around respectful physical contact.",
+        "toolkit": [
+            "Open floor space (cleared classroom or drama studio)",
+            "Optional: prompt cards with single words or short scenarios",
+            "Optional: background music for transitions (calm instrumental)",
+            "Sketch paper for optional annotation activity"
+        ]
+    },
+    {
+        "id": 3,
+        "filename": "oneday-03-zip-zap-zop.html",
+        "image": "images/oneday03.jpg",
+        "school": "1-Day Activity",
+        "title": "Zip Zap Zop & Energy Circle Games",
+        "subtitle": "Focus, Rhythm, Ensemble Awareness & Playful Risk-Taking",
+        "category": "Drama Warm-ups & Focus Games",
+        "duration": "45–60 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "A progressive sequence of classic drama circle games — Zip Zap Zop, Bippity Bippity Bop, Energy Pass, and Whoosh — that build ensemble focus, reaction speed, playful risk-taking, and group rhythm. Each game layers a new cognitive demand on top of the last, culminating in a high-energy, multi-rule combined game that demands total group concentration.",
+        "rationale": "Circle games are the foundational grammar of ensemble drama. They train the neural pathways of focused attention, quick decision-making, and joyful failure — skills that transfer directly to classroom participation, collaborative projects, and social confidence. The progressive layering means every student enters at their comfort level and stretches incrementally.",
+        "outcomes": [
+            "Healthy Living: Learners will demonstrate focus, self-regulation, and resilience in response to rapid-fire social challenges.",
+            "Drama / ELA: Learners will participate in ensemble activities that develop timing, projection, and physical responsiveness."
+        ],
+        "cross_curricular": ["Healthy Living", "Drama", "ELA / FLA", "Physical Education"],
+        "competencies": ["Communication", "Personal Career Development", "Critical Thinking"],
+        "continuum_skills": [
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Apply", "fr": "Mettre en application"},
+            {"en": "Reflect", "fr": "Réfléchir"}
+        ],
+        "essential_questions": [
+            "What happens to group energy when everyone is fully focused versus when attention drifts?",
+            "How does practising 'joyful failure' (celebrating mistakes) change your willingness to take risks?",
+            "What cognitive skills are you training when you layer multiple rules simultaneously?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Establishing the Circle Contract",
+                "desc": "Brief discussion: In circle games, mistakes are celebrated (group cheer or silly bow). This removes fear of failure and keeps energy high."
+            },
+            {
+                "title": "Progressive Layering Principle",
+                "desc": "Each game adds one new rule. Teacher demonstrates each layer before adding it, ensuring everyone succeeds before complexity increases."
+            }
+        ],
+        "pacing": [
+            {"phase": "Circle Formation & Contract", "duration": "3–5 min", "details": "Form a standing circle. Establish the 'celebrate mistakes' norm. Practice a group cheer for when someone gets out."},
+            {"phase": "Game 1: Zip Zap Zop", "duration": "8–10 min", "details": "Pass energy around the circle: point and say ZIP (to neighbour), ZAP (skip one), ZOP (across circle). Speed increases."},
+            {"phase": "Game 2: Bippity Bippity Bop", "duration": "8–10 min", "details": "Centre player points and says 'Bippity Bippity Bop' — target must say 'Bop' before the pointer finishes. Variations add group poses."},
+            {"phase": "Game 3: Energy Pass / Whoosh", "duration": "8–10 min", "details": "Pass a clap around the circle with 'Whoosh'. 'Whoa' reverses direction. 'Zap' sends it across. 'Freakout' = everyone changes places."},
+            {"phase": "Game 4: Combined Super-Game", "duration": "10–12 min", "details": "All rules from all games active simultaneously. Multiple energies circling at once. Ultimate focus challenge."},
+            {"phase": "Cool-Down & Reflection", "duration": "5–8 min", "details": "Seated circle. Discussion: What was hardest? When did the group click? How does focus feel different from trying hard?"}
+        ],
+        "engagement": {
+            "cognitive": "Rapid rule-switching, pattern recognition, and sustained divided attention across multiple simultaneous game streams.",
+            "social": "Eye contact, shared rhythm, celebrating others' mistakes, and reading group energy levels.",
+            "physical": "Standing, pointing, clapping, sudden direction changes, and occasional full-circle movement swaps."
+        },
+        "assessment": {
+            "formative": "Teacher observes group focus trajectory: Does sustained attention increase across rounds? Do students self-correct?",
+            "peer": "Natural peer feedback through the game mechanics — the circle provides instant feedback on timing and focus.",
+            "summative": "Optional exit ticket: Name one focus strategy you used today that you could apply in a classroom discussion or group project."
+        },
+        "sharing": "The combined super-game IS the performance — the whole group either achieves flow state or dissolves into laughter, both of which are valuable.",
+        "reflection": "These games scale effortlessly from 10 to 30 students. The key is progressive layering — never add a new rule until the group has achieved basic competence with the current one. Teachers should play IN the circle, not direct FROM outside, to model joyful failure and risk-taking.",
+        "toolkit": [
+            "Open floor space large enough for a standing circle of the full class",
+            "No materials required",
+            "Optional: music to signal transitions between games"
+        ]
+    },
+    {
+        "id": 4,
+        "filename": "oneday-04-minefield-trust.html",
+        "image": "images/oneday04.jpg",
+        "school": "1-Day Activity",
+        "title": "Minefield Trust Walk",
+        "subtitle": "Blindfolded Navigation, Precise Communication & Trust Building",
+        "category": "Teambuilding & Communication",
+        "duration": "60–75 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "Blindfolds (scarves/bandanas), scattered classroom objects",
+        "summary": "Partners navigate a 'minefield' of scattered objects — one blindfolded, one guiding with voice only. Progressive rounds escalate: first close guidance, then distance guidance, then competing pairs navigating simultaneously with overlapping voice traffic. The activity builds precise directional language, active listening, and deep interpersonal trust.",
+        "rationale": "Trust activities address a critical gap in adolescent social development: the ability to be genuinely vulnerable with peers. The Minefield forces students to practise micro-skills of precise communication (left vs. your left, step size estimation, emotional reassurance) that transfer directly to collaborative academic work, peer tutoring, and conflict resolution.",
+        "outcomes": [
+            "ELA / FLA: Learners will use precise spatial and directional language to guide a partner through a physical task.",
+            "Healthy Living: Learners will identify and practise trust-building behaviours that strengthen peer relationships."
+        ],
+        "cross_curricular": ["ELA / FLA", "Healthy Living", "Physical Education"],
+        "competencies": ["Communication", "Citizenship", "Personal Career Development"],
+        "continuum_skills": [
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Plan", "fr": "Planifier"},
+            {"en": "Reflect", "fr": "Réfléchir"}
+        ],
+        "essential_questions": [
+            "What makes verbal directions truly precise — and what assumptions do we make that cause miscommunication?",
+            "How does being physically vulnerable (blindfolded) change what you need from a partner?",
+            "What trust-building behaviours can you transfer from this activity to everyday classroom collaboration?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Directional Language Practice",
+                "desc": "Quick partner exercise: describe how to navigate from the classroom door to a specific desk using ONLY directional words (no pointing). Highlights the gap between vague and precise instructions."
+            },
+            {
+                "title": "Trust Continuum Discussion",
+                "desc": "Brief class discussion: What does trust look like in a classroom? What builds it? What breaks it? Establishes emotional context for the activity."
+            }
+        ],
+        "pacing": [
+            {"phase": "Trust Continuum Discussion", "duration": "5–8 min", "details": "Whole-class seated discussion: What does trust look like? What behaviours build or break it? Setting emotional context."},
+            {"phase": "Minefield Setup", "duration": "3–5 min", "details": "Scatter soft objects (backpacks, shoes, books, cones) across the floor. Define start and finish lines."},
+            {"phase": "Round 1: Close Guidance", "duration": "10–12 min", "details": "Partner A blindfolded, Partner B walks beside them giving verbal directions through the minefield. Swap roles."},
+            {"phase": "Debrief 1", "duration": "3 min", "details": "Quick partner check-in: What directions were clearest? What caused confusion?"},
+            {"phase": "Round 2: Distance Guidance", "duration": "10–12 min", "details": "Guide must stand at the finish line and call directions from across the room. Blindfolded partner navigates alone."},
+            {"phase": "Round 3: Voice Traffic Challenge", "duration": "10–12 min", "details": "Multiple pairs navigate simultaneously. Room is filled with competing voices. Pairs must develop strategies to be heard."},
+            {"phase": "Final Reflection & Discussion", "duration": "8–10 min", "details": "Whole-class debrief: How did trust feel? What communication strategies worked under 'noise'? Written exit ticket option."}
+        ],
+        "engagement": {
+            "cognitive": "Translating spatial awareness into precise verbal language; adapting communication strategy when environmental noise increases.",
+            "social": "Building and maintaining trust through vocal tone, reassurance, and reliable direction-giving.",
+            "physical": "Careful walking while blindfolded; heightened proprioceptive awareness and balance."
+        },
+        "assessment": {
+            "formative": "Teacher observation: Are guides using precise directional language? Are blindfolded students communicating comfort/discomfort?",
+            "peer": "Partner debrief after each round with structured prompts about clarity and trust.",
+            "summative": "Exit ticket: Write three specific communication strategies you used or learned today, and one situation where you could apply them."
+        },
+        "sharing": "During Round 3, the whole class watches the final pair navigate through voice traffic, observing and then discussing the strategies that worked under pressure.",
+        "reflection": "Some students may be uncomfortable with blindfolds — always offer the option of closing eyes instead, or sitting out to be an observer/safety monitor. Scatter soft objects only (nothing sharp or breakable). Teachers should walk the minefield themselves first to test difficulty level.",
+        "toolkit": [
+            "Blindfolds: scarves, bandanas, or sleep masks (one per pair)",
+            "Soft scattered objects: backpacks, shoes, books, cushions, gym cones",
+            "Open floor space (cleared classroom, gymnasium, or hallway)",
+            "Exit ticket templates"
+        ]
+    },
+    {
+        "id": 5,
+        "filename": "oneday-05-improv-workshop.html",
+        "image": "images/oneday05.jpg",
+        "school": "1-Day Activity",
+        "title": "Improvised Scene Workshop",
+        "subtitle": "Yes-And Thinking, Spontaneous Storytelling & Collaborative Performance",
+        "category": "Drama & Improvisation",
+        "duration": "60–90 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "A structured improv workshop building from low-risk warm-ups (Word Association, One-Word Story) through paired scenes (Yes-And, Gibberish Translator) to group performance games (Party Quirks, Scenes from a Hat). Every exercise reinforces the core improv principle: accept and build on your partner's offer rather than blocking it.",
+        "rationale": "Improvisation trains the exact cognitive and social skills that standardised schooling often neglects: spontaneous idea generation, active listening, adaptive thinking, and the courage to contribute without certainty. The 'Yes-And' principle — accept your partner's reality and add to it — is a transferable life skill for collaboration, brainstorming, and empathetic communication.",
+        "outcomes": [
+            "ELA / FLA: Learners will create spontaneous oral texts that demonstrate narrative structure, character, and audience awareness.",
+            "Healthy Living: Learners will demonstrate risk-taking, resilience, and supportive peer interaction in a performance context."
+        ],
+        "cross_curricular": ["ELA / FLA", "Drama", "Healthy Living"],
+        "competencies": ["Communication", "Creativity & Innovation", "Personal Career Development"],
+        "continuum_skills": [
+            {"en": "Create", "fr": "Créer"},
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Apply", "fr": "Mettre en application"}
+        ],
+        "essential_questions": [
+            "What happens to a scene when you say 'Yes, and...' versus 'No, but...'?",
+            "How does truly listening to your partner change the stories you create together?",
+            "What does it feel like to perform without a script — and what skills does that build?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "The Yes-And Principle",
+                "desc": "Demonstration: Teacher and volunteer improvise a short scene twice — once blocking every offer ('No, that's not...') and once accepting ('Yes, and...'). Class discusses the difference."
+            },
+            {
+                "title": "Failure Bow",
+                "desc": "When a scene dies or goes wrong, both performers take a theatrical bow and the audience cheers. This ritualises graceful failure and removes performance anxiety."
+            }
+        ],
+        "pacing": [
+            {"phase": "Warm-Up: Word Association Circle", "duration": "5 min", "details": "Standing circle. Say the first word that comes to mind when you hear the previous word. Speed increases. No thinking allowed."},
+            {"phase": "One-Word Story", "duration": "8–10 min", "details": "Circle tells a story one word at a time. Each person adds exactly one word. Practice listening and building."},
+            {"phase": "Yes-And Demo & Practice", "duration": "10 min", "details": "Teacher demonstrates Yes-And vs. blocking. Pairs practise: Partner A starts a scene, Partner B must say 'Yes, and...' to every offer."},
+            {"phase": "Gibberish Translator", "duration": "10–12 min", "details": "Pairs: one speaks in made-up language with emotional expression, the other 'translates' for the audience. Builds physical expressiveness."},
+            {"phase": "Party Quirks", "duration": "10–12 min", "details": "One student hosts a 'party'; each arriving guest has a secret character quirk. Host must guess the quirks through improvised conversation."},
+            {"phase": "Scenes from a Hat / Audience Suggestions", "duration": "10–15 min", "details": "Volunteers perform 60-second scenes based on audience-suggested scenarios. Failure Bow after each scene."},
+            {"phase": "Cool-Down & Reflection", "duration": "5–8 min", "details": "Seated discussion: Where else in life could 'Yes-And' thinking help you? When is it hardest to accept someone else's idea?"}
+        ],
+        "engagement": {
+            "cognitive": "Rapid narrative construction, character inference, and adaptive thinking under time pressure.",
+            "social": "Active listening, building on others' ideas, celebrating failure, and performing for peers.",
+            "physical": "Standing, moving through space, using gesture and physical expression to convey character."
+        },
+        "assessment": {
+            "formative": "Teacher observes: Are students accepting and building offers? Is physical expressiveness increasing across rounds?",
+            "peer": "Audience appreciation (applause, laughter) provides natural feedback on scene effectiveness.",
+            "summative": "Optional reflection: Describe a moment when you successfully used 'Yes-And' thinking today, and one situation outside drama where you could use it."
+        },
+        "sharing": "Scenes from a Hat serves as the culminating performance — audience-suggested, volunteer-performed, celebrated with the Failure Bow ritual.",
+        "reflection": "Never force students to perform solo — all early exercises are in circles or pairs. Volunteers only for the later games. The Failure Bow ritual is essential: it must be established early so that 'dying on stage' is normalised and celebrated. Teachers should perform first and fail publicly to model the behaviour.",
+        "toolkit": [
+            "Open floor space with a defined 'stage' area",
+            "Optional: a hat or container for audience suggestion slips",
+            "No materials required for any core exercise"
+        ]
+    },
+    {
+        "id": 6,
+        "filename": "oneday-06-debate-walk.html",
+        "image": "images/oneday06.jpg",
+        "school": "1-Day Activity",
+        "title": "The Great Debate Walk",
+        "subtitle": "Opinion Spectrum, Kinesthetic Argumentation & Perspective-Taking",
+        "category": "Discussion & Movement",
+        "duration": "60–75 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "Students physically move to positions along a classroom spectrum (Strongly Agree → Strongly Disagree) in response to provocative but age-appropriate statements. After each move, students must justify their position to a neighbour who disagrees, then may shift positions. Progressive rounds add complexity: devil's advocate roles, silent positioning, and student-generated statements.",
+        "rationale": "Kinesthetic argumentation removes the intimidation of formal debate and hand-raising. When students literally 'take a stand,' they commit to a position physically before articulating it verbally, which lowers the cognitive barrier to participation. The format naturally surfaces diverse perspectives and teaches students that changing your mind based on evidence is a strength, not a weakness.",
+        "outcomes": [
+            "ELA / FLA: Learners will formulate and articulate opinions supported by reasoning, and respond respectfully to opposing viewpoints.",
+            "Social Studies: Learners will examine multiple perspectives on civic and social issues and evaluate the strength of different arguments."
+        ],
+        "cross_curricular": ["ELA / FLA", "Social Studies", "Healthy Living", "Citizenship"],
+        "competencies": ["Communication", "Critical Thinking", "Citizenship"],
+        "continuum_skills": [
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Evaluate", "fr": "Évaluer"},
+            {"en": "Formulate", "fr": "Formuler"}
+        ],
+        "essential_questions": [
+            "Is changing your position after hearing a compelling argument a sign of weakness or intellectual strength?",
+            "How does physically 'standing' for a belief change how strongly you feel about it?",
+            "What makes an argument persuasive versus merely loud?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Ground Rules for Respectful Disagreement",
+                "desc": "Establish norms: critique the argument, not the person. Use sentence starters like 'I see it differently because...' and 'That's a fair point, but I still think...'"
+            },
+            {
+                "title": "Evidence vs. Opinion Mini-Lesson",
+                "desc": "Brief distinction: opinions are preferences; arguments are opinions supported by reasoning or evidence. Today we practise moving from opinion to argument."
+            }
+        ],
+        "pacing": [
+            {"phase": "Ground Rules & Setup", "duration": "5–8 min", "details": "Establish respectful disagreement norms. Designate one wall as 'Strongly Agree' and the opposite as 'Strongly Disagree.'"},
+            {"phase": "Round 1: Low-Stakes Warm-Up", "duration": "8–10 min", "details": "Fun statements: 'Pizza is the greatest food ever invented.' Students move, then justify to a neighbour with a different position."},
+            {"phase": "Round 2: Meaningful Statements", "duration": "12–15 min", "details": "Age-appropriate debate topics: 'Students should choose their own learning topics.' Students justify, then may shift after hearing arguments."},
+            {"phase": "Round 3: Devil's Advocate", "duration": "10–12 min", "details": "Students must argue FOR the position opposite to their actual belief. Builds empathy and perspective-taking."},
+            {"phase": "Round 4: Student-Generated Statements", "duration": "10–12 min", "details": "Students write their own statements on slips of paper. Teacher selects and reads them. Authors observe how the class responds to their idea."},
+            {"phase": "Reflection & Transfer", "duration": "5–8 min", "details": "Discussion: When did someone change your mind? What made their argument persuasive? How can you use these skills in written arguments?"}
+        ],
+        "engagement": {
+            "cognitive": "Rapid argument formulation, evaluating evidence quality, and perspective-taking through devil's advocate roles.",
+            "social": "Cross-opinion pair discussions, active listening to opposing views, and practising respectful disagreement protocols.",
+            "physical": "Continuous standing and walking to positions along the spectrum; physical commitment to a stance before verbal articulation."
+        },
+        "assessment": {
+            "formative": "Teacher monitors quality of justifications: Are students moving beyond 'because I like it' to reasoned arguments?",
+            "peer": "Natural peer assessment — students whose arguments cause others to shift positions receive visible, kinesthetic feedback.",
+            "summative": "Optional: students write a short persuasive paragraph on one of the day's topics, using at least one argument they heard from an opponent."
+        },
+        "sharing": "The devil's advocate round is the most powerful — students share their 'opposing argument' with the full group and discuss how it felt to argue against their own belief.",
+        "reflection": "Choose statements carefully — avoid topics that could target individual students' identities or lived experiences. The best statements are genuinely debatable with reasonable positions on both sides. If a statement causes an overwhelming consensus (everyone on one side), it's not a good debate topic — swap it.",
+        "toolkit": [
+            "Open classroom with clear wall-to-wall spectrum space",
+            "Prepared statement cards (5–8 age-appropriate debatable statements)",
+            "Blank slips of paper for student-generated statements",
+            "Sentence starter anchor chart (optional)"
+        ]
+    },
+    {
+        "id": 7,
+        "filename": "oneday-07-silent-lineup.html",
+        "image": "images/oneday07.jpg",
+        "school": "1-Day Activity",
+        "title": "Silent Line-Up Challenges",
+        "subtitle": "Non-Verbal Communication, Group Coordination & Creative Problem Solving",
+        "category": "Teambuilding & Non-Verbal Communication",
+        "duration": "45–60 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "Students must arrange themselves in order (birthday, height, alphabetical by middle name, shoe size) without speaking, using only gestures, facial expressions, and creative non-verbal strategies. Progressive rounds increase difficulty: eyes closed, arranged on a narrow 'balance beam' line (tape on floor), or sorting into complex categories simultaneously.",
+        "rationale": "Removing speech forces students to discover how much communication is non-verbal — a critical insight for adolescents developing social awareness. The task is simple enough that everyone can participate, but the constraint makes it genuinely challenging and often hilarious. It reveals natural leaders, creative problem-solvers, and the power of patient observation.",
+        "outcomes": [
+            "Healthy Living: Learners will identify and practise non-verbal communication skills that contribute to effective group interaction.",
+            "ELA / FLA: Learners will recognise that communication extends beyond words to include gesture, expression, proximity, and body language."
+        ],
+        "cross_curricular": ["Healthy Living", "ELA / FLA", "Mathematics (Ordering & Sequencing)"],
+        "competencies": ["Communication", "Critical Thinking", "Citizenship"],
+        "continuum_skills": [
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Problem Solve", "fr": "Trouver une solution"},
+            {"en": "Classify", "fr": "Classer"}
+        ],
+        "essential_questions": [
+            "How much information can you communicate without any words at all?",
+            "What creative strategies emerge when your primary communication tool (speech) is removed?",
+            "What does this activity reveal about how we typically communicate — and what we take for granted?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Non-Verbal Communication Intro",
+                "desc": "Brief demonstration: Teacher acts out a simple instruction using only gestures. Class discusses what body language signals they read and how."
+            },
+            {
+                "title": "The Rules of Silence",
+                "desc": "Establish the silence contract: no whispering, mouthing words, writing, or phone use. Only gestures, pointing, facial expressions, and spatial movement."
+            }
+        ],
+        "pacing": [
+            {"phase": "Introduction & Silence Contract", "duration": "3–5 min", "details": "Explain the activity. Establish silence rules. Practice: try to communicate your birthday month using only fingers."},
+            {"phase": "Round 1: Birthday Line-Up", "duration": "8–10 min", "details": "Arrange yourselves in calendar order by birthday (Jan 1 → Dec 31) without speaking. Timer runs. Verify by going down the line."},
+            {"phase": "Debrief 1", "duration": "3 min", "details": "Break silence. Discuss: What strategies emerged? How did you communicate months vs. days?"},
+            {"phase": "Round 2: Alphabetical by Middle Name", "duration": "8–10 min", "details": "Harder — how do you gesture letters? Students develop air-writing, finger-spelling, or creative charades."},
+            {"phase": "Round 3: Balance Beam Sort", "duration": "10–12 min", "details": "Lay tape on the floor as a narrow beam. Students stand on it and must re-sort by height WITHOUT stepping off the tape. Physical coordination challenge."},
+            {"phase": "Round 4: Eyes-Closed Challenge (Optional)", "duration": "8–10 min", "details": "Eyes closed, arrange by shoe size using only touch (tapping feet, guiding by shoulder). Ultimate trust challenge."},
+            {"phase": "Final Reflection", "duration": "5–8 min", "details": "Discussion: What percentage of communication is non-verbal? How did leadership emerge differently without voice?"}
+        ],
+        "engagement": {
+            "cognitive": "Pattern recognition, sequential reasoning, and inventing communication systems under constraint.",
+            "social": "Patience, reading subtle cues, guiding without speaking, and managing group coordination non-verbally.",
+            "physical": "Standing, moving along a line, balancing (beam round), and using fine motor gesture and facial expression."
+        },
+        "assessment": {
+            "formative": "Teacher observes: Do students maintain silence? What creative strategies emerge? How does the group self-organise?",
+            "peer": "The verification step (reading down the line) provides instant collective feedback on accuracy.",
+            "summative": "Exit ticket: Describe one non-verbal communication strategy you invented or observed today. Where in daily life do you already use non-verbal communication?"
+        },
+        "sharing": "The balance beam round serves as the culminating spectacle — watching peers negotiate physical rearrangement on a narrow line without speaking is inherently entertaining and discussion-worthy.",
+        "reflection": "This activity is excellent for the first week of school — it builds community without requiring students to know each other's names yet. The birthday round is the easiest and most natural starting point. Avoid the eyes-closed round if the group hasn't established sufficient trust and safety norms.",
+        "toolkit": [
+            "Open floor space for line formation",
+            "Painter's tape or masking tape for the 'balance beam' line",
+            "Timer (phone or classroom clock)",
+            "No other materials required"
+        ]
+    },
+    {
+        "id": 8,
+        "filename": "oneday-08-storytelling-relay.html",
+        "image": "images/oneday08.jpg",
+        "school": "1-Day Activity",
+        "title": "Storytelling Relay & Radio Play",
+        "subtitle": "Collaborative Narrative, Vocal Expression & Ensemble Performance",
+        "category": "Drama & Narrative",
+        "duration": "60–90 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None",
+        "summary": "Teams build stories collaboratively through relay formats — one sentence at a time, conducted storytelling (teacher points to next narrator), and genre-switch challenges. The session culminates in each group performing a 2-minute 'radio play' (voices and sound effects only, no visuals) for the class, using only their voices, bodies, and found sounds.",
+        "rationale": "Oral storytelling is humanity's oldest art form and adolescents are naturally drawn to narrative. The relay format distributes creative risk across the group — no single student is responsible for the whole story — while the radio play format lets students perform without the vulnerability of being 'on stage.' It trains narrative structure, vocal range, and ensemble timing simultaneously.",
+        "outcomes": [
+            "ELA / FLA: Learners will construct collaborative oral narratives demonstrating setting, character, conflict, and resolution.",
+            "Music / Drama: Learners will use vocal dynamics, sound effects, and timing to create atmosphere and emotional impact through audio performance."
+        ],
+        "cross_curricular": ["ELA / FLA", "Drama", "Music"],
+        "competencies": ["Communication", "Creativity & Innovation", "Critical Thinking"],
+        "continuum_skills": [
+            {"en": "Create", "fr": "Créer"},
+            {"en": "Communicate", "fr": "Communiquer"},
+            {"en": "Plan", "fr": "Planifier"}
+        ],
+        "essential_questions": [
+            "What makes a story compelling to LISTEN to (versus read)?",
+            "How do voice, sound, silence, and pacing create mood without any visual information?",
+            "What happens to a story when you must build on a teammate's unexpected contribution?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Story Arc Refresher",
+                "desc": "Quick visual reminder of narrative structure: Hook → Rising Action → Climax → Resolution. The relay must hit these beats."
+            },
+            {
+                "title": "Vocal Toolbox Demo",
+                "desc": "Teacher demonstrates: volume, pace, pitch, pause, accent, and found-sound effects (clapping, stomping, whistling, table-tapping). Students practice each tool briefly."
+            }
+        ],
+        "pacing": [
+            {"phase": "Vocal Toolbox Warm-Up", "duration": "5–8 min", "details": "Teacher demonstrates vocal tools. Students practise: whisper a sentence, shout it, say it slowly, say it fast, add an accent. Found-sound brainstorm."},
+            {"phase": "Round 1: One-Sentence Relay", "duration": "10 min", "details": "Standing circle. Teacher gives an opening line. Each student adds one sentence. Story must reach a conclusion by the end of the circle."},
+            {"phase": "Round 2: Conducted Storytelling", "duration": "10 min", "details": "Teacher 'conducts' by pointing at random narrators. The narrator must continue the story mid-sentence. Keeps everyone alert."},
+            {"phase": "Round 3: Genre Switch", "duration": "8–10 min", "details": "Story continues but teacher calls genre changes: 'Horror!' 'Romance!' 'Documentary!' Students must shift tone, vocabulary, and pacing instantly."},
+            {"phase": "Radio Play Preparation", "duration": "12–15 min", "details": "Groups of 4–5 prepare a 2-minute radio play. Assign roles: narrator, characters, sound-effects crew. Rehearse once."},
+            {"phase": "Radio Play Performances", "duration": "10–15 min", "details": "Each group performs their radio play. Audience closes eyes to simulate 'radio listening.' Brief applause and one positive comment per group."},
+            {"phase": "Reflection", "duration": "5 min", "details": "Discussion: Which vocal tools were most effective? What was different about telling vs. writing a story?"}
+        ],
+        "engagement": {
+            "cognitive": "Real-time narrative construction, genre awareness, and adapting story elements to match tonal shifts.",
+            "social": "Building on teammates' contributions, distributing creative roles, and performing for a supportive audience.",
+            "physical": "Vocal projection, body percussion for sound effects, and physical storytelling gestures."
+        },
+        "assessment": {
+            "formative": "Teacher listens for narrative coherence, genre-appropriate vocabulary, and use of vocal dynamics during relay rounds.",
+            "peer": "Audience feedback after radio plays: one specific positive comment per group ('The storm sound effects were so realistic').",
+            "summative": "Optional: students write a brief 'director's notes' for their radio play explaining the vocal and sound choices they made and why."
+        },
+        "sharing": "The radio play performances are the culminating sharing event — audiences close their eyes to simulate authentic radio listening, which heightens focus on vocal and sound craft.",
+        "reflection": "The relay rounds MUST precede the radio play — they warm up collaborative storytelling muscles so the final performance has material to work with. If groups struggle with radio play preparation, suggest they adapt one of the relay stories from the earlier rounds rather than starting from scratch.",
+        "toolkit": [
+            "Open classroom space (desks cleared for performance area)",
+            "No materials required — all sound effects are vocal or body percussion",
+            "Optional: timer for 2-minute radio play performances",
+            "Optional: 'genre cards' for the genre-switch round"
+        ]
+    },
+    {
+        "id": 9,
+        "filename": "oneday-09-status-power.html",
+        "image": "images/oneday09.jpg",
+        "school": "1-Day Activity",
+        "title": "Status & Power Workshop",
+        "subtitle": "Social Dynamics, Body Language Awareness & Character Exploration",
+        "category": "Drama & Social Awareness",
+        "duration": "60–75 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "None (optional: playing cards)",
+        "summary": "Students explore the concept of social 'status' — high-status (confident, space-owning) vs. low-status (small, apologetic) body language — through progressive drama exercises. Starting with status walks, moving to paired status scenes, and culminating in a 'status party' where each student is assigned a secret status level (1–10) and must act accordingly while the audience guesses their number.",
+        "rationale": "Understanding status dynamics gives adolescents conscious control over their body language and social interactions. By making status visible and playable, students develop empathy for how physical presence affects social hierarchies — and gain tools to modulate their own status in interviews, presentations, conflict resolution, and peer interactions.",
+        "outcomes": [
+            "Drama / ELA: Learners will use body language, spatial relationships, and vocal modulation to portray character status and social dynamics.",
+            "Healthy Living: Learners will analyse how non-verbal behaviours influence social perception and interpersonal relationships."
+        ],
+        "cross_curricular": ["Drama", "ELA / FLA", "Healthy Living", "Social Studies"],
+        "competencies": ["Communication", "Critical Thinking", "Personal Career Development"],
+        "continuum_skills": [
+            {"en": "Create", "fr": "Créer"},
+            {"en": "Analyse", "fr": "Analyser"},
+            {"en": "Communicate", "fr": "Communiquer"}
+        ],
+        "essential_questions": [
+            "What specific body language signals communicate power, confidence, or authority — and can they be learned?",
+            "How does status affect who gets heard in a conversation, a classroom, or a society?",
+            "When is it useful to raise or lower your status deliberately, and when might it be harmful?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Status Spectrum Introduction",
+                "desc": "Teacher demonstrates extreme high-status (owns the room, slow movements, direct eye contact) and extreme low-status (small, fidgety, avoids eye contact). Class identifies specific physical signals."
+            },
+            {
+                "title": "Status Is Not Personality",
+                "desc": "Important distinction: status is a performable behaviour, not a fixed trait. A shy person can play high-status; a confident person can play low-status. This is about the SKILL of modulating presence."
+            }
+        ],
+        "pacing": [
+            {"phase": "Status Spectrum Demo", "duration": "5–8 min", "details": "Teacher demonstrates high-status (10) and low-status (1) walks. Class identifies specific physical signals: eye contact, pace, posture, gesture size, voice volume."},
+            {"phase": "Status Walk Exercise", "duration": "10 min", "details": "Students walk around the room. Teacher calls numbers 1–10; students adjust their body language to match. Practice the full spectrum."},
+            {"phase": "Status Pair Scenes", "duration": "12–15 min", "details": "Pairs receive scenario cards (job interview, teacher-student meeting, two friends). Each is assigned a status number. Improvise a 60-second scene staying in status."},
+            {"phase": "Status Switch", "duration": "8–10 min", "details": "Same pairs, same scenario, but status numbers swap. Discussion: How did it feel? How did the scene change?"},
+            {"phase": "Status Party", "duration": "12–15 min", "details": "Each student draws a secret card (1–10). All attend a 'party' and must behave at their status level. Audience watches and guesses each person's number."},
+            {"phase": "Debrief & Real-World Connection", "duration": "8–10 min", "details": "Discussion: When do you play high or low status in real life? When might you want to change your status deliberately (presentations, conflicts, interviews)?"}
+        ],
+        "engagement": {
+            "cognitive": "Analysing micro-behaviours that signal social status; predicting how status dynamics affect scene outcomes.",
+            "social": "Practising unfamiliar social registers; developing empathy for how body language affects perception.",
+            "physical": "Full-body engagement: posture, gait, gesture size, eye contact patterns, and spatial relationships."
+        },
+        "assessment": {
+            "formative": "Teacher observes: Can students physically embody different status levels? Can they articulate the specific signals they're using?",
+            "peer": "Status Party audience guessing provides direct feedback on whether a student's physical choices are readable.",
+            "summative": "Reflection journal: Describe one situation where you could deliberately raise or lower your status to communicate more effectively."
+        },
+        "sharing": "The Status Party is the culminating performance — each student's secret number is revealed after the audience guesses, generating discussion about which signals were most readable.",
+        "reflection": "Frame this activity carefully: status is a SKILL, not a judgement. Avoid language that equates high-status with 'good' or low-status with 'bad.' Both are useful in different contexts. This activity can be powerful for students who struggle with social confidence, as it gives them explicit tools rather than vague advice like 'be more confident.'",
+        "toolkit": [
+            "Open floor space for walking and scene work",
+            "Optional: playing cards (Ace = 1, 10 = 10) for the Status Party",
+            "Scenario cards for paired scenes",
+            "No other materials required"
+        ]
+    },
+    {
+        "id": 10,
+        "filename": "oneday-10-mission-impossible.html",
+        "image": "images/oneday10.jpg",
+        "school": "1-Day Activity",
+        "title": "Mission Impossible Team Challenge",
+        "subtitle": "Multi-Stage Strategy, Role Delegation & Timed Collaboration",
+        "category": "Teambuilding & Strategy",
+        "duration": "60–90 minutes",
+        "duration_bucket": "one_day",
+        "grade_level": "Grade 7–9",
+        "resources": "Minimal (paper, tape, markers)",
+        "summary": "Teams of 5–6 receive a sealed 'mission briefing' containing 4–5 linked micro-challenges that must be completed in sequence within a strict time limit. Challenges are designed to require different skill types (logic, physical coordination, creativity, memory) so every team member's strengths are needed. Teams must delegate roles, manage time, and adapt strategy on the fly.",
+        "rationale": "Multi-stage timed challenges simulate authentic collaborative pressure — the kind students will face in group projects, workplace teams, and civic participation. By designing challenges that require different skill types, the activity ensures that no single personality dominates and that every student experiences being both leader and follower within the same hour.",
+        "outcomes": [
+            "ELA / FLA: Learners will use oral communication to plan, delegate, and adapt strategy within time constraints.",
+            "Technology Education: Learners will apply a systematic design process (plan, execute, evaluate, modify) to solve multi-step challenges."
+        ],
+        "cross_curricular": ["ELA / FLA", "Technology Education", "Mathematics", "Healthy Living"],
+        "competencies": ["Critical Thinking", "Communication", "Creativity & Innovation"],
+        "continuum_skills": [
+            {"en": "Plan", "fr": "Planifier"},
+            {"en": "Problem Solve", "fr": "Trouver une solution"},
+            {"en": "Communicate", "fr": "Communiquer"}
+        ],
+        "essential_questions": [
+            "How does a team decide who does what when every member has different strengths?",
+            "What happens to decision-making quality when you add time pressure — and how can you protect against it?",
+            "What's the difference between a group of individuals working alongside each other and a true team?"
+        ],
+        "scaffolding_lessons": [
+            {
+                "title": "Quick Strengths Inventory",
+                "desc": "Before missions begin, each team member writes one thing they're good at (logic, drawing, memory, building, explaining) on a sticky note. Team reviews its collective strengths before opening the briefing."
+            },
+            {
+                "title": "Time Management Briefing",
+                "desc": "Quick discussion: If you have 5 challenges and 30 minutes, how do you allocate time? What if one challenge takes longer than expected? Introduce the concept of time buffers."
+            }
+        ],
+        "pacing": [
+            {"phase": "Team Formation & Strengths Inventory", "duration": "5–8 min", "details": "Form teams of 5–6. Each member identifies one personal strength. Teams discuss collective strengths and potential role assignments."},
+            {"phase": "Mission Briefing Distribution", "duration": "3 min", "details": "Each team receives a sealed envelope containing 4–5 challenge cards. Teams may open and read all challenges before the timer starts."},
+            {"phase": "Strategy & Planning Window", "duration": "5 min", "details": "Timer NOT running. Teams read all challenges, discuss strategy, assign roles, and plan time allocation. This is their competitive advantage."},
+            {"phase": "Mission Execution", "duration": "25–35 min", "details": "Timer starts. Teams complete challenges in sequence. Each completed challenge unlocks a clue or code needed for the final challenge."},
+            {"phase": "Mission Debrief", "duration": "5 min", "details": "Teams report: Which challenges were hardest? Where did strategy break down? What would you change?"},
+            {"phase": "Whole-Class Reflection", "duration": "5–8 min", "details": "Discussion: What made the best teams effective? Was it speed, strategy, or communication? How does this connect to group projects in class?"}
+        ],
+        "engagement": {
+            "cognitive": "Multi-step planning, logical sequencing, pattern recognition, and real-time strategy adaptation.",
+            "social": "Role delegation based on strengths, managing competing opinions under pressure, and supporting struggling teammates.",
+            "physical": "Varies by challenge design: could include building, moving across the room, physical puzzles, or relay-style tasks."
+        },
+        "assessment": {
+            "formative": "Teacher circulates and observes: Is the team using its planning window? Are roles distributed or is one person dominating?",
+            "peer": "Team debrief is inherently peer-assessment — teams self-evaluate their collaboration effectiveness.",
+            "summative": "Optional: each student writes a brief 'After-Action Report' — what went well, what they'd change, and one collaboration insight."
+        },
+        "sharing": "Teams present their mission debrief to the class — highlighting one moment where their team either clicked or broke down, and what they learned from it.",
+        "reflection": "The PLANNING WINDOW before the timer starts is the most important design element. Teams that skip planning and dive in always perform worse — this is a teachable moment. Design challenges to require genuinely different skills: one logic puzzle, one physical task, one creative/drawing task, one memory challenge, and one that requires the whole team.",
+        "toolkit": [
+            "Mission briefing envelopes with 4–5 challenge cards per team (teacher-prepared)",
+            "Paper, markers, tape, scissors (basic craft supplies for challenges)",
+            "Timer visible to all teams",
+            "Optional: combination locks or coded envelopes for sequential unlocking"
+        ]
+    }
+]
+
+def render_sidebar(active_page="index.html"):
+    categories = {}
+    for l in LESSONS:
+        c = l["category"]
+        if c not in categories:
+            categories[c] = []
+        categories[c].append(l)
+
+    category_items = []
+    for c_name, c_lessons in sorted(categories.items()):
+        sub_links = "".join([f'<li><a href="{l["filename"]}">{html.escape(l["title"])}</a></li>' for l in c_lessons])
+        category_items.append(f'''<li>
+  <span class="opener">{html.escape(c_name)} ({len(c_lessons)})</span>
   <ul>
     {sub_links}
   </ul>
 </li>''')
 
-    # All lessons list
     all_lesson_links = "".join([f'<li class="{"active" if active_page == l["filename"] else ""}"><a href="{l["filename"]}"><strong>#{l["id"]}</strong> {html.escape(l["title"])}</a></li>' for l in LESSONS])
-
-    # All proposals list
     all_proposal_links = "".join([f'<li class="{"active" if active_page == p["filename"] else ""}"><a href="{p["filename"]}"><strong>P{p["id"]}</strong> {html.escape(p["title"])}</a></li>' for p in PROPOSALS])
+    all_oneday_links = "".join([f'<li class="{"active" if active_page == a["filename"] else ""}"><a href="{a["filename"]}"><strong>D{a["id"]}</strong> {html.escape(a["title"])}</a></li>' for a in ONE_DAY_ACTIVITIES])
 
     sidebar_html = f'''<!-- Sidebar -->
 <div id="sidebar">
   <div class="inner">
-
-    <!-- Search -->
     <section id="search" class="alt">
       <form method="get" action="index.html#matrix">
         <input type="text" name="query" id="sidebar-query" placeholder="Search lessons, schools, skills..." />
       </form>
     </section>
-
-    <!-- Menu -->
     <nav id="menu">
       <header class="major">
         <h2>Curriculum Menu</h2>
@@ -1631,16 +2307,21 @@ def render_sidebar(active_page="index.html"):
             {all_proposal_links}
           </ul>
         </li>
+        <li><a href="index.html#one-day">1-Day Activities — Drama & Teambuilding</a></li>
         <li>
-          <span class="opener">Browse by School</span>
+          <span class="opener">All 10 One-Day Activities</span>
           <ul>
-            {"".join(school_items)}
+            {all_oneday_links}
+          </ul>
+        </li>
+        <li>
+          <span class="opener">Browse by Category</span>
+          <ul>
+            {"".join(category_items)}
           </ul>
         </li>
       </ul>
     </nav>
-
-    <!-- Featured Spotlights -->
     <section>
       <header class="major">
         <h2>Program Spotlights</h2>
@@ -1648,41 +2329,24 @@ def render_sidebar(active_page="index.html"):
       <div class="mini-posts">
         <article>
           <a href="lesson-03-future-cities.html" class="image"><img src="images/pic03.jpg" alt="Future Cities" /></a>
-          <p><strong>Brookside Jr High</strong>: Future Cities & Sustainable Urban Planning (13–16h, STEM & Climate Resilience).</p>
-        </article>
-        <article>
-          <a href="lesson-05-teamwork-towers.html" class="image"><img src="images/pic05.jpg" alt="Teamwork Towers" /></a>
-          <p><strong>Georges P. Vanier Jr High</strong>: Teamwork Towers (1–4h Rapid Engineering Sprint & Stress Testing).</p>
-        </article>
-        <article>
-          <a href="lesson-10-teacher-passion.html" class="image"><img src="images/pic10.jpg" alt="Teacher Passion" /></a>
-          <p><strong>Five Bridges Jr High</strong>: Teacher Passion Rotation & Guided Student Inquiries (13–16h Hybrid Model).</p>
-        </article>
-        <article>
-          <a href="proposal-01-cold-case-forensics.html" class="image"><img src="images/prop01.jpg" alt="Cold Case Forensics Proposal" /></a>
-          <p><strong>New Proposal P1</strong>: Cold Case Junior High — Forensics &amp; Mock Trial (10–13h, Term-Long Investigation).</p>
+          <p><strong>Pilot Exemplar</strong>: Future Cities & Sustainable Urban Planning (13–16h, STEM & Climate Resilience).</p>
         </article>
       </div>
     </section>
-
-    <!-- Section -->
     <section>
       <header class="major">
         <h2>Nova Scotia Junior High ILT</h2>
       </header>
       <p>Integrated Learning Time (ILT) empowers junior high schools to implement cross-curricular inquiry, build provincial continuum skills, and foster student agency.</p>
       <ul class="contact">
-        <li class="icon solid fa-school">Halifax Regional Centre for Education (HRCE)</li>
+        <li class="icon solid fa-school">Nova Scotia Public Schools</li>
         <li class="icon solid fa-book">Nova Scotia Renewed Curriculum Framework</li>
         <li class="icon solid fa-map-marker-alt">Nova Scotia, Canada</li>
       </ul>
     </section>
-
-    <!-- Footer -->
     <footer id="footer">
       <p class="copyright">&copy; Nova Scotia Junior High ILT Repository. Template: <a href="https://html5up.net">HTML5 UP Editorial</a>.</p>
     </footer>
-
   </div>
 </div>'''
     return sidebar_html
@@ -1690,86 +2354,44 @@ def render_sidebar(active_page="index.html"):
 def build_index():
     sidebar = render_sidebar(active_page="index.html")
 
-    # Posts grid HTML
     posts = []
     for l in LESSONS:
         skills_labels = ", ".join([s["en"] for s in l["continuum_skills"][:3]])
         post_html = f'''<article>
   <a href="{l["filename"]}" class="image"><img src="{l["image"]}" alt="{html.escape(l["title"])}" /></a>
-  <div style="margin-bottom: 0.5rem;">
-    <span style="display: inline-block; background: #f56a6a; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">{html.escape(l["school"])}</span>
-    <span style="font-size: 0.8rem; color: #7f888f; margin-left: 0.5rem;">{html.escape(l["duration"])}</span>
-  </div>
   <h3><a href="{l["filename"]}">{html.escape(l["title"])}</a></h3>
   <p>{html.escape(l["summary"][:175])}...</p>
-  <p style="font-size: 0.85rem; color: #3d4449; margin-bottom: 1rem;"><strong>Skills:</strong> {html.escape(skills_labels)}</p>
   <ul class="actions">
     <li><a href="{l["filename"]}" class="button">Read Full Plan</a></li>
   </ul>
 </article>'''
         posts.append(post_html)
 
-    # Proposal cards HTML
     proposal_posts = []
     for p in PROPOSALS:
-        skills_labels = ", ".join([s["en"] for s in p["continuum_skills"][:3]])
         proposal_html = f'''<article>
   <a href="{p["filename"]}" class="image"><img src="{p["image"]}" alt="{html.escape(p["title"])}" /></a>
-  <div style="margin-bottom: 0.5rem;">
-    <span style="display: inline-block; background: #2f7f6f; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Proposal P{p["id"]} · {html.escape(p["category"])}</span>
-    <span style="font-size: 0.8rem; color: #7f888f; margin-left: 0.5rem;">{html.escape(p["duration"])}</span>
-  </div>
   <h3><a href="{p["filename"]}">{html.escape(p["title"])}</a></h3>
   <p>{html.escape(p["summary"][:175])}...</p>
-  <p style="font-size: 0.85rem; color: #3d4449; margin-bottom: 1rem;"><strong>Skills:</strong> {html.escape(skills_labels)}</p>
   <ul class="actions">
     <li><a href="{p["filename"]}" class="button">Read Full Proposal</a></li>
   </ul>
 </article>'''
         proposal_posts.append(proposal_html)
 
-    # Matrix rows
-    table_rows = []
-    for l in LESSONS:
-        skills_str = ", ".join([s["en"] for s in l["continuum_skills"][:3]])
-        if len(l["continuum_skills"]) > 3:
-            skills_str += f" (+{len(l['continuum_skills']) - 3} more)"
-        
-        row_html = f'''<tr>
-  <td><strong><a href="{l["filename"]}">{html.escape(l["title"])}</a></strong></td>
-  <td>{html.escape(l["school"])}</td>
-  <td>{html.escape(l["duration"])}</td>
-  <td>{html.escape(l["category"])}</td>
-  <td>{html.escape(skills_str)}</td>
-  <td>{html.escape(", ".join(l["competencies"][:2]))}</td>
-  <td><a href="{l["filename"]}" class="button small">View</a></td>
-</tr>'''
-        table_rows.append(row_html)
-
-    # Proposal matrix rows
-    proposal_rows = []
-    for p in PROPOSALS:
-        skills_str = ", ".join([s["en"] for s in p["continuum_skills"][:3]])
-        if len(p["continuum_skills"]) > 3:
-            skills_str += f" (+{len(p['continuum_skills']) - 3} more)"
-
-        row_html = f'''<tr>
-  <td><strong><a href="{p["filename"]}">P{p["id"]} · {html.escape(p["title"])}</a></strong></td>
-  <td>{html.escape(p["category"])}</td>
-  <td>{html.escape(p["duration"])}</td>
-  <td>{html.escape(p["weekly"])}</td>
-  <td>{html.escape(skills_str)}</td>
-  <td>{html.escape(", ".join(p["competencies"][:2]))}</td>
-  <td><a href="{p["filename"]}" class="button small">View</a></td>
-</tr>'''
-        proposal_rows.append(row_html)
+    oneday_posts = []
+    for d in ONE_DAY_ACTIVITIES:
+        oneday_html = f'''<article>
+  <a href="{d["filename"]}" class="image"><img src="{d["image"]}" alt="{html.escape(d["title"])}" /></a>
+  <h3><a href="{d["filename"]}">{html.escape(d["title"])}</a></h3>
+  <p>{html.escape(d["summary"][:175])}...</p>
+  <ul class="actions">
+    <li><a href="{d["filename"]}" class="button">View Activity</a></li>
+  </ul>
+</article>'''
+        oneday_posts.append(oneday_html)
 
     index_html = f'''<!DOCTYPE HTML>
-<!--
-	Editorial by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
 	<head>
 		<title>Nova Scotia Junior High Integrated Learning Time (ILT) Repository</title>
@@ -1778,176 +2400,57 @@ def build_index():
 		<link rel="stylesheet" href="assets/css/main.css" />
 	</head>
 	<body class="is-preload">
-
-		<!-- Wrapper -->
-			<div id="wrapper">
-
-				<!-- Main -->
-					<div id="main">
-						<div class="inner">
-
-							<!-- Header -->
-								<header id="header">
-									<a href="index.html" class="logo"><strong>Nova Scotia Junior High</strong> · Integrated Learning Time Repository</a>
-									<ul class="icons">
-										<li><span style="font-size: 0.85rem; font-weight: 600; color: #3d4449; text-transform: uppercase;">HRCE Curriculum Exemplars</span></li>
-									</ul>
-								</header>
-
-							<!-- Banner -->
-								<section id="banner">
-									<div class="content">
-										<header>
-											<h1>Integrated Learning Time<br />
-											Curriculum Showcase</h1>
-											<p>Presenting, describing, and elaborating on 11 authentic junior high ILT programs across Nova Scotia — plus 10 new pilot-ready project proposals</p>
-											</header>
-											<p>Integrated Learning Time (ILT) provides junior high students with protected blocks for interdisciplinary inquiry, student-led creation, and cross-curricular competency mastery. This multi-page digital catalog documents eleven piloted programs from junior high schools across the region—capturing their instructional scaffolding, learning outcomes, assessment strategies, student agency models, and teacher reflections. A new <strong>Proposals</strong> section adds ten original, medium-to-long-term project designs (1–2 hours per week for ages 13–15), each engineered to be piloted next term.</p>
-											<ul class="actions">
-												<li><a href="#exemplars" class="button big">Browse All 11 Exemplars</a></li>
-												<li><a href="#proposals" class="button big">Explore 10 Proposals</a></li>
-												<li><a href="#matrix" class="button big">Comparative Matrix</a></li>
-											</ul>
-									</div>
-									<span class="image object">
-										<img src="images/pic10.jpg" alt="Integrated Learning Showcase" />
-									</span>
-								</section>
-
-							<!-- Key Pillars / Features -->
-								<section>
-									<header class="major">
-										<h2>Four Core Inquiry Archetypes</h2>
-									</header>
-									<div class="features">
-										<article>
-											<span class="icon solid fa-compass"></span>
-											<div class="content">
-												<h3>Student Passion & Guided Inquiry</h3>
-												<p>Autonomous, student-directed investigations and personal passion capstones (e.g. Sackville Heights' <em>Choose Your Own Adventure</em> and Five Bridges' <em>Teacher Passion Rotation</em>).</p>
-											</div>
-										</article>
-										<article>
-											<span class="icon solid fa-cogs"></span>
-											<div class="content">
-												<h3>Maker & Engineering Challenges</h3>
-												<p>Hands-on physical and mechanical fabrication sprints stress-testing structures and fluid mechanics (e.g. Georges P. Vanier's <em>Teamwork Towers</em>, Leslie Thomas' <em>Bridge Engineering</em> and <em>Fluid Power Challenge</em>).</p>
-											</div>
-										</article>
-										<article>
-											<span class="icon solid fa-city"></span>
-											<div class="content">
-												<h3>Civic & Environmental Innovation</h3>
-												<p>Place-based inquiries tackling municipal problems, climate resilience, and community advocacy (e.g. Brookside's <em>Future Cities Project</em>, Leslie Thomas' <em>Improving Our Communities</em>, and Cunard's <em>Homelessness & Upcycling</em>).</p>
-											</div>
-										</article>
-										<article>
-											<span class="icon solid fa-users"></span>
-											<div class="content">
-												<h3>Competency Rebuilding & Discourse</h3>
-												<p>Structured interpersonal protocols and kinetic movement breaks that repair collaborative stamina and critical reasoning (e.g. Herring Cove's <em>Parliamentary Debate & Beaver Math</em> and Oyster Pond's <em>Skill Rotations</em>).</p>
-											</div>
-										</article>
-									</div>
-								</section>
-
-								<!-- Section: Exemplars Grid -->
-									<section id="exemplars">
-										<header class="major">
-											<h2>All 11 ILT Lesson Exemplars</h2>
-										</header>
-										<div class="posts">
-											{"".join(posts)}
-										</div>
-									</section>
-
-								<!-- Section: Proposals Grid -->
-									<section id="proposals">
-										<header class="major">
-											<h2>Project Proposals: 10 New Designs</h2>
-										</header>
-										<p>Beyond the piloted exemplars, this repository proposes <strong>ten original ILT projects</strong> designed for 13–15 year olds running 1–2 hours per week over a medium-to-long-term arc (10–16+ hours each). Each proposal is documented to the same standard as the piloted exemplars — essential questions, curriculum outcomes, continuum skills, scaffolding mini-lessons, pacing, assessment, and an authentic public audience — so any school can adopt one as-is and pilot it next term. They deliberately extend the four inquiry archetypes above into new territory: forensic science, audio storytelling, puzzle engineering, enterprise economics, food security, oral history, game design, sustainable fashion, place-based ecology, and sports analytics.</p>
-										<div class="posts">
-											{"".join(proposal_posts)}
-										</div>
-									</section>
-
-								<!-- Section: Proposal Pipeline Matrix -->
-									<section id="proposal-matrix">
-										<header class="major">
-											<h2>Proposal Pipeline Matrix</h2>
-										</header>
-										<p>A side-by-side planning overview of the ten proposed projects, including the weekly facilitation rhythm.</p>
-										<div class="table-wrapper">
-											<table>
-												<thead>
-													<tr>
-														<th>Proposal Title</th>
-														<th>Design Focus</th>
-														<th>Total Duration</th>
-														<th>Weekly Rhythm</th>
-														<th>Continuum Skills</th>
-														<th>Competencies</th>
-														<th>Action</th>
-													</tr>
-												</thead>
-												<tbody>
-													{"".join(proposal_rows)}
-												</tbody>
-											</table>
-										</div>
-									</section>
-
-								<!-- Section: Comparative Matrix -->
-									<section id="matrix">
-									<header class="major">
-										<h2>Comparative Curriculum Matrix</h2>
-									</header>
-									<p>A side-by-side architectural overview of all eleven junior high integrated learning exemplars.</p>
-									<div class="table-wrapper">
-										<table>
-											<thead>
-												<tr>
-													<th>Lesson Title</th>
-													<th>Source School</th>
-													<th>Duration</th>
-													<th>Category</th>
-													<th>Continuum Skills</th>
-													<th>Competencies</th>
-													<th>Action</th>
-												</tr>
-											</thead>
-											<tbody>
-												{"".join(table_rows)}
-											</tbody>
-										</table>
-									</div>
-								</section>
-
-						</div>
-					</div>
-
-					{sidebar}
-
+		<div id="wrapper">
+			<div id="main">
+				<div class="inner">
+					<header id="header">
+						<a href="index.html" class="logo"><strong>Nova Scotia Junior High</strong> · ILT Repository</a>
+					</header>
+					<section id="banner">
+						<div class="content">
+							<header>
+								<h1>Integrated Learning Time<br />Curriculum Showcase</h1>
+							</header>
+							<p>Integrated Learning Time (ILT) provides junior high students with protected blocks for interdisciplinary inquiry, student-led creation, and cross-curricular competency mastery.</p>
+							<ul class="actions">
+								<li><a href="#exemplars" class="button big">Browse All 11 Exemplars</a></li>
+								<li><a href="#proposals" class="button big">Explore 10 Proposals</a></li>
+				<li><a href="#one-day" class="button big">1-Day Activities</a></li>
+			</ul>
+		</div>
+	</section>
+	<section id="exemplars">
+		<header class="major"><h2>All 11 ILT Lesson Exemplars</h2></header>
+		<div class="posts">{"".join(posts)}</div>
+	</section>
+	<section id="proposals">
+		<header class="major"><h2>Project Proposals: 10 New Designs</h2></header>
+		<div class="posts">{"".join(proposal_posts)}</div>
+	</section>
+	<section id="one-day">
+		<header class="major"><h2>1-Day Activities: Drama &amp; Teambuilding</h2></header>
+		<p>Ten quick-deploy <strong>drama games and teambuilding activities</strong> designed for a single ILT block (45–90 minutes). Grade 7–9, minimal or no resources required. Ideal for first-week community building, transition days, or substitute teacher days.</p>
+		<div class="posts">{"".join(oneday_posts)}</div>
+	</section>
 			</div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+		</div>
+		{sidebar}
+	</div>
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+</body>
 </html>'''
 
-    out_file = os.path.join(OUTPUT_DIR, "index.html")
-    with open(out_file, "w", encoding="utf-8") as f:
+    with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html)
-    print("Generated Editorial index.html")
+    print("Generated index.html")
 
 def build_detail_pages(items, kind="lesson"):
     is_proposal = kind == "proposal"
+    is_oneday = kind == "oneday"
     total = len(items)
     for idx, l in enumerate(items):
         prev_l = items[idx - 1] if idx > 0 else None
@@ -1960,10 +2463,16 @@ def build_detail_pages(items, kind="lesson"):
             prov_left_title = "Status"
             prov_left_value = "Pilot-Ready Proposal"
             prov_left_sub = f"<strong>Best Fit:</strong> {html.escape(l['grade_level'])}<br /><strong>Weekly Commitment:</strong> {html.escape(l['weekly'])}"
-            reflection_heading = "Design Notes & Anticipated Iterations"
+            reflection_heading = "Design Notes &amp; Anticipated Iterations"
+        elif is_oneday:
+            chip_label = f'{l["category"]} · 1-Day Activity #{l["id"]}'
+            prov_left_title = "Activity Type"
+            prov_left_value = "1-Day Drama / Teambuilding"
+            prov_left_sub = f"<strong>Grade Level:</strong> {html.escape(l['grade_level'])}<br /><strong>Resources:</strong> {html.escape(l.get('resources', 'None'))}"
+            reflection_heading = "Facilitation Tips &amp; Adaptations"
         else:
             chip_label = f'{l["category"]} · Lesson Exemplar #{l["id"]}'
-            prov_left_title = "Source School"
+            prov_left_title = "Curriculum Model"
             prov_left_value = l["school"]
             prov_left_sub = f"<strong>Target Grade Level:</strong> {html.escape(l['grade_level'])}"
             reflection_heading = "Teacher Retrospective &amp; Next-Year Iterations"
@@ -2082,7 +2591,7 @@ def build_detail_pages(items, kind="lesson"):
 -->
 <html>
 	<head>
-		<title>{html.escape(l["title"])} | {html.escape(l["school"])}</title>
+		<title>{html.escape(l["title"])} | Nova Scotia ILT</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -2295,8 +2804,12 @@ def build_lesson_pages():
 def build_proposal_pages():
     build_detail_pages(PROPOSALS, "proposal")
 
+def build_oneday_pages():
+    build_detail_pages(ONE_DAY_ACTIVITIES, "oneday")
+
 if __name__ == "__main__":
     build_index()
     build_lesson_pages()
     build_proposal_pages()
+    build_oneday_pages()
     print("Completed building Editorial ILT website.")
