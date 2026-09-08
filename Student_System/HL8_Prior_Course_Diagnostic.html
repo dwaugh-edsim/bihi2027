@@ -724,6 +724,7 @@
 
     </div>
 
+    <script src="students_roster_data.js"></script>
     <script src="api.js"></script>
     <script>
         function switchTab(tabId) {
@@ -881,11 +882,15 @@
 
         async function getFullRoster() {
             if (!cachedRoster) {
-                try {
-                    const res = await fetch('students_roster.json');
-                    cachedRoster = await res.json();
-                } catch(e) {
-                    cachedRoster = [];
+                if (window.MASTER_ROSTER_DATA && window.MASTER_ROSTER_DATA.length > 0) {
+                    cachedRoster = window.MASTER_ROSTER_DATA;
+                } else {
+                    try {
+                        const res = await fetch('students_roster.json');
+                        cachedRoster = await res.json();
+                    } catch(e) {
+                        cachedRoster = [];
+                    }
                 }
             }
             const customs = JSON.parse(localStorage.getItem('custom_roster_additions') || '[]');
