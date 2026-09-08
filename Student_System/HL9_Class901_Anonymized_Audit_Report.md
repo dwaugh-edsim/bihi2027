@@ -39,7 +39,7 @@
 * *"Hand made posters — we did a lot of them."*
 * *"Poster projects... making slide shows and empathy vs sympathy."*
 * *"How screens affect your sleep and the teen brain."*
-* *"Having a teacher that does the same three things the whole year."*
+* *"Doing the same three activities the whole year without variety."*
 
 #### 💡 Real Questions & Genuine Curiosities
 * **High School Navigation:** *"High school transition," "What high school is actually going to be like."*
