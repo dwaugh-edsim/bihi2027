@@ -462,8 +462,8 @@
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <span>New to class or don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline;">Claim or Generate your PIN &rarr;</a></span>
-                    <span style="font-size: 0.78em; opacity: 0.8;">Instant Grade 9 Onboarding</span>
+                    <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline;">Look up your assigned PIN &rarr;</a></span>
+                    <span style="font-size: 0.78em; opacity: 0.8;">Authorized Grade 9 Roster Only</span>
                 </div>
             </div>
 
@@ -501,14 +501,14 @@
                     </div>
 
                     <button class="btn" type="button" onclick="lookupOrCreatePin()" style="width: 100%; padding: 10px; margin-bottom: 14px; font-size: 0.85em;">
-                        🔍 Look Up or Generate PIN
+                        🔍 Look Up My PIN
                     </button>
 
                     <div id="claimResultArea" style="display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 6px; padding: 14px; text-align: center; margin-bottom: 14px;">
                         <div id="claimResultBadge" style="font-size: 0.8em; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 4px;">PIN Found</div>
                         <div id="claimResultMsg" style="font-size: 0.85em; color: #14532d; margin-bottom: 10px;">Here is your personal PIN:</div>
                         <div id="claimResultPin" style="font-family: monospace; font-size: 2.8em; font-weight: 900; color: #15803d; letter-spacing: 0.15em; margin-bottom: 12px; line-height: 1;">---</div>
-                        <button class="btn" type="button" onclick="applyClaimedPin()" style="width: 100%; background: #16a34a; border-color: #16a34a;">
+                        <button class="btn" id="btnApplyClaimed" type="button" onclick="applyClaimedPin()" style="width: 100%; background: #16a34a; border-color: #16a34a;">
                             Use This PIN & Log In &rarr;
                         </button>
                     </div>
@@ -756,6 +756,13 @@
                 return;
             }
 
+            // --- AUTHORIZED ROSTER GATE ---
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
+                return;
+            }
+
             const res = await StudentAPI.login(cls, name, pin, 'HL9');
             
             if (res.status === 'success') {
@@ -809,6 +816,13 @@
 
             if (!pin || !name) {
                 showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
+                return;
+            }
+
+            // --- AUTHORIZED ROSTER GATE ---
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
                 return;
             }
 
@@ -891,8 +905,7 @@
                     }
                 }
             }
-            const customs = JSON.parse(localStorage.getItem('custom_roster_additions') || '[]');
-            return [...customs, ...cachedRoster];
+            return cachedRoster;
         }
 
         function isCleanPin(pin, usedSet) {
@@ -991,6 +1004,7 @@
             const badge = document.getElementById('claimResultBadge');
             const msg = document.getElementById('claimResultMsg');
             const pinDisplay = document.getElementById('claimResultPin');
+            const btnApply = document.getElementById('btnApplyClaimed');
 
             if (match && match.pin) {
                 badge.innerText = "PIN Found in Grade 9 Roster";
@@ -1002,33 +1016,16 @@
                 lastClaimedPin = match.pin;
                 lastClaimedName = match.first_name;
                 lastClaimedClass = match.homeroom || cls;
+                if (btnApply) btnApply.style.display = 'block';
             } else {
-                const usedSet = new Set(roster.map(s => (s.pin || '').toUpperCase()));
-                const newPin = generateCleanPin(first, last, usedSet);
-
-                const newStudent = {
-                    homeroom: cls,
-                    grade: 9,
-                    first_name: first,
-                    last_name: last,
-                    student_id: `NEW-${Date.now()}`,
-                    pin: newPin,
-                    course_label: 'Citizenship 9 & Healthy Living 9',
-                    is_custom: true
-                };
-                const customs = JSON.parse(localStorage.getItem('custom_roster_additions') || '[]');
-                customs.unshift(newStudent);
-                localStorage.setItem('custom_roster_additions', JSON.stringify(customs));
-
-                badge.innerText = "New Student PIN Created";
-                badge.style.color = "#0369a1";
-                resultArea.style.background = "#f0f9ff";
-                resultArea.style.borderColor = "#7dd3fc";
-                msg.innerText = `You're new to the list! We've generated your permanent PIN:`;
-                pinDisplay.innerText = newPin;
-                lastClaimedPin = newPin;
-                lastClaimedName = first;
-                lastClaimedClass = cls;
+                badge.innerText = "Name Not Found";
+                badge.style.color = "#991b1b";
+                resultArea.style.background = "#fef2f2";
+                resultArea.style.borderColor = "#fca5a5";
+                msg.innerText = `"${first} ${last}".trim() is not found on the official Class ${cls} roster. Please check spelling, or see Mr. Waugh if you recently joined the class.`;
+                pinDisplay.innerText = "---";
+                lastClaimedPin = "";
+                if (btnApply) btnApply.style.display = 'none';
             }
 
             resultArea.style.display = 'block';
@@ -1045,6 +1042,7 @@
         }
 
         window.onload = () => {
+            try { localStorage.removeItem('custom_roster_additions'); } catch(e){}
             if (Session.isLoggedIn()) {
                 const sessCls = Session.getClass();
                 if (sessCls.startsWith('9')) {

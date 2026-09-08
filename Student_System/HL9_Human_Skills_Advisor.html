@@ -850,6 +850,7 @@
 
     </div>
 
+    <script src="students_roster_data.js"></script>
     <script src="api.js"></script>
     <script>
         let selectedSkills = [];
@@ -1060,6 +1061,12 @@
                 return;
             }
 
+            const auth = StudentAPI.validateStudent(data.className, data.advisors, data.pin);
+            if (!auth.valid) {
+                alert(auth.message);
+                return;
+            }
+
             if (selectedSkills.length !== 10) {
                 alert("Please select and complete all 10 skills on your blueprint.");
                 return;
@@ -1078,7 +1085,7 @@
                     document.getElementById('syncBadge').style.display = 'inline-block';
                     alert("Successfully submitted and synced to Google Sheets!");
                 } else {
-                    alert("Saved locally on your Chromebook. Will auto-sync when online.");
+                    alert(res.message || "Failed to submit profile.");
                 }
             } catch(e) {
                 console.warn(e);
@@ -1093,6 +1100,12 @@
 
             if (!pin) {
                 alert("Please enter your 3-Letter PIN.");
+                return;
+            }
+
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                alert(auth.message);
                 return;
             }
 

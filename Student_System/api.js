@@ -20,7 +20,82 @@ const StudentAPI = {
         return CONFIG.COURSES[courseKey] || CONFIG.DEFAULT_SCRIPT_URL;
     },
 
+    getRoster() {
+        if (window.MASTER_ROSTER_DATA && Array.isArray(window.MASTER_ROSTER_DATA)) {
+            return window.MASTER_ROSTER_DATA;
+        }
+        return [];
+    },
+
+    validateStudent(className, firstName, pin) {
+        pin = (pin || '').trim().toUpperCase();
+        const enteredName = (firstName || '').trim().toLowerCase();
+
+        if (!pin || !enteredName) {
+            return { valid: false, message: "Please enter both your First Name and 3-Letter PIN." };
+        }
+
+        // Teacher & testing demo overrides
+        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV') {
+            return { valid: true, isTeacher: true, name: firstName || 'Teacher Demo' };
+        }
+
+        const roster = this.getRoster();
+        if (!roster || roster.length === 0) {
+            console.warn("Roster data not loaded; bypassing local gate.");
+            return { valid: true, unverified: true, name: firstName };
+        }
+
+        // 1. PIN verification: must match an official enrolled student
+        const pinMatch = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
+        if (!pinMatch) {
+            return { 
+                valid: false, 
+                message: `❌ Access Denied: PIN "${pin}" is not registered on the official roster.\n\nPlease check your 3-letter PIN slip, check the Teacher Kiosk, or see Mr. Waugh.` 
+            };
+        }
+
+        // 2. Class verification (if section provided)
+        if (className && pinMatch.homeroom && String(pinMatch.homeroom).trim() !== String(className).trim()) {
+            return { 
+                valid: false, 
+                message: `❌ Class Section Mismatch: PIN "${pin}" is registered in Class ${pinMatch.homeroom}, not Class ${className}.\n\nPlease switch the class selector to ${pinMatch.homeroom} or check your PIN.` 
+            };
+        }
+
+        // 3. First name verification (fuzzy match against official registered name)
+        const rosterFirst = (pinMatch.first_name || '').toLowerCase().trim();
+        const rosterFull = (pinMatch.full_first_name || '').toLowerCase().trim();
+
+        const nameOk = rosterFirst.startsWith(enteredName) || 
+                       enteredName.startsWith(rosterFirst) || 
+                       rosterFull.includes(enteredName) ||
+                       enteredName.includes(rosterFirst);
+
+        if (!nameOk) {
+            return { 
+                valid: false, 
+                message: `❌ Verification Failed: PIN "${pin}" belongs to a student registered under a different first name in Class ${pinMatch.homeroom}.\n\nPlease enter your own registered first name and PIN.` 
+            };
+        }
+
+        return { 
+            valid: true, 
+            student: pinMatch, 
+            name: pinMatch.first_name 
+        };
+    },
+
     async login(className, firstName, pin, courseKey = 'HL9') {
+        pin = (pin || '').trim().toUpperCase();
+        firstName = (firstName || '').trim();
+
+        // Enforce Authorized Roster Verification
+        const auth = this.validateStudent(className, firstName, pin);
+        if (!auth.valid) {
+            return { status: 'error', message: auth.message };
+        }
+
         const url = this.getScriptUrl(courseKey);
         try {
             const res = await fetch(url, {
@@ -28,22 +103,22 @@ const StudentAPI = {
                 body: JSON.stringify({
                     action: 'login',
                     className: className,
-                    name: firstName,
-                    pin: pin.toUpperCase().trim()
+                    name: auth.name || firstName,
+                    pin: pin
                 })
             });
             const data = await res.json();
             if (data.status === 'success') {
-                Session.set(className, data.name || firstName, pin.toUpperCase().trim(), data.email || '', data.pronouns || '');
+                Session.set(className, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
             }
             return data;
         } catch (e) {
             console.warn("Offline or Demo Mode:", e);
-            Session.set(className, firstName, pin.toUpperCase().trim());
+            Session.set(className, auth.name || firstName, pin);
             return { 
                 status: 'success', 
                 isOffline: true, 
-                name: firstName, 
+                name: auth.name || firstName, 
                 className: className,
                 savedData: {} 
             };
@@ -52,14 +127,20 @@ const StudentAPI = {
 
     async submitProfile(taskName, profileData, summaryText, courseKey = 'HL9') {
         const url = this.getScriptUrl(courseKey);
-        const pin = Session.getPin();
-        const name = profileData.name || Session.getName();
-        const className = Session.getClass();
+        const pin = (profileData.pin || Session.getPin() || '').trim().toUpperCase();
+        const name = (profileData.name || Session.getName() || '').trim();
+        const className = profileData.className || Session.getClass();
         const email = profileData.email || Session.getEmail();
         const pronouns = profileData.pronouns || Session.getPronouns();
 
         if (!pin) {
             return { status: 'error', message: 'Please log in with your Name and 3-Letter PIN first.' };
+        }
+
+        // Enforce Authorized Roster Verification
+        const auth = this.validateStudent(className, name, pin);
+        if (!auth.valid) {
+            return { status: 'error', message: auth.message };
         }
 
         try {
