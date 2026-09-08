@@ -421,6 +421,7 @@
                 <span class="user-badge" id="badgeClass">Class 801</span>
                 <span id="badgeStudent" style="color: var(--text-muted); font-size: 0.85em;">Enter PIN below to load saved data</span>
                 <span class="sync-badge" id="syncBadge">☁️ Synced with Google Sheets</span>
+                <button id="topLogoutBtn" class="btn" style="display: none; background: #dc2626; border-color: #dc2626; padding: 4px 10px; font-size: 0.78em; border-radius: 4px; color: white;" onclick="logout()">Log Out</button>
             </div>
             <div style="display: flex; gap: 8px;">
                 <button class="btn" onclick="saveAndSubmitAll()">Save & Submit All</button>
@@ -458,8 +459,9 @@
                         <label>3-Letter PIN</label>
                         <input type="text" id="pinInput" placeholder="e.g., COR" maxlength="3" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--accent);">
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 8px;">
                         <button class="btn" type="button" onclick="loginAndRestore()">Log In & Load</button>
+                        <button class="btn" id="authLogoutBtn" type="button" style="display: none; background: #dc2626; border-color: #dc2626;" onclick="logout()">Log Out</button>
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -806,8 +808,42 @@
                 }
 
                 showToast(`Welcome, ${res.name || name}! Your data is ready.`);
+
+                const topLogout = document.getElementById('topLogoutBtn');
+                if (topLogout) topLogout.style.display = 'inline-block';
+                const authLogout = document.getElementById('authLogoutBtn');
+                if (authLogout) authLogout.style.display = 'inline-block';
             } else {
                 showToast(res.message || "Failed to log in.", true);
+            }
+        }
+
+        function logout() {
+            if (confirm("Log out of this session? The form will be cleared for the next student.")) {
+                Session.clear();
+                
+                document.getElementById('firstNameInput').value = '';
+                document.getElementById('pinInput').value = '';
+                
+                document.getElementById('badgeStudent').innerText = 'Enter PIN below to load saved data';
+                document.getElementById('syncBadge').style.display = 'none';
+                
+                const topLogout = document.getElementById('topLogoutBtn');
+                if (topLogout) topLogout.style.display = 'none';
+                const authLogout = document.getElementById('authLogoutBtn');
+                if (authLogout) authLogout.style.display = 'none';
+
+                ['emailInput', 'pronounsInput', 'phoneticInput', 'transitInput', 'curiousInput', 
+                 'teacherNote', 'overdoneInput', 'realQuestionsInput', 'wherePersonal', 
+                 'whereCommunity', 'whereGlobal', 'whereAspirational'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
+                document.querySelectorAll('#matrixTable tbody input[type="radio"]').forEach(r => r.checked = false);
+                document.querySelectorAll('#formatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+
+                showToast("Logged out successfully. Ready for next student.");
             }
         }
 

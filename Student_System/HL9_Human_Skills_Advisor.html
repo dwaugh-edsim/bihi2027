@@ -587,8 +587,9 @@
                         <label>Advisor 1 PIN</label>
                         <input type="text" id="pinInput" placeholder="e.g., COR" maxlength="3" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--dhs-blue);">
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 8px;">
                         <button class="btn" type="button" onclick="loginAndRestore()">Load Work</button>
+                        <button class="btn" id="authLogoutBtn" type="button" style="display: none; background: #dc2626; border-color: #dc2626;" onclick="logout()">Log Out</button>
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.82em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
@@ -1123,6 +1124,8 @@
             // Check Google Sheet
             try {
                 const res = await StudentAPI.login(cls, name || 'Student', pin, 'HL9');
+                const authLogout = document.getElementById('authLogoutBtn');
+                if (authLogout) authLogout.style.display = 'inline-block';
                 if (res.status === 'success' && res.savedData && res.savedData.skills) {
                     restoreData(res.savedData);
                     alert("Restored your blueprint from Google Sheets!");
@@ -1131,6 +1134,20 @@
                 }
             } catch(e) {
                 alert("Ready to start!");
+            }
+        }
+
+        function logout() {
+            if (confirm("Log out of this blueprint session? The form will be cleared for the next student.")) {
+                Session.clear();
+                document.getElementById('adv1Name').value = '';
+                document.getElementById('adv2Name').value = '';
+                document.getElementById('pinInput').value = '';
+                document.getElementById('advisorVerdict').value = '';
+                const authLogout = document.getElementById('authLogoutBtn');
+                if (authLogout) authLogout.style.display = 'none';
+                document.getElementById('syncBadge').style.display = 'none';
+                alert("Logged out successfully.");
             }
         }
 
