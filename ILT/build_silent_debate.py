@@ -1,13 +1,16 @@
-"""Builds silent-debate-ilt.pptx — Silent Debate gallery lesson deck (16:9)."""
-import os
+"""Builds silent-debate-ilt.pptx — Silent Debate gallery lesson deck (16:9).
+Usage: python build_silent_debate.py [grade]   (grade defaults to 9; other grades save a -gradeN file)"""
+import sys
 from pptx import Presentation
-
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.oxml.ns import qn
+
+GRADE = sys.argv[1] if len(sys.argv) > 1 else "9"
+SUFFIX = "" if GRADE == "9" else f"-grade{GRADE}"
 
 DARK, TEXT, MUTED = RGBColor(0x2E, 0x38, 0x3E), RGBColor(0x3D, 0x44, 0x49), RGBColor(0x7F, 0x88, 0x8F)
 ACCENT, TINT, HAIR = RGBColor(0xF5, 0x6A, 0x6A), RGBColor(0xFD, 0xEE, 0xEE), RGBColor(0xE5, 0xE7, 0xE9)
@@ -103,37 +106,53 @@ def station(idx, statement, provocation, tag, hidden=False, letter=None):
     return s
 
 
+# ── 0 · Homeroom schedule (grade 8 deck only) ───────────────────────────────
+if GRADE == "8":
+    s = slide(dark=True)
+    tx(s, 8.2, 2.2, 5.0, 3.4, [{"runs": [("902", {"size": 170, "bold": True, "color": RGBColor(0x3A, 0x45, 0x52)})]}])
+    tx(s, 0.9, 0.9, 9.0, 0.4, [{"runs": [("HOMEROOM 902", {"size": 13, "bold": True, "color": ACCENT})]}])
+    tx(s, 0.86, 1.5, 10.0, 0.9, [{"runs": [("Today\u2019s schedule", {"size": 44, "bold": True, "color": WHITE})]}])
+    y = 2.75
+    for num, name in [("1", "PE"), ("2", "Math"), ("3", "Child Studies"), ("4", "Science"), ("5", "ELA")]:
+        tx(s, 0.95, y, 0.7, 0.6, [{"runs": [(num, {"size": 28, "bold": True, "color": ACCENT})]}])
+        tx(s, 1.95, y, 8.5, 0.6, [{"runs": [(name, {"size": 28, "bold": True, "color": WHITE})]}])
+        if num != "5":
+            box(s, 0.95, y + 0.78, 9.4, 0.012, fill=RGBColor(0x3A, 0x45, 0x52))
+        y += 0.92
+    note(s, "Up on the projector while homeroom 902 is in the room. When the ILT group arrives, advance to "
+            "SILENT DEBATE (next slide).")
+
 # ── 1 · Title ────────────────────────────────────────────────────────────────
 s = slide(dark=True)
 tx(s, 8.75, -0.75, 4.3, 4.6, [{"runs": [("\u201d", {"size": 300, "bold": True, "color": RGBColor(0x3A, 0x45, 0x52)})]}])
-tx(s, 0.9, 0.9, 9.0, 0.4, [{"runs": [("INTEGRATED LEARNING TIME  ·  GRADE 9", {"size": 13, "bold": True, "color": ONDARK})]}])
+tx(s, 0.9, 0.9, 9.0, 0.4, [{"runs": [(f"INTEGRATED LEARNING TIME  ·  GRADE {GRADE}", {"size": 13, "bold": True, "color": ONDARK})]}])
 tx(s, 0.86, 2.05, 11.6, 1.5, [{"runs": [("SILENT DEBATE", {"size": 72, "bold": True, "color": WHITE}),
                                         (".", {"size": 72, "bold": True, "color": ACCENT})]}])
-tx(s, 0.9, 3.8, 10.5, 0.6, [{"runs": [("One hour. 28 people. Zero talking.", {"size": 26, "bold": True, "color": ACCENT})]}])
-tx(s, 0.9, 4.6, 9.6, 0.9, [{"runs": [("Seven statements around the room. Groups of four. Your pencil is your voice.",
+tx(s, 0.9, 3.8, 10.5, 0.6, [{"runs": [("One hour. 28 people. No shouting.", {"size": 26, "bold": True, "color": ACCENT})]}])
+tx(s, 0.9, 4.6, 9.6, 0.9, [{"runs": [("Eight statements around the room. Groups of three or four. Your pencil is your voice.",
                                       {"size": 16, "color": ONDARK})]}])
-note(s, "60-minute run sheet — 8 min setup (slides 1-5) · 21 min rotation (7 stations x 3 min) · 20 min verdict + "
-        "60-second presentations · 10 min reflection.\nMATERIALS: 7 sheets of chart paper taped around the room at eye "
-        "height, one pencil colour per student, a bell/timer.\nBEFORE CLASS: decide your 7 home stations and which "
-        "group of 4 starts at each.")
+note(s, "60-minute run sheet — 8 min setup (slides 1-5) · 24 min rotation (8 stations x 3 min) · 18 min verdict + "
+        "60-second presentations · 10 min reflection.\nMATERIALS: 8 sheets of chart paper taped around the room at eye "
+        "height, one pencil colour per student, a bell/timer.\nBEFORE CLASS: decide your 8 home stations and which "
+        "group of 3–4 starts at each (four groups of four, four groups of three).")
 
 # ── 2 · The pitch ────────────────────────────────────────────────────────────
 s = slide()
 tx(s, 0.5, 0.05, 4.2, 4.4, [{"runs": [("\u201c", {"size": 260, "bold": True, "color": GHOST})]}])
 tx(s, 1.6, 2.5, 10.13, 2.4, [
     {"align": PP_ALIGN.CENTER, "runs": [("The loudest argument you\u2019ll ever have \u2014", {"size": 40, "bold": True})]},
-    {"align": PP_ALIGN.CENTER, "runs": [("without saying a word.", {"size": 40, "bold": True, "italic": True, "color": ACCENT})]},
+    {"align": PP_ALIGN.CENTER, "runs": [("without raising your voice.", {"size": 40, "bold": True, "italic": True, "color": ACCENT})]},
 ])
 tx(s, 2.4, 5.25, 8.5, 0.8, [{"align": PP_ALIGN.CENTER,
-                             "runs": [("No voices. No hands. One sheet of paper per statement \u2014 and your best reasons.",
+                             "runs": [("Low voices. No shouting. One sheet of paper per statement \u2014 and your best reasons.",
                                        {"size": 17, "color": MUTED})]}])
-note(s, "Hook — read it, pause, then move straight to the rules. Total silence starts when the first group reaches a sheet.")
+note(s, "Hook — read it, pause, then move straight to the rules. Low-voice rule starts when the first group reaches a sheet.")
 
 # ── 3 · The rules ────────────────────────────────────────────────────────────
 s = slide()
 tx(s, 0.55, 0.5, 8.0, 0.7, [{"runs": [("The rules", {"size": 36, "bold": True})]}])
 rules_rows(s, [
-    ("Silence is absolute.", "From the first bell to the last \u2014 no whispering, no mouthing, no gestures."),
+    ("Low voices only.", "Your group hears you; the next sheet doesn\u2019t. Whisper-level, first bell to last."),
     ("Argue with ideas, not people.", "Attack the argument on the sheet \u2014 never the student who wrote it."),
     ("Every claim needs a because.", "An opinion without a reason is just noise. Write the because."),
     ("Disagree on purpose.", "Rebuttals are the point: \u201cThey say \u2026 , but \u2026 , because \u2026 .\u201d"),
@@ -141,8 +160,8 @@ rules_rows(s, [
 ])
 box(s, 10.4, 1.5, 2.38, 4.9, fill=TINT, kind=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.06)
 tx(s, 10.68, 1.85, 1.85, 4.3, [
-    {"runs": [("WHY SILENCE?", {"size": 14, "bold": True, "color": ACCENT})]},
-    {"runs": [("Silence stops the loudest voice from winning \u2014 and pushes quiet students\u2019 ideas onto the page.",
+    {"runs": [("WHY QUIET?", {"size": 14, "bold": True, "color": ACCENT})]},
+    {"runs": [("Quiet stops the loudest voice from winning \u2014 and pushes quiet students\u2019 ideas onto the page.",
                {"size": 13, "color": TEXT})], "sb": 10},
     {"runs": [("Every colour on a sheet is a different student. At the end, you\u2019ll see exactly who persuaded whom.",
                {"size": 13, "color": TEXT})], "sb": 10},
@@ -153,11 +172,11 @@ note(s, "Walk the rules fast (90 seconds). Hand out pencil colours as you go. Mo
 # ── 4 · How the room works ───────────────────────────────────────────────────
 s = slide()
 tx(s, 0.55, 0.5, 10.0, 0.7, [{"runs": [("How the room works", {"size": 36, "bold": True})]}])
-tx(s, 0.55, 1.25, 12.2, 0.5, [{"runs": [("Groups of four. Each group claims one home sheet, then rotates on the bell until every sheet is visited.",
+tx(s, 0.55, 1.25, 12.2, 0.5, [{"runs": [("Groups of three or four \u2014 eight groups. Each group claims one home sheet, then rotates on the bell until every sheet is visited.",
                                          {"size": 16, "color": MUTED})]}])
 bw, gap, by = 1.15, 0.38, 2.0
-x0 = (W - (7 * bw + 6 * gap)) / 2
-for i in range(7):
+x0 = (W - (8 * bw + 7 * gap)) / 2
+for i in range(8):
     x = x0 + i * (bw + gap)
     b = box(s, x, by, bw, bw, fill=ACCENT, kind=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.18)
     tf = b.text_frame
@@ -168,18 +187,18 @@ for i in range(7):
     r = p.add_run()
     r.text = str(i + 1)
     r.font.name, r.font.size, r.font.bold, r.font.color.rgb = FONT, Pt(30), True, WHITE
-    if i < 6:
+    if i < 7:
         arrow(s, x + bw + 0.05, by + bw / 2, x + bw + gap - 0.05, by + bw / 2)
 mid = by + bw
-first_c, last_c = x0 + bw / 2, x0 + 6 * (bw + gap) + bw / 2
+first_c, last_c = x0 + bw / 2, x0 + 7 * (bw + gap) + bw / 2
 arrow(s, last_c, mid + bw / 2 + 0.05, last_c, 3.85, color=MUTED, lw=1.5, dash=MSO_LINE_DASH_STYLE.DASH)
 arrow(s, last_c, 3.85, first_c, 3.85, color=MUTED, lw=1.5, dash=MSO_LINE_DASH_STYLE.DASH)
 arrow(s, first_c, 3.85, first_c, mid + bw / 2 + 0.08, color=MUTED, lw=1.5, dash=MSO_LINE_DASH_STYLE.DASH, head=True)
 tx(s, 5.2, 3.95, 3.0, 0.35, [{"align": PP_ALIGN.CENTER,
-                              "runs": [("after station 7 \u2192 station 1", {"size": 12, "color": MUTED})]}])
-for x, big, small in [(1.77, "7", "statements around the room"),
+                              "runs": [("after station 8 \u2192 station 1", {"size": 12, "color": MUTED})]}])
+for x, big, small in [(1.77, "8", "statements around the room"),
                       (5.17, "3 min", "on each sheet \u2014 move when the bell rings"),
-                      (8.57, "21 min", "of rotation \u2014 every group visits every sheet")]:
+                      (8.57, "24 min", "of rotation \u2014 every group visits every sheet")]:
     tx(s, x, 4.65, 3.0, 1.7, [
         {"align": PP_ALIGN.CENTER, "runs": [(big, {"size": 44, "bold": True, "color": ACCENT})]},
         {"align": PP_ALIGN.CENTER, "runs": [(small, {"size": 14, "color": TEXT})], "sb": 4},
@@ -188,7 +207,7 @@ tx(s, 1.5, 6.6, 10.3, 0.4, [{"align": PP_ALIGN.CENTER,
                              "runs": [("Home sheets get one last visit at the end \u2014 that\u2019s where the verdict happens.",
                                        {"size": 15, "color": MUTED})]}])
 note(s, "Assign home stations BEFORE showing this. Rotation: bell every 3 minutes, groups move clockwise "
-        "(1\u21922\u2192\u2026\u21927\u21921). 7 stops x 3 min = 21 minutes. Keep the timer visible.")
+        "(1\u21922\u2192\u2026\u21928\u21921). 8 stops x 3 min = 24 minutes. Keep the timer visible.")
 
 # ── 5 · Toolkit ──────────────────────────────────────────────────────────────
 s = slide()
@@ -243,25 +262,26 @@ stations = [
     ("Sixteen-year-olds should be able to vote.", "You can work and pay tax at sixteen \u2014 why not hold a ballot?"),
     ("Social media does more harm than good.", "The most documented generation in history \u2014 better, or worse?"),
     ("Homework should be banned.", "Six hours of school a day \u2014 is it enough time to learn?"),
+    ("Exams should be open-internet.", "You\u2019ll always have Google in real life \u2014 why not in the exam room?"),
 ]
+pages_before = len(prs.slides._sldIdLst)
 for n, (st, pr) in enumerate(stations, 1):
     s = station(n, st, pr, f"STATION {n}")
-    note(s, f"PRINT PAGE {n} \u2014 tape it to chart paper at Station {n}. Students open the debate here, then "
+    note(s, f"PRINT PAGE {pages_before + n} \u2014 tape it to chart paper at Station {n}. Students open the debate here, then "
             f"rebut in other colours as sheets rotate.")
 
 spares = [
-    ("A", "Exams should be open-internet.", "You\u2019ll always have Google in real life \u2014 why not in the exam room?"),
-    ("B", "Professional athletes are paid too much.", "Should a salary reflect skill, risk, or what people will pay to watch?"),
-    ("C", "Every student must play on a school team.", "Is fitness a subject to teach, or a choice to protect?"),
+    ("A", "Professional athletes are paid too much.", "Should a salary reflect skill, risk, or what people will pay to watch?"),
+    ("B", "Every student must play on a school team.", "Is fitness a subject to teach, or a choice to protect?"),
 ]
 for letter, st, pr in spares:
     s = station(letter, st, pr, "SPARE \u2014 SWAP FOR ANY STATION", hidden=True, letter=letter)
-    note(s, "Hidden slide. Unhide and print if you want to swap out any of the 7 station statements.")
+    note(s, "Hidden slide. Unhide and print if you want to swap out any of the 8 station statements.")
 
 # ── 13 · The verdict ─────────────────────────────────────────────────────────
 s = slide()
 tx(s, 0.55, 0.5, 8.0, 0.7, [{"runs": [("The verdict", {"size": 36, "bold": True})]}])
-tx(s, 0.55, 1.25, 12.0, 0.5, [{"runs": [("Twenty minutes left. Back to your home sheet.", {"size": 16, "color": MUTED})]}])
+tx(s, 0.55, 1.25, 12.0, 0.5, [{"runs": [("Eighteen minutes left. Back to your home sheet.", {"size": 16, "color": MUTED})]}])
 rules_rows(s, [
     ("Read everything on your sheet.", "Every colour, every rebuttal \u2014 especially the ones that trashed your opening argument."),
     ("Crown one winning argument.", "It can\u2019t be your own. Judge the writing, never the writer."),
@@ -272,7 +292,7 @@ box(s, 0, 6.05, W, 1.0, fill=TINT)
 tx(s, 1.0, 6.05, 11.3, 1.0, [{"align": PP_ALIGN.CENTER,
                               "runs": [("The judging test: would this argument still stand if it were read aloud to someone who wasn\u2019t in the room?",
                                         {"size": 16, "italic": True, "color": TEXT})]}], anchor=MSO_ANCHOR.MIDDLE)
-note(s, "3 min silent reading + 2 min picking/prepping. Then 7 speakers x 60 seconds \u2248 8 min, with quick "
+note(s, "3 min silent reading + 2 min picking/prepping. Then 8 speakers x 60 seconds \u2248 8 min, with quick "
         "challenges between. Keep your own tally \u2014 it feeds the exit reflection.")
 
 # ── 14 · Exit reflection ─────────────────────────────────────────────────────
@@ -288,7 +308,5 @@ tx(s, 2.1, 5.9, 10.0, 0.5, [{"runs": [("Scrap paper. Two minutes. Hand it in on 
 note(s, "Exit ticket on scrap paper \u2014 2 minutes. Skim them tonight: the near-persuaded answers tell you which "
         "ILT project hooks the class (forensics, AI, sport analytics all appear in the ILT repository).")
 
-out_pptx = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silent-debate-ilt.pptx")
-prs.save(out_pptx)
-print("saved", len(prs.slides.__iter__.__self__._sldIdLst), "slides to", out_pptx)
-
+prs.save(rf"D:\temp\ILT\silent-debate-ilt{SUFFIX}.pptx")
+print(f"saved grade {GRADE}:", f"silent-debate-ilt{SUFFIX}.pptx", "(", len(prs.slides._sldIdLst), "slides )")
