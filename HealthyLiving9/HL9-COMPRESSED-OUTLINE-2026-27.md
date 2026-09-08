@@ -7,27 +7,46 @@
 
 **Section drift:** 902 runs ~4–7 school days behind 901/903 all year. Full date table is the appendix — plan by date, not by class number. (No HL9 section meets Nov 4, so Take-Our-Kids-to-Work Day costs nothing here.)
 
+> **⚡ Sept 2026 Empirical Realignment (Classes 901 & 903, N=45):**
+> Day 1 prior-learning diagnostics revealed that **>70% of incoming G9 students classify "Screens & Sleep" (HL8 Out. 2) as Over-Covered** ("We did this basically the whole year") while **~72% have little or no prior instruction on STBBIs, Contraception & Consent (HL8 Out. 4)** and **~66% lack operational boundary skills (HL8 Out. 5)**. Format preferences show **0 votes for poster projects** (universal revolt) and strong demand for structured debates, video deconstruction, and collaborative problem-solving. Over 6+ students independently asked about **high school transition**. Consequently:
+> - **Outcome 1 compressed from 5 → 3 classes** (zero generic sleep/blue-light lectures; reframed around algorithmic attention capture and athletic cognitive performance).
+> - **1 class reallocated to High School Transition & Academic Agency** (addresses top unprompted student inquiry).
+> - **Outcome 2 expanded from 5 → 6 classes** (remediates the critical STBBI/consent knowledge vacuum with Anonymous Question Box).
+> - **All poster-based activities replaced** with digital case studies, video autopsies, branching sims, and structured debates.
+> - Total class count unchanged at 55. Terms 2–3 structurally preserved.
+> - *(902 survey pending; expect comparable findings. Plan will absorb minor adjustments.)*
+
 ---
 
 ## Term 1 (Sept 3 – Nov 20) — Classes 1–15
 
-### OUTCOME 1 — Health Behaviours (Classes 1–5) · Sim: **24-Hour Reckoning** (compressed)
-| # | Orig | Class | Core activity | Assessment |
-|---|---|---|---|---|
-| 1 | 1 | The Phone Audit | 4-corners warm-up; 5 dimensions of health as year lens; fictional teen's screen-time/sleep data → sleep-debt math; circadian science; sim exhibit 1. | Exit ticket (formative) |
-| 2 | 2 | Screen-Time Autopsy | Own sleep-tracking data (non-identifying); sim exhibit 2; 5-dimension self-audit; 3 fictional teen profiles. | Think-pair-share |
-| 3 | 3 | The Disease Chain | Transmission routes review; sim exhibit 3; prevention posters + gallery walk. | Observation checklist |
-| 4 | 4+8 | Identity + Morgan's Pattern | Identity-values sorter; "who am I alone with my phone?"; Morgan extended-case analysis. Journal #1. | Journal entry |
-| 5 | 5+6+9 | Verdict + **📋 Quiz 1** | Health Behaviour Verdict culmination; vocab review game; **Quiz 1 (15–18 items, incl. Morgan scenario)**. | **Summative 1 — 5%** |
+### OUTCOME 1 — Health Behaviours & Cognitive Performance (Classes 1–3) · Sim: **24-Hour Reckoning** (sprint)
+*Compressed from 5 → 3 classes. Audit mandate: >70% of students are burnt out on generic sleep lectures. Zero blue-light preaching. Reframed as attention economy + athletic recovery.*
 
-### OUTCOME 2 — Sexual & Reproductive Health (Classes 6–10) · Sim: **Decision Fork** (light)
 | # | Orig | Class | Core activity | Assessment |
 |---|---|---|---|---|
-| 6 | 10 | Ground Rules + Decision Fork Setup | Ground rules + anonymous question routines (required practice); sim setup. | — |
-| 7 | 11 | Source Check | Claim-sorter (myth/fact/half-truth); source-reliability rubric; real local supports. | Source ratings + rationale |
-| 8 | 12+13 | What Would You Do + Consent | Decision scenarios; consent as informed, ongoing; power-imbalance recognition. | Scenario responses |
-| 9 | 14 | Decision Factors | Values vs. pressure vs. knowledge; substance use × consent; partner communication. | Exit ticket |
-| 10 | 16+17 | Review + **📋 Quiz 2** | Anonymous practice quiz → targeted review; **Quiz 2 (anonymous options throughout unit)**. | **Summative 2 — 5%** |
+| 1 | 1+2 | The Period 1 Cognitive Audit | 4-corners warm-up; 5 dimensions of health as year lens; present 901/903 cohort data (71% Period 1 brain fog); personal sleep-debt calculation vs. cognitive/athletic peak windows; circadian biology (not "phone bad"). | Exit ticket (formative) |
+| 2 | 3+4+8 | Algorithmic Attention Architecture | Deconstruct how TikTok/Snapchat recommendation engines exploit dopamine loops and variable reward schedules; analyze infinite scroll as economic attention-capture; identity-values sorter ("who am I alone with my phone?"); Morgan extended-case intro. | Think-pair-share + scenario analysis |
+| 3 | 5+6+9 | Athletic Recovery Protocol + **📋 Quiz 1** | Sleep as competitive fuel (reaction time, injury prevention, emotional regulation); assemble **Personal Performance Blueprint** (1-page digital protocol — zero posters); Morgan scenario culmination; **Quiz 1 (12–15 items, incl. Morgan scenario + algorithm mechanics)**. | **Summative 1 — 5%** |
+
+### HIGH SCHOOL TRANSITION & ACADEMIC AGENCY (Class 4)
+*New module — uses 2 classes of runway reclaimed from O1 compression. Addresses the #1 unprompted student inquiry across both audited cohorts.*
+
+| # | Orig | Class | Core activity | Assessment |
+|---|---|---|---|---|
+| 4 | NEW | High School Navigation Blueprint | Direct answers to top student question: NS high school graduation requirements (18 credits), transcript anatomy, course leveling (Academic vs. Advanced vs. Graduation), teacher self-advocacy language, and exam study systems. Interactive transcript simulator. | Grade 10 Target Matrix (formative) |
+
+### OUTCOME 2 — Sexual & Reproductive Health (Classes 5–10) · Sim: **Decision Fork** (expanded)
+*Expanded from 5 → 6 classes. Audit mandate: 79% of Class 903 and 58% of Class 901 reported HL8 Outcome 4 (Contraception, STBBIs & Consent) was Never or only Briefly covered. Multiple students asked "What is an STBBI?" Anonymous Question Box is a permanent, non-negotiable ritual throughout.*
+
+| # | Orig | Class | Core activity | Assessment |
+|---|---|---|---|---|
+| 5 | 10 | Ground Rules + Anonymous Q&A Launch | Ground rules + anonymous question routines (required practice); launch physical + digital Anonymous Question Box; review boundaries of confidential healthcare in NS; Decision Fork sim setup. | — |
+| 6 | 11 | STBBI Biology & Source Check | **Remediation of Grade 8 gap:** bacterial vs. viral STBBIs, asymptomatic transmission, barrier methods, testing clinics, local NS supports. Claim-sorter (myth/fact/half-truth); source-reliability rubric. | Source ratings + rationale |
+| 7 | 12+13 | Contraception Science + Consent | Stigma-free breakdown of hormonal, barrier, and emergency contraception; accessing Youth Health Centres and 811; consent as informed, ongoing, sober, reversible; power-imbalance recognition. | Scenario responses |
+| 8 | 14 | Decision Factors + Digital Intimacy | Values vs. pressure vs. knowledge; substance use × consent; partner communication; non-consensual image sharing; Cybertip sextortion lesson; reporting mechanisms. | Exit ticket + boundary scripts |
+| 9 | NEW | Anonymous Q&A Resolution + Review | Full class addressing all accumulated Anonymous Question Box submissions with clear, factual answers. Targeted review and scenario practice. | Practice quiz (formative) |
+| 10 | 16+17 | Review + **📋 Quiz 2** | Final targeted review; **Quiz 2 (anonymous submission options throughout; 15–20 items incl. consent scenarios, STBBI facts, and boundary scripts)**. | **Summative 2 — 5%** |
 
 ### OUTCOME 3 — Health Literacy & Accessing Resources (Classes 11–15) · Sim: **Clinic Navigator** · *Theme 3 folder empty — sim carries unit; fill from July 1 brief*
 | # | Orig | Class | Core activity | Assessment |
