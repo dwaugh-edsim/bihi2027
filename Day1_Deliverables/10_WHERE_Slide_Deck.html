@@ -413,9 +413,115 @@
             if (currentSlide > 1) showSlide(currentSlide - 1);
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
+        /* --- BULLETPROOF PPT REMOTE / CLICKER CONTROLLER --- */
+        const NEXT_KEYS = new Set(['PageDown', 'pagedown', 'Down', 'down', 'ArrowDown', 'Right', 'right', 'ArrowRight', ' ', 'Space', 'Spacebar', 'Enter', 'n', 'N', 'Next']);
+        const PREV_KEYS = new Set(['PageUp', 'pageup', 'Up', 'up', 'ArrowUp', 'Left', 'left', 'ArrowLeft', 'Backspace', 'p', 'P', 'Prior']);
+        const FULLSCREEN_KEYS = new Set(['f', 'F', 'F5']);
+        const BLANK_KEYS = new Set(['b', 'B', '.', 'Period']);
+
+        function handleRemoteKeys(e) {
+            const blackOverlay = document.getElementById('blackScreenOverlay');
+            if (blackOverlay && blackOverlay.style.display === 'block') {
+                blackOverlay.style.display = 'none';
+                e.preventDefault();
+                return;
+            }
+
+            const key = e.key;
+            const code = e.keyCode;
+
+            if (NEXT_KEYS.has(key) || [34, 40, 39, 32, 13, 78].includes(code)) {
+                e.preventDefault();
+                nextSlide();
+                return;
+            }
+
+            if (PREV_KEYS.has(key) || [33, 38, 37, 8, 80].includes(code)) {
+                e.preventDefault();
+                prevSlide();
+                return;
+            }
+
+            if (FULLSCREEN_KEYS.has(key) || code === 116 || code === 70) {
+                e.preventDefault();
+                toggleFullscreen();
+                return;
+            }
+
+            if (BLANK_KEYS.has(key) || code === 66 || code === 190) {
+                e.preventDefault();
+                toggleBlackScreen();
+                return;
+            }
+
+            if (key === 'Home' || code === 36) {
+                e.preventDefault();
+                showSlide(1);
+            } else if (key === 'End' || code === 35) {
+                e.preventDefault();
+                showSlide(totalSlides);
+            }
+        }
+
+        window.addEventListener('keydown', handleRemoteKeys, true);
+        document.addEventListener('keydown', handleRemoteKeys, true);
+
+        // Click or Tap Stage to Advance
+        const deckContainer = document.querySelector('.deck-container');
+        if (deckContainer) {
+            deckContainer.addEventListener('click', (e) => {
+                if (e.target.closest('button, a, input, textarea, select')) return;
+                const blackOverlay = document.getElementById('blackScreenOverlay');
+                if (blackOverlay && blackOverlay.style.display === 'block') {
+                    blackOverlay.style.display = 'none';
+                    return;
+                }
+                const rect = deckContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                if (clickX < rect.width * 0.18) {
+                    prevSlide();
+                } else {
+                    nextSlide();
+                }
+            });
+        }
+
+        function toggleBlackScreen() {
+            let overlay = document.getElementById('blackScreenOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'blackScreenOverlay';
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100vw';
+                overlay.style.height = '100vh';
+                overlay.style.backgroundColor = '#000000';
+                overlay.style.zIndex = '999999';
+                overlay.style.cursor = 'none';
+                overlay.style.display = 'none';
+                overlay.addEventListener('click', () => { overlay.style.display = 'none'; });
+                document.body.appendChild(overlay);
+            }
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (deckContainer && deckContainer.requestFullscreen) {
+                    deckContainer.requestFullscreen();
+                } else if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            window.focus();
+            document.body.tabIndex = 0;
+            document.body.focus();
         });
     </script>
 </body>

@@ -656,35 +656,137 @@
             }
         }
 
-        btnPrev.addEventListener('click', () => updateSlide(currentSlide - 1));
-        btnNext.addEventListener('click', () => {
+        function handleNext() {
             if (currentSlide === totalSlides - 1) {
                 window.location.href = '../Student_System/HL9_Prior_Course_Diagnostic.html';
             } else {
                 updateSlide(currentSlide + 1);
             }
-        });
+        }
 
-        // Keyboard hotkeys
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        function handlePrev() {
+            updateSlide(currentSlide - 1);
+        }
+
+        btnPrev.addEventListener('click', (e) => { e.stopPropagation(); handlePrev(); });
+        btnNext.addEventListener('click', (e) => { e.stopPropagation(); handleNext(); });
+
+        /* --- BULLETPROOF PPT REMOTE / CLICKER CONTROLLER --- */
+        // Standard presentation remotes (Logitech R400/R500/R800, Kensington, DinoFire, etc.)
+        const NEXT_KEYS = new Set([
+            'PageDown', 'pagedown', 'Down', 'down', 'ArrowDown',
+            'Right', 'right', 'ArrowRight',
+            ' ', 'Space', 'Spacebar',
+            'Enter',
+            'n', 'N',
+            'Next'
+        ]);
+
+        const PREV_KEYS = new Set([
+            'PageUp', 'pageup', 'Up', 'up', 'ArrowUp',
+            'Left', 'left', 'ArrowLeft',
+            'Backspace',
+            'p', 'P',
+            'Prior'
+        ]);
+
+        const FULLSCREEN_KEYS = new Set(['f', 'F', 'F5']);
+        const BLANK_KEYS = new Set(['b', 'B', '.', 'Period']);
+
+        function handleRemoteKeys(e) {
+            // Dismiss blank screen on any key if active
+            const blackOverlay = document.getElementById('blackScreenOverlay');
+            if (blackOverlay && blackOverlay.style.display === 'block') {
+                blackOverlay.style.display = 'none';
                 e.preventDefault();
-                if (currentSlide === totalSlides - 1) {
-                    window.location.href = '../Student_System/HL9_Prior_Course_Diagnostic.html';
-                } else {
-                    updateSlide(currentSlide + 1);
-                }
-            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                return;
+            }
+
+            const key = e.key;
+            const code = e.keyCode;
+
+            // Next Slide (Key codes: 34=PageDown, 40=Down, 39=Right, 32=Space, 13=Enter, 78=N)
+            if (NEXT_KEYS.has(key) || [34, 40, 39, 32, 13, 78].includes(code)) {
                 e.preventDefault();
-                updateSlide(currentSlide - 1);
-            } else if (e.key === 'f' || e.key === 'F') {
+                handleNext();
+                return;
+            }
+
+            // Previous Slide (Key codes: 33=PageUp, 38=Up, 37=Left, 8=Backspace, 80=P)
+            if (PREV_KEYS.has(key) || [33, 38, 37, 8, 80].includes(code)) {
+                e.preventDefault();
+                handlePrev();
+                return;
+            }
+
+            // Fullscreen / Start Presentation (F5 or F)
+            if (FULLSCREEN_KEYS.has(key) || code === 116 || code === 70) {
+                e.preventDefault();
                 toggleFullscreen();
-            } else if (e.key === 'Home') {
+                return;
+            }
+
+            // Black/Blank Screen toggle (B or . or Period on PPT remotes)
+            if (BLANK_KEYS.has(key) || code === 66 || code === 190) {
+                e.preventDefault();
+                toggleBlackScreen();
+                return;
+            }
+
+            // First / Last Slide
+            if (key === 'Home' || code === 36) {
+                e.preventDefault();
                 updateSlide(0);
-            } else if (e.key === 'End') {
+            } else if (key === 'End' || code === 35) {
+                e.preventDefault();
                 updateSlide(totalSlides - 1);
             }
+        }
+
+        window.addEventListener('keydown', handleRemoteKeys, true);
+        document.addEventListener('keydown', handleRemoteKeys, true);
+
+        // Click or Tap Stage to Advance (supports air-mouse clickers & Smartboard touchscreens)
+        stage.addEventListener('click', (e) => {
+            // Ignore interactive elements
+            if (e.target.closest('button, a, input, textarea, select, .btn-ctrl')) {
+                return;
+            }
+            const blackOverlay = document.getElementById('blackScreenOverlay');
+            if (blackOverlay && blackOverlay.style.display === 'block') {
+                blackOverlay.style.display = 'none';
+                return;
+            }
+            const rect = stage.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            // Left 18% goes back; remaining 82% advances
+            if (clickX < rect.width * 0.18) {
+                handlePrev();
+            } else {
+                handleNext();
+            }
         });
+
+        // Black screen overlay for PPT remote 'B' or '.' button
+        function toggleBlackScreen() {
+            let overlay = document.getElementById('blackScreenOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'blackScreenOverlay';
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100vw';
+                overlay.style.height = '100vh';
+                overlay.style.backgroundColor = '#000000';
+                overlay.style.zIndex = '999999';
+                overlay.style.cursor = 'none';
+                overlay.style.display = 'none';
+                overlay.addEventListener('click', () => { overlay.style.display = 'none'; });
+                document.body.appendChild(overlay);
+            }
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
@@ -701,6 +803,13 @@
         }
 
         btnFullscreen.addEventListener('click', toggleFullscreen);
+
+        // Auto-focus window so clicker keystrokes are received immediately without clicking first
+        window.addEventListener('load', () => {
+            window.focus();
+            document.body.tabIndex = 0;
+            document.body.focus();
+        });
 
         // Init
         updateSlide(0);

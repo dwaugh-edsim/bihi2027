@@ -1102,6 +1102,44 @@
                 }
             }
         }
+
+        /* --- PPT REMOTE / CLICKER TAB NAVIGATION --- */
+        const tabsList = ['executive', 'exposure', 'lifestyle', 'commitments'];
+        let currentTabIdx = 0;
+
+        function nextTab() {
+            currentTabIdx = (currentTabIdx + 1) % tabsList.length;
+            switchTab(tabsList[currentTabIdx]);
+        }
+
+        function prevTab() {
+            currentTabIdx = (currentTabIdx - 1 + tabsList.length) % tabsList.length;
+            switchTab(tabsList[currentTabIdx]);
+        }
+
+        const NEXT_KEYS = new Set(['PageDown', 'pagedown', 'Down', 'down', 'ArrowDown', 'Right', 'right', 'ArrowRight', ' ', 'Space', 'Spacebar', 'Enter', 'n', 'N', 'Next']);
+        const PREV_KEYS = new Set(['PageUp', 'pageup', 'Up', 'up', 'ArrowUp', 'Left', 'left', 'ArrowLeft', 'Backspace', 'p', 'P', 'Prior']);
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const code = e.keyCode;
+            if (NEXT_KEYS.has(key) || [34, 40, 39, 32, 13, 78].includes(code)) {
+                e.preventDefault();
+                nextTab();
+            } else if (PREV_KEYS.has(key) || [33, 38, 37, 8, 80].includes(code)) {
+                e.preventDefault();
+                prevTab();
+            } else if (key === 'f' || key === 'F' || key === 'F5' || code === 116 || code === 70) {
+                e.preventDefault();
+                toggleFullScreen();
+            }
+        }, true);
+
+        window.addEventListener('load', () => {
+            window.focus();
+            document.body.tabIndex = 0;
+            document.body.focus();
+        });
     </script>
 </body>
 </html>
