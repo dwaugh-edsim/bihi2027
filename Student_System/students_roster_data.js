@@ -1,4 +1,4 @@
-﻿window.MASTER_ROSTER_DATA = [
+window.MASTER_ROSTER_DATA = [
   {
     "homeroom": "801",
     "grade": 8,
@@ -1866,6 +1866,21 @@
     "course_label": "Citizenship 9 & Healthy Living 9",
     "pin": "AMU",
     "username": "jacob.amu"
+  },
+  {
+    "homeroom": "901",
+    "grade": 9,
+    "last_name": "Nguyen",
+    "full_first_name": "Isaac James",
+    "first_name": "Isaac",
+    "student_id": "3103012229",
+    "courses": [
+      "CIT 9",
+      "HL 9"
+    ],
+    "course_label": "Citizenship 9 & Healthy Living 9",
+    "pin": "SAN",
+    "username": "isaac.san"
   },
   {
     "homeroom": "901",
