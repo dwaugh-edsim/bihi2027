@@ -984,7 +984,7 @@
         }
 
         // Roster PIN Auth & Brainstorm Loading
-        function loginAndRestore() {
+        async function loginAndRestore() {
             const cls = document.getElementById('classSelect').value;
             const firstName = document.getElementById('firstNameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase();
@@ -1010,7 +1010,39 @@
             PlacesSession.set(cls, student.first_name, pin);
             updateAuthDisplay(student);
             loadStudentData(student, pin);
-            showToast(`Welcome, ${student.first_name}! Brainstorm responses loaded.`);
+
+            // Check remote saved data on Google Sheets
+            const courseKey = cls.startsWith('8') ? 'HL8' : (cls.startsWith('CIT') || cls === '901' || cls === '902' || cls === '903' ? 'CIT9' : 'HL9');
+            try {
+                showToast("Checking cloud database for prior submissions...");
+                const res = await StudentAPI.login(cls, student.first_name, pin, courseKey);
+                if (res && res.savedData) {
+                    const d = res.savedData.data || res.savedData;
+                    if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
+                        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(k => {
+                            if (d[k]) {
+                                if (d[k].title) document.getElementById(`${k}-title`).value = d[k].title;
+                                if (d[k].desc) document.getElementById(`${k}-desc`).value = d[k].desc;
+                                if (d[k].img && document.getElementById(`${k}-img`)) {
+                                    document.getElementById(`${k}-img`).value = d[k].img;
+                                    updateImagePreview(k);
+                                }
+                                if (d[k].coords && Maps[k]) {
+                                    setMapCoords(k, d[k].coords[0], d[k].coords[1]);
+                                }
+                            }
+                        });
+                        if (d.p5 && d.p5.yt) {
+                            document.getElementById('p5-yt').value = d.p5.yt;
+                            updateYouTubePreview();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Cloud check notice:", e);
+            }
+
+            showToast(`Welcome, ${student.first_name}! Brainstorm and saved work loaded.`);
         }
 
         function updateAuthDisplay(student) {
@@ -1097,7 +1129,7 @@
             }
         }
 
-        // Save & Webhook Sync
+        // Save & Webhook Sync to Google Sheets
         async function savePortfolio() {
             const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
             const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
@@ -1120,18 +1152,25 @@
                 p5: { title: document.getElementById('p5-title').value.trim(), desc: document.getElementById('p5-desc').value.trim(), yt: document.getElementById('p5-yt').value.trim() }
             };
 
+            // Local browser persistence
             localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
 
             const saveBtn = document.getElementById('btnSaveSubmit');
             saveBtn.disabled = true;
-            saveBtn.innerText = "⏳ Saving...";
+            saveBtn.innerText = "⏳ Syncing to Google Sheets...";
+
+            const courseKey = cls.startsWith('8') ? 'HL8' : (cls.startsWith('CIT') || cls === '901' || cls === '902' || cls === '903' ? 'CIT9' : 'HL9');
+            const summaryText = `WHERE Places Portfolio for ${studentName} (${cls}): P1: ${portfolioPayload.p1.title || 'None'}, P2: ${portfolioPayload.p2.title || 'None'}, P3: ${portfolioPayload.p3.title || 'None'}, P4: ${portfolioPayload.p4.title || 'None'}`;
 
             try {
-                if (window.Room8API && window.Room8API.saveStudentDiagnostic) {
-                    await window.Room8API.saveStudentDiagnostic('places_portfolio', pin, portfolioPayload);
+                const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey);
+                if (res && res.status === 'success') {
+                    showToast("✅ Portfolio saved and synced to master Google Sheet!");
+                } else {
+                    showToast("Saved locally in browser! (Master sync pending connection)");
                 }
-                showToast("✅ Portfolio saved and submitted successfully!");
             } catch (err) {
+                console.warn("Sync error:", err);
                 showToast("Saved in browser! (Master sync pending connection)");
             } finally {
                 saveBtn.disabled = false;
