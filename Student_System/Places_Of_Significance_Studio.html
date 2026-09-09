@@ -802,8 +802,8 @@
     <script src="api.js"></script>
 
     <script>
-        // Session
-        const Session = {
+        // Places Session Management
+        const PlacesSession = {
             getClass() { return localStorage.getItem('places_class') || '903'; },
             getName() { return localStorage.getItem('places_name') || ''; },
             getPin() { return localStorage.getItem('places_pin') || ''; },
@@ -939,7 +939,7 @@
 
         // Load Mr. Waugh's Exemplar Model
         function loadWaughExemplar() {
-            Session.set('903', 'Mr. Waugh', 'WAU');
+            PlacesSession.set('903', 'Mr. Waugh', 'WAU');
             document.getElementById('badgeStudent').innerText = "⭐ Mr. Waugh (Sample Model)";
             document.getElementById('topLogoutBtn').style.display = 'inline-flex';
             document.getElementById('authLogoutBtn').style.display = 'inline-flex';
@@ -1007,7 +1007,7 @@
                 return;
             }
 
-            Session.set(cls, student.first_name, pin);
+            PlacesSession.set(cls, student.first_name, pin);
             updateAuthDisplay(student);
             loadStudentData(student, pin);
             showToast(`Welcome, ${student.first_name}! Brainstorm responses loaded.`);
@@ -1021,7 +1021,7 @@
         }
 
         function logout() {
-            Session.clear();
+            PlacesSession.clear();
             document.getElementById('badgeStudent').innerText = "Enter PIN below to load profile";
             document.getElementById('topLogoutBtn').style.display = 'none';
             document.getElementById('authLogoutBtn').style.display = 'none';
@@ -1099,8 +1099,8 @@
 
         // Save & Webhook Sync
         async function savePortfolio() {
-            const pin = Session.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
-            const studentName = Session.getName() || document.getElementById('firstNameInput').value.trim();
+            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
             const cls = document.getElementById('classSelect').value;
 
             if (!pin || pin.length < 3) {
@@ -1144,7 +1144,7 @@
         let slideDeckData = [];
 
         function openStoryMapModal() {
-            const studentName = Session.getName() || document.getElementById('firstNameInput').value.trim() || "Student";
+            const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim() || "Student";
             const cls = document.getElementById('classSelect').value;
 
             const p1 = { title: document.getElementById('p1-title').value || 'My Personal Place', desc: document.getElementById('p1-desc').value || 'No description provided.', img: document.getElementById('p1-img').value, coords: Maps.p1.coords };
@@ -1315,9 +1315,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             initSingleMap('p1');
 
-            const savedPin = Session.getPin();
-            const savedName = Session.getName();
-            const savedClass = Session.getClass();
+            const savedPin = PlacesSession.getPin();
+            const savedName = PlacesSession.getName();
+            const savedClass = PlacesSession.getClass();
 
             if (savedClass) document.getElementById('classSelect').value = savedClass;
             if (savedName) document.getElementById('firstNameInput').value = savedName;
