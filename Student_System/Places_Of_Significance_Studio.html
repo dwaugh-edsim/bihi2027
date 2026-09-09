@@ -1,0 +1,1276 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Geography of My Life — Places of Significance Studio | Room 8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Roboto+Slab:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-page: #0b1120;
+            --bg-card: #1e293b;
+            --bg-card-alt: #0f172a;
+            --text-main: #e2e8f0;
+            --text-heading: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-hr: #475569;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-light: rgba(99, 102, 241, 0.15);
+            --accent-gold: #f59e0b;
+            --accent-gold-bg: rgba(245, 158, 11, 0.15);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: "Open Sans", sans-serif;
+            font-size: 11.5pt;
+            line-height: 1.6;
+            padding: 24px 16px;
+        }
+
+        .wrapper {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9em;
+        }
+
+        .user-badge {
+            background: #0f172a;
+            border: 1px solid var(--border-hr);
+            color: #38bdf8;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 700;
+        }
+
+        .sync-badge {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-badge::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #ffffff;
+            border: 1px solid var(--accent);
+            padding: 0.55em 1.2em;
+            font-size: 0.88em;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #334155;
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-gold {
+            background: var(--accent-gold);
+            border-color: #d97706;
+            color: #0f172a;
+        }
+
+        .btn-gold:hover {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        /* Main Container Sheet */
+        .sheet {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            margin-bottom: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 18px;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: "Roboto Slab", Georgia, serif;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 1.65em;
+            line-height: 1.25;
+            margin-bottom: 6px;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.88em;
+            font-weight: 400;
+        }
+
+        .badge-dept {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid var(--accent);
+            color: #a5b4fc;
+            font-family: "Roboto Slab", serif;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .meta-notice {
+            background: rgba(99, 102, 241, 0.12);
+            border-left: 4px solid var(--accent);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 24px;
+            font-size: 0.9em;
+            color: #c7d2fe;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Auth Card */
+        .auth-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+        }
+
+        .auth-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1.2fr auto;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .auth-grid { grid-template-columns: 1fr; }
+            .sheet { padding: 18px; }
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field-group label {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        input[type="text"], input[type="url"], select, textarea {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 0.9em;
+            background: #0b1120;
+            color: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        /* Category Place Card */
+        .place-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 24px;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .place-card:hover {
+            border-color: var(--accent);
+        }
+
+        .place-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .place-tag {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .place-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .brainstorm-box {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 3px solid var(--accent-gold);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 16px;
+            font-size: 0.85em;
+            color: #fde68a;
+        }
+
+        .brainstorm-box strong {
+            color: #fbbf24;
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .place-body-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 18px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 860px) {
+            .place-body-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 220px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: #1e293b;
+            margin-top: 6px;
+        }
+
+        .map-help {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Image Preview Box */
+        .img-preview-box {
+            width: 100%;
+            height: 140px;
+            background: #1e293b;
+            border: 1px dashed var(--border-hr);
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 0.8em;
+            position: relative;
+        }
+
+        .img-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* YouTube Embed Box */
+        .yt-embed-box {
+            width: 100%;
+            aspect-ratio: 16/9;
+            max-height: 280px;
+            background: #000000;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .yt-embed-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Action Bar */
+        .submit-bar {
+            border-top: 2px solid var(--border);
+            padding-top: 24px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        /* Presentation StoryMap Modal */
+        .storymap-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(11, 17, 32, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
+
+        .storymap-sheet {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            color: #f8fafc;
+        }
+
+        /* Claim Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            padding: 16px;
+        }
+
+        .modal-box {
+            background: #1e293b;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            max-width: 460px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            color: #f8fafc;
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            font-size: 0.88em;
+            display: none;
+            z-index: 3000;
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        
+        <!-- Top Status Bar -->
+        <div class="top-bar">
+            <div class="user-status">
+                <span class="user-badge" id="badgeStudent">Enter PIN below to load your portfolio</span>
+                <span class="sync-badge" id="syncBadge">Ready to Sync</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-gold" onclick="openStoryMapModal()">📺 Present Portfolio</button>
+                <a href="../index.html" class="btn btn-secondary" style="font-size: 0.78em; padding: 0.4em 0.9em;">&larr; Hub</a>
+                <button class="btn btn-secondary" id="topLogoutBtn" style="font-size: 0.78em; padding: 0.4em 0.9em; display: none;" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+
+        <div class="sheet">
+
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <h1>Geography of My Life — Places of Significance Studio</h1>
+                    <div class="subtitle">Mr. Waugh &bull; Room 8 &bull; Bicentennial Junior High (2026–2027)</div>
+                </div>
+                <div>
+                    <span class="badge-dept">Social Studies / CIT9</span>
+                </div>
+            </div>
+
+            <div class="meta-notice">
+                <div>
+                    <strong>Welcome to Your Place Studio:</strong> Your raw brainstorm responses from Google Forms have been loaded below. Use this studio to curate, refine, map, and present the 5 essential locations that define your personal geography.
+                </div>
+                <button class="btn btn-secondary" style="font-size: 0.78em; padding: 0.35em 0.8em;" onclick="restoreOriginalBrainstorm()">🔄 Re-load Form Brainstorm</button>
+            </div>
+
+            <!-- PIN & Name Gate (Cross-Device Recovery) -->
+            <div class="auth-card">
+                <div class="auth-grid">
+                    <div class="field-group">
+                        <label>Select Your Class</label>
+                        <select id="classSelect" onchange="onClassChange()">
+                            <option value="901">CIT 901 (Grade 9)</option>
+                            <option value="902">CIT 902 (Grade 9)</option>
+                            <option value="903" selected>CIT 903 (Grade 9)</option>
+                            <option value="801">HL 801 (Grade 8)</option>
+                            <option value="802">HL 802 (Grade 8)</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstNameInput" placeholder="e.g., Misha / Bella / Callum">
+                    </div>
+                    <div class="field-group">
+                        <label>3-Letter PIN</label>
+                        <input type="text" id="pinInput" placeholder="e.g., COR" maxlength="3" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: #38bdf8;">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn" type="button" onclick="loginAndRestore()">Log In & Load</button>
+                        <button class="btn btn-secondary" id="authLogoutBtn" type="button" onclick="logout()">Sign Out</button>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: #818cf8; font-weight: 700; text-decoration: underline;">Look up your assigned PIN &rarr;</a></span>
+                    <span style="font-size: 0.78em; opacity: 0.8;">Same 3-letter PIN used for all Room 8 portals</span>
+                </div>
+            </div>
+
+            <!-- PLACE 1: THE PERSONAL PLACE -->
+            <div class="place-card" id="card-p1">
+                <div class="place-header">
+                    <div class="place-title">1. The Personal Place</div>
+                    <span class="place-tag">🏠 Personal Memory & Home</span>
+                </div>
+
+                <div class="brainstorm-box" id="b-p1">
+                    <strong>Your Original Form Brainstorm:</strong>
+                    <span id="b-p1-text">Log in with your PIN above to load your Google Form response...</span>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Featured Location Name / Landmark</label>
+                    <input type="text" id="p1-title" placeholder="e.g., My Childhood Home in Highfield / Senobe Paddling Club">
+                </div>
+
+                <div class="place-body-grid">
+                    <div>
+                        <div class="field-group" style="margin-bottom: 12px;">
+                            <label>Why This Place Holds Deep Meaning For You (2–4 Sentences)</label>
+                            <textarea id="p1-desc" placeholder="Explain the memories, emotions, or family connections attached to this location..."></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Photo or Image Link (Optional)</label>
+                            <input type="url" id="p1-img" placeholder="Paste an image link (Google / Unsplash / photo link)" oninput="updateImagePreview('p1')">
+                            <div class="img-preview-box" id="p1-img-preview"><span>No image linked yet</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="field-group">
+                            <label>Interactive Map Pin (Click or Drag Marker)</label>
+                            <div class="map-container" id="map-p1"></div>
+                            <div class="map-help">
+                                <span>Lat/Lng: <span id="p1-coords" style="font-family: monospace;">44.6655, -63.5677</span></span>
+                                <span>Search or click map to reposition</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACE 2: THE COMMUNITY PLACE -->
+            <div class="place-card" id="card-p2">
+                <div class="place-header">
+                    <div class="place-title">2. The Community Place</div>
+                    <span class="place-tag">🌳 Local Dartmouth / Halifax / NS</span>
+                </div>
+
+                <div class="brainstorm-box" id="b-p2">
+                    <strong>Your Original Form Brainstorm:</strong>
+                    <span id="b-p2-text">Log in with your PIN above to load your Google Form response...</span>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Featured Community Landmark</label>
+                    <input type="text" id="p2-title" placeholder="e.g., Dartmouth Commons / Mic Mac Mall / Findlay Community Centre / Lake Banook">
+                </div>
+
+                <div class="place-body-grid">
+                    <div>
+                        <div class="field-group" style="margin-bottom: 12px;">
+                            <label>Why This Community Spot Matters (2–4 Sentences)</label>
+                            <textarea id="p2-desc" placeholder="Describe the activities, friendships, games, or routines you connect with this community place..."></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Photo or Image Link (Optional)</label>
+                            <input type="url" id="p2-img" placeholder="Paste an image link" oninput="updateImagePreview('p2')">
+                            <div class="img-preview-box" id="p2-img-preview"><span>No image linked yet</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="field-group">
+                            <label>Interactive Map Pin (Click or Drag Marker)</label>
+                            <div class="map-container" id="map-p2"></div>
+                            <div class="map-help">
+                                <span>Lat/Lng: <span id="p2-coords" style="font-family: monospace;">44.6680, -63.5700</span></span>
+                                <span>Click map to reposition</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACE 3: THE GLOBAL / HERITAGE PLACE -->
+            <div class="place-card" id="card-p3">
+                <div class="place-header">
+                    <div class="place-title">3. The Global or Heritage Place</div>
+                    <span class="place-tag">🌍 Family Roots, Ancestry & Culture</span>
+                </div>
+
+                <div class="brainstorm-box" id="b-p3">
+                    <strong>Your Original Form Brainstorm:</strong>
+                    <span id="b-p3-text">Log in with your PIN above to load your Google Form response...</span>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Global Heritage Location (Country, City, or Ancestral Homeland)</label>
+                    <input type="text" id="p3-title" placeholder="e.g., Manila, Philippines / Kent, England / Caracas, Venezuela / Cape Breton, NS">
+                </div>
+
+                <div class="place-body-grid">
+                    <div>
+                        <div class="field-group" style="margin-bottom: 12px;">
+                            <label>How This Place Connects to Your Family Story & Culture (2–4 Sentences)</label>
+                            <textarea id="p3-desc" placeholder="Explain your heritage, family immigration stories, traditions, food, or visits to this part of the world..."></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Photo or Image Link (Optional)</label>
+                            <input type="url" id="p3-img" placeholder="Paste an image link" oninput="updateImagePreview('p3')">
+                            <div class="img-preview-box" id="p3-img-preview"><span>No image linked yet</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="field-group">
+                            <label>Interactive Global Map Pin (Click or Drag Marker)</label>
+                            <div class="map-container" id="map-p3"></div>
+                            <div class="map-help">
+                                <span>Lat/Lng: <span id="p3-coords" style="font-family: monospace;">14.5995, 120.9842</span></span>
+                                <span>Scroll/zoom out to place pin globally</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACE 4: THE ASPIRATIONAL PLACE -->
+            <div class="place-card" id="card-p4">
+                <div class="place-header">
+                    <div class="place-title">4. The Aspirational Place</div>
+                    <span class="place-tag">✈️ Dream Destination & Future Goals</span>
+                </div>
+
+                <div class="brainstorm-box" id="b-p4">
+                    <strong>Your Original Form Brainstorm:</strong>
+                    <span id="b-p4-text">Log in with your PIN above to load your Google Form response...</span>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Aspirational Destination You Dream of Visiting</label>
+                    <input type="text" id="p4-title" placeholder="e.g., Tokyo, Japan / Hawaii / Neuschwanstein Castle, Germany / Seoul, South Korea">
+                </div>
+
+                <div class="place-body-grid">
+                    <div>
+                        <div class="field-group" style="margin-bottom: 12px;">
+                            <label>Why You Want to Experience This Place (2–4 Sentences)</label>
+                            <textarea id="p4-desc" placeholder="What draws you to this place? The architecture, nature, climate, career dreams, culture, or food?"></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Photo or Image Link (Optional)</label>
+                            <input type="url" id="p4-img" placeholder="Paste an image link" oninput="updateImagePreview('p4')">
+                            <div class="img-preview-box" id="p4-img-preview"><span>No image linked yet</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="field-group">
+                            <label>Interactive Global Map Pin (Click or Drag Marker)</label>
+                            <div class="map-container" id="map-p4"></div>
+                            <div class="map-help">
+                                <span>Lat/Lng: <span id="p4-coords" style="font-family: monospace;">35.6762, 139.6503</span></span>
+                                <span>Click map to place pin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACE 5: THE MUSIC OF YOUR LIFE -->
+            <div class="place-card" id="card-p5">
+                <div class="place-header">
+                    <div class="place-title">5. The Music of Your Life</div>
+                    <span class="place-tag">🎵 Sound, Memory & Emotion</span>
+                </div>
+
+                <div class="brainstorm-box" id="b-p5">
+                    <strong>Your Original Form Brainstorm:</strong>
+                    <span id="b-p5-text">Log in with your PIN above to load your Google Form response...</span>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Song Title & Artist (Childhood Song / Grade 3 or earlier)</label>
+                    <input type="text" id="p5-title" placeholder="e.g., Katy Perry — Thinking of You / Eagles — Hotel California">
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>YouTube Link (Video or Audio)</label>
+                    <input type="url" id="p5-yt" placeholder="https://www.youtube.com/watch?v=..." oninput="updateYouTubePreview()">
+                    <div class="yt-embed-box" id="yt-player-box"></div>
+                </div>
+
+                <div class="field-group">
+                    <label>Why This Song Triggers Powerful Memories of a Place or Person (2–4 Sentences)</label>
+                    <textarea id="p5-desc" placeholder="Where were you when you used to listen to this? What house, car ride, family member, or situation comes rushing back?"></textarea>
+                </div>
+            </div>
+
+            <!-- Submit & Save Bar -->
+            <div class="submit-bar">
+                <div style="font-size: 0.85em; color: var(--text-muted);">
+                    All work saves automatically to your browser and syncs to Mr. Waugh's master database.
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" type="button" onclick="printPortfolio()">🖨️ Print / PDF</button>
+                    <button class="btn" id="btnSaveSubmit" type="button" onclick="savePortfolio()" style="font-size: 0.95em; padding: 0.6em 1.6em;">
+                        💾 Save & Submit Portfolio
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PRESENTATION STORYMAP MODAL -->
+    <div class="storymap-modal" id="storyMapModal">
+        <div class="storymap-sheet">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-bottom: 20px;">
+                <div>
+                    <h2 id="sm-student-name">Student's Geography of Life</h2>
+                    <div style="font-size: 0.85em; color: var(--text-muted);" id="sm-class-info">Room 8 &bull; Places of Significance Presentation</div>
+                </div>
+                <button class="btn btn-secondary" onclick="closeStoryMapModal()">✕ Close</button>
+            </div>
+
+            <div id="sm-content-body">
+                <!-- Dynamically populated presentation view -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Claim Modal -->
+    <div class="modal-backdrop" id="claimPinModal">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 6px;">Find Your 3-Letter PIN</h3>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 14px;">Select your class and name below to look up your personal PIN:</p>
+            <div class="field-group" style="margin-bottom: 12px;">
+                <label>Class</label>
+                <select id="modalClassSelect" onchange="populateModalNames()">
+                    <option value="901">CIT 901 (Grade 9)</option>
+                    <option value="902">CIT 902 (Grade 9)</option>
+                    <option value="903" selected>CIT 903 (Grade 9)</option>
+                    <option value="801">HL 801 (Grade 8)</option>
+                    <option value="802">HL 802 (Grade 8)</option>
+                </select>
+            </div>
+            <div class="field-group" style="margin-bottom: 16px;">
+                <label>Your Name</label>
+                <select id="modalNameSelect" onchange="onModalStudentChosen()">
+                    <option value="">-- Choose your name --</option>
+                </select>
+            </div>
+            <div id="modalPinDisplay" style="display: none; background: #0b1120; border: 1px solid var(--accent); border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 0.8em; color: var(--text-muted); text-transform: uppercase;">Your 3-Letter PIN:</div>
+                <div id="modalPinText" style="font-size: 2em; font-weight: 800; font-family: monospace; color: #38bdf8; letter-spacing: 0.1em;">---</div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="btn btn-secondary" type="button" onclick="closeClaimPinModal()">Cancel</button>
+                <button class="btn" type="button" id="btnUseClaimedPin" style="display: none;" onclick="useClaimedPin()">Use This PIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Script Dependencies -->
+    <script src="students_roster_data.js"></script>
+    <script src="places_brainstorm_data.js"></script>
+    <script src="api.js"></script>
+
+    <script>
+        // State
+        const Session = {
+            getClass() { return localStorage.getItem('places_class') || '903'; },
+            getName() { return localStorage.getItem('places_name') || ''; },
+            getPin() { return localStorage.getItem('places_pin') || ''; },
+            set(cls, name, pin) {
+                localStorage.setItem('places_class', cls);
+                localStorage.setItem('places_name', name);
+                localStorage.setItem('places_pin', pin);
+            },
+            clear() {
+                localStorage.removeItem('places_class');
+                localStorage.removeItem('places_name');
+                localStorage.removeItem('places_pin');
+            }
+        };
+
+        // Leaflet Maps Object
+        const Maps = {
+            p1: { map: null, marker: null, coords: [44.6655, -63.5677] }, // Dartmouth / Highfield default
+            p2: { map: null, marker: null, coords: [44.6680, -63.5700] }, // Banook / Mic Mac default
+            p3: { map: null, marker: null, coords: [14.5995, 120.9842] }, // Manila / Heritage default
+            p4: { map: null, marker: null, coords: [35.6762, 139.6503] }  // Tokyo / Aspirational default
+        };
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.background = isError ? '#991b1b' : '#0f172a';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+
+        function initMaps() {
+            Object.keys(Maps).forEach(key => {
+                const conf = Maps[key];
+                const mapEl = document.getElementById(`map-${key}`);
+                if (!mapEl) return;
+
+                conf.map = L.map(mapEl, { zoomControl: true }).setView(conf.coords, key.startsWith('p3') || key.startsWith('p4') ? 3 : 13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(conf.map);
+
+                conf.marker = L.marker(conf.coords, { draggable: true }).addTo(conf.map);
+
+                conf.marker.on('dragend', function(e) {
+                    const latlng = conf.marker.getLatLng();
+                    conf.coords = [latlng.lat, latlng.lng];
+                    document.getElementById(`${key}-coords`).innerText = `${latlng.lat.toFixed(4)}, ${latlng.lng.toFixed(4)}`;
+                });
+
+                conf.map.on('click', function(e) {
+                    conf.marker.setLatLng(e.latlng);
+                    conf.coords = [e.latlng.lat, e.latlng.lng];
+                    document.getElementById(`${key}-coords`).innerText = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+                });
+            });
+        }
+
+        function setMapCoords(key, lat, lng, zoom = 12) {
+            if (!Maps[key] || !Maps[key].map) return;
+            Maps[key].coords = [lat, lng];
+            Maps[key].map.setView([lat, lng], zoom);
+            Maps[key].marker.setLatLng([lat, lng]);
+            document.getElementById(`${key}-coords`).innerText = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        }
+
+        function updateImagePreview(key) {
+            const val = document.getElementById(`${key}-img`).value.trim();
+            const preview = document.getElementById(`${key}-img-preview`);
+            if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
+                preview.innerHTML = `<img src="${val}" alt="Place preview" onerror="this.parentElement.innerHTML='<span>Image link failed to load</span>'">`;
+            } else {
+                preview.innerHTML = `<span>No image linked yet</span>`;
+            }
+        }
+
+        function updateYouTubePreview() {
+            const url = document.getElementById('p5-yt').value.trim();
+            const box = document.getElementById('yt-player-box');
+            
+            let ytId = '';
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                ytId = match[2];
+            }
+
+            if (ytId) {
+                box.style.display = 'block';
+                box.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen></iframe>`;
+            } else {
+                box.style.display = 'none';
+                box.innerHTML = '';
+            }
+        }
+
+        function onClassChange() {
+            // Optional callback
+        }
+
+        // Roster PIN Login & Data Loading
+        function loginAndRestore() {
+            const cls = document.getElementById('classSelect').value;
+            const firstName = document.getElementById('firstNameInput').value.trim();
+            const pin = document.getElementById('pinInput').value.trim().toUpperCase();
+
+            if (!pin || pin.length < 3) {
+                showToast("Please enter your 3-letter PIN (e.g. COR)", true);
+                return;
+            }
+
+            const roster = window.MASTER_ROSTER_DATA || [];
+            const student = roster.find(s => s.pin && s.pin.toUpperCase() === pin);
+
+            if (!student) {
+                showToast(`PIN "${pin}" was not found in the roster. Click 'Look up PIN'`, true);
+                return;
+            }
+
+            Session.set(cls, student.first_name, pin);
+            updateAuthDisplay(student);
+            loadStudentData(student, pin);
+            showToast(`Welcome, ${student.first_name}! Your places data has loaded.`);
+        }
+
+        function updateAuthDisplay(student) {
+            document.getElementById('badgeStudent').innerText = `👤 ${student.first_name} ${student.last_name} (${student.pin})`;
+            document.getElementById('topLogoutBtn').style.display = 'inline-flex';
+            document.getElementById('authLogoutBtn').style.display = 'inline-flex';
+        }
+
+        function logout() {
+            Session.clear();
+            document.getElementById('badgeStudent').innerText = "Enter PIN below to load profile";
+            document.getElementById('topLogoutBtn').style.display = 'none';
+            document.getElementById('authLogoutBtn').style.display = 'none';
+            document.getElementById('pinInput').value = '';
+            document.getElementById('firstNameInput').value = '';
+            showToast("Signed out.");
+        }
+
+        function loadStudentData(student, pin) {
+            const bData = window.PLACES_BRAINSTORM_DATA || {};
+            const normName = (student.first_name + student.last_name).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rawBrainstorm = bData[pin] || bData[student.first_name.toLowerCase()] || bData[normName] || null;
+
+            if (rawBrainstorm) {
+                document.getElementById('b-p1-text').innerText = rawBrainstorm.cat1_personal || 'No personal place noted';
+                document.getElementById('b-p2-text').innerText = rawBrainstorm.cat2_community || 'No community place noted';
+                document.getElementById('b-p3-text').innerText = rawBrainstorm.cat3_global || 'No global place noted';
+                document.getElementById('b-p4-text').innerText = rawBrainstorm.cat4_aspirational || 'No aspirational place noted';
+                document.getElementById('b-p5-text').innerText = rawBrainstorm.cat5_music || 'No song noted';
+
+                // Pre-populate text if empty
+                if (!document.getElementById('p1-desc').value && rawBrainstorm.cat1_personal) {
+                    document.getElementById('p1-desc').value = rawBrainstorm.cat1_personal;
+                }
+                if (!document.getElementById('p2-desc').value && rawBrainstorm.cat2_community) {
+                    document.getElementById('p2-desc').value = rawBrainstorm.cat2_community;
+                }
+                if (!document.getElementById('p3-desc').value && rawBrainstorm.cat3_global) {
+                    document.getElementById('p3-desc').value = rawBrainstorm.cat3_global;
+                }
+                if (!document.getElementById('p4-desc').value && rawBrainstorm.cat4_aspirational) {
+                    document.getElementById('p4-desc').value = rawBrainstorm.cat4_aspirational;
+                }
+                if (!document.getElementById('p5-desc').value && rawBrainstorm.cat5_music) {
+                    document.getElementById('p5-desc').value = rawBrainstorm.cat5_music;
+                }
+                if (!document.getElementById('p5-yt').value && rawBrainstorm.youtube_url) {
+                    document.getElementById('p5-yt').value = rawBrainstorm.youtube_url;
+                    updateYouTubePreview();
+                }
+            } else {
+                document.getElementById('b-p1-text').innerText = "No prior Google Form submission found for this PIN. Enter your places below!";
+                document.getElementById('b-p2-text').innerText = "Enter your community place below!";
+                document.getElementById('b-p3-text').innerText = "Enter your global / heritage place below!";
+                document.getElementById('b-p4-text').innerText = "Enter your aspirational place below!";
+                document.getElementById('b-p5-text').innerText = "Enter your song and YouTube link below!";
+            }
+
+            // Restore any previously saved session from localStorage
+            const savedDraft = localStorage.getItem(`places_draft_${pin}`);
+            if (savedDraft) {
+                try {
+                    const parsed = JSON.parse(savedDraft);
+                    ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(k => {
+                        if (parsed[k]) {
+                            if (parsed[k].title) document.getElementById(`${k}-title`).value = parsed[k].title;
+                            if (parsed[k].desc) document.getElementById(`${k}-desc`).value = parsed[k].desc;
+                            if (parsed[k].img && document.getElementById(`${k}-img`)) {
+                                document.getElementById(`${k}-img`).value = parsed[k].img;
+                                updateImagePreview(k);
+                            }
+                            if (parsed[k].coords && Maps[k]) {
+                                setMapCoords(k, parsed[k].coords[0], parsed[k].coords[1]);
+                            }
+                        }
+                    });
+                    if (parsed.p5 && parsed.p5.yt) {
+                        document.getElementById('p5-yt').value = parsed.p5.yt;
+                        updateYouTubePreview();
+                    }
+                } catch(e) {}
+            }
+        }
+
+        function restoreOriginalBrainstorm() {
+            const pin = Session.getPin();
+            if (!pin) {
+                showToast("Please log in with your PIN first", true);
+                return;
+            }
+            const student = (window.MASTER_ROSTER_DATA || []).find(s => s.pin && s.pin.toUpperCase() === pin);
+            if (student) {
+                loadStudentData(student, pin);
+                showToast("Re-loaded original Google Form responses!");
+            }
+        }
+
+        // Save & Submit Portfolio
+        async function savePortfolio() {
+            const pin = Session.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            const studentName = Session.getName() || document.getElementById('firstNameInput').value.trim();
+            const cls = document.getElementById('classSelect').value;
+
+            if (!pin || pin.length < 3) {
+                showToast("Please enter and verify your 3-letter PIN before saving.", true);
+                return;
+            }
+
+            const portfolioPayload = {
+                pin: pin,
+                name: studentName,
+                class: cls,
+                updated_at: new Date().toISOString(),
+                p1: {
+                    title: document.getElementById('p1-title').value.trim(),
+                    desc: document.getElementById('p1-desc').value.trim(),
+                    img: document.getElementById('p1-img').value.trim(),
+                    coords: Maps.p1.coords
+                },
+                p2: {
+                    title: document.getElementById('p2-title').value.trim(),
+                    desc: document.getElementById('p2-desc').value.trim(),
+                    img: document.getElementById('p2-img').value.trim(),
+                    coords: Maps.p2.coords
+                },
+                p3: {
+                    title: document.getElementById('p3-title').value.trim(),
+                    desc: document.getElementById('p3-desc').value.trim(),
+                    img: document.getElementById('p3-img').value.trim(),
+                    coords: Maps.p3.coords
+                },
+                p4: {
+                    title: document.getElementById('p4-title').value.trim(),
+                    desc: document.getElementById('p4-desc').value.trim(),
+                    img: document.getElementById('p4-img').value.trim(),
+                    coords: Maps.p4.coords
+                },
+                p5: {
+                    title: document.getElementById('p5-title').value.trim(),
+                    desc: document.getElementById('p5-desc').value.trim(),
+                    yt: document.getElementById('p5-yt').value.trim()
+                }
+            };
+
+            // Save locally
+            localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
+
+            // Sync with backend API
+            const saveBtn = document.getElementById('btnSaveSubmit');
+            saveBtn.disabled = true;
+            saveBtn.innerText = "⏳ Saving to Master Database...";
+
+            try {
+                if (window.Room8API && window.Room8API.saveStudentDiagnostic) {
+                    await window.Room8API.saveStudentDiagnostic('places_portfolio', pin, portfolioPayload);
+                }
+                showToast("✅ Portfolio saved and submitted successfully!");
+            } catch (err) {
+                console.warn("Backend sync notice:", err);
+                showToast("Saved locally in browser! (Master sync pending connection)");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "💾 Save & Submit Portfolio";
+            }
+        }
+
+        // Presentation View Modal
+        function openStoryMapModal() {
+            const pin = Session.getPin();
+            const studentName = Session.getName() || "Student";
+            const cls = document.getElementById('classSelect').value;
+
+            document.getElementById('sm-student-name').innerText = `🌍 ${studentName}'s Geography of Life`;
+            document.getElementById('sm-class-info').innerText = `Class ${cls} • Room 8 Places of Significance Portfolio`;
+
+            const places = [
+                { id: 'p1', label: '1. Personal Place', tag: '🏠 Home & Cherished Memory', title: document.getElementById('p1-title').value || 'Personal Place', desc: document.getElementById('p1-desc').value, img: document.getElementById('p1-img').value, coords: Maps.p1.coords },
+                { id: 'p2', label: '2. Community Place', tag: '🌳 Dartmouth / Local Community', title: document.getElementById('p2-title').value || 'Community Place', desc: document.getElementById('p2-desc').value, img: document.getElementById('p2-img').value, coords: Maps.p2.coords },
+                { id: 'p3', label: '3. Global Place', tag: '🌍 Heritage & Culture', title: document.getElementById('p3-title').value || 'Global Place', desc: document.getElementById('p3-desc').value, img: document.getElementById('p3-img').value, coords: Maps.p3.coords },
+                { id: 'p4', label: '4. Aspirational Place', tag: '✈️ Dream Destination', title: document.getElementById('p4-title').value || 'Aspirational Place', desc: document.getElementById('p4-desc').value, img: document.getElementById('p4-img').value, coords: Maps.p4.coords }
+            ];
+
+            let html = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-bottom: 24px;">`;
+
+            places.forEach(p => {
+                html += `
+                    <div style="background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 18px; display: flex; flex-direction: column;">
+                        <div style="font-size: 0.75em; color: #818cf8; font-weight: 700; text-transform: uppercase;">${p.tag}</div>
+                        <h3 style="color: #f8fafc; margin: 4px 0 10px 0; font-size: 1.2em;">${p.title}</h3>
+                        ${p.img ? `<div style="height: 160px; border-radius: 6px; overflow: hidden; margin-bottom: 12px;"><img src="${p.img}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
+                        <p style="font-size: 0.9em; line-height: 1.5; color: #cbd5e1; flex-grow: 1;">${p.desc || '<em>No reflection written yet</em>'}</p>
+                        <div style="margin-top: 10px; font-size: 0.75em; color: var(--text-muted); font-family: monospace;">📍 Coords: ${p.coords[0].toFixed(3)}, ${p.coords[1].toFixed(3)}</div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+            // Song section
+            const songTitle = document.getElementById('p5-title').value || 'Song of My Life';
+            const songDesc = document.getElementById('p5-desc').value;
+            const songUrl = document.getElementById('p5-yt').value;
+
+            let ytEmbed = '';
+            const match = songUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (match && match[2].length === 11) {
+                ytEmbed = `<iframe src="https://www.youtube.com/embed/${match[2]}" style="width: 100%; aspect-ratio: 16/9; max-height: 320px; border-radius: 8px; border: 1px solid var(--border);" allowfullscreen></iframe>`;
+            }
+
+            html += `
+                <div style="background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                    <div style="font-size: 0.75em; color: #f59e0b; font-weight: 700; text-transform: uppercase;">🎵 5. The Soundtrack of My Life</div>
+                    <h3 style="color: #f8fafc; margin: 4px 0 10px 0;">${songTitle}</h3>
+                    <p style="font-size: 0.9em; line-height: 1.5; color: #cbd5e1; margin-bottom: 14px;">${songDesc || '<em>No description written yet</em>'}</p>
+                    ${ytEmbed}
+                </div>
+            `;
+
+            document.getElementById('sm-content-body').innerHTML = html;
+            document.getElementById('storyMapModal').style.display = 'flex';
+        }
+
+        function closeStoryMapModal() {
+            document.getElementById('storyMapModal').style.display = 'none';
+        }
+
+        function printPortfolio() {
+            window.print();
+        }
+
+        // Claim PIN Modal Handlers
+        function openClaimPinModal() {
+            populateModalNames();
+            document.getElementById('claimPinModal').style.display = 'flex';
+        }
+
+        function closeClaimPinModal() {
+            document.getElementById('claimPinModal').style.display = 'none';
+        }
+
+        function populateModalNames() {
+            const cls = document.getElementById('modalClassSelect').value;
+            const select = document.getElementById('modalNameSelect');
+            select.innerHTML = '<option value="">-- Choose your name --</option>';
+
+            const roster = window.MASTER_ROSTER_DATA || [];
+            const filtered = roster.filter(s => {
+                if (cls === '901' || cls === '902' || cls === '903') return s.homeroom === cls || (s.grade === 9 && s.homeroom === cls);
+                if (cls === '801' || cls === '802') return s.homeroom === cls || (s.grade === 8 && s.homeroom === cls);
+                return true;
+            });
+
+            filtered.sort((a,b) => (a.last_name || '').localeCompare(b.last_name || ''));
+            filtered.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.pin;
+                opt.textContent = `${s.last_name}, ${s.first_name}`;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('modalPinDisplay').style.display = 'none';
+            document.getElementById('btnUseClaimedPin').style.display = 'none';
+        }
+
+        function onModalStudentChosen() {
+            const pin = document.getElementById('modalNameSelect').value;
+            if (pin) {
+                document.getElementById('modalPinText').innerText = pin;
+                document.getElementById('modalPinDisplay').style.display = 'block';
+                document.getElementById('btnUseClaimedPin').style.display = 'inline-block';
+            } else {
+                document.getElementById('modalPinDisplay').style.display = 'none';
+                document.getElementById('btnUseClaimedPin').style.display = 'none';
+            }
+        }
+
+        function useClaimedPin() {
+            const pin = document.getElementById('modalNameSelect').value;
+            const select = document.getElementById('modalNameSelect');
+            const studentText = select.options[select.selectedIndex].text;
+            const firstName = studentText.split(',')[1]?.trim() || '';
+
+            document.getElementById('pinInput').value = pin;
+            document.getElementById('firstNameInput').value = firstName;
+            document.getElementById('classSelect').value = document.getElementById('modalClassSelect').value;
+            closeClaimPinModal();
+            loginAndRestore();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initMaps();
+
+            const savedPin = Session.getPin();
+            const savedName = Session.getName();
+            const savedClass = Session.getClass();
+
+            if (savedClass) document.getElementById('classSelect').value = savedClass;
+            if (savedName) document.getElementById('firstNameInput').value = savedName;
+            if (savedPin) {
+                document.getElementById('pinInput').value = savedPin;
+                const roster = window.MASTER_ROSTER_DATA || [];
+                const student = roster.find(s => s.pin && s.pin.toUpperCase() === savedPin);
+                if (student) {
+                    updateAuthDisplay(student);
+                    loadStudentData(student, savedPin);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
