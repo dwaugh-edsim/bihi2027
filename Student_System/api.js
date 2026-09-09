@@ -36,7 +36,7 @@ const StudentAPI = {
         }
 
         // Teacher & testing demo overrides
-        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV') {
+        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV' || pin === 'MRW') {
             return { valid: true, isTeacher: true, name: firstName || 'Teacher Demo' };
         }
 
