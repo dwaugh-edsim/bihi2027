@@ -611,12 +611,12 @@
                         </select>
                     </div>
                     <div class="field-group">
-                        <label>First Name</label>
-                        <input type="text" id="firstNameInput" placeholder="e.g., Alex / Misha">
+                        <label>First Name (or Full Name)</label>
+                        <input type="text" id="firstNameInput" placeholder="e.g., Alex Smith or Misha">
                     </div>
                     <div class="field-group">
                         <label>3-Letter PIN</label>
-                        <input type="text" id="pinInput" placeholder="e.g., COR" maxlength="3" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--accent);">
+                        <input type="text" id="pinInput" placeholder="e.g., COR" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--accent);">
                     </div>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn" type="button" onclick="loginAndRestore()">Log In & Load</button>
@@ -624,8 +624,8 @@
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <span>Tip: You can log in with your <strong>3-letter PIN</strong> or your <strong>full name</strong>!</span>
                     <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline;">Look up your assigned PIN &rarr;</a></span>
-                    <span style="font-size: 0.78em; opacity: 0.8;">Same PIN as Healthy Living 9</span>
                 </div>
             </div>
 
@@ -1470,13 +1470,8 @@
 
         async function loginAndRestore() {
             const cls = document.getElementById('classSelect').value;
-            const name = document.getElementById('firstNameInput').value.trim();
-            const pin = document.getElementById('pinInput').value.trim().toUpperCase();
-
-            if (!pin || !name) {
-                showToast("Please enter your First Name and 3-Letter PIN.", true);
-                return;
-            }
+            let name = document.getElementById('firstNameInput').value.trim();
+            let pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
             const auth = StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
@@ -1484,7 +1479,16 @@
                 return;
             }
 
-            showToast("Verifying PIN and checking for existing submissions...");
+            if (auth.pin) {
+                pin = auth.pin;
+                document.getElementById('pinInput').value = pin;
+            }
+            if (auth.name) {
+                name = auth.name;
+                document.getElementById('firstNameInput').value = name;
+            }
+
+            showToast("Verifying profile and checking for existing submissions...");
 
             const res = await StudentAPI.login(cls, name, pin, 'CIT9');
             if (res.status === 'success') {
