@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9: Class 05 — The 3 Levels of Government (Smartboard Deck)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-card: #1e293b;
+            --border: #334155;
+            --text-heading: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --fed-blue: #3b82f6;
+            --prov-gold: #f59e0b;
+            --mun-emerald: #10b981;
+            --red: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 24px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Deck Header */
+        header.deck-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex: none;
+        }
+
+        .header-title h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #090d16;
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Main Slide Container */
+        .slide-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #0b1120;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .slide.active {
+            display: flex;
+        }
+
+        .slide-top {
+            flex: none;
+            margin-bottom: 16px;
+        }
+        .slide-tag {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .slide-heading {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            margin-top: 2px;
+        }
+
+        /* Slide Content Components */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            flex: 1;
+        }
+
+        .level-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-top: 6px solid var(--border);
+        }
+        .level-card.fed { border-top-color: var(--fed-blue); }
+        .level-card.prov { border-top-color: var(--prov-gold); }
+        .level-card.mun { border-top-color: var(--mun-emerald); }
+
+        .card-head {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+        .card-meta {
+            font-size: 0.82rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .card-list {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-body);
+        }
+        .card-list li { margin-left: 20px; margin-bottom: 6px; }
+
+        /* Interactive Blame Game Scenarios */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            flex: 1;
+        }
+        .scenario-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scenario-card:hover { border-color: var(--accent); }
+        .scenario-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 12px;
+        }
+        .scenario-reveal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #090d16;
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        .reveal-pill {
+            padding: 3px 10px;
+            border-radius: 4px;
+            color: #fff;
+            display: none;
+        }
+        .reveal-pill.fed { background: var(--fed-blue); }
+        .reveal-pill.prov { background: var(--prov-gold); }
+        .reveal-pill.mun { background: var(--mun-emerald); }
+        .scenario-card.revealed .reveal-pill { display: inline-block; }
+        .scenario-card.revealed .click-hint { display: none; }
+
+        /* Definitions Grid */
+        .def-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            flex: 1;
+        }
+        .def-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--accent);
+            border-radius: 6px;
+            padding: 16px 20px;
+        }
+        .def-term {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+        .def-desc {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            line-height: 1.5;
+        }
+
+        /* Deck Navigation Controls */
+        .deck-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            flex: none;
+        }
+        .btn-ctrl {
+            background: var(--surface);
+            color: var(--text-heading);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-ctrl:hover { background: #334155; border-color: var(--accent); }
+        .btn-ctrl.primary { background: var(--accent); color: #090d16; border-color: var(--accent); }
+        .btn-ctrl.primary:hover { background: #7dd3fc; }
+
+        .slide-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+        }
+        .dot.active {
+            background: var(--accent);
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Deck Header -->
+    <header class="deck-header">
+        <div class="header-title">
+            <h1>Citizenship 9 &bull; <span>Class 05: The 3 Levels of Government</span></h1>
+            <p>Room 8 &bull; Mr. Waugh &bull; Constitutional Matrix & Division of Powers</p>
+        </div>
+        <div class="timer-box">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Class Timer</span>
+            <span class="timer-display" id="timer">45:00</span>
+            <button class="btn-ctrl" style="padding: 4px 10px; font-size: 0.75rem;" onclick="toggleTimer()">Start / Pause</button>
+        </div>
+    </header>
+
+    <!-- Main Stage -->
+    <div class="slide-stage">
+
+        <!-- SLIDE 1: HOOK / THE BLAME GAME -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-top">
+                <span class="slide-tag">00–08m &bull; Prior Knowledge Diagnostic</span>
+                <h2 class="slide-heading">The Everyday "Blame Game": Who Do You Call?</h2>
+            </div>
+            <div class="scenario-grid">
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">1. A massive tire-popping pothole opens up on Victoria Road in Dartmouth.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill mun">MUNICIPAL (HRM Regional Council)</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">2. Emergency Room wait times reach 11 hours at Dartmouth General Hospital.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill prov">PROVINCIAL (NS Health / Province House)</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">3. Canada places a 25% tariff on American steel and electric vehicles.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill fed">FEDERAL (Parliament / Ottawa)</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">4. A new provincial directive bans student cell phones during instructional time.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill prov">PROVINCIAL (NS Dept of Education)</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">5. A foreign naval submarine enters Canadian waters off Halifax Harbour.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill fed">FEDERAL (National Defence / Armed Forces)</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="this.classList.toggle('revealed')">
+                    <div class="scenario-text">6. Halifax Transit decides to move all youth bus passes onto a phone app.</div>
+                    <div class="scenario-reveal">
+                        <span class="click-hint" style="color: var(--text-muted);">👉 Click to Reveal Jurisdiction</span>
+                        <span class="reveal-pill mun">MUNICIPAL (Halifax Transit / Council)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: THE 3 COLUMNS -->
+        <div class="slide" id="slide-2">
+            <div class="slide-top">
+                <span class="slide-tag">08–22m &bull; Constitutional Matrix</span>
+                <h2 class="slide-heading">The Division of Powers: Sections 91 & 92</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="level-card fed">
+                    <div class="card-head">1. Federal Government</div>
+                    <div class="card-meta">OTTAWA &bull; PARLIAMENT &bull; SEC 91</div>
+                    <ul class="card-list">
+                        <li><strong>Leader:</strong> Prime Minister (MP)</li>
+                        <li><strong>National Defence</strong> & Armed Forces</li>
+                        <li><strong>Criminal Law</strong> & YCJA</li>
+                        <li><strong>Currency</strong>, Banking & Tariffs</li>
+                        <li><strong>Immigration</strong> & Passports</li>
+                        <li><strong>Foreign Affairs</strong> & Treaties</li>
+                    </ul>
+                </div>
+                <div class="level-card prov">
+                    <div class="card-head">2. Provincial Government</div>
+                    <div class="card-meta">HALIFAX &bull; PROVINCE HOUSE &bull; SEC 92</div>
+                    <ul class="card-list">
+                        <li><strong>Leader:</strong> Premier (MLA)</li>
+                        <li><strong>Healthcare</strong> (Hospitals, ERs)</li>
+                        <li><strong>Education</strong> (Curriculum, Schools)</li>
+                        <li><strong>Highways</strong> (100-Series Roads)</li>
+                        <li><strong>Driver Licensing</strong> (Access NS)</li>
+                        <li><strong>Natural Resources</strong> & Mining</li>
+                    </ul>
+                </div>
+                <div class="level-card mun">
+                    <div class="card-head">3. Municipal Government</div>
+                    <div class="card-meta">CITY HALL &bull; HRM REGIONAL COUNCIL</div>
+                    <ul class="card-list">
+                        <li><strong>Leader:</strong> Mayor & Councillors</li>
+                        <li><strong>Local Streets</strong>, Potholes & Snow</li>
+                        <li><strong>Public Transit</strong> (Halifax Transit/Ferry)</li>
+                        <li><strong>Local Police</strong> (HRP) & Fire (HRFE)</li>
+                        <li><strong>Zoning Bylaws</strong> & Building Permits</li>
+                        <li><strong>Water</strong> & Waste/Recycling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: 5 TESTABLE DEFINITIONS -->
+        <div class="slide" id="slide-3">
+            <div class="slide-top">
+                <span class="slide-tag">22–32m &bull; Academic Anchor Definitions</span>
+                <h2 class="slide-heading">5 Core Testable Definitions (Study Anchors)</h2>
+            </div>
+            <div class="def-grid">
+                <div class="def-card">
+                    <div class="def-term">1. Jurisdiction</div>
+                    <div class="def-desc">The official legal power and authority of a government or court to make laws, enforce rules, and govern a specific area or topic.</div>
+                </div>
+                <div class="def-card">
+                    <div class="def-term">2. Section 91 (Federal)</div>
+                    <div class="def-desc">The clause in Canada’s Constitution Act (1867) assigning all national responsibilities (defence, criminal law, banking, trade) to the Federal Parliament.</div>
+                </div>
+                <div class="def-card">
+                    <div class="def-term">3. Section 92 (Provincial)</div>
+                    <div class="def-desc">The constitutional clause giving provinces exclusive authority over regional social services: hospitals, schools, highways, and property laws.</div>
+                </div>
+                <div class="def-card">
+                    <div class="def-term">4. Statute vs. Bylaw</div>
+                    <div class="def-desc">A <strong>Statute</strong> is a law enacted by Federal Parliament or a Provincial Legislature; a <strong>Bylaw</strong> is a local regulation passed by a City Council.</div>
+                </div>
+                <div class="def-card" style="grid-column: span 2;">
+                    <div class="def-term">5. "Creature of the Province"</div>
+                    <div class="def-desc">Municipalities have no independent constitutional power. They are created, regulated, and can be changed or dissolved at any time by the Provincial Legislature.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: APPLICATION & EXIT CHECK -->
+        <div class="slide" id="slide-4">
+            <div class="slide-top">
+                <span class="slide-tag">32–45m &bull; Application & Formative Close</span>
+                <h2 class="slide-heading">Jurisdictional Cross-Fire: Side B Ledger & Exit Check</h2>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; font-size: 1.1rem; line-height: 1.7;">
+                <h3 style="font-family: 'Roboto Slab', serif; color: var(--accent); margin-bottom: 12px;">📋 Student Protocol for Side B (15 Minutes):</h3>
+                <ol style="margin-left: 24px; color: var(--text-heading);">
+                    <li>Work through the <strong>15-Item Service Classification Table</strong> on Side B of your dossier.</li>
+                    <li>Check exactly one box per service: <strong>[FED] Federal</strong>, <strong>[PROV] Provincial</strong>, or <strong>[MUN] Municipal</strong>.</li>
+                    <li>Complete the <strong>3-minute Exit Check slip</strong> at the bottom.</li>
+                    <li>Hand in your completed dossier to Mr. Waugh at the door as your ticket out!</li>
+                </ol>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Controls -->
+    <div class="deck-controls">
+        <button class="btn-ctrl" onclick="prevSlide()">&larr; Previous Slide</button>
+        <div class="slide-dots">
+            <div class="dot active" onclick="goToSlide(0)"></div>
+            <div class="dot" onclick="goToSlide(1)"></div>
+            <div class="dot" onclick="goToSlide(2)"></div>
+            <div class="dot" onclick="goToSlide(3)"></div>
+        </div>
+        <button class="btn-ctrl primary" onclick="nextSlide()">Next Slide &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function updateSlide() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlide);
+            });
+            dots.forEach((d, idx) => {
+                d.classList.toggle('active', idx === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(idx) {
+            currentSlide = idx;
+            updateSlide();
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // 45-Minute Timer
+        let timeLeft = 45 * 60;
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function toggleTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+            } else {
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        const mins = Math.floor(timeLeft / 60);
+                        const secs = timeLeft % 60;
+                        document.getElementById('timer').innerText = 
+                            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
