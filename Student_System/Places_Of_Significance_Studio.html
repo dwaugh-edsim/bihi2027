@@ -15,6 +15,15 @@
     <!-- Leaflet Maps CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
+    <script>
+        function handlePfImgError(key) {
+            const box = document.getElementById('pf-img-box-' + key);
+            if (box) {
+                box.innerHTML = '<div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.85em; background:#f1f5f9; border:1px dashed #cbd5e1;">📷 Photo Not Available</div>';
+            }
+        }
+    </script>
+    
     <style>
         :root {
             --bg-body: #f4f5f7;
@@ -1035,7 +1044,7 @@
                                 <span class="portfolio-card-coords" onclick="focusMasterMap('p1')" title="Center on map">📍 <span id="pf-coords-p1">44.6655, -63.5677</span></span>
                             </div>
                             <div class="portfolio-card-img-box" id="pf-img-box-p1">
-                                <img id="pf-img-p1" src="" alt="Personal Place" referrerpolicy="no-referrer" onerror="handlePfImgError('p1')">
+                                <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.85em; background:#f1f5f9; border:1px dashed #cbd5e1;">📷 No photo attached</div>
                             </div>
                             <div class="portfolio-card-body">
                                 <div class="portfolio-card-title" id="pf-title-p1">Personal Place Title</div>
@@ -1050,7 +1059,7 @@
                                 <span class="portfolio-card-coords" onclick="focusMasterMap('p2')" title="Center on map">📍 <span id="pf-coords-p2">44.6680, -63.5700</span></span>
                             </div>
                             <div class="portfolio-card-img-box" id="pf-img-box-p2">
-                                <img id="pf-img-p2" src="" alt="Community Place" referrerpolicy="no-referrer" onerror="handlePfImgError('p2')">
+                                <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.85em; background:#f1f5f9; border:1px dashed #cbd5e1;">📷 No photo attached</div>
                             </div>
                             <div class="portfolio-card-body">
                                 <div class="portfolio-card-title" id="pf-title-p2">Community Place Title</div>
@@ -1065,7 +1074,7 @@
                                 <span class="portfolio-card-coords" onclick="focusMasterMap('p3')" title="Center on map">📍 <span id="pf-coords-p3">14.5995, 120.9842</span></span>
                             </div>
                             <div class="portfolio-card-img-box" id="pf-img-box-p3">
-                                <img id="pf-img-p3" src="" alt="Global Place" referrerpolicy="no-referrer" onerror="handlePfImgError('p3')">
+                                <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.85em; background:#f1f5f9; border:1px dashed #cbd5e1;">📷 No photo attached</div>
                             </div>
                             <div class="portfolio-card-body">
                                 <div class="portfolio-card-title" id="pf-title-p3">Global Heritage Location</div>
@@ -1080,7 +1089,7 @@
                                 <span class="portfolio-card-coords" onclick="focusMasterMap('p4')" title="Center on map">📍 <span id="pf-coords-p4">35.6762, 139.6503</span></span>
                             </div>
                             <div class="portfolio-card-img-box" id="pf-img-box-p4">
-                                <img id="pf-img-p4" src="" alt="Aspirational Destination" referrerpolicy="no-referrer" onerror="handlePfImgError('p4')">
+                                <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.85em; background:#f1f5f9; border:1px dashed #cbd5e1;">📷 No photo attached</div>
                             </div>
                             <div class="portfolio-card-body">
                                 <div class="portfolio-card-title" id="pf-title-p4">Dream Destination Title</div>
@@ -1573,13 +1582,75 @@
             }
         }
 
-        // Load Mr. Waugh's Exemplar Model
+        function clearAllFormFields() {
+            ['p1', 'p2', 'p3', 'p4'].forEach(k => {
+                const titleEl = document.getElementById(`${k}-title`);
+                const descEl = document.getElementById(`${k}-desc`);
+                const imgEl = document.getElementById(`${k}-img`);
+                const previewEl = document.getElementById(`${k}-img-preview`);
+                if (titleEl) titleEl.value = '';
+                if (descEl) descEl.value = '';
+                if (imgEl) imgEl.value = '';
+                if (previewEl) previewEl.innerHTML = '<span>No image linked</span>';
+            });
+            const p5Title = document.getElementById('p5-title');
+            const p5Desc = document.getElementById('p5-desc');
+            const p5Yt = document.getElementById('p5-yt');
+            const ytBox = document.getElementById('yt-player-box');
+            if (p5Title) p5Title.value = '';
+            if (p5Desc) p5Desc.value = '';
+            if (p5Yt) p5Yt.value = '';
+            if (ytBox) { ytBox.style.display = 'none'; ytBox.innerHTML = ''; }
+
+            const defaultCoords = {
+                p1: [44.6655, -63.5677],
+                p2: [44.6680, -63.5700],
+                p3: [14.5995, 120.9842],
+                p4: [35.6762, 139.6503]
+            };
+            ['p1', 'p2', 'p3', 'p4'].forEach(k => {
+                setMapCoords(k, defaultCoords[k][0], defaultCoords[k][1]);
+            });
+
+            ['b-p1-text', 'b-p2-text', 'b-p3-text', 'b-p4-text', 'b-p5-text'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = 'Log in with your PIN above to load your brainstorm notes...';
+            });
+        }
+
+        function copyBrainstormToField(key) {
+            const raw = window._currentStudentBrainstorm;
+            if (!raw) {
+                showToast("Please log in with your PIN first to load your brainstorm notes.", true);
+                return;
+            }
+            const map = {
+                'p1': raw.cat1_personal,
+                'p2': raw.cat2_community,
+                'p3': raw.cat3_global,
+                'p4': raw.cat4_aspirational,
+                'p5': raw.cat5_music
+            };
+            const text = map[key];
+            if (text) {
+                const descEl = document.getElementById(`${key}-desc`);
+                if (descEl) {
+                    descEl.value = text;
+                    triggerAutoSave();
+                    showToast(`Pasted original brainstorm into ${key.toUpperCase()}`);
+                }
+            } else {
+                showToast(`No survey notes found for this category.`);
+            }
+        }
+
+        // Load Mr. Waugh's Exemplar Model (Demo only - never overwrites student session)
         function loadWaughExemplar() {
-            PlacesSession.set('903', 'Mr. Waugh', 'WAU');
-            document.getElementById('badgeStudent').innerText = "⭐ Mr. Waugh (Sample Model)";
+            clearAllFormFields();
+            document.getElementById('badgeStudent').innerText = "⭐ Viewing Sample Model (Mr. Waugh)";
             document.getElementById('topLogoutBtn').style.display = 'inline-flex';
             document.getElementById('authLogoutBtn').style.display = 'inline-flex';
-            document.getElementById('firstNameInput').value = "Mr. Waugh";
+            document.getElementById('firstNameInput').value = "Mr. Waugh (Sample)";
             document.getElementById('pinInput').value = "WAU";
 
             // Place 1: Wallace, NS Cottage
@@ -1616,7 +1687,72 @@
             document.getElementById('p5-yt').value = "https://www.youtube.com/watch?v=k7n7dESM4Hg";
             updateYouTubePreview();
 
-            showToast("Loaded Mr. Waugh's full exemplar model! Click 'Present Deck' to view.");
+            showToast("Loaded sample model! (This is a demonstration and not saved to your profile)");
+        }
+
+        function applyDraftData(d) {
+            if (!d) return false;
+            let applied = false;
+            ['p1', 'p2', 'p3', 'p4'].forEach(k => {
+                if (d[k]) {
+                    if (d[k].title) { document.getElementById(`${k}-title`).value = d[k].title; applied = true; }
+                    if (d[k].desc) { document.getElementById(`${k}-desc`).value = d[k].desc; applied = true; }
+                    if (d[k].img && document.getElementById(`${k}-img`)) {
+                        document.getElementById(`${k}-img`).value = d[k].img;
+                        updateImagePreview(k);
+                        applied = true;
+                    }
+                    if (d[k].coords && Array.isArray(d[k].coords) && d[k].coords.length === 2 && Maps[k]) {
+                        setMapCoords(k, d[k].coords[0], d[k].coords[1]);
+                        applied = true;
+                    }
+                }
+            });
+            if (d.p5) {
+                if (d.p5.title) { document.getElementById('p5-title').value = d.p5.title; applied = true; }
+                if (d.p5.desc) { document.getElementById('p5-desc').value = d.p5.desc; applied = true; }
+                if (d.p5.yt) {
+                    document.getElementById('p5-yt').value = d.p5.yt;
+                    updateYouTubePreview();
+                    applied = true;
+                }
+            }
+            return applied;
+        }
+
+        function loadStudentBrainstorm(student, pin) {
+            const bData = window.PLACES_BRAINSTORM_DATA || {};
+            const normName = (student.first_name + (student.last_name || '')).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rawBrainstorm = bData[pin] || bData[student.first_name.toLowerCase()] || bData[normName] || null;
+            window._currentStudentBrainstorm = rawBrainstorm;
+
+            if (rawBrainstorm) {
+                document.getElementById('b-p1-text').innerText = rawBrainstorm.cat1_personal || 'No personal place noted in survey';
+                document.getElementById('b-p2-text').innerText = rawBrainstorm.cat2_community || 'No community place noted in survey';
+                document.getElementById('b-p3-text').innerText = rawBrainstorm.cat3_global || 'No global place noted in survey';
+                document.getElementById('b-p4-text').innerText = rawBrainstorm.cat4_aspirational || 'No aspirational place noted in survey';
+                document.getElementById('b-p5-text').innerText = rawBrainstorm.cat5_music || 'No song noted in survey';
+            } else {
+                document.getElementById('b-p1-text').innerText = "Direct drafting mode: Enter your personal place details below.";
+                document.getElementById('b-p2-text').innerText = "Direct drafting mode: Enter your community place details below.";
+                document.getElementById('b-p3-text').innerText = "Direct drafting mode: Enter your global heritage details below.";
+                document.getElementById('b-p4-text').innerText = "Direct drafting mode: Enter your aspirational place details below.";
+                document.getElementById('b-p5-text').innerText = "Direct drafting mode: Enter your song and YouTube link below.";
+            }
+        }
+
+        function prepopulateFromBrainstorm(student, pin) {
+            const raw = window._currentStudentBrainstorm;
+            if (!raw) return;
+            if (!document.getElementById('p1-desc').value && raw.cat1_personal) document.getElementById('p1-desc').value = raw.cat1_personal;
+            if (!document.getElementById('p2-desc').value && raw.cat2_community) document.getElementById('p2-desc').value = raw.cat2_community;
+            if (!document.getElementById('p3-desc').value && raw.cat3_global) document.getElementById('p3-desc').value = raw.cat3_global;
+            if (!document.getElementById('p4-desc').value && raw.cat4_aspirational) document.getElementById('p4-desc').value = raw.cat4_aspirational;
+            if (!document.getElementById('p5-desc').value && raw.cat5_music) document.getElementById('p5-desc').value = raw.cat5_music;
+            if (!document.getElementById('p5-yt').value && raw.youtube_url) {
+                document.getElementById('p5-yt').value = raw.youtube_url;
+                updateYouTubePreview();
+            }
         }
 
         // Roster PIN Auth & Brainstorm Loading
@@ -1625,7 +1761,7 @@
             let firstName = document.getElementById('firstNameInput').value.trim();
             let pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
-            if (pin === 'WAU' || pin === 'MRW' || firstName.toLowerCase().includes('waugh')) {
+            if (pin === 'WAU' || pin === 'MRW') {
                 loadWaughExemplar();
                 return;
             }
@@ -1641,131 +1777,106 @@
             pin = student.pin;
             firstName = student.first_name;
 
-            // Auto-fill form fields
+            // 1. Clear everything from the screen first so NO previous student's or sample text lingers
+            clearAllFormFields();
+
+            // 2. Set authenticated state
             document.getElementById('pinInput').value = pin;
             document.getElementById('firstNameInput').value = firstName;
             if (student.homeroom) document.getElementById('classSelect').value = student.homeroom;
 
-            PlacesSession.set(cls, student.first_name, pin);
+            PlacesSession.set(student.homeroom || cls, student.first_name, pin);
             updateAuthDisplay(student);
-            loadStudentData(student, pin);
 
-            // Check remote saved data on Google Sheets
-            const courseKey = cls.startsWith('8') ? 'HL8' : (cls.startsWith('CIT') || cls === '901' || cls === '902' || cls === '903' ? 'CIT9' : 'HL9');
+            // 3. Load brainstorm reference notes from Google Form
+            loadStudentBrainstorm(student, pin);
+
+            // 4. Check localStorage first for in-progress draft
+            let loadedFromLocal = false;
+            const savedDraft = localStorage.getItem(`places_draft_${pin}`);
+            if (savedDraft) {
+                try {
+                    const parsed = JSON.parse(savedDraft);
+                    if (applyDraftData(parsed)) {
+                        loadedFromLocal = true;
+                    }
+                } catch(e) {}
+            }
+
+            // 5. Check remote Google Sheets save (which is authoritative)
+            const courseKey = (student.homeroom || cls).startsWith('8') ? 'HL8' : 'CIT9';
             try {
                 showToast("Checking cloud database for prior submissions...");
-                const res = await StudentAPI.login(cls, student.first_name, pin, courseKey);
+                const res = await StudentAPI.login(student.homeroom || cls, student.first_name, pin, courseKey);
                 if (res && res.savedData) {
                     const d = res.savedData.data || res.savedData;
                     if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
-                        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(k => {
-                            if (d[k]) {
-                                if (d[k].title) document.getElementById(`${k}-title`).value = d[k].title;
-                                if (d[k].desc) document.getElementById(`${k}-desc`).value = d[k].desc;
-                                if (d[k].img && document.getElementById(`${k}-img`)) {
-                                    document.getElementById(`${k}-img`).value = d[k].img;
-                                    updateImagePreview(k);
-                                }
-                                if (d[k].coords && Maps[k]) {
-                                    setMapCoords(k, d[k].coords[0], d[k].coords[1]);
-                                }
-                            }
-                        });
-                        if (d.p5 && d.p5.yt) {
-                            document.getElementById('p5-yt').value = d.p5.yt;
-                            updateYouTubePreview();
-                        }
+                        applyDraftData(d);
+                        // Update local cache
+                        localStorage.setItem(`places_draft_${pin}`, JSON.stringify(d));
+                        showToast(`✅ Loaded your saved work from Google Sheets!`);
+                        return;
                     }
                 }
             } catch (e) {
                 console.warn("Cloud check notice:", e);
             }
 
-            showToast(`Welcome, ${student.first_name}! Brainstorm and saved work loaded.`);
+            if (loadedFromLocal) {
+                showToast(`Welcome back, ${student.first_name}! Restored your draft from this device.`);
+            } else {
+                // If brand new, fill reflection with their initial brainstorm notes
+                prepopulateFromBrainstorm(student, pin);
+                showToast(`Welcome, ${student.first_name}! Brainstorm loaded.`);
+            }
         }
 
         function updateAuthDisplay(student) {
-            document.getElementById('badgeStudent').innerText = `👤 ${student.first_name} ${student.last_name} (${student.pin})`;
+            document.getElementById('badgeStudent').innerText = `👤 ${student.first_name} ${student.last_name || ''} (${student.pin})`;
             document.getElementById('topLogoutBtn').style.display = 'inline-flex';
             document.getElementById('authLogoutBtn').style.display = 'inline-flex';
             document.getElementById('syncStatus').innerText = `• Loaded ${student.first_name}`;
         }
 
         function logout() {
-            PlacesSession.clear();
-            document.getElementById('badgeStudent').innerText = "Enter PIN below to load profile";
-            document.getElementById('topLogoutBtn').style.display = 'none';
-            document.getElementById('authLogoutBtn').style.display = 'none';
-            document.getElementById('pinInput').value = '';
-            document.getElementById('firstNameInput').value = '';
-            document.getElementById('syncStatus').innerText = "• Signed out";
-            showToast("Signed out.");
+            if (confirm("Sign out of this session? The form will be cleared for the next student.")) {
+                PlacesSession.clear();
+                clearAllFormFields();
+                document.getElementById('badgeStudent').innerText = "Enter PIN below to load profile";
+                document.getElementById('topLogoutBtn').style.display = 'none';
+                document.getElementById('authLogoutBtn').style.display = 'none';
+                document.getElementById('pinInput').value = '';
+                document.getElementById('firstNameInput').value = '';
+                document.getElementById('syncStatus').innerText = "• Signed out";
+                showToast("Signed out. Form cleared.");
+            }
         }
 
-        function loadStudentData(student, pin) {
-            const bData = window.PLACES_BRAINSTORM_DATA || {};
-            const normName = (student.first_name + student.last_name).toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawBrainstorm = bData[pin] || bData[student.first_name.toLowerCase()] || bData[normName] || null;
+        // Auto-save debounced helper
+        let autoSaveTimer = null;
+        function triggerAutoSave() {
+            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW') return;
 
-            if (rawBrainstorm) {
-                document.getElementById('b-p1-text').innerText = rawBrainstorm.cat1_personal || 'No personal place noted';
-                document.getElementById('b-p2-text').innerText = rawBrainstorm.cat2_community || 'No community place noted';
-                document.getElementById('b-p3-text').innerText = rawBrainstorm.cat3_global || 'No global place noted';
-                document.getElementById('b-p4-text').innerText = rawBrainstorm.cat4_aspirational || 'No aspirational place noted';
-                document.getElementById('b-p5-text').innerText = rawBrainstorm.cat5_music || 'No song noted';
-
-                // Pre-populate reflection boxes if empty
-                if (!document.getElementById('p1-desc').value && rawBrainstorm.cat1_personal) {
-                    document.getElementById('p1-desc').value = rawBrainstorm.cat1_personal;
-                }
-                if (!document.getElementById('p2-desc').value && rawBrainstorm.cat2_community) {
-                    document.getElementById('p2-desc').value = rawBrainstorm.cat2_community;
-                }
-                if (!document.getElementById('p3-desc').value && rawBrainstorm.cat3_global) {
-                    document.getElementById('p3-desc').value = rawBrainstorm.cat3_global;
-                }
-                if (!document.getElementById('p4-desc').value && rawBrainstorm.cat4_aspirational) {
-                    document.getElementById('p4-desc').value = rawBrainstorm.cat4_aspirational;
-                }
-                if (!document.getElementById('p5-desc').value && rawBrainstorm.cat5_music) {
-                    document.getElementById('p5-desc').value = rawBrainstorm.cat5_music;
-                }
-                if (!document.getElementById('p5-yt').value && rawBrainstorm.youtube_url) {
-                    document.getElementById('p5-yt').value = rawBrainstorm.youtube_url;
-                    updateYouTubePreview();
-                }
-            } else {
-                document.getElementById('b-p1-text').innerText = "Direct drafting mode: Enter your personal place details below.";
-                document.getElementById('b-p2-text').innerText = "Direct drafting mode: Enter your community place details below.";
-                document.getElementById('b-p3-text').innerText = "Direct drafting mode: Enter your global heritage details below.";
-                document.getElementById('b-p4-text').innerText = "Direct drafting mode: Enter your aspirational place details below.";
-                document.getElementById('b-p5-text').innerText = "Direct drafting mode: Enter your song and YouTube link below.";
-            }
-
-            // Restore from localStorage
-            const savedDraft = localStorage.getItem(`places_draft_${pin}`);
-            if (savedDraft) {
-                try {
-                    const parsed = JSON.parse(savedDraft);
-                    ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(k => {
-                        if (parsed[k]) {
-                            if (parsed[k].title) document.getElementById(`${k}-title`).value = parsed[k].title;
-                            if (parsed[k].desc) document.getElementById(`${k}-desc`).value = parsed[k].desc;
-                            if (parsed[k].img && document.getElementById(`${k}-img`)) {
-                                document.getElementById(`${k}-img`).value = parsed[k].img;
-                                updateImagePreview(k);
-                            }
-                            if (parsed[k].coords && Maps[k]) {
-                                setMapCoords(k, parsed[k].coords[0], parsed[k].coords[1]);
-                            }
-                        }
-                    });
-                    if (parsed.p5 && parsed.p5.yt) {
-                        document.getElementById('p5-yt').value = parsed.p5.yt;
-                        updateYouTubePreview();
-                    }
-                } catch(e) {}
-            }
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+                const cls = document.getElementById('classSelect').value;
+                const portfolioPayload = {
+                    pin: pin,
+                    name: studentName,
+                    class: cls,
+                    updated_at: new Date().toISOString(),
+                    p1: { title: document.getElementById('p1-title').value.trim(), desc: document.getElementById('p1-desc').value.trim(), img: document.getElementById('p1-img').value.trim(), coords: Maps.p1.coords },
+                    p2: { title: document.getElementById('p2-title').value.trim(), desc: document.getElementById('p2-desc').value.trim(), img: document.getElementById('p2-img').value.trim(), coords: Maps.p2.coords },
+                    p3: { title: document.getElementById('p3-title').value.trim(), desc: document.getElementById('p3-desc').value.trim(), img: document.getElementById('p3-img').value.trim(), coords: Maps.p3.coords },
+                    p4: { title: document.getElementById('p4-title').value.trim(), desc: document.getElementById('p4-desc').value.trim(), img: document.getElementById('p4-img').value.trim(), coords: Maps.p4.coords },
+                    p5: { title: document.getElementById('p5-title').value.trim(), desc: document.getElementById('p5-desc').value.trim(), yt: document.getElementById('p5-yt').value.trim() }
+                };
+                localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
+                const syncEl = document.getElementById('syncStatus');
+                if (syncEl) syncEl.innerText = `• Draft saved locally ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            }, 600);
         }
 
         // Save & Webhook Sync to Google Sheets
@@ -1794,9 +1905,11 @@
             // Local browser persistence
             localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
 
-            const saveBtn = document.getElementById('btnSaveSubmit');
-            saveBtn.disabled = true;
-            saveBtn.innerText = "⏳ Syncing to Google Sheets...";
+            const saveBtn = document.getElementById('btnSaveSubmit') || document.getElementById('pf-save-btn');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerText = "⏳ Syncing to Google Sheets...";
+            }
 
             const courseKey = cls.startsWith('8') ? 'HL8' : (cls.startsWith('CIT') || cls === '901' || cls === '902' || cls === '903' ? 'CIT9' : 'HL9');
             const summaryText = `WHERE Places Portfolio for ${studentName} (${cls}): P1: ${portfolioPayload.p1.title || 'None'}, P2: ${portfolioPayload.p2.title || 'None'}, P3: ${portfolioPayload.p3.title || 'None'}, P4: ${portfolioPayload.p4.title || 'None'}`;
@@ -1812,8 +1925,10 @@
                 console.warn("Sync error:", err);
                 showToast("Saved in browser! (Master sync pending connection)");
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "💾 Save & Submit to Master Database";
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = "💾 Save & Submit";
+                }
             }
         }
 
@@ -1989,9 +2104,15 @@
             loginAndRestore();
         }
 
-        // Initialize single map on load
+        // Initialize and setup auto-save on load
         window.addEventListener('DOMContentLoaded', () => {
             initSingleMap('p1');
+
+            // Wire auto-save listeners to all input/textarea elements
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+                el.addEventListener('input', triggerAutoSave);
+                el.addEventListener('change', triggerAutoSave);
+            });
 
             const savedPin = PlacesSession.getPin();
             const savedName = PlacesSession.getName();
@@ -1999,14 +2120,41 @@
 
             if (savedClass) document.getElementById('classSelect').value = savedClass;
             if (savedName) document.getElementById('firstNameInput').value = savedName;
-            if (savedPin) {
+
+            // Only auto-restore if PIN is a legitimate student PIN (not demo/sample WAU)
+            if (savedPin && savedPin !== 'WAU' && savedPin !== 'MRW') {
                 document.getElementById('pinInput').value = savedPin;
                 const roster = window.MASTER_ROSTER_DATA || [];
                 const student = roster.find(s => s.pin && s.pin.toUpperCase() === savedPin);
                 if (student) {
                     updateAuthDisplay(student);
-                    loadStudentData(student, savedPin);
+                    loadStudentBrainstorm(student, savedPin);
+                    
+                    // Try local draft first
+                    const savedDraft = localStorage.getItem(`places_draft_${savedPin}`);
+                    if (savedDraft) {
+                        try {
+                            applyDraftData(JSON.parse(savedDraft));
+                        } catch(e) {}
+                    }
+
+                    // Then background check cloud
+                    const courseKey = (student.homeroom || savedClass).startsWith('8') ? 'HL8' : 'CIT9';
+                    StudentAPI.login(student.homeroom || savedClass, student.first_name, savedPin, courseKey).then(res => {
+                        if (res && res.savedData) {
+                            const d = res.savedData.data || res.savedData;
+                            if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
+                                applyDraftData(d);
+                                localStorage.setItem(`places_draft_${savedPin}`, JSON.stringify(d));
+                                const syncEl = document.getElementById('syncStatus');
+                                if (syncEl) syncEl.innerText = `• Cloud Synced`;
+                            }
+                        }
+                    }).catch(e => console.warn(e));
                 }
+            } else {
+                // If previous session was WAU or empty, clear form so next student gets a fresh clean sheet
+                clearAllFormFields();
             }
         });
     </script>
