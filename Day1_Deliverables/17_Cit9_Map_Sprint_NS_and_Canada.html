@@ -235,9 +235,27 @@
             flex-shrink: 0;
         }
 
-        .pin-num.red { background: var(--accent); }
-        .pin-num.blue { background: var(--blue); }
-        .pin-num.green { background: var(--primary); }
+        /* SMARTBOARD BLANK/ANSWER STATES (CSS-driven, print-safe) */
+        .ans {
+            display: none;
+        }
+
+        body.show-answers .ans {
+            display: inline;
+        }
+
+        body.show-answers .blank {
+            display: none;
+        }
+
+        body.show-answers span.pin-num.ans {
+            display: inline-flex;
+        }
+
+        .pin-num.blank {
+            background: #ffffff;
+            border: 1.5px dashed #94a3b8;
+        }
 
         /* TRIVIA RIDDLES GRID */
         .trivia-grid {
@@ -285,17 +303,17 @@
             text-transform: uppercase;
         }
 
-        .riddle-input {
-            border: none;
+        .write-line {
+            display: inline-block;
             border-bottom: 1.5px dashed var(--text-heading);
-            background: transparent;
-            font-family: 'Roboto Slab', serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: var(--text-heading);
-            width: 100%;
-            outline: none;
-            padding: 1px 4px;
+            height: 15px;
+            width: 118px;
+            vertical-align: bottom;
+        }
+
+        .cell-hint {
+            font-size: 0.68rem;
+            color: var(--text-muted);
         }
 
         /* CANADA TABLE GRID */
@@ -365,17 +383,6 @@
         }
 
         /* SMARTBOARD / REVEAL STYLES */
-        .reveal-btn {
-            background: #f1f5f9;
-            border: 1px dashed #94a3b8;
-            color: #475569;
-            font-size: 0.7rem;
-            padding: 1px 6px;
-            border-radius: 3px;
-            cursor: pointer;
-            user-select: none;
-        }
-
         .revealed-text {
             color: var(--primary-dark);
             font-weight: 800;
@@ -401,8 +408,16 @@
             .page-break {
                 page-break-before: always;
             }
-            .reveal-btn {
-                display: none;
+            /* Printing always produces the blank STUDENT version,
+               even if Smartboard Reveal Mode was left on. */
+            .ans {
+                display: none !important;
+            }
+            body.show-answers .blank {
+                display: inline-block;
+            }
+            body.show-answers .pin-num.blank {
+                display: inline-flex;
             }
         }
     </style>
@@ -452,85 +467,121 @@
         <!-- Section 1: Map & Pin Matching -->
         <div class="section-title">
             <span>1. Nova Scotia Map: Major Towns & Key Regions</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Match Pins 1–8 on Map</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Write the Pin # in Each Box</span>
         </div>
 
         <div class="map-layout">
             <!-- SVG Map Box -->
             <div class="map-box">
                 <svg class="map-svg" viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Background Water Accent -->
+                    <!-- Background Water -->
                     <rect width="600" height="380" fill="#f0f9ff" rx="6"/>
-                    
-                    <!-- Bay of Fundy label -->
-                    <text x="130" y="80" font-family="'Open Sans', sans-serif" font-size="11" font-weight="700" fill="#93c5fd" letter-spacing="1">BAY OF FUNDY</text>
-                    <text x="130" y="95" font-family="'Open Sans', sans-serif" font-size="9" fill="#93c5fd">(World's Highest Tides)</text>
-                    
-                    <!-- Atlantic Ocean label -->
-                    <text x="340" y="320" font-family="'Open Sans', sans-serif" font-size="12" font-weight="700" fill="#93c5fd" letter-spacing="2">ATLANTIC OCEAN</text>
-                    
-                    <!-- Simplified Nova Scotia Landmass Geometry -->
-                    <!-- Mainland NS -->
-                    <path d="M 90,60 L 140,55 L 180,65 L 260,80 L 320,100 L 370,110 L 400,130 L 415,150 L 390,165 L 360,180 L 310,210 L 260,250 L 210,290 L 160,330 L 130,340 L 100,320 L 90,280 L 120,230 L 160,180 L 180,140 L 140,110 L 90,80 Z" 
-                          fill="#e2e8f0" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
-                    
-                    <!-- Cape Breton Island -->
-                    <path d="M 420,130 L 470,80 L 510,40 L 530,60 L 520,120 L 545,140 L 510,180 L 460,190 L 430,160 Z" 
-                          fill="#cbd5e1" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
-                    
-                    <!-- Bras d'Or Lake cutout -->
-                    <path d="M 470,110 Q 490,130 480,150 Q 460,140 470,110 Z" fill="#f0f9ff" stroke="#64748b" stroke-width="1.2"/>
 
-                    <!-- Chignecto Isthmus / NB Border Connection -->
-                    <line x1="70" y1="50" x2="90" y2="60" stroke="#b91c1c" stroke-width="3" stroke-dasharray="4,4"/>
-                    <text x="25" y="45" font-family="'Roboto Slab', serif" font-size="9" font-weight="700" fill="#b91c1c">TO NEW BRUNSWICK &rarr;</text>
+                    <!-- NEW BRUNSWICK (context landmass, top-left) -->
+                    <path d="M -2,-2 L 140,-2 L 170,22 L 185,38 L 202,54 L 222,80 L 238,100 L 244,110 L 252,121 L 261,134 L 248,136 L 240,128 L 232,116 L 227,111 L 214,124 L 204,136 L 192,150 L 183,168 L 179,177 L 146,186 L 112,206 L 75,218 L 30,222 L -2,218 Z"
+                          fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.4" stroke-linejoin="round"/>
+                    <text x="85" y="86" text-anchor="middle" font-family="'Roboto Slab', serif" font-size="10" font-weight="700" fill="#94a3b8" letter-spacing="1">NEW BRUNSWICK</text>
+                    <text x="104" y="124" font-size="8" fill="#b91c1c">&#9733;</text>
+                    <text x="114" y="127" font-family="'Open Sans', sans-serif" font-size="6.5" font-weight="600" fill="#64748b">Fredericton</text>
+
+                    <!-- PRINCE EDWARD ISLAND -->
+                    <path d="M 247,52 Q 250,38 262,31 Q 273,28 284,32 Q 310,38 336,50 Q 368,64 399,83 Q 380,83 358,80 Q 340,86 324,96 Q 308,92 292,87 Q 272,80 260,66 Q 252,58 247,52 Z"
+                          fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.4" stroke-linejoin="round"/>
+                    <text x="322" y="58" text-anchor="middle" transform="rotate(-13 322 58)" font-family="'Roboto Slab', serif" font-size="7" font-weight="700" fill="#94a3b8" letter-spacing="0.5">PRINCE EDWARD ISLAND</text>
+
+                    <!-- NOVA SCOTIA MAINLAND (peninsula with Fundy shore, Cape Split & Minas Basin hook, Chignecto Isthmus) -->
+                    <path d="M 140,313 L 148,282 L 166,240 L 178,214 L 198,188 L 222,166 L 228,180 L 245,193 L 268,202 L 290,200 L 297,188 L 293,178 L 285,174 L 272,174 L 258,172 L 250,177 L 243,184 L 240,170 L 234,152 L 248,142 L 261,134 L 252,121 L 270,126 L 283,132 L 305,138 L 330,146 L 352,150 L 375,153 L 400,157 L 425,157 L 437,155 L 448,159 L 458,159 L 452,170 L 438,182 L 410,198 L 380,210 L 364,217 L 340,225 L 315,233 L 300,240 L 293,248 L 285,263 L 272,278 L 259,292 L 240,302 L 215,312 L 196,317 L 168,319 Z"
+                          fill="#e2e8f0" stroke="#64748b" stroke-width="1.8" stroke-linejoin="round"/>
+
+                    <!-- NB&ndash;NS border across the Chignecto Isthmus -->
+                    <line x1="252" y1="121" x2="261" y2="134" stroke="#b91c1c" stroke-width="2.5" stroke-dasharray="3,3"/>
+
+                    <!-- CAPE BRETON ISLAND -->
+                    <path d="M 444,152 L 445,138 L 438,120 L 446,100 L 456,82 L 466,68 L 476,56 L 492,40 L 502,48 L 509,62 L 511,76 L 507,88 L 512,100 L 508,110 L 514,120 L 519,128 L 508,138 L 496,137 L 480,143 L 462,147 L 452,150 Z"
+                          fill="#e2e8f0" stroke="#64748b" stroke-width="1.8" stroke-linejoin="round"/>
+
+                    <!-- Bras d'Or Lake (with Great Bras d'Or & St. Peters channels) -->
+                    <path d="M 468,98 Q 464,90 472,86 Q 480,82 490,84 Q 500,86 502,96 Q 504,106 496,112 Q 486,118 476,114 Q 468,110 468,98 Z"
+                          fill="#f0f9ff" stroke="#64748b" stroke-width="1"/>
+                    <path d="M 496,100 L 508,95 L 510,98 L 498,104 Z" fill="#f0f9ff" stroke="#64748b" stroke-width="0.8"/>
+                    <path d="M 478,116 L 474,139 L 478,140 L 482,118 Z" fill="#f0f9ff" stroke="#64748b" stroke-width="0.8"/>
+
+                    <!-- Canso Causeway linking the mainland to Cape Breton -->
+                    <line x1="438" y1="153" x2="444" y2="151" stroke="#475569" stroke-width="3.5"/>
+                    <line x1="440" y1="155" x2="415" y2="167" stroke="#94a3b8" stroke-width="0.8"/>
+                    <text x="352" y="171" font-family="'Open Sans', sans-serif" font-size="7" font-style="italic" font-weight="600" fill="#475569">Canso Causeway</text>
+
+                    <!-- Water labels -->
+                    <text x="100" y="248" text-anchor="middle" font-family="'Open Sans', sans-serif" font-size="10" font-weight="700" fill="#93c5fd" letter-spacing="0.5">BAY OF FUNDY</text>
+                    <text x="100" y="261" text-anchor="middle" font-family="'Open Sans', sans-serif" font-size="7" font-weight="600" fill="#bfdbfe">(World's Highest Tides)</text>
+                    <text x="330" y="112" text-anchor="middle" font-family="'Open Sans', sans-serif" font-size="8" font-style="italic" font-weight="600" fill="#93c5fd">NORTHUMBERLAND STRAIT</text>
+                    <text x="220" y="14" text-anchor="middle" font-family="'Open Sans', sans-serif" font-size="9" font-weight="700" fill="#93c5fd" letter-spacing="1.5">GULF OF ST. LAWRENCE</text>
+                    <text x="425" y="288" text-anchor="middle" font-family="'Open Sans', sans-serif" font-size="13" font-weight="700" fill="#93c5fd" letter-spacing="3">ATLANTIC OCEAN</text>
+
+                    <!-- Compass rose -->
+                    <g stroke="#64748b" fill="#64748b">
+                        <text x="565" y="14" text-anchor="middle" stroke="none" font-family="'Roboto Slab', serif" font-size="10" font-weight="800">N</text>
+                        <polygon points="565,16 561,28 569,28" stroke="none"/>
+                        <line x1="565" y1="28" x2="565" y2="50" stroke-width="1.5"/>
+                    </g>
+
+                    <!-- Scale bar (100 km) -->
+                    <g stroke="#64748b" fill="#64748b">
+                        <line x1="25" y1="352" x2="103.5" y2="352" stroke-width="2"/>
+                        <line x1="25" y1="347" x2="25" y2="357" stroke-width="1.5"/>
+                        <line x1="64" y1="348" x2="64" y2="356" stroke-width="1"/>
+                        <line x1="103.5" y1="347" x2="103.5" y2="357" stroke-width="1.5"/>
+                        <text x="25" y="366" text-anchor="middle" stroke="none" font-family="'JetBrains Mono', monospace" font-size="7">0</text>
+                        <text x="64" y="366" text-anchor="middle" stroke="none" font-family="'JetBrains Mono', monospace" font-size="7">50</text>
+                        <text x="112" y="366" text-anchor="start" stroke="none" font-family="'JetBrains Mono', monospace" font-size="7">100 km</text>
+                    </g>
 
                     <!-- PINS (Numbered Circles) -->
                     <!-- 1. Amherst (Isthmus) -->
-                    <g transform="translate(95, 62)">
-                        <circle r="11" fill="#b91c1c" stroke="#ffffff" stroke-width="2"/>
+                    <g transform="translate(266, 140)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">1</text>
                     </g>
-                    
-                    <!-- 2. Truro (The Hub) -->
-                    <g transform="translate(240, 115)">
-                        <circle r="11" fill="#15803d" stroke="#ffffff" stroke-width="2"/>
+
+                    <!-- 2. Truro (The Hub, head of Cobequid Bay) -->
+                    <g transform="translate(289, 207)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">2</text>
                     </g>
 
-                    <!-- 3. Annapolis Valley (Kentville/Wolfville) -->
-                    <g transform="translate(170, 135)">
-                        <circle r="11" fill="#15803d" stroke="#ffffff" stroke-width="2"/>
+                    <!-- 3. Annapolis Valley (Kentville/Wolfville, along Minas Basin) -->
+                    <g transform="translate(245, 203)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">3</text>
                     </g>
 
-                    <!-- 4. Halifax & Dartmouth (Capital/HRM) -->
-                    <g transform="translate(265, 195)">
-                        <circle r="12" fill="#1d4ed8" stroke="#ffffff" stroke-width="2.5"/>
+                    <!-- 4. Halifax & Dartmouth (Capital/HRM, Atlantic harbour) -->
+                    <g transform="translate(298, 237)">
+                        <circle r="12" fill="#1e293b" stroke="#ffffff" stroke-width="2.5"/>
                         <text text-anchor="middle" dy="4.5" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="800">4</text>
                     </g>
 
                     <!-- 5. Lunenburg & South Shore (Bluenose) -->
-                    <g transform="translate(225, 235)">
+                    <g transform="translate(284, 262)">
                         <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">5</text>
                     </g>
 
                     <!-- 6. Yarmouth (Southwest Gateway) -->
-                    <g transform="translate(105, 315)">
+                    <g transform="translate(143, 311)">
                         <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">6</text>
                     </g>
 
-                    <!-- 7. New Glasgow & Pictou County -->
-                    <g transform="translate(325, 110)">
+                    <!-- 7. New Glasgow & Pictou County (Northumberland Shore) -->
+                    <g transform="translate(353, 156)">
                         <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">7</text>
                     </g>
 
                     <!-- 8. Sydney & Cape Breton (CBRM) -->
-                    <g transform="translate(515, 105)">
-                        <circle r="11" fill="#b91c1c" stroke="#ffffff" stroke-width="2"/>
+                    <g transform="translate(504, 110)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
                         <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">8</text>
                     </g>
                 </svg>
@@ -539,20 +590,20 @@
             <!-- Legend & Word Bank -->
             <div class="map-legend">
                 <div class="legend-title">📍 Nova Scotia Locations Key</div>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">Match each numbered pin on the map to the right town or region:</p>
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">Match each numbered pin on the map to the right town or region &mdash; write the pin number in the box:</p>
                 <div class="legend-list">
-                    <div class="legend-item"><span class="pin-num blue">4</span> <strong>Halifax / Dartmouth</strong></div>
-                    <div class="legend-item"><span class="pin-num green">3</span> <strong>Annapolis Valley</strong></div>
-                    <div class="legend-item"><span class="pin-num green">2</span> <strong>Truro ("The Hub")</strong></div>
-                    <div class="legend-item"><span class="pin-num red">8</span> <strong>Sydney (Cape Breton)</strong></div>
-                    <div class="legend-item"><span class="pin-num">5</span> <strong>Lunenburg</strong></div>
-                    <div class="legend-item"><span class="pin-num">6</span> <strong>Yarmouth</strong></div>
-                    <div class="legend-item"><span class="pin-num">7</span> <strong>New Glasgow / Pictou</strong></div>
-                    <div class="legend-item"><span class="pin-num red">1</span> <strong>Amherst (NB Border)</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">4</span><span class="pin-num blank"></span> <strong>Halifax / Dartmouth</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">3</span><span class="pin-num blank"></span> <strong>Annapolis Valley</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">2</span><span class="pin-num blank"></span> <strong>Truro ("The Hub")</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">8</span><span class="pin-num blank"></span> <strong>Sydney (Cape Breton)</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">5</span><span class="pin-num blank"></span> <strong>Lunenburg</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">6</span><span class="pin-num blank"></span> <strong>Yarmouth</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">7</span><span class="pin-num blank"></span> <strong>New Glasgow / Pictou</strong></div>
+                    <div class="legend-item"><span class="pin-num ans">1</span><span class="pin-num blank"></span> <strong>Amherst (NB Border)</strong></div>
                 </div>
 
                 <div style="margin-top: 10px; padding-top: 6px; border-top: 1px solid var(--border-light); font-size: 0.72rem; color: var(--text-body);">
-                    <strong>💡 Room 8 Compass Check:</strong> Notice how Highway 102 connects Halifax directly north to <strong>Truro</strong>, and Highway 101 runs northwest through the <strong>Annapolis Valley</strong>!
+                    <strong>💡 Room 8 Compass Check:</strong> Notice how Highway 102 connects Halifax directly north to <strong>Truro</strong>, Highway 101 runs northwest through the <strong>Annapolis Valley</strong>, and the <strong>Canso Causeway</strong> tethers Cape Breton Island to the mainland!
                 </div>
             </div>
         </div>
