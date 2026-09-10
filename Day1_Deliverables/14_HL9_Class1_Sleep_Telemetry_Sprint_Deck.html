@@ -1,0 +1,673 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>HL9 Class 1: The 24-Hour Forensic Telemetry Sprint | Room 8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #0f172a;
+            --bg-slide: #ffffff;
+            --bg-panel: #f8fafc;
+            --border-main: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent-red: #dc2626;
+            --accent-blue: #1e40af;
+            --accent-emerald: #059669;
+            --accent-amber: #d97706;
+            --accent-cyan: #0284c7;
+            --font-slab: 'Roboto Slab', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body.dark-mode {
+            --bg-canvas: #020617;
+            --bg-slide: #0b1329;
+            --bg-panel: #111e38;
+            --border-main: #1e293b;
+            --border-dark: #334155;
+            --text-heading: #f8fafc;
+            --text-body: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-body);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow: hidden;
+            transition: background-color 0.25s ease;
+        }
+
+        .stage-wrapper {
+            width: 100%;
+            max-width: 1280px;
+            height: calc(100vh - 80px);
+            max-height: 760px;
+            background: var(--bg-slide);
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #334155;
+            transition: background-color 0.25s ease;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 14.28%;
+            background: linear-gradient(90deg, #dc2626, #2563eb);
+            transition: width 0.3s ease;
+        }
+
+        .slide-masthead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 36px;
+            font-size: 0.9rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-main);
+            background: var(--bg-slide);
+        }
+
+        .pill-badge {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: var(--accent-blue);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .slide-stage {
+            flex: 1;
+            padding: 24px 44px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            margin-bottom: 16px;
+        }
+
+        .slide-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .slide-title {
+            font-family: var(--font-slab);
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Slide Body Layouts */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: stretch;
+            flex: 1;
+            margin-bottom: 12px;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: stretch;
+            flex: 1;
+            margin-bottom: 12px;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-main);
+            border-radius: 10px;
+            padding: 18px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-highlight {
+            border-left: 5px solid var(--accent-blue);
+        }
+
+        .card-alert {
+            border-left: 5px solid var(--accent-red);
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .card-success {
+            border-left: 5px solid var(--accent-emerald);
+            background: rgba(5, 150, 105, 0.04);
+        }
+
+        .card h3 {
+            font-family: var(--font-slab);
+            font-size: 1.25rem;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+        }
+
+        .card p, .card li {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            line-height: 1.5;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin: 8px 0;
+            background: var(--bg-slide);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-main);
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            text-align: left;
+            border-bottom: 2px solid var(--border-dark);
+            color: var(--text-heading);
+        }
+
+        body.dark-mode .data-table th {
+            background: #1e293b;
+        }
+
+        .data-table td {
+            padding: 7px 12px;
+            border-bottom: 1px solid var(--border-main);
+        }
+
+        .tag-pill {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .tag-red { background: #fee2e2; color: #991b1b; }
+        .tag-blue { background: #dbeafe; color: #1e40af; }
+        .tag-green { background: #d1fae5; color: #065f46; }
+
+        /* Big Stat Callout */
+        .big-stat {
+            font-family: var(--font-mono);
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1;
+            margin: 6px 0;
+        }
+
+        /* Bottom Controls Bar */
+        .slide-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 36px;
+            border-top: 2px solid var(--border-main);
+            background: var(--bg-slide);
+        }
+
+        .btn-nav {
+            background: var(--text-heading);
+            color: var(--bg-slide);
+            border: none;
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-nav:hover { opacity: 0.9; }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-dark);
+        }
+        .btn-ghost:hover {
+            color: var(--text-heading);
+            border-color: var(--text-heading);
+        }
+
+        .timer-badge {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-red);
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .reveal-box {
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px dashed var(--accent-blue);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reveal-box:hover { background: rgba(37, 99, 235, 0.15); }
+    </style>
+</head>
+<body>
+
+    <div class="stage-wrapper">
+        
+        <!-- Top Progress -->
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Slide Masthead -->
+        <div class="slide-masthead">
+            <div>
+                <strong>Healthy Living 9</strong> &bull; Class 1 of 55
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span class="timer-badge" id="sprintTimer" onclick="toggleTimer()" title="Click to start/pause countdown">⏱️ 45:00</span>
+                <span class="pill-badge" id="slideIndicator">Slide 1 of 7</span>
+            </div>
+        </div>
+
+        <!-- Slide Stage Body -->
+        <div class="slide-stage">
+
+            <!-- SLIDE 1: THE CONTRACT & CALLOUT -->
+            <div class="slide active" id="slide-1">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">⚡ Empirical Realignment &bull; Day 2 Opener</div>
+                    <div class="slide-title">The "Straight-Faced" Review Contract</div>
+                    <div class="slide-subtitle">We read your Day 1 survey data. Here is how Room 8 operates.</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card card-alert">
+                        <h3>📊 What You Told Us in the Survey</h3>
+                        <div class="big-stat" style="color: var(--accent-red);">71% Fatigue</div>
+                        <p style="margin-top: 8px;">
+                            Over 70% of you stated: <em>"We did sleep and blue screens a million times last year in Grade 8."</em>
+                        </p>
+                        <ul style="margin-left: 20px; margin-top: 8px; font-size: 0.9rem;">
+                            <li>Zero students voted for poster projects.</li>
+                            <li>You asked for real biology, high school prep, and zero preachy lectures.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card card-success">
+                        <h3>🤝 The Room 8 Straight-Faced Deal</h3>
+                        <div class="big-stat" style="color: var(--accent-emerald);">1-Class Sprint</div>
+                        <p style="margin-top: 8px;">
+                            We will <strong>not</strong> spend 3 weeks telling you phones are evil. Instead:
+                        </p>
+                        <ol style="margin-left: 20px; margin-top: 8px; font-size: 0.9rem;">
+                            <li><strong>Run the Telemetry Math:</strong> Audit Morgan's 24-hour phone log.</li>
+                            <li><strong>Lock Down the Top 10 Testable Terms:</strong> Guaranteed on Quiz 1.</li>
+                            <li><strong>Check the Provincial Box:</strong> Move directly to <em>Algorithmic Attention (Class 2)</em> and <em>High School Transition (Class 4)</em>.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: MORGAN'S MISSION BRIEFING -->
+            <div class="slide" id="slide-2">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">📋 Exhibit 1 &bull; 20-Minute Partner Challenge</div>
+                    <div class="slide-title">Mission: Morgan's 24-Hour Forensic Audit</div>
+                    <div class="slide-subtitle">Analyze raw telemetry data to calculate sleep debt and performance penalties.</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card card-highlight">
+                        <h3>👤 Subject Profile: Morgan (Age 14, Grade 9)</h3>
+                        <p><strong>Context:</strong> Plays varsity soccer, takes Academic Science, struggles severely with Period 1 brain fog.</p>
+                        <table class="data-table" style="margin-top: 10px;">
+                            <tr><th>Time</th><th>Action & Screen Telemetry</th><th>Biochemical Impact</th></tr>
+                            <tr><td>10:00 PM</td><td>In bed; opens TikTok FYP</td><td>Melanin suppression begins</td></tr>
+                            <tr><td>11:45 PM</td><td>Snapchat streak notifications</td><td>Dopamine loop triggered</td></tr>
+                            <tr><td>1:15 AM</td><td>Phone drops; sleep onset</td><td>Actual sleep starts</td></tr>
+                            <tr><td>6:45 AM</td><td>Alarm rings (5.5 hrs total)</td><td>Severe sleep inertia fog</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎯 Your 3 Audit Deliverables (Side A Ledger)</h3>
+                        <ol style="margin-left: 20px; line-height: 1.7; font-size: 0.95rem;">
+                            <li><strong>The Math:</strong> Calculate Morgan's daily and weekly cumulative sleep debt.</li>
+                            <li><strong>The Reaction Penalty:</strong> Determine the percentage drop in athletic motor response time.</li>
+                            <li><strong>The Domino Map:</strong> Map how physical sleep deficit damaged Morgan's mental recall, emotional mood, and social interactions.</li>
+                        </ol>
+                        <div class="reveal-box" onclick="alert('Target: 3.5 hrs/day debt = 17.5 hrs/wk. Reaction penalty = 300% drop.')">
+                            💡 <em>Click here to reveal expected telemetry thresholds</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: THE TELEMETRY MATH & FORMULAS -->
+            <div class="slide" id="slide-3">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">📐 Testable Mathematical Framework</div>
+                    <div class="slide-title">The Sleep Debt & Athletic Penalty Formulas</div>
+                    <div class="slide-subtitle">These exact mathematical rules appear on Quiz 1 and Midterms.</div>
+                </div>
+
+                <div class="grid-3col">
+                    <div class="card">
+                        <h3>Formula 1: Sleep Debt</h3>
+                        <p style="font-family: var(--font-mono); background: rgba(0,0,0,0.06); padding: 8px; border-radius: 4px; font-size: 0.85rem;">
+                            Debt = 9.0 hrs - Actual Sleep
+                        </p>
+                        <p style="margin-top: 10px; font-size: 0.88rem;">
+                            Teens biologically require <strong>8.5 to 9.5 hours</strong> for neurodevelopment. Sleeping 5.5 hours = <strong>3.5 hours daily deficit</strong>.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Formula 2: The 300% Rule</h3>
+                        <div class="big-stat" style="color: var(--accent-red); font-size: 2.2rem;">300% Slower</div>
+                        <p style="font-size: 0.88rem;">
+                            3 consecutive nights of &lt;6 hours sleep slows neurological reaction time by up to <strong>300%</strong> (equivalent to 0.05% BAC).
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Formula 3: Social Jetlag</h3>
+                        <p style="font-family: var(--font-mono); background: rgba(0,0,0,0.06); padding: 8px; border-radius: 4px; font-size: 0.85rem;">
+                            Shift &gt; 2.0 hrs = Jetlag
+                        </p>
+                        <p style="margin-top: 10px; font-size: 0.88rem;">
+                            Sleeping until 1:00 PM on Sunday shifts your circadian clock, ensuring insomnia Sunday night and severe fog Monday.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: THE TOP 10 TESTABLE BIOLOGICAL ANCHORS -->
+            <div class="slide" id="slide-4">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">🧠 Core Biology & Test Bank</div>
+                    <div class="slide-title">The 5 Core Biological Mechanisms</div>
+                    <div class="slide-subtitle">Study Anchor: Definitions guaranteed to be assessed on your Term 1 Quizzes.</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card card-highlight">
+                        <h3>1. Circadian Phase Delay</h3>
+                        <p>Biological shift in teens where the pineal gland delays melatonin secretion by ~2 hours (shifting sleepiness to 10:30–11:00 PM).</p>
+                        
+                        <h3 style="margin-top: 12px;">2. Melatonin Suppression (SCN)</h3>
+                        <p>Blue light (~460nm) strikes retinal melanopsin receptors, signaling the Suprachiasmatic Nucleus to block melatonin release.</p>
+
+                        <h3 style="margin-top: 12px;">3. Sleep Inertia</h3>
+                        <p>The 30–90 minute physiological state of grogginess and slow cognition after waking up out of deep Slow-Wave sleep.</p>
+                    </div>
+
+                    <div class="card card-highlight">
+                        <h3>4. Stage 3 Slow-Wave Sleep & HGH</h3>
+                        <p>The deep NREM stage where <strong>Human Growth Hormone (HGH)</strong> is released to repair muscle tissue and rebuild physical energy.</p>
+
+                        <h3 style="margin-top: 12px;">5. REM Sleep & Memory Consolidation</h3>
+                        <p>The dream stage where motor skills, athletic tactics, and academic study are cemented into long-term memory.</p>
+
+                        <div class="reveal-box" style="margin-top: 14px;">
+                            🔒 <strong>Takeaway:</strong> Cutting 9 hrs &rarr; 5.5 hrs cuts off the final 2 REM cycles where learning is locked in!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: 5-MINUTE FORMATIVE EXIT CHECK -->
+            <div class="slide" id="slide-5">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">✍️ Class Exit Check &bull; 5 Questions</div>
+                    <div class="slide-title">Instant Knowledge Verification</div>
+                    <div class="slide-subtitle">Answer these on Side B of your ledger before the bell rings.</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3>Question 1 & 2</h3>
+                        <p><strong>Q1:</strong> What specific hormone is suppressed when blue light hits your retina at 11:30 PM?</p>
+                        <p style="margin-top: 12px;"><strong>Q2:</strong> Why can't Morgan "repay" a 17.5-hour weekday sleep debt by sleeping until noon on Saturday?</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Question 3 & 4</h3>
+                        <p><strong>Q3:</strong> During which specific sleep stage is Human Growth Hormone (HGH) released for athletic muscle repair?</p>
+                        <p style="margin-top: 12px;"><strong>Q4:</strong> What is the clinical term for the 30–90 minute groggy brain state experienced in Period 1?</p>
+                        
+                        <button class="btn-nav" style="margin-top: 14px; align-self: flex-start;" onclick="document.getElementById('ansBox').style.display='block'">
+                            👁️ Reveal Official Answer Key
+                        </button>
+                    </div>
+                </div>
+
+                <div id="ansBox" style="display: none; background: #ecfdf5; border: 1px solid #10b981; padding: 10px 16px; border-radius: 6px; font-size: 0.88rem; color: #065f46; margin-top: 8px;">
+                    <strong>Answers:</strong> Q1: Melatonin &bull; Q2: Causes Social Jetlag & disrupts the circadian pacemaker &bull; Q3: Stage 3 Deep Slow-Wave NREM &bull; Q4: Sleep Inertia.
+                </div>
+            </div>
+
+            <!-- SLIDE 6: THE ROADMAP BRIDGE -->
+            <div class="slide" id="slide-6">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">🚀 Straight-Faced Box Checked!</div>
+                    <div class="slide-title">Where We Go Next (What You Asked For)</div>
+                    <div class="slide-subtitle">Provincial sleep outcome complete. Now entering real-world skills.</div>
+                </div>
+
+                <div class="grid-3col">
+                    <div class="card" style="border-top: 4px solid var(--accent-blue);">
+                        <span class="tag-pill tag-blue">Class 2–3</span>
+                        <h3 style="margin-top: 8px;">Algorithmic Attention Architecture</h3>
+                        <p>How TikTok/Snapchat recommendation engines exploit dopamine loops and variable reward schedules to trap focus.</p>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid var(--accent-emerald);">
+                        <span class="tag-pill tag-green">Class 4</span>
+                        <h3 style="margin-top: 8px;">High School Navigation</h3>
+                        <p>Nova Scotia 18-credit graduation checklist, course leveling (Academic vs Advanced), transcript anatomy, and study systems.</p>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid var(--accent-red);">
+                        <span class="tag-pill tag-red">Classes 5–8</span>
+                        <h3 style="margin-top: 8px;">Reproductive Health & STBBIs</h3>
+                        <p>Clinical biology, barrier methods, Youth Health Clinics, and operational consent scripts (closing the Grade 8 gap).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: SUMMARY & STUDY LEDGER -->
+            <div class="slide" id="slide-7">
+                <div class="slide-header">
+                    <div class="slide-eyebrow">📌 Class 1 Wrap-Up</div>
+                    <div class="slide-title">File Your Ledger in Your Room 8 Binder</div>
+                    <div class="slide-subtitle">Side A (Telemetry Math) + Side B (Top 10 Study Ledger) = Quiz 1 Study Guide.</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card card-success">
+                        <h3>✅ What We Accomplished in 45 Minutes</h3>
+                        <ul style="margin-left: 20px; line-height: 1.7; font-size: 0.95rem;">
+                            <li>Honored student survey feedback with zero preachy lectures.</li>
+                            <li>Audited Morgan's 24-hour telemetry and calculated sleep debt.</li>
+                            <li>Locked down 10 testable biological definitions.</li>
+                            <li>Formatively certified provincial Outcome 1.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>📚 Next Class Preparation</h3>
+                        <p>Bring your charged Chromebook or device. We will analyze live algorithmic code deconstructions and dopamine reward loop data.</p>
+                        <div style="margin-top: 14px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+                            Room 8 &bull; Mr. Waugh &bull; Bicentennial Junior High
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Slide Controls Footer -->
+        <div class="slide-controls">
+            <button class="btn-nav btn-ghost" onclick="prevSlide()">◀ Previous</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-nav btn-ghost" onclick="toggleDarkMode()">☀️/🌙 Mode</button>
+                <button class="btn-nav" onclick="nextSlide()">Next Slide ▶</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 7;
+        let timerSeconds = 45 * 60;
+        let timerInterval = null;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((s, idx) => {
+                s.classList.toggle('active', idx + 1 === currentSlide);
+            });
+            document.getElementById('slideIndicator').innerText = `Slide ${currentSlide} of ${totalSlides}`;
+            document.getElementById('progressFill').style.width = `${(currentSlide / totalSlides) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Timer functionality
+        function toggleTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                document.getElementById('sprintTimer').style.opacity = '0.6';
+            } else {
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        const mins = Math.floor(timerSeconds / 60);
+                        const secs = timerSeconds % 60;
+                        document.getElementById('sprintTimer').innerText = `⏱️ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                    } else {
+                        clearInterval(timerInterval);
+                        alert("Sprint Time Complete!");
+                    }
+                }, 1000);
+                document.getElementById('sprintTimer').style.opacity = '1';
+            }
+        }
+
+        // Hotkeys (Arrows + Space)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
