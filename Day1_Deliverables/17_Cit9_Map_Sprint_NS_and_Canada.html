@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9: Nova Scotia & Canadian Geography Sprint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Roboto+Slab:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #15803d;
+            --primary-dark: #166534;
+            --primary-light: #f0fdf4;
+            --accent: #b91c1c;
+            --blue: #1d4ed8;
+            --text-heading: #1e293b;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --border-light: #e2e8f0;
+            --surface: #ffffff;
+            --bg: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-body);
+            line-height: 1.45;
+            font-size: 13px;
+            padding: 20px;
+        }
+
+        .screen-nav {
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .btn-print {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-print:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-toggle {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--text-heading);
+        }
+
+        .sheet {
+            width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto 30px auto;
+            background: var(--surface);
+            padding: 0.4in 0.45in;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--text-heading);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .doc-header h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+
+        .doc-header p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .student-fields {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .field-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-line strong {
+            font-family: 'Roboto Slab', serif;
+            color: var(--text-heading);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .fill-blank {
+            border-bottom: 1px dashed var(--border);
+            flex-grow: 1;
+            height: 16px;
+        }
+
+        .section-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-heading);
+            border-bottom: 1.5px solid var(--primary);
+            padding-bottom: 3px;
+            margin: 10px 0 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        /* MAP + LEGEND LAYOUT */
+        .map-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .map-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f8fafc;
+            padding: 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: auto;
+            max-height: 240px;
+        }
+
+        .map-legend {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            background: #ffffff;
+            font-size: 0.76rem;
+        }
+
+        .legend-title {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 2px;
+        }
+
+        .legend-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pin-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            background: var(--text-heading);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 800;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .pin-num.red { background: var(--accent); }
+        .pin-num.blue { background: var(--blue); }
+        .pin-num.green { background: var(--primary); }
+
+        /* TRIVIA RIDDLES GRID */
+        .trivia-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .riddle-card {
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 7px 9px;
+            background: #ffffff;
+            font-size: 0.77rem;
+            line-height: 1.35;
+        }
+
+        .riddle-num {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 0.78rem;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .riddle-clue {
+            color: var(--text-body);
+            margin-bottom: 4px;
+        }
+
+        .riddle-ans-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .riddle-ans-label {
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .riddle-input {
+            border: none;
+            border-bottom: 1.5px dashed var(--text-heading);
+            background: transparent;
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text-heading);
+            width: 100%;
+            outline: none;
+            padding: 1px 4px;
+        }
+
+        /* CANADA TABLE GRID */
+        .prov-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.74rem;
+            margin-top: 4px;
+        }
+
+        .prov-table th {
+            background: var(--text-heading);
+            color: #ffffff;
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            text-align: left;
+            padding: 4px 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .prov-table td {
+            border-bottom: 1px solid var(--border-light);
+            padding: 3.5px 6px;
+        }
+
+        .prov-table tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .code-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 750;
+            background: #e2e8f0;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: var(--text-heading);
+        }
+
+        .fast-truths {
+            border: 1.5px solid var(--primary);
+            background: var(--primary-light);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.78rem;
+        }
+
+        .fast-truths-title {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 800;
+            color: var(--primary-dark);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .fast-truths ol {
+            margin-left: 18px;
+            line-height: 1.4;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* SMARTBOARD / REVEAL STYLES */
+        .reveal-btn {
+            background: #f1f5f9;
+            border: 1px dashed #94a3b8;
+            color: #475569;
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .revealed-text {
+            color: var(--primary-dark);
+            font-weight: 800;
+            font-family: 'Roboto Slab', serif;
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .screen-nav {
+                display: none;
+            }
+            .sheet {
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.35in 0.4in;
+                width: 100%;
+                min-height: auto;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .reveal-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar for Web Screen Mode -->
+    <div class="screen-nav">
+        <div>
+            <span style="font-family: 'Roboto Slab', serif; font-weight: 800; color: var(--text-heading); font-size: 0.95rem;">Citizenship 9 &bull; Room 8 Map Sprint</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;">Double-Sided 8.5&times;11" Printable Dossier</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-toggle" onclick="toggleSmartboardAnswers()">💡 Smartboard Reveal Mode</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print Student Sheets</button>
+        </div>
+    </div>
+
+    <!-- ==================== SIDE A: NOVA SCOTIA MAP & TRIVIA ==================== -->
+    <div class="sheet">
+        
+        <div class="doc-header">
+            <div>
+                <h1>The Nova Scotia Regional Navigator</h1>
+                <p>Citizenship 9 &bull; Unit 1: Identity, Geography & Sense of Place &bull; Room 8</p>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; color: var(--primary);">
+                SIDE A: NOVA SCOTIA
+            </div>
+        </div>
+
+        <div class="student-fields">
+            <div class="field-line">
+                <strong>Name:</strong>
+                <div class="fill-blank"></div>
+            </div>
+            <div class="field-line">
+                <strong>Class:</strong>
+                <span style="font-weight: 700; color: var(--text-heading);">901 / 902 / 903</span>
+            </div>
+            <div class="field-line">
+                <strong>Score:</strong>
+                <span style="font-weight: 700; color: var(--primary);">_____ / 14</span>
+            </div>
+        </div>
+
+        <!-- Section 1: Map & Pin Matching -->
+        <div class="section-title">
+            <span>1. Nova Scotia Map: Major Towns & Key Regions</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Match Pins 1–8 on Map</span>
+        </div>
+
+        <div class="map-layout">
+            <!-- SVG Map Box -->
+            <div class="map-box">
+                <svg class="map-svg" viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background Water Accent -->
+                    <rect width="600" height="380" fill="#f0f9ff" rx="6"/>
+                    
+                    <!-- Bay of Fundy label -->
+                    <text x="130" y="80" font-family="'Open Sans', sans-serif" font-size="11" font-weight="700" fill="#93c5fd" letter-spacing="1">BAY OF FUNDY</text>
+                    <text x="130" y="95" font-family="'Open Sans', sans-serif" font-size="9" fill="#93c5fd">(World's Highest Tides)</text>
+                    
+                    <!-- Atlantic Ocean label -->
+                    <text x="340" y="320" font-family="'Open Sans', sans-serif" font-size="12" font-weight="700" fill="#93c5fd" letter-spacing="2">ATLANTIC OCEAN</text>
+                    
+                    <!-- Simplified Nova Scotia Landmass Geometry -->
+                    <!-- Mainland NS -->
+                    <path d="M 90,60 L 140,55 L 180,65 L 260,80 L 320,100 L 370,110 L 400,130 L 415,150 L 390,165 L 360,180 L 310,210 L 260,250 L 210,290 L 160,330 L 130,340 L 100,320 L 90,280 L 120,230 L 160,180 L 180,140 L 140,110 L 90,80 Z" 
+                          fill="#e2e8f0" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
+                    
+                    <!-- Cape Breton Island -->
+                    <path d="M 420,130 L 470,80 L 510,40 L 530,60 L 520,120 L 545,140 L 510,180 L 460,190 L 430,160 Z" 
+                          fill="#cbd5e1" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
+                    
+                    <!-- Bras d'Or Lake cutout -->
+                    <path d="M 470,110 Q 490,130 480,150 Q 460,140 470,110 Z" fill="#f0f9ff" stroke="#64748b" stroke-width="1.2"/>
+
+                    <!-- Chignecto Isthmus / NB Border Connection -->
+                    <line x1="70" y1="50" x2="90" y2="60" stroke="#b91c1c" stroke-width="3" stroke-dasharray="4,4"/>
+                    <text x="25" y="45" font-family="'Roboto Slab', serif" font-size="9" font-weight="700" fill="#b91c1c">TO NEW BRUNSWICK &rarr;</text>
+
+                    <!-- PINS (Numbered Circles) -->
+                    <!-- 1. Amherst (Isthmus) -->
+                    <g transform="translate(95, 62)">
+                        <circle r="11" fill="#b91c1c" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">1</text>
+                    </g>
+                    
+                    <!-- 2. Truro (The Hub) -->
+                    <g transform="translate(240, 115)">
+                        <circle r="11" fill="#15803d" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">2</text>
+                    </g>
+
+                    <!-- 3. Annapolis Valley (Kentville/Wolfville) -->
+                    <g transform="translate(170, 135)">
+                        <circle r="11" fill="#15803d" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">3</text>
+                    </g>
+
+                    <!-- 4. Halifax & Dartmouth (Capital/HRM) -->
+                    <g transform="translate(265, 195)">
+                        <circle r="12" fill="#1d4ed8" stroke="#ffffff" stroke-width="2.5"/>
+                        <text text-anchor="middle" dy="4.5" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="800">4</text>
+                    </g>
+
+                    <!-- 5. Lunenburg & South Shore (Bluenose) -->
+                    <g transform="translate(225, 235)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">5</text>
+                    </g>
+
+                    <!-- 6. Yarmouth (Southwest Gateway) -->
+                    <g transform="translate(105, 315)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">6</text>
+                    </g>
+
+                    <!-- 7. New Glasgow & Pictou County -->
+                    <g transform="translate(325, 110)">
+                        <circle r="11" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">7</text>
+                    </g>
+
+                    <!-- 8. Sydney & Cape Breton (CBRM) -->
+                    <g transform="translate(515, 105)">
+                        <circle r="11" fill="#b91c1c" stroke="#ffffff" stroke-width="2"/>
+                        <text text-anchor="middle" dy="4" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800">8</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Legend & Word Bank -->
+            <div class="map-legend">
+                <div class="legend-title">📍 Nova Scotia Locations Key</div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px;">Match each numbered pin on the map to the right town or region:</p>
+                <div class="legend-list">
+                    <div class="legend-item"><span class="pin-num blue">4</span> <strong>Halifax / Dartmouth</strong></div>
+                    <div class="legend-item"><span class="pin-num green">3</span> <strong>Annapolis Valley</strong></div>
+                    <div class="legend-item"><span class="pin-num green">2</span> <strong>Truro ("The Hub")</strong></div>
+                    <div class="legend-item"><span class="pin-num red">8</span> <strong>Sydney (Cape Breton)</strong></div>
+                    <div class="legend-item"><span class="pin-num">5</span> <strong>Lunenburg</strong></div>
+                    <div class="legend-item"><span class="pin-num">6</span> <strong>Yarmouth</strong></div>
+                    <div class="legend-item"><span class="pin-num">7</span> <strong>New Glasgow / Pictou</strong></div>
+                    <div class="legend-item"><span class="pin-num red">1</span> <strong>Amherst (NB Border)</strong></div>
+                </div>
+
+                <div style="margin-top: 10px; padding-top: 6px; border-top: 1px solid var(--border-light); font-size: 0.72rem; color: var(--text-body);">
+                    <strong>💡 Room 8 Compass Check:</strong> Notice how Highway 102 connects Halifax directly north to <strong>Truro</strong>, and Highway 101 runs northwest through the <strong>Annapolis Valley</strong>!
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Nova Scotia Regional Clue Hunt -->
+        <div class="section-title">
+            <span>2. Nova Scotia Regional Clue Hunt (6 Trivia Riddles)</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Use Clues to Name the Region/Town</span>
+        </div>
+
+        <div class="trivia-grid">
+            <!-- Riddle 1 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #1: The Agricultural Valley</span>
+                    <span class="code-pill">Pin #3</span>
+                </div>
+                <div class="riddle-clue">
+                    This rich, sheltered valley along the Bay of Fundy is famous for producing millions of Honeycrisp apples, agriculture, cider, and vineyards.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Annapolis Valley">______________________________</span>
+                </div>
+            </div>
+
+            <!-- Riddle 2 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #2: "The Hub of Nova Scotia"</span>
+                    <span class="code-pill">Pin #2</span>
+                </div>
+                <div class="riddle-clue">
+                    Known as the "Hub" because every major highway (102 & 104) and CN rail line connecting Halifax to Cape Breton or New Brunswick passes through here.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Truro">______________________________</span>
+                </div>
+            </div>
+
+            <!-- Riddle 3 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #3: The Bluenose Shipyard</span>
+                    <span class="code-pill">Pin #5</span>
+                </div>
+                <div class="riddle-clue">
+                    A colorful UNESCO World Heritage waterfront town on the South Shore where Canada's famous racing schooner, the <em>Bluenose</em> (on our 10¢ dime), was built.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Lunenburg">______________________________</span>
+                </div>
+            </div>
+
+            <!-- Riddle 4 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #4: The Land Bridge to Canada</span>
+                    <span class="code-pill">Pin #1</span>
+                </div>
+                <div class="riddle-clue">
+                    The border town located on the narrow Chignecto Isthmus that physically connects peninsular Nova Scotia to New Brunswick and the rest of North America.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Amherst">______________________________</span>
+                </div>
+            </div>
+
+            <!-- Riddle 5 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #5: Island of Steel & Coal</span>
+                    <span class="code-pill">Pin #8</span>
+                </div>
+                <div class="riddle-clue">
+                    The largest city on Cape Breton Island, with a rich industrial history of steel mills and coal mining, and gateway to the Cabot Trail and Fortress of Louisbourg.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Sydney / CBRM">______________________________</span>
+                </div>
+            </div>
+
+            <!-- Riddle 6 -->
+            <div class="riddle-card">
+                <div class="riddle-num">
+                    <span>CLUE #6: Capital & Navy Fleet</span>
+                    <span class="code-pill">Pin #4</span>
+                </div>
+                <div class="riddle-clue">
+                    The economic and government capital of Nova Scotia, situated around one of the world's largest natural ice-free harbours and home to CFB Halifax.
+                </div>
+                <div class="riddle-ans-row">
+                    <span class="riddle-ans-label">Location:</span>
+                    <span class="reveal-target" data-ans="Halifax / Dartmouth">______________________________</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== SIDE B: CANADA PROVINCES & CAPITALS ==================== -->
+    <div class="sheet page-break">
+
+        <div class="doc-header">
+            <div>
+                <h1>The Great Canadian Geography Sprint</h1>
+                <p>Citizenship 9 &bull; Unit 1: 10 Provinces, 3 Territories & National Capitals &bull; Room 8</p>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; color: var(--blue);">
+                SIDE B: ALL OF CANADA
+            </div>
+        </div>
+
+        <div class="section-title">
+            <span>1. Canadian Provinces, Territories & Capital Cities Ledger</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Fill in the Missing Capitals</span>
+        </div>
+
+        <!-- 10 Provinces Table -->
+        <table class="prov-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 35%;">Province (West &rarr; East)</th>
+                    <th style="width: 12%;">Code</th>
+                    <th style="width: 48%;">Provincial Capital City</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td><strong>British Columbia</strong></td>
+                    <td><span class="code-pill">BC</span></td>
+                    <td><span class="reveal-target" data-ans="Victoria">Victoria</span> (on Vancouver Island)</td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td><strong>Alberta</strong></td>
+                    <td><span class="code-pill">AB</span></td>
+                    <td><span class="reveal-target" data-ans="Edmonton">Edmonton</span> <em>(Not Calgary!)</em></td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td><strong>Saskatchewan</strong></td>
+                    <td><span class="code-pill">SK</span></td>
+                    <td><span class="reveal-target" data-ans="Regina">Regina</span> <em>(Not Saskatoon!)</em></td>
+                </tr>
+                <tr>
+                    <td><strong>4</strong></td>
+                    <td><strong>Manitoba</strong></td>
+                    <td><span class="code-pill">MB</span></td>
+                    <td><span class="reveal-target" data-ans="Winnipeg">Winnipeg</span></td>
+                </tr>
+                <tr>
+                    <td><strong>5</strong></td>
+                    <td><strong>Ontario</strong></td>
+                    <td><span class="code-pill">ON</span></td>
+                    <td><span class="reveal-target" data-ans="Toronto">Toronto</span> <em>(Canada's largest city)</em></td>
+                </tr>
+                <tr>
+                    <td><strong>6</strong></td>
+                    <td><strong>Quebec</strong></td>
+                    <td><span class="code-pill">QC</span></td>
+                    <td><span class="reveal-target" data-ans="Quebec City">Quebec City</span> <em>(Not Montreal!)</em></td>
+                </tr>
+                <tr>
+                    <td><strong>7</strong></td>
+                    <td><strong>New Brunswick</strong></td>
+                    <td><span class="code-pill">NB</span></td>
+                    <td><span class="reveal-target" data-ans="Fredericton">Fredericton</span> <em>(Not Moncton/Saint John!)</em></td>
+                </tr>
+                <tr>
+                    <td><strong>8</strong></td>
+                    <td><strong>Prince Edward Island</strong></td>
+                    <td><span class="code-pill">PE</span></td>
+                    <td><span class="reveal-target" data-ans="Charlottetown">Charlottetown</span></td>
+                </tr>
+                <tr>
+                    <td><strong>9</strong></td>
+                    <td><strong>Nova Scotia</strong></td>
+                    <td><span class="code-pill">NS</span></td>
+                    <td><span class="reveal-target" data-ans="Halifax">Halifax</span></td>
+                </tr>
+                <tr>
+                    <td><strong>10</strong></td>
+                    <td><strong>Newfoundland & Labrador</strong></td>
+                    <td><span class="code-pill">NL</span></td>
+                    <td><span class="reveal-target" data-ans="St. John's">St. John's</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 3 Territories & National Capital -->
+        <div class="section-title" style="margin-top: 10px;">
+            <span>2. The 3 Northern Territories & National Capital</span>
+        </div>
+
+        <table class="prov-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 35%;">Territory / Nation</th>
+                    <th style="width: 12%;">Code</th>
+                    <th style="width: 48%;">Capital City</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>11</strong></td>
+                    <td><strong>Yukon</strong></td>
+                    <td><span class="code-pill">YT</span></td>
+                    <td><span class="reveal-target" data-ans="Whitehorse">Whitehorse</span></td>
+                </tr>
+                <tr>
+                    <td><strong>12</strong></td>
+                    <td><strong>Northwest Territories</strong></td>
+                    <td><span class="code-pill">NT</span></td>
+                    <td><span class="reveal-target" data-ans="Yellowknife">Yellowknife</span></td>
+                </tr>
+                <tr>
+                    <td><strong>13</strong></td>
+                    <td><strong>Nunavut</strong> (Created in 1999)</td>
+                    <td><span class="code-pill">NU</span></td>
+                    <td><span class="reveal-target" data-ans="Iqaluit">Iqaluit</span> (on Baffin Island)</td>
+                </tr>
+                <tr style="background: #fef2f2;">
+                    <td>⭐</td>
+                    <td><strong>CANADA (National Capital)</strong></td>
+                    <td><span class="code-pill" style="background: #fecaca; color: #991b1b;">CA</span></td>
+                    <td><span class="reveal-target" data-ans="Ottawa">Ottawa</span> (Located in Ontario on the Quebec border)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 3 Quick Geographic Truths -->
+        <div class="fast-truths">
+            <div class="fast-truths-title">⚡ 3 Quick Geographic Truths Every Grade 9 Citizen Must Know:</div>
+            <ol>
+                <li><strong>The Biggest City Trap:</strong> The capital is often <em>not</em> the largest city! (e.g., Alberta's capital is <strong>Edmonton</strong>, not Calgary; Quebec's is <strong>Quebec City</strong>, not Montreal; Canada's is <strong>Ottawa</strong>, not Toronto).</li>
+                <li><strong>The Only Official Bilingual Province:</strong> <strong>New Brunswick</strong> is Canada's only province officially recognizing both English and French equally in law.</li>
+                <li><strong>The Cradle of Confederation:</strong> <strong>Charlottetown, PEI</strong> hosted the historic 1864 conference that created Canada.</li>
+            </ol>
+        </div>
+
+    </div>
+
+    <!-- Interactive Reveal & Smartboard Script -->
+    <script>
+        let isRevealed = false;
+
+        function toggleSmartboardAnswers() {
+            isRevealed = !isRevealed;
+            const targets = document.querySelectorAll('.reveal-target');
+            targets.forEach(t => {
+                const ans = t.getAttribute('data-ans');
+                if (isRevealed) {
+                    t.innerHTML = `<span class="revealed-text">${ans}</span>`;
+                } else {
+                    if (t.closest('.riddle-ans-row')) {
+                        t.innerHTML = `______________________________`;
+                    } else {
+                        t.innerHTML = ans;
+                    }
+                }
+            });
+            const btn = document.querySelector('.btn-toggle');
+            if (btn) {
+                btn.innerText = isRevealed ? '🔒 Hide Smartboard Answers' : '💡 Smartboard Reveal Mode';
+            }
+        }
+    </script>
+</body>
+</html>
