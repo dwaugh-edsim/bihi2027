@@ -597,8 +597,10 @@
                 </div>
             </div>
             <div class="top-actions">
+                <a href="CIT9_Current_Issues_Progress_Dashboard.html" class="btn" style="background: rgba(37,99,235,0.2); border-color: #3b82f6; color: #60a5fa; font-weight: 700;">🗳️ Issues Diagnostic Dashboard &rarr;</a>
+                <button class="btn btn-primary" id="btnLiveCloudSync" style="background: #059669; border-color: #10b981; font-weight: 700; box-shadow: 0 2px 8px rgba(5,150,105,0.3);" onclick="syncLiveCloudData()">🔄 Sync Live Cloud Data</button>
                 <a href="Places_Of_Significance_Studio.html" target="_blank" class="btn btn-primary">🚀 Launch Places Studio</a>
-                <a href="../Day1_Deliverables/10_WHERE_Slide_Deck.html" target="_blank" class="btn">🖥️ Slide Deck</a>
+                <a href="../Citizenship 9/10_WHERE_Slide_Deck.html" target="_blank" class="btn">🖥️ Slide Deck</a>
                 <button class="btn" onclick="toggleProjectorMode()" id="projBtn">💡 High-Contrast LCD Mode</button>
                 <button class="btn" onclick="window.print()">🖨️ Print Report</button>
             </div>
@@ -714,6 +716,7 @@
     <!-- Roster & Brainstorm Data -->
     <script src="students_roster_data.js"></script>
     <script src="places_brainstorm_data.js"></script>
+    <script src="where_dashboard_data.js"></script>
     <script src="api.js"></script>
 
     <script>
@@ -721,6 +724,7 @@
         let MasterMap = null;
         let mapMarkers = [];
         let activeModalStudent = null;
+        window._LIVE_CLOUD_DATA = Object.assign({}, window.ROOM8_WHERE_INITIAL_DATA || {});
 
         // Default local coordinates for places if not yet customized
         const DEFAULT_LOCAL_COORDS = {
@@ -736,6 +740,8 @@
             renderMetrics();
             renderStudentsGrid();
             populateMasterMap();
+            // Automatically poll cloud data in background
+            setTimeout(syncLiveCloudData, 500);
         }
 
         function toggleProjectorMode() {
@@ -750,6 +756,8 @@
             return roster.filter(s => ['901', '902', '903'].includes(String(s.homeroom || '').trim()));
         }
 
+        window._LIVE_CLOUD_DATA = window._LIVE_CLOUD_DATA || {};
+
         function getStudentWork(student) {
             const pin = (student.pin || '').toUpperCase();
             const fn = (student.first_name || '').toLowerCase().trim();
@@ -758,13 +766,39 @@
             const bData = window.PLACES_BRAINSTORM_DATA || {};
             const b = bData[pin] || bData[fn] || bData[full] || {};
 
-            // Check if student has entered data for each of the 5 pillars
-            const p1 = b.cat1_personal || '';
-            const p2 = b.cat2_community || '';
-            const p3 = b.cat3_global || '';
-            const p4 = b.cat4_aspirational || '';
-            const p5 = b.cat5_music || '';
-            const yt = b.youtube_url || '';
+            // Layer 1: Check live cloud cache
+            let cloudData = window._LIVE_CLOUD_DATA[pin] || null;
+
+            // Layer 2: Check local storage on this machine
+            let localDraft = null;
+            try {
+                const rawDraft = localStorage.getItem(`places_draft_${pin}`);
+                if (rawDraft) localDraft = JSON.parse(rawDraft);
+            } catch(e) {}
+
+            // Combine sources with cloud & local precedence
+            const source = cloudData || localDraft || b;
+
+            // Prioritize actual WHERE Places Studio entries (p1..p5) over legacy intake fields
+            const isSleepText = txt => typeof txt === 'string' && (txt.toLowerCase().includes('bed') || txt.toLowerCase().includes('sleep'));
+            
+            const p1 = (source.p1?.desc || (source.where_personal && !isSleepText(source.where_personal) ? source.where_personal : '') || source.cat1_personal || b.cat1_personal || '').trim();
+            const p2 = (source.p2?.desc || (source.where_community && !source.where_community.toLowerCase().includes('tired') ? source.where_community : '') || source.cat2_community || b.cat2_community || '').trim();
+            const p3 = (source.p3?.desc || source.where_global || source.cat3_global || b.cat3_global || '').trim();
+            const p4 = (source.p4?.desc || source.where_aspirational || source.cat4_aspirational || b.cat4_aspirational || '').trim();
+            const p5 = (source.p5?.desc || source.cat5_music || b.cat5_music || '').trim();
+            const yt = (source.youtube_url || source.p5?.yt || b.youtube_url || '').trim();
+
+            const p1Title = source.p1?.title || 'Personal Place';
+            const p2Title = source.p2?.title || 'Community Place';
+            const p3Title = source.p3?.title || 'Global Heritage';
+            const p4Title = source.p4?.title || 'Aspirational Destination';
+            const p5Title = source.p5?.title || 'Soundtrack';
+
+            const p1Coords = source.p1?.coords || DEFAULT_LOCAL_COORDS.p1;
+            const p2Coords = source.p2?.coords || DEFAULT_LOCAL_COORDS.p2;
+            const p3Coords = source.p3?.coords || DEFAULT_LOCAL_COORDS.p3;
+            const p4Coords = source.p4?.coords || DEFAULT_LOCAL_COORDS.p4;
 
             let score = 0;
             if (p1.length > 3) score++;
@@ -773,17 +807,83 @@
             if (p4.length > 3) score++;
             if (p5.length > 3 || yt.length > 5) score++;
 
+            // Google Classroom turned in list (Google Slides / Doc version of WHERE)
+            const isGoogleClassroomTurnedIn = ['AUM', 'AVP', 'CAS', 'SAN', 'AUA', 'MAT', 'MPU', 'TRH', 'MCN'].includes(pin);
+            if (isGoogleClassroomTurnedIn && score < 5) {
+                return {
+                    p1: { done: true, text: p1 || 'Google Slides Turned In', coords: p1Coords, title: p1Title || 'Google Slides Portfolio' },
+                    p2: { done: true, text: p2 || 'Google Slides Turned In', coords: p2Coords, title: p2Title || 'Google Slides Portfolio' },
+                    p3: { done: true, text: p3 || 'Google Slides Turned In', coords: p3Coords, title: p3Title || 'Google Slides Portfolio' },
+                    p4: { done: true, text: p4 || 'Google Slides Turned In', coords: p4Coords, title: p4Title || 'Google Slides Portfolio' },
+                    p5: { done: true, text: p5 || 'Google Slides Turned In', yt: yt, title: p5Title || 'Google Slides Portfolio' },
+                    score: 5,
+                    isDone: true,
+                    isProg: false,
+                    isWait: false,
+                    isCloudSynced: true,
+                    isLocalDraft: false,
+                    sourceType: 'Google Slides (Classroom Turned In)'
+                };
+            }
+
             return {
-                p1: { done: p1.length > 3, text: p1, coords: DEFAULT_LOCAL_COORDS.p1, title: 'Personal Place' },
-                p2: { done: p2.length > 3, text: p2, coords: DEFAULT_LOCAL_COORDS.p2, title: 'Community Place' },
-                p3: { done: p3.length > 3, text: p3, coords: DEFAULT_LOCAL_COORDS.p3, title: 'Global Heritage' },
-                p4: { done: p4.length > 3, text: p4, coords: DEFAULT_LOCAL_COORDS.p4, title: 'Aspirational Destination' },
-                p5: { done: (p5.length > 3 || yt.length > 5), text: p5, yt: yt, title: 'Soundtrack' },
+                p1: { done: p1.length > 3, text: p1, coords: p1Coords, title: p1Title },
+                p2: { done: p2.length > 3, text: p2, coords: p2Coords, title: p2Title },
+                p3: { done: p3.length > 3, text: p3, coords: p3Coords, title: p3Title },
+                p4: { done: p4.length > 3, text: p4, coords: p4Coords, title: p4Title },
+                p5: { done: (p5.length > 3 || yt.length > 5), text: p5, yt: yt, title: p5Title },
                 score: score,
                 isDone: score === 5,
                 isProg: score > 0 && score < 5,
-                isWait: score === 0
+                isWait: score === 0,
+                isCloudSynced: !!cloudData,
+                isLocalDraft: !!localDraft,
+                sourceType: 'WHERE Places Portfolio'
             };
+        }
+
+        async function syncLiveCloudData() {
+            const btn = document.getElementById('btnLiveCloudSync');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Syncing Google Sheets...';
+            }
+
+            const roster = getGrade9Students().filter(s => currentSection === 'ALL' || s.homeroom === currentSection);
+            let syncCount = 0;
+            const BATCH_SIZE = 8;
+
+            for (let i = 0; i < roster.length; i += BATCH_SIZE) {
+                const batch = roster.slice(i, i + BATCH_SIZE);
+                if (btn) btn.innerText = `⏳ Syncing (${Math.min(i + batch.length, roster.length)}/${roster.length})...`;
+
+                await Promise.all(batch.map(async s => {
+                    const pin = s.pin;
+                    const cls = s.homeroom || '902';
+                    try {
+                        const res = await StudentAPI.login(cls, s.first_name, pin, 'CIT9');
+                        if (res && res.savedData) {
+                            const d = res.savedData.data || res.savedData;
+                            if (d.where_personal || d.cat1_personal || d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
+                                window._LIVE_CLOUD_DATA[pin] = d;
+                                syncCount++;
+                            }
+                        }
+                    } catch(e) {
+                        console.warn(`Could not sync ${pin}:`, e);
+                    }
+                }));
+
+                renderMetrics();
+                renderStudentsGrid();
+                populateMasterMap();
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                const totalActive = Object.keys(window._LIVE_CLOUD_DATA).length;
+                btn.innerText = `🟢 Cloud Synced (${totalActive} live portfolios)`;
+            }
         }
 
         function updateHeaderCounts() {
@@ -870,11 +970,16 @@
 
                 let statusBadge = '';
                 if (w.isDone) {
-                    statusBadge = `<span class="status-tag" style="color: var(--emerald);">✅ 5/5 Complete</span>`;
+                    statusBadge = `<span class="status-tag" style="color: var(--emerald);">✅ Complete (5/5)</span>`;
                 } else if (w.isProg) {
                     statusBadge = `<span class="status-tag" style="color: var(--amber);">⏳ ${w.score}/5 In Progress</span>`;
                 } else {
                     statusBadge = `<span class="status-tag" style="color: var(--text-dim);">⚪ Not Started</span>`;
+                }
+                if (w.isCloudSynced) {
+                    statusBadge += ` <span style="font-size:0.72em; background:rgba(16,185,129,0.15); color:var(--emerald); border:1px solid var(--emerald); padding:1px 5px; border-radius:4px;">☁️ Synced</span>`;
+                } else if (w.isLocalDraft) {
+                    statusBadge += ` <span style="font-size:0.72em; background:rgba(56,189,248,0.15); color:var(--cyan); border:1px solid var(--cyan); padding:1px 5px; border-radius:4px;">💻 Local</span>`;
                 }
 
                 card.innerHTML = `

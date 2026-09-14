@@ -1,0 +1,900 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>HL8 Class 1: The 5-Dimension Systems Audit | Room 8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #090d16;
+            --bg-slide: #ffffff;
+            --bg-panel: #f8fafc;
+            --border-main: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent-blue: #1e40af;
+            --accent-cyan: #0284c7;
+            --accent-red: #dc2626;
+            --accent-emerald: #059669;
+            --accent-amber: #d97706;
+            --accent-purple: #7c3aed;
+            --font-slab: 'Roboto Slab', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body.dark-mode {
+            --bg-canvas: #030712;
+            --bg-slide: #0b1329;
+            --bg-panel: #111e38;
+            --border-main: #1e293b;
+            --border-dark: #334155;
+            --text-heading: #f8fafc;
+            --text-body: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-body);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow: hidden;
+            transition: background-color 0.25s ease;
+        }
+
+        .stage-wrapper {
+            width: 100%;
+            max-width: 1240px;
+            height: calc(100vh - 70px);
+            max-height: 740px;
+            background: var(--bg-slide);
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #334155;
+            transition: background-color 0.25s ease;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 14.28%;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            transition: width 0.3s ease;
+        }
+
+        .slide-masthead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 32px;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-main);
+            background: var(--bg-slide);
+        }
+
+        .pill-badge {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: var(--accent-blue);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+
+        body.dark-mode .pill-badge {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+            color: #bfdbfe;
+        }
+
+        .slide-stage {
+            flex: 1;
+            padding: 24px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            margin-bottom: 12px;
+        }
+
+        .slide-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .slide-title {
+            font-family: var(--font-slab);
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.0rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* Layout Grids */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: stretch;
+            flex: 1;
+            margin-bottom: 10px;
+        }
+
+        .grid-5col {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            align-items: stretch;
+            flex: 1;
+            margin-bottom: 10px;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: stretch;
+            flex: 1;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-main);
+            border-radius: 8px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-highlight {
+            border-left: 5px solid var(--accent-blue);
+        }
+
+        .card-alert {
+            border-left: 5px solid var(--accent-red);
+            background: rgba(220, 38, 38, 0.03);
+        }
+
+        .card-success {
+            border-left: 5px solid var(--accent-emerald);
+            background: rgba(5, 150, 105, 0.03);
+        }
+
+        .card h3 {
+            font-family: var(--font-slab);
+            font-size: 1.15rem;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        .card p, .card li {
+            font-size: 0.9rem;
+            color: var(--text-body);
+            line-height: 1.45;
+        }
+
+        /* Dimension Cards */
+        .dim-card {
+            border-radius: 8px;
+            padding: 14px 12px;
+            background: var(--bg-panel);
+            border: 2px solid var(--border-main);
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .dim-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-blue);
+        }
+
+        .dim-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .dim-name {
+            font-family: var(--font-slab);
+            font-weight: 800;
+            font-size: 1.0rem;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+
+        .dim-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #334155;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .dim-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+            text-align: left;
+        }
+
+        /* Domino Flow Visual */
+        .domino-flow {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .domino-node {
+            background: var(--bg-panel);
+            border: 2px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .domino-node.trigger {
+            border-color: var(--accent-red);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .domino-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent-red);
+            margin-bottom: 4px;
+        }
+
+        .domino-head {
+            font-family: var(--font-slab);
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        .domino-body {
+            font-size: 0.8rem;
+            color: var(--text-body);
+            line-height: 1.35;
+        }
+
+        .domino-arrow {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 900;
+            z-index: 2;
+        }
+
+        /* Circuit Breaker Visual Box */
+        .breaker-card {
+            border: 2px dashed #0284c7;
+            background: rgba(2, 132, 199, 0.05);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Timer Block */
+        .timer-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px 24px;
+            margin-top: 10px;
+        }
+
+        .timer-display {
+            font-family: var(--font-mono);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 0.05em;
+        }
+
+        /* Controls Toolbar */
+        .slide-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 32px;
+            background: var(--bg-panel);
+            border-top: 2px solid var(--border-main);
+        }
+
+        .btn {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            background: var(--bg-slide);
+            color: var(--text-heading);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover { background: #e2e8f0; }
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .kbd-hint {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .kbd {
+            background: var(--border-main);
+            border: 1px solid var(--border-dark);
+            border-radius: 3px;
+            padding: 1px 5px;
+            color: var(--text-heading);
+        }
+    </style>
+</head>
+<body>
+
+<div class="stage-wrapper">
+    <!-- Progress Indicator -->
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Masthead -->
+    <div class="slide-masthead">
+        <div>
+            <span>Room 8 &bull; Healthy Living 8</span> &bull; <span>Mr. Waugh</span>
+        </div>
+        <div>
+            <span class="pill-badge" id="slideIndicator">Slide 1 / 7</span>
+        </div>
+    </div>
+
+    <!-- Slide Content Stage -->
+    <div class="slide-stage">
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 1: TITLE & LAUNCH                                       -->
+        <!-- ============================================================= -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Grade 8 Systems Review &bull; Room 8 Clinical Audit</div>
+                <h1 class="slide-title">The 5 Dimensions of Health</h1>
+                <p class="slide-subtitle">Systems Audit & Domino Interception Lab</p>
+            </div>
+
+            <div class="grid-2col">
+                <div class="card card-highlight">
+                    <div>
+                        <h3>The Pedagogical Deal</h3>
+                        <p style="font-size: 1.05rem; line-height: 1.6; margin-top: 8px;">
+                            You mastered the <strong>5 Dimensions of Health</strong> last year in Grade 7.
+                        </p>
+                        <p style="font-size: 1.05rem; line-height: 1.6; margin-top: 8px;">
+                            We are <strong>NOT</strong> going to make you colour posters or memorize definitions you already know.
+                        </p>
+                        <p style="font-size: 1.05rem; line-height: 1.6; margin-top: 8px;">
+                            Today, we treat your health as an <strong>interconnected circuit</strong>. When one wire snaps, the whole house goes dark.
+                        </p>
+                    </div>
+                    <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-blue); font-weight: 700; border-top: 1px solid var(--border-main); padding-top: 8px;">
+                        AUDIT FORMAT: Paper First &bull; Wall Case Files &bull; Zero Fluff
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div>
+                        <h3>Today's Agenda (60 Mins)</h3>
+                        <ul style="margin-left: 20px; margin-top: 10px; font-size: 0.95rem; line-height: 1.8;">
+                            <li><strong>1. Rapid Review:</strong> The 5 Dimensions in 90 seconds.</li>
+                            <li><strong>2. Exemplar Audit:</strong> We audit <em>Subject #01 (Devon)</em> together as a class.</li>
+                            <li><strong>3. Wall Gallery Sprint:</strong> Pair up, hit the 10 patient files on the walls.</li>
+                            <li><strong>4. Circuit Breaker:</strong> Spot where the cascade can be stopped.</li>
+                            <li><strong>5. Exit Slip:</strong> Keep your sheets — digital entry next day!</li>
+                        </ul>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg-slide); border: 1px solid var(--border-main); padding: 8px 12px; border-radius: 6px;">
+                        📌 <strong>Auditor's Rule:</strong> Use evidence from the wall logs — not guesses or stereotypes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 2: THE 5 DIMENSIONS REFRESHER                          -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <div class="slide-eyebrow">The 90-Second Recall</div>
+                <h1 class="slide-title">The 5 Dimensions: Your Operating System</h1>
+                <p class="slide-subtitle">Health is not just "not being sick." It is 5 interconnected systems running in balance.</p>
+            </div>
+
+            <div class="grid-5col">
+                <div class="dim-card">
+                    <div class="dim-icon">⚡</div>
+                    <div class="dim-name">Physical</div>
+                    <div class="dim-tag">[PHYS]</div>
+                    <div class="dim-desc">Sleep debt, athletic fuel, hydration, screen drain, biological rest.</div>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-icon">🧠</div>
+                    <div class="dim-name">Mental / Emo</div>
+                    <div class="dim-tag">[MENT]</div>
+                    <div class="dim-desc">Stress load, mood swings, emotional regulation, self-talk, anxiety.</div>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-icon">👥</div>
+                    <div class="dim-name">Social</div>
+                    <div class="dim-tag">[SOC]</div>
+                    <div class="dim-desc">Friendships, group chats, conflict, team dynamics, family trust.</div>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-icon">💡</div>
+                    <div class="dim-name">Intellectual</div>
+                    <div class="dim-tag">[INT]</div>
+                    <div class="dim-desc">Focus, memory recall, curiosity, reaction time, brain fog.</div>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-icon">🧭</div>
+                    <div class="dim-name">Spiritual</div>
+                    <div class="dim-tag">[SPIR]</div>
+                    <div class="dim-desc">Core values, identity, purpose, knowing who you are when offline.</div>
+                </div>
+            </div>
+
+            <div class="card card-highlight" style="padding: 10px 16px;">
+                <p style="font-size: 0.9rem;">
+                    💡 <strong>The Secret:</strong> None of these live on an island. If <strong>[PHYS]</strong> takes a direct hit at 1:00 AM, all four other dimensions suffer collateral damage before lunch.
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 3: THE DOMINO CASCADE CONCEPT                          -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Systems Dynamics</div>
+                <h1 class="slide-title">The Domino Collapse</h1>
+                <p class="slide-subtitle">How a 20-minute screen scroll knocks down an entire week.</p>
+            </div>
+
+            <div class="domino-flow">
+                <div class="domino-node trigger">
+                    <span class="domino-arrow">&rarr;</span>
+                    <div class="domino-badge">Domino 1 &bull; Trigger</div>
+                    <div class="domino-head">⚡ Physical</div>
+                    <div class="domino-body">Sleep delayed to 1:30 AM by phone notifications. 5.5 hours actual rest.</div>
+                </div>
+
+                <div class="domino-node">
+                    <span class="domino-arrow">&rarr;</span>
+                    <div class="domino-badge">Domino 2 &bull; Internal</div>
+                    <div class="domino-head">🧠 Mental / Emo</div>
+                    <div class="domino-body">High cortisol, severe morning irritability, zero patience.</div>
+                </div>
+
+                <div class="domino-node">
+                    <span class="domino-arrow">&rarr;</span>
+                    <div class="domino-badge">Domino 3 &bull; Outward</div>
+                    <div class="domino-head">👥 Social</div>
+                    <div class="domino-body">Snaps at friend over a harmless locker joke; group chat blowup.</div>
+                </div>
+
+                <div class="domino-node">
+                    <span class="domino-arrow">&rarr;</span>
+                    <div class="domino-badge">Domino 4 &bull; Cognitive</div>
+                    <div class="domino-head">💡 Intellectual</div>
+                    <div class="domino-body">Period 2 test: Brain fog. Reading comprehension slowed by 25%.</div>
+                </div>
+
+                <div class="domino-node">
+                    <div class="domino-badge">Domino 5 &bull; Identity</div>
+                    <div class="domino-head">🧭 Spiritual</div>
+                    <div class="domino-body">Total apathy by 1:00 PM: <em>"Nothing I do matters, today is garbage."</em></div>
+                </div>
+            </div>
+
+            <div class="card card-alert" style="padding: 10px 18px;">
+                <p style="font-size: 0.95rem; font-weight: 600;">
+                    ⚠️ Notice what happened: The student thinks they have a "bad attitude" or "bad friend problem." In reality, they have a <strong>Domino 1 systems failure</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 4: MODELED EXAMPLE — SUBJECT #01 DEVON                 -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Class Worked Exemplar &bull; "We Do"</div>
+                <h1 class="slide-title">Subject #01 — C., Devon (Rec Basketball)</h1>
+                <p class="slide-subtitle">Auditing Devon together from the wall file before the gallery opens.</p>
+            </div>
+
+            <div class="grid-2col">
+                <div class="card">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--accent-red); margin-bottom: 4px;">
+                            WALL POSTER #01 EVIDENCE BRIEF
+                        </div>
+                        <ul style="font-size: 0.88rem; line-height: 1.6; margin-left: 18px;">
+                            <li><strong>Bedtime / Alarm:</strong> In bed 10:30 PM &bull; Phone drops 1:15 AM &bull; Alarm 6:45 AM.</li>
+                            <li><strong>Actual Sleep:</strong> 5.5 hours per night &bull; <strong>17.5 hrs weekly sleep debt</strong>.</li>
+                            <li><strong>Quote:</strong> <em>"I play rec basketball. On Tuesdays I feel like I'm running in sand, and I snapped at my point guard for missing a pass."</em></li>
+                            <li><strong>Weekend Shift:</strong> Sleeps till noon Saturday (+3.5h social jetlag).</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-family: var(--font-mono);">
+                        <strong>Auditor Check:</strong> What is Devon's Primary Disruption? &rarr; <span style="color: var(--accent-red); font-weight: 800;">[PHYS] Midnight interactive screen delay</span>
+                    </div>
+                </div>
+
+                <div class="card card-highlight">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 4px;">
+                            THE 5-DIMENSION DOMINO AUDIT
+                        </div>
+                        <div style="font-size: 0.84rem; line-height: 1.55;">
+                            <div>⚡ <strong>[PHYS]:</strong> 5.5h sleep &bull; Slowed athletic motor reaction time (+60 ms latency).</div>
+                            <div style="margin-top: 4px;">🧠 <strong>[MENT]:</strong> Low frustration tolerance; hyper-reactive stress response.</div>
+                            <div style="margin-top: 4px;">👥 <strong>[SOC]:</strong> Yelling at point guard &bull; Damaging trust on the court.</div>
+                            <div style="margin-top: 4px;">💡 <strong>[INT]:</strong> Reaction time drop &bull; Missing defensive rotations.</div>
+                            <div style="margin-top: 4px;">🧭 <strong>[SPIR]:</strong> Discouragement &bull; <em>"Maybe I'm just washed up at ball."</em></div>
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-main); padding-top: 8px; font-size: 0.82rem; color: var(--text-muted);">
+                        Writing this on Side A takes 90 seconds per patient once you spot the dominoes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 5: THE CIRCUIT BREAKER FOR DEVON                       -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Systems Intervention</div>
+                <h1 class="slide-title">Engineering Devon's Circuit Breaker</h1>
+                <p class="slide-subtitle">Do not give impossible advice like "stop playing games forever." Cut the live wire.</p>
+            </div>
+
+            <div class="grid-2col">
+                <div class="card card-success">
+                    <div>
+                        <h3>Move A: The Hardware Interception</h3>
+                        <p style="font-size: 0.95rem; line-height: 1.5; margin-top: 6px;">
+                            <strong>Target:</strong> Domino 1 (Physical / Device Trigger).
+                        </p>
+                        <div style="background: var(--bg-slide); border: 2px dashed var(--accent-emerald); padding: 14px; border-radius: 8px; margin: 12px 0; text-align: center; font-family: var(--font-mono); font-size: 1.05rem; font-weight: 800; color: var(--accent-emerald);">
+                            "Move phone charger to the kitchen at 10:15 PM."
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            <strong>Specific Physical Move:</strong> Charge outside the bedroom. Reclaims <strong>2.5 hours of sleep per night</strong> (+12.5 hrs/week) and restores athletic reaction time.
+                        </p>
+                    </div>
+                    <div style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--accent-emerald); font-weight: 700;">
+                        RESULT: Stops Dominos 2, 3, 4, and 5 from ever happening.
+                    </div>
+                </div>
+
+                <div class="card card-highlight">
+                    <div>
+                        <h3>Move B: The 7-Word Social Repair Script</h3>
+                        <p style="font-size: 0.95rem; line-height: 1.5; margin-top: 6px;">
+                            <strong>Target:</strong> Domino 3 (Repairing the friendship with his point guard).
+                        </p>
+                        <div style="background: var(--bg-slide); border: 2px dashed var(--accent-blue); padding: 14px; border-radius: 8px; margin: 12px 0; text-align: center; font-family: var(--font-mono); font-size: 1.05rem; font-weight: 800; color: var(--accent-blue);">
+                            "My bad yesterday. Running on fumes."
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Seven words. Zero excuses. Takes responsibility, acknowledges fatigue, and repairs trust before the next game.
+                        </p>
+                    </div>
+                    <div style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--accent-blue); font-weight: 700;">
+                        AUDIT SKILL: Precise communication &bull; High maturity
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 6: THE FLOOR MISSION PROTOCOL                          -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-6">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Class Instructions</div>
+                <h1 class="slide-title">The Room 8 Clinical Audit Protocol</h1>
+                <p class="slide-subtitle">10 patient files on the walls. Grab your docket, pen, and partner.</p>
+            </div>
+
+            <div class="grid-3col">
+                <div class="card">
+                    <h3>1. Audit All 10 Stations</h3>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        Move in pairs freely across the <strong>10 Subject Posters</strong> posted around Room 8.
+                    </p>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        Devon C. (#01) is done together as a model. Complete rows #02 through #10 at your own pace.
+                    </p>
+                </div>
+
+                <div class="card card-highlight">
+                    <h3>2. Trace & Intercept</h3>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        Identify the <strong>Trigger Dimension</strong> ([PHYS], [MENT], [SOC], [INT], [SPIR]), and note how it triggers the domino cascade.
+                    </p>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        Write your <strong>1-Sentence Advice / Circuit Breaker</strong> directly to the kid to cut the wire!
+                    </p>
+                </div>
+
+                <div class="card card-success">
+                    <h3>3. Keep Whole Docket</h3>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        <strong>DO NOT TEAR OFF ANYTHING!</strong> Complete your personal 24-hour commitment at the bottom.
+                    </p>
+                    <p style="font-size: 0.88rem; line-height: 1.5; margin-top: 6px;">
+                        <strong>KEEP the whole sheet in your Room 8 binder.</strong> You will log these audits into your Chromebook next class.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 10px 16px; background: #f1f5f9;">
+                <p style="font-size: 0.85rem; color: #334155;">
+                    ⚠️ <strong>Clinical Trap Warning:</strong> At least one patient on the wall is <em>completely healthy</em> (Subject #02 Priya). Do not invent problems where none exist!
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SLIDE 7: LIVE CLINIC FLOOR TIMER                             -->
+        <!-- ============================================================= -->
+        <div class="slide" id="slide-7">
+            <div class="slide-header">
+                <div class="slide-eyebrow">Open Station Floor &bull; Clinical Audit in Progress</div>
+                <h1 class="slide-title">Room 8 Clinic Floor Active</h1>
+                <p class="slide-subtitle">Work in pairs. Complete all 10 stations on Side A. Write 1-sentence advice for each.</p>
+            </div>
+
+            <div class="timer-container">
+                <div>
+                    <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800; color: #94a3b8; text-transform: uppercase;">
+                        CLINIC AUDIT TIME REMAINING
+                    </div>
+                    <div class="timer-display" id="clockDisplay">18:00</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="btnTimerToggle" onclick="toggleTimer()">▶ Start Timer</button>
+                    <button class="btn" onclick="resetTimer(18)">↺ 18 Min</button>
+                    <button class="btn" onclick="resetTimer(15)">↺ 15 Min</button>
+                    <button class="btn" onclick="resetTimer(10)">↺ 10 Min</button>
+                </div>
+            </div>
+
+            <div class="grid-2col" style="margin-top: 14px;">
+                <div class="card">
+                    <h3>Audit Targets (Side A)</h3>
+                    <ul style="font-size: 0.88rem; line-height: 1.6; margin-left: 18px; margin-top: 6px;">
+                        <li>[ ] Personal Radar Wheel filled & connected (Baseline).</li>
+                        <li>[ ] Subject #01 Devon C. completed together.</li>
+                        <li>[ ] Subjects #02&ndash;#10 Audited (Dominoes + 1-Sentence Advice).</li>
+                        <li>[ ] Part 3 Personal 24-Hour Commitment filled (No tear-off).</li>
+                    </ul>
+                </div>
+
+                <div class="card card-highlight">
+                    <h3>Auditor Coaching While Circulating</h3>
+                    <p style="font-size: 0.88rem; line-height: 1.6; margin-top: 6px;">
+                        <em>"Which dimension took the first hit?"</em><br>
+                        <em>"What is ONE realistic sentence of advice to save their week?"</em><br>
+                        <em>"Did you spot Priya S. the healthy control patient?"</em>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toolbar / Footer -->
+    <div class="slide-toolbar">
+        <div>
+            <span class="kbd-hint"><span class="kbd">&larr;</span> Prev &bull; <span class="kbd">&rarr;</span> / <span class="kbd">Space</span> Next &bull; <span class="kbd">D</span> Dark &bull; <span class="kbd">F</span> Fullscreen</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn" onclick="prevSlide()">&larr; Previous</button>
+            <button class="btn btn-primary" onclick="nextSlide()">Next &rarr;</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 1;
+    const totalSlides = 7;
+    let timerInterval = null;
+    let timerSeconds = 18 * 60;
+    let isTimerRunning = false;
+
+    function showSlide(n) {
+        if (n < 1) n = 1;
+        if (n > totalSlides) n = totalSlides;
+        currentSlide = n;
+
+        document.querySelectorAll('.slide').forEach((s, idx) => {
+            s.classList.toggle('active', idx + 1 === currentSlide);
+        });
+
+        document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+        document.getElementById('progressFill').style.width = `${(currentSlide / totalSlides) * 100}%`;
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    // Keyboard Navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+            e.preventDefault();
+            nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            e.preventDefault();
+            prevSlide();
+        } else if (e.key.toLowerCase() === 'd') {
+            document.body.classList.toggle('dark-mode');
+        } else if (e.key.toLowerCase() === 'f') {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+    });
+
+    // Timer Logic
+    function updateTimerDisplay() {
+        const mins = Math.floor(timerSeconds / 60);
+        const secs = timerSeconds % 60;
+        document.getElementById('clockDisplay').textContent = 
+            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+        const btn = document.getElementById('btnTimerToggle');
+        if (isTimerRunning) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            btn.textContent = '▶ Resume Timer';
+            btn.classList.remove('btn-alert');
+            btn.classList.add('btn-primary');
+        } else {
+            isTimerRunning = true;
+            btn.textContent = '⏸ Pause Timer';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-alert');
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    btn.textContent = '⏱ Time Expired';
+                    alert('Clinic Audit Time has expired! Convene for debrief.');
+                }
+            }, 1000);
+        }
+    }
+
+    function resetTimer(mins) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        timerSeconds = mins * 60;
+        updateTimerDisplay();
+        const btn = document.getElementById('btnTimerToggle');
+        btn.textContent = '▶ Start Timer';
+        btn.classList.remove('btn-alert');
+        btn.classList.add('btn-primary');
+    }
+
+    updateTimerDisplay();
+</script>
+
+</body>
+</html>

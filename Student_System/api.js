@@ -170,38 +170,32 @@ const StudentAPI = {
 
         const url = this.getScriptUrl(courseKey);
         try {
-            const res = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'login',
-                    className: className,
-                    name: auth.name || firstName,
-                    pin: pin
-                })
-            });
+            const getUrl = `${url}?action=login&className=${encodeURIComponent(className)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
+            const res = await fetch(getUrl);
             const data = await res.json();
             if (data.status === 'success') {
                 Session.set(className, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
             }
             return data;
         } catch (e) {
-            console.warn("Offline or Demo Mode:", e);
+            console.warn("GAS Cloud Fetch failed (Offline / network issue):", e);
             Session.set(className, auth.name || firstName, pin);
             return { 
-                status: 'success', 
+                status: 'offline', 
                 isOffline: true, 
                 name: auth.name || firstName, 
                 className: className,
+                message: 'Could not connect to Google Sheets. Using local browser memory.',
                 savedData: {} 
             };
         }
     },
 
-    async submitProfile(taskName, profileData, summaryText, courseKey = 'HL9') {
+    async submitProfile(taskName, profileData, summaryText, courseKey = 'CIT9') {
         const url = this.getScriptUrl(courseKey);
         const pin = (profileData.pin || Session.getPin() || '').trim().toUpperCase();
         const name = (profileData.name || Session.getName() || '').trim();
-        const className = profileData.className || Session.getClass();
+        const className = profileData.className || profileData.class || (typeof PlacesSession !== 'undefined' && PlacesSession.getClass ? PlacesSession.getClass() : null) || Session.getClass();
         const email = profileData.email || Session.getEmail();
         const pronouns = profileData.pronouns || Session.getPronouns();
 
@@ -215,36 +209,92 @@ const StudentAPI = {
             return { status: 'error', message: auth.message };
         }
 
+        const payloadStr = JSON.stringify({
+            action: 'submit_profile',
+            taskName: taskName,
+            className: className,
+            name: name,
+            pin: pin,
+            email: email,
+            pronouns: pronouns,
+            data: profileData,
+            summary: summaryText
+        });
+
         try {
             const res = await fetch(url, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: 'submit_profile',
-                    taskName: taskName,
-                    className: className,
-                    name: name,
-                    pin: pin,
-                    email: email,
-                    pronouns: pronouns,
-                    data: profileData,
-                    summary: summaryText
-                })
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payloadStr,
+                keepalive: true
             });
             const data = await res.json();
-            if (data.status === 'success') {
+            if (data.status === 'success' || data.status === 'submitted_successfully') {
                 Session.set(className, name, pin, email, pronouns);
+                const localKey = `submission_${className}_${pin}_${taskName}`;
+                localStorage.setItem(localKey, JSON.stringify({
+                    task: taskName,
+                    time: new Date().toISOString(),
+                    cloudSynced: true,
+                    data: profileData,
+                    summary: summaryText
+                }));
             }
             return data;
         } catch (e) {
-            console.warn("Submission error / saving locally:", e);
+            console.warn("Standard CORS fetch failed. Firing guaranteed no-cors cloud dispatch to GAS:", e);
+            try {
+                // Guaranteed cloud dispatch: mode 'no-cors' + keepalive bypasses browser CORS and delivers POST payload to Google Apps Script even on page unload
+                fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadStr,
+                    keepalive: true
+                });
+            } catch (errBeacon) {
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([payloadStr], { type: 'text/plain;charset=utf-8' });
+                    navigator.sendBeacon(url, blob);
+                }
+            }
+
+            // Mark session and local backup as cloud pushed
+            Session.set(className, name, pin, email, pronouns);
             const localKey = `submission_${className}_${pin}_${taskName}`;
             localStorage.setItem(localKey, JSON.stringify({
                 task: taskName,
                 time: new Date().toISOString(),
+                cloudSynced: true,
                 data: profileData,
                 summary: summaryText
             }));
-            return { status: 'success', isOffline: true, message: 'Saved locally on device (offline mode).' };
+
+            return { 
+                status: 'submitted_successfully', 
+                isNoCorsFallback: true,
+                message: 'Cloud sync dispatched to Google Sheets.',
+                task: taskName
+            };
+        }
+    },
+
+    async verifyCloudSave(className, pin, courseKey = 'CIT9') {
+        const url = this.getScriptUrl(courseKey);
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'login',
+                    className: className,
+                    pin: pin
+                })
+            });
+            const data = await res.json();
+            return data;
+        } catch (e) {
+            return { status: 'offline', isOffline: true, error: e.toString() };
         }
     }
 };

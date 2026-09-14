@@ -1,0 +1,996 @@
+<!DOCTYPE HTML>
+<!--
+    Room 8 • Grade 9 Healthy Living
+    Clinical Sleep Telemetry • Master LCD / Smartboard Math Display
+    Designed for Classroom LCD Visibility (30+ ft legibility)
+    Mr. Waugh • Bicentennial Junior High (2026–2027)
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Room 8 LCD • Sleep Telemetry Math Radar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #070b14;
+            --bg-card: #0f172a;
+            --bg-card-surface: #131d35;
+            --border-card: rgba(255, 255, 255, 0.14);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+
+            --cyan: #38bdf8;
+            --cyan-glow: rgba(56, 189, 248, 0.35);
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --gold: #fbbf24;
+            --rose: #f43f5e;
+            --purple: #a855f7;
+
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* High-Contrast Projector / White LCD Mode */
+        body.projector-mode {
+            --bg-canvas: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-surface: #f8fafc;
+            --border-card: #cbd5e1;
+            --border-subtle: #e2e8f0;
+
+            --text-main: #020617;
+            --text-muted: #334155;
+            --text-dim: #64748b;
+
+            --cyan: #0284c7;
+            --cyan-glow: rgba(2, 132, 199, 0.25);
+            --emerald: #047857;
+            --amber: #b45309;
+            --gold: #d97706;
+            --rose: #be123c;
+            --purple: #7e22ce;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 14px 20px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            user-select: none;
+        }
+
+        /* Ambient subtle backdrop glow */
+        .ambient-glow {
+            position: fixed;
+            top: -120px;
+            left: 20%;
+            width: 60vw;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Top Masthead */
+        .masthead {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 2px solid var(--border-card);
+            border-radius: 12px;
+            padding: 10px 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        body.projector-mode .masthead {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .lcd-pill {
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-weight: 900;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            padding: 6px 14px;
+            border-radius: 999px;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lcd-pill .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .title-block h1 {
+            font-size: 1.65rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.1;
+        }
+
+        .title-block p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-chip {
+            background: var(--bg-card-surface);
+            border: 1.5px solid var(--border-card);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+
+        .filter-chip.active {
+            background: var(--cyan);
+            color: #070b14;
+            border-color: var(--cyan);
+            font-weight: 900;
+        }
+
+        body.projector-mode .filter-chip.active {
+            color: #ffffff;
+            background: #0284c7;
+        }
+
+        .btn-action {
+            background: var(--bg-card-surface);
+            border: 1.5px solid var(--border-card);
+            color: var(--text-main);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN WIDESCREEN STAGE */
+        .main-stage {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 2.85fr 1.15fr;
+            gap: 16px;
+            margin: 12px 0;
+            min-height: 0;
+        }
+
+        /* Left Side: Master Multiplier Grid */
+        .table-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-card);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            min-height: 0;
+        }
+
+        body.projector-mode .table-card {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .table-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-card);
+            margin-bottom: 10px;
+        }
+
+        .table-banner h2 {
+            font-size: 1.35rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .formula-tag {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 800;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--cyan);
+            border: 1.5px solid var(--cyan);
+            padding: 4px 12px;
+            border-radius: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        body.projector-mode .formula-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #0284c7;
+        }
+
+        /* 3 Columns of Multipliers */
+        .multiplier-matrix {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .col-block {
+            background: var(--bg-card-surface);
+            border: 1.5px solid var(--border-card);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .col-title {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1.5px solid var(--border-card);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            text-align: left;
+        }
+
+        .col-title span:last-child {
+            text-align: right;
+        }
+
+        body.projector-mode .col-title {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .rows-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            padding: 4px 8px;
+        }
+
+        .math-row {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 1.15rem; /* LCD READABILITY BOOST */
+            font-weight: 700;
+            transition: all 0.1s ease;
+        }
+
+        .math-row:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.02);
+        }
+
+        body.projector-mode .math-row:hover {
+            background: #e2e8f0;
+        }
+
+        .math-lhs {
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .math-rhs {
+            text-align: right;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+        }
+
+        .math-note {
+            font-size: 0.72rem;
+            font-family: var(--font-display);
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            vertical-align: middle;
+        }
+
+        /* Benchmark Highlights */
+        .row-benchmark {
+            background: rgba(56, 189, 248, 0.10);
+            border-left: 3px solid var(--cyan);
+        }
+
+        .row-benchmark .math-lhs {
+            color: var(--text-main);
+        }
+
+        .row-benchmark .math-rhs {
+            color: var(--cyan);
+            font-size: 1.25rem;
+        }
+
+        body.projector-mode .row-benchmark {
+            background: #f0f9ff;
+            border-left-color: #0284c7;
+        }
+
+        body.projector-mode .row-benchmark .math-rhs {
+            color: #0284c7;
+        }
+
+        /* FEATURED ROW: 3.15 X 5 (PROMINENT GLOW) */
+        .row-featured-gold {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.40)) !important;
+            border: 2.5px solid var(--gold) !important;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
+            transform: scale(1.04);
+            z-index: 10;
+        }
+
+        .row-featured-gold .math-lhs {
+            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 900;
+        }
+
+        .row-featured-gold .math-rhs {
+            color: var(--gold);
+            font-size: 1.55rem; /* HUGE VISIBILITY FOR 15.75 */
+            font-weight: 900;
+            text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+        }
+
+        body.projector-mode .row-featured-gold {
+            background: #fef3c7 !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+        }
+
+        body.projector-mode .row-featured-gold .math-lhs {
+            color: #78350f;
+        }
+
+        body.projector-mode .row-featured-gold .math-rhs {
+            color: #b45309;
+            text-shadow: none;
+        }
+
+        /* Patient Tags */
+        .tag-patient {
+            font-size: 0.72rem;
+            font-family: var(--font-display);
+            font-weight: 900;
+            color: #070b14;
+            background: var(--cyan);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
+        body.projector-mode .tag-patient {
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        /* Right Side Radar / Reference Cards */
+        .radar-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .radar-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            flex: 1;
+        }
+
+        body.projector-mode .radar-card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .radar-header {
+            font-size: 1.05rem;
+            font-weight: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid var(--border-card);
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+
+        .radar-badge {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .badge-cyan { background: rgba(56, 189, 248, 0.15); color: var(--cyan); border: 1px solid var(--cyan); }
+        .badge-rose { background: rgba(244, 63, 94, 0.15); color: var(--rose); border: 1px solid var(--rose); }
+        .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid var(--purple); }
+
+        body.projector-mode .badge-cyan { background: #e0f2fe; color: #0284c7; border-color: #0284c7; }
+        body.projector-mode .badge-rose { background: #ffe4e6; color: #be123c; border-color: #be123c; }
+        body.projector-mode .badge-purple { background: #f3e8ff; color: #7e22ce; border-color: #7e22ce; }
+
+        .radar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+            font-family: var(--font-mono);
+            font-size: 1.02rem;
+        }
+
+        .radar-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+        }
+
+        body.projector-mode .radar-item {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .radar-item .val {
+            font-weight: 900;
+            color: var(--cyan);
+        }
+
+        body.projector-mode .radar-item .val {
+            color: #0284c7;
+        }
+
+        /* Bottom Live Interactive Bar */
+        .bottom-console {
+            position: relative;
+            z-index: 5;
+            background: var(--bg-card);
+            border: 2px solid var(--border-card);
+            border-radius: 12px;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        body.projector-mode .bottom-console {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .calc-tool {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .calc-input {
+            width: 130px;
+            border: 3px solid var(--cyan);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--text-main);
+            text-align: center;
+            outline: none;
+            box-shadow: 0 0 14px var(--cyan-glow);
+        }
+
+        body.projector-mode .calc-input {
+            background: #ffffff;
+            color: #020617;
+            border-color: #0284c7;
+        }
+
+        .calc-result {
+            font-family: var(--font-mono);
+            font-size: 1.85rem;
+            font-weight: 900;
+            color: var(--emerald);
+            background: rgba(16, 185, 129, 0.15);
+            border: 2.5px solid var(--emerald);
+            padding: 4px 18px;
+            border-radius: 8px;
+            letter-spacing: -0.01em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.projector-mode .calc-result {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #059669;
+        }
+
+        .preset-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 10px;
+        }
+
+        .btn-preset {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-preset:hover {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold);
+        }
+
+        .meta-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        /* Highlight animation when preset clicked */
+        .pulse-highlight {
+            animation: highlightPop 0.8s ease;
+        }
+
+        @keyframes highlightPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); box-shadow: 0 0 25px var(--gold); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <!-- TOP MASTHEAD -->
+    <header class="masthead">
+        <div class="brand-group">
+            <div class="lcd-pill">
+                <div class="live-dot"></div>
+                ROOM 8 LCD
+            </div>
+            <div class="title-block">
+                <h1>Sleep Clinic &bull; Telemetry Math Radar</h1>
+                <p>Forensic Multipliers &bull; Outcome 1 Clinical Audit &bull; Mr. Waugh &bull; Grade 9 Healthy Living</p>
+            </div>
+        </div>
+
+        <div class="top-controls">
+            <!-- Patient Quick Filters -->
+            <button class="filter-chip active" id="btnAll" onclick="filterTable('all')">All Rows</button>
+            <button class="filter-chip" id="btnPatients" onclick="filterTable('patients')">Case Patients</button>
+
+            <!-- LCD / Projector Mode -->
+            <button class="btn-action" id="themeBtn" onclick="toggleProjector()">
+                💡 Projector Mode
+            </button>
+
+            <!-- Fullscreen -->
+            <button class="btn-action" onclick="toggleFullscreen()">
+                ⛶ Fullscreen
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WIDESCREEN STAGE (16:9 NO-SCROLL) -->
+    <main class="main-stage">
+
+        <!-- LEFT: THE MASTER 5-DAY SLEEP DEBT MULTIPLIER MATRIX -->
+        <section class="table-card">
+            
+            <div class="table-banner">
+                <h2>
+                    <span>⚡ Weekly Sleep Debt Multiplier Table</span>
+                </h2>
+                <div class="formula-tag">
+                    [ 9.0h &minus; Actual ] &times; 5 School Nights = Total Lost Sleep
+                </div>
+            </div>
+
+            <div class="multiplier-matrix">
+                
+                <!-- COLUMN 1: 0.50h to 1.80h -->
+                <div class="col-block">
+                    <div class="col-title">
+                        <span>Daily Debt</span>
+                        <span>5-Day Total</span>
+                    </div>
+                    <div class="rows-container">
+                        <div class="math-row" data-val="0.50">
+                            <span class="math-lhs">0.50h &times; 5</span>
+                            <span class="math-rhs">2.50 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="0.75">
+                            <span class="math-lhs">0.75h &times; 5</span>
+                            <span class="math-rhs">3.75 hrs</span>
+                        </div>
+                        <div class="math-row row-benchmark" data-val="1.00">
+                            <span class="math-lhs">1.00h &times; 5</span>
+                            <span class="math-rhs">5.00 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="1.25">
+                            <span class="math-lhs">1.25h &times; 5</span>
+                            <span class="math-rhs">6.25 hrs</span>
+                        </div>
+                        <div class="math-row row-benchmark" data-val="1.50">
+                            <span class="math-lhs">1.50h &times; 5</span>
+                            <span class="math-rhs">7.50 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="1.75">
+                            <span class="math-lhs">1.75h &times; 5</span>
+                            <span class="math-rhs">8.75 hrs</span>
+                        </div>
+                        <!-- Patient: Amara (1.80h x 5) -->
+                        <div class="math-row row-benchmark is-patient" data-val="1.80">
+                            <span class="math-lhs">1.80h &times; 5 <span class="tag-patient">Amara</span></span>
+                            <span class="math-rhs">9.00 hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: 2.00h to 3.25h (FEATURES 3.15 X 5) -->
+                <div class="col-block">
+                    <div class="col-title">
+                        <span>Daily Debt</span>
+                        <span>5-Day Total</span>
+                    </div>
+                    <div class="rows-container">
+                        <div class="math-row row-benchmark" data-val="2.00">
+                            <span class="math-lhs">2.00h &times; 5</span>
+                            <span class="math-rhs">10.00 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="2.25">
+                            <span class="math-lhs">2.25h &times; 5</span>
+                            <span class="math-rhs">11.25 hrs</span>
+                        </div>
+                        <!-- Patient: Lily (2.50h x 5) -->
+                        <div class="math-row row-benchmark is-patient" data-val="2.50">
+                            <span class="math-lhs">2.50h &times; 5 <span class="tag-patient">Lily</span></span>
+                            <span class="math-rhs">12.50 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="2.75">
+                            <span class="math-lhs">2.75h &times; 5</span>
+                            <span class="math-rhs">13.75 hrs</span>
+                        </div>
+                        <!-- Patients: Devon, Jenna, Isaiah, Tyrell (3.00h x 5) -->
+                        <div class="math-row row-benchmark is-patient" data-val="3.00">
+                            <span class="math-lhs">3.00h &times; 5 <span class="tag-patient">Devon/4+</span></span>
+                            <span class="math-rhs">15.00 hrs</span>
+                        </div>
+                        
+                        <!-- USER EXACT FEATURED HIGHLIGHT: 3.15 X 5 = 15.75 -->
+                        <div class="math-row row-featured-gold is-patient" id="row315" data-val="3.15">
+                            <span class="math-lhs">3.15h &times; 5 =</span>
+                            <span class="math-rhs">⭐ 15.75 hrs</span>
+                        </div>
+
+                        <div class="math-row" data-val="3.25">
+                            <span class="math-lhs">3.25h &times; 5</span>
+                            <span class="math-rhs">16.25 hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 3: 3.50h to 5.00h -->
+                <div class="col-block">
+                    <div class="col-title">
+                        <span>Daily Debt</span>
+                        <span>5-Day Total</span>
+                    </div>
+                    <div class="rows-container">
+                        <!-- Patient: Morgan (3.50h x 5) -->
+                        <div class="math-row row-benchmark is-patient" data-val="3.50">
+                            <span class="math-lhs">3.50h &times; 5 <span class="tag-patient">Morgan</span></span>
+                            <span class="math-rhs">17.50 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="3.75">
+                            <span class="math-lhs">3.75h &times; 5</span>
+                            <span class="math-rhs">18.75 hrs</span>
+                        </div>
+                        <div class="math-row row-benchmark" data-val="4.00">
+                            <span class="math-lhs">4.00h &times; 5</span>
+                            <span class="math-rhs">20.00 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="4.25">
+                            <span class="math-lhs">4.25h &times; 5</span>
+                            <span class="math-rhs">21.25 hrs</span>
+                        </div>
+                        <div class="math-row row-benchmark" data-val="4.50">
+                            <span class="math-lhs">4.50h &times; 5</span>
+                            <span class="math-rhs">22.50 hrs</span>
+                        </div>
+                        <div class="math-row" data-val="4.75">
+                            <span class="math-lhs">4.75h &times; 5</span>
+                            <span class="math-rhs">23.75 hrs</span>
+                        </div>
+                        <div class="math-row row-benchmark" data-val="5.00">
+                            <span class="math-lhs">5.00h &times; 5</span>
+                            <span class="math-rhs">25.00 hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- RIGHT: CLINICAL TELEMETRY RADAR SUITE -->
+        <section class="radar-deck">
+            
+            <!-- Card 1: Minutes to Decimal Hours -->
+            <div class="radar-card">
+                <div class="radar-header">
+                    <span>⏱️ Minutes &rarr; Decimal Hours</span>
+                    <span class="radar-badge badge-cyan">&divide; 60</span>
+                </div>
+                <div class="radar-grid">
+                    <div class="radar-item"><span>15 min</span><span class="val">0.25 h</span></div>
+                    <div class="radar-item"><span>20 min</span><span class="val">0.33 h</span></div>
+                    <div class="radar-item"><span>30 min</span><span class="val">0.50 h</span></div>
+                    <div class="radar-item"><span>45 min</span><span class="val">0.75 h</span></div>
+                    <div class="radar-item"><span>50 min</span><span class="val">0.83 h</span></div>
+                    <div class="radar-item"><span>60 min</span><span class="val">1.00 h</span></div>
+                </div>
+            </div>
+
+            <!-- Card 2: 25% Slower Reaction Speed -->
+            <div class="radar-card">
+                <div class="radar-header">
+                    <span>⚡ 25% Slower Reaction Time</span>
+                    <span class="radar-badge badge-rose">&times; 1.25</span>
+                </div>
+                <div class="radar-grid">
+                    <div class="radar-item"><span>0.20s &times; 1.25</span><span class="val" style="color:var(--rose);">0.25s</span></div>
+                    <div class="radar-item"><span>0.22s &times; 1.25</span><span class="val" style="color:var(--rose);">0.28s</span></div>
+                    <div class="radar-item"><span>0.24s &times; 1.25</span><span class="val" style="color:var(--rose);">0.30s</span></div>
+                    <div class="radar-item" style="border-color:var(--gold); background:rgba(245,158,11,0.15);">
+                        <span style="font-weight:900;">0.25s &times; 1.25</span>
+                        <span class="val" style="color:var(--gold);">0.31s ⭐</span>
+                    </div>
+                    <div class="radar-item"><span>0.28s &times; 1.25</span><span class="val" style="color:var(--rose);">0.35s</span></div>
+                    <div class="radar-item"><span>0.30s &times; 1.25</span><span class="val" style="color:var(--rose);">0.38s</span></div>
+                </div>
+            </div>
+
+            <!-- Card 3: Social Jetlag Midpoint Formula -->
+            <div class="radar-card">
+                <div class="radar-header">
+                    <span>🌙 Social Jetlag Midpoint</span>
+                    <span class="radar-badge badge-purple">&Delta; &gt; 2.0 hrs</span>
+                </div>
+                <div style="font-size: 0.92rem; line-height: 1.45; color: var(--text-muted);">
+                    <div style="font-family: var(--font-mono); color: var(--purple); font-weight:800; font-size: 0.98rem; margin-bottom: 4px;">
+                        Midpoint = Bedtime + (Sleep &divide; 2)
+                    </div>
+                    <div>&bull; Weekday: 11:00 PM &rarr; 6:30 AM = <strong style="color:var(--text-main);">2:45 AM</strong></div>
+                    <div>&bull; Weekend: 2:00 AM &rarr; 11:00 AM = <strong style="color:var(--text-main);">6:30 AM</strong></div>
+                    <div style="margin-top: 5px; font-weight:800; color:var(--rose);">
+                        Shift = +3.75 hrs (&gt; 2.0 hrs = Circadian Jetlag Alert)
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- BOTTOM SMARTBOARD INTERACTIVE BAR -->
+    <footer class="bottom-console">
+        <div class="calc-tool">
+            <span>🔢 Smartboard Live Multiplier:</span>
+            <span>Daily Loss:</span>
+            <input type="number" id="liveInput" class="calc-input" step="0.05" value="3.15" oninput="calculateLive()">
+            <span>hrs &times; 5 days =</span>
+            <div class="calc-result" id="liveOutput">
+                15.75 hrs total
+            </div>
+
+            <div class="preset-buttons">
+                <span style="font-size:0.8rem; color:var(--text-muted); margin-right:4px;">Presets:</span>
+                <button class="btn-preset" onclick="setPreset(1.80)">1.80 (Amara)</button>
+                <button class="btn-preset" onclick="setPreset(2.50)">2.50 (Lily)</button>
+                <button class="btn-preset" onclick="setPreset(3.00)">3.00 (Devon)</button>
+                <button class="btn-preset" onclick="setPreset(3.15)">⭐ 3.15</button>
+                <button class="btn-preset" onclick="setPreset(3.50)">3.50 (Morgan)</button>
+            </div>
+        </div>
+
+        <div class="meta-info">
+            <div>Bicentennial Junior High &bull; Room 8 Clinical Telemetry</div>
+            <div style="font-size:0.82rem; color:var(--text-dim);">Outcome 1 Health Literacy &bull; Sleep Architecture Investigation</div>
+        </div>
+    </footer>
+
+    <script>
+        function calculateLive() {
+            const val = parseFloat(document.getElementById('liveInput').value) || 0;
+            const total = (val * 5).toFixed(2);
+            document.getElementById('liveOutput').innerText = `${total} hrs total`;
+
+            // Highlight corresponding row in table if exists
+            highlightMatchingRow(val);
+        }
+
+        function setPreset(val) {
+            document.getElementById('liveInput').value = val.toFixed(2);
+            calculateLive();
+        }
+
+        function highlightMatchingRow(val) {
+            document.querySelectorAll('.math-row').forEach(row => {
+                const rVal = parseFloat(row.getAttribute('data-val'));
+                if (Math.abs(rVal - val) < 0.01) {
+                    row.classList.add('pulse-highlight');
+                    setTimeout(() => row.classList.remove('pulse-highlight'), 800);
+                }
+            });
+        }
+
+        function filterTable(mode) {
+            const rows = document.querySelectorAll('.math-row');
+            const btnAll = document.getElementById('btnAll');
+            const btnPatients = document.getElementById('btnPatients');
+
+            if (mode === 'patients') {
+                btnPatients.classList.add('active');
+                btnAll.classList.remove('active');
+                rows.forEach(r => {
+                    if (r.classList.contains('is-patient') || r.classList.contains('row-featured-gold')) {
+                        r.style.opacity = '1';
+                        r.style.transform = 'none';
+                    } else {
+                        r.style.opacity = '0.25';
+                    }
+                });
+            } else {
+                btnAll.classList.add('active');
+                btnPatients.classList.remove('active');
+                rows.forEach(r => {
+                    r.style.opacity = '1';
+                });
+            }
+        }
+
+        function toggleProjector() {
+            document.body.classList.toggle('projector-mode');
+            const isLight = document.body.classList.contains('projector-mode');
+            document.getElementById('themeBtn').innerText = isLight ? '🌙 Dark Studio Mode' : '💡 Projector Mode';
+            localStorage.setItem('room8_lcd_math_theme', isLight ? 'light' : 'dark');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('room8_lcd_math_theme');
+            if (saved === 'light') {
+                document.body.classList.add('projector-mode');
+                document.getElementById('themeBtn').innerText = '🌙 Dark Studio Mode';
+            }
+        });
+    </script>
+</body>
+</html>

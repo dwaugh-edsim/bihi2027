@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healthy Living 8 — 5-Dimension Systems Audit & Circuit Breaker (Room 8)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=Roboto+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink-dark: #0f172a;
+    --ink-mid: #334155;
+    --ink-light: #64748b;
+    --border-dark: #0f172a;
+    --border-subtle: #cbd5e1;
+    --brand-primary: #1e3a8a;
+    --brand-accent: #0284c7;
+    --brand-emerald: #047857;
+    --brand-red: #b91c1c;
+    --bg-page: #f8fafc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink-dark);
+    background: #e2e8f0;
+    padding: 20px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Non-printing Toolbar */
+  .no-print-bar {
+    max-width: 860px;
+    margin: 0 auto 16px;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+    background: #ffffff;
+    color: var(--ink-dark);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:hover { background: #f1f5f9; }
+
+  .btn-primary {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border-color: var(--brand-primary);
+  }
+  .btn-primary:hover { background: #172554; }
+
+  /* Printable A4 Page Structure */
+  .sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 24px auto;
+    background: #ffffff;
+    padding: 8mm 10mm;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 2.5px solid var(--border-dark);
+    padding-bottom: 5px;
+    margin-bottom: 2px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-light);
+  }
+
+  .side-tag {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border: 1.5px solid var(--border-dark);
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: var(--brand-primary);
+  }
+
+  .header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 3px;
+  }
+
+  .doc-title {
+    font-family: 'Roboto Slab', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--ink-dark);
+    line-height: 1.1;
+  }
+
+  .doc-sub {
+    font-size: 0.76rem;
+    color: var(--ink-mid);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .meta-lines {
+    display: flex;
+    gap: 12px;
+    font-size: 0.76rem;
+    color: var(--ink-mid);
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .meta-item span {
+    font-weight: 700;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    font-size: 0.68rem;
+  }
+
+  .meta-fill {
+    border-bottom: 1.5px solid var(--border-dark);
+    min-width: 90px;
+    height: 14px;
+  }
+
+  /* Section Headings */
+  .section-block {
+    margin-bottom: 0px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--brand-primary);
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border-left: 3.5px solid var(--brand-primary);
+    margin-bottom: 4px;
+  }
+
+  /* Radar / Telemetry */
+  .radar-container {
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 12px;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  .radar-canvas-box {
+    text-align: center;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .radar-canvas-box svg {
+    width: 100%;
+    max-width: 185px;
+    height: auto;
+    display: block;
+  }
+
+  .dimension-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+  }
+
+  .dim-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.67rem;
+  }
+
+  .dim-scale-circles {
+    display: flex;
+    gap: 3px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+
+  .dim-scale-circles span {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #94a3b8;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 12px;
+    font-size: 0.60rem;
+    color: #475569;
+  }
+
+  /* 10-Station Audit Table */
+  .audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    margin-top: 1px;
+  }
+
+  .audit-table th {
+    background: #f1f5f9;
+    border: 1.5px solid var(--border-dark);
+    padding: 4px 6px;
+    text-align: left;
+    font-size: 0.66rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brand-primary);
+  }
+
+  .audit-table td {
+    border: 1.5px solid var(--border-dark);
+    padding: 3px 6px;
+    vertical-align: middle;
+    height: 52px;
+  }
+
+  .audit-table tr:nth-child(even) {
+    background: #fafbfc;
+  }
+
+  .audit-table tr.exemplar-row {
+    background: #eff6ff;
+  }
+
+  .tc {
+    text-align: center;
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .tag-hint {
+    font-size: 0.62rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    display: block;
+    line-height: 1.1;
+  }
+
+  .dim-chip {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 800;
+    font-size: 0.64rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .dim-chip.phys {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+
+  .dim-picker {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+
+  .dim-picker span {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #94a3b8;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 14px;
+    color: #475569;
+    background: #ffffff;
+  }
+
+  .cell-lines {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+    min-height: 42px;
+  }
+
+  .row-line {
+    border-bottom: 1.5px dotted #94a3b8;
+    height: 16px;
+    width: 100%;
+  }
+
+  .cell-desc {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: #1e293b;
+  }
+
+  .cell-advice {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+
+  /* SIDE B STYLES */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .concept-card {
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 5px;
+    padding: 6px;
+    background: #ffffff;
+    font-size: 0.68rem;
+    line-height: 1.35;
+  }
+
+  .concept-card strong {
+    color: var(--brand-primary);
+    font-size: 0.72rem;
+    display: block;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 2px;
+  }
+
+  .code-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.70rem;
+    margin-bottom: 8px;
+  }
+
+  .code-table th {
+    background: #f1f5f9;
+    border: 1.5px solid var(--border-dark);
+    padding: 3px 6px;
+    text-align: left;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .code-table td {
+    border: 1.5px solid var(--border-dark);
+    padding: 3px 6px;
+    vertical-align: top;
+  }
+
+  .code-tag {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 800;
+    background: #f0f0f0;
+    border: 1px solid var(--border-dark);
+    padding: 0 4px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .exemplar-box {
+    border: 2px solid var(--brand-primary);
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: #eff6ff;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .exemplar-box h4 {
+    font-family: 'Roboto Slab', serif;
+    font-size: 0.82rem;
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 6mm 8mm;
+  }
+
+  @media print {
+    html, body {
+      background: #ffffff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      color: #000000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .no-print-bar { display: none !important; }
+
+    .sheet {
+      box-shadow: none !important;
+      border: none !important;
+      padding: 5mm 6mm !important;
+      margin: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 282mm !important;
+      max-height: 282mm !important;
+      page-break-after: always !important;
+      page-break-inside: avoid !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      gap: 6px !important;
+      overflow: hidden !important;
+    }
+
+    .sheet:last-of-type {
+      page-break-after: auto !important;
+      break-after: auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print-bar">
+  <div style="font-weight: 700; font-size: 0.88rem; color: #1e3a8a;">
+    Healthy Living 8 · Double-Sided Docket
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Print Double-Sided A4 (2 Pages)</button>
+    <a href="HL8_Class1_5_Dimensions_Systems_Deck.html" target="_blank" class="btn">📽️ Launch Slide Deck ↗</a>
+  </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- SHEET 1: SIDE A — STUDENT RESPONSE LEDGER                               -->
+<!-- ======================================================================= -->
+<div class="sheet">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="header-top">
+      <span>Bicentennial Junior High · Room 8 · Mr. Waugh</span>
+      <span class="side-tag">SIDE A: STUDENT RESPONSE LEDGER</span>
+    </div>
+    <div class="header-main">
+      <div>
+        <h1 class="doc-title">The 5-Dimension Systems Audit</h1>
+        <div class="doc-sub">Grade 8 Systems Review & Domino Interception Lab</div>
+      </div>
+      <div class="meta-lines" style="flex-direction: column; gap: 5px; align-items: flex-end;">
+        <div style="display: flex; gap: 14px; align-items: baseline;">
+          <div class="meta-item"><span>Partner 1:</span><div class="meta-fill" style="min-width: 140px;"></div></div>
+          <div class="meta-item"><span>Partner 2:</span><div class="meta-fill" style="min-width: 140px;"></div></div>
+        </div>
+        <div style="display: flex; gap: 14px; align-items: baseline;">
+          <div class="meta-item"><span>Class:</span><div class="meta-fill" style="min-width: 55px;"></div></div>
+          <div class="meta-item"><span>Date:</span><div class="meta-fill" style="min-width: 85px;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 1: RADAR / TELEMETRY -->
+  <div class="section-block">
+    <div class="section-heading">
+      <span>1. Personal Telemetry Radar — Current Baseline Self-Check</span>
+      <span style="font-size: 0.65rem; font-family: 'Roboto Mono', monospace;">CONNECT 5 DOTS</span>
+    </div>
+    <div class="radar-container">
+      <div class="radar-canvas-box">
+        <svg viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
+          <!-- Concentric Pentagons (scale 0.2, 0.4, 0.6, 0.8, 1.0; center: 125, 80; radius: 55) -->
+          <polygon points="125,69 135,77 131,89 119,89 115,77" fill="none" stroke="#e2e8f0" stroke-width="0.8"/>
+          <polygon points="125,58 146,65 138,98 112,98 104,65" fill="none" stroke="#cbd5e1" stroke-width="0.8"/>
+          <polygon points="125,47 156,70 144,107 106,107 94,70" fill="none" stroke="#cbd5e1" stroke-width="0.8"/>
+          <polygon points="125,36 167,73 151,116 99,116 83,73" fill="none" stroke="#94a3b8" stroke-width="1"/>
+          <polygon points="125,25 177,63 157,125 93,125 73,63" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          
+          <!-- Spokes -->
+          <line x1="125" y1="80" x2="125" y2="25" stroke="#94a3b8" stroke-width="1"/>
+          <line x1="125" y1="80" x2="177" y2="63" stroke="#94a3b8" stroke-width="1"/>
+          <line x1="125" y1="80" x2="157" y2="125" stroke="#94a3b8" stroke-width="1"/>
+          <line x1="125" y1="80" x2="93" y2="125" stroke="#94a3b8" stroke-width="1"/>
+          <line x1="125" y1="80" x2="73" y2="63" stroke="#94a3b8" stroke-width="1"/>
+
+          <!-- Labels with ample padding -->
+          <text x="125" y="14" text-anchor="middle" font-size="7" font-weight="800" fill="#0f172a">PHYSICAL [PHYS]</text>
+          <text x="183" y="66" text-anchor="start" font-size="7" font-weight="800" fill="#0f172a">MENTAL [MENT]</text>
+          <text x="160" y="140" text-anchor="middle" font-size="7" font-weight="800" fill="#0f172a">SOCIAL [SOC]</text>
+          <text x="90" y="140" text-anchor="middle" font-size="7" font-weight="800" fill="#0f172a">SPIRITUAL [SPIR]</text>
+          <text x="67" y="66" text-anchor="end" font-size="7" font-weight="800" fill="#0f172a">INTELLECTUAL [INT]</text>
+        </svg>
+      </div>
+
+      <div class="dimension-list">
+        <div class="dim-pill">
+          <div><strong>1. Physical:</strong> Sleep debt, athletic fuel, hydration, screen fatigue</div>
+          <div class="dim-scale-circles"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        </div>
+        <div class="dim-pill">
+          <div><strong>2. Mental/Emo:</strong> Stress load, self-talk, emotional regulation</div>
+          <div class="dim-scale-circles"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        </div>
+        <div class="dim-pill">
+          <div><strong>3. Social:</strong> Group chat drama, peer trust, healthy boundaries</div>
+          <div class="dim-scale-circles"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        </div>
+        <div class="dim-pill">
+          <div><strong>4. Intellectual:</strong> Focus, curiosity, problem-solving stamina</div>
+          <div class="dim-scale-circles"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        </div>
+        <div class="dim-pill">
+          <div><strong>5. Spiritual/Values:</strong> Core compass, knowing who I am offline</div>
+          <div class="dim-scale-circles"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        </div>
+        <div style="margin-top: 2px; font-size: 0.67rem; color: #334155;">
+          <strong>My Strongest Anchor Dimension:</strong> __________________ (Why: ______________________)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 2: WALL GALLERY 10-STATION FORENSIC AUDIT -->
+  <div class="section-block" style="margin-bottom: 0px;">
+    <div class="section-heading">
+      <span>2. Wall Gallery 10-Station Forensic Audit — Room 8 Patient Files</span>
+      <span style="font-size: 0.62rem; font-family: 'Roboto Mono', monospace;">AUDIT ALL 10 STATIONS &bull; #01 DONE TOGETHER AS MODEL</span>
+    </div>
+
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th style="width: 4%; text-align: center;">#</th>
+          <th style="width: 17%;">Subject Patient</th>
+          <th style="width: 15%; text-align: center;">Trigger Dimension</th>
+          <th style="width: 32%;">Domino Cascade (How It Spreads)</th>
+          <th style="width: 32%;">Your 1-Sentence Advice for the Kid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 01 Modeled Exemplar -->
+        <tr class="exemplar-row">
+          <td class="tc"><strong>01</strong></td>
+          <td><strong>Devon C.</strong> <span class="tag-hint">Rec Basketball</span></td>
+          <td class="tc"><span class="dim-chip phys">[PHYS]</span> Physical</td>
+          <td class="cell-desc">
+            <div class="cell-lines">
+              <div>Late phone (1:15 AM) &rarr; 3h nightly debt</div>
+              <div>Morning temper &rarr; yelled at squad in practice</div>
+            </div>
+          </td>
+          <td class="cell-advice">
+            <div class="cell-lines">
+              <div><em>"Move charger to hallway at 10:15 PM."</em></div>
+              <div><em>"Text point guard: 'My bad yesterday. Running on fumes.'"</em></div>
+            </div>
+          </td>
+        </tr>
+        <!-- 02 Healthy Control -->
+        <tr>
+          <td class="tc"><strong>02</strong></td>
+          <td><strong>Priya S.</strong> <span class="tag-hint">Healthy Control</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 03 Marcus -->
+        <tr>
+          <td class="tc"><strong>03</strong></td>
+          <td><strong>Marcus O.</strong> <span class="tag-hint">Social Jetlag</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 04 Jenna -->
+        <tr>
+          <td class="tc"><strong>04</strong></td>
+          <td><strong>Jenna R.</strong> <span class="tag-hint">In-Bed Scroller</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 05 Isaiah -->
+        <tr>
+          <td class="tc"><strong>05</strong></td>
+          <td><strong>Isaiah T.</strong> <span class="tag-hint">Varsity Prospect</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 06 Lily -->
+        <tr>
+          <td class="tc"><strong>06</strong></td>
+          <td><strong>Lily N.</strong> <span class="tag-hint">5:45 AM Commute</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 07 Tyrell -->
+        <tr>
+          <td class="tc"><strong>07</strong></td>
+          <td><strong>Tyrell K.</strong> <span class="tag-hint">Caffeine Loop</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 08 Grace -->
+        <tr>
+          <td class="tc"><strong>08</strong></td>
+          <td><strong>Grace W.</strong> <span class="tag-hint">Late Overthinker</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 09 Owen -->
+        <tr>
+          <td class="tc"><strong>09</strong></td>
+          <td><strong>Owen D.</strong> <span class="tag-hint">Fri/Sat Gamer</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+        <!-- 10 Amara -->
+        <tr>
+          <td class="tc"><strong>10</strong></td>
+          <td><strong>Amara P.</strong> <span class="tag-hint">Family Shift</span></td>
+          <td><div class="dim-picker"><span>P</span><span>M</span><span>S</span><span>I</span><span>Sp</span></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+          <td><div class="cell-lines"><div class="row-line"></div><div class="row-line"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- SHEET 2: SIDE B — CONCEPT DECK & CODE BANK (KEEP IN BINDER)             -->
+<!-- ======================================================================= -->
+<div class="sheet">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="header-top">
+      <span>Healthy Living 8 · Course Reference</span>
+      <span class="side-tag" style="background:#fef3c7; color:#92400e; border-color:#d97706;">SIDE B: 5D CONCEPT DECK & CODE BANK (KEEP IN BINDER)</span>
+    </div>
+    <div class="header-main">
+      <div>
+        <h1 class="doc-title" style="font-size:1.3rem;">Systems Thinking & Diagnostic Code Bank</h1>
+        <div class="doc-sub">Outcome 1 Technical Reference · Store in Room 8 Binder</div>
+      </div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); font-family: 'Roboto Mono', monospace;">
+        PERMANENT BINDER REFERENCE
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 1: THE 5 DIMENSIONS DEFINED -->
+  <div class="section-block">
+    <div class="section-heading">
+      <span>1. The 5 Dimensions of Health — Core Definitions</span>
+    </div>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <strong>⚡ Physical [PHYS]</strong>
+        The biological machine. Sleep debt, nutrition, hydration, athletic motor control, screen fatigue, circadian rhythm.
+      </div>
+      <div class="concept-card">
+        <strong>🧠 Mental [MENT]</strong>
+        The internal narrator. Stress response, emotional regulation, mood volatility, anxiety, self-talk under pressure.
+      </div>
+      <div class="concept-card">
+        <strong>👥 Social [SOC]</strong>
+        The relational network. Friendships, group chats, teamwork, family dynamics, constructive communication.
+      </div>
+      <div class="concept-card">
+        <strong>💡 Intellect [INT]</strong>
+        Cognitive processing. Attention span, memory retrieval, problem solving, reaction speed, school engagement.
+      </div>
+      <div class="concept-card">
+        <strong>🧭 Spiritual [SPIR]</strong>
+        The personal compass. Values, purpose, knowing who you are when your phone is off, personal dignity.
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 2: THE OFFICIAL CODE BANK -->
+  <div class="section-block">
+    <div class="section-heading">
+      <span>2. The 5D Diagnostic Tag Bank (Use in your audit rows)</span>
+    </div>
+    <table class="code-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Tag Code</th>
+          <th style="width: 25%;">Diagnostic Label</th>
+          <th>What It Means in Plain English</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="code-tag">[PHYS]</span></td>
+          <td>Physical Disruption</td>
+          <td>Chronic sleep debt (&lt;8.5 hrs), screen blue-light delay, late caffeine, or skipping athletic recovery.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[MENT]</span></td>
+          <td>Emotional Reactivity</td>
+          <td>Spiked cortisol, short temper, bedtime overthinking/rumination, feeling overwhelmed.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[SOC]</span></td>
+          <td>Relational Friction</td>
+          <td>Snapping at friends or teammates, family conflict, withdrawal, toxic group chat cycles.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[INT]</span></td>
+          <td>Cognitive Slump</td>
+          <td>Brain fog, slowed reaction time, difficulty processing tests or learning new tasks.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[SPIR]</span></td>
+          <td>Purpose Drift / Apathy</td>
+          <td>Feeling like "nothing matters anyway," abandoning goals, loss of personal identity.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[CRX]</span></td>
+          <td>Circuit Breaker</td>
+          <td>The single high-leverage micro-habit that cuts the wire and prevents the cascade.</td>
+        </tr>
+        <tr>
+          <td><span class="code-tag">[REPAIR]</span></td>
+          <td>Social Repair Protocol</td>
+          <td>A short, high-accountability message (6–8 words) sent to restore damaged trust.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PART 3: MODELED CLASS EXEMPLAR (DEVON C.) -->
+  <div class="section-block">
+    <div class="section-heading">
+      <span>3. Modeled Exemplar — Subject #01: Devon C. (Rec Basketball)</span>
+      <span style="font-size: 0.65rem; font-family: 'Roboto Mono', monospace;">AUDITED TOGETHER IN CLASS</span>
+    </div>
+    <div class="exemplar-box">
+      <h4>
+        <span>Case Evidence: 5.5h sleep/night &bull; Late gaming &bull; Snapped at point guard</span>
+        <span style="font-family: 'Roboto Mono', monospace; font-size: 0.72rem;">STATUS: CRITICAL CASCADE</span>
+      </h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
+        <div>
+          <strong style="color: var(--brand-primary);">The 5-Domino Chain:</strong>
+          <ul style="margin-left: 14px; margin-top: 2px;">
+            <li><strong>Domino 1 [PHYS]:</strong> Phone drops at 1:15 AM &rarr; 3h nightly sleep debt.</li>
+            <li><strong>Domino 2 [MENT]:</strong> Wakes with spiked cortisol & irritable morning temper.</li>
+            <li><strong>Domino 3 [SOC]:</strong> Yells at point guard during basketball practice.</li>
+            <li><strong>Domino 4 [INT]:</strong> Sluggish motor reaction time (+60 ms latency delay).</li>
+            <li><strong>Domino 5 [SPIR]:</strong> Apathy: <em>"Maybe I'm just washed up at basketball."</em></li>
+          </ul>
+        </div>
+        <div style="border-left: 1.5px solid #bfdbfe; padding-left: 10px;">
+          <strong style="color: var(--brand-primary);">The Prescribed Interception:</strong>
+          <p style="margin-top: 2px;">
+            <strong>Circuit Breaker [CRX]:</strong> Move charger to the hallway at <strong>10:15 PM</strong>. Reclaims 2.5h sleep/night and protects athletic motor recovery.
+          </p>
+          <p style="margin-top: 4px;">
+            <strong>Repair Text [REPAIR]:</strong> <em>"My bad yesterday. Running on fumes."</em> (Takes responsibility, acknowledges fatigue, repairs trust).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notice strip at bottom -->
+  <div style="border: 1.5px solid var(--border-dark); border-radius: 6px; padding: 6px 10px; background: #ffffff; font-size: 0.70rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <strong>🔒 AUDITOR NOTICE:</strong> Keep this entire docket filed in your Room 8 binder.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

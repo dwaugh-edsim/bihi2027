@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL9 Class 1: Sleep Telemetry Math Cheat Sheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-dark: #000000;
+            --text-muted: #333333;
+            --border: #000000;
+            --bg-light: #ffffff;
+            --bg-canvas: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-dark);
+            background: #cbd5e1;
+            line-height: 1.35;
+            padding: 20px;
+        }
+
+        /* Top Action Bar */
+        .no-print-bar {
+            max-width: 920px;
+            margin: 0 auto 16px auto;
+            background: #ffffff;
+            border: 2px solid #000000;
+            padding: 10px 18px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-print {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid #000000;
+            padding: 8px 18px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.90rem;
+            transition: all 0.15s ease;
+        }
+
+        .btn-print:hover {
+            background: #333333;
+        }
+
+        /* A4 Page Layout */
+        @page {
+            size: A4 portrait;
+            margin: 6mm 8mm;
+        }
+
+        .sheet-page {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto 24px auto;
+            background: #ffffff;
+            border: 2.5px solid #000000;
+            padding: 20px 24px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2.5px solid #000000;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .header-text h1 {
+            font-family: 'Roboto Slab', Georgia, serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+
+        .header-text p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        .badge-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.80rem;
+            font-weight: 800;
+            border: 2px solid #000000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #f4f4f4;
+            white-space: nowrap;
+        }
+
+        /* Quick Interactive Calculator Box (Screen Only) */
+        .live-calc-box {
+            background: #f8fafc;
+            border: 2px solid #000000;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .calc-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+
+        .calc-input-group input {
+            width: 90px;
+            border: 2px solid #000000;
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+        }
+
+        .calc-res-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 900;
+            background: #ffffff;
+            border: 2px solid #000000;
+            padding: 4px 14px;
+            border-radius: 4px;
+        }
+
+        /* Section Headings */
+        .section-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.92rem;
+            font-weight: 800;
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 3-Column Tables Layout */
+        .grid-3-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .math-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.76rem;
+        }
+
+        .math-table th {
+            background: #e5e5e5;
+            border: 1.5px solid #000000;
+            padding: 4px 6px;
+            font-weight: 800;
+            text-align: center;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+        }
+
+        .math-table td {
+            border: 1.5px solid #000000;
+            padding: 4px 6px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .math-table tr.highlight-row td {
+            background: #f4f4f4;
+            font-weight: 900;
+        }
+
+        .math-table tr.user-example td {
+            background: #e2e8f0;
+            font-weight: 900;
+            border: 2px solid #000000;
+        }
+
+        /* Formula Reference Cards */
+        .formulas-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .formula-box {
+            border: 1.5px solid #000000;
+            border-radius: 4px;
+            padding: 8px 12px;
+            background: #ffffff;
+            font-size: 0.78rem;
+        }
+
+        .formula-box h4 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.84rem;
+            font-weight: 800;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .formula-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 0.82rem;
+            background: #f8f8f8;
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin: 3px 0;
+            display: inline-block;
+        }
+
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-top: 1.5px solid #000000;
+            padding-top: 4px;
+            margin-top: 8px;
+        }
+
+        /* Print Settings */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 8pt !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .no-print-bar { display: none !important; }
+            .live-calc-box { display: none !important; }
+
+            .sheet-page {
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                padding: 5mm 6mm !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                page-break-inside: avoid !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP TOOLBAR (SCREEN ONLY) -->
+    <div class="no-print-bar">
+        <div>
+            <strong>Room 8 Reference</strong> &bull; Sleep Telemetry Math Cheat Sheet (Multiplication by 5 & Reactions)
+        </div>
+        <div>
+            <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF Cheat Sheet</button>
+        </div>
+    </div>
+
+    <!-- MAIN CHEAT SHEET -->
+    <div class="sheet-page">
+
+        <!-- HEADER -->
+        <div class="sheet-header">
+            <div class="header-text">
+                <h1>ROOM 8 &bull; SLEEP TELEMETRY MATH CHEAT SHEET</h1>
+                <p>Outcome 1 Clinical Calculation Guide &bull; 5-Day Weekly Multipliers & Reaction Slowdown &bull; Mr. Waugh</p>
+            </div>
+            <div class="badge-pill">
+                DESK REFERENCE
+            </div>
+        </div>
+
+        <!-- INTERACTIVE CALCULATOR (SCREEN ONLY) -->
+        <div class="live-calc-box">
+            <div class="calc-input-group">
+                <span>🔢 Live Multiplier:</span>
+                <span>Daily Sleep Loss:</span>
+                <input type="number" id="calcInput" step="0.05" value="3.15" oninput="runLiveCalc()">
+                <span>hrs &times; 5 days =</span>
+            </div>
+            <div class="calc-res-display" id="calcResult">
+                15.75 hrs total weekly debt
+            </div>
+        </div>
+
+        <!-- SECTION 1: MASTER MULTIPLIER TABLE (X 5) -->
+        <div class="section-title">
+            <span>1. 5-Day School Week Sleep Debt Table (Daily Loss &times; 5)</span>
+            <span style="font-size: 0.70rem; font-weight: normal; color: #444;">Formula: (9.0 hrs Target &minus; Actual Sleep) &times; 5 Days</span>
+        </div>
+
+        <div class="grid-3-col">
+            
+            <!-- Column A: 0.25 to 1.75 -->
+            <table class="math-table">
+                <thead>
+                    <tr>
+                        <th>Daily Loss</th>
+                        <th>&times; 5 Days</th>
+                        <th>5-Day Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>0.25 hr</td><td>&times; 5 =</td><td><strong>1.25 hrs</strong></td></tr>
+                    <tr><td>0.50 hr</td><td>&times; 5 =</td><td><strong>2.50 hrs</strong></td></tr>
+                    <tr><td>0.75 hr</td><td>&times; 5 =</td><td><strong>3.75 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>1.00 hr</td><td>&times; 5 =</td><td><strong>5.00 hrs</strong></td></tr>
+                    <tr><td>1.25 hrs</td><td>&times; 5 =</td><td><strong>6.25 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>1.50 hrs</td><td>&times; 5 =</td><td><strong>7.50 hrs</strong></td></tr>
+                    <tr><td>1.75 hrs</td><td>&times; 5 =</td><td><strong>8.75 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>1.80 hrs</td><td>&times; 5 =</td><td><strong>9.00 hrs</strong></td></tr>
+                </tbody>
+            </table>
+
+            <!-- Column B: 2.00 to 3.25 (Features 3.15!) -->
+            <table class="math-table">
+                <thead>
+                    <tr>
+                        <th>Daily Loss</th>
+                        <th>&times; 5 Days</th>
+                        <th>5-Day Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row"><td>2.00 hrs</td><td>&times; 5 =</td><td><strong>10.00 hrs</strong></td></tr>
+                    <tr><td>2.25 hrs</td><td>&times; 5 =</td><td><strong>11.25 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>2.50 hrs</td><td>&times; 5 =</td><td><strong>12.50 hrs</strong></td></tr>
+                    <tr><td>2.75 hrs</td><td>&times; 5 =</td><td><strong>13.75 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>3.00 hrs</td><td>&times; 5 =</td><td><strong>15.00 hrs</strong></td></tr>
+                    <!-- Exact User Request -->
+                    <tr class="user-example"><td>3.15 hrs</td><td>&times; 5 =</td><td><strong>15.75 hrs</strong></td></tr>
+                    <tr><td>3.25 hrs</td><td>&times; 5 =</td><td><strong>16.25 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>3.50 hrs</td><td>&times; 5 =</td><td><strong>17.50 hrs</strong></td></tr>
+                </tbody>
+            </table>
+
+            <!-- Column C: 3.75 to 5.00 -->
+            <table class="math-table">
+                <thead>
+                    <tr>
+                        <th>Daily Loss</th>
+                        <th>&times; 5 Days</th>
+                        <th>5-Day Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>3.75 hrs</td><td>&times; 5 =</td><td><strong>18.75 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>4.00 hrs</td><td>&times; 5 =</td><td><strong>20.00 hrs</strong></td></tr>
+                    <tr><td>4.25 hrs</td><td>&times; 5 =</td><td><strong>21.25 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>4.50 hrs</td><td>&times; 5 =</td><td><strong>22.50 hrs</strong></td></tr>
+                    <tr><td>4.75 hrs</td><td>&times; 5 =</td><td><strong>23.75 hrs</strong></td></tr>
+                    <tr class="highlight-row"><td>5.00 hrs</td><td>&times; 5 =</td><td><strong>25.00 hrs</strong></td></tr>
+                    <tr><td>5.25 hrs</td><td>&times; 5 =</td><td><strong>26.25 hrs</strong></td></tr>
+                    <tr><td>5.50 hrs</td><td>&times; 5 =</td><td><strong>27.50 hrs</strong></td></tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <!-- SECTION 2: TIME CONVERSION & REACTION SPEED -->
+        <div class="section-title">
+            <span>2. Minutes to Decimal Converter & Reaction Time (25% Slower)</span>
+            <span style="font-size: 0.70rem; font-weight: normal; color: #444;">Standard Clinical Conversions</span>
+        </div>
+
+        <div class="formulas-grid">
+            
+            <!-- Left: Minutes to Decimal Hours -->
+            <div class="formula-box">
+                <h4>⏱️ Minutes &rarr; Decimal Hours Conversion</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;">
+                    <div>
+                        &bull; <strong>15 min</strong> = <code>0.25 hr</code> (&frac14; hr)<br>
+                        &bull; <strong>20 min</strong> &asymp; <code>0.33 hr</code> (&frac13; hr)<br>
+                        &bull; <strong>30 min</strong> = <code>0.50 hr</code> (&frac12; hr)
+                    </div>
+                    <div>
+                        &bull; <strong>45 min</strong> = <code>0.75 hr</code> (&frac34; hr)<br>
+                        &bull; <strong>50 min</strong> &asymp; <code>0.83 hr</code><br>
+                        &bull; <strong>60 min</strong> = <code>1.00 hr</code> (Full hr)
+                    </div>
+                </div>
+                <div style="margin-top: 6px; font-size: 0.72rem; color: #444; border-top: 1px solid #ddd; padding-top: 3px;">
+                    <em>Example:</em> Sleep from 11:45 PM to 6:00 AM = 6 hrs 15 min = <strong>6.25 hrs</strong>.
+                </div>
+            </div>
+
+            <!-- Right: 25% Slower Reaction Rule -->
+            <div class="formula-box">
+                <h4>⚡ The 25% Slower Reaction Rule (&times; 1.25)</h4>
+                <div style="margin-top: 4px; line-height: 1.35;">
+                    Rule: 3 nights of &lt;6 hrs sleep slows neurological reaction time by <strong>20%&ndash;25%</strong> (equivalent to 0.05% BAC).
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem;">
+                    <div>
+                        0.20s &times; 1.25 = <strong>0.25s</strong><br>
+                        0.22s &times; 1.25 = <strong>0.28s</strong><br>
+                        0.24s &times; 1.25 = <strong>0.30s</strong>
+                    </div>
+                    <div>
+                        0.25s &times; 1.25 = <strong>0.31s</strong> (Exemplar)<br>
+                        0.28s &times; 1.25 = <strong>0.35s</strong><br>
+                        0.30s &times; 1.25 = <strong>0.38s</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 3: WEEKEND MIDPOINT SHIFT (SOCIAL JETLAG) -->
+        <div class="section-title">
+            <span>3. Social Jetlag: Weekend Sleep Midpoint Formula</span>
+            <span style="font-size: 0.70rem; font-weight: normal; color: #444;">Shift = Weekend Midpoint &minus; Weekday Midpoint</span>
+        </div>
+
+        <div style="border: 1.5px solid #000000; border-radius: 4px; padding: 8px 12px; background: #ffffff; font-size: 0.76rem;">
+            <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px;">
+                <div>
+                    <strong>How to Find the Sleep Window Midpoint:</strong><br>
+                    <span class="formula-line">Midpoint = Bedtime + (Total Sleep &divide; 2)</span><br>
+                    &bull; <strong>Weekday Window:</strong> Bed 11:00 PM &rarr; Wake 6:30 AM (7.5 hrs). Half is 3.75 hrs &rarr; <strong>Midpoint: 2:45 AM</strong>.<br>
+                    &bull; <strong>Weekend Window:</strong> Bed 2:00 AM &rarr; Wake 11:00 AM (9.0 hrs). Half is 4.5 hrs &rarr; <strong>Midpoint: 6:30 AM</strong>.
+                </div>
+                <div>
+                    <strong>Calculate the Circadian Shift:</strong><br>
+                    <span class="formula-line">Weekend 6:30 AM &minus; Weekday 2:45 AM = +3.75 hrs Shift</span><br>
+                    &bull; <strong>Shift &lt; 1.0 hr:</strong> 🟢 Stable / Synchronized Clock.<br>
+                    &bull; <strong>Shift &gt; 2.0 hrs:</strong> 🔴 <strong>Social Jetlag Alert</strong> (Pacemaker severely misaligned on Monday morning).
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-note">
+            Keep this cheat sheet at your station desk &bull; Room 8 Grade 9 Healthy Living &bull; Mr. Waugh &bull; Bicentennial Junior High
+        </div>
+
+    </div>
+
+    <script>
+        function runLiveCalc() {
+            const input = parseFloat(document.getElementById('calcInput').value) || 0;
+            const res = (input * 5).toFixed(2);
+            document.getElementById('calcResult').innerText = `${res} hrs total weekly debt`;
+        }
+    </script>
+</body>
+</html>

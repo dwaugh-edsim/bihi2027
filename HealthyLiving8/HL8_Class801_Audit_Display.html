@@ -1,0 +1,1465 @@
+<!DOCTYPE HTML>
+<!--
+    Room 8 • Grade 8 Healthy Living
+    Class 801 Prior-Learning Audit & Live Student Voice Dashboard
+    Mr. Waugh • Bicentennial Junior High (2026–2027)
+    Live Webhook Sync: Google Apps Script Backend
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Room 8 • Class 801 Live Survey & Learning Audit Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <script src="students_roster_data.js"></script>
+    <script src="hl8_801_dashboard_data.js"></script>
+    <style>
+        :root {
+            --bg-page: #0b1120;
+            --bg-card: rgba(18, 26, 43, 0.88);
+            --bg-card-hover: rgba(28, 40, 65, 0.95);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(56, 189, 248, 0.35);
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+
+            --cyan: #38bdf8;
+            --indigo: #6366f1;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --purple: #a855f7;
+
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-slab: 'Roboto Slab', Georgia, serif;
+        }
+
+        /* Light / Projector Mode */
+        body.projector-mode {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --border-card: #cbd5e1;
+            --border-accent: #0284c7;
+            --text-main: #0f172a;
+            --text-muted: #334155;
+            --text-dim: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            padding: 20px 28px 60px 28px;
+            line-height: 1.5;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: -120px;
+            left: 20%;
+            width: 700px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(99, 102, 241, 0.06) 50%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Header */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 24px;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .badge-room {
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 0.9em;
+            letter-spacing: 0.08em;
+            padding: 6px 14px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        }
+
+        .header-title-group h1 {
+            font-family: var(--font-display);
+            font-size: 2.0em;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title-group p {
+            font-size: 0.92em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.80em;
+            font-weight: 700;
+            color: var(--emerald);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--emerald);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .btn-ctrl {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.86em;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-ctrl:hover {
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+
+        /* Hero KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 22px 20px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-accent);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .kpi-emerald::before { background: var(--emerald); }
+        .kpi-cyan::before { background: var(--cyan); }
+        .kpi-rose::before { background: var(--rose); }
+        .kpi-indigo::before { background: var(--indigo); }
+
+        .kpi-label {
+            font-size: 0.80em;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .kpi-val-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 2.2em;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .kpi-sub {
+            font-size: 0.84em;
+            color: var(--text-muted);
+            margin-top: 6px;
+            line-height: 1.35;
+        }
+
+        /* Progress Bar */
+        .prog-bar-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        body.projector-mode .prog-bar-track {
+            background: #e2e8f0;
+        }
+
+        .prog-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+            transition: width 0.4s ease;
+        }
+
+        /* Navigation Tabs */
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-card);
+            padding-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-display);
+            font-size: 1.0em;
+            font-weight: 700;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: var(--cyan);
+            background: rgba(56, 189, 248, 0.12);
+            border-bottom: 2px solid var(--cyan);
+        }
+
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.25em;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Student Roster Grid */
+        .roster-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.90em;
+            min-width: 260px;
+            outline: none;
+        }
+
+        body.projector-mode .search-box {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+
+        .search-box:focus {
+            border-color: var(--cyan);
+        }
+
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .student-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.15s;
+        }
+
+        body.projector-mode .student-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .student-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .student-name {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.05em;
+        }
+
+        .student-pin {
+            font-family: var(--font-mono);
+            font-size: 0.76em;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-card);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        body.projector-mode .student-pin {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .student-badge-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.82em;
+        }
+
+        body.projector-mode .student-badge-row {
+            border-top-color: #f1f5f9;
+        }
+
+        .status-pill {
+            font-weight: 700;
+            font-size: 0.78em;
+            padding: 2px 8px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-done {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .status-wait {
+            background: rgba(100, 116, 139, 0.12);
+            color: var(--text-dim);
+            border: 1px solid rgba(100, 116, 139, 0.25);
+        }
+
+        .btn-view {
+            background: transparent;
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.78em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-view:hover {
+            border-color: var(--cyan);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Matrix Table & Stacked Bars */
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 280px 1fr 240px;
+            gap: 16px;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .topic-meta .topic-name {
+            font-weight: 800;
+            font-size: 0.95em;
+        }
+
+        .topic-meta .topic-code {
+            font-size: 0.76em;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .stacked-bar-container {
+            width: 100%;
+        }
+
+        .stacked-bar {
+            height: 28px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+        }
+
+        body.projector-mode .stacked-bar {
+            background: #e2e8f0;
+        }
+
+        .bar-seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72em;
+            font-weight: 800;
+            color: #ffffff;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: width 0.3s ease;
+        }
+
+        .bar-deep { background: #10b981; }
+        .bar-brief { background: #0284c7; }
+        .bar-over { background: #f59e0b; }
+        .bar-never { background: #f43f5e; }
+        .bar-unspec { background: #64748b; }
+
+        .topic-verdict {
+            font-size: 0.80em;
+            line-height: 1.35;
+            color: var(--text-muted);
+            border-left: 3px solid var(--cyan);
+            padding-left: 8px;
+        }
+
+        .topic-verdict strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 1.05em;
+            margin-bottom: 2px;
+        }
+
+        /* Quotes Grid */
+        .quote-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .quote-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        body.projector-mode .quote-card {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .quote-card.alert {
+            border-left: 4px solid var(--rose);
+        }
+
+        .quote-card.brain {
+            border-left: 4px solid var(--cyan);
+        }
+
+        .quote-card.curious {
+            border-left: 4px solid var(--emerald);
+        }
+
+        .quote-text {
+            font-size: 0.90em;
+            font-style: italic;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .quote-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        /* Contract Cards */
+        .contract-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .contract-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        body.projector-mode .contract-card {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+
+        .contract-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.1em;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .contract-card p {
+            font-size: 0.86em;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Modal Dossier */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-page);
+            border: 2px solid var(--border-accent);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        body.projector-mode .modal-card {
+            background: #ffffff;
+            border-color: #0284c7;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .dossier-row {
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .dossier-label {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            color: var(--cyan);
+            margin-bottom: 3px;
+        }
+
+        .dossier-val {
+            font-size: 0.92em;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="brand-block">
+                <span class="badge-room">Room 8</span>
+                <div class="header-title-group">
+                    <h1>Class 801 &bull; Live Health Learning Audit</h1>
+                    <p>Outcome 0 Baseline &bull; Grade 7 Prior Knowledge & Student Voice &bull; Mr. Waugh</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="live-pill" id="livePill">
+                    <span class="live-dot"></span>
+                    <span id="liveStatusText">Live Sync (Polling Active)</span>
+                </div>
+                <button class="btn-ctrl" onclick="fetchLiveUpdates()">
+                    🔄 Refresh Now
+                </button>
+                <button class="btn-ctrl" id="projBtn" onclick="toggleProjectorMode()">
+                    💡 Projector Mode
+                </button>
+                <a href="../HealthyLiving8/index.html" class="btn-ctrl">
+                    🏠 HL8 Hub
+                </a>
+            </div>
+        </div>
+
+        <!-- HERO KPI STATS -->
+        <div class="kpi-grid">
+            
+            <div class="kpi-card kpi-emerald">
+                <div class="kpi-label">Class Roster Submissions</div>
+                <div class="kpi-val-row">
+                    <span class="kpi-value" id="kpiSubmitted">17</span>
+                    <span style="font-size: 1.1em; color: var(--text-muted);">/ 28</span>
+                </div>
+                <div class="prog-bar-track">
+                    <div class="prog-bar-fill" id="kpiProgBar" style="width: 61%;"></div>
+                </div>
+                <div class="kpi-sub" id="kpiPctText">61% of Class 801 completed</div>
+            </div>
+
+            <div class="kpi-card kpi-rose">
+                <div class="kpi-label">🚨 Top Fatigue Alert</div>
+                <div class="kpi-val-row">
+                    <span class="kpi-value" style="font-size: 1.55em; color: var(--rose);">AI & Chatbots</span>
+                </div>
+                <div class="kpi-sub">
+                    Students heavily burnt out on repetitive ChatGPT lessons in previous subjects.
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-cyan">
+                <div class="kpi-label">🎯 Top In-Demand Topic</div>
+                <div class="kpi-val-row">
+                    <span class="kpi-value" style="font-size: 1.55em; color: var(--cyan);">Group Chat Drama</span>
+                </div>
+                <div class="kpi-sub">
+                    Direct validation for Outcome 1's "The Junction" (Sam's group chat scenario).
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-indigo">
+                <div class="kpi-label">🧠 Neurobiology Appetite</div>
+                <div class="kpi-val-row">
+                    <span class="kpi-value" style="font-size: 1.55em; color: var(--indigo);">Mental Health</span>
+                </div>
+                <div class="kpi-sub">
+                    7 students cited deep prior interest; asked for real brain stress mechanics.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- NAVIGATION TABS -->
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="showTab('tab-roster')">
+                👥 Live Student Roster (<span id="tabCountSubmitted">17</span>/<span id="tabCountTotal">28</span>)
+            </button>
+            <button class="tab-btn" onclick="showTab('tab-matrix')">
+                🗺️ Grade 7 Curriculum Matrix
+            </button>
+            <button class="tab-btn" onclick="showTab('tab-voice')">
+                🎙️ Student Voice & Fatigue Warnings
+            </button>
+            <button class="tab-btn" onclick="showTab('tab-contract')">
+                🤝 The Room 8 Contract (801 Edition)
+            </button>
+            <button class="tab-btn" onclick="showTab('tab-teacher')">
+                🔒 Confidential Teacher Dossier
+            </button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 1: LIVE STUDENT ROSTER TRACKER                           -->
+        <!-- ============================================================ -->
+        <div id="tab-roster" class="tab-panel active">
+            
+            <div class="glass-card">
+                <div class="roster-filters">
+                    <div>
+                        <div class="card-title">Class 801 Intake Roster</div>
+                        <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 2px;">
+                            Click any student card to inspect their submitted diagnostic dossier.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="rosterSearch" class="search-box" placeholder="Search student name or PIN..." oninput="renderRoster()">
+                        <select id="statusFilter" class="search-box" style="min-width: 140px;" onchange="renderRoster()">
+                            <option value="ALL">All Students</option>
+                            <option value="DONE">Submitted (Done)</option>
+                            <option value="WAIT">Awaiting Submission</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="roster-grid" id="rosterGridContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 2: GRADE 7 CURRICULUM MATRIX                             -->
+        <!-- ============================================================ -->
+        <div id="tab-matrix" class="tab-panel">
+            
+            <div class="glass-card">
+                <div class="card-title" style="justify-content: space-between;">
+                    <div>
+                        <span>🗺️ What Class 801 Covered in Grade 7</span>
+                        <p style="font-size: 0.85em; color: var(--text-muted); font-weight: normal; margin-top: 4px;">
+                            Aggregated responses across all 6 provincial Grade 7 Healthy Living outcomes.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 12px; font-size: 0.78em; font-weight: 700;">
+                        <span style="color: #10b981;">● Deep Mastery</span>
+                        <span style="color: #0284c7;">● Brief / Surface</span>
+                        <span style="color: #f59e0b;">● Over-Covered</span>
+                        <span style="color: #f43f5e;">● Never (Missed)</span>
+                    </div>
+                </div>
+
+                <div class="matrix-list" style="margin-top: 14px;">
+                    
+                    <!-- Outcome 1 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Decision-Making & Peer Norms</div>
+                            <div class="topic-code">HL7 Outcome 1 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-deep" style="width: 35%;">35% Deep</div>
+                                <div class="bar-seg bar-brief" style="width: 12%;">12% Brief</div>
+                                <div class="bar-seg bar-over" style="width: 12%;">12% Over</div>
+                                <div class="bar-seg bar-never" style="width: 6%;">6% Never</div>
+                                <div class="bar-seg bar-unspec" style="width: 35%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict">
+                            <strong>Strong Baseline</strong>
+                            Solid prior exposure. Don't waste time on generic "just say no" lectures; jump directly into high-stakes group dynamics and digital pressure.
+                        </div>
+                    </div>
+
+                    <!-- Outcome 2 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Tech Habits, Sleep & Nutrition</div>
+                            <div class="topic-code">HL7 Outcome 2 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-deep" style="width: 35%;">35% Deep</div>
+                                <div class="bar-seg bar-brief" style="width: 12%;">12% Brief</div>
+                                <div class="bar-seg bar-over" style="width: 18%;">18% Over</div>
+                                <div class="bar-seg bar-unspec" style="width: 35%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict" style="border-left-color: var(--amber);">
+                            <strong style="color: var(--amber);">Fatigue on Screen Time</strong>
+                            18% cited fatigue on "the same old screen time lectures." Pivot immediately to sleep debt formulas, biological phase delays, and dopamine loops.
+                        </div>
+                    </div>
+
+                    <!-- Outcome 3 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Mental Health & Resiliency</div>
+                            <div class="topic-code">HL7 Outcome 3 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-deep" style="width: 41%;">41% Deep</div>
+                                <div class="bar-seg bar-never" style="width: 18%;">18% Never</div>
+                                <div class="bar-seg bar-brief" style="width: 6%;">6% Brief</div>
+                                <div class="bar-seg bar-unspec" style="width: 35%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict">
+                            <strong>Split Knowledge Gap</strong>
+                            41% have deep interest, but 18% never covered mental health foundations in Grade 7. Ensure clear distinction between mental distress and mental illness.
+                        </div>
+                    </div>
+
+                    <!-- Outcome 4 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Puberty & Reproductive Health</div>
+                            <div class="topic-code">HL7 Outcome 4 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-deep" style="width: 24%;">24% Deep</div>
+                                <div class="bar-seg bar-brief" style="width: 24%;">24% Brief</div>
+                                <div class="bar-seg bar-over" style="width: 18%;">18% Over</div>
+                                <div class="bar-seg bar-unspec" style="width: 34%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict">
+                            <strong>Ready for Anatomy & Boundaries</strong>
+                            High prior coverage of elementary biology. Ready for Grade 8 module on hormonal shifts, body neutrality, and healthy relationship consent.
+                        </div>
+                    </div>
+
+                    <!-- Outcome 5 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Relationships & Digital Laws</div>
+                            <div class="topic-code">HL7 Outcome 5 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-deep" style="width: 35%;">35% Deep</div>
+                                <div class="bar-seg bar-brief" style="width: 18%;">18% Brief</div>
+                                <div class="bar-seg bar-over" style="width: 6%;">6% Over</div>
+                                <div class="bar-seg bar-never" style="width: 6%;">6% Never</div>
+                                <div class="bar-seg bar-unspec" style="width: 35%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict">
+                            <strong>Prime Focus for Group Chats</strong>
+                            Students specifically requested legal and social boundary coaching for group chats, screenshot sharing, and peer exclusion.
+                        </div>
+                    </div>
+
+                    <!-- Outcome 6 -->
+                    <div class="matrix-row">
+                        <div class="topic-meta">
+                            <div class="topic-name">Substance Literacy & Harms</div>
+                            <div class="topic-code">HL7 Outcome 6 &bull; 801 Live Responses</div>
+                        </div>
+                        <div class="stacked-bar-container">
+                            <div class="stacked-bar">
+                                <div class="bar-seg bar-over" style="width: 24%;">24% Over!</div>
+                                <div class="bar-seg bar-deep" style="width: 18%;">18% Deep</div>
+                                <div class="bar-seg bar-never" style="width: 12%;">12% Never</div>
+                                <div class="bar-seg bar-brief" style="width: 12%;">12% Brief</div>
+                                <div class="bar-seg bar-unspec" style="width: 34%;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="topic-verdict" style="border-left-color: var(--rose);">
+                            <strong style="color: var(--rose);">Highest Over-Coverage (24%)</strong>
+                            Students expressed heavy fatigue on generic anti-vaping posters. Teach actual pharmacology, adenosine receptors, and harm reduction.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 3: STUDENT VOICE & FATIGUE WARNINGS                      -->
+        <!-- ============================================================ -->
+        <div id="tab-voice" class="tab-panel">
+            
+            <div class="glass-card">
+                <div class="card-title">🚨 What Class 801 Warned Us to Avoid (Fatigue Alerts)</div>
+                <p style="color: var(--text-muted); margin-top: 4px; margin-bottom: 18px;">
+                    Direct unvarnished student quotes from Class 801 on what burned them out in previous years.
+                </p>
+
+                <div class="quote-grid">
+                    
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "AI!! We di it almost all year in ILT and health and on fridays in ela we are tired of learning about chatbots."
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Non-Stop AI Chatbots</span>
+                            <span>&bull; Ainslie M.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "like the same old screen time on phone"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Rote Screen Lectures</span>
+                            <span>&bull; Samuel S.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "AI chat gbt"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Repetitive Prompts</span>
+                            <span>&bull; Alex W.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "Emotional regulation"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Generic Calming Posters</span>
+                            <span>&bull; Steven E.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "alcohol use and vaping"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Moralizing Substance Slogans</span>
+                            <span>&bull; Nikolas S.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card alert">
+                        <div class="quote-text">
+                            "AI"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--rose);">Fatigue: Artificial Intelligence Units</span>
+                            <span>&bull; Trey L.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-title">❓ Real Inquiries & High-Priority Demands</div>
+                <p style="color: var(--text-muted); margin-top: 4px; margin-bottom: 18px;">
+                    What Class 801 students authentically asked to learn about this year.
+                </p>
+
+                <div class="quote-grid">
+                    
+                    <div class="quote-card brain">
+                        <div class="quote-text">
+                            "Dealing with group chat drama!!!!!"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--cyan);">Outcome 1: Group Chat Sim Priority</span>
+                            <span>&bull; Ainslie M.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card brain">
+                        <div class="quote-text">
+                            "managing stress"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--cyan);">Cognitive Science & Athletic Pressure</span>
+                            <span>&bull; Trey L.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card curious">
+                        <div class="quote-text">
+                            "Learning cool things about mental health."
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--emerald);">Neurobiology & Brain Resilience</span>
+                            <span>&bull; Jaela L.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card curious">
+                        <div class="quote-text">
+                            "drug use or anything"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--emerald);">Pharmacology & Substance Science</span>
+                            <span>&bull; Steven E.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card curious">
+                        <div class="quote-text">
+                            "making friends"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--emerald);">Social Health & Belonging</span>
+                            <span>&bull; Marieke M.</span>
+                        </div>
+                    </div>
+
+                    <div class="quote-card curious">
+                        <div class="quote-text">
+                            "Im excited about everything"
+                        </div>
+                        <div class="quote-meta">
+                            <span style="color: var(--emerald);">Positive Engagement Baseline</span>
+                            <span>&bull; Zephyr G.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 4: THE ROOM 8 CONTRACT (801 EDITION)                     -->
+        <!-- ============================================================ -->
+        <div id="tab-contract" class="tab-panel">
+            
+            <div class="glass-card">
+                <div class="card-title">🤝 The Room 8 Pedagogical Commitments for Class 801</div>
+                <p style="color: var(--text-muted); margin-top: 4px; margin-bottom: 20px;">
+                    Our classroom teaching promises built directly from Class 801's audit data.
+                </p>
+
+                <div class="contract-grid">
+                    
+                    <div class="contract-card">
+                        <h3 style="color: var(--rose);">🚫 1. ZERO AI & Chatbot Repetition</h3>
+                        <p>You explicitly told us you are sick of AI chatbots across multiple classes. Room 8 will NOT make you write repetitive AI prompts. We do real human case work.</p>
+                    </div>
+
+                    <div class="contract-card">
+                        <h3 style="color: var(--cyan);">💬 2. Real Group Chat & Social Scenarios</h3>
+                        <p>Class 801 asked specifically for "group chat drama." Our Outcome 1 scenario (*The Junction*) simulates authentic group chat leaks, screenshot pressure, and boundaries.</p>
+                    </div>
+
+                    <div class="contract-card">
+                        <h3 style="color: var(--emerald);">🧠 3. Authentic Brain & Stress Science</h3>
+                        <p>No generic slogans like "just relax" or "eat an apple." We study actual neurobiology: how dopamine loops work, caffeine half-life, and athletic recovery.</p>
+                    </div>
+
+                    <div class="contract-card">
+                        <h3 style="color: var(--indigo);">🔒 4. Confidentiality & Anonymous Inquiries</h3>
+                        <p>Health class should never put you on the spot. We use anonymous question boxes and small-group scenario branching so you can explore real topics safely.</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 5: CONFIDENTIAL TEACHER DOSSIER                          -->
+        <!-- ============================================================ -->
+        <div id="tab-teacher" class="tab-panel">
+            
+            <div class="glass-card">
+                <div class="card-title">🔒 Teacher-Only Notes & Learner Profiles (Class 801)</div>
+                <p style="color: var(--text-muted); margin-top: 4px; margin-bottom: 18px;">
+                    Confidential learner preferences, phonetic pronunciations, and notes submitted directly to Mr. Waugh.
+                </p>
+
+                <div id="teacherNotesContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- STUDENT DOSSIER MODAL -->
+    <div class="modal-overlay" id="dossierModal" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+            <div id="modalContent">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
+        let studentsData = window.CLASS_801_DATA || [];
+        let isPolling = true;
+        let pollTimer = null;
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+
+            const tabMap = {
+                'tab-roster': 0,
+                'tab-matrix': 1,
+                'tab-voice': 2,
+                'tab-contract': 3,
+                'tab-teacher': 4
+            };
+            const btns = document.querySelectorAll('.tab-btn');
+            if (btns[tabMap[tabId]]) btns[tabMap[tabId]].classList.add('active');
+        }
+
+        function toggleProjectorMode() {
+            document.body.classList.toggle('projector-mode');
+            const isLight = document.body.classList.contains('projector-mode');
+            document.getElementById('projBtn').innerText = isLight ? '🌙 Dark Glow Mode' : '💡 Projector Mode';
+            localStorage.setItem('room8_801_theme', isLight ? 'light' : 'dark');
+        }
+
+        function updateKpis() {
+            const submitted = studentsData.filter(s => s.has_submitted).length;
+            const total = studentsData.length;
+            const pct = Math.round((submitted / (total || 1)) * 100);
+
+            document.getElementById('kpiSubmitted').innerText = submitted;
+            document.getElementById('kpiProgBar').style.width = pct + '%';
+            document.getElementById('kpiPctText').innerText = `${pct}% of Class 801 completed (${submitted}/${total})`;
+            document.getElementById('tabCountSubmitted').innerText = submitted;
+            document.getElementById('tabCountTotal').innerText = total;
+        }
+
+        function renderRoster() {
+            const container = document.getElementById('rosterGridContainer');
+            container.innerHTML = '';
+
+            const search = (document.getElementById('rosterSearch').value || '').toLowerCase().trim();
+            const filter = document.getElementById('statusFilter').value;
+
+            let filtered = studentsData.filter(s => {
+                const matchesSearch = s.first_name.toLowerCase().includes(search) ||
+                                      s.last_name.toLowerCase().includes(search) ||
+                                      s.pin.toLowerCase().includes(search);
+                if (!matchesSearch) return false;
+                if (filter === 'DONE') return s.has_submitted;
+                if (filter === 'WAIT') return !s.has_submitted;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-muted);">No student records match your filter.</div>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+
+                const statusHtml = s.has_submitted
+                    ? `<span class="status-pill status-done">✅ Submitted</span>`
+                    : `<span class="status-pill status-wait">⏳ Awaiting</span>`;
+
+                const pronounStr = s.pronouns ? `<span style="font-size:0.75em; color:var(--cyan); margin-left:4px;">(${s.pronouns})</span>` : '';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="student-header">
+                            <div>
+                                <div class="student-name">${s.first_name} ${s.last_name} ${pronounStr}</div>
+                                <div style="font-size:0.75em; color:var(--text-dim);">${s.email || s.username || 'Class 801'}</div>
+                            </div>
+                            <span class="student-pin">${s.pin}</span>
+                        </div>
+                    </div>
+                    <div class="student-badge-row">
+                        ${statusHtml}
+                        <button class="btn-view" onclick="openDossier('${s.pin}')">👁️ Dossier</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderTeacherNotes() {
+            const container = document.getElementById('teacherNotesContainer');
+            container.innerHTML = '';
+
+            const withNotes = studentsData.filter(s => s.teacher_note || s.phonetic || s.pronouns || s.transit);
+
+            if (withNotes.length === 0) {
+                container.innerHTML = `<div style="color:var(--text-muted);">No private teacher notes submitted yet.</div>`;
+                return;
+            }
+
+            withNotes.forEach(s => {
+                const box = document.createElement('div');
+                box.style.background = 'rgba(255, 255, 255, 0.03)';
+                box.style.border = '1px solid var(--border-card)';
+                box.style.borderRadius = '8px';
+                box.style.padding = '14px 18px';
+
+                box.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <strong>${s.first_name} ${s.last_name} (${s.pin})</strong>
+                        <span style="font-size:0.80em; color:var(--cyan); font-weight:700;">${s.pronouns || 'No pronouns listed'}</span>
+                    </div>
+                    ${s.phonetic ? `<div style="font-size:0.85em; margin-bottom:4px;"><strong>Phonetic Name:</strong> ${s.phonetic}</div>` : ''}
+                    ${s.transit ? `<div style="font-size:0.85em; margin-bottom:4px;"><strong>Commute / Transit:</strong> ${s.transit}</div>` : ''}
+                    ${s.teacher_note ? `<div style="font-size:0.88em; color:var(--amber); margin-top:6px; padding:6px 10px; background:rgba(245,158,11,0.08); border-left:3px solid var(--amber); border-radius:4px;"><strong>Private Note to Mr. Waugh:</strong> "${s.teacher_note}"</div>` : ''}
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function openDossier(pin) {
+            const s = studentsData.find(st => st.pin === pin);
+            if (!s) return;
+
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                    <div>
+                        <h2 style="font-family:var(--font-display); font-size:1.5em; font-weight:800;">${s.first_name} ${s.last_name}</h2>
+                        <div style="color:var(--text-muted); font-size:0.85em;">Class 801 &bull; GNSPES: ${s.email || s.username || 'Not set'}</div>
+                    </div>
+                    <span class="student-pin" style="font-size:1.0em; padding:4px 10px;">${s.pin}</span>
+                </div>
+
+                <div class="dossier-row">
+                    <div class="dossier-label">Submission Status</div>
+                    <div class="dossier-val">${s.has_submitted ? '<span style="color:var(--emerald); font-weight:700;">✅ Complete & Submitted</span>' : '<span style="color:var(--text-dim);">⏳ Awaiting Survey Submission</span>'}</div>
+                </div>
+
+                <div class="dossier-row">
+                    <div class="dossier-label">Pronouns & Phonetic Pronunciation</div>
+                    <div class="dossier-val">${s.pronouns || 'Not specified'} ${s.phonetic ? `&bull; Sounds like: <em>"${s.phonetic}"</em>` : ''}</div>
+                </div>
+
+                <div class="dossier-row">
+                    <div class="dossier-label">What Felt Overdone in Previous Health Classes</div>
+                    <div class="dossier-val">${s.overdone ? `<span style="color:var(--rose); font-style:italic;">"${s.overdone}"</span>` : '<span style="color:var(--text-dim);">None listed</span>'}</div>
+                </div>
+
+                <div class="dossier-row">
+                    <div class="dossier-label">Real Inquiries / Questions for Grade 8</div>
+                    <div class="dossier-val">${s.real_questions ? `<span style="color:var(--cyan); font-weight:600;">"${s.real_questions}"</span>` : '<span style="color:var(--text-dim);">None listed</span>'}</div>
+                </div>
+
+                <div class="dossier-row">
+                    <div class="dossier-label">Curious Topics & Engagement</div>
+                    <div class="dossier-val">${s.curious ? `<em>"${s.curious}"</em>` : '<span style="color:var(--text-dim);">None listed</span>'}</div>
+                </div>
+
+                ${s.teacher_note ? `
+                <div class="dossier-row" style="border-bottom:none;">
+                    <div class="dossier-label" style="color:var(--amber);">Confidential Note to Mr. Waugh</div>
+                    <div class="dossier-val" style="background:rgba(245,158,11,0.1); padding:8px 12px; border-radius:6px; border-left:3px solid var(--amber);">"${s.teacher_note}"</div>
+                </div>` : ''}
+            `;
+
+            document.getElementById('dossierModal').classList.add('active');
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'dossierModal') {
+                document.getElementById('dossierModal').classList.remove('active');
+            }
+        }
+
+        function closeModalDirect() {
+            document.getElementById('dossierModal').classList.remove('active');
+        }
+
+        // Live Polling Logic
+        async function fetchLiveUpdates() {
+            const pill = document.getElementById('liveStatusText');
+            pill.innerText = 'Checking Google Sheet...';
+
+            const unsubmitted = studentsData.filter(s => !s.has_submitted);
+            if (unsubmitted.length === 0) {
+                pill.innerText = 'All 28 Submitted! ✓';
+                return;
+            }
+
+            // Check up to 6 pending students per poll to keep response rapid
+            const batch = unsubmitted.slice(0, 6);
+            let updatedAny = false;
+
+            for (const s of batch) {
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'login',
+                            className: '801',
+                            pin: s.pin,
+                            name: s.first_name
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success' && data.savedData && data.savedData.matrix) {
+                        s.has_submitted = true;
+                        s.email = data.email || data.savedData.email || s.email;
+                        s.pronouns = data.pronouns || data.savedData.pronouns || s.pronouns;
+                        s.overdone = data.savedData.overdone || '';
+                        s.real_questions = data.savedData.real_questions || '';
+                        s.curious = data.savedData.curious || '';
+                        s.teacher_note = data.savedData.teacher_note || '';
+                        s.matrix = data.savedData.matrix || {};
+                        s.formats = data.savedData.formats || [];
+                        updatedAny = true;
+                    }
+                } catch (err) {
+                    console.warn("Live check error for", s.first_name, err);
+                }
+            }
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            pill.innerText = `Live (Checked ${timeStr})`;
+
+            if (updatedAny) {
+                updateKpis();
+                renderRoster();
+                renderTeacherNotes();
+            }
+        }
+
+        function startPolling() {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(fetchLiveUpdates, 18000); // poll every 18 seconds
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('room8_801_theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('projector-mode');
+                document.getElementById('projBtn').innerText = '🌙 Dark Glow Mode';
+            }
+            updateKpis();
+            renderRoster();
+            renderTeacherNotes();
+            startPolling();
+        });
+    </script>
+</body>
+</html>

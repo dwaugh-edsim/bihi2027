@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Schedules — Substitute Teacher Package (A4 Landscape)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink-dark: #0f172a;
+    --ink-mid: #334155;
+    --ink-light: #64748b;
+    --border-dark: #334155;
+    --border-subtle: #cbd5e1;
+
+    /* Color coding for subjects */
+    --cit-bg: #e0f2fe;
+    --cit-border: #7dd3fc;
+    --cit-text: #0369a1;
+
+    --hl-bg: #ecfdf5;
+    --hl-border: #86efac;
+    --hl-text: #047857;
+
+    --he8-bg: #fef3c7;
+    --he8-border: #fcd34d;
+    --he8-text: #b45309;
+
+    --ilt-bg: #f3e8ff;
+    --ilt-border: #d8b4fe;
+    --ilt-text: #7e22ce;
+
+    --prep-bg: #f1f5f9;
+    --prep-border: #cbd5e1;
+    --prep-text: #64748b;
+
+    --spec-bg: #f8fafc;
+    --spec-border: #e2e8f0;
+    --spec-text: #1e293b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink-dark);
+    background: #eef2f6;
+    padding: 20px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    max-width: 1400px;
+    margin: 0 auto 20px;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  }
+
+  .toolbar-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: #ffffff;
+    color: var(--ink-dark);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+
+  .btn:hover {
+    background: #f8fafc;
+    border-color: var(--border-dark);
+  }
+
+  .btn-primary {
+    background: #1e3a8a;
+    color: #ffffff;
+    border-color: #1e3a8a;
+  }
+
+  .btn-primary:hover {
+    background: #172554;
+  }
+
+  /* Printable Sheet Wrappers (A4 Landscape) */
+  .sheet {
+    max-width: 1400px;
+    margin: 0 auto 30px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    padding: 14mm 16mm;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .sheet:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Sheet Header */
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2.5px solid var(--ink-dark);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+
+  .sheet-title-group h1 {
+    font-size: 1.55rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink-dark);
+    line-height: 1.1;
+  }
+
+  .sheet-title-group .sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    margin-top: 3px;
+  }
+
+  .header-badge {
+    text-align: right;
+  }
+
+  .room-tag {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e3a8a;
+    border: 1.5px solid #bfdbfe;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 3px;
+  }
+
+  .cycle-tag {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Schedule Table Grid */
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 10px;
+  }
+
+  .schedule-table th, .schedule-table td {
+    border: 1.5px solid #94a3b8;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  /* Headers: Week and Days */
+  .schedule-table thead tr.week-row th {
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 6px;
+  }
+
+  .schedule-table thead tr.day-row th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 6px 4px;
+  }
+
+  .schedule-table thead tr.day-row th .d-num {
+    font-size: 0.68rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    display: block;
+  }
+
+  .schedule-table th.time-col {
+    width: 110px;
+    background: #f8fafc;
+    color: var(--ink-dark);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  /* Cells */
+  .schedule-table td {
+    height: 52px;
+    padding: 4px;
+    font-weight: 700;
+    font-size: 0.86rem;
+    position: relative;
+  }
+
+  .schedule-table td.time-cell {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.76rem;
+    font-weight: 800;
+    background: #f8fafc;
+    color: var(--ink-dark);
+    line-height: 1.2;
+    padding: 4px 6px;
+  }
+
+  .schedule-table td.time-cell .period-label {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* Subject Badge styling inside cells */
+  .cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 4px;
+    padding: 2px;
+  }
+
+  .subj-code {
+    font-weight: 800;
+    font-size: 0.88rem;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .subj-detail {
+    font-size: 0.66rem;
+    font-weight: 600;
+    margin-top: 1px;
+    opacity: 0.9;
+  }
+
+  /* Color Categories */
+  .c-cit { background: var(--cit-bg); color: var(--cit-text); }
+  .c-hl  { background: var(--hl-bg);  color: var(--hl-text); }
+  .c-he8 { background: var(--he8-bg); color: var(--he8-text); }
+  .c-ilt { background: var(--ilt-bg); color: var(--ilt-text); }
+  .c-prep{ background: var(--prep-bg);color: var(--prep-text); font-style: italic; }
+  .c-supp{ background: #e0f2fe; color: #0284c7; }
+  .c-spec{ background: var(--spec-bg);color: var(--spec-text); }
+  .c-core{ background: #f1f5f9; color: #1e293b; font-weight: 800; }
+
+  .lunch-row td {
+    height: 30px;
+    background: #e2e8f0;
+    color: #334155;
+    font-weight: 800;
+    font-size: 0.78rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  /* Sheet Footer & Sub notes */
+  .sheet-footer {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    gap: 14px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1.5px solid var(--border-subtle);
+    font-size: 0.72rem;
+  }
+
+  .legend-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+
+  .notes-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--ink-mid);
+    line-height: 1.35;
+  }
+
+  /* Print Styles - Formatted for A4 Landscape */
+  @page {
+    size: landscape;
+    margin: 6mm 8mm;
+  }
+
+  @media print {
+    body {
+      background: #ffffff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .toolbar {
+      display: none !important;
+    }
+
+    .sheet {
+      box-shadow: none !important;
+      border: none !important;
+      padding: 4mm 6mm !important;
+      margin: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+      height: 194mm !important;
+      max-height: 194mm !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      overflow: hidden !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    .sheet:last-of-type {
+      page-break-after: auto !important;
+      break-after: auto !important;
+    }
+
+    .sheet-title-group h1 {
+      font-size: 1.35rem !important;
+    }
+
+    .schedule-table td {
+      height: 44px !important;
+      font-size: 0.8rem !important;
+    }
+
+    .schedule-table td.time-cell {
+      font-size: 0.7rem !important;
+    }
+
+    .subj-code {
+      font-size: 0.82rem !important;
+    }
+
+    .lunch-row td {
+      height: 24px !important;
+      font-size: 0.72rem !important;
+    }
+
+    .schedule-table th, .schedule-table td,
+    .c-cit, .c-hl, .c-he8, .c-ilt, .c-prep, .c-supp, .c-spec, .c-core, .lunch-row td {
+      print-color-adjust: exact !important;
+      -webkit-print-color-adjust: exact !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Non-printing Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <span>📅 Room 8 Master Schedules (A4 Landscape)</span>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Print Both Schedules (A4)</button>
+    <a href="902_Today_Schedule_Deck.html" class="btn" style="background:#2563eb; color:#ffffff; border-color:#2563eb;">📽️ 902 Today Slide Deck ↗</a>
+    <a href="Student_System/CIT9_Current_Issues_Progress_Dashboard.html" class="btn" style="background:#059669; color:#ffffff; border-color:#10b981;">🗳️ Gr 9 Issues Dashboard ↗</a>
+    <a href="seating-plan.html" class="btn">🪑 Seating Plans ↗</a>
+    <a href="sub_folder_class_lists.html" class="btn">📋 Class Lists ↗</a>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 1. TEACHER TIMETABLE (MR. WAUGH)          -->
+<!-- ========================================== -->
+<div class="sheet" id="sheet-teacher">
+  <div class="sheet-header">
+    <div class="sheet-title-group">
+      <h1>Teacher Master Timetable · Mr. Waugh</h1>
+      <div class="sub">Bicentennial Junior High School · 10-Day Cycle · 2026–2027</div>
+    </div>
+    <div class="header-badge">
+      <div class="room-tag">Room 8 Master</div>
+      <div class="cycle-tag">Week 1 & Week 2 (Days 1–10)</div>
+    </div>
+  </div>
+
+  <table class="schedule-table">
+    <thead>
+      <tr class="week-row">
+        <th class="time-col">TIME / PERIOD</th>
+        <th colspan="5">WEEK 1 (DAYS 1 – 5)</th>
+        <th colspan="5">WEEK 2 (DAYS 6 – 10)</th>
+      </tr>
+      <tr class="day-row">
+        <th class="time-col">Bell Schedule</th>
+        <th>Monday<span class="d-num">Day 1</span></th>
+        <th>Tuesday<span class="d-num">Day 2</span></th>
+        <th>Wednesday<span class="d-num">Day 3</span></th>
+        <th>Thursday<span class="d-num">Day 4</span></th>
+        <th>Friday<span class="d-num">Day 5</span></th>
+        <th>Monday<span class="d-num">Day 6</span></th>
+        <th>Tuesday<span class="d-num">Day 7</span></th>
+        <th>Wednesday<span class="d-num">Day 8</span></th>
+        <th>Thursday<span class="d-num">Day 9</span></th>
+        <th>Friday<span class="d-num">Day 10</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Period 1 -->
+      <tr>
+        <td class="time-cell">
+          9:05 – 10:05
+          <span class="period-label">Period 1</span>
+        </td>
+        <td><div class="cell-content c-he8"><span class="subj-code">803 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">902 HL</span><span class="subj-detail">Homeroom HL</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">804 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">901 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">801 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">903 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">803 HE</span><span class="subj-detail">HE (Scheduled)</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">903 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">901 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">804 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+      </tr>
+
+      <!-- Period 2 -->
+      <tr>
+        <td class="time-cell">
+          10:05 – 11:05
+          <span class="period-label">Period 2</span>
+        </td>
+        <td><div class="cell-content c-he8"><span class="subj-code">801 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">802 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">902 CIT</span><span class="subj-detail">Homeroom CIT</span></div></td>
+        <td><div class="cell-content c-ilt"><span class="subj-code">9 ILT</span><span class="subj-detail">Grade 9 (903)</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">803 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">804 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-ilt"><span class="subj-code">9 ILT</span><span class="subj-detail">Grade 9 (903)</span></div></td>
+      </tr>
+
+      <!-- Period 3 -->
+      <tr>
+        <td class="time-cell">
+          11:05 – 12:05
+          <span class="period-label">Period 3</span>
+        </td>
+        <td><div class="cell-content c-cit"><span class="subj-code">902 CIT</span><span class="subj-detail">Homeroom CIT</span></div></td>
+        <td><div class="cell-content c-ilt"><span class="subj-code">8 ILT</span><span class="subj-detail">Grade 8 (803)</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">903 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-supp"><span class="subj-code">Support 704</span><span class="subj-detail">ELA Support</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">901 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-he8" style="border: 2px solid #b45309;"><span class="subj-code">802 HE</span><span class="subj-detail">Class Period</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">PREP</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">903 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+      </tr>
+
+      <!-- Lunch -->
+      <tr class="lunch-row">
+        <td class="time-cell" style="background:#cbd5e1; color:#1e293b;">12:05 – 1:00</td>
+        <td colspan="10">L U N C H   /   B R E A K</td>
+      </tr>
+
+      <!-- Period 4 -->
+      <tr>
+        <td class="time-cell">
+          1:05 – 2:05
+          <span class="period-label">Period 4</span>
+        </td>
+        <td><div class="cell-content c-cit"><span class="subj-code">901 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">903 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">901 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">903 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-ilt"><span class="subj-code">7 ILT</span><span class="subj-detail">Grade 7</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">901 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">802 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">901 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">801 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">902 CIT</span><span class="subj-detail">Homeroom CIT</span></div></td>
+      </tr>
+
+      <!-- Period 5 -->
+      <tr>
+        <td class="time-cell">
+          2:05 – 3:05
+          <span class="period-label">Period 5</span>
+        </td>
+        <td><div class="cell-content c-cit"><span class="subj-code">903 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-he8"><span class="subj-code">803 HE</span><span class="subj-detail">Healthy Living 8</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">902 HL</span><span class="subj-detail">Homeroom HL</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">901 CIT</span><span class="subj-detail">Citizenship 9</span></div></td>
+        <td><div class="cell-content c-prep"><span class="subj-code">Support / Prep</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">902 CIT</span><span class="subj-detail">Homeroom CIT</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">903 HL</span><span class="subj-detail">Healthy Living 9</span></div></td>
+        <td><div class="cell-content c-cit"><span class="subj-code">902 CIT</span><span class="subj-detail">Homeroom CIT</span></div></td>
+        <td><div class="cell-content c-hl"><span class="subj-code">902 HL</span><span class="subj-detail">Homeroom HL</span></div></td>
+        <td><div class="cell-content c-ilt"><span class="subj-code">7 ILT</span><span class="subj-detail">Grade 7</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sheet-footer">
+    <div class="legend-box">
+      <span style="font-weight: 800; text-transform: uppercase; font-size: 0.68rem; color: var(--ink-light); margin-right: 4px;">Subject Key:</span>
+      <div class="legend-item"><div class="legend-color" style="background:var(--cit-bg); border-color:var(--cit-border);"></div><span>Grade 9 Citizenship</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:var(--hl-bg); border-color:var(--hl-border);"></div><span>Grade 9 Healthy Living</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:var(--he8-bg); border-color:var(--he8-border);"></div><span>Grade 8 Healthy Living (HE)</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:var(--ilt-bg); border-color:var(--ilt-border);"></div><span>ILT (7/8/9)</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:var(--prep-bg); border-color:var(--prep-border);"></div><span>Prep Period</span></div>
+    </div>
+    <div class="notes-box">
+      <strong>Important Timetable Note:</strong> Day 8 (Wednesday Period 3) is <strong>802 HE</strong> (not a prep). Support 704 is an in-class push-in period.
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. 902 HOMEROOM SCHEDULE                  -->
+<!-- ========================================== -->
+<div class="sheet" id="sheet-homeroom">
+  <div class="sheet-header">
+    <div class="sheet-title-group">
+      <h1>Class Schedule · Homeroom 902</h1>
+      <div class="sub">Room 8 · Mr. Waugh (Homeroom Teacher) · 10-Day Cycle · 2026–2027</div>
+    </div>
+    <div class="header-badge">
+      <div class="room-tag">902 Homeroom Schedule</div>
+      <div class="cycle-tag">Full Class Movement (Days 1–10)</div>
+    </div>
+  </div>
+
+  <table class="schedule-table">
+    <thead>
+      <tr class="week-row">
+        <th class="time-col">TIME / PERIOD</th>
+        <th colspan="5">WEEK 1 (DAYS 1 – 5)</th>
+        <th colspan="5">WEEK 2 (DAYS 6 – 10)</th>
+      </tr>
+      <tr class="day-row">
+        <th class="time-col">Bell Schedule</th>
+        <th>Monday<span class="d-num">Day 1</span></th>
+        <th>Tuesday<span class="d-num">Day 2</span></th>
+        <th>Wednesday<span class="d-num">Day 3</span></th>
+        <th>Thursday<span class="d-num">Day 4</span></th>
+        <th>Friday<span class="d-num">Day 5</span></th>
+        <th>Monday<span class="d-num">Day 6</span></th>
+        <th>Tuesday<span class="d-num">Day 7</span></th>
+        <th>Wednesday<span class="d-num">Day 8</span></th>
+        <th>Thursday<span class="d-num">Day 9</span></th>
+        <th>Friday<span class="d-num">Day 10</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Period 1 -->
+      <tr>
+        <td class="time-cell">
+          9:05 – 10:05
+          <span class="period-label">Period 1</span>
+        </td>
+        <td><div class="cell-content c-spec"><span class="subj-code">PE</span><span class="subj-detail">Gymnasium</span></div></td>
+        <td><div class="cell-content c-hl" style="border:1.5px solid var(--hl-border);"><span class="subj-code">HL</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">FRENCH</span><span class="subj-detail">French Room</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">ART</span><span class="subj-detail">Art Studio</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">PE</span><span class="subj-detail">Gymnasium</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">SCI</span><span class="subj-detail">Science Lab</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">PE</span><span class="subj-detail">Gymnasium</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">ART</span><span class="subj-detail">Art Studio</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">PE</span><span class="subj-detail">Gymnasium</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">SCI</span><span class="subj-detail">Science Lab</span></div></td>
+      </tr>
+
+      <!-- Period 2 -->
+      <tr>
+        <td class="time-cell">
+          10:05 – 11:05
+          <span class="period-label">Period 2</span>
+        </td>
+        <td><div class="cell-content c-core"><span class="subj-code">SCI</span><span class="subj-detail">Science Lab</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">CS</span><span class="subj-detail">Computer Lab</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-cit" style="border:1.5px solid var(--cit-border);"><span class="subj-code">CIT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-ilt" style="border:1.5px solid var(--ilt-border);"><span class="subj-code">ILT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">FRENCH</span><span class="subj-detail">French Room</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">ILT</span><span class="subj-detail">Traille</span></div></td>
+      </tr>
+
+      <!-- Period 3 -->
+      <tr>
+        <td class="time-cell">
+          11:05 – 12:05
+          <span class="period-label">Period 3</span>
+        </td>
+        <td><div class="cell-content c-cit" style="border:1.5px solid var(--cit-border);"><span class="subj-code">CIT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">ART</span><span class="subj-detail">Art Studio</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">PE</span><span class="subj-detail">Gymnasium</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">SCI</span><span class="subj-detail">Science Lab</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">FRENCH</span><span class="subj-detail">French Room</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">CS</span><span class="subj-detail">Computer Lab</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">FRENCH</span><span class="subj-detail">French Room</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+      </tr>
+
+      <!-- Lunch -->
+      <tr class="lunch-row">
+        <td class="time-cell" style="background:#cbd5e1; color:#1e293b;">12:05 – 1:00</td>
+        <td colspan="10">L U N C H   /   B R E A K</td>
+      </tr>
+
+      <!-- Period 4 -->
+      <tr>
+        <td class="time-cell">
+          1:05 – 2:05
+          <span class="period-label">Period 4</span>
+        </td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">SCI</span><span class="subj-detail">Science Lab</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+        <td><div class="cell-content c-cit" style="border:1.5px solid var(--cit-border);"><span class="subj-code">CIT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+      </tr>
+
+      <!-- Period 5 -->
+      <tr>
+        <td class="time-cell">
+          2:05 – 3:05
+          <span class="period-label">Period 5</span>
+        </td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-hl" style="border:1.5px solid var(--hl-border);"><span class="subj-code">HL</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-spec"><span class="subj-code">FRENCH</span><span class="subj-detail">French Room</span></div></td>
+        <td><div class="cell-content c-cit" style="border:1.5px solid var(--cit-border);"><span class="subj-code">CIT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">ELA</span><span class="subj-detail">ELA</span></div></td>
+        <td><div class="cell-content c-cit" style="border:1.5px solid var(--cit-border);"><span class="subj-code">CIT</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-hl" style="border:1.5px solid var(--hl-border);"><span class="subj-code">HL</span><span class="subj-detail">Room 8 (Waugh)</span></div></td>
+        <td><div class="cell-content c-core"><span class="subj-code">MATH</span><span class="subj-detail">Math</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sheet-footer">
+    <div class="legend-box">
+      <span style="font-weight: 800; text-transform: uppercase; font-size: 0.68rem; color: var(--ink-light); margin-right: 4px;">902 Notes:</span>
+      <div class="legend-item"><div class="legend-color" style="background:var(--cit-bg); border-color:var(--cit-border);"></div><span>In Room 8 with Mr. Waugh (CIT / HL / ILT)</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:#f1f5f9; border-color:#94a3b8;"></div><span>Core Academic (Math, ELA, Sci)</span></div>
+      <div class="legend-item"><div class="legend-color" style="background:#f8fafc; border-color:#cbd5e1;"></div><span>Specialists (PE, French, Art, CS)</span></div>
+    </div>
+    <div class="notes-box">
+      <strong>Homeroom Bell Times:</strong> Morning arrival: 8:55 AM. Homeroom attendance: 9:05 AM. Lunch: 12:05 – 1:00 PM. Afternoon dismissal: 3:05 PM.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

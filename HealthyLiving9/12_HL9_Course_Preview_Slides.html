@@ -1,0 +1,818 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Grade 9 Healthy Living: Course Preview & Roadmap | Mr. Waugh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Editorial / StronglyTyped Warm High-Contrast Theme */
+            --bg-canvas: #1e293b;
+            --bg-slide: #ffffff;
+            --bg-panel: #f8fafc;
+            --border-main: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent-red: #c83232;
+            --accent-blue: #1e40af;
+            --accent-emerald: #047857;
+            --accent-amber: #b45309;
+            --font-slab: 'Roboto Slab', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-body);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        /* 16:9 Slide Stage for Classroom Projector */
+        .stage-wrapper {
+            width: 100%;
+            max-width: 1260px;
+            height: calc(100vh - 90px);
+            max-height: 740px;
+            background: var(--bg-slide);
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #334155;
+        }
+
+        /* Top Progress Bar */
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 10%;
+            background: var(--accent-red);
+            transition: width 0.3s ease;
+        }
+
+        /* Editorial Top Masthead */
+        .slide-masthead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 44px;
+            font-size: 0.95rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-main);
+            background: #ffffff;
+        }
+
+        .pill-badge {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: var(--accent-blue);
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Slide Content Area */
+        .slide-viewport {
+            flex: 1;
+            padding: 36px 56px 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(15px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* LARGE Classroom Typography */
+        h1.display-title {
+            font-family: var(--font-slab);
+            font-size: 4.2rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--text-heading);
+            margin-bottom: 16px;
+        }
+
+        h2.section-title {
+            font-family: var(--font-slab);
+            font-size: 3.4rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: var(--text-heading);
+            margin-bottom: 12px;
+            border-bottom: 4px solid var(--accent-red);
+            padding-bottom: 8px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .lead-sub {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+
+        /* High-Impact Bullet Points (LARGE TYPE, FEWER WORDS) */
+        .bullet-stack {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .bullet-stack li {
+            position: relative;
+            padding-left: 44px;
+            font-size: 1.85rem;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--text-body);
+        }
+
+        .bullet-stack li::before {
+            content: "■";
+            position: absolute;
+            left: 10px;
+            color: var(--accent-red);
+            font-size: 1.3rem;
+            top: 2px;
+        }
+
+        .bullet-stack li strong {
+            color: var(--text-heading);
+            font-weight: 800;
+        }
+
+        .bullet-stack.blue li::before { color: var(--accent-blue); }
+        .bullet-stack.emerald li::before { color: var(--accent-emerald); }
+        .bullet-stack.amber li::before { color: var(--accent-amber); }
+
+        /* Two-Column Versus & Comparison Grids */
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 14px;
+        }
+
+        .box-panel {
+            background: var(--bg-panel);
+            border: 2px solid var(--border-main);
+            border-radius: 10px;
+            padding: 26px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .box-panel.red-border {
+            border-left: 8px solid var(--accent-red);
+        }
+
+        .box-panel.blue-border {
+            border-left: 8px solid var(--accent-blue);
+        }
+
+        .box-panel.green-border {
+            border-left: 8px solid var(--accent-emerald);
+        }
+
+        .panel-heading {
+            font-family: var(--font-slab);
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        .panel-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-list li {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-body);
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .panel-list.cross li::before {
+            content: "✕";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: 900;
+        }
+
+        .panel-list.check li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-emerald);
+            font-weight: 900;
+        }
+
+        /* Banner Callout */
+        .bottom-banner {
+            margin-top: 24px;
+            background: #f1f5f9;
+            border-left: 6px solid var(--accent-blue);
+            padding: 14px 22px;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            border-radius: 4px;
+        }
+
+        /* Classroom Code Display Cards */
+        .code-box {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            padding: 16px 20px;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .code-text-display {
+            font-family: var(--font-mono);
+            font-size: 3.4rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            line-height: 1.1;
+            color: #38bdf8;
+            user-select: all;
+        }
+
+        .code-text-display.green {
+            color: #4ade80;
+        }
+
+        /* Direct Launch Button */
+        .btn-launch-big {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--accent-red);
+            color: #ffffff;
+            font-family: var(--font-slab);
+            font-size: 1.9rem;
+            font-weight: 800;
+            padding: 20px 48px;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(200, 50, 50, 0.4);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+            width: fit-content;
+            margin-top: 24px;
+        }
+
+        .btn-launch-big:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Controls Bar */
+        .controls-bar {
+            width: 100%;
+            max-width: 1260px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 8px;
+        }
+
+        .btn-ctrl {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #ffffff;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ctrl:hover {
+            background: #475569;
+        }
+
+        .slide-counter {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .hint-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-family: var(--font-mono);
+        }
+
+        .hint-text kbd {
+            background: #334155;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide Stage -->
+    <div class="stage-wrapper" id="stage">
+        <!-- Progress Indicator -->
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Editorial Top Masthead -->
+        <div class="slide-masthead">
+            <span>BJH Room 8 • Mr. Waugh</span>
+            <span class="pill-badge" id="slidePill">Welcome</span>
+            <span id="curriculumTag">Healthy Living 9 • 2026–2027</span>
+        </div>
+
+        <!-- Viewport -->
+        <div class="slide-viewport">
+
+            <!-- SLIDE 1: Title / Orientation -->
+            <div class="slide active" data-pill="Orientation" data-curriculum="The Bridge to DHS">
+                <h1 class="display-title">Healthy Living 9</h1>
+                <p class="lead-sub">In 10 months, you cross the street to Dartmouth High.</p>
+                <div class="box-panel blue-border" style="margin-top: 10px;">
+                    <ul class="bullet-stack blue">
+                        <li><strong>No posters. No moralizing. No lectures.</strong></li>
+                        <li><strong>Real Biology:</strong> Your brain, nervous system, and sleep architecture.</li>
+                        <li><strong>Real Law:</strong> Your rights, digital privacy, and legal consent.</li>
+                        <li><strong>Real Strategy:</strong> Decision-making when stakes are high.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: The Room 8 Contract (Fewer Words, High Impact) -->
+            <div class="slide" data-pill="The Contract" data-curriculum="Room 8 Standards">
+                <h2 class="section-title">The Room 8 Contract</h2>
+                <div class="grid-split">
+                    <div class="box-panel red-border">
+                        <div class="panel-heading" style="color: var(--accent-red);">What We Won't Do</div>
+                        <ul class="panel-list cross">
+                            <li>Preach or judge your choices</li>
+                            <li>Memorize textbook definitions</li>
+                            <li>Draw anti-smoking posters</li>
+                            <li>Force you to share private business</li>
+                        </ul>
+                    </div>
+                    <div class="box-panel green-border">
+                        <div class="panel-heading" style="color: var(--accent-emerald);">What We Will Do</div>
+                        <ul class="panel-list check">
+                            <li>Investigate actual scientific data</li>
+                            <li>Analyze real-world case files</li>
+                            <li>Learn tactical boundary scripts</li>
+                            <li>Build autonomy before high school</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Unit 1 - Attention Economy & Sleep -->
+            <div class="slide" data-pill="Unit 1 • Outcome 1" data-curriculum="Health Behaviours">
+                <h2 class="section-title">Screens & Sleep Biology</h2>
+                <p class="lead-sub">Why are teenagers exhausted at 8:00 AM?</p>
+                <ul class="bullet-stack">
+                    <li><strong>The Attention Economy:</strong> Apps engineered like slot machines to harvest your focus.</li>
+                    <li><strong>Circadian Warfare:</strong> Blue light wavelengths shutting down natural melatonin.</li>
+                    <li><strong>The 3:14 AM Loop:</strong> How middle-of-the-night notifications spike cortisol.</li>
+                    <li><strong>Challenge:</strong> 3-Night Sleep & Screen Log (data accuracy, zero judgment).</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 4: Unit 2 - Sexual & Reproductive Health (Outcome 2) -->
+            <div class="slide" data-pill="Unit 2 • Outcome 2" data-curriculum="Sexual & Reproductive Health">
+                <h2 class="section-title">Sexual & Reproductive Health</h2>
+                <p class="lead-sub">Real medicine. Bodily autonomy. Informed decisions.</p>
+                <ul class="bullet-stack red">
+                    <li><strong>Accurate Information vs. Myths:</strong> Cutting through online misinformation and social media rumors.</li>
+                    <li><strong>Partner Decision-Making:</strong> Communicating needs, respecting bodily autonomy, and equal power dynamics.</li>
+                    <li><strong>Prevention & Clinical Care:</strong> STI transmission mechanics, contraception, and knowing when to get checked.</li>
+                    <li><strong>Substances & Autonomy:</strong> Why drugs and alcohol impair consent and complicate intimate decisions.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 5: Unit 3 - Boundaries & The Politeness Trap (Outcomes 4 & 5) -->
+            <div class="slide" data-pill="Unit 3 • Outcomes 4 & 5" data-curriculum="Communication & Power">
+                <h2 class="section-title">The "Politeness Trap"</h2>
+                <p class="lead-sub">When being polite becomes dangerous.</p>
+                <ul class="bullet-stack blue">
+                    <li><strong>Assertive vs. Aggressive:</strong> Setting a hard boundary without starting a fight.</li>
+                    <li><strong>The Trap:</strong> Why society teaches youth to apologize for protecting their limits.</li>
+                    <li><strong>Coercive Control:</strong> Spotting "rules disguised as romance" in relationships.</li>
+                    <li><strong>Tactical Language:</strong> Clear scripts for saying "I'm out" and walking away clean.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 6: Unit 4 - Digital Safety & Sextortion Defense (Outcomes 6 & 7) -->
+            <div class="slide" data-pill="Unit 4 • Outcomes 6 & 7" data-curriculum="Safety & Legal Reality">
+                <h2 class="section-title">Digital Safety & The Law</h2>
+                <p class="lead-sub">Understanding criminal law in online spaces.</p>
+                <ul class="bullet-stack amber">
+                    <li><strong>Financial Sextortion:</strong> Organized online groups targeting Nova Scotia teens.</li>
+                    <li><strong>Criminal Reality:</strong> Sharing non-consensual images is a federal crime.</li>
+                    <li><strong>Emergency Protocol:</strong> Step-by-step actions if you or a friend are ever threatened.</li>
+                    <li><strong>Legal Consent:</strong> Silence is never consent; substances invalidate consent.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 7: Unit 5 - Real Bystander Intervention (Outcome 8) -->
+            <div class="slide" data-pill="Unit 5 • Outcome 8" data-curriculum="Bystander Action">
+                <h2 class="section-title">Bystander Action</h2>
+                <p class="lead-sub">Moving past the "pull out your phone" reflex.</p>
+                <ul class="bullet-stack emerald">
+                    <li><strong>The Filming Trap:</strong> How recording violence makes crowds complicit.</li>
+                    <li><strong>Medical Emergencies:</strong> Recognizing alcohol poisoning & opioid overdoses.</li>
+                    <li><strong>Good Samaritan Law:</strong> You cannot get in trouble for calling 911 to save a life.</li>
+                    <li><strong>Low-Risk Interventions:</strong> Distraction tactics & backing up friends safely.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 8: Unit 6 - Healthcare Navigation & Confidentiality (Outcome 3) -->
+            <div class="slide" data-pill="Unit 6 • Outcome 3" data-curriculum="Health Literacy & Systems">
+                <h2 class="section-title">Your Rights at 14 & 15</h2>
+                <p class="lead-sub">Navigating Nova Scotia healthcare without a family doctor.</p>
+                <ul class="bullet-stack blue">
+                    <li><strong>The Mature Minor Principle:</strong> Your legal right to confidential healthcare.</li>
+                    <li><strong>Limits of Privacy:</strong> Exactly what doctors and teachers can and cannot disclose.</li>
+                    <li><strong>Where to Go in HRM:</strong> Youth Health Centres, Sexual Health NS, and 811.</li>
+                    <li><strong>Pharmacy Prescribing:</strong> Direct clinical access without a doctor's referral.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 9: Unit 7 - Vaping, Nicotine & Mental Health (Outcome 9) -->
+            <div class="slide" data-pill="Unit 7 • Outcome 9" data-curriculum="Addictions & Resilience">
+                <h2 class="section-title">Vaping, Nicotine & Coping</h2>
+                <p class="lead-sub">The neuroscience of stress and chemical relief.</p>
+                <ul class="bullet-stack">
+                    <li><strong>The Nicotine Myth:</strong> Why vaping fuels anxiety instead of curing it.</li>
+                    <li><strong>The Continuum of Use:</strong> Curiosity → Social Use → Habit → Chemical Need.</li>
+                    <li><strong>Breaking Confidence:</strong> When you must speak up to save a friend in crisis.</li>
+                    <li><strong>Direct Support:</strong> Adolescent Mental Health, Guidance, and 988 Suicide Helpline.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 10: Assessment Model -->
+            <div class="slide" data-pill="Evaluation" data-curriculum="Tests, Quizzes & Privacy">
+                <h2 class="section-title">How You Are Assessed</h2>
+                <div class="grid-split">
+                    <div class="box-panel blue-border">
+                        <div class="panel-heading">Quizzes & Tests</div>
+                        <ul class="panel-list check">
+                            <li>Full review sessions before every test</li>
+                            <li>No surprise "gotcha" questions</li>
+                            <li>Focus on key concepts & real applications</li>
+                        </ul>
+                    </div>
+                    <div class="box-panel red-border">
+                        <div class="panel-heading">Simulations & Privacy</div>
+                        <ul class="panel-list check">
+                            <li>Hands-on case files & data sets</li>
+                            <li>Submissions tied to your 3-Letter PIN</li>
+                            <li>Personal reflections are 100% private</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bottom-banner">
+                    Reviews before every evaluation • Graded on insight, reasoning, and honesty.
+                </div>
+            </div>
+
+            <!-- SLIDE 11: Google Classroom Codes (Section 901) -->
+            <div class="slide" data-pill="Classroom Codes" data-curriculum="Section 901 Onboarding">
+                <h2 class="section-title">Google Classroom • 901</h2>
+                <p class="lead-sub">Join both classes now on your Chromebook (classroom.google.com):</p>
+                <div class="grid-split">
+                    <div class="box-panel blue-border">
+                        <div class="panel-heading" style="color: var(--accent-blue);">Citizenship 901</div>
+                        <div style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600;">Period 5 • Mr. Waugh</div>
+                        <div class="code-box">
+                            <div class="code-text-display">ybhvh4r6</div>
+                        </div>
+                    </div>
+                    <div class="box-panel green-border">
+                        <div class="panel-heading" style="color: var(--accent-emerald);">Healthy Living 901</div>
+                        <div style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600;">Healthy Living • Mr. Waugh</div>
+                        <div class="code-box">
+                            <div class="code-text-display green">by7hcxvg</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-banner">
+                    <strong>Steps:</strong> Open classroom.google.com ➔ Click <strong>+ (Join Class)</strong> ➔ Enter code.
+                </div>
+            </div>
+
+            <!-- SLIDE 12: Launch Baseline Diagnostic -->
+            <div class="slide" data-pill="Next Step" data-curriculum="Baseline Intake">
+                <h2 class="section-title">Today: Your Baseline Audit</h2>
+                <p class="lead-sub">12–15 Minutes on Chromebooks • Not Graded • Totally Honest</p>
+                <ul class="bullet-stack emerald">
+                    <li><strong>Step 1:</strong> Enter your assigned 3-Letter PIN (from your PIN slip).</li>
+                    <li><strong>Step 2:</strong> Audit what you actually remember from Grade 8.</li>
+                    <li><strong>Step 3:</strong> Tell me what to skip vs. what real questions you have.</li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 14px;">
+                    <a href="../Student_System/HL9_Prior_Course_Diagnostic.html" class="btn-launch-big" style="margin-top: 0;">
+                        <span>Open HL9 Baseline Diagnostic</span>
+                        <span>➔</span>
+                    </a>
+                    <div style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--text-muted); background: #f1f5f9; padding: 14px 20px; border-radius: 8px; border: 1.5px solid var(--border-main);">
+                        <strong>901 Codes:</strong> Cit 901: <strong style="color: var(--accent-blue);">ybhvh4r6</strong> &bull; HL 901: <strong style="color: var(--accent-emerald);">by7hcxvg</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom Controls Bar -->
+    <div class="controls-bar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-ctrl" id="btnPrev" title="Previous Slide (Left Arrow)">◀ Prev</button>
+            <span class="slide-counter" id="slideCounter">1 / 12</span>
+            <button class="btn-ctrl" id="btnNext" title="Next Slide (Right Arrow or Space)">Next ▶</button>
+        </div>
+        <div class="hint-text">
+            Use <kbd>◀</kbd> <kbd>▶</kbd> or <kbd>Space</kbd> • <kbd>F</kbd> for Fullscreen
+        </div>
+        <div>
+            <button class="btn-ctrl" id="btnFullscreen">⛶ Fullscreen</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressFill = document.getElementById('progressFill');
+        const slideCounter = document.getElementById('slideCounter');
+        const slidePill = document.getElementById('slidePill');
+        const curriculumTag = document.getElementById('curriculumTag');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const btnFullscreen = document.getElementById('btnFullscreen');
+        const stage = document.getElementById('stage');
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        function updateSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === index);
+            });
+
+            currentSlide = index;
+
+            // Progress bar calculation
+            const pct = ((index + 1) / totalSlides) * 100;
+            progressFill.style.width = pct + '%';
+
+            // Counter
+            slideCounter.textContent = `${index + 1} / ${totalSlides}`;
+
+            // Masthead Pills
+            const activeSlide = slides[currentSlide];
+            slidePill.textContent = activeSlide.dataset.pill || 'Healthy Living 9';
+            curriculumTag.textContent = activeSlide.dataset.curriculum || 'Mr. Waugh • Room 8';
+
+            // Button styling
+            btnPrev.style.opacity = currentSlide === 0 ? '0.35' : '1';
+            btnPrev.style.pointerEvents = currentSlide === 0 ? 'none' : 'auto';
+
+            if (currentSlide === totalSlides - 1) {
+                btnNext.innerHTML = 'Launch <span>➔</span>';
+            } else {
+                btnNext.innerHTML = 'Next <span>▶</span>';
+            }
+        }
+
+        function handleNext() {
+            if (currentSlide === totalSlides - 1) {
+                window.location.href = '../Student_System/HL9_Prior_Course_Diagnostic.html';
+            } else {
+                updateSlide(currentSlide + 1);
+            }
+        }
+
+        function handlePrev() {
+            updateSlide(currentSlide - 1);
+        }
+
+        btnPrev.addEventListener('click', (e) => { e.stopPropagation(); handlePrev(); });
+        btnNext.addEventListener('click', (e) => { e.stopPropagation(); handleNext(); });
+
+        /* --- BULLETPROOF PPT REMOTE / CLICKER CONTROLLER --- */
+        // Standard presentation remotes (Logitech R400/R500/R800, Kensington, DinoFire, etc.)
+        const NEXT_KEYS = new Set([
+            'PageDown', 'pagedown', 'Down', 'down', 'ArrowDown',
+            'Right', 'right', 'ArrowRight',
+            ' ', 'Space', 'Spacebar',
+            'Enter',
+            'n', 'N',
+            'Next'
+        ]);
+
+        const PREV_KEYS = new Set([
+            'PageUp', 'pageup', 'Up', 'up', 'ArrowUp',
+            'Left', 'left', 'ArrowLeft',
+            'Backspace',
+            'p', 'P',
+            'Prior'
+        ]);
+
+        const FULLSCREEN_KEYS = new Set(['f', 'F', 'F5']);
+        const BLANK_KEYS = new Set(['b', 'B', '.', 'Period']);
+
+        function handleRemoteKeys(e) {
+            // Dismiss blank screen on any key if active
+            const blackOverlay = document.getElementById('blackScreenOverlay');
+            if (blackOverlay && blackOverlay.style.display === 'block') {
+                blackOverlay.style.display = 'none';
+                e.preventDefault();
+                return;
+            }
+
+            const key = e.key;
+            const code = e.keyCode;
+
+            // Next Slide (Key codes: 34=PageDown, 40=Down, 39=Right, 32=Space, 13=Enter, 78=N)
+            if (NEXT_KEYS.has(key) || [34, 40, 39, 32, 13, 78].includes(code)) {
+                e.preventDefault();
+                handleNext();
+                return;
+            }
+
+            // Previous Slide (Key codes: 33=PageUp, 38=Up, 37=Left, 8=Backspace, 80=P)
+            if (PREV_KEYS.has(key) || [33, 38, 37, 8, 80].includes(code)) {
+                e.preventDefault();
+                handlePrev();
+                return;
+            }
+
+            // Fullscreen / Start Presentation (F5 or F)
+            if (FULLSCREEN_KEYS.has(key) || code === 116 || code === 70) {
+                e.preventDefault();
+                toggleFullscreen();
+                return;
+            }
+
+            // Black/Blank Screen toggle (B or . or Period on PPT remotes)
+            if (BLANK_KEYS.has(key) || code === 66 || code === 190) {
+                e.preventDefault();
+                toggleBlackScreen();
+                return;
+            }
+
+            // First / Last Slide
+            if (key === 'Home' || code === 36) {
+                e.preventDefault();
+                updateSlide(0);
+            } else if (key === 'End' || code === 35) {
+                e.preventDefault();
+                updateSlide(totalSlides - 1);
+            }
+        }
+
+        window.addEventListener('keydown', handleRemoteKeys, true);
+        document.addEventListener('keydown', handleRemoteKeys, true);
+
+        // Click or Tap Stage to Advance (supports air-mouse clickers & Smartboard touchscreens)
+        stage.addEventListener('click', (e) => {
+            // Ignore interactive elements
+            if (e.target.closest('button, a, input, textarea, select, .btn-ctrl')) {
+                return;
+            }
+            const blackOverlay = document.getElementById('blackScreenOverlay');
+            if (blackOverlay && blackOverlay.style.display === 'block') {
+                blackOverlay.style.display = 'none';
+                return;
+            }
+            const rect = stage.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            // Left 18% goes back; remaining 82% advances
+            if (clickX < rect.width * 0.18) {
+                handlePrev();
+            } else {
+                handleNext();
+            }
+        });
+
+        // Black screen overlay for PPT remote 'B' or '.' button
+        function toggleBlackScreen() {
+            let overlay = document.getElementById('blackScreenOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'blackScreenOverlay';
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100vw';
+                overlay.style.height = '100vh';
+                overlay.style.backgroundColor = '#000000';
+                overlay.style.zIndex = '999999';
+                overlay.style.cursor = 'none';
+                overlay.style.display = 'none';
+                overlay.addEventListener('click', () => { overlay.style.display = 'none'; });
+                document.body.appendChild(overlay);
+            }
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (stage.requestFullscreen) {
+                    stage.requestFullscreen();
+                } else if (stage.webkitRequestFullscreen) {
+                    stage.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        btnFullscreen.addEventListener('click', toggleFullscreen);
+
+        // Auto-focus window so clicker keystrokes are received immediately without clicking first
+        window.addEventListener('load', () => {
+            window.focus();
+            document.body.tabIndex = 0;
+            document.body.focus();
+        });
+
+        // Init
+        updateSlide(0);
+    </script>
+</body>
+</html>

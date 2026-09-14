@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Lists & Attendance — Substitute Teacher Package (A4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink-dark: #0f172a;
+    --ink-mid: #334155;
+    --ink-light: #64748b;
+    --border-subtle: #cbd5e1;
+    --border-dark: #475569;
+    --bg-card: #ffffff;
+    --brand-primary: #1e3a8a;
+    --brand-accent: #0284c7;
+    --highlight: #f8fafc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink-dark);
+    background-color: #f1f5f9;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Non-printing control toolbar */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #ffffff;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 12px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+
+  .toolbar-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: #ffffff;
+    color: var(--ink-dark);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:hover {
+    background: #f8fafc;
+    border-color: var(--border-dark);
+  }
+
+  .btn-primary {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border-color: var(--brand-primary);
+  }
+
+  .btn-primary:hover {
+    background: #172554;
+  }
+
+  select.btn {
+    padding-right: 28px;
+    cursor: pointer;
+  }
+
+  /* Main container */
+  .container {
+    max-width: 960px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* A4 Page Layout */
+  .a4-page {
+    background: var(--bg-card);
+    width: 100%;
+    min-height: 297mm;
+    margin-bottom: 28px;
+    padding: 18mm 18mm 16mm 18mm;
+    border-radius: 4px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  /* Page Header */
+  .page-header {
+    border-bottom: 2px solid var(--ink-dark);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+
+  .school-dept {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .room-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .class-name {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--ink-dark);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .class-subtext {
+    font-size: 0.84rem;
+    color: var(--ink-mid);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .roster-count {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    white-space: nowrap;
+  }
+
+  /* Sub metadata blanks */
+  .sub-meta-bar {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 1fr;
+    gap: 14px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-subtle);
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+  }
+
+  .meta-field {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .meta-label {
+    font-weight: 700;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .meta-line {
+    flex: 1;
+    border-bottom: 1px solid var(--border-dark);
+    height: 14px;
+  }
+
+  /* Meeting times banner */
+  .schedule-strip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--brand-accent);
+    padding: 6px 10px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .schedule-tag {
+    font-weight: 700;
+    color: var(--brand-primary);
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .schedule-desc {
+    color: var(--ink-mid);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.72rem;
+  }
+
+  /* Roster Table */
+  .roster-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+  }
+
+  .roster-table th {
+    background: #f1f5f9;
+    color: var(--ink-dark);
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 6px 8px;
+    border-top: 1px solid var(--border-dark);
+    border-bottom: 2px solid var(--border-dark);
+    text-align: left;
+  }
+
+  .roster-table th.center, .roster-table td.center {
+    text-align: center;
+  }
+
+  .roster-table td {
+    padding: 4.8px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    color: var(--ink-dark);
+    vertical-align: middle;
+  }
+
+  .roster-table tr:nth-child(even) td {
+    background: #fbfcfe;
+  }
+
+  .num-col {
+    width: 28px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--ink-light);
+    font-weight: 600;
+  }
+
+  .name-col {
+    font-weight: 600;
+    color: var(--ink-dark);
+    font-size: 0.84rem;
+  }
+
+  .att-col {
+    width: 32px;
+    border-left: 1px dashed var(--border-subtle);
+  }
+
+  .att-box {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #94a3b8;
+    border-radius: 3px;
+    margin: 0 auto;
+  }
+
+  .notes-col {
+    width: 220px;
+    border-left: 1px solid #cbd5e1;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+  }
+
+  /* Page Footer & Sub Instructions */
+  .page-footer {
+    border-top: 1.5px solid var(--border-subtle);
+    padding-top: 10px;
+    margin-top: auto;
+  }
+
+  .instructions-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr;
+    gap: 14px;
+    font-size: 0.72rem;
+  }
+
+  .inst-title {
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+  }
+
+  .inst-body {
+    color: var(--ink-mid);
+    line-height: 1.35;
+  }
+
+  .sub-note-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sub-note-line {
+    border-bottom: 1px dashed #94a3b8;
+    height: 12px;
+  }
+
+  .doc-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 0.65rem;
+    color: var(--ink-light);
+  }
+
+  /* Print Styles - True A4 Portrait */
+  @media print {
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    .toolbar {
+      display: none !important;
+    }
+
+    .container {
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .a4-page {
+      margin: 0 !important;
+      padding: 10mm 12mm 8mm 12mm !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      min-height: 0 !important;
+      height: auto !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    .a4-page:last-child {
+      page-break-after: auto !important;
+      break-after: auto !important;
+    }
+
+    .roster-table td {
+      padding: 3.8px 6px !important;
+      font-size: 0.78rem !important;
+    }
+
+    .roster-table th {
+      padding: 5px 6px !important;
+      font-size: 0.68rem !important;
+    }
+
+    .schedule-strip {
+      padding: 4px 8px !important;
+      margin-bottom: 8px !important;
+    }
+
+    .class-name {
+      font-size: 1.35rem !important;
+    }
+
+    .instructions-box {
+      padding: 6px 10px !important;
+    }
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm 6mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- Control Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <span>📋 Substitute Teacher Class Lists</span>
+    <span style="font-weight: 500; font-size: 0.85rem; color: #64748b;">· Room 8 (Mr. Waugh)</span>
+  </div>
+  <div class="toolbar-actions">
+    <label style="font-size: 0.8rem; font-weight: 700; color: var(--ink-light);">Class:</label>
+    <select id="classFilter" class="btn" onchange="filterClass(this.value)">
+      <option value="all">All Classes (8 Pages A4)</option>
+      <option value="902">902 — Homeroom & CIT/HL (26)</option>
+      <option value="901">901 — HL & CIT (27)</option>
+      <option value="903">903 — HL, CIT & 9 ILT (29)</option>
+      <option value="801">801 — Healthy Living 8 (28)</option>
+      <option value="802">802 — Healthy Living 8 (28)</option>
+      <option value="803">803 — HL 8 & 8 ILT (28)</option>
+      <option value="804">804 — Healthy Living 8 (27)</option>
+      <option value="7ilt">7 ILT — Friday Period 4/5 (25)</option>
+    </select>
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Print to A4</button>
+    <a href="seating-plan.html" target="_blank" class="btn" style="text-decoration: none;">🪑 Seating Plans (A4) ↗</a>
+  </div>
+</div>
+
+<div class="container" id="pagesContainer">
+  <!-- Pages rendered by JavaScript -->
+</div>
+
+<script>
+const CLASSES_DATA = [
+  {
+    id: "902",
+    name: "Class 902 — Grade 9 Homeroom",
+    courses: "Homeroom · Citizenship 9 · Healthy Living 9",
+    schedule: "Mon D1 P3 (CIT) · Tue D2 P1 (HL) · Wed D3 P5 (HL) · Thu D4 P2 (CIT) · Mon D6 P5 (CIT) · Wed D8 P5 (CIT) · Thu D9 P5 (HL) · Fri D10 P4 (CIT)",
+    badge: "Room 8 Homeroom",
+    helpers: "Class Leaders / Student Council reps available for room tasks",
+    students: [
+      { last: "Alasadi", first: "Mona" },
+      { last: "Borromeo", first: "John Henry Ranches" },
+      { last: "Brown", first: "Gemma Louise" },
+      { last: "Burbridge", first: "Noah Darvesh" },
+      { last: "Campbell", first: "Nolan Richard" },
+      { last: "Coady", first: "Berlin Navina" },
+      { last: "Fleet", first: "Lyla Grace" },
+      { last: "Hall", first: "Sebastian Lundin" },
+      { last: "Hansford", first: "Tristan Robert" },
+      { last: "Heath", first: "Jordan Florido" },
+      { last: "Janz", first: "Arlo Edwin Zephyr" },
+      { last: "Kuznetsova", first: "Sofia" },
+      { last: "Landry", first: "Douglas Gordon" },
+      { last: "Lloyd", first: "Marla Hannah Marie" },
+      { last: "MacGillivary", first: "Jax William" },
+      { last: "MacPhee", first: "Simon Taylor" },
+      { last: "Negus-Dickinson", first: "Zackory William" },
+      { last: "Olores", first: "Mhareon Enrique" },
+      { last: "Overmars", first: "Thomas Willam" },
+      { last: "Pinks", first: "Oscar William Spence" },
+      { last: "Rendell", first: "Chelsea Jean" },
+      { last: "Skinner", first: "Jordan Amelia" },
+      { last: "Strbikova", first: "Sofie" },
+      { last: "Strum", first: "Hannah Alexandra" },
+      { last: "Tan", first: "Anna Ying Jun" },
+      { last: "Turner", first: "Nova Tavia" }
+    ]
+  },
+  {
+    id: "901",
+    name: "Class 901 — Grade 9",
+    courses: "Citizenship 9 · Healthy Living 9",
+    schedule: "Mon D1 P4 (CIT) · Wed D3 P4 (CIT) · Thu D4 P1 (HL) · Thu D4 P5 (CIT) · Mon D6 P4 (HL) · Tue D7 P3 (HL) · Wed D8 P4 (CIT) · Thu D9 P1 (CIT)",
+    badge: "Room 8",
+    helpers: "Regular rotation; Chromebook cart monitors",
+    students: [
+      { last: "Alamo MacLennan", first: "Justin Elliot" },
+      { last: "Beach", first: "Clara Louise" },
+      { last: "Bonin-Townsend", first: "Tess Irene" },
+      { last: "Bray", first: "Nova Alice" },
+      { last: "Brison", first: "Roselyn Mary" },
+      { last: "Cheney", first: "Nolan Karl" },
+      { last: "Conlon", first: "Johnny Francis Matthew" },
+      { last: "Doherty", first: "Olivia Rayne" },
+      { last: "Endres", first: "Abby May" },
+      { last: "Fifield", first: "Brielle Lillian" },
+      { last: "Grace", first: "Finn Mark Elliott" },
+      { last: "Henderson", first: "Aiden Douglas" },
+      { last: "Jarvis", first: "Drew Gifford" },
+      { last: "Johnson", first: "Trenton Wayne" },
+      { last: "Kwak", first: "Doun Kiel" },
+      { last: "Latham", first: "Lauren Elizabeth" },
+      { last: "Legaarden", first: "Benjamin Murdoch" },
+      { last: "Mattatall", first: "Duncan Robert" },
+      { last: "Moore", first: "Aurelia Noelle" },
+      { last: "Nguyen", first: "Isaac James" },
+      { last: "Peters", first: "Avery Maurice Kenneth" },
+      { last: "Pritchard", first: "Danielle Jennifer" },
+      { last: "Purcell", first: "Marty Charles" },
+      { last: "Rent", first: "Adie Irene" },
+      { last: "Smith", first: "Cameo Elaine" },
+      { last: "Sparks", first: "Anastasia Marie" },
+      { last: "Tretiak", first: "Madeleine Eve" }
+    ]
+  },
+  {
+    id: "903",
+    name: "Class 903 — Grade 9",
+    courses: "Citizenship 9 · Healthy Living 9 · 9 ILT",
+    schedule: "Mon D1 P5 (CIT) · Tue D2 P4 (CIT) · Thu D4 P3 (HL) · Thu D4 P4 (CIT) · Fri D5 P2 (9 ILT) · Mon D6 P1 (HL) · Tue D7 P5 (HL) · Wed D8 P1 (CIT) · Fri D10 P2 (9 ILT) · Fri D10 P3 (CIT)",
+    badge: "Room 8",
+    helpers: "Student desk captains; materials distributors",
+    students: [
+      { last: "Coronel", first: "Misha Arce" },
+      { last: "Crawford", first: "Addy Harper" },
+      { last: "D'Addario", first: "Walter James" },
+      { last: "Donaldson", first: "Oscar Rhys" },
+      { last: "Fisher", first: "Avery Allan" },
+      { last: "Flaherty", first: "April Elizabeth" },
+      { last: "Fost", first: "Ben Cameron" },
+      { last: "Giacomantonio", first: "Ava Joyce" },
+      { last: "Hussey", first: "Milo Llewellyn" },
+      { last: "Kustudic Burke", first: "Bella Sequoia" },
+      { last: "Laidlaw", first: "Kenzie Dorothy" },
+      { last: "MacDonald", first: "Andrew Michael" },
+      { last: "MacDonald", first: "Callum Foster" },
+      { last: "MacInnes", first: "Tommy J.M." },
+      { last: "MacLean", first: "Liam James" },
+      { last: "Mique", first: "Daphne Ann Tumaneng" },
+      { last: "Mizuno", first: "Chie" },
+      { last: "Muise", first: "Zoe Gabrielle" },
+      { last: "Murphy", first: "Jacob Bradley" },
+      { last: "Nwokoro", first: "Michelle Onyinyechi" },
+      { last: "Rendell", first: "Maia Evelyn" },
+      { last: "Salcedo", first: "Oliver Jackson" },
+      { last: "Samillano", first: "Pauline Castro" },
+      { last: "Sampang", first: "Zeiden Quiambao" },
+      { last: "Sampson", first: "Patience Rayne-Marie" },
+      { last: "Shala", first: "Zana" },
+      { last: "Smith", first: "Evan James" },
+      { last: "Umeokafor", first: "Blessing Kosisochukwu" },
+      { last: "White", first: "Gwenna Mae" }
+    ]
+  },
+  {
+    id: "801",
+    name: "Class 801 — Grade 8",
+    courses: "Healthy Living 8 (HE)",
+    schedule: "Mon D1 P2 (10:05) · Fri D5 P1 (9:05) · Thu D9 P4 (1:05)",
+    badge: "Room 8",
+    helpers: "Volunteer tech leads; clean up coordinators",
+    students: [
+      { last: "Cook", first: "Ruby Aberdeen" },
+      { last: "David", first: "Talia Amiyah" },
+      { last: "Desveaux", first: "Jason Martin" },
+      { last: "Downey", first: "Mae'ijah Terrionna Marie" },
+      { last: "Elejorde", first: "Steven Arce" },
+      { last: "Gallagher", first: "Zephyr Riley" },
+      { last: "Hendricks Apud", first: "Samuel" },
+      { last: "King", first: "Kenzie Marie" },
+      { last: "Lee", first: "Jayden" },
+      { last: "Lorenz-Ashley", first: "Jaela Ruth" },
+      { last: "Lucas", first: "Trey Antonio" },
+      { last: "MacKay", first: "Ruby Angela" },
+      { last: "MacLellan", first: "Samuel Takpo" },
+      { last: "Mans", first: "Marieke" },
+      { last: "Mercer", first: "Ainslie Jacqueline" },
+      { last: "Miller", first: "Juliet Blake" },
+      { last: "Miller", first: "Samuel Roy" },
+      { last: "O'Brien", first: "Shaviah Josephine" },
+      { last: "Ramazanov", first: "Alex" },
+      { last: "Santos", first: "Samuel Zacharias Suba" },
+      { last: "Sawyer-Patterson", first: "Sydney Jan-Marie" },
+      { last: "Schandall", first: "Fiona Deirdre" },
+      { last: "Skeete", first: "Nehemiah Isaac" },
+      { last: "Stulac", first: "Nikolas Alexander" },
+      { last: "Taiani", first: "James Patrick Laurie" },
+      { last: "Tylak", first: "Julia Trindade" },
+      { last: "Vanslyke", first: "Martin Scott" },
+      { last: "Warby", first: "Alex" }
+    ]
+  },
+  {
+    id: "802",
+    name: "Class 802 — Grade 8",
+    courses: "Healthy Living 8 (HE)",
+    schedule: "Wed D3 P2 (10:05) · Tue D7 P4 (1:05) · Wed D8 P3 (11:05)",
+    badge: "Room 8",
+    helpers: "Whiteboard monitors; student materials assistants",
+    students: [
+      { last: "Bernard-Hoskin", first: "Aliiza Grace" },
+      { last: "Brand", first: "Hendy Milton" },
+      { last: "Brennan", first: "Drew Andrew Stewart" },
+      { last: "Cahill", first: "Loughlan Patrick" },
+      { last: "Chace", first: "Caleb Hunter" },
+      { last: "Chukwuji", first: "David Sopuruchi" },
+      { last: "Dennis", first: "Hadley Naylor" },
+      { last: "Endres", first: "William Thomas Norman" },
+      { last: "Foley", first: "Bella Kathryn Lyn" },
+      { last: "Giacomantonio", first: "Marcus James" },
+      { last: "Glover", first: "Miles James Van" },
+      { last: "Greeley", first: "Katie Elizabeth" },
+      { last: "Hansford", first: "Myah May Chima" },
+      { last: "Harrison", first: "Sam James" },
+      { last: "Hatcher-Jack", first: "Sophie Elizabeth" },
+      { last: "Kaplin", first: "Misha" },
+      { last: "Koubi", first: "Amit" },
+      { last: "Lamond", first: "Mairi Bridget" },
+      { last: "MacLeod", first: "Michaela St.Clair" },
+      { last: "McConnell", first: "Emmet Gregory" },
+      { last: "Murphy", first: "Alice Leda" },
+      { last: "Richardson", first: "Lena Kelly" },
+      { last: "Rutka", first: "Jada Elizabeth Marie" },
+      { last: "Savoury", first: "Aria Gail" },
+      { last: "Todd", first: "Scarlett Elizabeth Lynne" },
+      { last: "Visser", first: "Mikaela Marie" },
+      { last: "Wile", first: "Lillian Carmelita" },
+      { last: "Williams", first: "Gianna Adalise" }
+    ]
+  },
+  {
+    id: "803",
+    name: "Class 803 — Grade 8",
+    courses: "Healthy Living 8 (HE) · 8 ILT",
+    schedule: "Mon D1 P1 (9:05) · Tue D2 P3 (8 ILT 11:05) · Tue D2 P5 (2:05) · Tue D7 P1 (8 ILT 9:05) · Wed D8 P2 (10:05)",
+    badge: "Room 8",
+    helpers: "Desk alignment crew; entry captains",
+    students: [
+      { last: "Aabda", first: "Sarah Ataa" },
+      { last: "Arzola", first: "Ziegfried Nicolas" },
+      { last: "Bambilla", first: "Yohan" },
+      { last: "Banerjee", first: "Tiyasha" },
+      { last: "Bautista", first: "JL Arce" },
+      { last: "Beals", first: "La'Monte Vincenty" },
+      { last: "Berringer", first: "Jason Kenneth Albert" },
+      { last: "Blois", first: "Beau James" },
+      { last: "Boyce", first: "Enid Beatrice" },
+      { last: "Coffin", first: "Nev Natalia" },
+      { last: "Covert", first: "Evabel Grace Brennan" },
+      { last: "Gaudet", first: "Dorian Joseph Dino" },
+      { last: "Gibb", first: "Stella Joy" },
+      { last: "Holley", first: "Theron Martin" },
+      { last: "Jarvis", first: "Alex Leonard" },
+      { last: "Kirkwood", first: "Isla Noelle" },
+      { last: "Lerdchaisakda", first: "Feng" },
+      { last: "Loza", first: "Chandrika" },
+      { last: "MacGregor", first: "Drew John Gordon" },
+      { last: "MacIntyre", first: "Jon David" },
+      { last: "MacNeil-Lapointe", first: "Santaya Serina" },
+      { last: "Milner", first: "Amelia Arabelle" },
+      { last: "Nadeem", first: "Muhammad Ismael Obierna" },
+      { last: "Tkachenko", first: "Elijah Westin" },
+      { last: "Tsunoda", first: "Haruki" },
+      { last: "Veach", first: "Ben Patrick" },
+      { last: "Viernes", first: "Emmanuel Reduca" },
+      { last: "Williams", first: "Marley Kaitlin" }
+    ]
+  },
+  {
+    id: "804",
+    name: "Class 804 — Grade 8",
+    courses: "Healthy Living 8 (HE)",
+    schedule: "Wed D3 P1 (9:05) · Thu D9 P2 (10:05) · Fri D10 P1 (9:05)",
+    badge: "Room 8",
+    helpers: "Sanitizer & wipes; technology runners",
+    students: [
+      { last: "Agbeyegbe", first: "Timi Oluwapelumi" },
+      { last: "Aikens", first: "Jack Robert Kent" },
+      { last: "Archibald", first: "Cora Lynn McGregor" },
+      { last: "Belhadj Khalifa", first: "Habib" },
+      { last: "Bilenko", first: "Vasylyna" },
+      { last: "Davis", first: "Theo Samuel Lawrence" },
+      { last: "Doak", first: "Caspian Winston" },
+      { last: "Donaldson", first: "Margot Penelope" },
+      { last: "Doucette", first: "Kate Abigail" },
+      { last: "Duplessis-Backland", first: "Heavenly Una Rose" },
+      { last: "Gormley", first: "Molly Sarah Elizabeth" },
+      { last: "Hickey", first: "Marielle Maeve" },
+      { last: "MacLeod", first: "Cameron Robert" },
+      { last: "McFarlane", first: "Charlotte Ivy" },
+      { last: "Mellema", first: "Rosie Alice Mooney" },
+      { last: "Mique", first: "Ronn Jacob Tumaneng" },
+      { last: "Otis Vaillancourt", first: "Ezra Denise Brigitte" },
+      { last: "Palamarchuk", first: "Artem" },
+      { last: "Phillips", first: "Max" },
+      { last: "Rowles", first: "Sophie Isaac" },
+      { last: "Samillano", first: "Jeremiah Mikhael Castro" },
+      { last: "Shiha", first: "Hasan" },
+      { last: "Sobkowich", first: "Demetrius" },
+      { last: "Sparks", first: "Arielle Michelle Annie" },
+      { last: "Thompson", first: "Taneil Cameera" },
+      { last: "Towns", first: "Charles William" },
+      { last: "Younger", first: "Khovin Jeffery" }
+    ]
+  },
+  {
+    id: "7ilt",
+    name: "Class 7 ILT — Grade 7",
+    courses: "Instructional Leadership Time (Scheduling Need)",
+    schedule: "Fri D5 P4 (1:05 – 2:05) · Fri D10 P5 (2:05 – 3:05)",
+    badge: "Room 8 ILT",
+    helpers: "Designated Grade 7 room guides",
+    students: [
+      { last: "Barron", first: "Eolann" },
+      { last: "Beals", first: "Tyrese" },
+      { last: "Berro", first: "Ahmed" },
+      { last: "Boletska", first: "Veronika" },
+      { last: "Bonin-Townsend", first: "Tate" },
+      { last: "Brooks", first: "Oliver" },
+      { last: "Bukhtiyarova", first: "Sofiia" },
+      { last: "Burbridge", first: "Gabriel" },
+      { last: "Collins", first: "Ainsley" },
+      { last: "Doucet", first: "Carson" },
+      { last: "Gormley", first: "Lyla" },
+      { last: "Grant", first: "Malikee" },
+      { last: "Higgins", first: "Oscar" },
+      { last: "Hussey", first: "Sadie" },
+      { last: "Mozharovskyi", first: "Mykyta" },
+      { last: "Musaba", first: "Taonga" },
+      { last: "Nguyen", first: "Ruby" },
+      { last: "Nightingale", first: "Ava" },
+      { last: "Reid", first: "Elle" },
+      { last: "Rose", first: "Madison" },
+      { last: "Salim", first: "Zacharia" },
+      { last: "Slauenwhite", first: "Briem" },
+      { last: "Towner", first: "Carson" },
+      { last: "White", first: "Oliver" },
+      { last: "Zhemska", first: "Veronika" }
+    ]
+  }
+];
+
+function renderPages(filterId = "all") {
+  const container = document.getElementById("pagesContainer");
+  container.innerHTML = "";
+
+  const classesToRender = filterId === "all" 
+    ? CLASSES_DATA 
+    : CLASSES_DATA.filter(c => c.id === filterId);
+
+  classesToRender.forEach(cls => {
+    const page = document.createElement("div");
+    page.className = "a4-page";
+
+    let rowsHTML = "";
+    cls.students.forEach((s, idx) => {
+      rowsHTML += `
+        <tr>
+          <td class="num-col center">${idx + 1}</td>
+          <td class="name-col">${s.last}, ${s.first}</td>
+          <td class="att-col center"><div class="att-box"></div></td>
+          <td class="att-col center"><div class="att-box"></div></td>
+          <td class="att-col center"><div class="att-box"></div></td>
+          <td class="att-col center"><div class="att-box"></div></td>
+          <td class="att-col center"><div class="att-box"></div></td>
+          <td class="notes-col"></td>
+        </tr>
+      `;
+    });
+
+    page.innerHTML = `
+      <div class="page-header">
+        <div class="header-top">
+          <span class="school-dept">Bicentennial School · Binders & Sub Folder</span>
+          <span class="room-badge">${cls.badge} · Mr. Waugh</span>
+        </div>
+        <div class="title-row">
+          <div>
+            <h1 class="class-name">${cls.name}</h1>
+            <div class="class-subtext">${cls.courses}</div>
+          </div>
+          <div class="roster-count">${cls.students.length} Students Enrolled</div>
+        </div>
+        <div class="sub-meta-bar">
+          <div class="meta-field"><span class="meta-label">Date:</span><span class="meta-line"></span></div>
+          <div class="meta-field"><span class="meta-label">Guest Teacher:</span><span class="meta-line"></span></div>
+          <div class="meta-field"><span class="meta-label">Period:</span><span class="meta-line"></span></div>
+        </div>
+      </div>
+
+      <div class="schedule-strip">
+        <span class="schedule-tag">Cycle Times:</span>
+        <span class="schedule-desc">${cls.schedule}</span>
+      </div>
+
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th class="center" style="width: 28px;">#</th>
+            <th>Student Name (Last, First)</th>
+            <th class="center att-col">D1</th>
+            <th class="center att-col">D2</th>
+            <th class="center att-col">D3</th>
+            <th class="center att-col">D4</th>
+            <th class="center att-col">D5</th>
+            <th class="notes-col">Notes / Accommodations / Sub Checks</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHTML}
+        </tbody>
+      </table>
+
+      <div class="page-footer">
+        <div class="instructions-box">
+          <div>
+            <div class="inst-title">Attendance & Office Protocol</div>
+            <div class="inst-body">
+              • Mark attendance in the first 10 minutes of class.<br>
+              • If PowerSchool is inaccessible, send this signed attendance sheet to the office with a trusted student runner.<br>
+              • <em>Student Helpers:</em> ${cls.helpers}.
+            </div>
+          </div>
+          <div>
+            <div class="inst-title">Substitute Teacher Notes & Highlights</div>
+            <div class="sub-note-lines">
+              <div class="sub-note-line"></div>
+              <div class="sub-note-line"></div>
+              <div class="sub-note-line"></div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-meta">
+          <span>Official Class Roster · Updated September 10, 2026</span>
+          <span>Room 8 Sub Binder · Page formatted for A4 Portrait</span>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(page);
+  });
+}
+
+function filterClass(val) {
+  renderPages(val);
+}
+
+// Initial render
+renderPages("all");
+</script>
+
+</body>
+</html>

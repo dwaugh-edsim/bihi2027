@@ -95,7 +95,7 @@ Viernes, Emmanuel Reduca 3102740119 8
 Williams, Marley Kaitlin 3102708934 8
 
 Homeroom: 804
-Agbeyegbe, Oritshetimehin Oluwapelumi 3103815159 8
+Agbeyegbe, Timi Oluwapelumi 3103815159 8
 Aikens, Jack Robert Kent 3102514969 8
 Archibald, Cora Lynn McGregor 3102482399 8
 Belhadj Khalifa, Habib 3103512244 8
@@ -112,7 +112,7 @@ MacLeod, Cameron Robert 3102491309 8
 McFarlane, Charlotte Ivy 3102488495 8
 Mellema, Rosie Alice Mooney 3102464728 8
 Mique, Ronn Jacob Tumaneng 3103484550 8
-Otis Vaillancourt, Oceanne Denise Brigitte 3102659426 8
+Otis Vaillancourt, Ezra Denise Brigitte 3102659426 8
 Palamarchuk, Artem 3103362624 8
 Phillips, Max 3102346628 8
 Rowles, Sophie Isaac 3102562950 8
@@ -144,14 +144,13 @@ Latham, Lauren Elizabeth 3102353517 9
 Legaarden, Benjamin Murdoch 3102223991 9
 Mattatall, Duncan Robert 3102329996 9
 Moore, Aurelia Noelle 3102343419 9
-Murphy, Jacob Bradley 3102346339 9
+Nguyen, Isaac James 3103012229 9
 Peters, Avery Maurice Kenneth 3102350901 9
 Pritchard, Danielle Jennifer 3102335795 9
 Purcell, Marty Charles 3102334582 9
 Rent, Adie Irene 3102984808 9
 Smith, Cameo Elaine 3102361668 9
 Sparks, Anastasia Marie 3102251869 9
-Towns, Claire Alexandra 3102330010 9
 Tretiak, Madeleine Eve 3102364027 9
 
 Homeroom: 902
@@ -171,8 +170,6 @@ Landry, Douglas Gordon 3102426479 9
 Lloyd, Marla Hannah Marie 3102405846 9
 MacGillivary, Jax William 3102344474 9
 MacPhee, Simon Taylor 3102373713 9
-Modayur, Daya Bel 3102348756 9
-Munroe, Skylar Lynn 3102184193 9
 Negus-Dickinson, Zackory William 3102885591 9
 Olores, Mhareon Enrique 3102496118 9
 Overmars, Thomas Willam 3102406273 9
@@ -204,7 +201,7 @@ MacLean, Liam James 3102360306 9
 Mique, Daphne Ann Tumaneng 3103484576 9
 Mizuno, Chie 3103630657 9
 Muise, Zoe Gabrielle 3102359902 9
-Nguyen, Isaac James 3103012229 9
+Murphy, Jacob Bradley 3102346339 9
 Nwokoro, Michelle Onyinyechi 3103054189 9
 Rendell, Maia Evelyn 3102359837 9
 Salcedo, Oliver Jackson 3102348541 9

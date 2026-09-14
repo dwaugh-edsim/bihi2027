@@ -2,7 +2,7 @@
 **Activity Type:** Geographic Diagnostic & Regional Literacy Sprint  
 **Target Class:** Classes 901, 902, 903 &bull; **Time:** 15–20 Minutes &bull; **Setting:** Room 8 (Mr. Waugh)  
 **Materials:** 
-- Printable Student Dossier: [`Day1_Deliverables/17_Cit9_Map_Sprint_NS_and_Canada.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Day1_Deliverables/17_Cit9_Map_Sprint_NS_and_Canada.html)
+- Printable Student Dossier: [`Citizenship 9/17_Cit9_Map_Sprint_NS_and_Canada.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Citizenship%209/17_Cit9_Map_Sprint_NS_and_Canada.html)
 - Smartboard Mode: Built-in click-to-reveal toggle on the HTML page.
 
 ---
@@ -19,17 +19,19 @@
 | **Pin 5** | **Lunenburg** | UNESCO World Heritage South Shore town &bull; Shipyard of the *Bluenose* |
 | **Pin 6** | **Yarmouth** | Southwest gateway, historic fishing fleet, ferry link to Bar Harbor, Maine |
 | **Pin 7** | **New Glasgow & Pictou County** | Industrial North Shore, historic shipbuilding, birthplace of Sobeys (1907) |
-| **Pin 8** | **Sydney & Cape Breton (CBRM)** | Cape Breton's largest city, industrial steel & coal history, Cabot Trail gateway |
+| **Pin 8** | **Cape Breton** | Historic island of Nova Scotia &bull; Gaelic/Celtic culture, Bras d'Or Lake, coal/steel heritage & Cabot Trail |
 
 ---
 
-### Part 2: 6 Regional Trivia Riddles
+### Part 2: 8 Regional Trivia Riddles
 1. **CLUE #1 (Agricultural Valley):** **Annapolis Valley** *(Honeycrisp apples, agriculture, Minas Basin)*
 2. **CLUE #2 ("The Hub of Nova Scotia"):** **Truro** *(Where Hwy 102 & 104 cross)*
 3. **CLUE #3 (Bluenose Shipyard):** **Lunenburg** *(Built the 1921 racing schooner on Canada's 10¢ dime)*
 4. **CLUE #4 (Land Bridge to Canada):** **Amherst** *(Chignecto Isthmus)*
-5. **CLUE #5 (Island of Steel & Coal):** **Sydney / CBRM** *(Cape Breton industrial center)*
+5. **CLUE #5 (Island of Steel, Coal & Culture):** **Cape Breton** *(Island identity, Bras d'Or Lake, Fortress of Louisbourg)*
 6. **CLUE #6 (Capital & Navy Fleet):** **Halifax / Dartmouth** *(CFB Halifax & Provincial Legislature)*
+7. **CLUE #7 (Southwest Gateway & Lobster Port):** **Yarmouth** *(Lobster fleet, Acadian coast, ferry to Maine)*
+8. **CLUE #8 (Birthplace of New Scotland & Sobeys):** **New Glasgow / Pictou** *(Ship Hector 1773, industrial North Shore, Sobeys founding)*
 
 ---
 
@@ -61,7 +63,7 @@
 
 ---
 
-## ⚡ 3 Quick Geographic Truths Every Grade 9 Citizen Must Know:
-1. **The Capital City Trap:** A province or country's capital is often **not** its biggest city (Edmonton $\ne$ Calgary, Quebec City $\ne$ Montreal, Ottawa $\ne$ Toronto, Victoria $\ne$ Vancouver).
-2. **Canada's Only Bilingual Province:** **New Brunswick** is the only province officially recognizing English and French equally under Section 16 of the Charter.
-3. **The Cradle of Confederation:** **Charlottetown, PEI** hosted the 1864 delegates where the idea of the Canadian nation was first agreed upon.
+### Part 3: Canadian Geographic Truths Trivia (3 Questions)
+1. **TRIVIA #1 (The Big City Trap):** **Edmonton** *(Alberta's provincial capital is Edmonton, not Calgary)*
+2. **TRIVIA #2 (The Bilingual Province):** **New Brunswick** *(Canada's only officially bilingual province)*
+3. **TRIVIA #3 (Cradle of Confederation):** **Charlottetown, PEI** *(Site of the historic September 1864 Conference where Confederation was planned)*

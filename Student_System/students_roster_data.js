@@ -1179,15 +1179,15 @@ window.MASTER_ROSTER_DATA = [
     "homeroom": "804",
     "grade": 8,
     "last_name": "Agbeyegbe",
-    "full_first_name": "Oritshetimehin Oluwapelumi",
-    "first_name": "Oritshetimehin",
+    "full_first_name": "Timi Oluwapelumi",
+    "first_name": "Timi",
     "student_id": "3103815159",
     "courses": [
       "HL 8"
     ],
     "course_label": "Healthy Living 8",
     "pin": "RTA",
-    "username": "oritshetimehin.rta"
+    "username": "timi.rta"
   },
   {
     "homeroom": "804",
@@ -1417,15 +1417,15 @@ window.MASTER_ROSTER_DATA = [
     "homeroom": "804",
     "grade": 8,
     "last_name": "Otis Vaillancourt",
-    "full_first_name": "Oceanne Denise Brigitte",
-    "first_name": "Oceanne",
+    "full_first_name": "Ezra Denise Brigitte",
+    "first_name": "Ezra",
     "student_id": "3102659426",
     "courses": [
       "HL 8"
     ],
     "course_label": "Healthy Living 8",
     "pin": "CET",
-    "username": "oceanne.cet"
+    "username": "ezra.cet"
   },
   {
     "homeroom": "804",
@@ -1851,21 +1851,7 @@ window.MASTER_ROSTER_DATA = [
     "course_label": "Citizenship 9 & Healthy Living 9",
     "pin": "AUM",
     "username": "aurelia.aum"
-  },
-  {
-    "homeroom": "901",
-    "grade": 9,
-    "last_name": "Murphy",
-    "full_first_name": "Jacob Bradley",
-    "first_name": "Jacob",
-    "student_id": "3102346339",
-    "courses": [
-      "CIT 9",
-      "HL 9"
-    ],
-    "course_label": "Citizenship 9 & Healthy Living 9",
-    "pin": "AMU",
-    "username": "jacob.amu"
+
   },
   {
     "homeroom": "901",
@@ -2241,36 +2227,6 @@ window.MASTER_ROSTER_DATA = [
     "course_label": "Citizenship 9 & Healthy Living 9",
     "pin": "SMM",
     "username": "simon.smm"
-  },
-  {
-    "homeroom": "902",
-    "grade": 9,
-    "last_name": "Modayur",
-    "full_first_name": "Daya Bel",
-    "first_name": "Daya",
-    "student_id": "3102348756",
-    "courses": [
-      "CIT 9",
-      "HL 9"
-    ],
-    "course_label": "Citizenship 9 & Healthy Living 9",
-    "pin": "DMD",
-    "username": "daya.dmd"
-  },
-  {
-    "homeroom": "902",
-    "grade": 9,
-    "last_name": "Munroe",
-    "full_first_name": "Skylar Lynn",
-    "first_name": "Skylar",
-    "student_id": "3102184193",
-    "courses": [
-      "CIT 9",
-      "HL 9"
-    ],
-    "course_label": "Citizenship 9 & Healthy Living 9",
-    "pin": "SKM",
-    "username": "skylar.skm"
   },
   {
     "homeroom": "902",
@@ -2710,17 +2666,17 @@ window.MASTER_ROSTER_DATA = [
   {
     "homeroom": "903",
     "grade": 9,
-    "last_name": "Nguyen",
-    "full_first_name": "Isaac James",
-    "first_name": "Isaac",
-    "student_id": "3103012229",
+    "last_name": "Murphy",
+    "full_first_name": "Jacob Bradley",
+    "first_name": "Jacob",
+    "student_id": "3102346339",
     "courses": [
       "CIT 9",
       "HL 9"
     ],
     "course_label": "Citizenship 9 & Healthy Living 9",
-    "pin": "SAN",
-    "username": "isaac.san"
+    "pin": "AMU",
+    "username": "jacob.amu"
   },
   {
     "homeroom": "903",

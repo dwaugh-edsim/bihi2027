@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL9 Class 1: Sleep Clinic 10-Station Audit Template</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #000000;
+            --border-subtle: #cbd5e1;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --green: #15803d;
+            --amber: #b45309;
+            --red: #b91c1c;
+            --tag-bg: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background: #e2e8f0;
+            line-height: 1.45;
+            padding: 20px;
+        }
+
+        /* Top Sticky Toolbar */
+        .top-toolbar {
+            max-width: 1040px;
+            margin: 0 auto 16px auto;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-wrap {
+            width: 120px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #94a3b8;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #000000;
+            width: 0%;
+            transition: width 0.25s ease;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid #000000;
+            padding: 7px 14px;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover {
+            background: #333333;
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-danger {
+            background: #ffffff;
+            color: #b91c1c;
+            border-color: #b91c1c;
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+        }
+
+        /* Main Workspace Container */
+        .workspace-card {
+            max-width: 1040px;
+            margin: 0 auto 30px auto;
+            background: #ffffff;
+            border: 2.5px solid #000000;
+            border-radius: 6px;
+            padding: 36px 44px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        /* Document Header */
+        .doc-header {
+            border-bottom: 3px solid #000000;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .doc-title-block h1 {
+            font-family: 'Roboto Slab', Georgia, serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #000000;
+        }
+
+        .doc-title-block p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .doc-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            border: 2px solid #000000;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            text-align: right;
+            border-radius: 4px;
+        }
+
+        /* Student Metadata Form */
+        .meta-strip {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1.5px solid #000000;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        .meta-field label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+
+        .meta-field input {
+            width: 100%;
+            border: none;
+            border-bottom: 1.5px solid #000000;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.88rem;
+            padding: 2px 4px;
+            outline: none;
+        }
+
+        .meta-field input:focus {
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* Quick Reference Collapsible */
+        .reference-drawer {
+            border: 1.5px solid #000000;
+            border-radius: 6px;
+            background: #fcfcfc;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .reference-header {
+            padding: 10px 14px;
+            background: #f1f5f9;
+            border-bottom: 1.5px solid #000000;
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.88rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .reference-content {
+            padding: 12px 16px;
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            gap: 16px;
+            font-size: 0.78rem;
+        }
+
+        .ref-box h5 {
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 2px;
+        }
+
+        .ref-chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .ref-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.70rem;
+            padding: 2px 6px;
+            border: 1px solid #000000;
+            border-radius: 3px;
+            background: #ffffff;
+        }
+
+        /* Station Cards Grid / List */
+        .stations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .station-card {
+            border: 2px solid #000000;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 14px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .station-card:focus-within {
+            border-color: #000000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .station-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .station-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .station-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 0.78rem;
+            background: #000000;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .patient-name {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .patient-tag {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Station Form Grid */
+        .station-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .form-field label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #222222;
+        }
+
+        .form-field input, .form-field select {
+            border: 1.5px solid #000000;
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            background: #ffffff;
+            outline: none;
+        }
+
+        .form-field input:focus, .form-field select:focus {
+            border-color: var(--accent);
+            background: #f8fafc;
+        }
+
+        /* Tag Selection Buttons */
+        .tags-wrapper {
+            margin-bottom: 10px;
+        }
+
+        .tags-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tag-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border: 1.5px solid #000000;
+            border-radius: 4px;
+            background: #ffffff;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s ease;
+        }
+
+        .tag-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .tag-btn.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        /* Prescription and Evidence Inputs */
+        .order-field {
+            margin-bottom: 8px;
+        }
+
+        .order-field label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .order-input {
+            width: 100%;
+            border: 1.5px solid #000000;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            background: #ffffff;
+            outline: none;
+        }
+
+        .evidence-field {
+            margin-top: 6px;
+        }
+
+        .evidence-field label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .evidence-textarea {
+            width: 100%;
+            min-height: 48px;
+            border: 1.5px solid #000000;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: inherit;
+            font-size: 0.80rem;
+            line-height: 1.35;
+            resize: vertical;
+            outline: none;
+        }
+
+        /* Contract Bid Section at Bottom */
+        .contract-bid-card {
+            border: 2.5px solid #000000;
+            border-radius: 6px;
+            background: #f8fafc;
+            padding: 16px 20px;
+            margin-top: 24px;
+        }
+
+        .contract-bid-card h3 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 4px;
+        }
+
+        .contract-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #000000;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =================================================================== */
+        /* PRINT STYLES                                                        */
+        /* =================================================================== */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                font-size: 8.5pt !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .top-toolbar { display: none !important; }
+            .reference-drawer { display: block !important; margin-bottom: 12px !important; }
+
+            .workspace-card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            .station-card {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 1.5px solid #000000 !important;
+                margin-bottom: 12px !important;
+                padding: 10px 12px !important;
+            }
+
+            .station-form-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 6px !important;
+            }
+
+            .form-field input, .form-field select, .order-input, .evidence-textarea {
+                border: 1px solid #000000 !important;
+            }
+
+            .tag-btn {
+                border: 1px solid #000000 !important;
+            }
+
+            .tag-btn.active {
+                background: #000000 !important;
+                color: #ffffff !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY TOOLBAR -->
+    <div class="top-toolbar">
+        <div class="toolbar-left">
+            <div class="status-badge" id="saveStatus">
+                <span class="status-dot"></span>
+                <span id="saveText">Auto-Saved</span>
+            </div>
+            <div class="progress-container">
+                <span>Progress:</span>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <span id="progressText">0 / 10 Stations</span>
+            </div>
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="btn btn-outline" onclick="copyForGoogleDocs()">
+                📋 Copy for Google Docs
+            </button>
+            <button class="btn btn-outline" onclick="window.print()">
+                🖨️ Print / Save PDF
+            </button>
+            <button class="btn btn-outline" onclick="exportDataJson()">
+                💾 Export JSON Backup
+            </button>
+            <button class="btn btn-danger" onclick="resetForm()">
+                ↺ Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSHEET CANVAS -->
+    <div class="workspace-card" id="auditContent">
+
+        <!-- HEADER BLOCK -->
+        <div class="doc-header">
+            <div class="doc-title-block">
+                <h1>ROOM 8 SLEEP CLINIC &bull; 10-STATION AUDIT TEMPLATE</h1>
+                <p>Outcome 1 Clinical Audit &bull; 10 Patients &bull; Collaborative Pairs &bull; Mr. Waugh</p>
+                <p style="font-size: 0.78rem; margin-top: 2px;">Bicentennial Junior High &bull; Class 1 Field Protocol &bull; Room 8</p>
+            </div>
+            <div class="doc-badge">
+                CLINICAL TRIAGE<br>
+                10 SUBJECTS
+            </div>
+        </div>
+
+        <!-- STUDENT METADATA (NO PIN) -->
+        <div class="meta-strip">
+            <div class="meta-field">
+                <label>Auditor Names (Pair):</label>
+                <input type="text" id="metaAuditors" placeholder="e.g. Alex M. & Taylor B." oninput="handleInput()">
+            </div>
+            <div class="meta-field">
+                <label>Class Section:</label>
+                <input type="text" id="metaSection" placeholder="e.g. 901 / 902 / 903" oninput="handleInput()">
+            </div>
+            <div class="meta-field">
+                <label>Date:</label>
+                <input type="text" id="metaDate" placeholder="e.g. Sept 10, 2026" oninput="handleInput()">
+            </div>
+        </div>
+
+        <!-- QUICK REFERENCE DRAWER -->
+        <div class="reference-drawer">
+            <div class="reference-header" onclick="toggleReference()">
+                <span>📖 Clinical Diagnostic Code Bank & Risk Criteria (Click to Toggle)</span>
+                <span id="toggleRefIcon">▼</span>
+            </div>
+            <div class="reference-content" id="referenceBody">
+                <div class="ref-box">
+                    <h5>Clinical Risk Classification</h5>
+                    <p style="margin-bottom: 4px;"><strong>⚪ STABLE (GREEN):</strong> &ge;8.5 hrs + stable clock (&lt;1 hr weekend shift) + 0 live mechanisms.</p>
+                    <p style="margin-bottom: 4px;"><strong>🔘 MODERATE (AMBER):</strong> 7.0–8.4 hrs OR shift &gt;2 hrs OR 1 live mechanism.</p>
+                    <p><strong>⚫ CRITICAL (RED):</strong> &lt;7.0 hrs OR multiple mechanisms OR fragmented sleep.</p>
+                </div>
+                <div class="ref-box">
+                    <h5>The 10 Testable Clinical Mechanism Codes</h5>
+                    <div class="ref-chip-list">
+                        <span class="ref-chip"><strong>CPD</strong>: Circadian Phase Delay (~2h teen delay)</span>
+                        <span class="ref-chip"><strong>MEL</strong>: Melatonin Suppression (SCN blue light)</span>
+                        <span class="ref-chip"><strong>DEBT</strong>: Cumulative Sleep Debt ((9.0-hrs)&times;5)</span>
+                        <span class="ref-chip"><strong>SJL</strong>: Social Jetlag (&gt;2h weekend shift)</span>
+                        <span class="ref-chip"><strong>SWS</strong>: Slow-Wave NREM 3 (HGH recovery)</span>
+                        <span class="ref-chip"><strong>REM</strong>: REM Consolidation (Late night memory)</span>
+                        <span class="ref-chip"><strong>INERTIA</strong>: Sleep Inertia (30-90m morning fog)</span>
+                        <span class="ref-chip"><strong>RT25</strong>: Reaction Rule (20-25% slower response)</span>
+                        <span class="ref-chip"><strong>STIM</strong>: Pre-Sleep Stimulus Control</span>
+                        <span class="ref-chip"><strong>5D</strong>: 5 Dimensions Interlock</span>
+                        <span class="ref-chip"><strong>HYG</strong>: Sleep Hygiene (caffeine, habits)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALL 10 STATIONS -->
+        <div class="stations-list" id="stationsList">
+
+            <!-- STATION 1 -->
+            <div class="station-card" id="card_1" data-station="1">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 01</span>
+                        <span class="patient-name">Subject: C., Devon (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Chronic Weekday Debt & Catch-Up Myth</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s1_hrs" placeholder="e.g. 6.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s1_debt" placeholder="e.g. 15.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s1_shift" placeholder="e.g. +2.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s1_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="1">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s1_order" placeholder="The single most important intervention for Devon..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s1_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 2 -->
+            <div class="station-card" id="card_2" data-station="2">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 02</span>
+                        <span class="patient-name">Subject: S., Priya (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Disciplined Routine & Healthy Baseline</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s2_hrs" placeholder="e.g. 9.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s2_debt" placeholder="e.g. 0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s2_shift" placeholder="e.g. +0.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s2_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="2">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s2_order" placeholder="The single most important intervention for Priya..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s2_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 3 -->
+            <div class="station-card" id="card_3" data-station="3">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 03</span>
+                        <span class="patient-name">Subject: O., Marcus (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Weekend Freefall & Circadian Misalignment</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s3_hrs" placeholder="e.g. 8.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s3_debt" placeholder="e.g. 5.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s3_shift" placeholder="e.g. +4.25 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s3_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="3">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s3_order" placeholder="The single most important intervention for Marcus..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s3_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 4 -->
+            <div class="station-card" id="card_4" data-station="4">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 04</span>
+                        <span class="patient-name">Subject: R., Jenna (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Doomscrolling & Time-in-Bed vs Time-Asleep</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s4_hrs" placeholder="e.g. ~6.0 hrs effective" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s4_debt" placeholder="e.g. 15.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s4_shift" placeholder="e.g. minimal / daily" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s4_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="4">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s4_order" placeholder="The single most important intervention for Jenna..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s4_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 5 -->
+            <div class="station-card" id="card_5" data-station="5">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 05</span>
+                        <span class="patient-name">Subject: T., Isaiah (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Varsity Athlete, Growth Spurt & HGH Recovery</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s5_hrs" placeholder="e.g. 6.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s5_debt" placeholder="e.g. 15.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s5_shift" placeholder="e.g. small" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s5_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="5">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s5_order" placeholder="The single most important intervention for Isaiah..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s5_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 6 -->
+            <div class="station-card" id="card_6" data-station="6">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 06</span>
+                        <span class="patient-name">Subject: N., Lily (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">5:45 AM Commuter & Structural Bus Route Constraint</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s6_hrs" placeholder="e.g. 6.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s6_debt" placeholder="e.g. 12.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s6_shift" placeholder="e.g. +1.75 hrs (disciplined)" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s6_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="6">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s6_order" placeholder="The single most important intervention for Lily..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s6_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 7 -->
+            <div class="station-card" id="card_7" data-station="7">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 07</span>
+                        <span class="patient-name">Subject: K., Tyrell (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Energy Drinks, Caffeine Half-Life & Adenosine Blockade</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s7_hrs" placeholder="e.g. 6.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s7_debt" placeholder="e.g. 15.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s7_shift" placeholder="e.g. +1.75 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s7_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="7">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s7_order" placeholder="The single most important intervention for Tyrell..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s7_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 8 -->
+            <div class="station-card" id="card_8" data-station="8">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 08</span>
+                        <span class="patient-name">Subject: W., Grace (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Night Rumination, Anxiety & Clean Hygiene</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s8_hrs" placeholder="e.g. ~7.5 hrs effective" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s8_debt" placeholder="e.g. 7.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s8_shift" placeholder="e.g. small" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s8_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="8">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s8_order" placeholder="The single most important intervention for Grace..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s8_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 9 -->
+            <div class="station-card" id="card_9" data-station="9">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 09</span>
+                        <span class="patient-name">Subject: D., Owen (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Fri/Sat All-Nighter Gamer & +5.5h Social Jetlag</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s9_hrs" placeholder="e.g. 8.0 hrs (avg)" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s9_debt" placeholder="e.g. 5.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s9_shift" placeholder="e.g. +5.5 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s9_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="9">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s9_order" placeholder="The single most important intervention for Owen..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s9_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- STATION 10 -->
+            <div class="station-card" id="card_10" data-station="10">
+                <div class="station-card-header">
+                    <div class="station-title">
+                        <span class="station-badge">STATION 10</span>
+                        <span class="patient-name">Subject: P., Amara (Age 14)</span>
+                    </div>
+                    <span class="patient-tag">Family Restaurant Closer & Non-Discretionary Labor</span>
+                </div>
+                <div class="station-form-grid">
+                    <div class="form-field">
+                        <label>Hours / Night:</label>
+                        <input type="text" id="s10_hrs" placeholder="e.g. 7.2 hrs avg" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekly Debt:</label>
+                        <input type="text" id="s10_debt" placeholder="e.g. 9.0 hrs" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Weekend Shift:</label>
+                        <input type="text" id="s10_shift" placeholder="e.g. modest" oninput="handleInput()">
+                    </div>
+                    <div class="form-field">
+                        <label>Risk Level:</label>
+                        <select id="s10_risk" onchange="handleInput()">
+                            <option value="">-- Select Risk --</option>
+                            <option value="MODERATE (AMBER)">🔘 MODERATE (AMBER)</option>
+                            <option value="CRITICAL (RED)">⚫ CRITICAL (RED)</option>
+                            <option value="STABLE (GREEN)">⚪ STABLE (GREEN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tags-wrapper">
+                    <div class="tags-label"><span>Live Mechanism Codes:</span> <span style="font-weight:normal; font-size:0.68rem; color:#666;">Click all that apply</span></div>
+                    <div class="tag-buttons" data-station="10">
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">CPD</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">MEL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">DEBT</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SJL</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">SWS</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">REM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">INERTIA</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">RT25</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">STIM</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">5D</button>
+                        <button type="button" class="tag-btn" onclick="toggleTag(this)">HYG</button>
+                    </div>
+                </div>
+                <div class="order-field">
+                    <label>First Clinical Order (Prescription):</label>
+                    <input type="text" class="order-input" id="s10_order" placeholder="The single most important intervention for Amara..." oninput="handleInput()">
+                </div>
+                <div class="evidence-field">
+                    <label>Evidence & Notes from Telemetry:</label>
+                    <textarea class="evidence-textarea" id="s10_notes" placeholder="What key data or quotes from the case file justify this diagnosis?" oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CONTRACT BID CARD -->
+        <div class="contract-bid-card">
+            <h3>🔮 Final Contract Bid: Deep-Dive Clinical Audit Selection</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                Before Quiz 1, your consulting pair will write a comprehensive multi-page clinical audit report on <strong>ONE</strong> of these ten subjects.
+            </p>
+            <div class="contract-grid">
+                <div class="form-field">
+                    <label>Select Subject for Full Audit:</label>
+                    <select id="bidSubject" onchange="handleInput()">
+                        <option value="">-- Choose Patient --</option>
+                        <option value="Subject 01: Devon C.">Subject 01: Devon C.</option>
+                        <option value="Subject 02: Priya S.">Subject 02: Priya S.</option>
+                        <option value="Subject 03: Marcus O.">Subject 03: Marcus O.</option>
+                        <option value="Subject 04: Jenna R.">Subject 04: Jenna R.</option>
+                        <option value="Subject 05: Isaiah T.">Subject 05: Isaiah T.</option>
+                        <option value="Subject 06: Lily N.">Subject 06: Lily N.</option>
+                        <option value="Subject 07: Tyrell K.">Subject 07: Tyrell K.</option>
+                        <option value="Subject 08: Grace W.">Subject 08: Grace W.</option>
+                        <option value="Subject 09: Owen D.">Subject 09: Owen D.</option>
+                        <option value="Subject 10: Amara P.">Subject 10: Amara P.</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Why this case? (Clinical Justification):</label>
+                    <input type="text" id="bidReason" placeholder="e.g. Unique interaction of athletic recovery and growth spurt..." oninput="handleInput()">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toastBox">
+        <span id="toastMsg">✓ Copied to clipboard!</span>
+    </div>
+
+    <script>
+        const STORAGE_KEY = "HL9_Clinic_10_Station_Audit_Data_v1";
+
+        // Patient directory
+        const patients = [
+            { num: "01", name: "C., Devon", tag: "Chronic Weekday Debt & Catch-Up Myth" },
+            { num: "02", name: "S., Priya", tag: "Disciplined Routine & Healthy Baseline" },
+            { num: "03", name: "O., Marcus", tag: "Weekend Freefall & Circadian Misalignment" },
+            { num: "04", name: "R., Jenna", tag: "Doomscrolling & Time-in-Bed vs Time-Asleep" },
+            { num: "05", name: "T., Isaiah", tag: "Varsity Athlete, Growth Spurt & HGH Recovery" },
+            { num: "06", name: "N., Lily", tag: "5:45 AM Commuter & Structural Bus Route Constraint" },
+            { num: "07", name: "K., Tyrell", tag: "Energy Drinks, Caffeine Half-Life & Adenosine Blockade" },
+            { num: "08", name: "W., Grace", tag: "Night Rumination, Anxiety & Clean Hygiene" },
+            { num: "09", name: "D., Owen", tag: "Fri/Sat All-Nighter Gamer & +5.5h Social Jetlag" },
+            { num: "10", name: "P., Amara", tag: "Family Restaurant Closer & Non-Discretionary Labor" }
+        ];
+
+        function toggleReference() {
+            const body = document.getElementById('referenceBody');
+            const icon = document.getElementById('toggleRefIcon');
+            if (body.style.display === 'none') {
+                body.style.display = 'grid';
+                icon.textContent = '▼';
+            } else {
+                body.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+
+        function toggleTag(btn) {
+            btn.classList.toggle('active');
+            handleInput();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function getActiveTags(stationNum) {
+            const wrap = document.querySelector(`.tag-buttons[data-station="${stationNum}"]`);
+            if (!wrap) return [];
+            const activeBtns = wrap.querySelectorAll('.tag-btn.active');
+            return Array.from(activeBtns).map(b => b.textContent.trim());
+        }
+
+        function setActiveTags(stationNum, tagsArray) {
+            const wrap = document.querySelector(`.tag-buttons[data-station="${stationNum}"]`);
+            if (!wrap || !tagsArray) return;
+            wrap.querySelectorAll('.tag-btn').forEach(btn => {
+                if (tagsArray.includes(btn.textContent.trim())) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function collectData() {
+            const data = {
+                auditors: document.getElementById('metaAuditors').value || '',
+                section: document.getElementById('metaSection').value || '',
+                date: document.getElementById('metaDate').value || '',
+                bidSubject: document.getElementById('bidSubject').value || '',
+                bidReason: document.getElementById('bidReason').value || '',
+                stations: {}
+            };
+
+            for (let i = 1; i <= 10; i++) {
+                data.stations[i] = {
+                    hrs: document.getElementById(`s${i}_hrs`) ? document.getElementById(`s${i}_hrs`).value : '',
+                    debt: document.getElementById(`s${i}_debt`) ? document.getElementById(`s${i}_debt`).value : '',
+                    shift: document.getElementById(`s${i}_shift`) ? document.getElementById(`s${i}_shift`).value : '',
+                    risk: document.getElementById(`s${i}_risk`) ? document.getElementById(`s${i}_risk`).value : '',
+                    tags: getActiveTags(i),
+                    order: document.getElementById(`s${i}_order`) ? document.getElementById(`s${i}_order`).value : '',
+                    notes: document.getElementById(`s${i}_notes`) ? document.getElementById(`s${i}_notes`).value : ''
+                };
+            }
+            return data;
+        }
+
+        function updateProgress(data) {
+            let completed = 0;
+            for (let i = 1; i <= 10; i++) {
+                const s = data.stations[i];
+                if (s && (s.hrs || s.risk || s.order)) {
+                    completed++;
+                }
+            }
+            const pct = Math.round((completed / 10) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `${completed} / 10 Stations`;
+        }
+
+        function handleInput() {
+            const data = collectData();
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                document.getElementById('saveText').textContent = `Auto-Saved (${timeStr})`;
+            } catch (e) {
+                console.error("Local storage error:", e);
+            }
+            updateProgress(data);
+        }
+
+        function loadSavedData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+
+                if (data.auditors) document.getElementById('metaAuditors').value = data.auditors;
+                if (data.section) document.getElementById('metaSection').value = data.section;
+                if (data.date) document.getElementById('metaDate').value = data.date;
+                if (data.bidSubject) document.getElementById('bidSubject').value = data.bidSubject;
+                if (data.bidReason) document.getElementById('bidReason').value = data.bidReason;
+
+                if (data.stations) {
+                    for (let i = 1; i <= 10; i++) {
+                        const s = data.stations[i];
+                        if (s) {
+                            if (document.getElementById(`s${i}_hrs`)) document.getElementById(`s${i}_hrs`).value = s.hrs || '';
+                            if (document.getElementById(`s${i}_debt`)) document.getElementById(`s${i}_debt`).value = s.debt || '';
+                            if (document.getElementById(`s${i}_shift`)) document.getElementById(`s${i}_shift`).value = s.shift || '';
+                            if (document.getElementById(`s${i}_risk`)) document.getElementById(`s${i}_risk`).value = s.risk || '';
+                            if (document.getElementById(`s${i}_order`)) document.getElementById(`s${i}_order`).value = s.order || '';
+                            if (document.getElementById(`s${i}_notes`)) document.getElementById(`s${i}_notes`).value = s.notes || '';
+                            if (s.tags) setActiveTags(i, s.tags);
+                        }
+                    }
+                }
+                updateProgress(data);
+            } catch (e) {
+                console.error("Error loading saved data:", e);
+            }
+        }
+
+        function resetForm() {
+            if (!confirm("Are you sure you want to reset and clear all 10 stations? This cannot be undone.")) return;
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+
+        function exportDataJson() {
+            const data = collectData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `HL9_SleepClinic_10Stations_${data.section || 'Class'}_${(data.auditors || 'Team').replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("✓ JSON backup downloaded!");
+        }
+
+        function copyForGoogleDocs() {
+            const data = collectData();
+            let md = `# ROOM 8 SLEEP CLINIC • 10-STATION AUDIT REPORT\n`;
+            md += `**Lead Auditors (Pair):** ${data.auditors || 'Not entered'}  \n`;
+            md += `**Class Section:** ${data.section || '90_'}  \n`;
+            md += `**Date:** ${data.date || new Date().toLocaleDateString()}  \n\n`;
+
+            md += `## 1. Summary Triage Table (All 10 Subjects)\n\n`;
+            md += `| Station | Patient | Wknight Hrs | Weekly Debt | Wknd Shift | Clinical Risk | Mechanism Codes | First Clinical Order |\n`;
+            md += `| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n`;
+
+            for (let i = 1; i <= 10; i++) {
+                const p = patients[i - 1];
+                const s = data.stations[i] || {};
+                const tagsStr = (s.tags && s.tags.length > 0) ? s.tags.join(', ') : 'None';
+                md += `| **${p.num}** | ${p.name} | ${s.hrs || '-'} | ${s.debt || '-'} | ${s.shift || '-'} | ${s.risk || '-'} | ${tagsStr} | ${s.order || '-'} |\n`;
+            }
+
+            md += `\n## 2. Detailed Evidence & Field Observations\n\n`;
+            for (let i = 1; i <= 10; i++) {
+                const p = patients[i - 1];
+                const s = data.stations[i] || {};
+                md += `### Station ${p.num}: ${p.name} (${p.tag})\n`;
+                md += `- **Telemetry:** ${s.hrs || 'N/A'} hrs sleep | Debt: ${s.debt || 'N/A'} | Weekend Shift: ${s.shift || 'N/A'} | Risk: ${s.risk || 'N/A'}\n`;
+                md += `- **Active Mechanisms:** ${(s.tags && s.tags.length > 0) ? s.tags.join(', ') : 'None recorded'}\n`;
+                md += `- **First Clinical Order:** ${s.order || 'None recorded'}\n`;
+                md += `- **Field Evidence & Clinical Rationale:** ${s.notes || 'None recorded'}\n\n`;
+            }
+
+            md += `## 3. Final Contract Bid\n`;
+            md += `- **Selected Patient for Deep-Dive Audit:** ${data.bidSubject || 'Not selected'}\n`;
+            md += `- **Clinical Justification:** ${data.bidReason || 'None provided'}\n`;
+
+            navigator.clipboard.writeText(md).then(() => {
+                showToast("✓ Copied to clipboard! Paste into Google Docs");
+            }).catch(err => {
+                alert("Please select and copy manually:\n\n" + md);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedData();
+        });
+    </script>
+</body>
+</html>

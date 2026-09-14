@@ -1,0 +1,1278 @@
+<!DOCTYPE HTML>
+<!--
+    Citizenship 9 • Current Issues Diagnostic — Live Progress Dashboard
+    Mr. Waugh • Room 8 • Bicentennial Junior High School
+    Live Tracking & Real-Time Analytics for Classes 901, 902, & 903
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Room 8 • Citizenship 9 Current Issues Diagnostic Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --border-subtle: #cbd5e1;
+            --border-bright: #0284c7;
+
+            --text-main: #0f172a;
+            --text-heading: #0f172a;
+            --text-muted: #475569;
+            --text-dim: #64748b;
+
+            --cyan: #0284c7;
+            --blue: #2563eb;
+            --indigo: #4f46e5;
+            --emerald: #059669;
+            --amber: #d97706;
+            --rose: #e11d48;
+            --purple: #9333ea;
+
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-slab: 'Roboto Slab', Georgia, serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            padding: 20px 28px 60px 28px;
+            line-height: 1.5;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        .ambient-glow {
+            display: none;
+        }
+
+        .container {
+            max-width: 1460px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Header */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 24px;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .badge-room {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.15em;
+            padding: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 1.65em;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            color: var(--text-heading);
+        }
+
+        .subtitle {
+            font-size: 0.88em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f8fafc;
+            border-color: var(--cyan);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        /* Class Tabs Navigation */
+        .tabs-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 10px 18px;
+            color: #475569;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .tab-btn:hover {
+            background: #eef2ff;
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: #2563eb;
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .tab-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+        }
+
+        .tab-btn.active .tab-badge {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* KPI Metric Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-accent, #38bdf8);
+        }
+
+        .kpi-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 2.3rem;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--text-heading);
+            margin: 8px 0 4px 0;
+        }
+
+        .kpi-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        /* Progress Bar */
+        .progress-bar-wrap {
+            height: 6px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--emerald);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        /* Filter Controls */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 22px;
+        }
+
+        .search-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--cyan);
+        }
+
+        .filter-select {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Compact Student List — Two Column */
+        .students-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        .list-column {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .list-header-row {
+            display: grid;
+            grid-template-columns: 3px 1fr 52px 48px 62px 62px;
+            gap: 0 6px;
+            align-items: center;
+            padding: 5px 10px;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            border-bottom: 2px solid var(--border-subtle);
+            background: #e2e8f0;
+        }
+
+        .student-card {
+            display: grid;
+            grid-template-columns: 3px 1fr 52px 48px 62px 62px;
+            gap: 0 6px;
+            align-items: center;
+            padding: 4px 10px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            min-height: 0;
+        }
+
+        .student-card:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .student-card:last-child {
+            border-bottom: none;
+        }
+
+        /* Status stripe (first column) */
+        .row-stripe {
+            width: 3px;
+            height: 22px;
+            border-radius: 2px;
+        }
+
+        .row-stripe.all-done { background: var(--emerald); }
+        .row-stripe.some-done { background: var(--amber); }
+        .row-stripe.none-done { background: var(--text-dim); opacity: 0.5; }
+
+        .student-name {
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .student-pin-badge {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .student-class-badge {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-chip.done {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .status-chip.where-done {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .status-chip.wait {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tasks-pill {
+            display: none;
+        }
+
+        /* Detail Inspection Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-dialog {
+            background: #ffffff;
+            border: 2px solid #0284c7;
+            border-radius: 16px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            animation: modalFadeIn 0.2s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-section-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .issue-chip-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .issue-chip {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.84rem;
+        }
+
+        .issue-chip.high {
+            border-left: 4px solid #ef4444;
+        }
+
+        .issue-chip.medium {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .issue-chip.low {
+            border-left: 4px solid #10b981;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Toast Notifications */
+        #toastNotice {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid #38bdf8;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: none;
+            z-index: 3000;
+        }
+    </style>
+
+    <!-- Master Roster, Snapshot Data & Webhook Client -->
+    <script src="students_roster_data.js"></script>
+    <script src="cit9_dashboard_data.js"></script>
+    <script src="api.js"></script>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+
+        <!-- Top Navigation Bar -->
+        <header class="top-bar">
+            <div class="brand-block">
+                <span class="badge-room">ROOM 8</span>
+                <div>
+                    <h1>Citizenship 9 &bull; Term 1 Submission Dashboard</h1>
+                    <div class="subtitle">Unit 1 Tracking: Current Issues Diagnostic &amp; WHERE Document Turn-Ins &bull; Live Google Sheets Sync</div>
+                </div>
+            </div>
+
+            <div class="actions-group">
+                <button class="btn btn-primary" onclick="syncLiveCloudSubmissions()" id="btnSyncCloud">
+                    <span>🔄</span> Sync Live Cloud Data
+                </button>
+
+                <a href="CIT9_Current_Issues_Diagnostic.html" class="btn" target="_blank">
+                    <span>📝</span> Diagnostic Survey &rarr;
+                </a>
+                <a href="WHERE_Grade9_Progress_Dashboard.html" class="btn">
+                    <span>🗺️</span> "WHERE" Dashboard &rarr;
+                </a>
+            </div>
+        </header>
+
+        <!-- Cohort Switcher Tabs -->
+        <div class="tabs-row">
+            <button class="tab-btn active" onclick="setCohort('ALL', this)">
+                <span>All Grade 9 Cohorts</span>
+                <span class="tab-badge" id="badge-all">0 / 0</span>
+            </button>
+            <button class="tab-btn" onclick="setCohort('901', this)">
+                <span>Class 901 (Period 4)</span>
+                <span class="tab-badge" id="badge-901">0 / 0</span>
+            </button>
+            <button class="tab-btn" onclick="setCohort('902', this)">
+                <span>Class 902 (Homeroom &bull; Period 3)</span>
+                <span class="tab-badge" id="badge-902">0 / 0</span>
+            </button>
+            <button class="tab-btn" onclick="setCohort('903', this)">
+                <span>Class 903 (Period 5)</span>
+                <span class="tab-badge" id="badge-903">0 / 0</span>
+            </button>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card" style="--card-accent: #38bdf8;">
+                <div class="kpi-label">Cohort Enrollment</div>
+                <div class="kpi-value" id="kpi-enrolled">0</div>
+                <div class="kpi-sub" id="kpi-enrolled-sub">Official Grade 9 roster</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #10b981;">
+                <div class="kpi-label">Diagnostic Responded</div>
+                <div class="kpi-value" id="kpi-cit9-completed">0</div>
+                <div class="kpi-sub" id="kpi-cit9-pct">0% Response Rate</div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="kpi-cit9-progress" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #0ea5e9;">
+                <div class="kpi-label">WHERE Doc Submitted</div>
+                <div class="kpi-value" id="kpi-where-completed">0</div>
+                <div class="kpi-sub" id="kpi-where-pct">0% Submitted</div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="kpi-where-progress" style="width: 0%; background: #0ea5e9;"></div>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #6366f1;">
+                <div class="kpi-label">Both Tasks Completed</div>
+                <div class="kpi-value" id="kpi-both-completed">0</div>
+                <div class="kpi-sub" id="kpi-both-pct">0% Up to Date</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #f59e0b;">
+                <div class="kpi-label">Pending Incomplete</div>
+                <div class="kpi-value" id="kpi-pending">0</div>
+                <div class="kpi-sub" id="kpi-pending-sub">Awaiting 1 or more tasks</div>
+            </div>
+        </div>
+
+        <!-- Filter Controls Bar -->
+        <div class="controls-bar">
+            <div class="search-wrap">
+                <span style="color: var(--text-muted);">🔍</span>
+                <input type="text" class="search-input" id="searchBox" placeholder="Search by student name or PIN..." oninput="renderStudentCards()">
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <select class="filter-select" id="statusSelect" onchange="renderStudentCards()">
+                    <option value="ALL">All Students (Full Cohort)</option>
+                    <option value="BOTH_DONE">🌟 Both Tasks Done (2/2)</option>
+                    <option value="CIT9_DONE">📰 Diagnostic Responded</option>
+                    <option value="CIT9_PENDING">⚪ Diagnostic Pending</option>
+                    <option value="WHERE_DONE">🗺️ WHERE Doc Submitted</option>
+                    <option value="WHERE_PENDING">⚪ WHERE Doc Missing</option>
+                    <option value="ANY_PENDING">⚠️ Any Task Incomplete (&lt;2/2)</option>
+                </select>
+
+                <select class="filter-select" id="sortSelect" onchange="renderStudentCards()">
+                    <option value="NAME">Sort: Last Name (A-Z)</option>
+                    <option value="TASKS">Sort: Most Completed (2/2 first)</option>
+                    <option value="PENDING">Sort: Incomplete First</option>
+                    <option value="PIN">Sort: PIN</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Student Cards Grid -->
+        <div class="students-grid" id="studentsGrid">
+            <!-- Dynamically populated -->
+        </div>
+
+    </div>
+
+    <!-- Student Inspection Modal -->
+    <div class="modal-backdrop" id="inspectModal" onclick="handleBackdropClick(event)">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="student-name" style="font-size: 1.4rem;" id="m-student-name">Student Detail</h2>
+                    <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan);" id="m-student-sub">Class &bull; PIN</div>
+                </div>
+                <button class="btn" onclick="closeInspectModal()">✕ Close</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Status Banner -->
+                <div id="m-status-banner" style="padding: 12px 16px; border-radius: 8px; font-weight: 700; font-size: 0.9rem;">
+                    Status
+                </div>
+
+                <!-- Media Habits -->
+                <div>
+                    <div class="modal-section-title"><span>📰</span> News Consumption & Verification</div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.88rem;">
+                        <div><span>Primary News Source:</span> <strong id="m-primary-news" style="color: var(--cyan);">---</strong></div>
+                        <div><span>Frequency:</span> <strong id="m-news-freq">---</strong></div>
+                        <div><span>Fact-Checking Habit:</span> <strong id="m-fact-check" style="color: var(--amber);">---</strong></div>
+                        <div><span>All Sources:</span> <strong id="m-all-sources">---</strong></div>
+                    </div>
+                </div>
+
+                <!-- Top Debate & Personal Concern -->
+                <div>
+                    <div class="modal-section-title"><span>⚖️</span> Priority Civic Debate & Personal Issue</div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem;">
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Top Chosen Debate:</span>
+                            <div style="font-family: var(--font-slab); font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-top: 2px;" id="m-top-debate">---</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Personal Issue of Concern:</span>
+                            <div style="font-style: italic; color: var(--text-main); margin-top: 2px;" id="m-personal-issue">None stated.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issues Ratings -->
+                <div>
+                    <div class="modal-section-title"><span>🔥</span> Issue Ratings Matrix</div>
+                    <div class="issue-chip-grid" id="m-issues-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Private Teacher Note -->
+                <div id="m-teacher-note-wrap">
+                    <div class="modal-section-title"><span>✉️</span> Note to Mr. Waugh</div>
+                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #fde68a;" id="m-teacher-note">
+                        None.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" onclick="closeInspectModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotice">Syncing with Google Sheets...</div>
+
+    <script>
+        let currentCohort = 'ALL';
+        let cachedSubmissions = {};
+
+        // Friendly human-readable label dictionaries
+        const DEBATE_TITLES = {
+            'social_media_bans': 'Under-16 Social Media & Algorithm Bans',
+            'ycja_reform': 'Youth Criminal Justice Act (YCJA) Reform',
+            'trade_war': 'US-Canada Tariffs & Trade Friction',
+            'ai_employment': 'AI in the Workplace & Youth Jobs',
+            'climate_energy': 'Climate Policy vs Affordable Energy',
+            'housing_youth': 'Housing Affordability for the Next Gen',
+            'healthcare_politics': 'ER Wait Times & NS Healthcare',
+            'education_vs_jobs': 'Curriculum & Real-World Job Readiness'
+        };
+
+        const NEWS_TITLES = {
+            'tiktok_reels': 'TikTok / Reels / Shorts',
+            'friends_family': 'Family & Friends',
+            'none_accidental': 'Accidental / Don\'t follow',
+            'tv_news': 'TV News (CBC, CTV, Global)',
+            'group_chats_discord': 'Group Chats / Discord',
+            'radio_car': 'Radio / Car Podcasts',
+            'news_apps': 'News Websites / Apps',
+            'youtube_longform': 'YouTube Long-form & Docs'
+        };
+
+        const VERIFY_TITLES = {
+            'always_check': 'Always cross-check multiple sources',
+            'sometimes_unsure': 'Sometimes check if suspicious',
+            'rarely_never': 'Rarely or never check sources',
+            'assume_accurate': 'Assume shared posts are accurate'
+        };
+
+        const FREQ_TITLES = {
+            'multiple_daily': 'Multiple times a day',
+            'daily': 'Once daily',
+            'few_times_week': 'A few times a week',
+            'rarely_never': 'Rarely or never'
+        };
+
+        const ISSUE_TITLES = {
+            'trade_war': 'US-Canada Tariffs & Trade',
+            'port_halifax': 'Port of Halifax & Supply Chains',
+            'ai_employment': 'AI & Future of Jobs',
+            'housing_crisis': 'Housing Affordability in NS',
+            'climate_change': 'Climate Change & Extreme Weather',
+            'healthcare_system': 'ER Wait Times & Healthcare',
+            'social_media_bans': 'Under-16 Social Media Bans',
+            'indigenous_reconciliation': 'Truth & Reconciliation / Mi\'kmaw Rights',
+            'local_transit': 'Halifax Transit / Congestion',
+            'canadian_identity': 'Canadian Sovereignty & Culture'
+        };
+
+        // 1. Initialize from embedded live snapshot if available
+        if (window.ROOM8_CIT9_INITIAL_DATA && typeof window.ROOM8_CIT9_INITIAL_DATA === 'object') {
+            cachedSubmissions = Object.assign({}, window.ROOM8_CIT9_INITIAL_DATA);
+        }
+
+        // 2. Overlay any updated localStorage cache
+        try {
+            const saved = localStorage.getItem('ROOM8_CIT9_DIAGNOSTIC_CACHE');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                cachedSubmissions = Object.assign(cachedSubmissions, parsed);
+            }
+        } catch(e) {}
+
+        function showToast(msg) {
+            const t = document.getElementById('toastNotice');
+            if (!t) return;
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 4000);
+        }
+
+        function toggleProjectorMode() {
+            // Light theme is now the only theme
+        }
+
+        function setCohort(cohort, elem) {
+            currentCohort = cohort;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (elem) {
+                elem.classList.add('active');
+            } else if (typeof event !== 'undefined' && event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            updateMetrics();
+            renderStudentCards();
+        }
+
+        function getRosterForCohort(cohort) {
+            const all = (window.MASTER_ROSTER_DATA || []).filter(s => ['901', '902', '903'].includes(String(s.homeroom || '').trim()));
+            if (cohort === 'ALL') return all;
+            return all.filter(s => String(s.homeroom || '').trim() === cohort);
+        }
+
+        function getStudentSubmission(student) {
+            const pin = (student.pin || '').toUpperCase();
+            let sub = cachedSubmissions[pin];
+
+            if (!sub) {
+                try {
+                    const localKey = `cit9_submission_${pin}`;
+                    const local = localStorage.getItem(localKey);
+                    if (local) sub = JSON.parse(local);
+                } catch(e) {}
+            }
+
+            if (!sub) return null;
+
+            const task = String(sub.task || '');
+            const hasCitTask = task.includes('Current Issues') || task.includes('CIT9');
+            const hasCitData = !!(sub.issues || sub.primary_news || sub.top_debate || sub.personal_issue || (sub.data && (sub.data.issues || sub.data.primary_news)));
+
+            if (hasCitTask || hasCitData) {
+                return sub.data ? Object.assign({}, sub, sub.data) : sub;
+            }
+
+            return null;
+        }
+
+        // Determine complete dual-task submission status for each student
+        function getStudentWorkStatus(student) {
+            const pin = (student.pin || '').toUpperCase();
+            const unified = (window.ROOM8_UNIFIED_STATUS && window.ROOM8_UNIFIED_STATUS[pin]) || null;
+
+            // 1. Current Issues Diagnostic Status
+            const cit9Sub = getStudentSubmission(student);
+            const cit9Done = !!(cit9Sub || (unified && unified.cit9_done));
+
+            // 2. WHERE Document Status
+            const isClassroomWhere = (window.ROOM8_CLASSROOM_WHERE_PINS || []).includes(pin);
+            let whereDone = false;
+            let whereSource = '';
+
+            if (isClassroomWhere) {
+                whereDone = true;
+                whereSource = 'Google Slides (Classroom)';
+            } else if (window.ROOM8_WHERE_INITIAL_DATA && window.ROOM8_WHERE_INITIAL_DATA[pin]) {
+                const w = window.ROOM8_WHERE_INITIAL_DATA[pin];
+                const p1 = w.p1?.desc || w.where_personal || w.cat1_personal;
+                if (p1 || w.p2 || w.p3 || (w.task && w.task.includes('WHERE'))) {
+                    whereDone = true;
+                    whereSource = (w.task && w.task.includes('WHERE')) ? 'Places Portfolio' : 'Places Studio';
+                }
+            } else if (unified && unified.where_done) {
+                whereDone = true;
+                whereSource = unified.where_source || 'WHERE Submission';
+            }
+
+            const totalDone = (cit9Done ? 1 : 0) + (whereDone ? 1 : 0);
+
+            return {
+                cit9Done,
+                cit9Sub,
+                whereDone,
+                whereSource,
+                totalDone,
+                isBothDone: totalDone === 2,
+                isPending: totalDone < 2
+            };
+        }
+
+        function updateMetrics() {
+            const students = getRosterForCohort(currentCohort);
+            const total = students.length;
+            let cit9Count = 0;
+            let whereCount = 0;
+            let bothCount = 0;
+            let pendingCount = 0;
+
+            students.forEach(s => {
+                const st = getStudentWorkStatus(s);
+                if (st.cit9Done) cit9Count++;
+                if (st.whereDone) whereCount++;
+                if (st.isBothDone) bothCount++;
+                if (st.isPending) pendingCount++;
+            });
+
+            // Update Badges on tabs
+            ['ALL', '901', '902', '903'].forEach(c => {
+                const cStudents = getRosterForCohort(c);
+                let cBoth = 0;
+                cStudents.forEach(s => {
+                    const st = getStudentWorkStatus(s);
+                    if (st.isBothDone) cBoth++;
+                });
+                const badge = document.getElementById('badge-' + c.toLowerCase());
+                if (badge) badge.innerText = `${cBoth} / ${cStudents.length} (2/2)`;
+            });
+
+            // KPI displays
+            document.getElementById('kpi-enrolled').innerText = total;
+
+            document.getElementById('kpi-cit9-completed').innerText = `${cit9Count} / ${total}`;
+            const cit9Pct = total > 0 ? Math.round((cit9Count / total) * 100) : 0;
+            document.getElementById('kpi-cit9-pct').innerText = `${cit9Pct}% Response Rate`;
+            const cit9Bar = document.getElementById('kpi-cit9-progress');
+            if (cit9Bar) cit9Bar.style.width = `${cit9Pct}%`;
+
+            document.getElementById('kpi-where-completed').innerText = `${whereCount} / ${total}`;
+            const wherePct = total > 0 ? Math.round((whereCount / total) * 100) : 0;
+            document.getElementById('kpi-where-pct').innerText = `${wherePct}% Submitted`;
+            const whereBar = document.getElementById('kpi-where-progress');
+            if (whereBar) whereBar.style.width = `${wherePct}%`;
+
+            document.getElementById('kpi-both-completed').innerText = `${bothCount} / ${total}`;
+            const bothPct = total > 0 ? Math.round((bothCount / total) * 100) : 0;
+            document.getElementById('kpi-both-pct').innerText = `${bothPct}% Both Tasks Done`;
+
+            document.getElementById('kpi-pending').innerText = pendingCount;
+            document.getElementById('kpi-pending-sub').innerText = total > 0 
+                ? `${Math.round((pendingCount / total) * 100)}% need 1+ task` 
+                : 'All tasks received';
+        }
+
+        function renderStudentCards() {
+            const container = document.getElementById('studentsGrid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let students = getRosterForCohort(currentCohort);
+            const query = (document.getElementById('searchBox')?.value || '').toLowerCase().trim();
+            const statusFilter = document.getElementById('statusSelect')?.value || 'ALL';
+            const sortBy = document.getElementById('sortSelect')?.value || 'NAME';
+
+            // Filter by Search Query
+            if (query) {
+                students = students.filter(s => {
+                    const fn = (s.first_name || '').toLowerCase();
+                    const ln = (s.last_name || '').toLowerCase();
+                    const pin = (s.pin || '').toLowerCase();
+                    return fn.includes(query) || ln.includes(query) || pin.includes(query);
+                });
+            }
+
+            // Filter by Status
+            if (statusFilter !== 'ALL') {
+                students = students.filter(s => {
+                    const st = getStudentWorkStatus(s);
+                    if (statusFilter === 'BOTH_DONE') return st.isBothDone;
+                    if (statusFilter === 'CIT9_DONE') return st.cit9Done;
+                    if (statusFilter === 'CIT9_PENDING') return !st.cit9Done;
+                    if (statusFilter === 'WHERE_DONE') return st.whereDone;
+                    if (statusFilter === 'WHERE_PENDING') return !st.whereDone;
+                    if (statusFilter === 'ANY_PENDING') return st.isPending;
+                    return true;
+                });
+            }
+
+            // Sorting
+            students.sort((a, b) => {
+                const stA = getStudentWorkStatus(a);
+                const stB = getStudentWorkStatus(b);
+
+                if (sortBy === 'TASKS') {
+                    if (stB.totalDone !== stA.totalDone) return stB.totalDone - stA.totalDone;
+                } else if (sortBy === 'PENDING') {
+                    if (stA.totalDone !== stB.totalDone) return stA.totalDone - stB.totalDone;
+                } else if (sortBy === 'PIN') {
+                    return (a.pin || '').localeCompare(b.pin || '');
+                }
+                return (a.last_name || '').localeCompare(b.last_name || '');
+            });
+
+            if (students.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: var(--text-muted); font-size: 1.1rem;">No student records match your active filter.</div>`;
+                return;
+            }
+
+            // Split students into two columns
+            const mid = Math.ceil(students.length / 2);
+            const leftStudents = students.slice(0, mid);
+            const rightStudents = students.slice(mid);
+
+            [leftStudents, rightStudents].forEach(colStudents => {
+                const col = document.createElement('div');
+                col.className = 'list-column';
+
+                // Header
+                const headerRow = document.createElement('div');
+                headerRow.className = 'list-header-row';
+                headerRow.innerHTML = `
+                    <span></span>
+                    <span>Student</span>
+                    <span>PIN</span>
+                    <span>Cls</span>
+                    <span>📰 Diag</span>
+                    <span>🗺️ Where</span>
+                `;
+                col.appendChild(headerRow);
+
+                colStudents.forEach(student => {
+                    const st = getStudentWorkStatus(student);
+                    const card = document.createElement('div');
+                    card.className = 'student-card';
+
+                    let stripeClass = 'none-done';
+                    if (st.isBothDone) stripeClass = 'all-done';
+                    else if (st.totalDone === 1) stripeClass = 'some-done';
+
+                    card.innerHTML = `
+                        <span class="row-stripe ${stripeClass}"></span>
+                        <span class="student-name">${student.last_name}, ${student.first_name}</span>
+                        <span class="student-pin-badge">${student.pin || '---'}</span>
+                        <span class="student-class-badge">${student.homeroom}</span>
+                        <span>${st.cit9Done
+                            ? '<span class="status-chip done">✅ Done</span>'
+                            : '<span class="status-chip wait">—</span>'}</span>
+                        <span>${st.whereDone
+                            ? '<span class="status-chip where-done">✅ Done</span>'
+                            : '<span class="status-chip wait">—</span>'}</span>
+                    `;
+
+                    card.onclick = () => openInspectModal(student);
+                    col.appendChild(card);
+                });
+
+                container.appendChild(col);
+            });
+        }
+
+        // Live Cloud Sync with Concurrent Batching
+        async function syncLiveCloudSubmissions(isBackground = false) {
+            const btn = document.getElementById('btnSyncCloud');
+            if (!isBackground && btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span>⏳</span> Querying Google Sheets...';
+            }
+            if (!isBackground) {
+                showToast("Syncing with Room 8 Google Apps Script Webhook...");
+            }
+
+            const gr9 = (window.MASTER_ROSTER_DATA || []).filter(s => ['901', '902', '903'].includes(String(s.homeroom || '').trim()));
+            let newSynced = 0;
+            const BATCH_SIZE = 8;
+
+            for (let i = 0; i < gr9.length; i += BATCH_SIZE) {
+                const batch = gr9.slice(i, i + BATCH_SIZE);
+                if (!isBackground && btn) {
+                    btn.innerHTML = `<span>⏳</span> Syncing (${Math.min(i + batch.length, gr9.length)}/${gr9.length})...`;
+                }
+
+                await Promise.all(batch.map(async s => {
+                    const cls = String(s.homeroom || '').trim();
+                    const pin = (s.pin || '').toUpperCase();
+                    const name = s.first_name;
+
+                    try {
+                        const res = await StudentAPI.login(cls, name, pin, 'CIT9');
+                        if (res && (res.savedData || res.task)) {
+                            const task = res.task || '';
+                            const d = res.savedData ? (res.savedData.data || res.savedData) : {};
+                            
+                            // 1. Diagnostic update
+                            if (task.includes('Current Issues') || d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue) {
+                                d.task = task;
+                                d.homeroom = cls;
+                                d.student_name = `${s.first_name} ${s.last_name}`;
+                                cachedSubmissions[pin] = d;
+                                newSynced++;
+                            }
+
+                            // 2. WHERE project update
+                            if (task.includes('WHERE') || d.p1 || d.where_personal || d.cat1_personal) {
+                                window.ROOM8_WHERE_INITIAL_DATA = window.ROOM8_WHERE_INITIAL_DATA || {};
+                                window.ROOM8_WHERE_INITIAL_DATA[pin] = d;
+                            }
+                        }
+                    } catch(e) {
+                        console.warn(`Sync failed for ${s.first_name} (${pin}):`, e);
+                    }
+                }));
+
+                // Live update UI as batches complete
+                updateMetrics();
+                renderStudentCards();
+            }
+
+            try {
+                localStorage.setItem('ROOM8_CIT9_DIAGNOSTIC_CACHE', JSON.stringify(cachedSubmissions));
+            } catch(e) {}
+
+            let totalBoth = 0;
+            gr9.forEach(s => {
+                if (getStudentWorkStatus(s).isBothDone) totalBoth++;
+            });
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span>🟢</span> Cloud Synced (${totalBoth} complete)`;
+            }
+
+            if (!isBackground) {
+                showToast(`Sync complete! ${totalBoth} students fully up to date.`);
+            }
+        }
+
+        // Inspect Modal (Private Teacher View)
+        function openInspectModal(student, sub) {
+            if (student && student.stopPropagation) {
+                student.stopPropagation();
+                student = sub;
+                sub = null;
+            }
+            if (!sub && student) {
+                sub = getStudentSubmission(student);
+            }
+            if (!student) return;
+
+            const modal = document.getElementById('inspectModal');
+            document.getElementById('m-student-name').innerText = `${student.first_name} ${student.last_name}`;
+            document.getElementById('m-student-sub').innerText = `Class ${student.homeroom} • PIN: ${student.pin} • ID: ${student.student_id || '---'}`;
+
+            const banner = document.getElementById('m-status-banner');
+            const issuesGrid = document.getElementById('m-issues-grid');
+            issuesGrid.innerHTML = '';
+
+            if (sub) {
+                banner.style.background = 'rgba(16, 185, 129, 0.15)';
+                banner.style.color = '#34d399';
+                banner.style.border = '1px solid #10b981';
+                banner.innerText = '✅ Completed & Verified in Master Google Sheet';
+
+                document.getElementById('m-primary-news').innerText = NEWS_TITLES[sub.primary_news] || sub.primary_news || 'None stated';
+                document.getElementById('m-news-freq').innerText = FREQ_TITLES[sub.news_frequency] || sub.news_frequency || 'Unspecified';
+                document.getElementById('m-fact-check').innerText = VERIFY_TITLES[sub.verification_habit] || sub.verification_habit || 'Unspecified';
+                
+                const sources = Array.isArray(sub.news_sources) 
+                    ? sub.news_sources.map(s => NEWS_TITLES[s] || s).join(', ') 
+                    : 'None';
+                document.getElementById('m-all-sources').innerText = sources;
+
+                document.getElementById('m-top-debate').innerText = DEBATE_TITLES[sub.top_debate] || sub.top_debate || 'No debate selected';
+                document.getElementById('m-personal-issue').innerText = sub.personal_issue || 'No personal issue submitted';
+
+                if (sub.issues && typeof sub.issues === 'object') {
+                    for (const [k, v] of Object.entries(sub.issues)) {
+                        const chip = document.createElement('div');
+                        const issueLabel = ISSUE_TITLES[k] || k;
+                        const vStr = String(v || '').trim();
+                        let cls = 'medium';
+                        let ratingText = `Rating: ${vStr}`;
+
+                        if (vStr === '4') {
+                            cls = 'high';
+                            ratingText = '4: Very Familiar / Follow Closely';
+                        } else if (vStr === '3') {
+                            cls = 'high';
+                            ratingText = '3: Familiar with Topic';
+                        } else if (vStr === '2') {
+                            cls = 'medium';
+                            ratingText = '2: Heard Headlines';
+                        } else if (vStr === '1') {
+                            cls = 'low';
+                            ratingText = '1: Never Heard of This';
+                        }
+
+                        chip.className = `issue-chip ${cls}`;
+                        chip.innerHTML = `<span>${issueLabel}</span> <strong>${ratingText}</strong>`;
+                        issuesGrid.appendChild(chip);
+                    }
+                } else {
+                    issuesGrid.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No issue ratings recorded.</div>';
+                }
+
+                if (sub.teacher_note) {
+                    document.getElementById('m-teacher-note-wrap').style.display = 'block';
+                    document.getElementById('m-teacher-note').innerText = `"${sub.teacher_note}"`;
+                } else {
+                    document.getElementById('m-teacher-note-wrap').style.display = 'none';
+                }
+
+            } else {
+                banner.style.background = 'rgba(100, 116, 139, 0.15)';
+                banner.style.color = '#94a3b8';
+                banner.style.border = '1px solid #64748b';
+                banner.innerText = '⚪ Diagnostic Pending — Student has not logged in to submit yet';
+
+                document.getElementById('m-primary-news').innerText = '---';
+                document.getElementById('m-news-freq').innerText = '---';
+                document.getElementById('m-fact-check').innerText = '---';
+                document.getElementById('m-all-sources').innerText = '---';
+                document.getElementById('m-top-debate').innerText = '---';
+                document.getElementById('m-personal-issue').innerText = 'Student has not submitted their personal issue yet.';
+                document.getElementById('m-teacher-note-wrap').style.display = 'none';
+                issuesGrid.innerHTML = '<div style="color: var(--text-dim); font-size: 0.85rem;">Pending student submission.</div>';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeInspectModal() {
+            document.getElementById('inspectModal').style.display = 'none';
+        }
+
+        function handleBackdropClick(e) {
+            if (e.target.id === 'inspectModal') closeInspectModal();
+        }
+
+        // Immediate Render on load + Automatic Background Cloud Sync
+        window.onload = () => {
+            updateMetrics();
+            renderStudentCards();
+            // Automatically sync in background without blocking UI
+            setTimeout(() => {
+                syncLiveCloudSubmissions(true);
+            }, 800);
+        };
+    </script>
+</body>
+</html>

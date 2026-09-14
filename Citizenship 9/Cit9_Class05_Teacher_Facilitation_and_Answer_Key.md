@@ -2,8 +2,8 @@
 **Topic:** The 3 Levels of Canadian Government: Who Does What?  
 **Target Class:** Classes 901, 902, 903 &bull; **Time:** 45 Minutes &bull; **Setting:** Room 8 (Mr. Waugh)  
 **Materials:** 
-- Printable Student Dossier: [`Day1_Deliverables/16_Cit9_Class5_Three_Levels_of_Government_Dossier.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Day1_Deliverables/16_Cit9_Class5_Three_Levels_of_Government_Dossier.html)
-- Smartboard Slide Deck: [`Day1_Deliverables/16_Cit9_Class5_Three_Levels_Slide_Deck.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Day1_Deliverables/16_Cit9_Class5_Three_Levels_Slide_Deck.html)
+- Printable Student Dossier: [`Citizenship 9/16_Cit9_Class5_Three_Levels_of_Government_Dossier.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Citizenship%209/16_Cit9_Class5_Three_Levels_of_Government_Dossier.html)
+- Smartboard Slide Deck: [`Citizenship 9/16_Cit9_Class5_Three_Levels_Slide_Deck.html`](file:///F:/Antigravity/simroom/Github%20Repos/bihi2027/Citizenship%209/16_Cit9_Class5_Three_Levels_Slide_Deck.html)
 
 ---
 

@@ -722,16 +722,35 @@
         <div class="top-nav">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="student-pill" id="badgeStudent">Enter PIN below to load profile</span>
+                <span id="cloudStatusPill" style="font-size:0.80em; font-family:'JetBrains Mono',monospace; font-weight:700; padding:3px 10px; border-radius:6px; background:#f1f5f9; border:1.5px solid #cbd5e1; color:#475569;">☁️ Cloud: Not Logged In</span>
                 <span style="font-size: 0.8em; color: var(--text-muted);" id="syncStatus">&bull; Ready</span>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <button class="btn btn-primary" id="btnTopSave" style="background: #059669; border-color: #10b981; font-weight: 800; font-size: 0.88em; box-shadow: 0 2px 8px rgba(5,150,105,0.35); display: inline-flex; align-items: center; gap: 6px;" onclick="savePortfolio()">💾 Save to Google Sheets</button>
+                <button class="btn btn-secondary" id="btnVerifyCloud" style="background: #ecfdf5; border-color: #86efac; color: #166534; font-weight: 700; display: none;" onclick="verifyAndInspectCloudSave()">🔍 Verify Cloud Save</button>
+                <button class="btn btn-secondary" style="background: #f8fafc; border-color: #cbd5e1; color: #334155; font-size: 0.78em;" onclick="copyBackupToClipboard()">📋 Copy Backup</button>
                 <a href="WHERE_Grade9_Progress_Dashboard.html" class="btn btn-secondary" style="background: #e0f2fe; border-color: #38bdf8; color: #0369a1; font-weight: 700;">📊 Gr 9 Dashboard</a>
-                <a href="../Day1_Deliverables/10_WHERE_Slide_Deck.html" target="_blank" class="btn btn-secondary" style="background: #f1f5f9; border-color: #cbd5e1; color: #1e293b;">🖥️ Intro Slides</a>
+                <a href="../Citizenship 9/10_WHERE_Slide_Deck.html" target="_blank" class="btn btn-secondary" style="background: #f1f5f9; border-color: #cbd5e1; color: #1e293b;">🖥️ Intro Slides</a>
                 <button class="btn btn-secondary" style="background: #f8fafc; border-color: #cbd5e1; color: #334155; font-weight: 600;" onclick="switchTab('tab-review')">📄 Portfolio View</button>
                 <button class="btn btn-secondary" style="background: var(--gold-bg); border-color: #fcd34d; color: #92400e;" onclick="loadWaughExemplar()">⭐ Load Mr. Waugh's Sample</button>
                 <button class="btn btn-primary" onclick="openStoryMapModal()">📺 Present Deck</button>
                 <a href="../index.html" class="btn btn-secondary">&larr; Hub</a>
                 <button class="btn btn-secondary" id="topLogoutBtn" style="display: none;" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+
+        <!-- Chromebook Draft Recovery Banner -->
+        <div id="chromebookRecoveryBanner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 18px; margin-bottom: 16px; font-size: 0.9em; color: #92400e; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(245,158,11,0.15); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.6em;">📁</span>
+                <div>
+                    <strong id="recoveryBannerText" style="display: block; font-size: 1.02em;">Found saved draft on this Chromebook!</strong>
+                    <span style="font-size: 0.84em; color: #78350f;">Your writing from class is safely stored here. Click "Restore & Sync" to send it directly to Mr. Waugh's Google Sheet.</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" id="btnRestoreAndSync" style="background: #059669; border-color: #10b981; font-weight: 800;" onclick="restoreAndSaveDraft()">Restore & Sync Now</button>
+                <button class="btn btn-secondary" style="background: #ffffff; border-color: #cbd5e1; font-size: 0.8em;" onclick="dismissRecoveryBanner()">Dismiss</button>
             </div>
         </div>
 
@@ -774,7 +793,7 @@
                     </div>
                     <div class="field-group">
                         <label>3-Letter PIN</label>
-                        <input type="text" id="pinInput" placeholder="e.g. COR" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--primary);">
+                        <input type="text" id="pinInput" placeholder="e.g. COR" maxlength="3" oninput="handlePinAutoLookup(this.value)" style="text-transform: uppercase; font-family: monospace; font-weight: 800; color: var(--primary);">
                     </div>
                     <div style="display: flex; gap: 6px;">
                         <button class="btn btn-primary" type="button" onclick="loginAndRestore()">Log In & Load</button>
@@ -782,7 +801,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.82em; color: var(--text-muted); display: flex; justify-content: space-between;">
-                    <span>Tip: You can log in with your <strong>3-letter PIN</strong> or your <strong>full name</strong>!</span>
+                    <span>Tip: Enter your <strong>3-letter PIN</strong> to automatically load your identity and section!</span>
                     <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--primary); font-weight: 700;">Look up your assigned PIN &rarr;</a></span>
                 </div>
             </div>
@@ -835,8 +854,11 @@
                 </div>
 
                 <div class="nav-step-bar">
-                    <span>Section 1 of 5</span>
-                    <button class="btn btn-primary" type="button" onclick="switchTab('tab-p2')">Next: 2. Community Place &rarr;</button>
+                    <span style="font-size: 0.85em; color: var(--text-muted);">Section 1 of 5</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-save-sync" type="button" onclick="savePortfolio()" style="background: #ecfdf5; border-color: #10b981; color: #047857; font-weight: 700;">💾 Save to Google Sheets</button>
+                        <button class="btn btn-primary" type="button" onclick="switchTab('tab-p2')">Next: 2. Community Place &rarr;</button>
+                    </div>
                 </div>
             </div>
 
@@ -879,7 +901,10 @@
 
                 <div class="nav-step-bar">
                     <button class="btn btn-secondary" type="button" onclick="switchTab('tab-p1')">&larr; Back to 1. Personal</button>
-                    <button class="btn btn-primary" type="button" onclick="switchTab('tab-p3')">Next: 3. Global Place &rarr;</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-save-sync" type="button" onclick="savePortfolio()" style="background: #ecfdf5; border-color: #10b981; color: #047857; font-weight: 700;">💾 Save to Google Sheets</button>
+                        <button class="btn btn-primary" type="button" onclick="switchTab('tab-p3')">Next: 3. Global Place &rarr;</button>
+                    </div>
                 </div>
             </div>
 
@@ -922,7 +947,10 @@
 
                 <div class="nav-step-bar">
                     <button class="btn btn-secondary" type="button" onclick="switchTab('tab-p2')">&larr; Back to 2. Community</button>
-                    <button class="btn btn-primary" type="button" onclick="switchTab('tab-p4')">Next: 4. Aspirational &rarr;</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-save-sync" type="button" onclick="savePortfolio()" style="background: #ecfdf5; border-color: #10b981; color: #047857; font-weight: 700;">💾 Save to Google Sheets</button>
+                        <button class="btn btn-primary" type="button" onclick="switchTab('tab-p4')">Next: 4. Aspirational &rarr;</button>
+                    </div>
                 </div>
             </div>
 
@@ -965,7 +993,10 @@
 
                 <div class="nav-step-bar">
                     <button class="btn btn-secondary" type="button" onclick="switchTab('tab-p3')">&larr; Back to 3. Global</button>
-                    <button class="btn btn-primary" type="button" onclick="switchTab('tab-p5')">Next: 5. Soundtrack &rarr;</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-save-sync" type="button" onclick="savePortfolio()" style="background: #ecfdf5; border-color: #10b981; color: #047857; font-weight: 700;">💾 Save to Google Sheets</button>
+                        <button class="btn btn-primary" type="button" onclick="switchTab('tab-p5')">Next: 5. Soundtrack &rarr;</button>
+                    </div>
                 </div>
             </div>
 
@@ -994,7 +1025,10 @@
 
                 <div class="nav-step-bar">
                     <button class="btn btn-secondary" type="button" onclick="switchTab('tab-p4')">&larr; Back to 4. Aspirational</button>
-                    <button class="btn btn-primary" type="button" onclick="switchTab('tab-review')">Next: 6. Portfolio Dossier &rarr;</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-save-sync" type="button" onclick="savePortfolio()" style="background: #ecfdf5; border-color: #10b981; color: #047857; font-weight: 700;">💾 Save to Google Sheets</button>
+                        <button class="btn btn-primary" type="button" onclick="switchTab('tab-review')">Next: 6. Portfolio Dossier &rarr;</button>
+                    </div>
                 </div>
             </div>
 
@@ -1201,11 +1235,17 @@
                 localStorage.setItem('places_class', cls);
                 localStorage.setItem('places_name', name);
                 localStorage.setItem('places_pin', pin);
+                if (typeof Session !== 'undefined' && Session.set) {
+                    Session.set(cls, name, pin);
+                }
             },
             clear() {
                 localStorage.removeItem('places_class');
                 localStorage.removeItem('places_name');
                 localStorage.removeItem('places_pin');
+                if (typeof Session !== 'undefined' && Session.clear) {
+                    Session.clear();
+                }
             }
         };
 
@@ -1233,6 +1273,11 @@
         };
 
         function switchTab(tabId) {
+            // Immediately sync whatever was typed in previous tab to Google Sheets
+            if (typeof backgroundCloudSync === 'function') {
+                backgroundCloudSync(true);
+            }
+
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
@@ -1693,10 +1738,12 @@
         function applyDraftData(d) {
             if (!d) return false;
             let applied = false;
+
+            // 1. Standard structured object format
             ['p1', 'p2', 'p3', 'p4'].forEach(k => {
                 if (d[k]) {
-                    if (d[k].title) { document.getElementById(`${k}-title`).value = d[k].title; applied = true; }
-                    if (d[k].desc) { document.getElementById(`${k}-desc`).value = d[k].desc; applied = true; }
+                    if (d[k].title && document.getElementById(`${k}-title`)) { document.getElementById(`${k}-title`).value = d[k].title; applied = true; }
+                    if (d[k].desc && document.getElementById(`${k}-desc`)) { document.getElementById(`${k}-desc`).value = d[k].desc; applied = true; }
                     if (d[k].img && document.getElementById(`${k}-img`)) {
                         document.getElementById(`${k}-img`).value = d[k].img;
                         updateImagePreview(k);
@@ -1708,15 +1755,49 @@
                     }
                 }
             });
+
+            // 2. Flat schema fallback (from Intake Audit, 4-Places activity, or prior forms)
+            const p1Flat = d.where_personal || d.cat1_personal;
+            if (p1Flat && !document.getElementById('p1-desc').value) {
+                document.getElementById('p1-desc').value = p1Flat;
+                applied = true;
+            }
+            const p2Flat = d.where_community || d.cat2_community;
+            if (p2Flat && !document.getElementById('p2-desc').value) {
+                document.getElementById('p2-desc').value = p2Flat;
+                applied = true;
+            }
+            const p3Flat = d.where_global || d.cat3_global;
+            if (p3Flat && !document.getElementById('p3-desc').value) {
+                document.getElementById('p3-desc').value = p3Flat;
+                applied = true;
+            }
+            const p4Flat = d.where_aspirational || d.cat4_aspirational;
+            if (p4Flat && !document.getElementById('p4-desc').value) {
+                document.getElementById('p4-desc').value = p4Flat;
+                applied = true;
+            }
+
             if (d.p5) {
-                if (d.p5.title) { document.getElementById('p5-title').value = d.p5.title; applied = true; }
-                if (d.p5.desc) { document.getElementById('p5-desc').value = d.p5.desc; applied = true; }
-                if (d.p5.yt) {
+                if (d.p5.title && document.getElementById('p5-title')) { document.getElementById('p5-title').value = d.p5.title; applied = true; }
+                if (d.p5.desc && document.getElementById('p5-desc')) { document.getElementById('p5-desc').value = d.p5.desc; applied = true; }
+                if (d.p5.yt && document.getElementById('p5-yt')) {
                     document.getElementById('p5-yt').value = d.p5.yt;
                     updateYouTubePreview();
                     applied = true;
                 }
+            } else if (d.cat5_music || d.youtube_url) {
+                if (d.cat5_music && !document.getElementById('p5-desc').value) {
+                    document.getElementById('p5-desc').value = d.cat5_music;
+                    applied = true;
+                }
+                if (d.youtube_url && !document.getElementById('p5-yt').value) {
+                    document.getElementById('p5-yt').value = d.youtube_url;
+                    updateYouTubePreview();
+                    applied = true;
+                }
             }
+
             return applied;
         }
 
@@ -1755,6 +1836,30 @@
             }
         }
 
+        // Auto-lookup student as soon as 3 letters are typed
+        function handlePinAutoLookup(val) {
+            const rawPin = (val || '').trim().toUpperCase();
+            if (rawPin.length === 3) {
+                if (rawPin === 'WAU' || rawPin === 'MRW') {
+                    loadWaughExemplar();
+                    return;
+                }
+                const roster = window.MASTER_ROSTER_DATA || [];
+                const matched = roster.find(s => (s.pin || '').toUpperCase() === rawPin);
+                if (matched) {
+                    document.getElementById('firstNameInput').value = matched.first_name;
+                    if (matched.homeroom) {
+                        document.getElementById('classSelect').value = matched.homeroom;
+                    }
+                    PlacesSession.set(matched.homeroom || '902', matched.first_name, rawPin);
+                    updateAuthDisplay(matched);
+                    loadStudentBrainstorm(matched, rawPin);
+                    showToast(`👤 Identified: ${matched.first_name} (Class ${matched.homeroom || '902'})`);
+                    triggerAutoSave();
+                }
+            }
+        }
+
         // Roster PIN Auth & Brainstorm Loading
         async function loginAndRestore() {
             const cls = document.getElementById('classSelect').value;
@@ -1777,10 +1882,20 @@
             pin = student.pin;
             firstName = student.first_name;
 
-            // 1. Clear everything from the screen first so NO previous student's or sample text lingers
-            clearAllFormFields();
+            // PRESERVE TYPED WORK: Only clear form if the student hasn't entered anything yet!
+            const hasUserTypedText = [
+                'p1-desc', 'p2-desc', 'p3-desc', 'p4-desc', 'p5-desc',
+                'p1-title', 'p2-title', 'p3-title', 'p4-title', 'p5-title', 'p5-yt'
+            ].some(id => {
+                const el = document.getElementById(id);
+                return el && el.value.trim().length > 0;
+            });
 
-            // 2. Set authenticated state
+            if (!hasUserTypedText) {
+                clearAllFormFields();
+            }
+
+            // Set authenticated state
             document.getElementById('pinInput').value = pin;
             document.getElementById('firstNameInput').value = firstName;
             if (student.homeroom) document.getElementById('classSelect').value = student.homeroom;
@@ -1788,13 +1903,55 @@
             PlacesSession.set(student.homeroom || cls, student.first_name, pin);
             updateAuthDisplay(student);
 
-            // 3. Load brainstorm reference notes from Google Form
+            // Load brainstorm reference notes from Google Form
             loadStudentBrainstorm(student, pin);
 
-            // 4. Check localStorage first for in-progress draft
+            // If the student already typed work before logging in, immediately persist to localStorage under their PIN
+            if (hasUserTypedText) {
+                triggerAutoSave();
+            }
+
+            // Update status indicator to checking cloud
+            const statusPill = document.getElementById('cloudStatusPill');
+            if (statusPill) {
+                statusPill.style.background = '#e0f2fe';
+                statusPill.style.borderColor = '#38bdf8';
+                statusPill.style.color = '#0369a1';
+                statusPill.innerHTML = "☁️ Checking Google Sheets...";
+            }
+
+            // Check remote Google Sheets save (authoritative)
+            const courseKey = (student.homeroom || cls).startsWith('8') ? 'HL8' : 'CIT9';
+            let cloudLoaded = false;
+            try {
+                showToast("Checking cloud database for prior submissions...");
+                const res = await StudentAPI.login(student.homeroom || cls, student.first_name, pin, courseKey);
+                if (res && res.savedData) {
+                    const d = res.savedData.data || res.savedData;
+                    if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5 || d.where_personal || d.cat1_personal) {
+                        if (!hasUserTypedText) {
+                            applyDraftData(d);
+                            cloudLoaded = true;
+                            if (statusPill) {
+                                statusPill.style.background = '#ecfdf5';
+                                statusPill.style.borderColor = '#10b981';
+                                statusPill.style.color = '#047857';
+                                statusPill.innerHTML = `🟢 Cloud Synced`;
+                            }
+                            document.getElementById('btnVerifyCloud').style.display = 'inline-flex';
+                            showToast(`✅ Loaded saved work from Google Sheets for ${student.first_name}!`);
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Cloud check notice:", e);
+            }
+
+            // Fallback to local draft if exists on this machine
             let loadedFromLocal = false;
             const savedDraft = localStorage.getItem(`places_draft_${pin}`);
-            if (savedDraft) {
+            if (savedDraft && !hasUserTypedText) {
                 try {
                     const parsed = JSON.parse(savedDraft);
                     if (applyDraftData(parsed)) {
@@ -1803,36 +1960,29 @@
                 } catch(e) {}
             }
 
-            // 5. Check remote Google Sheets save (which is authoritative)
-            const courseKey = (student.homeroom || cls).startsWith('8') ? 'HL8' : 'CIT9';
-            try {
-                showToast("Checking cloud database for prior submissions...");
-                const res = await StudentAPI.login(student.homeroom || cls, student.first_name, pin, courseKey);
-                if (res && res.savedData) {
-                    const d = res.savedData.data || res.savedData;
-                    if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
-                        applyDraftData(d);
-                        // Update local cache
-                        localStorage.setItem(`places_draft_${pin}`, JSON.stringify(d));
-                        showToast(`✅ Loaded your saved work from Google Sheets!`);
-                        return;
-                    }
+            if (loadedFromLocal || hasUserTypedText) {
+                if (statusPill) {
+                    statusPill.style.background = '#fef3c7';
+                    statusPill.style.borderColor = '#f59e0b';
+                    statusPill.style.color = '#92400e';
+                    statusPill.innerHTML = `⚠️ Draft Saved Locally (Click Save to Cloud)`;
                 }
-            } catch (e) {
-                console.warn("Cloud check notice:", e);
-            }
-
-            if (loadedFromLocal) {
-                showToast(`Welcome back, ${student.first_name}! Restored your draft from this device.`);
+                showToast(`Work restored on this Chromebook! Click 'Save to Google Sheets' to sync.`);
             } else {
                 // If brand new, fill reflection with their initial brainstorm notes
                 prepopulateFromBrainstorm(student, pin);
-                showToast(`Welcome, ${student.first_name}! Brainstorm loaded.`);
+                if (statusPill) {
+                    statusPill.style.background = '#f1f5f9';
+                    statusPill.style.borderColor = '#cbd5e1';
+                    statusPill.style.color = '#475569';
+                    statusPill.innerHTML = `☁️ Ready to Draft`;
+                }
+                showToast(`Welcome, ${student.first_name}! Ready to write.`);
             }
         }
 
         function updateAuthDisplay(student) {
-            document.getElementById('badgeStudent').innerText = `👤 ${student.first_name} ${student.last_name || ''} (${student.pin})`;
+            document.getElementById('badgeStudent').innerText = `👤 ${student.first_name} ${student.last_name || ''} (${student.pin}) • Class ${student.homeroom || '902'}`;
             document.getElementById('topLogoutBtn').style.display = 'inline-flex';
             document.getElementById('authLogoutBtn').style.display = 'inline-flex';
             document.getElementById('syncStatus').innerText = `• Loaded ${student.first_name}`;
@@ -1852,84 +2002,319 @@
             }
         }
 
-        // Auto-save debounced helper
-        let autoSaveTimer = null;
+        function buildPortfolioPayload() {
+            let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            let studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+            let cls = document.getElementById('classSelect').value;
+
+            const roster = window.MASTER_ROSTER_DATA || [];
+            if (pin && pin.length >= 3) {
+                const matched = roster.find(s => (s.pin || '').toUpperCase() === pin);
+                if (matched) {
+                    if (!studentName) studentName = matched.first_name;
+                    if (matched.homeroom) cls = matched.homeroom;
+                }
+            } else if (studentName && studentName.length >= 2) {
+                // Auto-resolve PIN from name if omitted
+                const resolved = StudentAPI.resolveStudent(cls, studentName, '');
+                if (resolved && resolved.student) {
+                    pin = resolved.student.pin;
+                    studentName = resolved.student.first_name;
+                    if (resolved.student.homeroom) cls = resolved.student.homeroom;
+                    const pIn = document.getElementById('pinInput');
+                    if (pIn && !pIn.value) pIn.value = pin;
+                }
+            }
+
+            const p1Desc = document.getElementById('p1-desc').value.trim();
+            const p2Desc = document.getElementById('p2-desc').value.trim();
+            const p3Desc = document.getElementById('p3-desc').value.trim();
+            const p4Desc = document.getElementById('p4-desc').value.trim();
+            const p5Desc = document.getElementById('p5-desc').value.trim();
+            const p5Yt = document.getElementById('p5-yt').value.trim();
+
+            return {
+                pin: pin,
+                name: studentName,
+                class: cls,
+                className: cls,
+                updated_at: new Date().toISOString(),
+                where_personal: p1Desc,
+                where_community: p2Desc,
+                where_global: p3Desc,
+                where_aspirational: p4Desc,
+                cat1_personal: p1Desc,
+                cat2_community: p2Desc,
+                cat3_global: p3Desc,
+                cat4_aspirational: p4Desc,
+                cat5_music: p5Desc,
+                youtube_url: p5Yt,
+                p1: { title: document.getElementById('p1-title').value.trim(), desc: p1Desc, img: document.getElementById('p1-img').value.trim(), coords: Maps.p1.coords },
+                p2: { title: document.getElementById('p2-title').value.trim(), desc: p2Desc, img: document.getElementById('p2-img').value.trim(), coords: Maps.p2.coords },
+                p3: { title: document.getElementById('p3-title').value.trim(), desc: p3Desc, img: document.getElementById('p3-img').value.trim(), coords: Maps.p3.coords },
+                p4: { title: document.getElementById('p4-title').value.trim(), desc: p4Desc, img: document.getElementById('p4-img').value.trim(), coords: Maps.p4.coords },
+                p5: { title: document.getElementById('p5-title').value.trim(), desc: p5Desc, yt: p5Yt }
+            };
+        }
+
+        let isCloudSaving = false;
+        let cloudDebounceTimer = null;
+
+        async function backgroundCloudSync(silent = false) {
+            let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            let studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+            let cls = document.getElementById('classSelect').value;
+
+            if ((!pin || pin.length < 3) && studentName) {
+                const resolved = StudentAPI.resolveStudent(cls, studentName, '');
+                if (resolved && resolved.student) {
+                    pin = resolved.student.pin;
+                    const pIn = document.getElementById('pinInput');
+                    if (pIn && !pIn.value) pIn.value = pin;
+                }
+            }
+
+            if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW' || isCloudSaving) return;
+
+            const payload = buildPortfolioPayload();
+            const courseKey = payload.class.startsWith('8') ? 'HL8' : 'CIT9';
+            const summaryText = `WHERE Places Portfolio for ${payload.name} (${payload.class}): P1: ${payload.p1.title || (payload.where_personal ? 'Entered' : 'None')}, P2: ${payload.p2.title || (payload.where_community ? 'Entered' : 'None')}`;
+
+            const statusPill = document.getElementById('cloudStatusPill');
+            const syncEl = document.getElementById('syncStatus');
+            if (statusPill && !silent) {
+                statusPill.style.background = '#fef3c7';
+                statusPill.style.borderColor = '#f59e0b';
+                statusPill.style.color = '#92400e';
+                statusPill.innerHTML = "⏳ Syncing to Cloud...";
+            }
+            if (syncEl) syncEl.innerText = "• Syncing to Google Sheets...";
+
+            isCloudSaving = true;
+            try {
+                const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', payload, summaryText, courseKey);
+                if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
+                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (statusPill) {
+                        statusPill.style.background = '#ecfdf5';
+                        statusPill.style.borderColor = '#10b981';
+                        statusPill.style.color = '#047857';
+                        statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                    }
+                    if (syncEl) syncEl.innerText = `• Saved to Cloud ${timeStr}`;
+                    const verifyBtn = document.getElementById('btnVerifyCloud');
+                    if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+                }
+            } catch(e) {
+                console.warn("Cloud sync error:", e);
+                if (syncEl) syncEl.innerText = `• Cloud sync pending`;
+            } finally {
+                isCloudSaving = false;
+            }
+        }
+
+        // Auto-save debounced helper: saves directly to Google Sheets cloud every 2s after typing pauses
         function triggerAutoSave() {
-            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            let studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+            let cls = document.getElementById('classSelect').value;
+
+            if ((!pin || pin.length < 3) && studentName) {
+                const resolved = StudentAPI.resolveStudent(cls, studentName, '');
+                if (resolved && resolved.student) {
+                    pin = resolved.student.pin;
+                    const pIn = document.getElementById('pinInput');
+                    if (pIn && !pIn.value) pIn.value = pin;
+                }
+            }
+
             if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW') return;
 
-            clearTimeout(autoSaveTimer);
-            autoSaveTimer = setTimeout(() => {
-                const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
-                const cls = document.getElementById('classSelect').value;
-                const portfolioPayload = {
-                    pin: pin,
-                    name: studentName,
-                    class: cls,
-                    updated_at: new Date().toISOString(),
-                    p1: { title: document.getElementById('p1-title').value.trim(), desc: document.getElementById('p1-desc').value.trim(), img: document.getElementById('p1-img').value.trim(), coords: Maps.p1.coords },
-                    p2: { title: document.getElementById('p2-title').value.trim(), desc: document.getElementById('p2-desc').value.trim(), img: document.getElementById('p2-img').value.trim(), coords: Maps.p2.coords },
-                    p3: { title: document.getElementById('p3-title').value.trim(), desc: document.getElementById('p3-desc').value.trim(), img: document.getElementById('p3-img').value.trim(), coords: Maps.p3.coords },
-                    p4: { title: document.getElementById('p4-title').value.trim(), desc: document.getElementById('p4-desc').value.trim(), img: document.getElementById('p4-img').value.trim(), coords: Maps.p4.coords },
-                    p5: { title: document.getElementById('p5-title').value.trim(), desc: document.getElementById('p5-desc').value.trim(), yt: document.getElementById('p5-yt').value.trim() }
-                };
-                localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
-                const syncEl = document.getElementById('syncStatus');
-                if (syncEl) syncEl.innerText = `• Draft saved locally ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            }, 600);
+            const syncEl = document.getElementById('syncStatus');
+            if (syncEl) syncEl.innerText = "• Typing...";
+
+            // Debounced cloud save: fires 2 seconds after student pauses typing
+            clearTimeout(cloudDebounceTimer);
+            cloudDebounceTimer = setTimeout(() => {
+                backgroundCloudSync(true);
+            }, 2000);
         }
 
         // Save & Webhook Sync to Google Sheets
         async function savePortfolio() {
-            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
-            const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
-            const cls = document.getElementById('classSelect').value;
+            let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            let studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+            let cls = document.getElementById('classSelect').value;
+
+            // Auto-resolve identity from roster
+            const roster = window.MASTER_ROSTER_DATA || [];
+            if (pin && pin.length >= 3) {
+                const matched = roster.find(s => (s.pin || '').toUpperCase() === pin);
+                if (matched) {
+                    if (!studentName) studentName = matched.first_name;
+                    if (matched.homeroom) cls = matched.homeroom;
+                    document.getElementById('firstNameInput').value = studentName;
+                    document.getElementById('classSelect').value = cls;
+                    PlacesSession.set(cls, studentName, pin);
+                    updateAuthDisplay(matched);
+                }
+            }
 
             if (!pin || pin.length < 3) {
-                showToast("Please enter and verify your 3-letter PIN before saving.", true);
+                showToast("Please enter your 3-letter PIN at top before saving.", true);
+                document.getElementById('pinInput').focus();
+                alert("⚠️ Please enter your 3-letter PIN in the box at the top before saving to Google Sheets.");
                 return;
             }
 
-            const portfolioPayload = {
-                pin: pin,
-                name: studentName,
-                class: cls,
-                updated_at: new Date().toISOString(),
-                p1: { title: document.getElementById('p1-title').value.trim(), desc: document.getElementById('p1-desc').value.trim(), img: document.getElementById('p1-img').value.trim(), coords: Maps.p1.coords },
-                p2: { title: document.getElementById('p2-title').value.trim(), desc: document.getElementById('p2-desc').value.trim(), img: document.getElementById('p2-img').value.trim(), coords: Maps.p2.coords },
-                p3: { title: document.getElementById('p3-title').value.trim(), desc: document.getElementById('p3-desc').value.trim(), img: document.getElementById('p3-img').value.trim(), coords: Maps.p3.coords },
-                p4: { title: document.getElementById('p4-title').value.trim(), desc: document.getElementById('p4-desc').value.trim(), img: document.getElementById('p4-img').value.trim(), coords: Maps.p4.coords },
-                p5: { title: document.getElementById('p5-title').value.trim(), desc: document.getElementById('p5-desc').value.trim(), yt: document.getElementById('p5-yt').value.trim() }
-            };
+            const portfolioPayload = buildPortfolioPayload();
+            const statusPill = document.getElementById('cloudStatusPill');
+            const allSaveBtns = Array.from(document.querySelectorAll('#btnTopSave, #btnSaveSubmit, #pf-save-btn, .btn-save-sync'));
+            
+            allSaveBtns.forEach(b => {
+                b.disabled = true;
+                b.dataset.origText = b.innerText;
+                b.innerText = "⏳ Saving to Google Sheets...";
+            });
 
-            // Local browser persistence
-            localStorage.setItem(`places_draft_${pin}`, JSON.stringify(portfolioPayload));
-
-            const saveBtn = document.getElementById('btnSaveSubmit') || document.getElementById('pf-save-btn');
-            if (saveBtn) {
-                saveBtn.disabled = true;
-                saveBtn.innerText = "⏳ Syncing to Google Sheets...";
+            if (statusPill) {
+                statusPill.style.background = '#fef3c7';
+                statusPill.style.borderColor = '#f59e0b';
+                statusPill.style.color = '#92400e';
+                statusPill.innerHTML = "⏳ Syncing to Cloud...";
             }
 
-            const courseKey = cls.startsWith('8') ? 'HL8' : (cls.startsWith('CIT') || cls === '901' || cls === '902' || cls === '903' ? 'CIT9' : 'HL9');
-            const summaryText = `WHERE Places Portfolio for ${studentName} (${cls}): P1: ${portfolioPayload.p1.title || 'None'}, P2: ${portfolioPayload.p2.title || 'None'}, P3: ${portfolioPayload.p3.title || 'None'}, P4: ${portfolioPayload.p4.title || 'None'}`;
+            const courseKey = cls.startsWith('8') ? 'HL8' : 'CIT9';
+            const summaryText = `WHERE Places Portfolio for ${studentName} (${cls}): P1: ${portfolioPayload.p1.title || (portfolioPayload.where_personal ? 'Entered' : 'None')}, P2: ${portfolioPayload.p2.title || (portfolioPayload.where_community ? 'Entered' : 'None')}, P3: ${portfolioPayload.p3.title || (portfolioPayload.where_global ? 'Entered' : 'None')}, P4: ${portfolioPayload.p4.title || (portfolioPayload.where_aspirational ? 'Entered' : 'None')}`;
 
             try {
                 const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey);
-                if (res && res.status === 'success') {
-                    showToast("✅ Portfolio saved and synced to master Google Sheet!");
+                if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
+                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (statusPill) {
+                        statusPill.style.background = '#ecfdf5';
+                        statusPill.style.borderColor = '#10b981';
+                        statusPill.style.color = '#047857';
+                        statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                    }
+                    const verifyBtn = document.getElementById('btnVerifyCloud');
+                    if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+                    showToast(`✅ Confirmed: Saved and synced to Mr. Waugh's Google Sheet (Class ${cls})!`);
                 } else {
-                    showToast("Saved locally in browser! (Master sync pending connection)");
+                    if (statusPill) {
+                        statusPill.style.background = '#fee2e2';
+                        statusPill.style.borderColor = '#ef4444';
+                        statusPill.style.color = '#b91c1c';
+                        statusPill.innerHTML = "🔴 Cloud Save Failed (Click to Retry)";
+                        statusPill.onclick = savePortfolio;
+                    }
+                    alert("⚠️ Notice: Could not verify immediate Google Sheets receipt. Click 'Save to Google Sheets' again to retry syncing.");
                 }
             } catch (err) {
                 console.warn("Sync error:", err);
-                showToast("Saved in browser! (Master sync pending connection)");
-            } finally {
-                if (saveBtn) {
-                    saveBtn.disabled = false;
-                    saveBtn.innerText = "💾 Save & Submit";
+                if (statusPill) {
+                    statusPill.style.background = '#fee2e2';
+                    statusPill.style.borderColor = '#ef4444';
+                    statusPill.style.color = '#b91c1c';
+                    statusPill.innerHTML = "🔴 Network Error (Click to Retry)";
+                    statusPill.onclick = savePortfolio;
                 }
+                alert("⚠️ Network connection hiccup. Please click 'Save to Google Sheets' again.");
+            } finally {
+                allSaveBtns.forEach(b => {
+                    b.disabled = false;
+                    b.innerText = b.dataset.origText || "💾 Save to Google Sheets";
+                });
             }
+        }
+
+        // Live Cloud Verification Modal
+        async function verifyAndInspectCloudSave() {
+            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            const cls = document.getElementById('classSelect').value;
+            const studentName = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+
+            if (!pin) {
+                alert("Please log in with your PIN first.");
+                return;
+            }
+
+            showToast("Querying live Google Sheets database to verify...");
+            const courseKey = cls.startsWith('8') ? 'HL8' : 'CIT9';
+            const res = await StudentAPI.verifyCloudSave(cls, pin, courseKey);
+
+            const modal = document.getElementById('verifyModal');
+            const body = document.getElementById('verifyModalBody');
+            const timeEl = document.getElementById('verifyModalTime');
+
+            if (res && res.status === 'success' && res.savedData) {
+                const d = res.savedData.data || res.savedData;
+                const p1 = d.p1?.desc || d.where_personal || d.cat1_personal || '';
+                const p2 = d.p2?.desc || d.where_community || d.cat2_community || '';
+                const p3 = d.p3?.desc || d.where_global || d.cat3_global || '';
+                const p4 = d.p4?.desc || d.where_aspirational || d.cat4_aspirational || '';
+                const p5 = d.p5?.desc || d.cat5_music || '';
+
+                let itemsHtml = `
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+                        <strong style="color: #15803d; font-size: 1rem;">✅ LIVE CLOUD RECORD CONFIRMED</strong>
+                        <div style="font-size: 0.8rem; color: #166534; margin-top: 3px;">
+                            Student: <strong>${studentName}</strong> (PIN: ${pin}) &bull; Section: <strong>${cls}</strong> &bull; Status: <strong>HTTP 200 Cloud Verified</strong>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; background: #fafafa;">
+                            <div style="font-weight: 700; color: #0284c7; font-size: 0.82rem;">1. Personal Place: ${p1 ? '<span style="color:#16a34a;">✅ Stored (' + p1.length + ' chars)</span>' : '<span style="color:#dc2626;">❌ Empty</span>'}</div>
+                            <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${p1 ? p1.substring(0, 80) + '...' : 'No text recorded in sheet.'}</div>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; background: #fafafa;">
+                            <div style="font-weight: 700; color: #059669; font-size: 0.82rem;">2. Community Place: ${p2 ? '<span style="color:#16a34a;">✅ Stored (' + p2.length + ' chars)</span>' : '<span style="color:#dc2626;">❌ Empty</span>'}</div>
+                            <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${p2 ? p2.substring(0, 80) + '...' : 'No text recorded in sheet.'}</div>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; background: #fafafa;">
+                            <div style="font-weight: 700; color: #7c3aed; font-size: 0.82rem;">3. Global Heritage: ${p3 ? '<span style="color:#16a34a;">✅ Stored (' + p3.length + ' chars)</span>' : '<span style="color:#dc2626;">❌ Empty</span>'}</div>
+                            <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${p3 ? p3.substring(0, 80) + '...' : 'No text recorded in sheet.'}</div>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; background: #fafafa;">
+                            <div style="font-weight: 700; color: #e11d48; font-size: 0.82rem;">4. Aspirational Place: ${p4 ? '<span style="color:#16a34a;">✅ Stored (' + p4.length + ' chars)</span>' : '<span style="color:#dc2626;">❌ Empty</span>'}</div>
+                            <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${p4 ? p4.substring(0, 80) + '...' : 'No text recorded in sheet.'}</div>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; background: #fafafa;">
+                            <div style="font-weight: 700; color: #b45309; font-size: 0.82rem;">5. Soundtrack: ${p5 ? '<span style="color:#16a34a;">✅ Stored (' + p5.length + ' chars)</span>' : '<span style="color:#dc2626;">❌ Empty</span>'}</div>
+                            <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${p5 ? p5.substring(0, 80) + '...' : 'No text recorded in sheet.'}</div>
+                        </div>
+                    </div>
+                `;
+                body.innerHTML = itemsHtml;
+                timeEl.innerText = `Verified with Google Sheets at ${new Date().toLocaleTimeString()}`;
+            } else {
+                body.innerHTML = `
+                    <div style="background: #fee2e2; border: 1.5px solid #f87171; border-radius: 8px; padding: 14px; color: #991b1b;">
+                        <strong>⚠️ CLOUD VERIFICATION PENDING</strong>
+                        <p style="margin-top: 4px; font-size: 0.82rem;">The server did not return a confirmed record for PIN ${pin}. Please make sure you clicked "Save to Google Sheets" and your Chromebook is connected to Wi-Fi.</p>
+                    </div>
+                `;
+                timeEl.innerText = `Check failed at ${new Date().toLocaleTimeString()}`;
+            }
+            modal.style.display = 'flex';
+        }
+
+        // Emergency Clipboard Copy
+        function copyBackupToClipboard() {
+            const p1 = document.getElementById('p1-desc').value.trim();
+            const p2 = document.getElementById('p2-desc').value.trim();
+            const p3 = document.getElementById('p3-desc').value.trim();
+            const p4 = document.getElementById('p4-desc').value.trim();
+            const p5 = document.getElementById('p5-desc').value.trim();
+            const name = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
+            const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+
+            const text = `THE "WHERE" PROJECT — Places of Significance\nStudent: ${name} (${pin})\n\n1. Personal Place:\n${p1}\n\n2. Community Place:\n${p2}\n\n3. Global Heritage Place:\n${p3}\n\n4. Aspirational Place:\n${p4}\n\n5. Soundtrack Memory:\n${p5}\n`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("📋 All 5 places copied to clipboard! You can paste into Google Docs as a backup.");
+            }).catch(() => {
+                alert("Could not copy automatically. You can highlight your text manually.");
+            });
         }
 
         // 7-Slide Presentation Modal
@@ -2104,15 +2489,113 @@
             loginAndRestore();
         }
 
+        function restoreAndSaveDraft() {
+            if (!window._recoveryDraft) return;
+            const draft = window._recoveryDraft;
+            const pin = draft.pin;
+            const roster = window.MASTER_ROSTER_DATA || [];
+            const s = roster.find(st => (st.pin || '').toUpperCase() === pin);
+            
+            document.getElementById('pinInput').value = pin;
+            if (s) {
+                document.getElementById('firstNameInput').value = s.first_name;
+                if (s.homeroom) document.getElementById('classSelect').value = s.homeroom;
+                PlacesSession.set(s.homeroom || '902', s.first_name, pin);
+                updateAuthDisplay(s);
+            }
+            applyDraftData(draft.data);
+            showToast("Draft restored! Now saving to Google Sheets...");
+            savePortfolio();
+            dismissRecoveryBanner();
+        }
+
+        function dismissRecoveryBanner() {
+            const b = document.getElementById('chromebookRecoveryBanner');
+            if (b) b.style.display = 'none';
+        }
+
+        function sendEmergencyBeaconSync() {
+            let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
+            if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW') return;
+
+            const payload = buildPortfolioPayload();
+            const summaryText = `WHERE Places Portfolio for ${payload.name} (${payload.class}): P1: ${payload.p1?.title || (payload.where_personal ? 'Entered' : 'None')}`;
+
+            const body = JSON.stringify({
+                action: 'submit_profile',
+                taskName: 'The WHERE Project — Places Portfolio',
+                className: payload.class,
+                name: payload.name,
+                pin: pin,
+                email: '',
+                pronouns: '',
+                data: payload,
+                summary: summaryText
+            });
+
+            const url = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
+            try {
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
+                    navigator.sendBeacon(url, blob);
+                } else {
+                    fetch(url, { method: 'POST', body: body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                }
+            } catch(e) {}
+        }
+
         // Initialize and setup auto-save on load
         window.addEventListener('DOMContentLoaded', () => {
             initSingleMap('p1');
 
-            // Wire auto-save listeners to all input/textarea elements
+            // Wire auto-save & blur cloud sync listeners to all input/textarea elements
             document.querySelectorAll('input, textarea, select').forEach(el => {
                 el.addEventListener('input', triggerAutoSave);
-                el.addEventListener('change', triggerAutoSave);
+                el.addEventListener('change', () => backgroundCloudSync(true));
+                el.addEventListener('blur', () => backgroundCloudSync(true));
             });
+
+            // When lid is closed, tab switched, or Chromebook locked: emergency beacon sync
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    sendEmergencyBeaconSync();
+                }
+            });
+            window.addEventListener('pagehide', () => {
+                sendEmergencyBeaconSync();
+            });
+
+            // Scan localStorage for any saved Chromebook drafts
+            const foundDrafts = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('places_draft_')) {
+                    const draftPin = key.replace('places_draft_', '');
+                    if (draftPin && draftPin !== 'WAU' && draftPin !== 'MRW') {
+                        try {
+                            const d = JSON.parse(localStorage.getItem(key));
+                            if (d && (d.p1?.desc || d.p2?.desc || d.p3?.desc || d.p4?.desc || d.p5?.desc || d.where_personal || d.cat1_personal)) {
+                                foundDrafts.push({ pin: draftPin, data: d });
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            if (foundDrafts.length > 0) {
+                const latestDraft = foundDrafts[0];
+                const roster = window.MASTER_ROSTER_DATA || [];
+                const s = roster.find(st => (st.pin || '').toUpperCase() === latestDraft.pin);
+                const sName = s ? `${s.first_name} ${s.last_name || ''} (${latestDraft.pin} • Class ${s.homeroom || '902'})` : `PIN ${latestDraft.pin}`;
+                
+                const recBanner = document.getElementById('chromebookRecoveryBanner');
+                const recText = document.getElementById('recoveryBannerText');
+                if (recBanner && recText) {
+                    recText.innerText = `Found saved draft for ${sName} on this Chromebook!`;
+                    recBanner.style.display = 'flex';
+                    window._recoveryDraft = latestDraft;
+                }
+            }
 
             const savedPin = PlacesSession.getPin();
             const savedName = PlacesSession.getName();
@@ -2143,20 +2626,45 @@
                     StudentAPI.login(student.homeroom || savedClass, student.first_name, savedPin, courseKey).then(res => {
                         if (res && res.savedData) {
                             const d = res.savedData.data || res.savedData;
-                            if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
+                            if (d.p1 || d.p2 || d.p3 || d.p4 || d.p5 || d.where_personal || d.cat1_personal) {
                                 applyDraftData(d);
                                 localStorage.setItem(`places_draft_${savedPin}`, JSON.stringify(d));
                                 const syncEl = document.getElementById('syncStatus');
                                 if (syncEl) syncEl.innerText = `• Cloud Synced`;
+                                const pill = document.getElementById('cloudStatusPill');
+                                if (pill) {
+                                    pill.style.background = '#ecfdf5';
+                                    pill.style.borderColor = '#10b981';
+                                    pill.style.color = '#047857';
+                                    pill.innerHTML = '🟢 Cloud Synced';
+                                }
+                                document.getElementById('btnVerifyCloud').style.display = 'inline-flex';
                             }
                         }
                     }).catch(e => console.warn(e));
                 }
-            } else {
-                // If previous session was WAU or empty, clear form so next student gets a fresh clean sheet
-                clearAllFormFields();
             }
         });
     </script>
+
+    <!-- Cloud Save Verification Certificate Modal -->
+    <div id="verifyModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: #ffffff; border-radius: 12px; max-width: 580px; width: 92%; padding: 24px 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2.5px solid #10b981;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+                <div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.08em;">Official Cloud Verification Certificate</div>
+                    <h2 style="font-family: 'Roboto Slab', Georgia, serif; font-size: 1.35rem; color: #0f172a; margin-top: 2px;">Mr. Waugh's Master Database Record</h2>
+                </div>
+                <span style="font-size: 2rem;">🛡️</span>
+            </div>
+            <div id="verifyModalBody" style="font-size: 0.88rem; color: #334155; line-height: 1.5;">
+                <!-- Populated dynamically -->
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+                <span style="font-size: 0.75rem; color: #64748b; font-family: 'JetBrains Mono', monospace;" id="verifyModalTime"></span>
+                <button class="btn btn-primary" onclick="document.getElementById('verifyModal').style.display='none'">✅ Confirmed — Safe to Close</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

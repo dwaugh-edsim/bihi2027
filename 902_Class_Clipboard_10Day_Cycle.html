@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Clipboard: 902 Waugh • 10-Day Cycle (A4 Printable)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --border-black: #000000;
+            --th-gray: #d4d4d8;
+            --lunch-gray: #e4e4e7;
+            --note-gray: #e4e4e7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #52525b;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        /* SCREEN NAVIGATION TOOLBAR */
+        .screen-nav {
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+            background: #18181b;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            max-width: 900px;
+            width: 95%;
+            justify-content: space-between;
+        }
+
+        .nav-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .day-select {
+            background: #27272a;
+            color: #ffffff;
+            border: 1px solid #3f3f46;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-print {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s;
+        }
+
+        .btn-print:hover {
+            background: #1d4ed8;
+        }
+
+        /* A4 CLIPBOARD PAGE */
+        .clipboard-page {
+            width: 210mm;
+            height: 297mm;
+            background: #ffffff;
+            padding: 8mm 9mm 6mm 9mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* HEADER AREA */
+        .sheet-header {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .sheet-title {
+            font-family: 'Courier Prime', Courier, monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .meta-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding-bottom: 2px;
+        }
+
+        .days-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .day-tag {
+            color: #000000;
+            padding: 0 2px;
+        }
+
+        .day-tag.current {
+            border: 1.5px solid #000000;
+            border-radius: 3px;
+            padding: 1px 4px;
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .date-fill-line {
+            display: inline-block;
+            border-bottom: 1.5px dashed #000000;
+            width: 190px;
+            height: 12px;
+            margin: 0 6px;
+        }
+
+        /* MAIN GRID CONTAINER (2 COLUMNS: ROSTER ON LEFT, SCHEDULE ON RIGHT) */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 83mm 1fr;
+            border: 1.5px solid var(--border-black);
+            flex-grow: 1;
+            margin-top: 2px;
+        }
+
+        /* LEFT ROSTER TABLE */
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.72rem;
+            height: 100%;
+        }
+
+        .roster-table th {
+            background-color: var(--th-gray);
+            border: 1px solid var(--border-black);
+            font-weight: 800;
+            text-align: center;
+            padding: 3px 1px;
+            font-size: 0.8rem;
+            line-height: 1.15;
+        }
+
+        .roster-table th.col-num {
+            width: 7mm;
+            font-size: 0.8rem;
+        }
+
+        .roster-table th.col-name {
+            font-size: 0.95rem;
+            width: 28.5mm;
+        }
+
+        .roster-table th.col-am {
+            width: 9.5mm;
+            background-color: #d4d4d8;
+        }
+
+        .roster-table th.col-left {
+            width: 14mm;
+            font-size: 0.72rem;
+        }
+
+        .roster-table th.col-pm {
+            width: 9.5mm;
+            background-color: #d4d4d8;
+        }
+
+        .roster-table td {
+            border: 1px solid var(--border-black);
+            padding: 0 4px;
+            height: 7.7mm;
+            vertical-align: middle;
+            font-size: 0.72rem;
+            font-weight: 500;
+        }
+
+        .roster-table td.col-num {
+            text-align: center;
+            font-family: 'Courier Prime', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.70rem;
+            color: #27272a;
+            background-color: #f8fafc;
+            padding: 0 1px;
+        }
+
+        .roster-table td.col-num.blank-num {
+            color: #a1a1aa;
+        }
+
+        .roster-table td.col-name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .roster-table td.col-am,
+        .roster-table td.col-pm {
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        /* RIGHT SCHEDULE / EVALUATION PANEL */
+        .eval-panel {
+            border-left: 1.5px solid var(--border-black);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* EVAL HEADER */
+        .eval-header {
+            display: grid;
+            grid-template-columns: 24mm 1fr 15mm;
+            background-color: var(--th-gray);
+            border-bottom: 1.5px solid var(--border-black);
+            text-align: center;
+            font-weight: 800;
+            font-size: 1rem;
+            height: 7.8mm;
+            align-items: center;
+        }
+
+        .eval-header .h-class { border-right: 1px solid var(--border-black); height: 100%; display: flex; align-items: center; justify-content: center; }
+        .eval-header .h-notes { border-right: 1px solid var(--border-black); height: 100%; display: flex; align-items: center; justify-content: center; }
+        .eval-header .h-points { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+
+        /* PERIOD ROW BLOCK */
+        .period-block {
+            display: grid;
+            grid-template-columns: 24mm 1fr 15mm;
+            border-bottom: 1.5px solid var(--border-black);
+            flex: 1 1 0;
+            min-height: 0;
+        }
+
+        .period-name-cell {
+            border-right: 1px solid var(--border-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.88rem;
+            text-align: center;
+            padding: 2px;
+            line-height: 1.15;
+            background: #ffffff;
+        }
+
+        .period-name-cell .room-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #27272a;
+            margin-top: 2px;
+        }
+
+        .period-notes-cell {
+            border-right: 1px solid var(--border-black);
+            padding: 2px 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            background: #ffffff;
+        }
+
+        .criteria-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.71rem;
+            font-weight: 600;
+            line-height: 1.15;
+        }
+
+        .check-sq {
+            width: 10px;
+            height: 10px;
+            border: 1.2px solid #000000;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .period-points-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+        }
+
+        /* LUNCH BANNER */
+        .lunch-banner {
+            background-color: var(--lunch-gray);
+            border-bottom: 1.5px solid var(--border-black);
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.88rem;
+            padding: 3px 0;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+
+        /* ANNOUNCEMENTS & HOMEWORK BLOCK */
+        .notes-header-banner {
+            background-color: var(--note-gray);
+            border-bottom: 1px solid var(--border-black);
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.86rem;
+            padding: 3px 0;
+            flex-shrink: 0;
+        }
+
+        .announcements-box {
+            flex: 1.8 1 0;
+            position: relative;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-black);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+        }
+
+        .total-points-wrap {
+            align-self: flex-end;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .total-points-label {
+            font-weight: 700;
+            font-size: 0.78rem;
+        }
+
+        .total-points-box {
+            width: 18mm;
+            height: 8mm;
+            border: 1.5px solid var(--border-black);
+        }
+
+        /* BOTTOM FILL ROWS (MATCHING ROSTER BOTTOM GRID) */
+        .bottom-blank-row {
+            height: 7.7mm;
+            border-bottom: 1px solid var(--border-black);
+            display: grid;
+            grid-template-columns: 24mm 1fr 15mm;
+        }
+        .bottom-blank-row:last-child {
+            border-bottom: none;
+        }
+        .bottom-blank-row .b-col1 { border-right: 1px solid var(--border-black); }
+        .bottom-blank-row .b-col2 { border-right: 1px solid var(--border-black); }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .screen-nav {
+                display: none !important;
+            }
+
+            .clipboard-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 8mm 9mm 6mm 9mm !important;
+                box-shadow: none !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+
+            .clipboard-page:last-of-type {
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN NAVIGATION CONTROLS -->
+    <div class="screen-nav">
+        <div class="nav-title">
+            <span>📋 Class Clipboard: 902 Waugh</span>
+            <span style="font-size: 0.8rem; color: #a1a1aa;">(10-Day Cycle • A4 Printable)</span>
+        </div>
+        <div class="nav-controls">
+            <label for="dayFilter" style="font-size: 0.8rem; font-weight: 600;">Select Day:</label>
+            <select id="dayFilter" class="day-select" onchange="filterDay(this.value)">
+                <option value="all">Show All 10 Days (Print Full 2-Week Set)</option>
+                <option value="day1">Day 1 (Mon W1: PE, Sci, CIT, Math, ELA)</option>
+                <option value="day2">Day 2 (Tue W1: HL, CS, Art, Math, ELA)</option>
+                <option value="day3">Day 3 (Wed W1: French, Math, PE, ELA, HL)</option>
+                <option value="day4">Day 4 (Thu W1: Art, CIT, Sci, Math, ELA)</option>
+                <option value="day5">Day 5 (Fri W1: PE, ILT, ELA, Math, French)</option>
+                <option value="day6">Day 6 (Mon W2: Sci, ELA, French, Math, CIT)</option>
+                <option value="day7">Day 7 (Tue W2: PE, Math, CS, Sci, ELA)</option>
+                <option value="day8">Day 8 (Wed W2: Art, French, ELA, Math, CIT)</option>
+                <option value="day9">Day 9 (Thu W2: PE, ELA, French, Math, HL)</option>
+                <option value="day10">Day 10 (Fri W2: Sci, ILT, ELA, CIT, Math)</option>
+            </select>
+            <button class="btn-print" onclick="window.print()">🖨️ Print Selected</button>
+        </div>
+    </div>
+
+    <!-- CONTAINER FOR THE 10 PAGES -->
+    <div id="pagesContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <!-- JavaScript will render the 10 Days dynamically below -->
+    </div>
+
+    <script>
+        // Active 902 Roster (26 active students + 4 blank rows = 30 rows total)
+        const roster902 = [
+            "Mona A",
+            "John B",
+            "Gemma B",
+            "Noah B",
+            "Nolan C",
+            "Berlin C",
+            "Lyla F",
+            "Sebas H",
+            "Tristan H",
+            "Jordan H",
+            "Arlo J",
+            "Sofia K",
+            "Douglas L",
+            "Marla L",
+            "Jax M",
+            "Simon M",
+            "Zackory N",
+            "Mhareon O",
+            "Thomas O",
+            "Oscar P",
+            "Chelsea R",
+            "Jordan S",
+            "Sofie S",
+            "Hannah S",
+            "Anna T",
+            "Nova T",
+            "", // Blank line 1
+            "", // Blank line 2
+            "", // Blank line 3
+            ""  // Blank line 4
+        ];
+
+        // 902 Exact 10-Day Cycle Schedule from Master Schedule
+        const cycleSchedule = [
+            {
+                dayNum: 1,
+                dayName: "MON",
+                cycleDay: "Day 1",
+                weekNum: "Week 1",
+                periods: [
+                    { num: 1, name: "1-PE", room: "Gym" },
+                    { num: 2, name: "2-SCI", room: "Science Lab" },
+                    { num: 3, name: "3-CIT", room: "RM 8" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-ELA", room: "ELA" }
+                ]
+            },
+            {
+                dayNum: 2,
+                dayName: "TUES",
+                cycleDay: "Day 2",
+                weekNum: "Week 1",
+                periods: [
+                    { num: 1, name: "1-HL", room: "RM 8" },
+                    { num: 2, name: "2-CS", room: "Lab" },
+                    { num: 3, name: "3-ART", room: "Art Room" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-ELA", room: "ELA" }
+                ]
+            },
+            {
+                dayNum: 3,
+                dayName: "WED",
+                cycleDay: "Day 3",
+                weekNum: "Week 1",
+                periods: [
+                    { num: 1, name: "1-FRENCH", room: "French Rm" },
+                    { num: 2, name: "2-MATH", room: "Math" },
+                    { num: 3, name: "3-PE", room: "Gym" },
+                    { num: 4, name: "4-ELA", room: "ELA" },
+                    { num: 5, name: "5-HL", room: "RM 8" }
+                ]
+            },
+            {
+                dayNum: 4,
+                dayName: "THURS",
+                cycleDay: "Day 4",
+                weekNum: "Week 1",
+                periods: [
+                    { num: 1, name: "1-ART", room: "Art Room" },
+                    { num: 2, name: "2-CIT", room: "RM 8" },
+                    { num: 3, name: "3-SCI", room: "Science Lab" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-ELA", room: "ELA" }
+                ]
+            },
+            {
+                dayNum: 5,
+                dayName: "FRI",
+                cycleDay: "Day 5",
+                weekNum: "Week 1",
+                periods: [
+                    { num: 1, name: "1-PE", room: "Gym" },
+                    { num: 2, name: "2-ILT", room: "RM 8" },
+                    { num: 3, name: "3-ELA", room: "ELA" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-FRENCH", room: "French Rm" }
+                ]
+            },
+            {
+                dayNum: 6,
+                dayName: "MON",
+                cycleDay: "Day 6",
+                weekNum: "Week 2",
+                periods: [
+                    { num: 1, name: "1-SCI", room: "Science Lab" },
+                    { num: 2, name: "2-ELA", room: "ELA" },
+                    { num: 3, name: "3-FRENCH", room: "French Rm" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-CIT", room: "RM 8" }
+                ]
+            },
+            {
+                dayNum: 7,
+                dayName: "TUES",
+                cycleDay: "Day 7",
+                weekNum: "Week 2",
+                periods: [
+                    { num: 1, name: "1-PE", room: "Gym" },
+                    { num: 2, name: "2-MATH", room: "Math" },
+                    { num: 3, name: "3-CS", room: "Lab" },
+                    { num: 4, name: "4-SCI", room: "Science Lab" },
+                    { num: 5, name: "5-ELA", room: "ELA" }
+                ]
+            },
+            {
+                dayNum: 8,
+                dayName: "WED",
+                cycleDay: "Day 8",
+                weekNum: "Week 2",
+                periods: [
+                    { num: 1, name: "1-ART", room: "Art Room" },
+                    { num: 2, name: "2-FRENCH", room: "French Rm" },
+                    { num: 3, name: "3-ELA", room: "ELA" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-CIT", room: "RM 8" }
+                ]
+            },
+            {
+                dayNum: 9,
+                dayName: "THURS",
+                cycleDay: "Day 9",
+                weekNum: "Week 2",
+                periods: [
+                    { num: 1, name: "1-PE", room: "Gym" },
+                    { num: 2, name: "2-ELA", room: "ELA" },
+                    { num: 3, name: "3-FRENCH", room: "French Rm" },
+                    { num: 4, name: "4-MATH", room: "Math" },
+                    { num: 5, name: "5-HL", room: "RM 8" }
+                ]
+            },
+            {
+                dayNum: 10,
+                dayName: "FRI",
+                cycleDay: "Day 10",
+                weekNum: "Week 2",
+                periods: [
+                    { num: 1, name: "1-SCI", room: "Science Lab" },
+                    { num: 2, name: "2-ILT", room: "Traille" },
+                    { num: 3, name: "3-ELA", room: "ELA" },
+                    { num: 4, name: "4-CIT", room: "RM 8" },
+                    { num: 5, name: "5-MATH", room: "Math" }
+                ]
+            }
+        ];
+
+        function renderPeriodHTML(p) {
+            return `
+                <div class="period-block">
+                    <div class="period-name-cell">
+                        <span>${p.name}</span>
+                        ${p.room ? `<span class="room-tag">${p.room}</span>` : ''}
+                    </div>
+                    <div class="period-notes-cell">
+                        <div class="criteria-row"><span class="check-sq"></span> Entering and getting settled (2 pts)</div>
+                        <div class="criteria-row"><span class="check-sq"></span> Coming prepared to class (2 pts)</div>
+                        <div class="criteria-row"><span class="check-sq"></span> Following School Rules (3 pts)</div>
+                        <div class="criteria-row"><span class="check-sq"></span> On task learning (3 pts)</div>
+                    </div>
+                    <div class="period-points-cell"></div>
+                </div>
+            `;
+        }
+
+        function renderPage(dayData) {
+            // Days of week row
+            const daysArr = ["MON", "TUES", "WED", "THURS", "FRI"];
+            const daysHTML = daysArr.map(d => {
+                const isCurrent = (d === dayData.dayName);
+                return `<span class="day-tag ${isCurrent ? 'current' : ''}">${d}</span>`;
+            }).join(' &nbsp; ');
+
+            // Roster rows HTML (Numbered 1..30)
+            const rosterHTML = roster902.map((name, idx) => `
+                <tr>
+                    <td class="col-num ${name ? '' : 'blank-num'}">${idx + 1}</td>
+                    <td class="col-name">${name}</td>
+                    <td class="col-am"></td>
+                    <td class="col-left"></td>
+                    <td class="col-pm"></td>
+                    <td class="col-left"></td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="clipboard-page" id="page-day${dayData.dayNum}">
+                    <!-- HEADER -->
+                    <div class="sheet-header">
+                        <div class="sheet-title">Class Clipboard: 902 Waugh</div>
+                        <div class="meta-line">
+                            <div class="days-row">
+                                <span>Today's Date:</span>
+                                <span>${daysHTML}</span>
+                                <span class="date-fill-line"></span>
+                            </div>
+                            <div>
+                                <span style="margin-right: 14px; font-family: 'Courier Prime', monospace; font-size: 0.85rem;"><strong>[ ${dayData.cycleDay.toUpperCase()} &bull; ${dayData.weekNum.toUpperCase()} ]</strong></span>
+                                <span>Week: <span style="display:inline-block; border-bottom:1.5px dashed #000; width:40px;"></span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MAIN GRID (LEFT: ROSTER, RIGHT: SCHEDULE & NOTES) -->
+                    <div class="grid-container">
+                        <!-- LEFT TABLE: STUDENTS -->
+                        <div style="height: 100%;">
+                            <table class="roster-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-num">#</th>
+                                        <th class="col-name">Name</th>
+                                        <th class="col-am">AM</th>
+                                        <th class="col-left">Left<br>Class?</th>
+                                        <th class="col-pm">PM</th>
+                                        <th class="col-left">Left<br>Class?</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rosterHTML}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- RIGHT PANEL: EVALUATION BY PERIOD -->
+                        <div class="eval-panel">
+                            <!-- EVAL HEADER -->
+                            <div class="eval-header">
+                                <div class="h-class">Class</div>
+                                <div class="h-notes">Notes</div>
+                                <div class="h-points">Points</div>
+                            </div>
+
+                            <!-- PERIODS 1, 2, 3 -->
+                            ${renderPeriodHTML(dayData.periods[0])}
+                            ${renderPeriodHTML(dayData.periods[1])}
+                            ${renderPeriodHTML(dayData.periods[2])}
+
+                            <!-- LUNCH DIVIDER -->
+                            <div class="lunch-banner">Lunch 12:05 &ndash; 1PM</div>
+
+                            <!-- PERIODS 4, 5 -->
+                            ${renderPeriodHTML(dayData.periods[3])}
+                            ${renderPeriodHTML(dayData.periods[4])}
+
+                            <!-- ANNOUNCEMENTS, NOTES, HOMEWORK -->
+                            <div class="notes-header-banner">Announcements, Notes, Homework</div>
+                            <div class="announcements-box">
+                                <div class="total-points-wrap">
+                                    <span class="total-points-label">Total Points for Today&rarr;</span>
+                                    <div class="total-points-box"></div>
+                                </div>
+                            </div>
+
+                            <!-- BOTTOM FILL TO PERFECTLY MATCH ROSTER BOTTOM (3-COLUMN GRID) -->
+                            <div class="bottom-blank-row"><div class="b-col1"></div><div class="b-col2"></div><div></div></div>
+                            <div class="bottom-blank-row"><div class="b-col1"></div><div class="b-col2"></div><div></div></div>
+                            <div class="bottom-blank-row"><div class="b-col1"></div><div class="b-col2"></div><div></div></div>
+                            <div class="bottom-blank-row"><div class="b-col1"></div><div class="b-col2"></div><div></div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render all 10 pages
+        const container = document.getElementById('pagesContainer');
+        container.innerHTML = cycleSchedule.map(d => renderPage(d)).join('');
+
+        // Filter / Navigation function
+        function filterDay(val) {
+            const pages = document.querySelectorAll('.clipboard-page');
+            if (val === 'all') {
+                pages.forEach(p => p.style.display = 'flex');
+            } else {
+                pages.forEach(p => {
+                    if (p.id === 'page-' + val) {
+                        p.style.display = 'flex';
+                    } else {
+                        p.style.display = 'none';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

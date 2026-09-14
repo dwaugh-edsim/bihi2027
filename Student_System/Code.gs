@@ -62,6 +62,78 @@ function getLockerSheet(ss, className) {
   return sheet;
 }
 
+function doGet(e) {
+  try {
+    const params = e.parameter || {};
+    const action = params.action || 'login';
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === 'get_lockers') {
+      const className = String(params.className || '902').trim();
+      const sheet = getLockerSheet(ss, className);
+      const data = sheet.getDataRange().getValues();
+      const result = {};
+      for (let i = 1; i < data.length; i++) {
+        const id = String(data[i][2]).trim();
+        if (id) {
+          result[id] = {
+            locker: data[i][0],
+            name: data[i][1],
+            id: id,
+            pin: data[i][3],
+            combo: data[i][4],
+            notes: data[i][5],
+            updated: data[i][6]
+          };
+        }
+      }
+      return successJSON({ status: 'lockers_fetched', lockers: result });
+    }
+
+    const pin = String(params.pin || '').trim().toUpperCase();
+    const className = String(params.className || 'General').trim();
+    if (!pin) throw new Error("3-Letter PIN is required.");
+
+    const sheet = getSheetForClass(ss, className);
+    const data = sheet.getDataRange().getValues();
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).trim().toUpperCase() === pin) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex !== -1) {
+      let savedDataJSON = {};
+      try {
+        savedDataJSON = JSON.parse(data[rowIndex-1][6] || '{}');
+      } catch (err) {
+        savedDataJSON = {};
+      }
+      return successJSON({
+        isNew: false,
+        name: data[rowIndex-1][1],
+        email: data[rowIndex-1][3] || '',
+        pronouns: data[rowIndex-1][4] || '',
+        task: data[rowIndex-1][5] || '',
+        savedData: savedDataJSON,
+        className: className
+      });
+    } else {
+      return successJSON({
+        isNew: true,
+        name: params.name || '',
+        savedData: {},
+        className: className
+      });
+    }
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ 'status': 'error', 'message': error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
@@ -208,8 +280,28 @@ function doPost(e) {
       const studentName = (payload.name || '').trim();
       const email = (payload.email || '').trim();
       const pronouns = (payload.pronouns || '').trim();
-      const rawData = JSON.stringify(payload.data || {});
       const summary = payload.summary || '';
+      
+      // Preserve existing assignment data rather than overwriting
+      let existingData = {};
+      if (rowIndex !== -1) {
+        try {
+          existingData = JSON.parse(data[rowIndex-1][6] || '{}');
+        } catch (err) {
+          existingData = {};
+        }
+      }
+
+      // Merge current payload data with past submissions
+      const mergedData = Object.assign({}, existingData, payload.data || {});
+      if (!mergedData._tasks) mergedData._tasks = {};
+      mergedData._tasks[taskName] = {
+        updated: new Date(),
+        summary: summary,
+        data: payload.data
+      };
+
+      const rawData = JSON.stringify(mergedData);
       
       if (rowIndex !== -1) {
         if (studentName) sheet.getRange(rowIndex, 2).setValue(studentName);

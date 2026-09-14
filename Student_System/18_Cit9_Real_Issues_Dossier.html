@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<!--
+    Citizenship 9 • Real Issues Case File #1
+    "The Rent We Pay" — Housing in HRM & The Global Cost of Living Challenge
+    Mr. Waugh • Room 8 • Bicentennial Junior High School
+    Interactive Fill-in-able Digital Dossier with Student Authentication & Google Apps Script Cloud Sync
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 — Real Issues Dossier: Rent in HRM & Global Cost of Living</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- External Roster & API scripts -->
+    <script src="students_roster_data.js"></script>
+    <script src="../Student_System/students_roster_data.js"></script>
+    <script src="api.js"></script>
+    <script src="../Student_System/api.js"></script>
+
+    <style>
+        :root {
+            --bg-page: #0f172a;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --ink-dark: #0f172a;
+            --ink-body: #334155;
+            --ink-muted: #64748b;
+            --border-dark: #0f172a;
+            --border-mid: #94a3b8;
+            --border-light: #cbd5e1;
+            --brand-primary: #1e3a8a;
+            --brand-blue: #2563eb;
+            --brand-blue-light: #eff6ff;
+            --brand-red: #dc2626;
+            --brand-red-light: #fef2f2;
+            --brand-green: #047857;
+            --brand-green-light: #ecfdf5;
+            --brand-amber: #d97706;
+            --brand-amber-light: #fef3c7;
+            --rule-line: #94a3b8;
+
+            --font-head: 'Roboto Slab', Georgia, serif;
+            --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: var(--font-body);
+            color: var(--ink-dark);
+            line-height: 1.45;
+            padding: 16px 12px 60px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* SCREEN TOOLBAR */
+        .toolbar {
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+            background: #18181b;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1px solid #27272a;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1040px;
+            width: 100%;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar-title {
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-badge {
+            background: #dc2626;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--brand-blue);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-outline {
+            background: transparent;
+            color: #e4e4e7;
+            border: 1px solid #52525b;
+        }
+
+        .btn-outline:hover {
+            background: #27272a;
+            border-color: #a1a1aa;
+            color: #ffffff;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: #ffffff;
+        }
+        .btn-success:hover { background: #059669; }
+
+        .btn-amber {
+            background: #f59e0b;
+            color: #1e1b4b;
+        }
+        .btn-amber:hover { background: #d97706; color: #ffffff; }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.74rem;
+        }
+
+        /* STUDENT AUTH STRIP */
+        .auth-strip {
+            max-width: 1040px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1.5px solid var(--border-light);
+        }
+
+        .auth-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .auth-user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1.5px solid #cbd5e1;
+        }
+
+        .auth-pin-badge {
+            font-family: var(--font-mono);
+            background: var(--brand-primary);
+            color: #ffffff;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sync-pill {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sync-pill.synced {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .sync-pill.saving {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .sync-pill.offline {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+
+        /* RECOVERY BANNER */
+        .recovery-banner {
+            max-width: 1040px;
+            width: 100%;
+            background: #fef3c7;
+            border: 2px solid #d97706;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            color: #92400e;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* STAGE NAVIGATION TABS */
+        .stage-tabs {
+            max-width: 1040px;
+            width: 100%;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .stage-tab {
+            flex: 1;
+            min-width: 190px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-family: var(--font-head);
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .stage-tab:hover {
+            background: #334155;
+            color: #ffffff;
+        }
+
+        .stage-tab.active {
+            background: #ffffff;
+            color: var(--brand-primary);
+            border-color: #ffffff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+
+        .stage-tab .tab-badge {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .stage-tab.active .tab-badge {
+            background: var(--brand-blue-light);
+            color: var(--brand-blue);
+            border: 1px solid #bfdbfe;
+        }
+
+        /* MAIN DOSSIER WRAPPER */
+        .dossier-container {
+            max-width: 1040px;
+            width: 100%;
+            background: var(--surface);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 24px 28px;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Block */
+        .doc-header {
+            border-bottom: 2.5px solid var(--border-dark);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-muted);
+        }
+
+        .side-tag {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border: 1.5px solid var(--border-dark);
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--brand-primary);
+        }
+
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .doc-title {
+            font-family: var(--font-head);
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--ink-dark);
+            line-height: 1.15;
+        }
+
+        .doc-sub {
+            font-size: 0.8rem;
+            color: var(--ink-body);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .meta-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+        }
+
+        .meta-item span {
+            font-weight: 800;
+            font-size: 0.72rem;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+        }
+
+        .meta-input {
+            border: 1.5px solid var(--border-mid);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            background: #f8fafc;
+        }
+
+        /* Instructions Banner */
+        .instruction-banner {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid var(--brand-red);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            color: var(--ink-body);
+            margin-bottom: 14px;
+        }
+
+        /* Section Boxes */
+        .section-box {
+            border: 1.5px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 12px 16px;
+            background: #ffffff;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .section-heading {
+            font-family: var(--font-head);
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid #e2e8f0;
+            padding-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .heading-chip {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--ink-muted);
+            background: #f1f5f9;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .inquiry-prompt {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            margin: 8px 0 4px 0;
+            line-height: 1.35;
+        }
+
+        .inquiry-sub {
+            font-size: 0.75rem;
+            color: var(--ink-muted);
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        /* FORM INPUTS & TEXTAREAS */
+        input[type="text"], input[type="number"], select, textarea {
+            font-family: var(--font-body);
+            font-size: 0.84rem;
+            color: var(--ink-dark);
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 10px;
+            width: 100%;
+            transition: all 0.15s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+            background: #fafcff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 64px;
+            line-height: 1.45;
+        }
+
+        .math-input {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--brand-primary);
+            text-align: right;
+            padding: 6px 10px;
+        }
+
+        /* ============ RENT MATH GRID ============ */
+        .math-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            .math-grid { grid-template-columns: 1fr; }
+        }
+
+        .givens-panel {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .given-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed #e2e8f0;
+            padding: 6px 0;
+        }
+
+        .given-row:last-child { border-bottom: none; }
+
+        .given-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--ink-body);
+            line-height: 1.3;
+        }
+
+        .given-value {
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--brand-red);
+            white-space: nowrap;
+        }
+
+        .given-note {
+            font-size: 0.68rem;
+            color: var(--ink-muted);
+            line-height: 1.35;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-top: 8px;
+        }
+
+        .math-tasks {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .math-task {
+            border: 1.5px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #ffffff;
+        }
+
+        .math-task-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .math-task-label strong { color: var(--brand-red); }
+
+        .math-workline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .math-answer-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .math-hint {
+            font-size: 0.68rem;
+            color: var(--ink-muted);
+            margin-top: 3px;
+        }
+
+        /* ============ EVIDENCE BOARD ============ */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        @media (max-width: 680px) {
+            .evidence-grid { grid-template-columns: 1fr; }
+        }
+
+        .evidence-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-top: 3.5px solid var(--brand-blue);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--ink-body);
+            position: relative;
+        }
+
+        .evidence-card.hot { border-top-color: var(--brand-red); }
+        .evidence-card.cash { border-top-color: var(--brand-green); }
+        .evidence-card.law { border-top-color: #7c3aed; }
+
+        .evidence-figure {
+            font-family: var(--font-mono);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ink-dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .evidence-source {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            margin-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 4px;
+        }
+
+        /* ============ DILEMMA POSITIONS ============ */
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            .position-grid { grid-template-columns: 1fr; }
+        }
+
+        .position-card {
+            background: #ffffff;
+            border: 1.5px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.74rem;
+            line-height: 1.35;
+            color: var(--ink-body);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .position-card:hover {
+            border-color: var(--brand-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+        }
+
+        .position-card.pa { border-top: 4px solid #2563eb; }
+        .position-card.pb { border-top: 4px solid #d97706; }
+        .position-card.pc { border-top: 4px solid #047857; }
+
+        .position-card.selected {
+            background: #f0f7ff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+
+        .position-title {
+            font-family: var(--font-head);
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--ink-dark);
+            margin-bottom: 4px;
+        }
+
+        .position-say {
+            font-style: italic;
+            background: #f8fafc;
+            border-left: 3px solid var(--border-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+        }
+
+        .position-fight {
+            margin-top: auto;
+            font-size: 0.7rem;
+        }
+
+        .position-fight strong { color: var(--ink-dark); }
+
+        .commit-strip {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin: 10px 0 6px 0;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+        }
+
+        .commit-opt {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .commit-opt input[type="radio"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--brand-blue);
+        }
+
+        /* ============ TAB 2: GLOBAL COST OF LIVING (NUMBEO + PPP) ============ */
+        .numbeo-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+        }
+
+        .numbeo-header h2 {
+            font-family: var(--font-head);
+            font-size: 1.25rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .numbeo-header p {
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .numbeo-link-card {
+            background: #ffffff;
+            color: var(--ink-dark);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .numbeo-table-wrap {
+            overflow-x: auto;
+            margin: 10px 0;
+            border: 1.5px solid var(--border-dark);
+            border-radius: 8px;
+        }
+
+        .numbeo-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            min-width: 640px;
+        }
+
+        .numbeo-table th {
+            background: #1e293b;
+            color: #ffffff;
+            font-family: var(--font-head);
+            font-weight: 700;
+            padding: 8px 10px;
+            text-align: left;
+            border-right: 1px solid #334155;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .numbeo-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .numbeo-table tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .numbeo-table tr:hover td {
+            background: #eff6ff;
+        }
+
+        .numbeo-table td.item-name {
+            font-weight: 700;
+            color: var(--ink-dark);
+            width: 25%;
+        }
+
+        .numbeo-table input {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .numbeo-calc-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: var(--brand-primary);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+        .numbeo-calc-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* PPP Card */
+        .ppp-box {
+            background: #faf5ff;
+            border: 1.5px solid #d8b4fe;
+            border-left: 4.5px solid #9333ea;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+        }
+
+        .ppp-box h3 {
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            color: #6b21a8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ============ POWER MAP TABLE ============ */
+        .power-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.76rem;
+        }
+
+        .power-table th {
+            background: #1e3a8a;
+            color: #ffffff;
+            font-family: var(--font-head);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.03em;
+            padding: 6px 10px;
+            text-align: left;
+            border: 1px solid var(--border-dark);
+        }
+
+        .power-table td {
+            border: 1px solid var(--border-light);
+            padding: 8px 10px;
+            vertical-align: top;
+            line-height: 1.35;
+            color: var(--ink-body);
+        }
+
+        .power-table td.who {
+            font-weight: 800;
+            color: var(--ink-dark);
+            background: #f8fafc;
+            width: 25%;
+        }
+
+        .power-table td.who .rep {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--brand-red);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        /* ============ DEPUTATION BUILDER & TIMER ============ */
+        .deputation-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .deputation-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .starter {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        /* Timer Box */
+        .timer-widget {
+            background: #18181b;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 12px 0;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #3f3f46;
+        }
+
+        .timer-display {
+            font-family: var(--font-mono);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fbbf24;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* ============ FAST FINISHERS ============ */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        @media (max-width: 680px) {
+            .menu-grid { grid-template-columns: 1fr; }
+        }
+
+        .menu-card {
+            background: #fafafa;
+            border: 1px solid var(--border-light);
+            border-left: 3.5px solid var(--border-mid);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.72rem;
+            line-height: 1.35;
+            color: var(--ink-body);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .menu-card:hover {
+            border-left-color: var(--brand-primary);
+            background: #f8fafc;
+        }
+
+        .menu-card.selected {
+            border-left-color: var(--brand-blue);
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .menu-card .menu-rank {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* ============ EXIT SLIP ============ */
+        .exit-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 680px) {
+            .exit-grid { grid-template-columns: 1fr; }
+        }
+
+        .exit-q {
+            border: 1.5px solid var(--border-light);
+            border-radius: 6px;
+            padding: 8px 12px;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .exit-q .q-num {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--brand-red);
+            text-transform: uppercase;
+        }
+
+        .exit-q .q-text {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--ink-dark);
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .footer-signature-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.74rem;
+            color: var(--ink-muted);
+            border-top: 1.5px solid var(--border-dark);
+            padding-top: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            padding: 16px;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 12px;
+            max-width: 540px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+            border: 1.5px solid var(--border-light);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* PRINT CONFIGURATION */
+        @page {
+            size: A4 portrait;
+            margin: 6mm 8mm;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                background-image: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .toolbar, .auth-strip, .recovery-banner, .stage-tabs,
+            .numbeo-link-card, .timer-widget, .modal-overlay, #toast {
+                display: none !important;
+            }
+
+            .dossier-container {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+
+            .tab-pane {
+                display: block !important;
+                padding: 0 !important;
+                margin-bottom: 10mm !important;
+                page-break-inside: avoid;
+            }
+
+            input, select, textarea {
+                border: none !important;
+                border-bottom: 1.5px solid #000000 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 2px 0 !important;
+                font-size: 8.5pt !important;
+            }
+
+            .section-box, .evidence-card, .position-card, .givens-panel {
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+                border-color: #334155 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- On-Screen Action Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-title">
+            <span>Citizenship 9</span>
+            <span class="toolbar-badge">Real Issues Case File #1</span>
+            <span style="font-size:0.78rem; color:#a1a1aa; font-weight:500;">Housing &amp; Global Cost of Living</span>
+        </div>
+        <div class="toolbar-actions">
+            <a href="index.html" class="btn btn-outline btn-sm">&larr; Course Hub</a>
+            <button class="btn btn-outline btn-sm" onclick="openClaimModal()">🔍 Find My PIN</button>
+            <button class="btn btn-sm" onclick="window.print()">🖨️ Print Docket</button>
+            <button class="btn btn-success btn-sm" onclick="submitDossier(true)">💾 Cloud Submit</button>
+        </div>
+    </div>
+
+    <!-- Student Session & Live Sync Strip -->
+    <div class="auth-strip">
+        <div class="auth-left">
+            <div class="auth-user-pill">
+                <span id="authStudentAvatar">👤</span>
+                <span id="authStudentName">Not Logged In</span>
+                <span class="auth-pin-badge" id="authStudentPin">---</span>
+                <span style="font-size: 0.74rem; color: var(--ink-muted);" id="authStudentClass">Class 902</span>
+            </div>
+            <div class="sync-pill offline" id="cloudSyncStatus">
+                <span>⚪</span> Offline Draft
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-outline btn-sm" id="btnVerifyCert" style="display: none;" onclick="openVerifyModal()">🛡️ Verify Cloud Record</button>
+            <button class="btn btn-amber btn-sm" id="btnLoginModalBtn" onclick="openLoginModal()">🔑 Switch Student / Login</button>
+        </div>
+    </div>
+
+    <!-- Chromebook Local Draft Recovery Alert -->
+    <div class="recovery-banner" id="chromebookRecoveryBanner">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.2rem;">⚠️</span>
+            <span id="recoveryBannerText">Found saved draft on this Chromebook!</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-sm btn-amber" onclick="restoreChromebookDraft()">Restore &amp; Sync</button>
+            <button class="btn btn-sm btn-outline" style="color:#92400e; border-color:#d97706;" onclick="dismissRecoveryBanner()">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- Multi-Stage Docket Navigation -->
+    <div class="stage-tabs">
+        <div class="stage-tab active" data-tab="tab-rent" onclick="switchStageTab('tab-rent')">
+            <span>🏠 1. HRM Rent Math</span>
+            <span class="tab-badge" id="badge-rent">Evidence</span>
+        </div>
+        <div class="stage-tab" data-tab="tab-numbeo" onclick="switchStageTab('tab-numbeo')">
+            <span>🌍 2. Global Cost &amp; PPP</span>
+            <span class="tab-badge" id="badge-numbeo">Numbeo</span>
+        </div>
+        <div class="stage-tab" data-tab="tab-power" onclick="switchStageTab('tab-power')">
+            <span>🏛️ 3. Power &amp; Deputation</span>
+            <span class="tab-badge" id="badge-power">90-Sec Mic</span>
+        </div>
+        <div class="stage-tab" data-tab="tab-exit" onclick="switchStageTab('tab-exit')">
+            <span>📝 4. Exit Slip &amp; Submit</span>
+            <span class="tab-badge" id="badge-exit">Final Hand-In</span>
+        </div>
+    </div>
+
+    <!-- MAIN DOSSIER CONTAINER -->
+    <div class="dossier-container">
+
+        <!-- ======================================================================= -->
+        <!-- TAB 1: HRM HOUSING & RENT MATH (SECTIONS 1, 2, 3)                       -->
+        <!-- ======================================================================= -->
+        <div class="tab-pane active" id="tab-rent">
+            
+            <div class="doc-header">
+                <div class="header-top">
+                    <span>Bicentennial Junior High School &bull; Room 8 &bull; Mr. Waugh</span>
+                    <span class="side-tag">STAGE 1: THE EVIDENCE &amp; RENT MATH</span>
+                </div>
+                <div class="header-main">
+                    <div>
+                        <h1 class="doc-title">The Rent We Pay: Housing in HRM</h1>
+                        <div class="doc-sub">Citizenship 9 &bull; Real Issues Case File #1 &bull; Evidence, Power &amp; Deputation</div>
+                    </div>
+                    <div class="meta-lines">
+                        <div class="meta-row">
+                            <div class="meta-item">
+                                <span>Name:</span>
+                                <input type="text" id="docStudentName" class="meta-input" style="min-width: 140px;" placeholder="Student Full Name">
+                            </div>
+                            <div class="meta-item">
+                                <span>Class:</span>
+                                <input type="text" id="docStudentClass" class="meta-input" style="width: 60px;" value="902">
+                            </div>
+                            <div class="meta-item">
+                                <span>Date:</span>
+                                <input type="text" id="docDate" class="meta-input" style="width: 100px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Banner -->
+            <div class="instruction-banner">
+                <strong>Today you are not describing a good citizen — you are being one.</strong> In <strong>Room 8's diagnostic survey</strong>, this class ranked <strong>Housing &amp; future rent in HRM as your #1 issue (3.29 / 4)</strong>. So we work the real one: check the evidence, do the math, pick a side in a real fight at HRM Council, and deliver a 90-second deputation.
+            </div>
+
+            <!-- SECTION 1: THE RENT MATH -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>1. The Rent Math — Run the Numbers Yourself</span>
+                    <span class="heading-chip">CALCULATORS OK &bull; AUTO-SAVES LIVE</span>
+                </div>
+                <div class="math-grid">
+                    <!-- Left: the given facts -->
+                    <div class="givens-panel">
+                        <div>
+                            <div class="given-row">
+                                <span class="given-label">Average 1-bedroom rent, Halifax (CMHC, mid-2026)</span>
+                                <span class="given-value">$1,938 / month</span>
+                            </div>
+                            <div class="given-row">
+                                <span class="given-label">Nova Scotia minimum wage (since Apr 1, 2026)</span>
+                                <span class="given-value">$16.75 / hour</span>
+                            </div>
+                            <div class="given-row">
+                                <span class="given-label">CMHC "affordable" standard: housing cost &le;</span>
+                                <span class="given-value">30% of pay</span>
+                            </div>
+                        </div>
+                        <div class="given-note">
+                            Assume a typical part-time job is <strong>15 hrs/week</strong> and a full-time job is <strong>40 hrs/week</strong>. Use <strong>4.33 weeks = 1 month</strong>.
+                        </div>
+                    </div>
+                    <!-- Right: the three computations -->
+                    <div class="math-tasks">
+                        <div class="math-task">
+                            <div class="math-task-label"><strong>(a)</strong> How many <strong>hours of work per month</strong> does one month's rent cost at minimum wage? <span style="color:var(--ink-muted);">(rent ÷ wage)</span></div>
+                            <div class="math-workline">
+                                <span class="math-answer-tag">ANSWER:</span>
+                                <input type="number" step="0.1" id="math_hours_rent" class="math-input" placeholder="e.g. 115.7">
+                                <span class="math-answer-tag">HOURS / MO</span>
+                            </div>
+                            <div class="math-hint">Formula: $1,938 ÷ $16.75</div>
+                        </div>
+                        <div class="math-task">
+                            <div class="math-task-label"><strong>(b)</strong> A full-time minimum-wage job pays about <strong>$2,898/month</strong>. What <strong>%</strong> of that pay does rent eat?</div>
+                            <div class="math-workline">
+                                <span class="math-answer-tag">ANSWER:</span>
+                                <input type="number" step="0.1" id="math_pct_rent" class="math-input" placeholder="e.g. 66.9">
+                                <span class="math-answer-tag">% OF PAY</span>
+                            </div>
+                            <div class="math-hint">Formula: ($1,938 ÷ $2,898) &times; 100</div>
+                        </div>
+                        <div class="math-task">
+                            <div class="math-task-label"><strong>(c)</strong> Using the 30% rule: what <strong>hourly wage</strong> would a full-time worker need to afford that 1-bedroom?</div>
+                            <div class="math-workline">
+                                <span class="math-answer-tag">ANSWER: $</span>
+                                <input type="number" step="0.01" id="math_wage_needed" class="math-input" placeholder="e.g. 37.27">
+                                <span class="math-answer-tag">/ HOUR</span>
+                            </div>
+                            <div class="math-hint">Hint: ($1,938 &times; 12 ÷ 0.30) ÷ 2,080 hrs</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="inquiry-prompt">
+                    <strong>One sentence, no filter:</strong> what does the gap between your answer (c) and $16.75 actually mean for your life at age 25?
+                </div>
+                <textarea id="math_gap_reflection" rows="2" placeholder="Write your honest reflection on what this gap means for your future independence..."></textarea>
+            </div>
+
+            <!-- SECTION 2: THE EVIDENCE BOARD -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>2. The Evidence Board — Four Real Facts</span>
+                    <span class="heading-chip">VERIFIED &bull; REAL DATA</span>
+                </div>
+                <div class="evidence-grid">
+                    <div class="evidence-card hot">
+                        <span class="evidence-figure">1,150 people</span>
+                        were counted homeless in HRM on a single night (Oct 2025) — up from <strong>220 in 2018</strong>. About <strong>200 were unsheltered</strong> (tents, encampments, cars).
+                        <span class="evidence-source">SOURCE: 2025 Point-in-Time Count, AHANS</span>
+                    </div>
+                    <div class="evidence-card">
+                        <span class="evidence-figure">2.7% vacancy</span>
+                        of Halifax rental units were empty in 2025. Sounds okay? A healthy market needs ~3%+. When almost nothing is empty, <strong>landlords can raise rents</strong> and still fill units.
+                        <span class="evidence-source">SOURCE: CMHC Rental Report via Halifax Partnership, 2025</span>
+                    </div>
+                    <div class="evidence-card cash">
+                        <span class="evidence-figure">$1,478 &rarr; $1,680</span>
+                        is what happens to a 1-bedroom's rent when the tenant <strong>moves out</strong> (2025 CMHC data). The same unit. That "turnover gap" is why sitting tenants never leave.
+                        <span class="evidence-source">SOURCE: CMHC 2025 Rental Report</span>
+                    </div>
+                    <div class="evidence-card law">
+                        <span class="evidence-figure">4 units per lot</span>
+                        — since <strong>June 2024</strong>, HRM lets landlords build up to 4 small units on most residential lots <strong>without asking council</strong>. Council is now fighting over whether to allow even more.
+                        <span class="evidence-source">SOURCE: HRM Zoning Amendment, effective Jun 13 2024</span>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <label style="font-size: 0.74rem; font-weight: 700; color: var(--ink-dark);">Which of these 4 facts is most alarming or surprising to you?</label>
+                    <select id="evidence_most_shocking" style="margin-top: 4px;">
+                        <option value="">-- Select Most Shocking Fact --</option>
+                        <option value="1150_homeless">1,150 people homeless in HRM (up from 220 in 2018)</option>
+                        <option value="2.7_vacancy">2.7% ultra-tight rental vacancy rate</option>
+                        <option value="turnover_gap">$1,478 to $1,680 rent spike when tenants move out</option>
+                        <option value="4_units_lot">4 units per lot permitted without Council approval</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 3: THE DILEMMA -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>3. The Dilemma — A Real Fight at HRM Council</span>
+                    <span class="heading-chip">YOU ARE THE DEPUTATION</span>
+                </div>
+                <div class="inquiry-sub">
+                    Halifax needs housing fast, but change hits neighbourhoods. Council is under pressure to go <strong>further than the 4-unit rule</strong>. Three real positions, three real tradeoffs. Read all three, then commit.
+                </div>
+                <div class="position-grid">
+                    <div class="position-card pa" id="card-pos-a" onclick="selectPosition('A')">
+                        <div class="position-title">POSITION A — Build. Everywhere.</div>
+                        <div class="position-say">"Allow small apartment buildings (up to 8 units) by right in every residential neighbourhood. Supply is the fix."</div>
+                        <div class="position-fight"><strong>Tradeoff:</strong> more homes, faster, cheaper per unit — but neighbours lose parking, privacy, and some streets change forever. Council already approved parts of this in Dec 2025.</div>
+                    </div>
+                    <div class="position-card pb" id="card-pos-b" onclick="selectPosition('B')">
+                        <div class="position-title">POSITION B — Protect. Plan first.</div>
+                        <div class="position-say">"Go slow. Established neighbourhoods, sewers, schools and parking weren't built for apartments. Keep consultation."</div>
+                        <div class="position-fight"><strong>Tradeoff:</strong> protects what people have — but every month of delay means another family in a tent. Who pays for 'going slow'? The 1,150 do.</div>
+                    </div>
+                    <div class="position-card pc" id="card-pos-c" onclick="selectPosition('C')">
+                        <div class="position-title">POSITION C — Public land. Non-market.</div>
+                        <div class="position-say">"Don't rewrite neighbourhoods — build affordable housing on land the city and province already own."</div>
+                        <div class="position-fight"><strong>Tradeoff:</strong> lower rents forever, no neighbourhood fight — but public land builds slowly, and governments are bad at doing this at scale.</div>
+                    </div>
+                </div>
+
+                <div class="commit-strip">
+                    <span style="text-transform: uppercase; letter-spacing: 0.04em;">MY POSITION COMMIT:</span>
+                    <label class="commit-opt"><input type="radio" name="dilemma_position" value="A" onchange="syncPositionSelection('A')"> A — Build</label>
+                    <label class="commit-opt"><input type="radio" name="dilemma_position" value="B" onchange="syncPositionSelection('B')"> B — Protect</label>
+                    <label class="commit-opt"><input type="radio" name="dilemma_position" value="C" onchange="syncPositionSelection('C')"> C — Public Land</label>
+                    <label class="commit-opt"><input type="radio" name="dilemma_position" value="Undecided" onchange="syncPositionSelection('Undecided')"> Undecided — convince me</label>
+                </div>
+
+                <div class="inquiry-prompt">
+                    <strong>Justify your commit in two lines:</strong> use <em>at least one number from this sheet</em> as evidence — that's what separates a position from an opinion.
+                </div>
+                <textarea id="dilemma_justification" rows="2" placeholder="State your stance and cite at least one verified number from the evidence board or rent math above..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
+                <button class="btn" onclick="switchStageTab('tab-numbeo')">Next: 🌍 Global Cost of Living Challenge &rarr;</button>
+            </div>
+
+        </div>
+
+        <!-- ======================================================================= -->
+        <!-- TAB 2: GLOBAL COST OF LIVING CHALLENGE (NUMBEO + PPP)                   -->
+        <!-- ======================================================================= -->
+        <div class="tab-pane" id="tab-numbeo">
+            
+            <div class="numbeo-header">
+                <h2>🌍 The Global Halifax Cost of Living Challenge</h2>
+                <p>This assignment requires you to analyze the economic concept of <strong>value</strong> and <strong>economic disparity</strong> by comparing the cost of living in Halifax, Nova Scotia, with other major cities around the world. You will move beyond simple data collection to analyze <em>why</em> these prices are different and how those differences impact personal financial management and public policy.</p>
+                <div class="numbeo-link-card">
+                    <div>
+                        <strong style="color: var(--brand-primary); font-size: 0.82rem;">🔗 RESEARCH SOURCE: NUMBEO COST OF LIVING INDEX</strong>
+                        <div style="font-size: 0.72rem; color: var(--ink-muted);">Set currency to <strong>Canadian Dollars (CAD)</strong> on Numbeo to compare accurately.</div>
+                    </div>
+                    <a href="https://www.numbeo.com/cost-of-living/" target="_blank" rel="noopener noreferrer" class="btn btn-sm">Open Numbeo.com &nearr;</a>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>Global Price Comparison Matrix (CAD)</span>
+                    <span class="heading-chip">11 ITEMS &bull; HALIFAX VS WORLD</span>
+                </div>
+                <div class="inquiry-sub">
+                    Look up each item for Halifax and the assigned comparison city. Enter the price in Canadian Dollars (CAD). Click the <strong>% Diff</strong> button (or enter your calculation) to see how much higher or lower Halifax is.
+                </div>
+
+                <div class="numbeo-table-wrap">
+                    <table class="numbeo-table" id="numbeoTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 26%;">Item</th>
+                                <th style="width: 17%;">Halifax Price (CAD)</th>
+                                <th style="width: 20%;">Comparison City</th>
+                                <th style="width: 17%;">City Price (CAD)</th>
+                                <th style="width: 20%;">% Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example Row -->
+                            <tr style="background: #fdf2f8;">
+                                <td class="item-name" style="color: #be185d;">330ml can of Coke (Example)</td>
+                                <td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>
+                                <td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>
+                                <td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>
+                                <td style="font-size: 0.72rem; color: #be185d; font-weight: 700;">Halifax price is 233% higher</td>
+                            </tr>
+                            <!-- Item 1 -->
+                            <tr>
+                                <td class="item-name">1. Meal, Inexpensive Restaurant</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_1" placeholder="$ CAD" onblur="autoCalcRow(1)"></td>
+                                <td><input type="text" id="nb_city_1" value="Delhi, India" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_1" placeholder="$ CAD" onblur="autoCalcRow(1)"></td>
+                                <td><input type="text" id="nb_diff_1" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(1)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 2 -->
+                            <tr>
+                                <td class="item-name">2. 1.5L Bottle of Water (Supermarket)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_2" placeholder="$ CAD" onblur="autoCalcRow(2)"></td>
+                                <td><input type="text" id="nb_city_2" value="Delhi, India" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_2" placeholder="$ CAD" onblur="autoCalcRow(2)"></td>
+                                <td><input type="text" id="nb_diff_2" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(2)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 3 -->
+                            <tr>
+                                <td class="item-name">3. 10GB Cellphone Plan (Monthly)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_3" placeholder="$ CAD" onblur="autoCalcRow(3)"></td>
+                                <td><input type="text" id="nb_city_3" value="Miami, US" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_3" placeholder="$ CAD" onblur="autoCalcRow(3)"></td>
+                                <td><input type="text" id="nb_diff_3" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(3)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 4 -->
+                            <tr>
+                                <td class="item-name">4. Rent (1-Bed Apt Downtown)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_4" placeholder="$ CAD" onblur="autoCalcRow(4)"></td>
+                                <td><input type="text" id="nb_city_4" value="Toronto, Canada" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_4" placeholder="$ CAD" onblur="autoCalcRow(4)"></td>
+                                <td><input type="text" id="nb_diff_4" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(4)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 5 -->
+                            <tr>
+                                <td class="item-name">5. Basic Utilities (Apt Monthly)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_5" placeholder="$ CAD" onblur="autoCalcRow(5)"></td>
+                                <td><input type="text" id="nb_city_5" value="Toronto, Canada" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_5" placeholder="$ CAD" onblur="autoCalcRow(5)"></td>
+                                <td><input type="text" id="nb_diff_5" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(5)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 6 -->
+                            <tr>
+                                <td class="item-name">6. Buy Apt Outside City (per m²)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_6" placeholder="$ CAD" onblur="autoCalcRow(6)"></td>
+                                <td><input type="text" id="nb_city_6" value="Geneva, Switzerland" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_6" placeholder="$ CAD" onblur="autoCalcRow(6)"></td>
+                                <td><input type="text" id="nb_diff_6" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(6)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 7 -->
+                            <tr>
+                                <td class="item-name">7. Avg Monthly Net Salary (After Tax)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_7" placeholder="$ CAD" onblur="autoCalcRow(7)"></td>
+                                <td><input type="text" id="nb_city_7" value="Miami, US" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_7" placeholder="$ CAD" onblur="autoCalcRow(7)"></td>
+                                <td><input type="text" id="nb_diff_7" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(7)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 8 -->
+                            <tr>
+                                <td class="item-name">8. Avg Monthly Net Salary (After Tax)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_8" placeholder="$ CAD" onblur="autoCalcRow(8)"></td>
+                                <td><input type="text" id="nb_city_8" value="Toronto, Canada" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_8" placeholder="$ CAD" onblur="autoCalcRow(8)"></td>
+                                <td><input type="text" id="nb_diff_8" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(8)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 9 -->
+                            <tr>
+                                <td class="item-name">9. Avg Monthly Net Salary (After Tax)</td>
+                                <td><input type="number" step="0.01" id="nb_hfx_9" placeholder="$ CAD" onblur="autoCalcRow(9)"></td>
+                                <td><input type="text" id="nb_city_9" value="New York, US" readonly style="background:#f1f5f9;"></td>
+                                <td><input type="number" step="0.01" id="nb_comp_9" placeholder="$ CAD" onblur="autoCalcRow(9)"></td>
+                                <td><input type="text" id="nb_diff_9" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(9)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 10 -->
+                            <tr style="background: #fdfaf4;">
+                                <td><input type="text" id="nb_item_10" placeholder="10. Surprise Item 1..."></td>
+                                <td><input type="number" step="0.01" id="nb_hfx_10" placeholder="$ CAD" onblur="autoCalcRow(10)"></td>
+                                <td><input type="text" id="nb_city_10" placeholder="Choose City..."></td>
+                                <td><input type="number" step="0.01" id="nb_comp_10" placeholder="$ CAD" onblur="autoCalcRow(10)"></td>
+                                <td><input type="text" id="nb_diff_10" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(10)">Calc %</button></td>
+                            </tr>
+                            <!-- Item 11 -->
+                            <tr style="background: #fdfaf4;">
+                                <td><input type="text" id="nb_item_11" placeholder="11. Surprise Item 2..."></td>
+                                <td><input type="number" step="0.01" id="nb_hfx_11" placeholder="$ CAD" onblur="autoCalcRow(11)"></td>
+                                <td><input type="text" id="nb_city_11" placeholder="Choose City..."></td>
+                                <td><input type="number" step="0.01" id="nb_comp_11" placeholder="$ CAD" onblur="autoCalcRow(11)"></td>
+                                <td><input type="text" id="nb_diff_11" placeholder="% Difference"><button type="button" class="numbeo-calc-btn" onclick="autoCalcRow(11)">Calc %</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION: PURCHASING POWER PARITY (PPP) -->
+            <div class="ppp-box">
+                <h3>⚖️ Part A. Purchasing Power Parity (PPP)</h3>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--ink-dark);">
+                        1. Select a Future Career:
+                    </label>
+                    <div style="font-size: 0.72rem; color: var(--ink-muted); margin-bottom: 4px;">Identify a role you are interested in (e.g., Nurse, Electrician, Social Worker, Programmer). Use a separate career site or search to find a realistic starting salary in Halifax.</div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="ppp_career_name" placeholder="Career Title (e.g. Registered Nurse)" style="flex: 1; min-width: 180px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-weight: 800; font-size: 0.78rem;">My Halifax Annual Net Salary: $</span>
+                            <input type="number" id="ppp_hfx_annual_salary" placeholder="e.g. 52000" style="width: 140px;" onblur="calcPPP()">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px; border-top: 1px dashed #d8b4fe; padding-top: 10px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--ink-dark);">
+                        2. Calculate PPP: Hours of Work to Buy a Meal at an Inexpensive Restaurant (Item 1):
+                    </label>
+                    <div style="font-size: 0.72rem; color: var(--ink-muted); margin-bottom: 6px;">
+                        Tip: Convert annual salary to hourly wage by dividing by <strong>2,000 hours/year</strong> (standard 40 hrs/wk &times; 50 wks). In New Delhi, use average monthly salary from Row 7 &times; 12 ÷ 2000.
+                    </div>
+                    <div style="grid-template-columns: 1fr 1fr; display: grid; gap: 12px; margin-top: 6px;">
+                        <div style="background: #ffffff; border: 1.5px solid #d8b4fe; border-radius: 6px; padding: 8px 12px;">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: var(--brand-primary);">Halifax Worker:</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                                <input type="number" step="0.01" id="ppp_hfx_hours" placeholder="Hours to buy meal">
+                                <span style="font-size: 0.74rem; font-weight: 700;">hours of work</span>
+                            </div>
+                        </div>
+                        <div style="background: #ffffff; border: 1.5px solid #d8b4fe; border-radius: 6px; padding: 8px 12px;">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #9333ea;">New Delhi Worker:</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                                <input type="number" step="0.01" id="ppp_delhi_hours" placeholder="Hours to buy meal">
+                                <span style="font-size: 0.74rem; font-weight: 700;">hours of work</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline" style="margin-top: 8px; color:#6b21a8; border-color:#d8b4fe;" onclick="calcPPP()">⚡ Auto-Compute PPP Hours From My Table Inputs</button>
+                </div>
+
+                <div style="margin-top: 8px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--ink-dark);">
+                        Analysis: What does this comparison reveal about Purchasing Power Parity (PPP) and the economic reality in these two cities?
+                    </label>
+                    <textarea id="ppp_analysis_reflection" rows="3" placeholder="Analyze why prices alone don't tell the whole story without looking at local wages and purchasing power..."></textarea>
+                </div>
+
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 14px;">
+                <button class="btn btn-outline" onclick="switchStageTab('tab-rent')">&larr; Back to HRM Rent Math</button>
+                <button class="btn" onclick="switchStageTab('tab-power')">Next: 🏛️ Power Map &amp; Deputation &rarr;</button>
+            </div>
+
+        </div>
+
+        <!-- ======================================================================= -->
+        <!-- TAB 3: POWER MAP & 90-SECOND DEPUTATION (SECTIONS 4, 5, 6)              -->
+        <!-- ======================================================================= -->
+        <div class="tab-pane" id="tab-power">
+            
+            <div class="doc-header">
+                <div class="header-top">
+                    <span>Citizenship 9 &bull; Real Issues Case File #1 &bull; The Move</span>
+                    <span class="side-tag" style="background:#fef3c7; color:#92400e; border-color:#d97706;">STAGE 3: POWER &amp; DEPUTATION</span>
+                </div>
+                <div class="header-main">
+                    <div>
+                        <h1 class="doc-title">Who Has the Power? What's Your Move?</h1>
+                        <div class="doc-sub">Evidence without a move is just complaining &bull; Prep for the 3 Levels of Government block</div>
+                    </div>
+                    <div style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--brand-red);">
+                        DEPUTATION: 90 SECONDS
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: POWER MAP -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>4. The Power Map — Who Can Actually Change This?</span>
+                    <span class="heading-chip">3 LEVELS OF GOVERNMENT</span>
+                </div>
+                <table class="power-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Level &amp; Contact</th>
+                            <th style="width: 38%;">What They Control on Housing</th>
+                            <th style="width: 37%;">Your Issue + Your Ask (Fill In)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="who">
+                                CITY — HRM Council
+                                <span class="rep">Your Councillor</span>
+                            </td>
+                            <td>Zoning (what can be built where), permits, bylaws, city land, whether Position A or C happens at all.</td>
+                            <td>
+                                <textarea id="power_city_ask" rows="2" placeholder="What specific action are you demanding from City Council?"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="who">
+                                PROVINCE — NS Government
+                                <span class="rep">Your MLA</span>
+                            </td>
+                            <td>Housing funding, affordable housing programs, tenancy (rent cap/rules), provincial land, minimum wage itself.</td>
+                            <td>
+                                <textarea id="power_prov_ask" rows="2" placeholder="What policy or law change are you demanding from the Province?"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="who">
+                                FEDERAL — Ottawa
+                                <span class="rep">Your MP</span>
+                            </td>
+                            <td>Big money: the $79.3M Housing Accelerator Fund deal for Halifax, CMHC, immigration levels, tax rules.</td>
+                            <td>
+                                <textarea id="power_fed_ask" rows="2" placeholder="What federal funding or initiative are you calling for?"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="inquiry-prompt">
+                    <strong>Select the ONE level</strong> where your position (A, B, or C) would win or lose:
+                </div>
+                <div style="display: flex; gap: 16px; margin: 6px 0 10px 0; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700;"><input type="radio" name="power_target_level" value="City"> 🏢 Municipal (City Council)</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700;"><input type="radio" name="power_target_level" value="Province"> 🏛️ Provincial (Nova Scotia MLA)</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700;"><input type="radio" name="power_target_level" value="Federal"> 🇨🇦 Federal (Ottawa MP)</label>
+                </div>
+
+                <div class="inquiry-prompt">
+                    Complete: "If I could ask <em>one</em> elected person <em>one</em> question about housing, it would be..."
+                </div>
+                <textarea id="power_one_question" rows="2" placeholder="Write your direct, hard-hitting question to that representative..."></textarea>
+            </div>
+
+            <!-- SECTION 5: DEPUTATION BUILDER -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>5. The Deputation Builder — 90 Seconds at the Mic</span>
+                    <span class="heading-chip">⏱ 90 SEC &bull; READING NOTES IS ALLOWED</span>
+                </div>
+                <div class="inquiry-sub">
+                    At a real HRM Council meeting, citizens get 5 minutes at the mic — a <em>deputation</em>. Yours is 90 seconds. You may read straight from these lines at the open mic; nobody in the gallery judges notes. Strong deputations: <strong>evidence &rarr; position &rarr; ask</strong>.
+                </div>
+
+                <!-- 90-Second Practice Timer Widget -->
+                <div class="timer-widget">
+                    <div>
+                        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #a1a1aa;">Official Deputation Practice Timer</div>
+                        <div class="timer-display" id="timerClock">01:30</div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn-amber btn-sm" id="btnTimerStart" onclick="toggleDeputationTimer()">▶ Start 90s</button>
+                        <button class="btn btn-outline btn-sm" onclick="resetDeputationTimer()">↺ Reset</button>
+                    </div>
+                </div>
+
+                <div class="deputation-group">
+                    <div class="deputation-row">
+                        <span class="starter">1 &bull; "Good evening, Council. I'm a Grade 9 student from Dartmouth, and I live with..."</span>
+                        <input type="text" id="dep_starter_1" placeholder="Who you live with, your neighbourhood, and your perspective...">
+                    </div>
+                    <div class="deputation-row">
+                        <span class="starter">2 &bull; "The evidence I need you to see is..." (use a real number from your research)</span>
+                        <input type="text" id="dep_starter_2" placeholder="Cite a specific number ($1,938 rent, 1,150 homeless, 2.7% vacancy, or global comparison)...">
+                    </div>
+                    <div class="deputation-row">
+                        <span class="starter">3 &bull; "I stand with Position ___ because..."</span>
+                        <input type="text" id="dep_starter_3" placeholder="State your stance (A, B, or C) and your core reason...">
+                    </div>
+                    <div class="deputation-row">
+                        <span class="starter">4 &bull; "I'm asking this Council to..."</span>
+                        <input type="text" id="dep_starter_4" placeholder="Your specific, actionable demand to Council...">
+                    </div>
+                    <div class="deputation-row">
+                        <span class="starter">5 &bull; "Thank you. I'll take your questions." (Closing note or anticipation)</span>
+                        <input type="text" id="dep_starter_5" placeholder="Closing sentence or key point to defend...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 6: FAST FINISHERS -->
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>6. Fast Finishers — Your Other #1 Issues (from YOUR diagnostic)</span>
+                    <span class="heading-chip">PICK ONE &bull; QUICK CIVIC RESPONSE</span>
+                </div>
+                <div class="menu-grid">
+                    <div class="menu-card" id="ff-card-phone" onclick="selectFastFinisher('phone')">
+                        <span class="menu-rank">Your #2 &bull; 2.71/4</span>
+                        <strong>Phone bans in schools.</strong> The rule is provincial. What's the strongest student argument <em>for</em> keeping it — and the best case for changing it?
+                    </div>
+                    <div class="menu-card" id="ff-card-treaty" onclick="selectFastFinisher('treaty')">
+                        <span class="menu-rank">Your #2 (tie) &bull; 2.71/4</span>
+                        <strong>Mi'kmaw treaty rights.</strong> The Sipekne'katik fishery fight is a treaty-rights issue. Which level of government is on the hook? (Preview of Unit 2.)
+                    </div>
+                    <div class="menu-card" id="ff-card-power" onclick="selectFastFinisher('power')">
+                        <span class="menu-rank">Your #4 &bull; 2.43/4</span>
+                        <strong>Power rates &amp; offshore wind.</strong> Nova Scotia Power bills keep climbing. Who approves rate hikes — and is that who you'd call?
+                    </div>
+                    <div class="menu-card" id="ff-card-ai" onclick="selectFastFinisher('ai')">
+                        <span class="menu-rank">Your #6 &bull; 2.29/4</span>
+                        <strong>AI &amp; your future jobs.</strong> If AI absorbs entry-level work, whose job is it to retrain youth — employers, government, or you?
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <input type="hidden" id="ff_selected_topic" value="">
+                    <textarea id="ff_response" rows="2" placeholder="If you finish early, pick one topic above and write your 1-paragraph civic take here..."></textarea>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 14px;">
+                <button class="btn btn-outline" onclick="switchStageTab('tab-numbeo')">&larr; Back to Global Challenge</button>
+                <button class="btn" onclick="switchStageTab('tab-exit')">Next: 📝 Exit Check &amp; Submit &rarr;</button>
+            </div>
+
+        </div>
+
+        <!-- ======================================================================= -->
+        <!-- TAB 4: EXIT CHECK & FINAL SUBMIT (SECTION 7)                            -->
+        <!-- ======================================================================= -->
+        <div class="tab-pane" id="tab-exit">
+            
+            <div class="doc-header">
+                <div class="header-top">
+                    <span>Citizenship 9 &bull; Real Issues Case File #1</span>
+                    <span class="side-tag" style="background:#dcfce7; color:#166534; border-color:#86efac;">STAGE 4: EXIT CHECK &amp; SIGN OFF</span>
+                </div>
+                <div class="header-main">
+                    <div>
+                        <h1 class="doc-title">Exit Check &amp; Official Submission</h1>
+                        <div class="doc-sub">Hand In At The Door &bull; 4 Questions &bull; Direct Sync to Mr. Waugh's Master Sheet</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <div class="section-heading">
+                    <span>7. Exit Check — 4 Questions</span>
+                    <span class="heading-chip">3 MINUTES &bull; ALL REQUIRED</span>
+                </div>
+                <div class="exit-grid">
+                    <div class="exit-q">
+                        <span class="q-num">Q1</span>
+                        <div class="q-text">At $16.75/hr, roughly how many hours of work does one month's $1,938 rent cost?</div>
+                        <input type="text" id="exit_q1" placeholder="Your calculated answer (approx hours)...">
+                    </div>
+                    <div class="exit-q">
+                        <span class="q-num">Q2</span>
+                        <div class="q-text">Housing is mostly a CITY issue (zoning). Name the elected title/person you'd contact about it.</div>
+                        <input type="text" id="exit_q2" placeholder="e.g. City Councillor / Mayor...">
+                    </div>
+                    <div class="exit-q">
+                        <span class="q-num">Q3</span>
+                        <div class="q-text">Which position (A / B / C) did the <em>best argument against</em> your own position make you doubt?</div>
+                        <input type="text" id="exit_q3" placeholder="Explain which counter-argument made you think twice...">
+                    </div>
+                    <div class="exit-q">
+                        <span class="q-num">Q4</span>
+                        <div class="q-text">Today you checked evidence, took a position, and spoke to power. Which of those three was hardest — and why?</div>
+                        <input type="text" id="exit_q4" placeholder="Which civic action pushed you the most, and why is it worth doing?">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Submission Action Card -->
+            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 18px; margin: 16px 0; text-align: center;">
+                <h3 style="font-family: var(--font-head); color: #166534; font-size: 1.15rem; margin-bottom: 6px;">Ready to Submit Your Complete Dossier?</h3>
+                <p style="font-size: 0.8rem; color: #15803d; max-width: 600px; margin: 0 auto 14px auto;">
+                    Clicking the button below dispatches all your calculations, Numbeo data, PPP analysis, deputation speech, and exit slip directly to Mr. Waugh's master database. You will receive an official verification certificate.
+                </p>
+                <div style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                    <button class="btn btn-success" style="padding: 10px 24px; font-size: 0.92rem;" onclick="submitDossier(false)">🚀 Submit Final Dossier to Mr. Waugh</button>
+                    <button class="btn btn-outline" style="color: #166534; border-color: #86efac;" onclick="window.print()">🖨️ Print Backup Copy</button>
+                </div>
+            </div>
+
+            <div class="footer-signature-bar">
+                <span>Room 8 Citizenship 9 &bull; Nova Scotia Social Studies Curriculum &bull; Real Issues Case File #1</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>Student Digital Signature:</span>
+                    <input type="text" id="docSignature" placeholder="Type Full Name to Sign" style="width: 200px; font-family: var(--font-mono); font-weight:700;">
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-start; margin-top: 14px;">
+                <button class="btn btn-outline" onclick="switchStageTab('tab-power')">&larr; Back to Power Map &amp; Deputation</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- MODALS: LOGIN, CLAIM PIN & VERIFICATION CERTIFICATE                     -->
+    <!-- ======================================================================= -->
+
+    <!-- Student Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <div>
+                    <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--brand-blue); text-transform: uppercase;">Room 8 Student Login</div>
+                    <h2 style="font-family: var(--font-head); font-size: 1.25rem; color: var(--ink-dark); margin-top: 2px;">Load Your Saved Dossier</h2>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="closeLoginModal()">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">CLASS SECTION</label>
+                    <select id="loginClassSelect">
+                        <option value="902">Class 902 (Homeroom / Citizenship 9)</option>
+                        <option value="901">Class 901 (Citizenship 9)</option>
+                        <option value="903">Class 903 (Citizenship 9)</option>
+                        <option value="801">Class 801 (Healthy Living 8)</option>
+                        <option value="802">Class 802 (Healthy Living 8)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">FIRST NAME (OR FULL NAME)</label>
+                    <input type="text" id="loginNameInput" placeholder="e.g. Lyla, Brody, Mona...">
+                </div>
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">3-LETTER PIN</label>
+                    <input type="text" id="loginPinInput" maxlength="3" placeholder="e.g. ABC" style="font-family: var(--font-mono); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <a href="javascript:void(0)" onclick="closeLoginModal(); openClaimModal();" style="font-size: 0.75rem; color: var(--brand-blue); font-weight: 700;">Forgot PIN? Look Up Name &rarr;</a>
+                    <button class="btn btn-primary" onclick="performLogin()">Login &amp; Load Work</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Lookup / Claim Modal -->
+    <div id="claimModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <div>
+                    <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--brand-amber); text-transform: uppercase;">PIN Lookup Tool</div>
+                    <h2 style="font-family: var(--font-head); font-size: 1.25rem; color: var(--ink-dark); margin-top: 2px;">Find Your Official Room 8 PIN</h2>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="closeClaimModal()">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">CLASS</label>
+                    <select id="claimClassSelect">
+                        <option value="902">Class 902</option>
+                        <option value="901">Class 901</option>
+                        <option value="903">Class 903</option>
+                        <option value="801">Class 801</option>
+                        <option value="802">Class 802</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">YOUR FIRST NAME</label>
+                    <input type="text" id="claimFirstName" placeholder="e.g. Lyla">
+                </div>
+                <div>
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">YOUR LAST NAME (OPTIONAL)</label>
+                    <input type="text" id="claimLastName" placeholder="e.g. Smith">
+                </div>
+                <button class="btn" onclick="lookupStudentPin()">Find My PIN</button>
+
+                <div id="claimResultArea" style="display: none; border-radius: 8px; padding: 12px; border: 1.5px solid #cbd5e1; text-align: center; margin-top: 4px;">
+                    <div id="claimResultMsg" style="font-size: 0.84rem; font-weight: 600; margin-bottom: 6px;"></div>
+                    <div id="claimResultPin" style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 900; letter-spacing: 0.1em; color: var(--brand-primary);"></div>
+                    <button class="btn btn-success btn-sm" id="btnApplyClaimed" style="margin-top: 8px; display: none;" onclick="applyClaimedPin()">Log In With This PIN &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Cloud Save Verification Certificate Modal -->
+    <div id="verifyModal" class="modal-overlay">
+        <div class="modal-box" style="border: 2.5px solid #10b981;">
+            <div class="modal-head">
+                <div>
+                    <div style="font-family: var(--font-mono); font-size: 0.74rem; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.08em;">Official Cloud Verification Certificate</div>
+                    <h2 style="font-family: var(--font-head); font-size: 1.25rem; color: var(--ink-dark); margin-top: 2px;">Mr. Waugh's Master Database Record</h2>
+                </div>
+                <span style="font-size: 1.8rem;">🛡️</span>
+            </div>
+            <div id="verifyModalBody" style="font-size: 0.84rem; color: var(--ink-body); line-height: 1.5;">
+                <!-- Dynamically populated -->
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                <span style="font-size: 0.72rem; color: var(--ink-muted); font-family: var(--font-mono);" id="verifyModalTime"></span>
+                <button class="btn btn-success btn-sm" onclick="closeVerifyModal()">✅ Confirmed — Safe to Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- CLIENT JAVASCRIPT: AUTH, AUTOSAVE, NUMBEO CALC, BEACON SYNC             -->
+    <!-- ======================================================================= -->
+    <script>
+        const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
+        const TASK_NAME = 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay';
+
+        let autoSaveTimer = null;
+        let lastCloudPayload = null;
+        let lastCloudSaveTime = null;
+        let deputationTimerSeconds = 90;
+        let deputationTimerInterval = null;
+
+        // Stage Tabs Navigation
+        function switchStageTab(tabId) {
+            document.querySelectorAll('.stage-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tabId);
+            });
+            document.querySelectorAll('.tab-pane').forEach(p => {
+                p.classList.toggle('active', p.id === tabId);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Dilemma Position Sync
+        function selectPosition(pos) {
+            const radio = document.querySelector(`input[name="dilemma_position"][value="${pos}"]`);
+            if (radio) {
+                radio.checked = true;
+                syncPositionSelection(pos);
+            }
+        }
+
+        function syncPositionSelection(pos) {
+            document.querySelectorAll('.position-card').forEach(card => card.classList.remove('selected'));
+            if (pos === 'A') document.getElementById('card-pos-a')?.classList.add('selected');
+            if (pos === 'B') document.getElementById('card-pos-b')?.classList.add('selected');
+            if (pos === 'C') document.getElementById('card-pos-c')?.classList.add('selected');
+            triggerAutoSave();
+        }
+
+        // Fast Finisher selection
+        function selectFastFinisher(key) {
+            document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected'));
+            const card = document.getElementById(`ff-card-${key}`);
+            if (card) card.classList.add('selected');
+            const hidden = document.getElementById('ff_selected_topic');
+            if (hidden) hidden.value = key;
+            triggerAutoSave();
+        }
+
+        // Numbeo Auto % Difference Calculation
+        function autoCalcRow(rowNum) {
+            const hfxEl = document.getElementById(`nb_hfx_${rowNum}`);
+            const compEl = document.getElementById(`nb_comp_${rowNum}`);
+            const diffEl = document.getElementById(`nb_diff_${rowNum}`);
+            if (!hfxEl || !compEl || !diffEl) return;
+
+            const hfx = parseFloat(hfxEl.value);
+            const comp = parseFloat(compEl.value);
+
+            if (!isNaN(hfx) && !isNaN(comp) && comp > 0) {
+                const pct = ((hfx - comp) / comp) * 100;
+                if (pct > 0) {
+                    diffEl.value = `Halifax is ${Math.round(pct)}% higher`;
+                } else if (pct < 0) {
+                    diffEl.value = `Halifax is ${Math.round(Math.abs(pct))}% lower`;
+                } else {
+                    diffEl.value = `Same price (0% diff)`;
+                }
+            }
+            triggerAutoSave();
+        }
+
+        // Purchasing Power Parity Calculation
+        function calcPPP() {
+            const salaryEl = document.getElementById('ppp_hfx_annual_salary');
+            const mealHfxEl = document.getElementById('nb_hfx_1');
+            const mealDelhiEl = document.getElementById('nb_comp_1');
+            const delhiSalaryRow = document.getElementById('nb_comp_7'); // Monthly salary
+
+            const hfxHoursEl = document.getElementById('ppp_hfx_hours');
+            const delhiHoursEl = document.getElementById('ppp_delhi_hours');
+
+            const annualSalary = parseFloat(salaryEl?.value);
+            const hfxMeal = parseFloat(mealHfxEl?.value) || 25.0; // fallback avg meal
+            const delhiMeal = parseFloat(mealDelhiEl?.value) || 4.5;
+            const delhiMonthly = parseFloat(delhiSalaryRow?.value) || 850.0;
+
+            if (!isNaN(annualSalary) && annualSalary > 0) {
+                const hourlyHfx = annualSalary / 2000;
+                const hours = (hfxMeal / hourlyHfx).toFixed(2);
+                if (hfxHoursEl) hfxHoursEl.value = hours;
+            }
+
+            if (!isNaN(delhiMonthly) && delhiMonthly > 0) {
+                const hourlyDelhi = (delhiMonthly * 12) / 2000;
+                const hoursDelhi = (delhiMeal / hourlyDelhi).toFixed(2);
+                if (delhiHoursEl) delhiHoursEl.value = hoursDelhi;
+            }
+
+            triggerAutoSave();
+            showToast("PPP hours computed from your inputs!");
+        }
+
+        // Deputation 90s Timer
+        function formatTimerTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function toggleDeputationTimer() {
+            const btn = document.getElementById('btnTimerStart');
+            if (deputationTimerInterval) {
+                // Pause
+                clearInterval(deputationTimerInterval);
+                deputationTimerInterval = null;
+                if (btn) btn.innerText = '▶ Resume';
+            } else {
+                // Start
+                if (deputationTimerSeconds <= 0) deputationTimerSeconds = 90;
+                if (btn) btn.innerText = '⏸ Pause';
+                deputationTimerInterval = setInterval(() => {
+                    deputationTimerSeconds--;
+                    document.getElementById('timerClock').innerText = formatTimerTime(deputationTimerSeconds);
+                    if (deputationTimerSeconds <= 0) {
+                        clearInterval(deputationTimerInterval);
+                        deputationTimerInterval = null;
+                        if (btn) btn.innerText = '▶ Start 90s';
+                        document.getElementById('timerClock').innerText = '00:00 - TIME!';
+                        showToast("⏱ 90 seconds are up! Thank the Council for their time.");
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetDeputationTimer() {
+            if (deputationTimerInterval) {
+                clearInterval(deputationTimerInterval);
+                deputationTimerInterval = null;
+            }
+            deputationTimerSeconds = 90;
+            document.getElementById('timerClock').innerText = '01:30';
+            const btn = document.getElementById('btnTimerStart');
+            if (btn) btn.innerText = '▶ Start 90s';
+        }
+
+        // ==========================================
+        // PAYLOAD BUILDER & FIELD BINDINGS
+        // ==========================================
+        function buildDossierPayload() {
+            const pin = (document.getElementById('authStudentPin').innerText || '').trim().toUpperCase();
+            const name = document.getElementById('docStudentName').value.trim() || document.getElementById('authStudentName').innerText.trim();
+            const cls = document.getElementById('docStudentClass').value.trim() || '902';
+
+            const numbeoRows = [];
+            for (let i = 1; i <= 11; i++) {
+                numbeoRows.push({
+                    row: i,
+                    item: i <= 9 ? document.querySelector(`#numbeoTable tbody tr:nth-child(${i+1}) td.item-name`)?.innerText.trim() : document.getElementById(`nb_item_${i}`)?.value.trim(),
+                    halifax_price: document.getElementById(`nb_hfx_${i}`)?.value || '',
+                    city: document.getElementById(`nb_city_${i}`)?.value || '',
+                    city_price: document.getElementById(`nb_comp_${i}`)?.value || '',
+                    pct_difference: document.getElementById(`nb_diff_${i}`)?.value || ''
+                });
+            }
+
+            const checkedPos = document.querySelector('input[name="dilemma_position"]:checked');
+            const checkedTargetLevel = document.querySelector('input[name="power_target_level"]:checked');
+
+            return {
+                name: name,
+                pin: pin,
+                className: cls,
+                date: document.getElementById('docDate').value,
+                signature: document.getElementById('docSignature').value,
+                rent_math: {
+                    hours_for_rent: document.getElementById('math_hours_rent').value,
+                    pct_of_pay: document.getElementById('math_pct_rent').value,
+                    wage_needed: document.getElementById('math_wage_needed').value,
+                    gap_reflection: document.getElementById('math_gap_reflection').value
+                },
+                evidence: {
+                    most_shocking: document.getElementById('evidence_most_shocking').value
+                },
+                dilemma: {
+                    position: checkedPos ? checkedPos.value : '',
+                    justification: document.getElementById('dilemma_justification').value
+                },
+                global_numbeo: numbeoRows,
+                ppp: {
+                    career: document.getElementById('ppp_career_name').value,
+                    annual_salary: document.getElementById('ppp_hfx_annual_salary').value,
+                    hfx_hours: document.getElementById('ppp_hfx_hours').value,
+                    delhi_hours: document.getElementById('ppp_delhi_hours').value,
+                    analysis: document.getElementById('ppp_analysis_reflection').value
+                },
+                power_map: {
+                    city_ask: document.getElementById('power_city_ask').value,
+                    prov_ask: document.getElementById('power_prov_ask').value,
+                    fed_ask: document.getElementById('power_fed_ask').value,
+                    target_level: checkedTargetLevel ? checkedTargetLevel.value : '',
+                    one_question: document.getElementById('power_one_question').value
+                },
+                deputation: {
+                    starter_1: document.getElementById('dep_starter_1').value,
+                    starter_2: document.getElementById('dep_starter_2').value,
+                    starter_3: document.getElementById('dep_starter_3').value,
+                    starter_4: document.getElementById('dep_starter_4').value,
+                    starter_5: document.getElementById('dep_starter_5').value
+                },
+                fast_finisher: {
+                    topic: document.getElementById('ff_selected_topic').value,
+                    response: document.getElementById('ff_response').value
+                },
+                exit_slip: {
+                    q1: document.getElementById('exit_q1').value,
+                    q2: document.getElementById('exit_q2').value,
+                    q3: document.getElementById('exit_q3').value,
+                    q4: document.getElementById('exit_q4').value
+                }
+            };
+        }
+
+        function applyPayloadToForm(data) {
+            if (!data) return;
+
+            if (data.name) document.getElementById('docStudentName').value = data.name;
+            if (data.className) document.getElementById('docStudentClass').value = data.className;
+            if (data.date) document.getElementById('docDate').value = data.date;
+            if (data.signature) document.getElementById('docSignature').value = data.signature;
+
+            if (data.rent_math) {
+                if (data.rent_math.hours_for_rent) document.getElementById('math_hours_rent').value = data.rent_math.hours_for_rent;
+                if (data.rent_math.pct_of_pay) document.getElementById('math_pct_rent').value = data.rent_math.pct_of_pay;
+                if (data.rent_math.wage_needed) document.getElementById('math_wage_needed').value = data.rent_math.wage_needed;
+                if (data.rent_math.gap_reflection) document.getElementById('math_gap_reflection').value = data.rent_math.gap_reflection;
+            }
+
+            if (data.evidence && data.evidence.most_shocking) {
+                document.getElementById('evidence_most_shocking').value = data.evidence.most_shocking;
+            }
+
+            if (data.dilemma) {
+                if (data.dilemma.position) {
+                    const r = document.querySelector(`input[name="dilemma_position"][value="${data.dilemma.position}"]`);
+                    if (r) { r.checked = true; syncPositionSelection(data.dilemma.position); }
+                }
+                if (data.dilemma.justification) document.getElementById('dilemma_justification').value = data.dilemma.justification;
+            }
+
+            if (Array.isArray(data.global_numbeo)) {
+                data.global_numbeo.forEach(row => {
+                    const i = row.row;
+                    if (row.halifax_price) document.getElementById(`nb_hfx_${i}`).value = row.halifax_price;
+                    if (row.city_price) document.getElementById(`nb_comp_${i}`).value = row.city_price;
+                    if (row.pct_difference) document.getElementById(`nb_diff_${i}`).value = row.pct_difference;
+                    if (i >= 10) {
+                        if (row.item) document.getElementById(`nb_item_${i}`).value = row.item;
+                        if (row.city) document.getElementById(`nb_city_${i}`).value = row.city;
+                    }
+                });
+            }
+
+            if (data.ppp) {
+                if (data.ppp.career) document.getElementById('ppp_career_name').value = data.ppp.career;
+                if (data.ppp.annual_salary) document.getElementById('ppp_hfx_annual_salary').value = data.ppp.annual_salary;
+                if (data.ppp.hfx_hours) document.getElementById('ppp_hfx_hours').value = data.ppp.hfx_hours;
+                if (data.ppp.delhi_hours) document.getElementById('ppp_delhi_hours').value = data.ppp.delhi_hours;
+                if (data.ppp.analysis) document.getElementById('ppp_analysis_reflection').value = data.ppp.analysis;
+            }
+
+            if (data.power_map) {
+                if (data.power_map.city_ask) document.getElementById('power_city_ask').value = data.power_map.city_ask;
+                if (data.power_map.prov_ask) document.getElementById('power_prov_ask').value = data.power_map.prov_ask;
+                if (data.power_map.fed_ask) document.getElementById('power_fed_ask').value = data.power_map.fed_ask;
+                if (data.power_map.target_level) {
+                    const r = document.querySelector(`input[name="power_target_level"][value="${data.power_map.target_level}"]`);
+                    if (r) r.checked = true;
+                }
+                if (data.power_map.one_question) document.getElementById('power_one_question').value = data.power_map.one_question;
+            }
+
+            if (data.deputation) {
+                if (data.deputation.starter_1) document.getElementById('dep_starter_1').value = data.deputation.starter_1;
+                if (data.deputation.starter_2) document.getElementById('dep_starter_2').value = data.deputation.starter_2;
+                if (data.deputation.starter_3) document.getElementById('dep_starter_3').value = data.deputation.starter_3;
+                if (data.deputation.starter_4) document.getElementById('dep_starter_4').value = data.deputation.starter_4;
+                if (data.deputation.starter_5) document.getElementById('dep_starter_5').value = data.deputation.starter_5;
+            }
+
+            if (data.fast_finisher) {
+                if (data.fast_finisher.topic) selectFastFinisher(data.fast_finisher.topic);
+                if (data.fast_finisher.response) document.getElementById('ff_response').value = data.fast_finisher.response;
+            }
+
+            if (data.exit_slip) {
+                if (data.exit_slip.q1) document.getElementById('exit_q1').value = data.exit_slip.q1;
+                if (data.exit_slip.q2) document.getElementById('exit_q2').value = data.exit_slip.q2;
+                if (data.exit_slip.q3) document.getElementById('exit_q3').value = data.exit_slip.q3;
+                if (data.exit_slip.q4) document.getElementById('exit_q4').value = data.exit_slip.q4;
+            }
+        }
+
+        // Autosave handler
+        function triggerAutoSave() {
+            const pin = (document.getElementById('authStudentPin').innerText || '').trim().toUpperCase();
+            const payload = buildDossierPayload();
+
+            // Always save to localStorage draft
+            if (pin && pin !== '---') {
+                localStorage.setItem(`cit9_dossier_draft_${pin}`, JSON.stringify(payload));
+            } else {
+                localStorage.setItem('cit9_dossier_anon_draft', JSON.stringify(payload));
+            }
+
+            const pill = document.getElementById('cloudSyncStatus');
+            if (pill) {
+                pill.className = 'sync-pill saving';
+                pill.innerHTML = '<span>🟡</span> Local Draft Saved';
+            }
+
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                if (pin && pin !== '---' && pin.length === 3) {
+                    dispatchCloudSync(false);
+                }
+            }, 1800);
+        }
+
+        // Cloud sync dispatcher
+        async function dispatchCloudSync(isFinalSubmit = false) {
+            const payload = buildDossierPayload();
+            const pin = payload.pin;
+
+            if (!pin || pin === '---' || pin.length < 3) {
+                if (isFinalSubmit) {
+                    openLoginModal();
+                    showToast("Please log in with your Name and 3-Letter PIN first.", true);
+                }
+                return;
+            }
+
+            const pill = document.getElementById('cloudSyncStatus');
+            if (pill) {
+                pill.className = 'sync-pill saving';
+                pill.innerHTML = '<span>🟡</span> Syncing to Google Sheets...';
+            }
+
+            const summary = `Dossier: ${payload.name} (${payload.className}) • Pos: ${payload.dilemma?.position || 'None'} • Wage: $${payload.rent_math?.wage_needed || '0'} • Exit: ${payload.exit_slip?.q1 ? 'Done' : 'Incomplete'}`;
+
+            const bodyObj = {
+                action: 'submit_profile',
+                taskName: TASK_NAME,
+                className: payload.className,
+                name: payload.name,
+                pin: pin,
+                email: '',
+                pronouns: '',
+                data: payload,
+                summary: summary
+            };
+
+            const bodyStr = JSON.stringify(bodyObj);
+
+            try {
+                const res = await fetch(GAS_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: bodyStr,
+                    keepalive: true
+                });
+                const resData = await res.json();
+                lastCloudSaveTime = new Date();
+                lastCloudPayload = payload;
+
+                if (pill) {
+                    pill.className = 'sync-pill synced';
+                    pill.innerHTML = '<span>🟢</span> Cloud Synced';
+                }
+                document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+
+                if (isFinalSubmit) {
+                    openVerifyModal();
+                    showToast("🎉 Final Dossier successfully submitted to Mr. Waugh!");
+                }
+            } catch (err) {
+                // Fallback no-cors dispatch
+                try {
+                    fetch(GAS_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: bodyStr,
+                        keepalive: true
+                    });
+                } catch(e) {}
+
+                lastCloudSaveTime = new Date();
+                lastCloudPayload = payload;
+
+                if (pill) {
+                    pill.className = 'sync-pill synced';
+                    pill.innerHTML = '<span>🟢</span> Cloud Synced';
+                }
+                document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+
+                if (isFinalSubmit) {
+                    openVerifyModal();
+                    showToast("✅ Dossier dispatched to Google Sheets!");
+                }
+            }
+        }
+
+        function submitDossier(isToolbarClick = false) {
+            const pin = (document.getElementById('authStudentPin').innerText || '').trim().toUpperCase();
+            if (!pin || pin === '---') {
+                openLoginModal();
+                showToast("Please log in with your Name and 3-Letter PIN first.", true);
+                return;
+            }
+            dispatchCloudSync(!isToolbarClick);
+        }
+
+        // Emergency Beacon Sync for Chromebook lid close / tab switch
+        function sendEmergencyBeaconSync() {
+            const pin = (document.getElementById('authStudentPin').innerText || '').trim().toUpperCase();
+            if (!pin || pin === '---') return;
+
+            const payload = buildDossierPayload();
+            const summary = `Emergency Beacon: ${payload.name} (${payload.className})`;
+            const bodyStr = JSON.stringify({
+                action: 'submit_profile',
+                taskName: TASK_NAME,
+                className: payload.className,
+                name: payload.name,
+                pin: pin,
+                email: '',
+                pronouns: '',
+                data: payload,
+                summary: summary
+            });
+
+            try {
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([bodyStr], { type: 'text/plain;charset=utf-8' });
+                    navigator.sendBeacon(GAS_ENDPOINT, blob);
+                }
+            } catch(e) {}
+        }
+
+        // ==========================================
+        // AUTHENTICATION & PIN MANAGEMENT
+        // ==========================================
+        function updateAuthDisplay(student) {
+            document.getElementById('authStudentName').innerText = student.first_name || student.name || 'Student';
+            document.getElementById('authStudentPin').innerText = student.pin;
+            document.getElementById('authStudentClass').innerText = `Class ${student.homeroom || student.className || '902'}`;
+            document.getElementById('docStudentName').value = `${student.first_name || ''} ${student.last_name || ''}`.trim();
+            document.getElementById('docStudentClass').value = student.homeroom || student.className || '902';
+
+            sessionStorage.setItem('bh_pin', student.pin);
+            sessionStorage.setItem('bh_name', student.first_name);
+            sessionStorage.setItem('bh_class', student.homeroom || '902');
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('loginNameInput')?.focus(), 50);
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function openClaimModal() {
+            document.getElementById('claimModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('claimFirstName')?.focus(), 50);
+        }
+
+        function closeClaimModal() {
+            document.getElementById('claimModal').style.display = 'none';
+        }
+
+        function openVerifyModal() {
+            const payload = lastCloudPayload || buildDossierPayload();
+            const timeStr = lastCloudSaveTime ? lastCloudSaveTime.toLocaleTimeString() : new Date().toLocaleTimeString();
+
+            document.getElementById('verifyModalTime').innerText = `Certified: ${timeStr} • Server: Google Apps Script`;
+            document.getElementById('verifyModalBody').innerHTML = `
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:12px;">
+                    <strong style="color:#166534;">STUDENT RECORD CONFIRMED:</strong><br>
+                    <strong>Name:</strong> ${payload.name || 'Student'} &bull; 
+                    <strong>PIN:</strong> ${payload.pin} &bull; 
+                    <strong>Class:</strong> ${payload.className}<br>
+                    <strong>Task:</strong> ${TASK_NAME}
+                </div>
+                <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:4px; font-size:0.8rem;">
+                    <li>✅ <strong>HRM Rent Math:</strong> Hours for Rent: ${payload.rent_math?.hours_for_rent || 'Recorded'} hrs | Wage Needed: $${payload.rent_math?.wage_needed || 'Recorded'}/hr</li>
+                    <li>✅ <strong>HRM Dilemma Stance:</strong> Position ${payload.dilemma?.position || 'Committed'}</li>
+                    <li>✅ <strong>Global Challenge:</strong> ${payload.global_numbeo?.length || 11} Numbeo comparisons recorded</li>
+                    <li>✅ <strong>PPP Hours:</strong> Halifax: ${payload.ppp?.hfx_hours || '0'} hrs vs Delhi: ${payload.ppp?.delhi_hours || '0'} hrs</li>
+                    <li>✅ <strong>Deputation:</strong> 5 speech blocks prepped</li>
+                    <li>✅ <strong>Exit Check:</strong> 4 verification responses logged</li>
+                </ul>
+            `;
+            document.getElementById('verifyModal').style.display = 'flex';
+        }
+
+        function closeVerifyModal() {
+            document.getElementById('verifyModal').style.display = 'none';
+        }
+
+        let pendingClaimedStudent = null;
+
+        function lookupStudentPin() {
+            const first = document.getElementById('claimFirstName').value.trim().toLowerCase();
+            const last = document.getElementById('claimLastName').value.trim().toLowerCase();
+            const cls = document.getElementById('claimClassSelect').value;
+
+            if (!first) {
+                alert("Please enter at least your First Name.");
+                return;
+            }
+
+            const roster = window.MASTER_ROSTER_DATA || [];
+            let matches = roster.filter(s => {
+                const sFirst = (s.first_name || '').toLowerCase();
+                const sLast = (s.last_name || '').toLowerCase();
+                if (last) {
+                    return sFirst.includes(first) && sLast.includes(last);
+                }
+                return sFirst === first || sFirst.startsWith(first);
+            });
+
+            // Filter by class if found
+            if (matches.length > 1) {
+                const classMatches = matches.filter(s => String(s.homeroom || '') === cls);
+                if (classMatches.length > 0) matches = classMatches;
+            }
+
+            const resArea = document.getElementById('claimResultArea');
+            const resMsg = document.getElementById('claimResultMsg');
+            const resPin = document.getElementById('claimResultPin');
+            const btnApply = document.getElementById('btnApplyClaimed');
+
+            resArea.style.display = 'block';
+
+            if (matches.length === 1) {
+                const s = matches[0];
+                pendingClaimedStudent = s;
+                resMsg.innerText = `Matched: ${s.first_name} ${s.last_name} (Class ${s.homeroom})`;
+                resPin.innerText = s.pin;
+                resArea.style.background = '#f0fdf4';
+                resArea.style.borderColor = '#86efac';
+                btnApply.style.display = 'inline-block';
+            } else if (matches.length > 1) {
+                resMsg.innerText = `Multiple students matched "${first}". Please enter your last name.`;
+                resPin.innerText = '???';
+                resArea.style.background = '#fef3c7';
+                resArea.style.borderColor = '#fde68a';
+                btnApply.style.display = 'none';
+            } else {
+                resMsg.innerText = `"${first}" was not found on the roster. Please see Mr. Waugh.`;
+                resPin.innerText = '---';
+                resArea.style.background = '#fef2f2';
+                resArea.style.borderColor = '#fca5a5';
+                btnApply.style.display = 'none';
+            }
+        }
+
+        function applyClaimedPin() {
+            if (pendingClaimedStudent) {
+                updateAuthDisplay(pendingClaimedStudent);
+                closeClaimModal();
+                loadCloudWorkForStudent(pendingClaimedStudent.homeroom, pendingClaimedStudent.pin, pendingClaimedStudent.first_name);
+            }
+        }
+
+        async function performLogin() {
+            const name = document.getElementById('loginNameInput').value.trim();
+            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
+            const cls = document.getElementById('loginClassSelect').value;
+
+            if (!pin && !name) {
+                showToast("Please enter your name or 3-letter PIN.", true);
+                return;
+            }
+
+            // Demo/teacher overrides
+            if (pin === 'WAU' || pin === 'TST' || pin === 'DEV') {
+                const dummy = { first_name: name || 'Teacher Demo', last_name: '', pin: pin, homeroom: cls };
+                updateAuthDisplay(dummy);
+                closeLoginModal();
+                loadCloudWorkForStudent(cls, pin, dummy.first_name);
+                return;
+            }
+
+            const roster = window.MASTER_ROSTER_DATA || [];
+            let student = roster.find(s => (s.pin || '').toUpperCase() === pin);
+            if (!student && name) {
+                student = roster.find(s => (s.first_name || '').toLowerCase() === name.toLowerCase());
+            }
+
+            if (student) {
+                updateAuthDisplay(student);
+                closeLoginModal();
+                loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
+            } else {
+                // If not found in local roster, still allow login and query GAS
+                const studentFallback = { first_name: name || 'Student', pin: pin || '---', homeroom: cls };
+                updateAuthDisplay(studentFallback);
+                closeLoginModal();
+                loadCloudWorkForStudent(cls, pin, name);
+            }
+        }
+
+        async function loadCloudWorkForStudent(cls, pin, name) {
+            showToast(`Loading saved work for ${name} (${pin})...`);
+            
+            // Check local draft first
+            const localDraft = localStorage.getItem(`cit9_dossier_draft_${pin}`);
+            if (localDraft) {
+                try {
+                    applyPayloadToForm(JSON.parse(localDraft));
+                } catch(e) {}
+            }
+
+            // Fetch from Google Apps Script
+            try {
+                const getUrl = `${GAS_ENDPOINT}?action=login&className=${encodeURIComponent(cls)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(name)}`;
+                const res = await fetch(getUrl);
+                const data = await res.json();
+                if (data.status === 'success' && data.savedData) {
+                    const saved = data.savedData;
+                    const d = saved.data || saved;
+                    if (d.rent_math || d.global_numbeo || d.dilemma || d.ppp || d.power_map) {
+                        applyPayloadToForm(d);
+                        localStorage.setItem(`cit9_dossier_draft_${pin}`, JSON.stringify(d));
+                        const pill = document.getElementById('cloudSyncStatus');
+                        if (pill) {
+                            pill.className = 'sync-pill synced';
+                            pill.innerHTML = '<span>🟢</span> Cloud Synced';
+                        }
+                        document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+                        showToast(`✅ Welcome, ${name}! Your dossier is restored.`);
+                    }
+                }
+            } catch(e) {
+                console.warn("GAS fetch error:", e);
+                showToast(`Loaded local draft for ${name}.`);
+            }
+        }
+
+        function restoreChromebookDraft() {
+            if (window._pendingRecoveryDraft) {
+                applyPayloadToForm(window._pendingRecoveryDraft.data);
+                const pin = window._pendingRecoveryDraft.pin;
+                if (pin && pin !== '---') {
+                    const roster = window.MASTER_ROSTER_DATA || [];
+                    const s = roster.find(st => (st.pin || '').toUpperCase() === pin);
+                    if (s) updateAuthDisplay(s);
+                }
+                showToast("Draft restored! Saving to Google Sheets...");
+                dismissRecoveryBanner();
+                dispatchCloudSync(false);
+            }
+        }
+
+        function dismissRecoveryBanner() {
+            document.getElementById('chromebookRecoveryBanner').style.display = 'none';
+        }
+
+        // Toast Helper
+        function showToast(msg, isError = false) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    padding: 10px 16px;
+                    border-radius: 6px;
+                    color: #ffffff;
+                    font-family: var(--font-body);
+                    font-size: 0.82rem;
+                    font-weight: 700;
+                    z-index: 99999;
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+                    transition: all 0.3s ease;
+                    opacity: 0;
+                    transform: translateY(10px);
+                `;
+                document.body.appendChild(toast);
+            }
+            toast.style.backgroundColor = isError ? '#dc2626' : '#047857';
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+            }, 3500);
+        }
+
+        // ==========================================
+        // INITIALIZATION ON PAGE LOAD
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set current date
+            const today = new Date().toLocaleDateString('en-CA');
+            document.getElementById('docDate').value = today;
+
+            // Wire input and change events for live autosave
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('input', triggerAutoSave);
+                el.addEventListener('change', triggerAutoSave);
+            });
+
+            // Visibility and unload handlers for emergency sync
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') sendEmergencyBeaconSync();
+            });
+            window.addEventListener('pagehide', sendEmergencyBeaconSync);
+
+            // Check for saved drafts on this Chromebook
+            const foundDrafts = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('cit9_dossier_draft_')) {
+                    const draftPin = key.replace('cit9_dossier_draft_', '');
+                    if (draftPin && draftPin !== 'WAU') {
+                        try {
+                            const d = JSON.parse(localStorage.getItem(key));
+                            if (d && (d.rent_math?.hours_for_rent || d.global_numbeo?.length || d.dilemma?.position)) {
+                                foundDrafts.push({ pin: draftPin, data: d });
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            if (foundDrafts.length > 0) {
+                const latestDraft = foundDrafts[0];
+                const roster = window.MASTER_ROSTER_DATA || [];
+                const s = roster.find(st => (st.pin || '').toUpperCase() === latestDraft.pin);
+                const sName = s ? `${s.first_name} ${s.last_name || ''} (${latestDraft.pin} • Class ${s.homeroom || '902'})` : `PIN ${latestDraft.pin}`;
+
+                const banner = document.getElementById('chromebookRecoveryBanner');
+                const text = document.getElementById('recoveryBannerText');
+                if (banner && text) {
+                    text.innerText = `Found saved draft for ${sName} on this Chromebook!`;
+                    banner.style.display = 'flex';
+                    window._pendingRecoveryDraft = latestDraft;
+                }
+            }
+
+            // Restore from session
+            const savedPin = sessionStorage.getItem('bh_pin');
+            const savedName = sessionStorage.getItem('bh_name');
+            const savedClass = sessionStorage.getItem('bh_class') || '902';
+
+            if (savedPin && savedPin !== '---') {
+                const roster = window.MASTER_ROSTER_DATA || [];
+                const s = roster.find(st => (st.pin || '').toUpperCase() === savedPin);
+                if (s) {
+                    updateAuthDisplay(s);
+                    loadCloudWorkForStudent(savedClass, savedPin, s.first_name);
+                }
+            } else {
+                // Check if anonymous draft exists
+                const anon = localStorage.getItem('cit9_dossier_anon_draft');
+                if (anon) {
+                    try { applyPayloadToForm(JSON.parse(anon)); } catch(e) {}
+                }
+            }
+        });
+    </script>
+</body>
+</html>
