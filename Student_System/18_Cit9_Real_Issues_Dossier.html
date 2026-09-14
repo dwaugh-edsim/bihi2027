@@ -16,11 +16,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- External Roster & API scripts -->
-    <script src="students_roster_data.js"></script>
+    <!-- External Roster & API scripts (with relative paths) -->
     <script src="../Student_System/students_roster_data.js"></script>
-    <script src="api.js"></script>
+    <script src="students_roster_data.js"></script>
     <script src="../Student_System/api.js"></script>
+    <script src="api.js"></script>
 
     <style>
         :root {
@@ -1188,6 +1188,320 @@
                 -webkit-print-color-adjust: exact !important;
                 border-color: #334155 !important;
             }
+
+            #civic_calculator_widget {
+                display: none !important;
+            }
+        }
+
+        /* ============ CIVIC CALCULATOR WIDGET ============ */
+        .btn-calc-chip {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1.5px solid #38bdf8;
+            border-radius: 6px;
+            font-family: var(--font-head);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-calc-chip:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-preset-calc {
+            background: #f1f5f9;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            cursor: pointer;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            vertical-align: middle;
+        }
+
+        .btn-preset-calc:hover {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #1d4ed8;
+        }
+
+        @keyframes calcGlowPulse {
+            0% { background-color: #fef08a; transform: scale(1.02); }
+            50% { background-color: #bbf7d0; }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+
+        .calc-highlight {
+            animation: calcGlowPulse 1.2s ease forwards !important;
+            border-color: #10b981 !important;
+        }
+
+        #civic_calculator_widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 320px;
+            background: #0f172a;
+            color: #f8fafc;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: var(--font-body);
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .calc-drag-header {
+            background: #1e293b;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            cursor: grab;
+        }
+
+        .calc-drag-header:active {
+            cursor: grabbing;
+        }
+
+        .calc-title-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #e2e8f0;
+            font-family: var(--font-head);
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .calc-close-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+
+        .calc-close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .calc-screen {
+            background: #020617;
+            padding: 10px 14px;
+            border-bottom: 1px solid #1e293b;
+            text-align: right;
+        }
+
+        .calc-target-line {
+            font-size: 0.68rem;
+            color: #38bdf8;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+
+        .calc-tape {
+            font-size: 0.76rem;
+            color: #64748b;
+            font-family: var(--font-mono);
+            min-height: 1.1em;
+            word-break: break-all;
+        }
+
+        .calc-display {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #38bdf8;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+            word-break: break-all;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .calc-presets-section {
+            background: #1e293b;
+            padding: 6px 10px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .calc-presets-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .calc-presets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .calc-preset-pill {
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            padding: 4px 6px;
+            text-align: left;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.15s ease;
+        }
+
+        .calc-preset-pill:hover {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #60a5fa;
+        }
+
+        .calc-keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding: 10px;
+            background: #0f172a;
+        }
+
+        .calc-key {
+            height: 38px;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+
+        .calc-key.num {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        .calc-key.num:hover {
+            background: #334155;
+        }
+
+        .calc-key.op {
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        .calc-key.op:hover {
+            background: #475569;
+            color: #ffffff;
+        }
+
+        .calc-key.action {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-color: #3b82f6;
+        }
+
+        .calc-key.action:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .calc-key.clear {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border-color: #ef4444;
+        }
+
+        .calc-key.clear:hover {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        .calc-key.equals {
+            background: #047857;
+            color: #ffffff;
+            border-color: #10b981;
+            font-size: 1.25rem;
+        }
+
+        .calc-key.equals:hover {
+            background: #059669;
+        }
+
+        .calc-footer {
+            padding: 8px 10px;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+        }
+
+        .calc-insert-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-head);
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 8px 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+            transition: all 0.15s ease;
+        }
+
+        .calc-insert-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+        }
+
+        @media (max-width: 520px) {
+            #civic_calculator_widget {
+                left: 12px !important;
+                right: 12px !important;
+                bottom: 12px !important;
+                width: auto !important;
+            }
         }
     </style>
 </head>
@@ -1203,6 +1517,7 @@
         <div class="toolbar-actions">
             <a href="index.html" class="btn btn-outline btn-sm">&larr; Course Hub</a>
             <button class="btn btn-outline btn-sm" onclick="openClaimModal()">🔍 Find My PIN</button>
+            <button class="btn btn-outline btn-sm" onclick="CivicCalc.toggle()" title="Open Civic Math Calculator (Alt+C)">🧮 Calculator</button>
             <button class="btn btn-sm" onclick="window.print()">🖨️ Print Docket</button>
             <button class="btn btn-success btn-sm" onclick="submitDossier(true)">💾 Cloud Submit</button>
         </div>
@@ -1305,7 +1620,10 @@
             <div class="section-box">
                 <div class="section-heading">
                     <span>1. The Rent Math — Run the Numbers Yourself</span>
-                    <span class="heading-chip">CALCULATORS OK &bull; AUTO-SAVES LIVE</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn-calc-chip" onclick="CivicCalc.open('math_hours_rent')">🧮 Open Calculator</button>
+                        <span class="heading-chip">CALCULATORS OK &bull; AUTO-SAVES LIVE</span>
+                    </div>
                 </div>
                 <div class="math-grid">
                     <!-- Left: the given facts -->
@@ -1337,7 +1655,7 @@
                                 <input type="number" step="0.1" id="math_hours_rent" class="math-input" placeholder="e.g. 115.7">
                                 <span class="math-answer-tag">HOURS / MO</span>
                             </div>
-                            <div class="math-hint">Formula: $1,938 ÷ $16.75</div>
+                            <div class="math-hint">Formula: $1,938 ÷ $16.75 <button type="button" class="btn-preset-calc" onclick="CivicCalc.loadPreset('1938 / 16.75', 'math_hours_rent', '115.7')">🧮 Compute ($1,938 ÷ $16.75)</button></div>
                         </div>
                         <div class="math-task">
                             <div class="math-task-label"><strong>(b)</strong> A full-time minimum-wage job pays about <strong>$2,898/month</strong>. What <strong>%</strong> of that pay does rent eat?</div>
@@ -1346,7 +1664,7 @@
                                 <input type="number" step="0.1" id="math_pct_rent" class="math-input" placeholder="e.g. 66.9">
                                 <span class="math-answer-tag">% OF PAY</span>
                             </div>
-                            <div class="math-hint">Formula: ($1,938 ÷ $2,898) &times; 100</div>
+                            <div class="math-hint">Formula: ($1,938 ÷ $2,898) &times; 100 <button type="button" class="btn-preset-calc" onclick="CivicCalc.loadPreset('(1938 / 2898) * 100', 'math_pct_rent', '66.9')">🧮 Compute (($1,938 ÷ $2,898) &times; 100)</button></div>
                         </div>
                         <div class="math-task">
                             <div class="math-task-label"><strong>(c)</strong> Using the 30% rule: what <strong>hourly wage</strong> would a full-time worker need to afford that 1-bedroom?</div>
@@ -1355,7 +1673,7 @@
                                 <input type="number" step="0.01" id="math_wage_needed" class="math-input" placeholder="e.g. 37.27">
                                 <span class="math-answer-tag">/ HOUR</span>
                             </div>
-                            <div class="math-hint">Hint: ($1,938 &times; 12 ÷ 0.30) ÷ 2,080 hrs</div>
+                            <div class="math-hint">Hint: ($1,938 &times; 12 ÷ 0.30) ÷ 2,080 hrs <button type="button" class="btn-preset-calc" onclick="CivicCalc.loadPreset('(1938 * 12 / 0.30) / 2080', 'math_wage_needed', '37.27')">🧮 Compute Living Wage</button></div>
                         </div>
                     </div>
                 </div>
@@ -1994,6 +2312,69 @@
         </div>
     </div>
 
+    <!-- Room 8 Floating Civic Math Calculator Widget -->
+    <div id="civic_calculator_widget" class="calc-widget" role="dialog" aria-labelledby="calc_title">
+        <div class="calc-drag-header" id="calc_drag_header">
+            <div class="calc-title-box">
+                <span style="font-size: 1.1rem;">🧮</span>
+                <span id="calc_title">Room 8 Civic Calculator</span>
+            </div>
+            <button type="button" class="calc-close-btn" onclick="CivicCalc.close()" title="Close Calculator (Esc)">✕</button>
+        </div>
+
+        <div class="calc-screen">
+            <div class="calc-target-line" id="calc_target_label">Paste Target: Q(a) Rent Hours</div>
+            <div class="calc-tape" id="calc_tape">&nbsp;</div>
+            <div class="calc-display" id="calc_display">0</div>
+        </div>
+
+        <!-- Problem Presets Rack -->
+        <div class="calc-presets-section">
+            <div class="calc-presets-label">⚡ Civic Problem Presets:</div>
+            <div class="calc-presets-grid">
+                <button type="button" class="calc-preset-pill" onclick="CivicCalc.loadPreset('1938 / 16.75', 'math_hours_rent', '115.7')">Q(a) Rent Hrs: 1938÷16.75</button>
+                <button type="button" class="calc-preset-pill" onclick="CivicCalc.loadPreset('(1938 / 2898) * 100', 'math_pct_rent', '66.9')">Q(b) Rent %: (1938÷2898)&times;100</button>
+                <button type="button" class="calc-preset-pill" onclick="CivicCalc.loadPreset('(1938 * 12 / 0.30) / 2080', 'math_wage_needed', '37.27')">Q(c) Living Wage: $37.27</button>
+                <button type="button" class="calc-preset-pill" onclick="CivicCalc.loadPreset('22.00 / 16.75', 'ppp_hfx_hours', '1.31')">PPP: $22 Meal ÷ $16.75</button>
+            </div>
+        </div>
+
+        <!-- Keypad Grid -->
+        <div class="calc-keypad">
+            <button type="button" class="calc-key clear" onclick="CivicCalc.clear()">C</button>
+            <button type="button" class="calc-key op" onclick="CivicCalc.inputKey('(')">(</button>
+            <button type="button" class="calc-key op" onclick="CivicCalc.inputKey(')')">)</button>
+            <button type="button" class="calc-key action" onclick="CivicCalc.inputKey('/')">÷</button>
+
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('7')">7</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('8')">8</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('9')">9</button>
+            <button type="button" class="calc-key action" onclick="CivicCalc.inputKey('*')">×</button>
+
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('4')">4</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('5')">5</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('6')">6</button>
+            <button type="button" class="calc-key action" onclick="CivicCalc.inputKey('-')">−</button>
+
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('1')">1</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('2')">2</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('3')">3</button>
+            <button type="button" class="calc-key action" onclick="CivicCalc.inputKey('+')">+</button>
+
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('0')">0</button>
+            <button type="button" class="calc-key num" onclick="CivicCalc.inputKey('.')">.</button>
+            <button type="button" class="calc-key op" onclick="CivicCalc.backspace()" title="Backspace">⌫</button>
+            <button type="button" class="calc-key equals" onclick="CivicCalc.evaluate()">=</button>
+        </div>
+
+        <!-- Action Footer -->
+        <div class="calc-footer">
+            <button type="button" class="calc-insert-btn" onclick="CivicCalc.insertToTarget()">
+                ↳ Insert Answer to Active Field
+            </button>
+        </div>
+    </div>
+
     <!-- ======================================================================= -->
     <!-- CLIENT JAVASCRIPT: AUTH, AUTOSAVE, NUMBEO CALC, BEACON SYNC             -->
     <!-- ======================================================================= -->
@@ -2006,6 +2387,244 @@
         let lastCloudSaveTime = null;
         let deputationTimerSeconds = 90;
         let deputationTimerInterval = null;
+
+        // ==========================================
+        // CIVIC CALCULATOR CONTROLLER
+        // ==========================================
+        const CivicCalc = {
+            isOpen: false,
+            targetFieldId: 'math_hours_rent',
+            display: '0',
+            tape: '',
+            hasEvaluated: false,
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0,
+            initialLeft: 0,
+            initialTop: 0,
+
+            init() {
+                // Focus listener to auto-target any input student clicks in
+                document.addEventListener('focusin', (e) => {
+                    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && !e.target.closest('#civic_calculator_widget')) {
+                        this.targetFieldId = e.target.id;
+                        this.updateDisplay();
+                    }
+                });
+
+                // Keyboard listeners
+                window.addEventListener('keydown', (e) => {
+                    if (!this.isOpen) {
+                        if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+                            e.preventDefault();
+                            this.toggle();
+                        }
+                        return;
+                    }
+
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        this.close();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.evaluate();
+                    } else if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        this.backspace();
+                    } else if ('0123456789.+-*/()'.includes(e.key)) {
+                        e.preventDefault();
+                        this.inputKey(e.key);
+                    } else if (e.key.toLowerCase() === 'c') {
+                        e.preventDefault();
+                        this.clear();
+                    }
+                });
+
+                // Draggable header
+                const dragHeader = document.getElementById('calc_drag_header');
+                const widget = document.getElementById('civic_calculator_widget');
+                if (dragHeader && widget) {
+                    dragHeader.addEventListener('mousedown', (e) => {
+                        this.isDragging = true;
+                        this.dragStartX = e.clientX;
+                        this.dragStartY = e.clientY;
+                        const rect = widget.getBoundingClientRect();
+                        this.initialLeft = rect.left;
+                        this.initialTop = rect.top;
+                        widget.style.bottom = 'auto';
+                        widget.style.right = 'auto';
+                        widget.style.left = `${this.initialLeft}px`;
+                        widget.style.top = `${this.initialTop}px`;
+                    });
+
+                    window.addEventListener('mousemove', (e) => {
+                        if (!this.isDragging) return;
+                        const dx = e.clientX - this.dragStartX;
+                        const dy = e.clientY - this.dragStartY;
+                        widget.style.left = `${this.initialLeft + dx}px`;
+                        widget.style.top = `${this.initialTop + dy}px`;
+                    });
+
+                    window.addEventListener('mouseup', () => {
+                        this.isDragging = false;
+                    });
+                }
+            },
+
+            toggle() {
+                if (this.isOpen) this.close();
+                else this.open();
+            },
+
+            open(targetFieldId = null) {
+                if (targetFieldId) {
+                    this.targetFieldId = targetFieldId;
+                }
+                const modal = document.getElementById('civic_calculator_widget');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    this.isOpen = true;
+                    this.updateDisplay();
+                }
+            },
+
+            close() {
+                const modal = document.getElementById('civic_calculator_widget');
+                if (modal) {
+                    modal.style.display = 'none';
+                    this.isOpen = false;
+                }
+            },
+
+            inputKey(key) {
+                if (this.hasEvaluated && '0123456789.'.includes(key)) {
+                    this.display = '';
+                    this.tape = '';
+                    this.hasEvaluated = false;
+                } else if (this.hasEvaluated && '+-*/'.includes(key)) {
+                    this.tape = this.display + ' ';
+                    this.hasEvaluated = false;
+                }
+
+                if (this.display === '0' && key !== '.' && !'+-*/()'.includes(key)) {
+                    this.display = key;
+                } else {
+                    this.display += key;
+                }
+                this.updateDisplay();
+            },
+
+            backspace() {
+                if (this.hasEvaluated) {
+                    this.display = '0';
+                    this.hasEvaluated = false;
+                } else {
+                    this.display = this.display.slice(0, -1);
+                    if (this.display === '' || this.display === '-') {
+                        this.display = '0';
+                    }
+                }
+                this.updateDisplay();
+            },
+
+            clear() {
+                this.display = '0';
+                this.tape = '';
+                this.hasEvaluated = false;
+                this.updateDisplay();
+            },
+
+            safeEval(expr) {
+                const sanitized = expr.replace(/[^-()\d/*+.]/g, '');
+                if (!sanitized) return 0;
+                try {
+                    const result = Function(`"use strict"; return (${sanitized})`)();
+                    if (!isFinite(result)) return 'Error: Div by 0';
+                    return result;
+                } catch (err) {
+                    return 'Error';
+                }
+            },
+
+            evaluate() {
+                const expr = this.display;
+                const res = this.safeEval(expr);
+                this.tape = expr + ' =';
+                if (typeof res === 'number') {
+                    const rounded = Math.round(res * 100) / 100;
+                    this.display = String(rounded);
+                } else {
+                    this.display = String(res);
+                }
+                this.hasEvaluated = true;
+                this.updateDisplay();
+            },
+
+            loadPreset(expression, targetFieldId, expectedRounded = null) {
+                this.targetFieldId = targetFieldId;
+                this.open(targetFieldId);
+                this.display = expression;
+                this.evaluate();
+                if (expectedRounded !== null) {
+                    this.display = expectedRounded;
+                }
+                this.updateDisplay();
+            },
+
+            insertToTarget() {
+                if (!this.targetFieldId) {
+                    showToast("Click an answer box first to select where to paste!", true);
+                    return;
+                }
+                const field = document.getElementById(this.targetFieldId);
+                if (field) {
+                    const val = parseFloat(this.display);
+                    field.value = isNaN(val) ? this.display : val;
+                    field.classList.add('calc-highlight');
+                    setTimeout(() => field.classList.remove('calc-highlight'), 1200);
+                    field.dispatchEvent(new Event('input', { bubbles: true }));
+                    field.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    // If target is in another tab, switch to it
+                    if (this.targetFieldId.startsWith('math_')) {
+                        const tabRent = document.getElementById('tab-rent');
+                        if (tabRent && !tabRent.classList.contains('active')) {
+                            switchStageTab('tab-rent');
+                        }
+                    } else if (this.targetFieldId.startsWith('ppp_') || this.targetFieldId.startsWith('nb_')) {
+                        const tabNumbeo = document.getElementById('tab-numbeo');
+                        if (tabNumbeo && !tabNumbeo.classList.contains('active')) {
+                            switchStageTab('tab-numbeo');
+                        }
+                    }
+                    showToast(`Inserted ${this.display} into answer box!`);
+                }
+            },
+
+            updateDisplay() {
+                const dispEl = document.getElementById('calc_display');
+                const tapeEl = document.getElementById('calc_tape');
+                const targetEl = document.getElementById('calc_target_label');
+                if (dispEl) dispEl.textContent = this.display || '0';
+                if (tapeEl) tapeEl.textContent = this.tape || '';
+                if (targetEl) {
+                    if (this.targetFieldId) {
+                        const nameMap = {
+                            'math_hours_rent': 'Q(a) Rent Hours',
+                            'math_pct_rent': 'Q(b) % of Monthly Pay',
+                            'math_wage_needed': 'Q(c) Living Hourly Wage',
+                            'ppp_hfx_hours': 'PPP Halifax Meal Hours',
+                            'ppp_delhi_hours': 'PPP Delhi Meal Hours'
+                        };
+                        targetEl.textContent = 'Paste Target: ' + (nameMap[this.targetFieldId] || this.targetFieldId);
+                        targetEl.style.color = '#38bdf8';
+                    } else {
+                        targetEl.textContent = 'Paste Target: (Click any field or preset)';
+                        targetEl.style.color = '#94a3b8';
+                    }
+                }
+            }
+        };
 
         // Stage Tabs Navigation
         function switchStageTab(tabId) {
@@ -2706,6 +3325,11 @@
         // INITIALIZATION ON PAGE LOAD
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Civic Math Calculator widget
+            if (typeof CivicCalc !== 'undefined' && CivicCalc.init) {
+                CivicCalc.init();
+            }
+
             // Set current date
             const today = new Date().toLocaleDateString('en-CA');
             document.getElementById('docDate').value = today;

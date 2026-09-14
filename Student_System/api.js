@@ -168,23 +168,26 @@ const StudentAPI = {
             return { status: 'error', message: auth.message };
         }
 
+        // Always prioritize the official homeroom from roster
+        const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
+
         const url = this.getScriptUrl(courseKey);
         try {
-            const getUrl = `${url}?action=login&className=${encodeURIComponent(className)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
+            const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
             const res = await fetch(getUrl);
             const data = await res.json();
             if (data.status === 'success') {
-                Session.set(className, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
+                Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
             }
             return data;
         } catch (e) {
             console.warn("GAS Cloud Fetch failed (Offline / network issue):", e);
-            Session.set(className, auth.name || firstName, pin);
+            Session.set(effectiveClass, auth.name || firstName, pin);
             return { 
                 status: 'offline', 
                 isOffline: true, 
                 name: auth.name || firstName, 
-                className: className,
+                className: effectiveClass,
                 message: 'Could not connect to Google Sheets. Using local browser memory.',
                 savedData: {} 
             };
@@ -209,10 +212,13 @@ const StudentAPI = {
             return { status: 'error', message: auth.message };
         }
 
+        // Always prioritize the official homeroom from roster
+        const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
+
         const payloadStr = JSON.stringify({
             action: 'submit_profile',
             taskName: taskName,
-            className: className,
+            className: effectiveClass,
             name: name,
             pin: pin,
             email: email,
@@ -308,7 +314,7 @@ const Session = {
         sessionStorage.setItem('bh_email', email);
         sessionStorage.setItem('bh_pronouns', pronouns);
     },
-    getClass() { return sessionStorage.getItem('bh_class') || '801'; },
+    getClass() { return sessionStorage.getItem('bh_class') || ''; },
     getName() { return sessionStorage.getItem('bh_name') || ''; },
     getPin() { return sessionStorage.getItem('bh_pin') || ''; },
     getEmail() { return sessionStorage.getItem('bh_email') || ''; },
