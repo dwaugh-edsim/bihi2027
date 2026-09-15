@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 8 ILT: The Survival Council & Hot Seat | Room 8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent: #0f172a;
+            --selected-bg: #f1f5f9;
+            --selected-border: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 20px 10px 20px;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* TOP HEADER STRIP */
+        header.deck-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid var(--border-dark);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .meta-text {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .header-title h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+
+        /* TIMER & CONTROLS */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1.5px solid var(--border-dark);
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            min-width: 72px;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn {
+            background: var(--surface);
+            color: var(--text-heading);
+            border: 1px solid var(--border-dark);
+            padding: 5px 11px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #0f172a;
+        }
+
+        .btn.primary {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+
+        .btn.primary:hover {
+            background: #334155;
+        }
+
+        .btn.hotseat-btn {
+            background: #fff1f2;
+            color: #be123c;
+            border-color: #fecdd3;
+        }
+
+        /* MAIN CONTENT SPLIT */
+        .main-stage {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        /* RULES & PROTOCOL SIDEBAR */
+        .sidebar-rules {
+            background: var(--surface);
+            border: 1px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-card);
+        }
+
+        .sidebar-heading {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .rules-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rule-step {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .rule-step-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+        }
+
+        .rule-step-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .rule-step-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+
+        .strict-box {
+            background: #f8fafc;
+            border-left: 3.5px solid #0f172a;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            color: var(--text-body);
+        }
+
+        .strict-box strong {
+            display: block;
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        /* 12 ITEMS GRID */
+        .items-area {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        .items-header-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .items-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .items-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            min-height: 0;
+        }
+
+        .item-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .item-card:hover {
+            border-color: #0f172a;
+            transform: translateY(-1px);
+        }
+
+        .item-card.selected {
+            background: #f8fafc;
+            border-color: #0f172a;
+            border-width: 2px;
+        }
+
+        .item-card.selected .item-num {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        .item-card.eliminated {
+            opacity: 0.35;
+            background: #f1f5f9;
+            border-style: dashed;
+        }
+
+        .item-card.eliminated .item-name {
+            text-decoration: line-through;
+        }
+
+        /* ITEM THUMBNAIL */
+        .item-thumb-box {
+            width: 62px;
+            height: 62px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 2px;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .item-top {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .item-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 800;
+            background: #f1f5f9;
+            color: #334155;
+            padding: 1px 5px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .item-name {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-details {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-badge-squad {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: #166534;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            padding: 1px 4px;
+            border-radius: 3px;
+            display: none;
+            margin-top: 2px;
+            width: fit-content;
+        }
+
+        .item-card.selected .item-badge-squad {
+            display: block;
+        }
+
+        /* HOT SEAT FOOTER BAR */
+        footer.deck-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1.5px solid var(--border-dark);
+            padding-top: 7px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .selected-count-banner {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .hotseat-prompt {
+            font-size: 0.82rem;
+            color: #475569;
+        }
+
+        .hotseat-prompt strong {
+            color: #be123c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER STRIP -->
+    <header class="deck-header">
+        <div class="header-title">
+            <div class="header-meta">
+                <span class="meta-pill">Room 8 &bull; 8 ILT</span>
+                <span class="meta-text">Inquiry & Collaboration &bull; Class Games Day</span>
+            </div>
+            <h1>The Survival Council: 12-Item Crisis Simulation</h1>
+        </div>
+
+        <div class="header-controls">
+            <div class="timer-box">
+                <span class="timer-display" id="timerDisplay">12:00</span>
+                <div class="btn-group">
+                    <button class="btn" onclick="setTimer(3)">3m Solo</button>
+                    <button class="btn primary" onclick="setTimer(12)">12m Squad</button>
+                    <button class="btn hotseat-btn" onclick="setTimer(10)">10m Hot Seat</button>
+                    <button class="btn" onclick="toggleTimer()" id="timerToggleBtn">Start</button>
+                    <button class="btn" onclick="resetTimer()">Reset</button>
+                </div>
+            </div>
+            <button class="btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+    </header>
+
+    <!-- MAIN TWO-COLUMN DISPLAY -->
+    <div class="main-stage">
+
+        <!-- SIDEBAR: PROTOCOL & RULES -->
+        <div class="sidebar-rules">
+            <div>
+                <h2 class="sidebar-heading">Simulation Protocol</h2>
+                <div class="rules-timeline">
+                    <div class="rule-step">
+                        <span class="rule-step-tag">Phase 1 &bull; 3 Minutes</span>
+                        <div class="rule-step-title">Silent Solo Selection</div>
+                        <p class="rule-step-desc">
+                            Silently write down your <strong>Top 4 items</strong> in your notebook. No talking or sharing yet.
+                        </p>
+                    </div>
+
+                    <div class="rule-step">
+                        <span class="rule-step-tag">Phase 2 &bull; 12 Minutes</span>
+                        <div class="rule-step-title">Squad Unanimous Consensus</div>
+                        <p class="rule-step-desc">
+                            Your table of 4–5 must agree on <strong>exactly 4 items</strong>.
+                        </p>
+                    </div>
+
+                    <div class="strict-box">
+                        <strong>The Unanimous Rule:</strong>
+                        No majority votes. No coin flips. Every single member of your squad must genuinely agree to the final 4.
+                    </div>
+
+                    <div class="rule-step">
+                        <span class="rule-step-tag">Phase 3 &bull; 10 Minutes</span>
+                        <div class="rule-step-title">The "Hot Seat" Defense</div>
+                        <p class="rule-step-desc">
+                            One squad spokesperson sits in the center Hot Seat. The rest of the class interrogates your choices!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border); padding-top: 8px;">
+                <button class="btn" style="width: 100%; font-weight: 700;" onclick="clearAllSelections()">Clear All Screen Marks</button>
+            </div>
+        </div>
+
+        <!-- 12 ITEMS GRID WITH IMAGES -->
+        <div class="items-area">
+            <div class="items-header">
+                <span class="items-header-title">The 12 Cargo Manifest Items</span>
+                <span class="items-hint">Click card to mark [SQUAD PICK] &bull; Double-click to [ELIMINATE]</span>
+            </div>
+
+            <div class="items-grid" id="itemsGrid">
+                <!-- 01 Duct Tape -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/01_duct_tape.jpg" onerror="this.src='images/survival/01_duct_tape.jpg'" alt="Duct Tape" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#01</span>
+                            <div class="item-name">50ft Heavy Duct Tape</div>
+                        </div>
+                        <div class="item-details">Industrial grade, waterproof, high tensile strength. Repair shelter, bind splints, rafts.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 02 Kraft Dinner -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/02_kraft_dinner.jpg" onerror="if(!this.dataset.s){this.dataset.s=1;this.src='images/survival/02_kraft_dinner.jpg';}else if(this.dataset.s==1){this.dataset.s=2;this.src='ILT/images/survival/02_mr_noodles.jpg';}else if(this.dataset.s==2){this.dataset.s=3;this.src='images/survival/02_mr_noodles.jpg';}else{this.style.display='none';}" alt="Kraft Dinner" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#02</span>
+                            <div class="item-name">Crate of Kraft Dinner</div>
+                        </div>
+                        <div class="item-details">48 boxes. Quick calories & carbs, long shelf life. Ready in minutes.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 03 Solar Walkie-Talkies -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/03_walkie_talkies.jpg" onerror="this.src='images/survival/03_walkie_talkies.jpg'" alt="Walkie Talkies" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#03</span>
+                            <div class="item-name">Solar Walkie-Talkies</div>
+                        </div>
+                        <div class="item-details">Pair of radios, 2-mile range, solar recharge, weather radio & emergency light.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 04 Flare Gun -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/04_flare_gun.jpg" onerror="this.src='images/survival/04_flare_gun.jpg'" alt="Flare Gun" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#04</span>
+                            <div class="item-name">Flare Gun (1 Shot)</div>
+                        </div>
+                        <div class="item-details">High-altitude red flare, visible up to 15 miles. One shot only—zero margin for error.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 05 Acoustic Guitar -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/05_acoustic_guitar.jpg" onerror="this.src='images/survival/05_acoustic_guitar.jpg'" alt="Acoustic Guitar" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#05</span>
+                            <div class="item-name">Acoustic Guitar</div>
+                        </div>
+                        <div class="item-details">Extra strings. Essential morale booster, stress relief, sound signaling, dry firewood.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 06 First Aid Kit -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/06_first_aid_kit.jpg" onerror="this.src='images/survival/06_first_aid_kit.jpg'" alt="First Aid Kit" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#06</span>
+                            <div class="item-name">Field First Aid Kit</div>
+                        </div>
+                        <div class="item-details">Antiseptic, trauma shears, tourniquet, sterile gauze, painkillers, burn treatment.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 07 Swiss Army Knife -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/07_swiss_army_knife.jpg" onerror="this.src='images/survival/07_swiss_army_knife.jpg'" alt="Swiss Army Knife" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#07</span>
+                            <div class="item-name">Swiss Army Multi-Tool</div>
+                        </div>
+                        <div class="item-details">Saw blade, heavy blade, scissors, tweezers, wire stripper, can opener, lens.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 08 5-Gallon Water Jug -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/08_water_jug.jpg" onerror="this.src='images/survival/08_water_jug.jpg'" alt="Water Jug" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#08</span>
+                            <div class="item-name">5-Gal Fresh Water Jug</div>
+                        </div>
+                        <div class="item-details">Guaranteed clean potable drinking water for 5 days. Heavy plastic container is reusable.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 09 Magnifying Glass -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/09_magnifying_glass.jpg" onerror="this.src='images/survival/09_magnifying_glass.jpg'" alt="Magnifying Glass" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#09</span>
+                            <div class="item-name">Optical Magnifying Lens</div>
+                        </div>
+                        <div class="item-details">Solar fire-starting with dry tinder. Inspecting wounds/splinters. Infinite fuel on sunny days.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 10 Wool Blanket -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/10_wool_blanket.jpg" onerror="this.src='images/survival/10_wool_blanket.jpg'" alt="Wool Blanket" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#10</span>
+                            <div class="item-name">Heavy Wool Camp Blanket</div>
+                        </div>
+                        <div class="item-details">100% natural military wool. Retains body heat even when soaking wet. Tarp or stretcher.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 11 Damp Matches -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/11_damp_matches.jpg" onerror="this.src='images/survival/11_damp_matches.jpg'" alt="Damp Matches" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#11</span>
+                            <div class="item-name">Matches (Damp / Wet)</div>
+                        </div>
+                        <div class="item-details">100 strike-on-box matches, damp from ocean spray. High risk, may dry in direct sun.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+
+                <!-- 12 Megaphone -->
+                <div class="item-card" onclick="toggleSelect(this)" ondblclick="toggleEliminate(this, event)">
+                    <div class="item-thumb-box">
+                        <img src="ILT/images/survival/12_megaphone.png" onerror="this.src='images/survival/12_megaphone.png'" alt="Megaphone" class="item-thumb">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-top">
+                            <span class="item-num">#12</span>
+                            <div class="item-name">Battery Megaphone</div>
+                        </div>
+                        <div class="item-details">1000-yard voice amplifier, built-in siren alarm. 4 fresh D-cell batteries included.</div>
+                        <span class="item-badge-squad">&#10003; SQUAD PICK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM STATUS FOOTER -->
+    <footer class="deck-footer">
+        <div class="selected-count-banner" id="selectionCount">Selected on Screen: 0 / 4 Target</div>
+        <div class="hotseat-prompt">
+            🔥 <strong>Hot Seat Question:</strong> <em>"Why did your squad rank this item above guaranteed fresh water or medical trauma aid?"</em>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE LOGIC SCRIPT -->
+    <script>
+        function toggleSelect(card) {
+            if (card.classList.contains('eliminated')) {
+                card.classList.remove('eliminated');
+            } else {
+                card.classList.toggle('selected');
+            }
+            updateCount();
+        }
+
+        function toggleEliminate(card, e) {
+            e.stopPropagation();
+            card.classList.remove('selected');
+            card.classList.toggle('eliminated');
+            updateCount();
+        }
+
+        function clearAllSelections() {
+            document.querySelectorAll('.item-card').forEach(c => {
+                c.classList.remove('selected', 'eliminated');
+            });
+            updateCount();
+        }
+
+        function updateCount() {
+            const count = document.querySelectorAll('.item-card.selected').length;
+            const banner = document.getElementById('selectionCount');
+            banner.innerText = `Selected on Screen: ${count} / 4 Target`;
+            banner.style.color = count === 4 ? '#166534' : (count > 4 ? '#b91c1c' : '#0f172a');
+        }
+
+        // Timer Logic
+        let timerSeconds = 12 * 60;
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimerUI() {
+            const m = Math.floor(timerSeconds / 60);
+            const s = timerSeconds % 60;
+            document.getElementById('timerDisplay').innerText = 
+                `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerToggleBtn');
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.innerText = 'Start';
+            } else {
+                timerRunning = true;
+                btn.innerText = 'Pause';
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerUI();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        btn.innerText = 'Start';
+                        alert('Time is up! Squads must lock in their 4 items now!');
+                    }
+                }, 1000);
+            }
+        }
+
+        function setTimer(minutes) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerToggleBtn').innerText = 'Start';
+            timerSeconds = minutes * 60;
+            updateTimerUI();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerToggleBtn').innerText = 'Start';
+            timerSeconds = 12 * 60;
+            updateTimerUI();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>

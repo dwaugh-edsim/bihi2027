@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 8 • Grade 8 ILT Friday Master Game Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent: #0f172a;
+            --red-alert: #be123c;
+            --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 18px 8px 18px;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* HEADER NAV BAR */
+        header.top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid var(--border-dark);
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .meta-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        /* GAME SELECTOR TABS */
+        .game-tabs {
+            display: flex;
+            background: #e2e8f0;
+            padding: 3px;
+            border-radius: 6px;
+            gap: 2px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+
+        .tab-btn:hover { color: var(--text-heading); }
+
+        .tab-btn.active {
+            background: var(--surface);
+            color: var(--text-heading);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        /* VIEW TOGGLE (INSTRUCTIONS VS GAME BOARD) */
+        .view-toggle-box {
+            display: flex;
+            background: #f1f5f9;
+            border: 1px solid var(--border-dark);
+            padding: 2px;
+            border-radius: 5px;
+            gap: 2px;
+        }
+
+        .view-toggle-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+
+        .view-toggle-btn.active {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        /* GLOBAL TIMER & UTILS */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border-dark);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            min-width: 65px;
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--surface);
+            color: var(--text-heading);
+            border: 1px solid var(--border-dark);
+            padding: 5px 11px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+
+        .btn:hover { background: #f1f5f9; border-color: #0f172a; }
+        .btn.primary { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+        .btn.primary:hover { background: #334155; }
+        .btn.danger { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+
+        /* STAGE CONTAINER */
+        main.game-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+        }
+
+        .game-panel {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .game-panel.active {
+            display: flex;
+            animation: fadeIn 0.12s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== INTRO SLIDE (BIG LETTERS) ==================== */
+        .intro-slide-card {
+            flex: 1;
+            background: var(--surface);
+            border: 1.5px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 28px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .intro-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .intro-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #475569;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .intro-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+        }
+
+        .intro-rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .intro-rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: #f8fafc;
+            border-left: 4.5px solid #0f172a;
+            padding: 12px 18px;
+            border-radius: 5px;
+        }
+
+        .rule-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 900;
+            color: #0f172a;
+            background: #e2e8f0;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .rule-text-box strong {
+            display: block;
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 3px;
+        }
+
+        .rule-text-box span {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            line-height: 1.45;
+        }
+
+        .intro-footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1.5px solid var(--border);
+            padding-top: 14px;
+        }
+
+        .btn-launch-big {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            padding: 10px 24px;
+            background: #0f172a;
+            color: #ffffff;
+            border: 1.5px solid #0f172a;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-launch-big:hover {
+            background: #334155;
+        }
+
+        /* ==================== GAME 1: MR. BOSS BOARD ==================== */
+        .boss-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .boss-sidebar {
+            background: var(--surface);
+            border: 1px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-card);
+        }
+
+        .boss-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .corner-card {
+            background: var(--surface);
+            border: 2px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-card);
+            transition: all 0.15s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .corner-card:hover { border-color: #0f172a; }
+
+        .corner-card.busted {
+            background: #fff1f2;
+            border-color: #be123c;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        .corner-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1;
+        }
+
+        .corner-label {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .corner-location {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .corner-busted-tag {
+            display: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #be123c;
+            background: #ffe4e6;
+            padding: 3px 8px;
+            border-radius: 4px;
+            width: fit-content;
+            margin-top: 4px;
+        }
+
+        .corner-card.busted .corner-busted-tag { display: inline-block; }
+
+        /* ==================== GAME 2: SILENT LINEUP BOARD ==================== */
+        .lineup-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .lineup-main {
+            background: var(--surface);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 22px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* REVEAL TOPIC MYSTERY BOX */
+        .topic-mystery-box {
+            background: #f8fafc;
+            border: 2.5px dashed #0f172a;
+            border-radius: 8px;
+            padding: 26px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-bottom: 12px;
+        }
+
+        .topic-mystery-box:hover {
+            background: #f1f5f9;
+            transform: scale(1.01);
+        }
+
+        .mystery-lock-icon {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+        }
+
+        .mystery-heading {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .mystery-sub {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* REVEALED TOPIC CARD */
+        .topic-revealed-card {
+            display: none;
+            background: #ffffff;
+            border: 2.5px solid #0f172a;
+            border-radius: 8px;
+            padding: 22px 26px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .topic-revealed-card.shown {
+            display: block;
+        }
+
+        .topic-revealed-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #166534;
+            background: #dcfce7;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .topic-revealed-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .topic-revealed-sub {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .lineup-constraints {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .constraint-item {
+            background: #f8fafc;
+            border-left: 4px solid #0f172a;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text-body);
+        }
+
+        /* ==================== GAME 3: ZOMBIE MANIFEST ==================== */
+        .zombie-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .items-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 7px;
+            min-height: 0;
+        }
+
+        .item-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 6px 9px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            box-shadow: var(--shadow-card);
+        }
+
+        .item-card:hover { border-color: #0f172a; }
+        .item-card.selected { background: #f8fafc; border-color: #0f172a; border-width: 2px; }
+        .item-card.eliminated { opacity: 0.32; background: #f1f5f9; border-style: dashed; }
+        .item-card.eliminated .item-name { text-decoration: line-through; }
+
+        .item-thumb-box {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-thumb { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-top { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+        .item-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 800; background: #f1f5f9; color: #334155; padding: 1px 4px; border-radius: 3px; border: 1px solid var(--border); }
+        .item-name { font-family: 'Roboto Slab', serif; font-size: 0.85rem; font-weight: 700; color: var(--text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-details { font-size: 0.7rem; color: var(--text-muted); line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* ==================== GAME 4: HOT SEAT ==================== */
+        .hotseat-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .hotseat-display-area {
+            background: var(--surface);
+            border: 2px solid #0f172a;
+            border-radius: 8px;
+            padding: 20px 26px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            text-align: center;
+        }
+
+        .hotseat-screen-warning {
+            position: absolute;
+            top: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #be123c;
+            background: #ffe4e6;
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .hotseat-category-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .hotseat-secret-word {
+            font-family: 'Roboto Slab', serif;
+            font-size: 4.4rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin: 8px 0 14px 0;
+            text-transform: uppercase;
+        }
+
+        .hotseat-helper-clue {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            max-width: 650px;
+            line-height: 1.4;
+        }
+
+        .hotseat-controls-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP CONTROL BAR -->
+    <header class="top-bar">
+        <div class="header-left">
+            <span class="meta-pill">Room 8 &bull; 8 ILT</span>
+            <div class="game-tabs">
+                <button class="tab-btn active" onclick="switchGame(1)">1. Mr. Boss</button>
+                <button class="tab-btn" onclick="switchGame(2)">2. Silent Lineup</button>
+                <button class="tab-btn" onclick="switchGame(3)">3. Zombie Manifest</button>
+                <button class="tab-btn" onclick="switchGame(4)">4. Hot Seat</button>
+            </div>
+
+            <!-- VIEW TOGGLE (INSTRUCTIONS VS BOARD) -->
+            <div class="view-toggle-box">
+                <button class="view-toggle-btn active" id="btnViewIntro" onclick="setViewMode('intro')">📋 Instructions (Big)</button>
+                <button class="view-toggle-btn" id="btnViewBoard" onclick="setViewMode('board')">🚀 Game Board</button>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="timer-box">
+                <span class="timer-display" id="globalTimer">10:00</span>
+                <button class="btn" onclick="toggleTimer()" id="timerBtn">Start</button>
+                <button class="btn" onclick="resetTimer()">Reset</button>
+            </div>
+            <button class="btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+    </header>
+
+    <!-- GAME STAGE -->
+    <main class="game-stage">
+
+        <!-- ================================================================= -->
+        <!-- ACTIVITY 1: MR. BOSS (4 CORNERS STEALTH)                         -->
+        <!-- ================================================================= -->
+        <div class="game-panel active" id="game-1">
+            
+            <!-- 1A: INTRO SLIDE (BIG LETTERS) -->
+            <div class="intro-slide-card" id="intro-1">
+                <div>
+                    <div class="intro-top">
+                        <div>
+                            <span class="intro-tag">Activity 01 &bull; 4 Corners Stealth Elimination</span>
+                            <h1 class="intro-title">Game 1: Mr. Boss</h1>
+                        </div>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">Duration: 10–12 Mins</span>
+                    </div>
+
+                    <div class="intro-rules-list">
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">1</div>
+                            <div class="rule-text-box">
+                                <strong>THE BOSS (BLINDFOLDED)</strong>
+                                <span>One student sits in the center stool facing away with eyes closed or blindfolded. No peeking!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">2</div>
+                            <div class="rule-text-box">
+                                <strong>THE SNEAK (10 SECONDS OF TOTAL SILENCE)</strong>
+                                <span>The entire class has 10 seconds to silently tip-toe into Corner 1, Corner 2, Corner 3, or Corner 4. If you make noise, the Boss will hear you!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">3</div>
+                            <div class="rule-text-box">
+                                <strong>THE CALL</strong>
+                                <span>The Boss points and yells out one corner: <em>"CORNER 3!"</em></span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">4</div>
+                            <div class="rule-text-box">
+                                <strong>THE ELIMINATION & SURVIVAL</strong>
+                                <span>Everyone caught in that corner is out and sits down. The last 1 or 2 students standing become the new Boss!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="intro-footer-bar">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Corner 1: Front-Left &bull; Corner 2: Front-Right &bull; Corner 3: Back-Left &bull; Corner 4: Back-Right</span>
+                    <button class="btn-launch-big" onclick="setViewMode('board'); setTimer(10);">Launch Game Board ▶</button>
+                </div>
+            </div>
+
+            <!-- 1B: LIVE BOARD -->
+            <div class="boss-container" id="board-1" style="display: none;">
+                <div class="boss-sidebar">
+                    <div>
+                        <h2 style="font-family: 'Roboto Slab', serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 8px;">Mr. Boss Controls</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+                            Click a corner to mark it as <strong>BUSTED</strong> when the Boss calls it.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn primary" style="padding: 10px; font-size: 0.88rem;" onclick="bossRandomCall()">🎲 Random Corner Call</button>
+                        <button class="btn" onclick="resetCorners()">Reset All Corners</button>
+                        <button class="btn" onclick="setViewMode('intro')">📋 Back to Big Instructions</button>
+                    </div>
+                </div>
+
+                <div class="boss-grid">
+                    <div class="corner-card" id="corner-1" onclick="toggleCorner(1)">
+                        <div class="corner-num">01</div>
+                        <div>
+                            <div class="corner-label">Corner 1</div>
+                            <div class="corner-location">Front Left (Door Side)</div>
+                            <span class="corner-busted-tag">BUSTED! SIT DOWN</span>
+                        </div>
+                    </div>
+
+                    <div class="corner-card" id="corner-2" onclick="toggleCorner(2)">
+                        <div class="corner-num">02</div>
+                        <div>
+                            <div class="corner-label">Corner 2</div>
+                            <div class="corner-location">Front Right (Window Side)</div>
+                            <span class="corner-busted-tag">BUSTED! SIT DOWN</span>
+                        </div>
+                    </div>
+
+                    <div class="corner-card" id="corner-3" onclick="toggleCorner(3)">
+                        <div class="corner-num">03</div>
+                        <div>
+                            <div class="corner-label">Corner 3</div>
+                            <div class="corner-location">Back Left (Chromebook Cart)</div>
+                            <span class="corner-busted-tag">BUSTED! SIT DOWN</span>
+                        </div>
+                    </div>
+
+                    <div class="corner-card" id="corner-4" onclick="toggleCorner(4)">
+                        <div class="corner-num">04</div>
+                        <div>
+                            <div class="corner-label">Corner 4</div>
+                            <div class="corner-location">Back Right (Sink / Recycle)</div>
+                            <span class="corner-busted-tag">BUSTED! SIT DOWN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- ACTIVITY 2: SILENT LINE-UP (WITH HIDDEN TOPIC REVEAL)            -->
+        <!-- ================================================================= -->
+        <div class="game-panel" id="game-2">
+
+            <!-- 2A: INTRO SLIDE (BIG LETTERS) -->
+            <div class="intro-slide-card" id="intro-2">
+                <div>
+                    <div class="intro-top">
+                        <div>
+                            <span class="intro-tag">Activity 02 &bull; Non-Verbal Team Coordination</span>
+                            <h1 class="intro-title">Game 2: The Silent Lineup</h1>
+                        </div>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">Duration: 10 Mins</span>
+                    </div>
+
+                    <div class="intro-rules-list">
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">1</div>
+                            <div class="rule-text-box">
+                                <strong>RULE 1: ABSOLUTE SILENCE</strong>
+                                <span>Zero talking. No whispering. No mouthing words with your lips. No writing on palms or paper.</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">2</div>
+                            <div class="rule-text-box">
+                                <strong>RULE 2: GESTURES & FINGERS ONLY</strong>
+                                <span>Communicate only using hand signals, finger counts, sign language, and body positioning.</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">3</div>
+                            <div class="rule-text-box">
+                                <strong>RULE 3: TOPIC IS SECRET & LOCKED</strong>
+                                <span>You will NOT know how you are lining up until Mr. Waugh clicks the reveal button! Be on your feet ready.</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">4</div>
+                            <div class="rule-text-box">
+                                <strong>RULE 4: WHISPER PENALTY (+30 SECONDS)</strong>
+                                <span>Every single sound or whisper made by anyone adds +30 Seconds to the official class clock.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="intro-footer-bar">
+                    <span style="font-size: 0.9rem; color: #be123c; font-weight: 700;">Stand up in the center of Room 8 &bull; Total silence begins when you click launch</span>
+                    <button class="btn-launch-big" onclick="setViewMode('board'); resetLineupTopic();">Launch Lineup Arena ▶</button>
+                </div>
+            </div>
+
+            <!-- 2B: LIVE BOARD (WITH HIDDEN TOPIC REVEAL) -->
+            <div class="lineup-container" id="board-2" style="display: none;">
+                <div class="boss-sidebar">
+                    <div>
+                        <h2 style="font-family: 'Roboto Slab', serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 8px;">Lineup Controls</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+                            Keep topic hidden until the whole room is standing in silence!
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn danger" onclick="addPenalty()">⚠️ +30s Noise Penalty</button>
+                        <button class="btn" onclick="nextRoundLineup()">Next Challenge Mission ▶</button>
+                        <button class="btn" onclick="resetLineupTopic()">🔒 Re-Lock / Hide Topic</button>
+                        <button class="btn" onclick="setViewMode('intro')">📋 Back to Big Instructions</button>
+                    </div>
+                </div>
+
+                <div class="lineup-main">
+                    <div>
+                        <!-- 1. HIDDEN TOPIC BOX (CLICK TO REVEAL) -->
+                        <div class="topic-mystery-box" id="mysteryBox" onclick="revealLineupTopic()">
+                            <div class="mystery-lock-icon">🔒</div>
+                            <div class="mystery-heading">LINEUP TOPIC #1 IS CLASSIFIED</div>
+                            <div class="mystery-sub">👉 Click Here To Reveal Topic & Start 5-Minute Sprint!</div>
+                        </div>
+
+                        <!-- 2. REVEALED TOPIC CARD (SHOWN AFTER CLICK) -->
+                        <div class="topic-revealed-card" id="revealedTopicCard">
+                            <span class="topic-revealed-tag" id="lineupRound">Round 1 of 3</span>
+                            <div class="topic-revealed-title" id="lineupTitle">🎂 Birthdays: January 1 &rarr; December 31</div>
+                            <div class="topic-revealed-sub" id="lineupSub">Front of Room (Whiteboard) = Jan 1 &bull; Back of Room (Door) = Dec 31</div>
+                        </div>
+                    </div>
+
+                    <div class="lineup-constraints">
+                        <div class="constraint-item">
+                            <strong>Strategy Tip:</strong> Use fingers to signal your Month (1 to 12), then flash fingers for Day (1 to 31).
+                        </div>
+                        <div class="constraint-item">
+                            <strong>Verification Check:</strong> When the class is frozen in a single line, we call out birthdays from Jan 1 to Dec 31 to check for errors!
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px;">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700;" id="lineupStatus">Standing by for silence</span>
+                        <button class="btn primary" onclick="setTimer(5); toggleTimer();">Start 5m Timer</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- ACTIVITY 3: ZOMBIE SURVIVAL MANIFEST (12 ITEMS)                  -->
+        <!-- ================================================================= -->
+        <div class="game-panel" id="game-3">
+
+            <!-- 3A: INTRO SLIDE (BIG LETTERS) -->
+            <div class="intro-slide-card" id="intro-3">
+                <div>
+                    <div class="intro-top">
+                        <div>
+                            <span class="intro-tag">Activity 03 &bull; Consensus & Tactical Negotiation</span>
+                            <h1 class="intro-title">Game 3: The Zombie Survival Council</h1>
+                        </div>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">Duration: 15–20 Mins</span>
+                    </div>
+
+                    <div class="intro-rules-list">
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">1</div>
+                            <div class="rule-text-box">
+                                <strong>THE CRISIS: ROOM 8 LOCKDOWN</strong>
+                                <span>You are stranded with 12 items on the cargo manifest. Your team can only keep <strong>EXACTLY 4 ITEMS</strong>. The other 8 are left behind!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">2</div>
+                            <div class="rule-text-box">
+                                <strong>PHASE 1 (3 MINUTES) &bull; SILENT SOLO LOCK</strong>
+                                <span>Silently write down your personal Top 4 in your notebook. Do not share or talk yet!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">3</div>
+                            <div class="rule-text-box">
+                                <strong>PHASE 2 (12 MINUTES) &bull; 100% UNANIMOUS CONSENSUS</strong>
+                                <span>Your squad of 4–5 must agree on the same 4 items. <strong>NO MAJORITY VOTES. NO COIN FLIPS.</strong> Every single teammate must agree!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">4</div>
+                            <div class="rule-text-box">
+                                <strong>PHASE 3 &bull; SQUAD SHOWDOWN</strong>
+                                <span>Each squad announces their 4 items and defends their survival strategy against the class.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="intro-footer-bar">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Click card to mark [SQUAD PICK] &bull; Double-click to [ELIMINATE]</span>
+                    <button class="btn-launch-big" onclick="setViewMode('board'); setTimer(12);">Open 12-Item Manifest ▶</button>
+                </div>
+            </div>
+
+            <!-- 3B: LIVE BOARD -->
+            <div class="zombie-container" id="board-3" style="display: none;">
+                <div class="boss-sidebar">
+                    <div>
+                        <h2 style="font-family: 'Roboto Slab', serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 6px;">Survival Manifest</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                            Lock in exactly 4 items for your squad.
+                        </p>
+                        <div style="background: #f8fafc; border-left: 3.5px solid #0f172a; padding: 6px 10px; border-radius: 4px; font-size: 0.78rem;">
+                            <strong>Rule:</strong> 100% agreement needed.
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 800;" id="zombieCount">Selected: 0 / 4</div>
+                        <button class="btn primary" onclick="setTimer(12); toggleTimer();">Start 12m Timer</button>
+                        <button class="btn" onclick="clearZombieSelections()">Clear Selections</button>
+                        <button class="btn" onclick="setViewMode('intro')">📋 Back to Big Instructions</button>
+                    </div>
+                </div>
+
+                <div class="items-grid">
+                    <!-- 1 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/01_duct_tape.jpg" onerror="this.src='images/survival/01_duct_tape.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#01</span><div class="item-name">50ft Duct Tape</div></div>
+                            <div class="item-details">Industrial grade, waterproof, binds splints & rafts.</div>
+                        </div>
+                    </div>
+                    <!-- 2 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/02_kraft_dinner.jpg" onerror="if(!this.dataset.s){this.dataset.s=1;this.src='images/survival/02_kraft_dinner.jpg';}else if(this.dataset.s==1){this.dataset.s=2;this.src='ILT/images/survival/02_mr_noodles.jpg';}else if(this.dataset.s==2){this.dataset.s=3;this.src='images/survival/02_mr_noodles.jpg';}else{this.style.display='none';}" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#02</span><div class="item-name">Kraft Dinner Crate</div></div>
+                            <div class="item-details">48 boxes. Quick calories & carbs, ready in minutes.</div>
+                        </div>
+                    </div>
+                    <!-- 3 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/03_walkie_talkies.jpg" onerror="this.src='images/survival/03_walkie_talkies.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#03</span><div class="item-name">Solar Walkie-Talkies</div></div>
+                            <div class="item-details">Pair of radios, 2-mi range, solar recharge.</div>
+                        </div>
+                    </div>
+                    <!-- 4 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/04_flare_gun.jpg" onerror="this.src='images/survival/04_flare_gun.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#04</span><div class="item-name">Flare Gun (1 Shot)</div></div>
+                            <div class="item-details">Visible 15 miles. Single red emergency shot.</div>
+                        </div>
+                    </div>
+                    <!-- 5 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/05_acoustic_guitar.jpg" onerror="this.src='images/survival/05_acoustic_guitar.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#05</span><div class="item-name">Acoustic Guitar</div></div>
+                            <div class="item-details">Morale booster, stress relief, sound signal.</div>
+                        </div>
+                    </div>
+                    <!-- 6 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/06_first_aid_kit.jpg" onerror="this.src='images/survival/06_first_aid_kit.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#06</span><div class="item-name">First Aid Kit</div></div>
+                            <div class="item-details">Trauma shears, gauze, tourniquet, burn cream.</div>
+                        </div>
+                    </div>
+                    <!-- 7 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/07_swiss_army_knife.jpg" onerror="this.src='images/survival/07_swiss_army_knife.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#07</span><div class="item-name">Swiss Army Knife</div></div>
+                            <div class="item-details">Saw blade, knife, scissors, wire stripper, opener.</div>
+                        </div>
+                    </div>
+                    <!-- 8 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/08_water_jug.jpg" onerror="this.src='images/survival/08_water_jug.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#08</span><div class="item-name">5-Gal Water Jug</div></div>
+                            <div class="item-details">Clean potable drinking water for 5 days.</div>
+                        </div>
+                    </div>
+                    <!-- 9 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/09_magnifying_glass.jpg" onerror="this.src='images/survival/09_magnifying_glass.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#09</span><div class="item-name">Magnifying Glass</div></div>
+                            <div class="item-details">Solar firestarter with dry tinder. Unlimited.</div>
+                        </div>
+                    </div>
+                    <!-- 10 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/10_wool_blanket.jpg" onerror="this.src='images/survival/10_wool_blanket.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#10</span><div class="item-name">Heavy Wool Blanket</div></div>
+                            <div class="item-details">Retains heat when wet, rain tarp or stretcher.</div>
+                        </div>
+                    </div>
+                    <!-- 11 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/11_damp_matches.jpg" onerror="this.src='images/survival/11_damp_matches.jpg'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#11</span><div class="item-name">Damp Matches (100)</div></div>
+                            <div class="item-details">Soaked by sea spray. May dry in direct sun.</div>
+                        </div>
+                    </div>
+                    <!-- 12 -->
+                    <div class="item-card" onclick="toggleZombie(this)" ondblclick="eliminateZombie(this, event)">
+                        <div class="item-thumb-box"><img src="ILT/images/survival/12_megaphone.png" onerror="this.src='images/survival/12_megaphone.png'" class="item-thumb"></div>
+                        <div class="item-info">
+                            <div class="item-top"><span class="item-num">#12</span><div class="item-name">Battery Megaphone</div></div>
+                            <div class="item-details">1000-yard voice amplifier & emergency siren.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- ACTIVITY 4: THE HOT SEAT (MYSTERY WORD ENGINE)                   -->
+        <!-- ================================================================= -->
+        <div class="game-panel" id="game-4">
+
+            <!-- 4A: INTRO SLIDE (BIG LETTERS) -->
+            <div class="intro-slide-card" id="intro-4">
+                <div>
+                    <div class="intro-top">
+                        <div>
+                            <span class="intro-tag">Activity 04 &bull; Whole-Room Inquiry & Deduction</span>
+                            <h1 class="intro-title">Game 4: The Hot Seat</h1>
+                        </div>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">Duration: 15 Mins (60s Rounds)</span>
+                    </div>
+
+                    <div class="intro-rules-list">
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">1</div>
+                            <div class="rule-text-box">
+                                <strong>THE FRONT STOOL (BACK TO SCREEN)</strong>
+                                <span>1 brave student sits on the stool at the front of Room 8. You must face the class—<strong>DO NOT LOOK BEHIND YOU!</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">2</div>
+                            <div class="rule-text-box">
+                                <strong>THE MYSTERY WORD (AUDIENCE ONLY)</strong>
+                                <span>A giant mystery word appears on the projector. The entire room knows who/what you are, but you have no clue!</span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">3</div>
+                            <div class="rule-text-box">
+                                <strong>THE 20 QUESTIONS INQUIRY</strong>
+                                <span>The student in the Hot Seat asks rapid questions to narrow it down: <em>"Am I alive? Am I in this room? Am I made of metal?"</em></span>
+                            </div>
+                        </div>
+
+                        <div class="intro-rule-item">
+                            <div class="rule-badge">4</div>
+                            <div class="rule-text-box">
+                                <strong>THE AUDIENCE LAW: YES / NO / SOMETIMES ONLY</strong>
+                                <span>The audience may <strong>ONLY ANSWER "YES", "NO", OR "SOMETIMES"</strong>. No hints, no whispering, no giving it away!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="intro-footer-bar">
+                    <span style="font-size: 0.9rem; color: #be123c; font-weight: 700;">60-second speed clock &bull; Can you guess it before the buzzer?</span>
+                    <button class="btn-launch-big" onclick="setViewMode('board'); setTimer(1);">Take The Hot Seat ▶</button>
+                </div>
+            </div>
+
+            <!-- 4B: LIVE BOARD -->
+            <div class="hotseat-container" id="board-4" style="display: none;">
+                <div class="hotseat-sidebar">
+                    <div>
+                        <h2 style="font-family: 'Roboto Slab', serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 8px;">Hot Seat Engine</h2>
+                        <div style="background: #fff1f2; border: 1px solid #fecdd3; padding: 8px 10px; border-radius: 4px; font-size: 0.8rem; color: #be123c; margin-bottom: 10px;">
+                            <strong>Audience Law:</strong> Answer YES, NO, or SOMETIMES only!
+                        </div>
+                        <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                            Press <strong>Spacebar</strong> to reveal the next mystery word immediately!
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn primary" onclick="setTimer(1); toggleTimer();">⏱️ Start 60s Clock</button>
+                        <button class="btn" onclick="setViewMode('intro')">📋 Back to Big Instructions</button>
+                    </div>
+                </div>
+
+                <div class="hotseat-display-area">
+                    <div class="hotseat-screen-warning">DO NOT TURN AROUND &bull; AUDIENCE ANSWERS YES / NO ONLY</div>
+                    <div class="hotseat-category-tag" id="hotseatCategory">Category: School & Room 8</div>
+                    <div class="hotseat-secret-word" id="hotseatWord">PENCIL SHARPENER</div>
+                    <div class="hotseat-helper-clue" id="hotseatClue">Audience: Is it made of metal/plastic? Yes. Is it bigger than a backpack? No.</div>
+
+                    <div class="hotseat-controls-row">
+                        <button class="btn" style="padding: 8px 16px; font-size: 0.88rem;" onclick="prevHotSeatWord()">◀ Previous</button>
+                        <button class="btn primary" style="padding: 8px 20px; font-size: 0.95rem;" onclick="nextHotSeatWord()">Next Word ▶</button>
+                        <button class="btn danger" style="padding: 8px 16px; font-size: 0.88rem;" onclick="randomHotSeatWord()">🎲 Surprise Word</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- LOGIC JAVASCRIPT -->
+    <script>
+        let currentGame = 1;
+        let currentView = 'intro'; // 'intro' or 'board'
+
+        function setViewMode(mode) {
+            currentView = mode;
+            document.getElementById('btnViewIntro').classList.toggle('active', mode === 'intro');
+            document.getElementById('btnViewBoard').classList.toggle('active', mode === 'board');
+
+            for (let i = 1; i <= 4; i++) {
+                const intro = document.getElementById(`intro-${i}`);
+                const board = document.getElementById(`board-${i}`);
+                if (intro && board) {
+                    intro.style.display = mode === 'intro' ? 'flex' : 'none';
+                    board.style.display = mode === 'board' ? 'grid' : 'none';
+                }
+            }
+        }
+
+        function switchGame(n) {
+            currentGame = n;
+            document.querySelectorAll('.tab-btn').forEach((b, idx) => {
+                b.classList.toggle('active', (idx + 1) === n);
+            });
+            document.querySelectorAll('.game-panel').forEach((p, idx) => {
+                p.classList.toggle('active', (idx + 1) === n);
+            });
+
+            // Default to intro instructions in big letters when switching to a game
+            setViewMode('intro');
+
+            if (n === 1) setTimer(10);
+            else if (n === 2) {
+                setTimer(5);
+                resetLineupTopic();
+            }
+            else if (n === 3) setTimer(12);
+            else if (n === 4) setTimer(1);
+        }
+
+        // ==================== GAME 1: MR. BOSS ====================
+        function toggleCorner(n) {
+            const card = document.getElementById(`corner-${n}`);
+            card.classList.toggle('busted');
+        }
+
+        function resetCorners() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`corner-${i}`).classList.remove('busted');
+            }
+        }
+
+        function bossRandomCall() {
+            resetCorners();
+            const chosen = Math.floor(Math.random() * 4) + 1;
+            setTimeout(() => {
+                const card = document.getElementById(`corner-${chosen}`);
+                card.classList.add('busted');
+            }, 300);
+        }
+
+        // ==================== GAME 2: SILENT LINEUP ====================
+        const lineupMissions = [
+            {
+                round: "Round 1 of 3",
+                title: "🎂 Birthdays: January 1 → December 31",
+                sub: "Front of Room (Whiteboard) = Jan 1 • Back of Room (Door) = Dec 31"
+            },
+            {
+                round: "Round 2 of 3",
+                title: "📍 Distance Lived From BiHi School",
+                sub: "Front = Lives right next to BiHi • Back = Lives farthest away in Dartmouth"
+            },
+            {
+                round: "Round 3 of 3",
+                title: "🔤 Alphabetical By Street Name",
+                sub: "Front = Street Letter A • Back = Street Letter Z (Fingerspell letters)"
+            }
+        ];
+        let currentLineupIndex = 0;
+        let topicRevealed = false;
+
+        function revealLineupTopic() {
+            topicRevealed = true;
+            document.getElementById('mysteryBox').style.display = 'none';
+            const card = document.getElementById('revealedTopicCard');
+            card.classList.add('shown');
+            document.getElementById('lineupStatus').innerText = "Topic Revealed! Silence is locked in.";
+            setTimer(5);
+            toggleTimer();
+        }
+
+        function resetLineupTopic() {
+            topicRevealed = false;
+            document.getElementById('mysteryBox').style.display = 'block';
+            const card = document.getElementById('revealedTopicCard');
+            card.classList.remove('shown');
+            document.getElementById('lineupStatus').innerText = "Standing by for silence";
+            resetTimer();
+        }
+
+        function nextRoundLineup() {
+            currentLineupIndex = (currentLineupIndex + 1) % lineupMissions.length;
+            const m = lineupMissions[currentLineupIndex];
+            document.getElementById('lineupRound').innerText = m.round;
+            document.getElementById('lineupTitle').innerText = m.title;
+            document.getElementById('lineupSub').innerText = m.sub;
+            resetLineupTopic();
+        }
+
+        function addPenalty() {
+            timerSeconds += 30;
+            updateTimerDisplay();
+            alert("Noise Penalty Added: +30 Seconds on the clock!");
+        }
+
+        // ==================== GAME 3: ZOMBIE ====================
+        function toggleZombie(card) {
+            if (card.classList.contains('eliminated')) {
+                card.classList.remove('eliminated');
+            } else {
+                card.classList.toggle('selected');
+            }
+            updateZombieCount();
+        }
+
+        function eliminateZombie(card, e) {
+            e.stopPropagation();
+            card.classList.remove('selected');
+            card.classList.toggle('eliminated');
+            updateZombieCount();
+        }
+
+        function clearZombieSelections() {
+            document.querySelectorAll('#game-3 .item-card').forEach(c => c.classList.remove('selected', 'eliminated'));
+            updateZombieCount();
+        }
+
+        function updateZombieCount() {
+            const count = document.querySelectorAll('#game-3 .item-card.selected').length;
+            const el = document.getElementById('zombieCount');
+            el.innerText = `Selected: ${count} / 4`;
+            el.style.color = count === 4 ? '#166534' : (count > 4 ? '#be123c' : '#0f172a');
+        }
+
+        // ==================== GAME 4: HOT SEAT WORDS ====================
+        const hotSeatBank = [
+            { category: "School & Room 8", word: "PENCIL SHARPENER", clue: "Audience: Made of metal/plastic, on the wall, grinds wood." },
+            { category: "Survival Gear", word: "DUCT TAPE", clue: "Audience: Silver roll, sticky, fixes everything, waterproof." },
+            { category: "School & Room 8", word: "CHROMEBOOK CART", clue: "Audience: Metal, has 30 plugs, rolls on wheels." },
+            { category: "Food & Snacks", word: "KRAFT DINNER", clue: "Audience: Cheesy, comes in a box, mac & cheese, student favourite." },
+            { category: "Animals", word: "GRIZZLY BEAR", clue: "Audience: Furry, hibernates, huge claws, apex predator." },
+            { category: "School Life", word: "HALLWAY PASS", clue: "Audience: Lanyard or wooden block, allows you to leave class." },
+            { category: "Everyday Objects", word: "MICROWAVE", clue: "Audience: Heats food, has a turntable, beeps 3 times." },
+            { category: "Survival Gear", word: "FLARE GUN", clue: "Audience: Bright orange, shoots red light into the night sky." },
+            { category: "Pop Culture / Fun", word: "MINECRAFT CREEPER", clue: "Audience: Green, makes a hissing sound, explodes." },
+            { category: "Everyday Objects", word: "ACOUSTIC GUITAR", clue: "Audience: Wooden body, 6 strings, strummed with fingers." },
+            { category: "Animals", word: "MOSQUITO", clue: "Audience: Tiny insect, buzzing sound, leaves itchy red bumps." },
+            { category: "School Life", word: "CAFETERIA PIZZA", clue: "Audience: Rectangular slice, hot cheese, served on Fridays." },
+            { category: "Survival Gear", word: "SWISS ARMY KNIFE", clue: "Audience: Red pocket tool, contains scissors, saw, and corkscrew." },
+            { category: "Everyday Objects", word: "ROLLER COASTER", clue: "Audience: Track at amusement park, loops upside down, screams." },
+            { category: "School Life", word: "POP QUIZ", clue: "Audience: Paper, unexpected, stresses students out on Friday." }
+        ];
+
+        let hotSeatIndex = 0;
+
+        function updateHotSeatDisplay() {
+            const item = hotSeatBank[hotSeatIndex];
+            document.getElementById('hotseatCategory').innerText = `Category: ${item.category}`;
+            document.getElementById('hotseatWord').innerText = item.word;
+            document.getElementById('hotseatClue').innerText = item.clue;
+        }
+
+        function nextHotSeatWord() {
+            hotSeatIndex = (hotSeatIndex + 1) % hotSeatBank.length;
+            updateHotSeatDisplay();
+            setTimer(1);
+            toggleTimer();
+        }
+
+        function prevHotSeatWord() {
+            hotSeatIndex = (hotSeatIndex - 1 + hotSeatBank.length) % hotSeatBank.length;
+            updateHotSeatDisplay();
+        }
+
+        function randomHotSeatWord() {
+            hotSeatIndex = Math.floor(Math.random() * hotSeatBank.length);
+            updateHotSeatDisplay();
+            setTimer(1);
+            toggleTimer();
+        }
+
+        // ==================== GLOBAL TIMER ====================
+        let timerSeconds = 10 * 60;
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60);
+            const s = timerSeconds % 60;
+            document.getElementById('globalTimer').innerText = 
+                `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerBtn');
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.innerText = 'Start';
+            } else {
+                timerRunning = true;
+                btn.innerText = 'Pause';
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        btn.innerText = 'Start';
+                        alert('Buzzer! Time is up!');
+                    }
+                }, 1000);
+            }
+        }
+
+        function setTimer(minutes) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerBtn').innerText = 'Start';
+            timerSeconds = minutes * 60;
+            updateTimerDisplay();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerBtn').innerText = 'Start';
+            timerSeconds = 10 * 60;
+            updateTimerDisplay();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') switchGame(1);
+            else if (e.key === '2') switchGame(2);
+            else if (e.key === '3') switchGame(3);
+            else if (e.key === '4') switchGame(4);
+            else if (e.key.toLowerCase() === 'i') {
+                setViewMode(currentView === 'intro' ? 'board' : 'intro');
+            }
+            else if (e.key === ' ' && currentGame === 4 && currentView === 'board') {
+                e.preventDefault();
+                nextHotSeatWord();
+            }
+        });
+    </script>
+</body>
+</html>
