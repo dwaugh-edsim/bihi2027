@@ -36,22 +36,39 @@ const StudentAPI = {
             return { student: null, pin: enteredPin, name: enteredName };
         }
 
-        // 1. If enteredPin is an exact 3-letter PIN in roster
-        if (enteredPin && enteredPin.length === 3) {
+        const clean = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+        // 1. If enteredPin is provided, strictly search by PIN
+        if (enteredPin) {
             const pinMatch = roster.find(s => (s.pin || '').toUpperCase() === enteredPin);
-            if (pinMatch) {
-                return { student: pinMatch, pin: pinMatch.pin, name: pinMatch.first_name };
+            if (!pinMatch) {
+                // Wrong or unregistered PIN — never fall back to loose name matching
+                return { student: null, pin: enteredPin, name: enteredName, error: 'PIN not recognized' };
             }
+
+            // PIN is valid; verify name if entered
+            if (enteredName) {
+                const term = clean(enteredName);
+                const fn = clean(pinMatch.first_name);
+                const ffn = clean(pinMatch.full_first_name);
+                const ln = clean(pinMatch.last_name);
+                const nameMatches = fn.includes(term) || term.includes(fn) ||
+                                    ffn.includes(term) || term.includes(ffn) ||
+                                    ln.includes(term) || term.includes(ln);
+                if (!nameMatches) {
+                    return { student: null, pin: enteredPin, name: enteredName, error: 'Name and PIN mismatch' };
+                }
+            }
+
+            return { student: pinMatch, pin: pinMatch.pin, name: pinMatch.first_name, autoResolved: false };
         }
 
-        // 2. Search by name (first name, full name, or entered text in either box)
-        const clean = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-        const searchTerms = [enteredName, enteredPin].filter(t => t && t.length >= 2);
-        if (searchTerms.length === 0) {
+        // 2. Name-only search (used strictly for PIN Lookup / Claim assistance)
+        const term = clean(enteredName);
+        if (!term || term.length < 2) {
             return { student: null, pin: enteredPin, name: enteredName };
         }
 
-        // Filter by class if provided
         let classStudents = roster;
         if (className) {
             const clsStr = String(className).trim().toLowerCase().replace('cit', '').replace('hl', '').trim();
@@ -59,51 +76,37 @@ const StudentAPI = {
             if (matchedClass.length > 0) classStudents = matchedClass;
         }
 
-        for (const rawTerm of searchTerms) {
-            const term = clean(rawTerm);
-            if (!term) continue;
+        // Direct match: First + Last or Last + First or Full First + Last
+        let match = classStudents.find(s => {
+            const full1 = clean(`${s.first_name} ${s.last_name}`);
+            const full2 = clean(`${s.last_name} ${s.first_name}`);
+            const full3 = clean(`${s.full_first_name} ${s.last_name}`);
+            return full1 === term || full2 === term || full3 === term;
+        });
 
-            // Direct match: First + Last or Last + First or Full First + Last
-            let match = classStudents.find(s => {
-                const full1 = clean(`${s.first_name} ${s.last_name}`);
-                const full2 = clean(`${s.last_name} ${s.first_name}`);
-                const full3 = clean(`${s.full_first_name} ${s.last_name}`);
-                return full1 === term || full2 === term || full3 === term;
+        // Substring / word match
+        if (!match) {
+            match = classStudents.find(s => {
+                const fn = clean(s.first_name);
+                const ln = clean(s.last_name);
+                return fn && ln && term.includes(fn) && term.includes(ln);
             });
+        }
 
-            // Substring / word match: contains both first and last name words
-            if (!match) {
-                match = classStudents.find(s => {
-                    const fn = clean(s.first_name);
-                    const ln = clean(s.last_name);
-                    return fn && ln && term.includes(fn) && term.includes(ln);
-                });
+        // Unique single first name match within section
+        if (!match) {
+            const firstMatches = classStudents.filter(s => {
+                const fn = clean(s.first_name);
+                const ffn = clean(s.full_first_name);
+                return fn === term || ffn === term || fn.startsWith(term) || term.startsWith(fn);
+            });
+            if (firstMatches.length === 1) {
+                match = firstMatches[0];
             }
+        }
 
-            // Single first name unique match within the selected class
-            if (!match) {
-                const firstMatches = classStudents.filter(s => {
-                    const fn = clean(s.first_name);
-                    const ffn = clean(s.full_first_name);
-                    return fn === term || ffn === term || fn.startsWith(term) || term.startsWith(fn);
-                });
-                if (firstMatches.length === 1) {
-                    match = firstMatches[0];
-                }
-            }
-
-            // Also search across entire school roster if not found in section
-            if (!match && classStudents !== roster) {
-                match = roster.find(s => {
-                    const full1 = clean(`${s.first_name} ${s.last_name}`);
-                    const full2 = clean(`${s.last_name} ${s.first_name}`);
-                    return full1 === term || full2 === term;
-                });
-            }
-
-            if (match) {
-                return { student: match, pin: match.pin, name: match.first_name, autoResolved: true };
-            }
+        if (match) {
+            return { student: match, pin: match.pin, name: match.first_name, autoResolved: true };
         }
 
         return { student: null, pin: enteredPin, name: enteredName };
@@ -113,48 +116,86 @@ const StudentAPI = {
         pin = (pin || '').trim().toUpperCase();
         let enteredName = (firstName || '').trim();
 
-        // Teacher & testing demo overrides
-        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV' || pin === 'MRW') {
-            return { valid: true, isTeacher: true, name: firstName || 'Teacher Demo', pin: pin || 'WAU' };
-        }
-
-        const roster = this.getRoster();
-        if (!roster || roster.length === 0) {
-            console.warn("Roster data not loaded; bypassing local gate.");
-            return { valid: true, unverified: true, name: firstName, pin: pin };
-        }
-
-        // Smart Resolution: check if full name or PIN resolves student
-        const resolved = this.resolveStudent(className, enteredName, pin);
-        if (resolved && resolved.student) {
-            const student = resolved.student;
+        // 1. PIN is strictly mandatory
+        if (!pin) {
             return { 
-                valid: true, 
-                student: student, 
-                name: student.first_name, 
-                pin: student.pin,
-                autoResolved: resolved.autoResolved 
+                valid: false, 
+                message: "❌ Access Denied: Please enter your 3-letter student PIN." 
             };
         }
 
-        if (!pin && !enteredName) {
-            return { valid: false, message: "Please enter your First Name (or Full Name) and 3-Letter PIN." };
+        // 2. Teacher & testing demo overrides
+        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV' || pin === 'MRW') {
+            return { 
+                valid: true, 
+                isTeacher: true, 
+                name: enteredName || 'Teacher Demo', 
+                pin: pin,
+                className: className || 'Teacher'
+            };
         }
 
-        // If PIN was entered but not found in roster
-        if (pin && pin.length >= 3) {
-            const pinMatch = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
-            if (!pinMatch) {
+        // 3. Ensure PIN format is exactly 3 letters
+        if (pin.length !== 3) {
+            return { 
+                valid: false, 
+                message: `❌ Invalid PIN: "${pin}". Student PINs must be exactly 3 uppercase letters.` 
+            };
+        }
+
+        // 4. Class roster database must be loaded
+        const roster = this.getRoster();
+        if (!roster || roster.length === 0) {
+            return { 
+                valid: false, 
+                message: "❌ System Error: Official class roster not loaded. Please refresh the page or contact Mr. Waugh." 
+            };
+        }
+
+        // 5. Look up PIN in official roster
+        const student = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
+        if (!student) {
+            return { 
+                valid: false, 
+                message: `❌ Access Denied: PIN "${pin}" is not registered on the official class list.\n\nPlease check your 3-letter PIN slip or see Mr. Waugh.` 
+            };
+        }
+
+        // 6. If Name was also entered, verify it matches the registered student for this PIN
+        if (enteredName) {
+            const clean = str => (str || '').toLowerCase().replace(/[^a-z]/g, '');
+            const inputClean = clean(enteredName);
+            const fnClean = clean(student.first_name);
+            const ffnClean = clean(student.full_first_name);
+            const lnClean = clean(student.last_name);
+            const fullClean = fnClean + lnClean;
+            const fullFirstLast = ffnClean + lnClean;
+
+            const nameMatches = inputClean === fnClean ||
+                                inputClean === ffnClean ||
+                                inputClean === lnClean ||
+                                inputClean === fullClean ||
+                                inputClean === fullFirstLast ||
+                                fnClean.startsWith(inputClean) ||
+                                inputClean.startsWith(fnClean) ||
+                                ffnClean.startsWith(inputClean) ||
+                                inputClean.startsWith(ffnClean);
+
+            if (!nameMatches) {
                 return { 
                     valid: false, 
-                    message: `❌ Access Denied: PIN "${pin}" is not registered on the official roster.\n\nPlease check your 3-letter PIN slip or look up your name.` 
+                    message: `❌ Login Mismatch: The entered name "${enteredName}" does not match PIN "${pin}".\n\nOfficial record for this PIN is ${student.first_name} ${student.last_name.charAt(0)}.` 
                 };
             }
         }
 
+        // 7. Verified successfully
         return { 
-            valid: false, 
-            message: `❌ Student not found for "${enteredName || pin}".\n\nPlease enter your registered full name (e.g. "${roster[0]?.first_name} ${roster[0]?.last_name}") or enter your 3-letter PIN.` 
+            valid: true, 
+            student: student, 
+            name: student.first_name, 
+            pin: student.pin,
+            className: student.homeroom || className
         };
     },
 

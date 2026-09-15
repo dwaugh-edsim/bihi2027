@@ -783,8 +783,6 @@
                             <option value="901">CIT 901 (Grade 9)</option>
                             <option value="902">CIT 902 (Grade 9)</option>
                             <option value="903" selected>CIT 903 (Grade 9)</option>
-                            <option value="801">HL 801 (Grade 8)</option>
-                            <option value="802">HL 802 (Grade 8)</option>
                         </select>
                     </div>
                     <div class="field-group">
@@ -1194,8 +1192,6 @@
                     <option value="901">CIT 901 (Grade 9)</option>
                     <option value="902">CIT 902 (Grade 9)</option>
                     <option value="903" selected>CIT 903 (Grade 9)</option>
-                    <option value="801">HL 801 (Grade 8)</option>
-                    <option value="802">HL 802 (Grade 8)</option>
                 </select>
             </div>
             <div class="field-group" style="margin-bottom: 16px;">
@@ -1840,7 +1836,7 @@
         function handlePinAutoLookup(val) {
             const rawPin = (val || '').trim().toUpperCase();
             if (rawPin.length === 3) {
-                if (rawPin === 'WAU' || rawPin === 'MRW') {
+                if (rawPin === 'WAU' || rawPin === 'MRW' || rawPin === 'DEV' || rawPin === 'TST') {
                     loadWaughExemplar();
                     return;
                 }
@@ -1856,6 +1852,8 @@
                     loadStudentBrainstorm(matched, rawPin);
                     showToast(`👤 Identified: ${matched.first_name} (Class ${matched.homeroom || '902'})`);
                     triggerAutoSave();
+                } else {
+                    showToast(`❌ Access Denied: PIN "${rawPin}" is not on the official class list.`, true);
                 }
             }
         }
@@ -1866,21 +1864,20 @@
             let firstName = document.getElementById('firstNameInput').value.trim();
             let pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
-            if (pin === 'WAU' || pin === 'MRW') {
+            if (pin === 'WAU' || pin === 'MRW' || pin === 'DEV' || pin === 'TST') {
                 loadWaughExemplar();
                 return;
             }
 
-            // Smart Auto-Resolution: resolves by full name, first name, or PIN
-            const resolved = StudentAPI.resolveStudent(cls, firstName, pin);
-            if (!resolved || !resolved.student) {
-                showToast(`❌ Could not find student profile for "${firstName || pin}". Enter your full name or 3-letter PIN.`, true);
+            const auth = StudentAPI.validateStudent(cls, firstName, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
                 return;
             }
 
-            const student = resolved.student;
-            pin = student.pin;
-            firstName = student.first_name;
+            const student = auth.student || { first_name: auth.name, pin: auth.pin, homeroom: cls };
+            pin = auth.pin;
+            firstName = auth.name;
 
             // PRESERVE TYPED WORK: Only clear form if the student hasn't entered anything yet!
             const hasUserTypedText = [
@@ -2013,16 +2010,6 @@
                 if (matched) {
                     if (!studentName) studentName = matched.first_name;
                     if (matched.homeroom) cls = matched.homeroom;
-                }
-            } else if (studentName && studentName.length >= 2) {
-                // Auto-resolve PIN from name if omitted
-                const resolved = StudentAPI.resolveStudent(cls, studentName, '');
-                if (resolved && resolved.student) {
-                    pin = resolved.student.pin;
-                    studentName = resolved.student.first_name;
-                    if (resolved.student.homeroom) cls = resolved.student.homeroom;
-                    const pIn = document.getElementById('pinInput');
-                    if (pIn && !pIn.value) pIn.value = pin;
                 }
             }
 

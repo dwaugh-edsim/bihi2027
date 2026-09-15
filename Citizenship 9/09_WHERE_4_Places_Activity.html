@@ -256,7 +256,6 @@
                     <option value="901">CIT 901</option>
                     <option value="902">CIT 902</option>
                     <option value="903" selected>CIT 903</option>
-                    <option value="801">HE 801</option>
                 </select>
                 <input type="text" id="nameInput" placeholder="First Name" style="width: 130px;">
                 <input type="text" id="pinInput" placeholder="3-Letter PIN" maxlength="3" style="width: 90px; text-transform: uppercase; font-family: monospace; font-weight: 700;">
@@ -327,6 +326,7 @@
 
     </div>
 
+    <script src="../Student_System/students_roster_data.js"></script>
     <script src="../Student_System/api.js"></script>
     <script>
         async function loadStudentData() {
@@ -334,13 +334,14 @@
             const name = document.getElementById('nameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
-            if (!name || !pin) {
-                showToast("Please enter your First Name and 3-Letter PIN first.", true);
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
                 return;
             }
 
             showToast("Loading saved work from Google Sheets...");
-            const res = await StudentAPI.login(cls, name, pin, cls.startsWith('8') ? 'HL8' : 'CIT9');
+            const res = await StudentAPI.login(cls, auth.name || name, pin, cls.startsWith('8') ? 'HL8' : 'CIT9');
             
             if (res.status === 'success') {
                 const d = res.savedData || {};
@@ -348,7 +349,7 @@
                 if (d.where_community) document.getElementById('place2').value = d.where_community;
                 if (d.where_global) document.getElementById('place3').value = d.where_global;
                 if (d.where_aspirational) document.getElementById('place4').value = d.where_aspirational;
-                showToast(`Loaded work for ${res.name || name}!`);
+                showToast(`Loaded work for ${res.name || auth.name || name}!`);
             } else {
                 showToast(res.message || "Failed to load.", true);
             }
@@ -359,8 +360,9 @@
             const name = document.getElementById('nameInput').value.trim() || Session.getName();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase() || Session.getPin();
 
-            if (!name || !pin) {
-                showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
                 return;
             }
 

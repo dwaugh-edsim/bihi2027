@@ -128,14 +128,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.78rem;
+            gap: 10px;
+            font-size: 0.74rem;
             font-weight: 700;
+            white-space: nowrap;
             padding-bottom: 2px;
         }
 
-        .days-row {
-            display: flex;
-            gap: 14px;
+        .days-strip {
+            display: inline-flex;
+            gap: 7px;
             align-items: center;
         }
 
@@ -147,18 +149,26 @@
         .day-tag.current {
             border: 1.5px solid #000000;
             border-radius: 3px;
-            padding: 1px 4px;
+            padding: 1px 5px;
             background: #000000;
             color: #ffffff;
         }
 
-        .date-fill-line {
+        .cycle-tag {
+            font-family: 'Courier Prime', Courier, monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .fill-line {
             display: inline-block;
             border-bottom: 1.5px dashed #000000;
-            width: 190px;
-            height: 12px;
-            margin: 0 6px;
+            height: 11px;
         }
+
+        .fill-line.date { width: 92px; }
+        .fill-line.week { width: 34px; }
 
         /* MAIN GRID CONTAINER (2 COLUMNS: ROSTER ON LEFT, SCHEDULE ON RIGHT) */
         .grid-container {
@@ -404,6 +414,11 @@
         .bottom-blank-row .b-col2 { border-right: 1px solid var(--border-black); }
 
         /* PRINT STYLES */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
         @media print {
             body {
                 background: #ffffff !important;
@@ -415,18 +430,31 @@
                 display: none !important;
             }
 
+            #pagesContainer {
+                display: block !important;
+            }
+
             .clipboard-page {
                 width: 210mm !important;
-                height: 297mm !important;
+                height: 296mm !important; /* 1mm under A4 so rounding never spills to page 2 */
                 margin: 0 !important;
-                padding: 8mm 9mm 6mm 9mm !important;
+                padding: 7mm 9mm 5mm 9mm !important;
                 box-shadow: none !important;
-                page-break-after: always;
-                page-break-inside: avoid;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
             }
 
             .clipboard-page:last-of-type {
-                page-break-after: auto;
+                page-break-after: auto !important;
+            }
+
+            .roster-table th,
+            .eval-header,
+            .lunch-banner,
+            .notes-header-banner {
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
             }
         }
     </style>
@@ -473,7 +501,7 @@
             "Nolan C",
             "Berlin C",
             "Lyla F",
-            "Sebas H",
+            "Seb H",
             "Tristan H",
             "Jordan H",
             "Arlo J",
@@ -656,7 +684,7 @@
             const daysHTML = daysArr.map(d => {
                 const isCurrent = (d === dayData.dayName);
                 return `<span class="day-tag ${isCurrent ? 'current' : ''}">${d}</span>`;
-            }).join(' &nbsp; ');
+            }).join('');
 
             // Roster rows HTML (Numbered 1..30)
             const rosterHTML = roster902.map((name, idx) => `
@@ -676,15 +704,9 @@
                     <div class="sheet-header">
                         <div class="sheet-title">Class Clipboard: 902 Waugh</div>
                         <div class="meta-line">
-                            <div class="days-row">
-                                <span>Today's Date:</span>
-                                <span>${daysHTML}</span>
-                                <span class="date-fill-line"></span>
-                            </div>
-                            <div>
-                                <span style="margin-right: 14px; font-family: 'Courier Prime', monospace; font-size: 0.85rem;"><strong>[ ${dayData.cycleDay.toUpperCase()} &bull; ${dayData.weekNum.toUpperCase()} ]</strong></span>
-                                <span>Week: <span style="display:inline-block; border-bottom:1.5px dashed #000; width:40px;"></span></span>
-                            </div>
+                            <span class="days-strip">${daysHTML}</span>
+                            <span class="cycle-tag">[ ${dayData.cycleDay.toUpperCase()} &bull; ${dayData.weekNum.toUpperCase()} ]</span>
+                            <span>DATE: <span class="fill-line date"></span>&nbsp;&nbsp;WEEK: <span class="fill-line week"></span></span>
                         </div>
                     </div>
 

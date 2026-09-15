@@ -22,7 +22,7 @@
  │              │   slide — the work is theirs: (a) hours to cover rent, (b) % of        │
  │              │   full-time pay, (c) the "affordable" hourly wage.                     │
  │              │ • Circulate; don't rescue (c) — let the $37 land on its own.           │
- │              │ • Take the "no filter" sentence as a turn-and-talk if energy is low.   │
+ │              │ • Use the Life at 25 / structural gap prompt as a turn-and-talk.      │
  ├──────────────┼────────────────────────────────────────────────────────────────────────┤
  │ 08–18m (10m) │ CORE DIRECT INSTRUCTION: The Evidence Board (§2 / Slide 2)             │
  │              │ • Reveal the four sourced facts. Students self-check (a) ≈116 hrs      │

@@ -341,7 +341,7 @@
 
         .list-header-row {
             display: grid;
-            grid-template-columns: 3px 1fr 52px 48px 62px 62px;
+            grid-template-columns: 3px 1fr 46px 36px 64px 64px 64px;
             gap: 0 6px;
             align-items: center;
             padding: 5px 10px;
@@ -357,7 +357,7 @@
 
         .student-card {
             display: grid;
-            grid-template-columns: 3px 1fr 52px 48px 62px 62px;
+            grid-template-columns: 3px 1fr 46px 36px 64px 64px 64px;
             gap: 0 6px;
             align-items: center;
             padding: 4px 10px;
@@ -385,17 +385,15 @@
 
         .row-stripe.all-done { background: var(--emerald); }
         .row-stripe.some-done { background: var(--amber); }
-        .row-stripe.none-done { background: var(--text-dim); opacity: 0.5; }
+        .row-stripe.none-done { background: #cbd5e1; }
 
         .student-name {
-            font-family: var(--font-display);
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 700;
-            color: var(--text-heading);
-            line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: var(--text-heading);
         }
 
         .student-pin-badge {
@@ -433,6 +431,12 @@
             background: #dcfce7;
             color: #166534;
             border: 1px solid #86efac;
+        }
+
+        .status-chip.hl9-done {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
         }
 
         .status-chip.where-done {
@@ -581,8 +585,8 @@
             <div class="brand-block">
                 <span class="badge-room">ROOM 8</span>
                 <div>
-                    <h1>Citizenship 9 &bull; Term 1 Submission Dashboard</h1>
-                    <div class="subtitle">Unit 1 Tracking: Current Issues Diagnostic &amp; WHERE Document Turn-Ins &bull; Live Google Sheets Sync</div>
+                    <h1>Citizenship 9 &amp; Healthy Living 9 &bull; Term 1 Submissions Dashboard</h1>
+                    <div class="subtitle">Unit 1 Tracking: HL9 Health Curriculum Audit, CIT9 Current Issues Diagnostic, &amp; WHERE Document Turn-Ins &bull; Live Google Sheets Sync</div>
                 </div>
             </div>
 
@@ -591,8 +595,11 @@
                     <span>🔄</span> Sync Live Cloud Data
                 </button>
 
+                <a href="HL9_Prior_Course_Diagnostic.html" class="btn" target="_blank" style="border-color: #86efac; color: #166534; background: #f0fdf4;">
+                    <span>🩺</span> HL9 Health Diagnostic &rarr;
+                </a>
                 <a href="CIT9_Current_Issues_Diagnostic.html" class="btn" target="_blank">
-                    <span>📝</span> Diagnostic Survey &rarr;
+                    <span>📰</span> CIT9 Issues Diag &rarr;
                 </a>
                 <a href="WHERE_Grade9_Progress_Dashboard.html" class="btn">
                     <span>🗺️</span> "WHERE" Dashboard &rarr;
@@ -628,8 +635,17 @@
                 <div class="kpi-sub" id="kpi-enrolled-sub">Official Grade 9 roster</div>
             </div>
 
+            <div class="kpi-card" style="--card-accent: #059669;">
+                <div class="kpi-label">🩺 HL9 Health Audit</div>
+                <div class="kpi-value" id="kpi-hl9-completed">0</div>
+                <div class="kpi-sub" id="kpi-hl9-pct">0% Response Rate</div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="kpi-hl9-progress" style="width: 0%; background: #059669;"></div>
+                </div>
+            </div>
+
             <div class="kpi-card" style="--card-accent: #10b981;">
-                <div class="kpi-label">Diagnostic Responded</div>
+                <div class="kpi-label">📰 CIT9 Issues Diag</div>
                 <div class="kpi-value" id="kpi-cit9-completed">0</div>
                 <div class="kpi-sub" id="kpi-cit9-pct">0% Response Rate</div>
                 <div class="progress-bar-wrap">
@@ -638,7 +654,7 @@
             </div>
 
             <div class="kpi-card" style="--card-accent: #0ea5e9;">
-                <div class="kpi-label">WHERE Doc Submitted</div>
+                <div class="kpi-label">🗺️ WHERE Doc Submitted</div>
                 <div class="kpi-value" id="kpi-where-completed">0</div>
                 <div class="kpi-sub" id="kpi-where-pct">0% Submitted</div>
                 <div class="progress-bar-wrap">
@@ -647,15 +663,9 @@
             </div>
 
             <div class="kpi-card" style="--card-accent: #6366f1;">
-                <div class="kpi-label">Both Tasks Completed</div>
+                <div class="kpi-label">🌟 All Tasks Complete</div>
                 <div class="kpi-value" id="kpi-both-completed">0</div>
-                <div class="kpi-sub" id="kpi-both-pct">0% Up to Date</div>
-            </div>
-
-            <div class="kpi-card" style="--card-accent: #f59e0b;">
-                <div class="kpi-label">Pending Incomplete</div>
-                <div class="kpi-value" id="kpi-pending">0</div>
-                <div class="kpi-sub" id="kpi-pending-sub">Awaiting 1 or more tasks</div>
+                <div class="kpi-sub" id="kpi-both-pct">0% (3 of 3 tasks)</div>
             </div>
         </div>
 
@@ -669,17 +679,19 @@
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <select class="filter-select" id="statusSelect" onchange="renderStudentCards()">
                     <option value="ALL">All Students (Full Cohort)</option>
-                    <option value="BOTH_DONE">🌟 Both Tasks Done (2/2)</option>
-                    <option value="CIT9_DONE">📰 Diagnostic Responded</option>
-                    <option value="CIT9_PENDING">⚪ Diagnostic Pending</option>
+                    <option value="HL9_DONE">🩺 HL9 Health Audit Done</option>
+                    <option value="HL9_PENDING">⚪ HL9 Health Audit Missing</option>
+                    <option value="CIT9_DONE">📰 CIT9 Diagnostic Done</option>
+                    <option value="CIT9_PENDING">⚪ CIT9 Diagnostic Missing</option>
                     <option value="WHERE_DONE">🗺️ WHERE Doc Submitted</option>
                     <option value="WHERE_PENDING">⚪ WHERE Doc Missing</option>
-                    <option value="ANY_PENDING">⚠️ Any Task Incomplete (&lt;2/2)</option>
+                    <option value="ALL_DONE">🌟 All 3 Tasks Completed (3/3)</option>
+                    <option value="ANY_PENDING">⚠️ Any Task Incomplete (&lt;3/3)</option>
                 </select>
 
                 <select class="filter-select" id="sortSelect" onchange="renderStudentCards()">
                     <option value="NAME">Sort: Last Name (A-Z)</option>
-                    <option value="TASKS">Sort: Most Completed (2/2 first)</option>
+                    <option value="TASKS">Sort: Most Completed First</option>
                     <option value="PENDING">Sort: Incomplete First</option>
                     <option value="PIN">Sort: PIN</option>
                 </select>
@@ -710,44 +722,90 @@
                     Status
                 </div>
 
-                <!-- Media Habits -->
-                <div>
-                    <div class="modal-section-title"><span>📰</span> News Consumption & Verification</div>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.88rem;">
-                        <div><span>Primary News Source:</span> <strong id="m-primary-news" style="color: var(--cyan);">---</strong></div>
-                        <div><span>Frequency:</span> <strong id="m-news-freq">---</strong></div>
-                        <div><span>Fact-Checking Habit:</span> <strong id="m-fact-check" style="color: var(--amber);">---</strong></div>
-                        <div><span>All Sources:</span> <strong id="m-all-sources">---</strong></div>
-                    </div>
-                </div>
-
-                <!-- Top Debate & Personal Concern -->
-                <div>
-                    <div class="modal-section-title"><span>⚖️</span> Priority Civic Debate & Personal Issue</div>
+                <!-- HL9 Health & Sleep Audit Section -->
+                <div id="m-hl9-section" style="display: none;">
+                    <div class="modal-section-title"><span>🩺</span> Healthy Living 9 &bull; Grade 8 Learning Audit</div>
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem;">
                         <div>
-                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Top Chosen Debate:</span>
-                            <div style="font-family: var(--font-slab); font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-top: 2px;" id="m-top-debate">---</div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Curious About in Grade 9:</span>
+                            <div style="color: var(--text-main); font-weight: 600; margin-top: 2px;" id="m-hl9-curious">---</div>
                         </div>
-                        <div>
-                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Personal Issue of Concern:</span>
-                            <div style="font-style: italic; color: var(--text-main); margin-top: 2px;" id="m-personal-issue">None stated.</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Bedtime &amp; Screen Habit:</span>
+                                <div style="font-size: 0.84rem; color: var(--text-main); margin-top: 2px;" id="m-hl9-sleep">---</div>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Morning Energy at School:</span>
+                                <div style="font-size: 0.84rem; color: var(--text-main); margin-top: 2px;" id="m-hl9-energy">---</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Movement &amp; Physical Outlets:</span>
+                                <div style="font-size: 0.84rem; color: var(--text-main); margin-top: 2px;" id="m-hl9-movement">---</div>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Stress Reset / Recharge:</span>
+                                <div style="font-size: 0.84rem; color: var(--text-main); margin-top: 2px;" id="m-hl9-reset">---</div>
+                            </div>
+                        </div>
+                        <div id="m-hl9-matrix-wrap" style="margin-top: 4px;">
+                            <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 6px;">Curriculum Outcome Ratings:</span>
+                            <div class="issue-chip-grid" id="m-hl9-matrix-grid"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Issues Ratings -->
-                <div>
-                    <div class="modal-section-title"><span>🔥</span> Issue Ratings Matrix</div>
-                    <div class="issue-chip-grid" id="m-issues-grid">
-                        <!-- Populated dynamically -->
+                <!-- CIT9 Section -->
+                <div id="m-cit9-section">
+                    <!-- Media Habits -->
+                    <div>
+                        <div class="modal-section-title"><span>📰</span> CIT9 News Consumption &amp; Verification</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.88rem;">
+                            <div><span>Primary News Source:</span> <strong id="m-primary-news" style="color: var(--cyan);">---</strong></div>
+                            <div><span>Frequency:</span> <strong id="m-news-freq">---</strong></div>
+                            <div><span>Fact-Checking Habit:</span> <strong id="m-fact-check" style="color: var(--amber);">---</strong></div>
+                            <div><span>All Sources:</span> <strong id="m-all-sources">---</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Top Debate & Personal Concern -->
+                    <div style="margin-top: 14px;">
+                        <div class="modal-section-title"><span>⚖️</span> Priority Civic Debate &amp; Personal Issue</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem;">
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Top Chosen Debate:</span>
+                                <div style="font-family: var(--font-slab); font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 2px;" id="m-top-debate">---</div>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Personal Issue of Concern:</span>
+                                <div style="font-style: italic; color: var(--text-main); margin-top: 2px;" id="m-personal-issue">None stated.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issues Ratings -->
+                    <div style="margin-top: 14px;">
+                        <div class="modal-section-title"><span>🔥</span> Issues Familiarity Ratings</div>
+                        <div class="issue-chip-grid" id="m-issues-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WHERE Project Section -->
+                <div id="m-where-section" style="display: none; margin-top: 14px;">
+                    <div class="modal-section-title"><span>🗺️</span> WHERE &bull; Places of Significance</div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; font-size: 0.88rem;">
+                        <div><span>Status / Source:</span> <strong id="m-where-source" style="color: var(--cyan);">---</strong></div>
                     </div>
                 </div>
 
                 <!-- Private Teacher Note -->
-                <div id="m-teacher-note-wrap">
+                <div id="m-teacher-note-wrap" style="margin-top: 14px;">
                     <div class="modal-section-title"><span>✉️</span> Note to Mr. Waugh</div>
-                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #fde68a;" id="m-teacher-note">
+                    <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #92400e;" id="m-teacher-note">
                         None.
                     </div>
                 </div>
