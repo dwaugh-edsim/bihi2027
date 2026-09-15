@@ -75,6 +75,11 @@ flowchart TD
 * `student_pins_printable.html` — Printable 3-letter PIN wallet cards to distribute to students.
 * `Room8_Chromebook_Assignments_All_Classes.html` — Single launchpad display listing every active digital assignment for all periods.
 
+### E. Reusable Assignment Template (`_TEMPLATE_GAS_Assignment.html`)
+* Copy-paste starting point for **any new GAS-enabled assignment** (Citizenship 9, HL 8/9, ILT). Packs the full persistence engine proven in the HL9 10-Station Audit: PIN login + lookup, instant local autosave, 4s debounced cloud autosave, cross-device Google Sheets recovery, Chromebook draft banner, JSON/Markdown/print exports, and the cloud-save certificate.
+* **Assignment content is data, not code:** edit the `ASSIGNMENT` config at the top of the `<script>` block — `course` ('HL9'/'CIT9'), unique `taskName` (how work is filed on the Google Sheet), title/subtitle, class list, and `sections[]` of fields (`text`, `textarea`, `select`, `chips`). Rendering, progress, restore, and exports are generated from that schema.
+* **To use:** copy the file into `HealthyLiving9/` or `Citizenship 9/`, switch the two dependency `<script src>` tags to `../Student_System/…` (instructions are in the file header), and fill in the config. No `Code.gs` changes needed — submissions file themselves under `_tasks[taskName]`. Teacher demo PINs (TST/WAU/DEV/MRW) work for testing.
+
 ---
 
 ## 4. Technical Constraints for LLMs Modifying This Folder
