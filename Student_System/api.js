@@ -93,12 +93,13 @@ const StudentAPI = {
             });
         }
 
-        // Unique single first name match within section
+        // Unique single first name or middle/heritage name match within section
         if (!match) {
             const firstMatches = classStudents.filter(s => {
                 const fn = clean(s.first_name);
                 const ffn = clean(s.full_first_name);
-                return fn === term || ffn === term || fn.startsWith(term) || term.startsWith(fn);
+                const tBase = term.replace(/[yi]$/, '');
+                return fn === term || ffn === term || fn.startsWith(term) || term.startsWith(fn) || (tBase.length >= 3 && ffn.includes(tBase));
             });
             if (firstMatches.length === 1) {
                 match = firstMatches[0];
@@ -170,6 +171,7 @@ const StudentAPI = {
             const lnClean = clean(student.last_name);
             const fullClean = fnClean + lnClean;
             const fullFirstLast = ffnClean + lnClean;
+            const tBase = inputClean.replace(/[yi]$/, '');
 
             const nameMatches = inputClean === fnClean ||
                                 inputClean === ffnClean ||
@@ -179,7 +181,8 @@ const StudentAPI = {
                                 fnClean.startsWith(inputClean) ||
                                 inputClean.startsWith(fnClean) ||
                                 ffnClean.startsWith(inputClean) ||
-                                inputClean.startsWith(ffnClean);
+                                inputClean.startsWith(ffnClean) ||
+                                (tBase.length >= 3 && ffnClean.includes(tBase));
 
             if (!nameMatches) {
                 return { 
@@ -323,6 +326,97 @@ const StudentAPI = {
                 message: 'Cloud sync dispatched to Google Sheets.',
                 task: taskName
             };
+        }
+    },
+
+    async submitAssignment(taskName, assignmentData, summaryText, courseKey = 'HL8') {
+        return this.submitProfile(taskName, assignmentData, summaryText, courseKey);
+    },
+
+    // ============ CLASS LOG (teacher's "what we did / what's next" tracker) ============
+
+    async getClassLog(courseKey = 'HL9') {
+        const url = this.getScriptUrl(courseKey);
+        try {
+            const res = await fetch(`${url}?action=get_class_log`);
+            const data = await res.json();
+            return data;
+        } catch (err) {
+            console.warn("Class log fetch failed:", err);
+            return { status: 'error', error: err.toString() };
+        }
+    },
+
+    async submitClassLog(entry, teacherPin, courseKey = 'HL9') {
+        return this._classLogPost({
+            action: 'submit_class_log',
+            entry: entry,
+            teacherPin: teacherPin || ''
+        }, courseKey);
+    },
+
+    // "Change direction": set/clear a section's forward plan without logging a class.
+    // note '' clears the plan. classNo overrides the suggested next lesson.
+    async setClassPlan(section, note, classNo, teacherPin, courseKey = 'HL9') {
+        return this._classLogPost({
+            action: 'set_class_plan',
+            section: section,
+            note: note || '',
+            classNo: classNo || '',
+            teacherPin: teacherPin || ''
+        }, courseKey);
+    },
+
+    async deleteClassLog(date, section, teacherPin, courseKey = 'HL9') {
+        return this._classLogPost({
+            action: 'delete_class_log',
+            date: date,
+            section: section,
+            teacherPin: teacherPin || ''
+        }, courseKey);
+    },
+
+    async _classLogPost(payload, courseKey) {
+        const url = this.getScriptUrl(courseKey);
+        const payloadStr = JSON.stringify(payload);
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payloadStr,
+                keepalive: true
+            });
+            return await res.json();
+        } catch (e) {
+            // GitHub Pages CORS on GAS 302: fire guaranteed no-cors dispatch,
+            // then verify via a GET read like the student save flow does.
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadStr,
+                    keepalive: true
+                });
+            } catch (errBeacon) {
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon(url, new Blob([payloadStr], { type: 'text/plain;charset=utf-8' }));
+                }
+            }
+            return { status: 'submitted_no_cors', message: 'Cloud sync dispatched (no-cors). Refresh to verify.' };
+        }
+    },
+
+    async getClassProgress(className = 'ALL', courseKey = 'HL8') {
+        const url = this.getScriptUrl(courseKey);
+        try {
+            const getUrl = `${url}?action=get_class_progress&className=${encodeURIComponent(className)}`;
+            const res = await fetch(getUrl);
+            const data = await res.json();
+            return data;
+        } catch (err) {
+            console.warn("Bulk class progress fetch failed:", err);
+            return { status: 'error', error: err.toString() };
         }
     },
 

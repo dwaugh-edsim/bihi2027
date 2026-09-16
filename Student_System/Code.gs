@@ -1,11 +1,18 @@
 /**
- * Bicentennial Junior High School — Student Webhook Backend (V3 with Locker Master Sync)
+ * Bicentennial Junior High School — Student Webhook Backend (V5 - Resilient Multi-Assignment Ledger Edition)
  * Mr. Waugh (Room 8)
  * 
  * Supports:
  * - Multi-class sections (801, 802, 803, 804, 901, 902, 903)
+ * - Concurrency protection: LockService on all write operations (prevents simultaneous Chromebook submission collisions)
+ * - Multi-assignment isolation: Stores each assignment under `_tasks[taskName].data` so assignments never overwrite each other
+ * - Deep top-level property preservation (matrix, formats, p1-p5, rent_math, answers, issues, dilemmas, teacher_note, etc.)
+ * - Cross-sheet homeroom resolution: Prevents orphaned empty login rows from being created when students pick the wrong class dropdown
+ * - Authoritative deduplication in `get_class_progress`: Empty login placeholders can NEVER clobber real student work
+ * - Year-long multi-assignment scale (Append-only Submissions_Log ledger)
+ * - Automatic Visual Gradebook Columns in Class Sheets
  * - 3-Letter PIN + First Name verification
- * - Cross-device persistence (Intake, Diagnostic & "WHERE" profile)
+ * - Cross-device persistence
  * - Dedicated Locker & Combination Master Sync (`Lockers_902` tab)
  */
 
@@ -15,22 +22,56 @@ function getSheetForClass(ss, className) {
   if (!sheet) {
     sheet = ss.insertSheet(cleanName);
     sheet.appendRow([
-      'PIN',                     // A
-      'Student Name',           // B
-      'Section',                // C
-      'GNSPES Email',           // D
-      'Pronouns',               // E
-      'Task / Stage',           // F
-      'Submission Data (JSON)', // G
-      'Formatted Summary',      // H
-      'Last Updated'            // I
+      'PIN',                     // A (1)
+      'Student Name',           // B (2)
+      'Section',                // C (3)
+      'GNSPES Email',           // D (4)
+      'Pronouns',               // E (5)
+      'Task / Stage',           // F (6)
+      'Submission Data (JSON)', // G (7)
+      'Formatted Summary',      // H (8)
+      'Last Updated'            // I (9)
     ]);
     sheet.getRange("A1:I1").setFontWeight("bold").setBackground('#f1f5f9');
     sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 70);
     sheet.setColumnWidth(2, 160);
     sheet.setColumnWidth(4, 180);
+    sheet.setColumnWidth(7, 240);
+    sheet.setColumnWidth(8, 280);
+  }
+  return sheet;
+}
+
+function getSubmissionsLogSheet(ss) {
+  const tabName = 'Submissions_Log';
+  let sheet = ss.getSheetByName(tabName);
+  if (!sheet) {
+    sheet = ss.insertSheet(tabName);
+    sheet.appendRow([
+      'Timestamp',              // A (1)
+      'Section',                // B (2)
+      'PIN',                    // C (3)
+      'Student Name',           // D (4)
+      'Task / Stage',           // E (5)
+      'Status',                 // F (6)
+      'Formatted Summary',      // G (7)
+      'Submission Data (JSON)', // H (8)
+      'GNSPES Email',           // I (9)
+      'Pronouns'                // J (10)
+    ]);
+    sheet.getRange("A1:J1").setFontWeight("bold").setBackground('#1e293b').setFontColor('#ffffff');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 160);
+    sheet.setColumnWidth(2, 70);
+    sheet.setColumnWidth(3, 70);
+    sheet.setColumnWidth(4, 160);
+    sheet.setColumnWidth(5, 220);
+    sheet.setColumnWidth(6, 100);
     sheet.setColumnWidth(7, 280);
-    sheet.setColumnWidth(8, 320);
+    sheet.setColumnWidth(8, 200);
+    sheet.setColumnWidth(9, 180);
+    sheet.setColumnWidth(10, 100);
   }
   return sheet;
 }
@@ -62,12 +103,83 @@ function getLockerSheet(ss, className) {
   return sheet;
 }
 
+function getOrCreateAssignmentColumn(sheet, taskName) {
+  const cleanTask = String(taskName || 'Assignment').trim();
+  const lastCol = Math.max(sheet.getLastColumn(), 9);
+  const headerRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  
+  // Look for existing column matching taskName
+  for (let c = 9; c < headerRow.length; c++) {
+    if (String(headerRow[c] || '').trim().toLowerCase() === cleanTask.toLowerCase()) {
+      return c + 1; // 1-indexed
+    }
+  }
+  
+  // Add new assignment column
+  const newCol = lastCol + 1;
+  sheet.getRange(1, newCol).setValue(cleanTask)
+    .setFontWeight("bold")
+    .setBackground('#e2e8f0')
+    .setFontColor('#0f172a');
+  sheet.setColumnWidth(newCol, 150);
+  return newCol;
+}
+
+/**
+ * Cross-sheet finder: searches all official class sheets for a student by PIN.
+ * Returns { sheet, rowIndex, rowData, className } or null.
+ */
+function findStudentAcrossSheets(ss, pin) {
+  const allClasses = ['901', '902', '903', '801', '802', '803', '804'];
+  const cleanPin = String(pin || '').trim().toUpperCase();
+  if (!cleanPin) return null;
+
+  let bestMatch = null;
+
+  for (let i = 0; i < allClasses.length; i++) {
+    const cls = allClasses[i];
+    const sheet = ss.getSheetByName(cls);
+    if (!sheet) continue;
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) continue;
+    const data = sheet.getRange(1, 1, lastRow, Math.max(sheet.getLastColumn(), 9)).getValues();
+
+    for (let r = 1; r < data.length; r++) {
+      if (String(data[r][0]).trim().toUpperCase() === cleanPin) {
+        let sd = {};
+        try { sd = JSON.parse(data[r][6] || '{}'); } catch(e) { sd = {}; }
+        const keyCount = Object.keys(sd).length;
+        const isNotPlaceholder = data[r][5] !== 'Active / Logged In' && data[r][7] !== 'Initial Login';
+
+        const match = {
+          sheet: sheet,
+          rowIndex: r + 1,
+          rowData: data[r],
+          className: cls,
+          keyCount: keyCount,
+          isReal: isNotPlaceholder
+        };
+
+        // If this record has real data or real task, return immediately as authoritative
+        if (match.isReal || match.keyCount > 0) {
+          return match;
+        }
+        if (!bestMatch) bestMatch = match;
+      }
+    }
+  }
+  return bestMatch;
+}
+
 function doGet(e) {
   try {
     const params = e.parameter || {};
     const action = params.action || 'login';
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
+    // ==========================================
+    // ACTION: GET LOCKERS
+    // ==========================================
     if (action === 'get_lockers') {
       const className = String(params.className || '902').trim();
       const sheet = getLockerSheet(ss, className);
@@ -90,22 +202,68 @@ function doGet(e) {
       return successJSON({ status: 'lockers_fetched', lockers: result });
     }
 
+    // ==========================================
+    // ACTION: GET CLASS LOG (Class_Log_Tracker.html — "what we did last class")
+    // Returns { entries: [...], plans: { '902-CIT': {note, classNo, updated} } }
+    // ==========================================
+    if (action === 'get_class_log') {
+      const logSheet = ss.getSheetByName('Class_Log');
+      const entries = [];
+      if (logSheet && logSheet.getLastRow() > 1) {
+        const rows = logSheet.getRange(1, 1, logSheet.getLastRow(), 7).getValues();
+        for (let i = 1; i < rows.length; i++) {
+          if (!String(rows[i][0] || '').trim()) continue;
+          entries.push({
+            date: String(rows[i][0]).trim(),          // 'YYYY-MM-DD'
+            section: String(rows[i][1]).trim(),       // e.g. '902-CIT'
+            course: String(rows[i][2]).trim(),        // e.g. 'CIT9'
+            classNo: String(rows[i][3] || '').trim(), // optional lesson number
+            did: String(rows[i][4] || ''),
+            next: String(rows[i][5] || ''),
+            timestamp: rows[i][6] || ''
+          });
+        }
+      }
+      return successJSON({ status: 'success', entries: entries, plans: readClassPlans(ss) });
+    }
+
+    // ==========================================
+    // ACTION: FAST BULK CLASS PROGRESS (With Anti-Overwrite Deduplication)
+    // ==========================================
     if (action === 'get_class_progress' || action === 'get_all_progress' || action === 'GET_ALL_PROGRESS') {
       const className = String(params.className || 'ALL').trim();
       const classesToScan = (className === 'ALL') ? ['801', '802', '803', '804', '901', '902', '903'] : [className];
-      const results = [];
+      const studentsByPin = {};
       
       for (let c = 0; c < classesToScan.length; c++) {
         const cls = classesToScan[c];
         const sheet = ss.getSheetByName(cls);
         if (!sheet) continue;
-        const rows = sheet.getDataRange().getValues();
+        const lastRow = sheet.getLastRow();
+        const lastCol = Math.max(sheet.getLastColumn(), 9);
+        if (lastRow <= 1) continue;
+        
+        const rows = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+        const headers = rows[0];
+        
         for (let i = 1; i < rows.length; i++) {
           const rowPin = String(rows[i][0] || '').trim().toUpperCase();
           if (!rowPin) continue;
+          
           let savedObj = {};
           try { savedObj = JSON.parse(rows[i][6] || '{}'); } catch(err) { savedObj = {}; }
-          results.push({
+          
+          // Collect visual gradebook assignment columns (from col 10 onwards)
+          const assignments = {};
+          for (let col = 9; col < headers.length; col++) {
+            const aName = String(headers[col] || '').trim();
+            const aVal = String(rows[i][col] || '').trim();
+            if (aName) {
+              assignments[aName] = aVal;
+            }
+          }
+          
+          const entry = {
             pin: rowPin,
             name: rows[i][1] || '',
             className: cls,
@@ -114,42 +272,126 @@ function doGet(e) {
             task: rows[i][5] || '',
             savedData: savedObj,
             summary: rows[i][7] || '',
-            lastUpdated: rows[i][8] || ''
-          });
+            lastUpdated: rows[i][8] || '',
+            assignments: assignments
+          };
+          
+          if (!studentsByPin[rowPin]) {
+            studentsByPin[rowPin] = entry;
+          } else {
+            // Merge intelligently: real work ALWAYS trumps empty placeholders
+            const prev = studentsByPin[rowPin];
+            const prevKeys = Object.keys(prev.savedData || {}).length;
+            const currKeys = Object.keys(savedObj || {}).length;
+            const prevIsPlaceholder = (prev.task === 'Active / Logged In' || prev.summary === 'Initial Login') && prevKeys === 0;
+            const currIsPlaceholder = (entry.task === 'Active / Logged In' || entry.summary === 'Initial Login') && currKeys === 0;
+
+            if (prevIsPlaceholder && !currIsPlaceholder) {
+              // Current has real data, replace placeholder completely
+              Object.assign(entry.assignments, prev.assignments);
+              studentsByPin[rowPin] = entry;
+            } else if (!prevIsPlaceholder && currIsPlaceholder) {
+              // Keep prev, just merge assignments
+              Object.assign(prev.assignments, entry.assignments);
+            } else {
+              // Both have data or both are placeholders: merge savedData & assignments safely
+              const mergedSaved = Object.assign({}, prev.savedData, savedObj);
+              const mergedAssignments = Object.assign({}, prev.assignments, entry.assignments);
+              if (currKeys > prevKeys) {
+                entry.savedData = mergedSaved;
+                entry.assignments = mergedAssignments;
+                studentsByPin[rowPin] = entry;
+              } else {
+                prev.savedData = mergedSaved;
+                prev.assignments = mergedAssignments;
+              }
+            }
+          }
         }
       }
+      
+      const results = Object.keys(studentsByPin).map(function(k) { return studentsByPin[k]; });
       return successJSON({ status: 'success', students: results, timestamp: new Date() });
     }
 
+    // ==========================================
+    // ACTION: GET STUDENT SUBMISSION HISTORY
+    // ==========================================
+    if (action === 'get_student_history') {
+      const pin = String(params.pin || '').trim().toUpperCase();
+      const logSheet = ss.getSheetByName('Submissions_Log');
+      if (!logSheet || !pin) {
+        return successJSON({ status: 'success', pin: pin, history: [] });
+      }
+      const lastRow = logSheet.getLastRow();
+      if (lastRow <= 1) {
+        return successJSON({ status: 'success', pin: pin, history: [] });
+      }
+      const rows = logSheet.getRange(1, 1, lastRow, 8).getValues();
+      const studentHistory = [];
+      for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][2] || '').trim().toUpperCase() === pin) {
+          studentHistory.push({
+            timestamp: rows[i][0],
+            className: rows[i][1],
+            pin: rows[i][2],
+            name: rows[i][3],
+            task: rows[i][4],
+            status: rows[i][5],
+            summary: rows[i][6]
+          });
+        }
+      }
+      return successJSON({ status: 'success', pin: pin, history: studentHistory });
+    }
+
+    // ==========================================
+    // ACTION: SINGLE STUDENT LOGIN / SYNC (GET)
+    // ==========================================
     const pin = String(params.pin || '').trim().toUpperCase();
     const className = String(params.className || 'General').trim();
     if (!pin) throw new Error("3-Letter PIN is required.");
 
     const sheet = getSheetForClass(ss, className);
-    const data = sheet.getDataRange().getValues();
+    const lastRow = sheet.getLastRow();
     let rowIndex = -1;
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]).trim().toUpperCase() === pin) {
-        rowIndex = i + 1;
-        break;
+    let studentRow = null;
+
+    if (lastRow > 1) {
+      const data = sheet.getRange(1, 1, lastRow, Math.max(sheet.getLastColumn(), 9)).getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim().toUpperCase() === pin) {
+          rowIndex = i + 1;
+          studentRow = data[i];
+          break;
+        }
       }
     }
 
-    if (rowIndex !== -1) {
+    // Fallback: check cross-sheet if not in current sheet
+    if (rowIndex === -1) {
+      const crossMatch = findStudentAcrossSheets(ss, pin);
+      if (crossMatch && crossMatch.rowData) {
+        studentRow = crossMatch.rowData;
+        rowIndex = crossMatch.rowIndex;
+      }
+    }
+
+    if (rowIndex !== -1 && studentRow) {
       let savedDataJSON = {};
       try {
-        savedDataJSON = JSON.parse(data[rowIndex-1][6] || '{}');
+        savedDataJSON = JSON.parse(studentRow[6] || '{}');
       } catch (err) {
         savedDataJSON = {};
       }
       return successJSON({
         isNew: false,
-        name: data[rowIndex-1][1],
-        email: data[rowIndex-1][3] || '',
-        pronouns: data[rowIndex-1][4] || '',
-        task: data[rowIndex-1][5] || '',
+        name: studentRow[1],
+        email: studentRow[3] || '',
+        pronouns: studentRow[4] || '',
+        task: studentRow[5] || '',
         savedData: savedDataJSON,
-        className: className
+        className: studentRow[2] || className
       });
     } else {
       return successJSON({
@@ -166,7 +408,11 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  // CRITICAL CONCURRENCY LOCK: Serializes simultaneous student submissions
+  const lock = LockService.getScriptLock();
   try {
+    lock.waitLock(30000); // Wait up to 30s for lock
+    
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action; 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -176,27 +422,27 @@ function doPost(e) {
     // ==========================================
     if (action === 'save_lockers') {
       const className = String(payload.className || '902').trim();
-      const lockerData = payload.lockers || []; // Array of { locker, name, id, pin, combo, notes }
+      const lockerData = payload.lockers || [];
       const sheet = getLockerSheet(ss, className);
 
-      // If full array provided, rewrite cleanly from row 2
       if (Array.isArray(lockerData) && lockerData.length > 0) {
-        // Clear old rows below header
         const lastRow = sheet.getLastRow();
         if (lastRow > 1) {
           sheet.getRange(2, 1, lastRow - 1, 7).clearContent();
         }
 
         const now = new Date();
-        const rows = lockerData.map(item => [
-          item.locker,
-          item.name,
-          item.id,
-          item.pin,
-          item.combo || '',
-          item.notes || '',
-          now
-        ]);
+        const rows = lockerData.map(function(item) {
+          return [
+            item.locker,
+            item.name,
+            item.id,
+            item.pin,
+            item.combo || '',
+            item.notes || '',
+            now
+          ];
+        });
 
         sheet.getRange(2, 1, rows.length, 7).setValues(rows);
         return successJSON({ 
@@ -210,50 +456,146 @@ function doPost(e) {
     }
 
     // ==========================================
-    // ACTION: GET LOCKERS
+    // ACTION: SUBMIT CLASS LOG (Class_Log_Tracker quick-log panel)
+    // Upsert keyed on (date + section): logging the same class twice fixes it.
+    // Optional gate: set Script Property CLASS_LOG_PIN to require teacherPin.
     // ==========================================
-    else if (action === 'get_lockers') {
-      const className = String(payload.className || '902').trim();
-      const sheet = getLockerSheet(ss, className);
-      const data = sheet.getDataRange().getValues();
-      const result = {};
+    if (action === 'submit_class_log') {
+      const expectedPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (expectedPin && String(payload.teacherPin || '').trim() !== String(expectedPin)) {
+        throw new Error('Teacher PIN required for class log entries.');
+      }
+      const entry = payload.entry || {};
+      const logDate = String(entry.date || '').trim();
+      const logSection = String(entry.section || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(logDate)) throw new Error('Entry date must be YYYY-MM-DD.');
+      if (!logSection) throw new Error('Entry section is required.');
 
-      for (let i = 1; i < data.length; i++) {
-        const id = String(data[i][2]).trim();
-        if (id) {
-          result[id] = {
-            locker: data[i][0],
-            name: data[i][1],
-            id: id,
-            pin: data[i][3],
-            combo: data[i][4],
-            notes: data[i][5],
-            updated: data[i][6]
-          };
+      const sheet = getClassLogSheet(ss);
+      const now = new Date();
+      const rowValues = [
+        logDate,                                        // A Date
+        logSection,                                     // B Section (e.g. 902-CIT)
+        String(entry.course || ''),                     // C Course (e.g. CIT9)
+        String(entry.classNo || ''),                    // D Class # (optional)
+        String(entry.did || ''),                        // E What we did
+        String(entry.next || ''),                       // F Next class / reminders
+        now                                             // G Timestamp
+      ];
+
+      // Upsert: replace any existing row with the same date+section
+      const lastRow = sheet.getLastRow();
+      let targetRow = -1;
+      if (lastRow > 1) {
+        const data = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
+        for (let r = 0; r < data.length; r++) {
+          if (String(data[r][0]).trim() === logDate && String(data[r][1]).trim() === logSection) {
+            targetRow = r + 2;
+            break;
+          }
         }
       }
+      if (targetRow !== -1) {
+        sheet.getRange(targetRow, 1, 1, 7).setValues([rowValues]);
+      } else {
+        sheet.appendRow(rowValues);
+      }
 
-      return successJSON({ 
-        status: 'lockers_fetched',
-        lockers: result
+      // Keep the section's forward plan in sync: logging a class with a
+      // "next" note sets/advances the plan (classNo auto-advances by 1).
+      if (String(entry.next || '').trim()) {
+        writeClassPlan(ss, logSection, String(entry.next).trim(),
+          /^\d+$/.test(String(entry.classNo || '').trim()) ? String(Number(entry.classNo) + 1) : null);
+      }
+
+      return successJSON({
+        status: targetRow !== -1 ? 'class_log_updated' : 'class_log_saved',
+        date: logDate,
+        section: logSection
       });
+    }
+
+    // ==========================================
+    // ACTION: SET CLASS PLAN (change direction without logging a class)
+    // payload: { section, note, classNo } — empty note clears the plan.
+    // ==========================================
+    if (action === 'set_class_plan') {
+      const expectedPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (expectedPin && String(payload.teacherPin || '').trim() !== String(expectedPin)) {
+        throw new Error('Teacher PIN required for class log entries.');
+      }
+      const planSection = String(payload.section || '').trim();
+      if (!planSection) throw new Error('Section is required.');
+      const note = String(payload.note || '').trim();
+      if (note) {
+        writeClassPlan(ss, planSection, note, String(payload.classNo || '').trim() || null);
+      } else {
+        clearClassPlan(ss, planSection);
+      }
+      return successJSON({ status: 'class_plan_set', section: planSection });
+    }
+
+    // ==========================================
+    // ACTION: DELETE CLASS LOG ROW (fix test rows / mistakes)
+    // payload: { date, section }
+    // ==========================================
+    if (action === 'delete_class_log') {
+      const expectedPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (expectedPin && String(payload.teacherPin || '').trim() !== String(expectedPin)) {
+        throw new Error('Teacher PIN required for class log entries.');
+      }
+      const delDate = String(payload.date || '').trim();
+      const delSection = String(payload.section || '').trim();
+      const sheet = ss.getSheetByName('Class_Log');
+      if (!sheet || sheet.getLastRow() <= 1) {
+        return successJSON({ status: 'class_log_deleted', removed: 0 });
+      }
+      const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
+      let removed = 0;
+      for (let r = data.length - 1; r >= 0; r--) {
+        if (String(data[r][0]).trim() === delDate && String(data[r][1]).trim() === delSection) {
+          sheet.deleteRow(r + 2);
+          removed++;
+        }
+      }
+      return successJSON({ status: 'class_log_deleted', removed: removed });
     }
 
     // ==========================================
     // DEFAULT STUDENT WORKFLOW ACTIONS
     // ==========================================
     const pin = String(payload.pin || '').trim().toUpperCase();
-    const className = String(payload.className || 'General').trim();
+    let className = String(payload.className || 'General').trim();
     
     if (!pin) throw new Error("3-Letter PIN is required.");
 
-    const sheet = getSheetForClass(ss, className);
-    const data = sheet.getDataRange().getValues();
+    // Check if student exists in the targeted sheet
+    let sheet = getSheetForClass(ss, className);
+    let lastRow = sheet.getLastRow();
+    let lastCol = Math.max(sheet.getLastColumn(), 9);
     let rowIndex = -1;
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]).trim().toUpperCase() === pin) {
-        rowIndex = i + 1;
-        break;
+    let studentRow = null;
+
+    if (lastRow > 1) {
+      const data = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim().toUpperCase() === pin) {
+          rowIndex = i + 1;
+          studentRow = data[i];
+          break;
+        }
+      }
+    }
+
+    // If not in targeted sheet, check if student already exists in another class sheet
+    if (rowIndex === -1) {
+      const crossMatch = findStudentAcrossSheets(ss, pin);
+      if (crossMatch && crossMatch.rowData) {
+        sheet = crossMatch.sheet;
+        rowIndex = crossMatch.rowIndex;
+        studentRow = crossMatch.rowData;
+        className = crossMatch.className;
+        lastCol = Math.max(sheet.getLastColumn(), 9);
       }
     }
 
@@ -261,14 +603,14 @@ function doPost(e) {
     if (action === 'login') {
       const name = (payload.name || '').trim();
       
-      if (rowIndex !== -1) {
-        const savedName = data[rowIndex-1][1];
-        const savedEmail = data[rowIndex-1][3];
-        const savedPronouns = data[rowIndex-1][4];
-        const savedTask = data[rowIndex-1][5];
+      if (rowIndex !== -1 && studentRow) {
+        const savedName = studentRow[1];
+        const savedEmail = studentRow[3];
+        const savedPronouns = studentRow[4];
+        const savedTask = studentRow[5];
         let savedDataJSON = {};
         try {
-          savedDataJSON = JSON.parse(data[rowIndex-1][6] || '{}');
+          savedDataJSON = JSON.parse(studentRow[6] || '{}');
         } catch (err) {
           savedDataJSON = {};
         }
@@ -305,43 +647,76 @@ function doPost(e) {
       }
     }
     
-    // --- ACTION: SUBMIT / SAVE PROFILE & ASSIGNMENT ---
+    // --- ACTION: SUBMIT / SAVE PROFILE & ASSIGNMENT (Resilient Multi-Task Ledger) ---
     else if (action === 'submit_profile' || action === 'submit_assignment' || action === 'submit_diagnostic') {
       const taskName = payload.taskName || 'Intake & Diagnostic Profile';
       const studentName = (payload.name || '').trim();
       const email = (payload.email || '').trim();
       const pronouns = (payload.pronouns || '').trim();
       const summary = payload.summary || '';
-      
-      // Preserve existing assignment data rather than overwriting
+      const now = new Date();
+      const rawPayloadData = payload.data || {};
+
+      // 1. IMMUTABLE APPEND TO CENTRAL SUBMISSIONS_LOG (Unlimited scale, permanent audit trail)
+      const logSheet = getSubmissionsLogSheet(ss);
+      logSheet.appendRow([
+        now,
+        className,
+        pin,
+        studentName,
+        taskName,
+        'Submitted',
+        summary,
+        JSON.stringify(rawPayloadData),
+        email,
+        pronouns
+      ]);
+
+      // 2. PRESERVE & MERGE STUDENT ROSTER ROW
       let existingData = {};
-      if (rowIndex !== -1) {
+      if (rowIndex !== -1 && studentRow) {
         try {
-          existingData = JSON.parse(data[rowIndex-1][6] || '{}');
+          existingData = JSON.parse(studentRow[6] || '{}');
         } catch (err) {
           existingData = {};
         }
       }
 
-      // Merge current payload data with past submissions
-      const mergedData = Object.assign({}, existingData, payload.data || {});
+      // Deep merge: Start with existing data
+      const mergedData = Object.assign({}, existingData);
+      mergedData.name = studentName || mergedData.name || '';
+      mergedData.pin = pin;
+      mergedData.className = className;
+      if (email) mergedData.email = email;
+      if (pronouns) mergedData.pronouns = pronouns;
+
+      // Copy all fields from rawPayloadData into mergedData (skip _tasks to avoid double nesting)
+      for (let k in rawPayloadData) {
+        if (rawPayloadData.hasOwnProperty(k) && k !== '_tasks') {
+          mergedData[k] = rawPayloadData[k];
+        }
+      }
+
+      // CRITICAL TASK ISOLATION: Store complete task payload in dedicated namespace
       if (!mergedData._tasks) mergedData._tasks = {};
       mergedData._tasks[taskName] = {
-        updated: new Date(),
+        updated: now,
         summary: summary,
-        data: payload.data
+        status: 'submitted',
+        data: rawPayloadData
       };
 
-      const rawData = JSON.stringify(mergedData);
+      const rawDataString = JSON.stringify(mergedData);
       
+      // 3. UPDATE CLASS ROSTER ROW
       if (rowIndex !== -1) {
         if (studentName) sheet.getRange(rowIndex, 2).setValue(studentName);
         if (email) sheet.getRange(rowIndex, 4).setValue(email);
         if (pronouns) sheet.getRange(rowIndex, 5).setValue(pronouns);
         sheet.getRange(rowIndex, 6).setValue(taskName);
-        sheet.getRange(rowIndex, 7).setValue(rawData);
+        sheet.getRange(rowIndex, 7).setValue(rawDataString);
         sheet.getRange(rowIndex, 8).setValue(summary);
-        sheet.getRange(rowIndex, 9).setValue(new Date());
+        sheet.getRange(rowIndex, 9).setValue(now);
       } else {
         sheet.appendRow([
           pin,
@@ -350,16 +725,27 @@ function doPost(e) {
           email,
           pronouns,
           taskName,
-          rawData,
+          rawDataString,
           summary,
-          new Date()
+          now
         ]);
+        rowIndex = sheet.getLastRow();
+      }
+
+      // 4. WRITE TO VISUAL GRADEBOOK ASSIGNMENT COLUMN
+      try {
+        const assignmentCol = getOrCreateAssignmentColumn(sheet, taskName);
+        const tz = ss.getSpreadsheetTimeZone() || "America/Halifax";
+        const dateStamp = Utilities.formatDate(now, tz, "MMM d");
+        sheet.getRange(rowIndex, assignmentCol).setValue("✅ " + dateStamp);
+      } catch (colErr) {
+        // Fallback gracefully if sheet structure restricts column additions
       }
       
       return successJSON({ 
         status: 'submitted_successfully',
         task: taskName,
-        timestamp: new Date()
+        timestamp: now
       });
     }
     
@@ -370,6 +756,8 @@ function doPost(e) {
   } catch(error) {
     return ContentService.createTextOutput(JSON.stringify({ 'status': 'error', 'message': error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    try { lock.releaseLock(); } catch(e) {}
   }
 }
 
@@ -377,6 +765,95 @@ function successJSON(data) {
   data.status = 'success';
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Class_Plan tab — the per-section forward plan ("what's next"), editable at
+ * any time without logging a class ("change direction"). One row per section:
+ * A Section | B NextNote | C ClassNoNext (optional override) | D Updated
+ */
+function getClassPlanSheet(ss) {
+  let sheet = ss.getSheetByName('Class_Plan');
+  if (!sheet) {
+    sheet = ss.insertSheet('Class_Plan');
+    sheet.appendRow(['Section', 'Next Note', 'Next Class #', 'Updated']);
+    sheet.getRange("A1:D1").setFontWeight("bold").setBackground('#f1f5f9');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(2, 360);
+  }
+  return sheet;
+}
+
+function readClassPlans(ss) {
+  const plans = {};
+  const sheet = ss.getSheetByName('Class_Plan');
+  if (!sheet || sheet.getLastRow() <= 1) return plans;
+  const rows = sheet.getRange(1, 1, sheet.getLastRow(), 4).getValues();
+  for (let i = 1; i < rows.length; i++) {
+    const section = String(rows[i][0] || '').trim();
+    if (!section) continue;
+    plans[section] = {
+      note: String(rows[i][1] || ''),
+      classNo: String(rows[i][2] || '').trim(),
+      updated: rows[i][3] || ''
+    };
+  }
+  return plans;
+}
+
+function writeClassPlan(ss, section, note, classNo) {
+  const sheet = getClassPlanSheet(ss);
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    const sections = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (let r = 0; r < sections.length; r++) {
+      if (String(sections[r][0]).trim() === section) {
+        const row = sheet.getRange(r + 2, 1, 1, 4).getValues()[0];
+        sheet.getRange(r + 2, 2).setValue(note);
+        if (classNo) sheet.getRange(r + 2, 3).setValue(String(classNo));
+        sheet.getRange(r + 2, 4).setValue(new Date());
+        return;
+      }
+    }
+  }
+  sheet.appendRow([section, note, classNo ? String(classNo) : '', new Date()]);
+}
+
+function clearClassPlan(ss, section) {
+  const sheet = ss.getSheetByName('Class_Plan');
+  if (!sheet || sheet.getLastRow() <= 1) return;
+  const sections = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  for (let r = sections.length - 1; r >= 0; r--) {
+    if (String(sections[r][0]).trim() === section) {
+      sheet.deleteRow(r + 2);
+      return;
+    }
+  }
+}
+
+/**
+ * Class_Log tab — teacher's "what we did / what's next" tracker
+ * (Class_Log_Tracker.html). Created on first write.
+ */
+function getClassLogSheet(ss) {
+  let sheet = ss.getSheetByName('Class_Log');
+  if (!sheet) {
+    sheet = ss.insertSheet('Class_Log');
+    sheet.appendRow([
+      'Date',       // A (YYYY-MM-DD)
+      'Section',    // B (e.g. 902-CIT)
+      'Course',     // C (e.g. CIT9)
+      'Class #',    // D (optional lesson number)
+      'What We Did',// E
+      'Next Class', // F (what's next / reminders)
+      'Timestamp'   // G
+    ]);
+    sheet.getRange("A1:G1").setFontWeight("bold").setBackground('#f1f5f9');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(5, 320);
+    sheet.setColumnWidth(6, 320);
+  }
+  return sheet;
 }
 
 function doOptions(e) {
