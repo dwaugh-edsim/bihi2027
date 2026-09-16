@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Waugh — Teaching Schedule · 10-Day Cycle (A4 Landscape)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    @page { size: A4 landscape; margin: 0; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: #52525b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0 30px 0;
+        color: #000000;
+    }
+
+    .print-bar {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #18181b;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+    .print-bar button {
+        font-family: 'Roboto Slab', serif;
+        font-size: 0.95rem;
+        font-weight: 800;
+        padding: 8px 20px;
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .sheet {
+        width: 297mm;
+        height: 210mm;
+        background: #ffffff;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+        padding: 7mm 8mm;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .doc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 3px solid #000000;
+        padding-bottom: 2mm;
+        margin-bottom: 2.5mm;
+    }
+    .doc-title {
+        font-family: 'Roboto Slab', serif;
+        font-size: 17pt;
+        font-weight: 900;
+        letter-spacing: 0.01em;
+    }
+    .doc-title .room { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
+    .doc-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8.5pt;
+        font-weight: 700;
+        text-align: right;
+        line-height: 1.35;
+    }
+
+    /* ── Homeroom strip ── */
+    .hr-strip {
+        display: flex;
+        align-items: center;
+        gap: 4mm;
+        border: 1.5px solid #000000;
+        background: #e4e4e7;
+        font-size: 8.5pt;
+        font-weight: 700;
+        padding: 1.2mm 3mm;
+        margin-bottom: 2.5mm;
+    }
+    .hr-strip .hr-time { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
+
+    /* ── Grid table ── */
+    table.grid {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .grid col.time-col { width: 27mm; }
+    .grid col.week1-divider { width: 0; border-left: none; }
+
+    .grid th, .grid td {
+        border: 1.4px solid #000000;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .grid thead th {
+        font-family: 'Inter', sans-serif;
+        font-size: 8.5pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        background: #d4d4d8;
+        padding: 1.6mm 0;
+        line-height: 1.2;
+    }
+    .grid thead th .cycle {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7pt;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+    }
+    .grid thead th.time-head { background: #ffffff; }
+
+    .grid td.time-cell {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7.6pt;
+        font-weight: 800;
+        background: #f4f4f5;
+        line-height: 1.25;
+        padding: 1mm 0;
+    }
+    .grid td.time-cell .p-tag {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 7.5pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .grid td.slot { padding: 0; height: 27mm; }
+    .grid td.slot .code {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5pt;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+    }
+    .grid td.slot .sub {
+        display: block;
+        font-size: 6.8pt;
+        font-weight: 600;
+        color: #3f3f46;
+        margin-top: 0.6mm;
+    }
+
+    /* 902 homeroom classes: thick inner ring */
+    .grid td.slot.mine { box-shadow: inset 0 0 0 1.1mm #000000; background: #f4f4f5; }
+    .grid td.slot.mine .code { font-size: 11pt; }
+
+    /* PREP */
+    .grid td.slot.prep { background: #f4f4f5; }
+    .grid td.slot.prep .code { font-style: italic; font-weight: 700; color: #52525b; letter-spacing: 0.14em; }
+
+    /* Support periods */
+    .grid td.slot.support { background: #e4e4e7; }
+    .grid td.slot.support .code { font-style: italic; }
+    .grid td.slot.support .sub { font-style: italic; }
+
+    /* Lunch row */
+    .grid td.lunch {
+        background: #d4d4d8;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5pt;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        padding: 1mm 0;
+        height: 9mm;
+    }
+    .grid td.time-cell.lunch-time { background: #d4d4d8; }
+
+    /* Week 2 divider: heavier line between Fri(Day 5) and Mon(Day 6) */
+    .grid .wk-div { border-left: 3px solid #000000; }
+
+    /* ── Legend / footer ── */
+    .legend {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 4mm;
+        border-top: 2px solid #000000;
+        margin-top: auto;
+        padding-top: 1.6mm;
+        font-size: 7.6pt;
+        font-weight: 600;
+        color: #000000;
+    }
+    .legend .keys { display: flex; gap: 4mm; flex-wrap: wrap; }
+    .legend .k { display: flex; align-items: center; gap: 1.6mm; }
+    .legend .swatch {
+        width: 5.5mm; height: 4mm;
+        border: 1.2px solid #000000;
+        flex-shrink: 0;
+    }
+    .legend .swatch.prep { background: #f4f4f5; }
+    .legend .swatch.support { background: #e4e4e7; }
+    .legend .swatch.mine { box-shadow: inset 0 0 0 0.8mm #000000; background: #ffffff; }
+    .legend .bells { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; line-height: 1.35; }
+
+    /* ── Print ── */
+    @media print {
+        body { background: #ffffff !important; padding: 0 !important; display: block !important; }
+        .print-bar { display: none !important; }
+        .sheet { box-shadow: none !important; width: 297mm !important; height: 209mm !important; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+    <span>🖨️ A4 Landscape · black &amp; white / photocopy safe · bold ring = your 902 homeroom classes</span>
+    <button onclick="window.print()">Print</button>
+</div>
+
+<div class="sheet">
+    <div class="doc-header">
+        <div class="doc-title">MR. WAUGH <span class="room">· ROOM 8</span> — TEACHING SCHEDULE</div>
+        <div class="doc-sub">10-DAY CYCLE &bull; 2-WEEK ROTATION<br>2026&ndash;2027 &bull; BICENTENNIAL JUNIOR HIGH</div>
+    </div>
+
+    <div class="hr-strip">
+        <span class="hr-time">8:55 &ndash; 9:05 AM</span>
+        <span>HOMEROOM — 902 (Room 8) &bull; Attendance &amp; Announcements, every day</span>
+    </div>
+
+    <table class="grid">
+        <colgroup>
+            <col class="time-col">
+            <col><col><col><col><col class="wk-div"><col><col><col><col><col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="time-head">Time</th>
+                <th>MON <span class="cycle">DAY 1 &bull; WK 1</span></th>
+                <th>TUE <span class="cycle">DAY 2 &bull; WK 1</span></th>
+                <th>WED <span class="cycle">DAY 3 &bull; WK 1</span></th>
+                <th>THU <span class="cycle">DAY 4 &bull; WK 1</span></th>
+                <th class="wk-div">FRI <span class="cycle">DAY 5 &bull; WK 1</span></th>
+                <th>MON <span class="cycle">DAY 6 &bull; WK 2</span></th>
+                <th>TUE <span class="cycle">DAY 7 &bull; WK 2</span></th>
+                <th>WED <span class="cycle">DAY 8 &bull; WK 2</span></th>
+                <th>THU <span class="cycle">DAY 9 &bull; WK 2</span></th>
+                <th>FRI <span class="cycle">DAY 10 &bull; WK 2</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="time-cell"><span class="p-tag">P1</span>9:05&ndash;10:05</td>
+                <td class="slot"><span class="code">803 HE</span></td>
+                <td class="slot mine"><span class="code">902 HL</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">804 HE</span></td>
+                <td class="slot"><span class="code">901 HL</span></td>
+                <td class="slot wk-div"><span class="code">801 HE</span></td>
+                <td class="slot"><span class="code">903 HL</span></td>
+                <td class="slot"><span class="code">803 HE</span></td>
+                <td class="slot"><span class="code">903 CIT</span></td>
+                <td class="slot"><span class="code">901 CIT</span></td>
+                <td class="slot"><span class="code">804 HE</span></td>
+            </tr>
+            <tr>
+                <td class="time-cell"><span class="p-tag">P2</span>10:05&ndash;11:05</td>
+                <td class="slot"><span class="code">801 HE</span></td>
+                <td class="slot prep"><span class="code">PREP</span></td>
+                <td class="slot"><span class="code">802 HE</span></td>
+                <td class="slot mine"><span class="code">902 CIT</span><span class="sub">Room 8</span></td>
+                <td class="slot wk-div mine"><span class="code">9 ILT</span><span class="sub">Room 8</span></td>
+                <td class="slot prep"><span class="code">PREP</span></td>
+                <td class="slot prep"><span class="code">PREP</span></td>
+                <td class="slot"><span class="code">803 HE</span></td>
+                <td class="slot"><span class="code">804 HE</span></td>
+                <td class="slot mine"><span class="code">9 ILT</span><span class="sub">Room 8</span></td>
+            </tr>
+            <tr>
+                <td class="time-cell"><span class="p-tag">P3</span>11:05&ndash;12:05</td>
+                <td class="slot mine"><span class="code">902 CIT</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">8 ILT</span></td>
+                <td class="slot prep"><span class="code">PREP</span></td>
+                <td class="slot"><span class="code">903 HL</span></td>
+                <td class="slot wk-div prep"><span class="code">PREP</span></td>
+                <td class="slot support"><span class="code">SUPPORT 704</span><span class="sub">ELA push-in &bull; Rm 704</span></td>
+                <td class="slot"><span class="code">901 HL</span></td>
+                <td class="slot mine"><span class="code">802 HE</span><span class="sub">Room 8</span></td>
+                <td class="slot prep"><span class="code">PREP</span></td>
+                <td class="slot"><span class="code">903 CIT</span></td>
+            </tr>
+            <tr>
+                <td class="time-cell lunch-time">12:05&ndash;1:00</td>
+                <td class="lunch" colspan="10">L U N C H</td>
+            </tr>
+            <tr>
+                <td class="time-cell"><span class="p-tag">P4</span>1:05&ndash;2:05</td>
+                <td class="slot"><span class="code">901 CIT</span></td>
+                <td class="slot"><span class="code">903 CIT</span></td>
+                <td class="slot"><span class="code">901 CIT</span></td>
+                <td class="slot"><span class="code">903 CIT</span></td>
+                <td class="slot wk-div"><span class="code">7 ILT</span></td>
+                <td class="slot"><span class="code">901 HL</span></td>
+                <td class="slot mine"><span class="code">802 HE</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">901 CIT</span></td>
+                <td class="slot"><span class="code">801 HE</span></td>
+                <td class="slot mine"><span class="code">902 CIT</span><span class="sub">Room 8</span></td>
+            </tr>
+            <tr>
+                <td class="time-cell"><span class="p-tag">P5</span>2:05&ndash;3:05</td>
+                <td class="slot"><span class="code">903 CIT</span></td>
+                <td class="slot"><span class="code">803 HE</span></td>
+                <td class="slot mine"><span class="code">902 HL</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">901 CIT</span></td>
+                <td class="slot wk-div support"><span class="code">SUPPORT / PREP</span></td>
+                <td class="slot mine"><span class="code">902 CIT</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">903 HL</span></td>
+                <td class="slot mine"><span class="code">902 CIT</span><span class="sub">Room 8</span></td>
+                <td class="slot mine"><span class="code">902 HL</span><span class="sub">Room 8</span></td>
+                <td class="slot"><span class="code">7 ILT</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="legend">
+        <div class="keys">
+            <span class="k"><span class="swatch mine"></span><strong>Bold ring</strong> = 902 Homeroom class (Room 8)</span>
+            <span class="k"><span class="swatch prep"></span><em>PREP</em> = Prep period</span>
+            <span class="k"><span class="swatch support"></span><em>Support</em> = 704 ELA push-in (Rm 704)</span>
+            <span class="k">HE = Healthy Living 8 &bull; CIT = Citizenship 9 &bull; HL = Healthy Living 9 &bull; ILT = Inquiry/Tech</span>
+        </div>
+        <div class="bells">HR 8:55 &bull; LUNCH 12:05&ndash;1:00 &bull; DISMISSAL 3:05</div>
+    </div>
+</div>
+
+</body>
+</html>
