@@ -90,6 +90,37 @@ function doGet(e) {
       return successJSON({ status: 'lockers_fetched', lockers: result });
     }
 
+    if (action === 'get_class_progress' || action === 'get_all_progress' || action === 'GET_ALL_PROGRESS') {
+      const className = String(params.className || 'ALL').trim();
+      const classesToScan = (className === 'ALL') ? ['801', '802', '803', '804', '901', '902', '903'] : [className];
+      const results = [];
+      
+      for (let c = 0; c < classesToScan.length; c++) {
+        const cls = classesToScan[c];
+        const sheet = ss.getSheetByName(cls);
+        if (!sheet) continue;
+        const rows = sheet.getDataRange().getValues();
+        for (let i = 1; i < rows.length; i++) {
+          const rowPin = String(rows[i][0] || '').trim().toUpperCase();
+          if (!rowPin) continue;
+          let savedObj = {};
+          try { savedObj = JSON.parse(rows[i][6] || '{}'); } catch(err) { savedObj = {}; }
+          results.push({
+            pin: rowPin,
+            name: rows[i][1] || '',
+            className: cls,
+            email: rows[i][3] || '',
+            pronouns: rows[i][4] || '',
+            task: rows[i][5] || '',
+            savedData: savedObj,
+            summary: rows[i][7] || '',
+            lastUpdated: rows[i][8] || ''
+          });
+        }
+      }
+      return successJSON({ status: 'success', students: results, timestamp: new Date() });
+    }
+
     const pin = String(params.pin || '').trim().toUpperCase();
     const className = String(params.className || 'General').trim();
     if (!pin) throw new Error("3-Letter PIN is required.");
