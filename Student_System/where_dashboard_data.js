@@ -22,9 +22,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "Substance Literacy, Vaping & Harm Reduction (HL8 Outcome 6)": "Brief"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udcca Personal Data Logs & Tracking",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "📊 Personal Data Logs & Tracking",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "Posters and slideshows.",
     "real_questions": ".",
@@ -38,94 +38,96 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     "pin": "CAB",
     "name": "Clara",
     "class": "901",
-    "updated_at": "2026-09-10T13:04:52.037Z",
+    "updated_at": "2026-09-16T14:56:55.162903Z",
+    "submission_source": "submitted in Google Classroom",
     "p1": {
-      "title": "Parlee Beach Shediac NB",
-      "desc": "This place is important to me, I have been going to parlee Beach since I was around 2 years old and we go with 3 other familys. These three familys that we go with I don't see them most of the year, so the 4 days I spend with them in Shadiac are very important to me.",
-      "img": "https://images.trvl-media.com/place/6195650/082e133b-94a4-476c-b1fe-98a46b4362b3.jpg",
+      "title": "Parlee Beach, Shediac NB",
+      "desc": "Parlee Beach Shediac is very important to me. Every summer I go here with 3 other familys, and we have been going since i was around 2. These 3 other familys i don’t get to see alot the rest of the year. So the 4 days that we speed in Parlee is very special.",
       "coords": [
-        44.6655,
-        -63.5677
-      ]
+        46.2333,
+        -64.5167
+      ],
+      "img": ""
     },
     "p2": {
-      "title": "South Dale School.",
-      "desc": "South Dale School used   to be a elmentry school. I went there for half of my grade primary year. Why this school is important to me is that this school was the start of an acidemic journey, and a very important friendship(Even when she accused me of stealing a headband) I also used to play at the playground all the time when I was younger.",
-      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEg6bJQ0surzm5TbmKDl4x_c5P9mYLnIk0cJq0aVJ0AKd1E6Kufcv7LQcW&s=10",
+      "title": "Southdale School, Dartmouth NS",
+      "desc": "Southdale was my first school that I ever went to. Its very important to me because it is the pace i started my academic journey. I went there for grade primary with a very close friend that i am still close to to the day. I also used to play at the playground down there all the time when i was younger, and i have very fond memories from then.",
       "coords": [
         44.668,
         -63.57
-      ]
+      ],
+      "img": ""
     },
     "p3": {
-      "title": "Guelph Ontario",
-      "desc": "Guelph Ontarion is a place I have never been, but this is the place I was born. I found that it was important that I put it down, because this is the place my parents had lived for many years, till having me. We moved back to NS before my 1st birthday and have lived here ever since.",
-      "img": "https://d1l57x9nwbbkz.cloudfront.net/files/s3fs-public/2025-04/aerial-basilica-guelph-ontario-cityscape.jpg?VersionId=f7OU5sCqwvdF3F.kByMb.lV9qQdERk8w",
+      "title": "Guelph, Ontario",
+      "desc": "Guelph is a place that i don’t remember going to, bur its actually where i was born! I think this place is important to me my parents had lived in Guelph for many years, and made a home. But when they had me they moved us back to Halifax before i even turned 1, so that we could be close to my family. So thats why Guelph is important to me.",
       "coords": [
-        14.5995,
-        120.9842
-      ]
+        43.5448,
+        -80.2482
+      ],
+      "img": ""
     },
     "p4": {
       "title": "Greece",
-      "desc": "I want to go to Greece because my parents went to Greece for there honeymoon, but also because it is a very very beutiful place to visit. I have a friends that went there to, and she said it was so pretty and whimsical. I have heard so many Greek myths and stories, and I want to experience first hand the magic that comes from Greece.",
-      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNqnYooRPqLS71Q03iFo30XFkL8cVt7_237WJfb1HV-XOzumSBxK-nkyw&s=10",
+      "desc": "Ive always wanted to go to Greece, my parents went there for there honey moon and said it was really beautiful , and I have a few friends there that said they loved it and would totally go back, so thats why I want to go there.",
       "coords": [
-        37.83690319650765,
-        381.6878954599195
-      ]
+        39.0742,
+        21.8243
+      ],
+      "img": ""
     },
     "p5": {
-      "title": "",
-      "desc": "",
-      "yt": ""
+      "title": "Yellow Submarine by The Beatles",
+      "desc": "I chose this song beacause when i wasyounger and didn’t have a phone i had this really old ipod that belonged to my grampy. But the thing is the ipod was broken so there was really only around 5 songs i could listen to, and one of the was Yellow Submarine. This song was my favourite one out of all of them so i was constantly listening to it on repeat. So thats why i chose this song.",
+      "yt": "https://www.youtube.com/watch?v=m2uTFF_3MaA"
     }
   },
   "NVB": {
     "pin": "NVB",
     "name": "Nova",
     "class": "901",
-    "updated_at": "2026-09-10T13:05:47.836Z",
+    "updated_at": "2026-09-16T14:56:55.162903Z",
+    "submission_source": "submitted in Google Classroom",
     "p1": {
-      "title": "66 Jacksons point, my family cottage. Tidnish, Nova Scotia.",
-      "desc": "I have been going to my cottage for as long as I can remember. My father's parents used to own it and we would go up with them, at that time the cottage wasn't really all that nice, with vinyl floors and a rotting deck. My grandparents have since passed, my dad inherited the property, my family has put a lot of work into making a nice summer oasis. Every year we go up for  two months in the summer, it's basically my second home. ( That is a picture of our beach, across the water is New Brunswick )I have been going to my cottage for as long as I can remember. My father's parents used to own it and we would go up with them, at that time the cottage wasn't really all that nice, with vinyl floors and a rotting deck. My grandparents have since passed, my dad inherited the property, my family has put a lot of work into making a nice summer oasis. Every year we go up for  two months in the summer, it's basically my second home. ( That is a picture of our beach, across the water is New Brunswick )",
-      "img": "https://data.remaxnova.com/propimages/202602617-4e024576-bfec-4764-88b8-8319e29e3c1c.jpg?1781805402500",
+      "title": "66 Jacksons Point, Tidnish NS",
+      "desc": "I have been going to my cottage for as long as I can remember. My father's parents used to own it and we would go up with them, at that time the cottage wasn't really all that nice, with vinyl floors and a rotting deck. My grandparents have since passed, my dad inherited the property, my family has put a lot of work into making a nice summer oasis. Every year we go up for two months in the summer, it's basically my second home. (That is a picture of our beach, across the water is New Brunswick)",
       "coords": [
-        45.99752736622854,
-        -64.0373083198811
-      ]
+        45.9975,
+        -64.0373
+      ],
+      "img": ""
     },
     "p2": {
-      "title": "Pine street playground, Dartmouth, Nova Scotia.",
+      "title": "Pine Street Playground, Dartmouth NS",
       "desc": "Pine street playground, a place I would go almost every week. I live on Maple St. and have lived there my whole life. My sisters and I would go down to the playground with our scooters, but we didn't stop there, at the back of the playground is caged in tennis court, though it was never used as a tennis court. People in my neighbourhood used it as a mini skate park. Me and my sisters would scoot around and try to go up the wooden ramps people had brought. There is one very specific memory of Pine st. playground, it's encapsulated in a photo. The photo is of my dad pushing me on one of the swings, I just remember feeling like I was so high, in the photo I have the biggest smile on my face.",
-      "img": "https://i0.wp.com/www.halifaxexaminer.ca/wp-content/uploads/2021/04/Pine-Street-Homemade-Gear.jpeg?fit=1024%2C768&ssl=1",
       "coords": [
-        44.67009424279875,
-        -63.566299295213845
-      ]
+        44.6701,
+        -63.5663
+      ],
+      "img": ""
     },
     "p3": {
-      "title": "Port Morien, Cape Breton, Nova Scotia.",
-      "desc": "Port Morien is a tiny fishing town in cape Breton. It is also where my Grandfather and his two sisters grew up. I didnt know my grandfather too well because he passed away when I was two, but when I go up to Port Morien it makes me feel close to him. My dad tells me about the store my great-grandfather owned ( everyone in the family just calls it grandfathers store) he would tell me about going up to visit his grandparents and about all the crazy shenanigans my grandfather would get up to when he was a kid. I love going down the old and going down to the pier to look at all the fishing boats with the wacky names. My great aunt used to own the old house that they all grew up in, but they sold it in 2009 - 2010. We own a tiny plot of land there that my grandfather had bought long ago, its too small to do anything with, but its nice to know we have some time the place. I love going there because it makes me feel close to my grampie.",
-      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL4pnBlcrqmjNlXKpWHbOcRfPZTiT5jao7iLeKAN5HqdUL30AlmqWf9TaT&s=10",
+      "title": "Port Morien, Cape Breton NS",
+      "desc": "Port Morien is a tiny fishing town in Cape Breton. It is also where my grandfather and his two sisters grew up. I didn't know my grandfather too well because he passed away when I was two, but when I go up to Port Morien it makes me feel close to him. My dad tells me about the store my great-grandfather owned (everyone in the family just calls it grandfather's store) he would tell me about going up to visit his grandparents and about all the crazy shenanigans my grandfather would get up to when he was a kid. I love going down the old pier to look at all the fishing boats with the wacky names. My great aunt used to own the old house that they all grew up in. We own a tiny plot of land there that my grandfather had bought long ago. I love going there because it makes me feel close to my grampie.",
       "coords": [
-        46.13455386556767,
-        -59.87109291057952
-      ]
+        46.1345,
+        -59.8711
+      ],
+      "img": ""
     },
     "p4": {
-      "title": "",
-      "desc": "",
-      "img": "",
+      "title": "Spain",
+      "desc": "Spain has been a bucket list trip I've had almost all my life. The idea of lying on foreign beaches with hot sand between my toes is just so appealing to me. The food there sounds amazing, the culture and language is fascinating. I would love to go with my family, we always go on a vacation once or twice a year, usually on March break. This year we went to Italy, last year was France and the year before that was Mexico. Next year I was hoping to go back to Europe and perhaps Spain, but instead we are going to Curacao. Someday though I would love to go.",
       "coords": [
-        35.6762,
-        139.6503
-      ]
+        40.4637,
+        -3.7492
+      ],
+      "img": ""
     },
     "p5": {
-      "title": "Hide away",
-      "desc": "",
-      "yt": ""
+      "title": "Hideaway by Kiesza",
+      "desc": "This song has always been nostalgic to me, my older sister would always sing and dance to it. It was her favourite song. I will always remember my sisters and I dancing in the kitchen with diapers on our head to this song. My parents would play this song in the car, in the house, anywhere! Everytime I hear it, it brings me back to simpler times. There will always be a special place in my heart for this song, and for the memories that go with it.",
+      "yt": "https://www.youtube.com/watch?v=vfrpvhVNXms"
     }
   },
   "RSB": {
@@ -369,8 +371,8 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "Substance Literacy, Vaping & Harm Reduction (HL8 Outcome 6)": "Over-Covered"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "Sleep and the teen brain",
     "real_questions": "gym nutrition",
@@ -587,10 +589,10 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "Substance Literacy, Vaping & Harm Reduction (HL8 Outcome 6)": "Deep"
     },
     "formats": [
-      "\ud83c\udfaf Interactive Case Studies & Scenarios",
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udce5 Anonymous Question Box & Real Talk",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "🎯 Interactive Case Studies & Scenarios",
+      "👥 Small-Group Problem Solving",
+      "📥 Anonymous Question Box & Real Talk",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "screens and sleep dept",
     "real_questions": "",
@@ -765,7 +767,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "yt": ""
     },
     "_tasks": {
-      "The WHERE Project \u2014 Places Portfolio": {
+      "The WHERE Project — Places Portfolio": {
         "updated": "2026-09-14T15:04:36.457Z",
         "summary": "WHERE Places Portfolio for John (902): P1: None, P2: None, P3: None, P4: None",
         "data": {
@@ -835,10 +837,10 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "healthcare_politics": "3"
     },
     "news_sources": [
-      "\ud83d\udcfb Radio / Car Radio (hourly 2-minute news updates)",
-      "\ud83c\udf10 Online News Websites & Apps (CBC News, BBC, etc.)",
-      "\ud83d\udde3\ufe0f Family / Parents talking at home",
-      "\ud83d\udc65 Friends / Classmates in person"
+      "📻 Radio / Car Radio (hourly 2-minute news updates)",
+      "🌐 Online News Websites & Apps (CBC News, BBC, etc.)",
+      "🗣️ Family / Parents talking at home",
+      "👥 Friends / Classmates in person"
     ],
     "primary_news": "friends_family",
     "news_frequency": "weekly_few",
@@ -879,9 +881,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     "personal_issue": "",
     "unlisted_issue": "",
     "formats": [
-      "\ud83d\udcdc Analyzing Real Laws & Charters",
-      "\ud83d\udca1 Collaborative Problem-Solving",
-      "\ud83d\udcdd Independent Policy Briefs"
+      "📜 Analyzing Real Laws & Charters",
+      "💡 Collaborative Problem-Solving",
+      "📝 Independent Policy Briefs"
     ],
     "teacher_note": "",
     "class": "902",
@@ -928,7 +930,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "yt": "https://www.youtube.com/watch?v=LHacDYj8KZM&list=RDLHacDYj8KZM&start_radio=1"
     },
     "_tasks": {
-      "The WHERE Project \u2014 Places Portfolio": {
+      "The WHERE Project — Places Portfolio": {
         "updated": "2026-09-14T14:49:59.699Z",
         "summary": "WHERE Places Portfolio for Gemma (902): P1: None, P2: None, P3: None, P4: None",
         "data": {
@@ -1001,7 +1003,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving"
+      "👥 Small-Group Problem Solving"
     ],
     "overdone": "posters, sleep",
     "real_questions": "whats 900000000000754675746568754865496756549674567565467464869556 as a square root",
@@ -1033,9 +1035,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "Screens, Sleep Debt & Algorithmic Feeds (HL8 Outcome 2)": "we did it but we didn't learn much about it only touched one topic"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udcca Personal Data Logs & Tracking",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "👥 Small-Group Problem Solving",
+      "📊 Personal Data Logs & Tracking",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "empathy and sympathy",
     "real_questions": "I am not sure",
@@ -1065,8 +1067,8 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "sleep",
     "real_questions": "I want to have my questions answered about burnout recovery",
@@ -1119,7 +1121,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "yt": ""
     },
     "_tasks": {
-      "The WHERE Project \u2014 Places Portfolio": {
+      "The WHERE Project — Places Portfolio": {
         "updated": "2026-09-14T15:04:36.385Z",
         "summary": "WHERE Places Portfolio for Lyla (902): P1: None, P2: None, P3: None, P4: None",
         "data": {
@@ -1192,9 +1194,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "posters and case studies as well as stuff about brain",
     "real_questions": "I don't really know",
@@ -1224,9 +1226,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83c\udfaf Interactive Case Studies & Scenarios",
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "🎯 Interactive Case Studies & Scenarios",
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "Decision-Making & Emotional Regulation,Mental Health Literacy & Stigma",
     "real_questions": "none",
@@ -1256,7 +1258,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving"
+      "👥 Small-Group Problem Solving"
     ],
     "overdone": "the brain/ sleep, mental health.",
     "real_questions": "puberty",
@@ -1407,7 +1409,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "yt": "https://encrypted-vtbn0.gstatic.com/video?q=tbn:ANd9GcTLfxVWLnLDsVgGSAn9LQBz8xlUGoQ0tt6pPA"
     },
     "_tasks": {
-      "The WHERE Project \u2014 Places Portfolio": {
+      "The WHERE Project — Places Portfolio": {
         "updated": "2026-09-14T14:54:35.918Z",
         "summary": "WHERE Places Portfolio for Jax (902): P1: banook canoe club, P2: lake banook, P3: None, P4: portugal",
         "data": {
@@ -1507,7 +1509,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "yt": "https://www.youtube.com/watch?v=mIBY-LQYkVA"
     },
     "_tasks": {
-      "The WHERE Project \u2014 Places Portfolio": {
+      "The WHERE Project — Places Portfolio": {
         "updated": "2026-09-14T14:47:21.648Z",
         "summary": "WHERE Places Portfolio for Simon (902): P1: birch cove park, P2: Maybank field, P3: Sydney cape breton, P4: spain",
         "data": {
@@ -1655,9 +1657,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83c\udfaf Interactive Case Studies & Scenarios",
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "🎯 Interactive Case Studies & Scenarios",
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "sleep ,empathy , teen brain",
     "real_questions": "high school transition",
@@ -1715,7 +1717,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving"
+      "👥 Small-Group Problem Solving"
     ],
     "overdone": "all of them were important",
     "real_questions": "idk",
@@ -1742,12 +1744,12 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "healthcare_politics": "2"
     },
     "news_sources": [
-      "\ud83d\udcf1 TikTok / Reels / Shorts (Short-form video feeds)",
-      "\ud83d\udcac Instagram Stories / DMs / Meme accounts",
-      "\ud83d\udc7b Snapchat Stories / Group chats / Discover",
-      "\ud83c\udf10 Online News Websites & Apps (CBC News, BBC, etc.)",
-      "\ud83d\udde3\ufe0f Family / Parents talking at home",
-      "\ud83d\udc65 Friends / Classmates in person"
+      "📱 TikTok / Reels / Shorts (Short-form video feeds)",
+      "💬 Instagram Stories / DMs / Meme accounts",
+      "👻 Snapchat Stories / Group chats / Discover",
+      "🌐 Online News Websites & Apps (CBC News, BBC, etc.)",
+      "🗣️ Family / Parents talking at home",
+      "👥 Friends / Classmates in person"
     ],
     "primary_news": "tiktok_reels",
     "news_frequency": "weekly_few",
@@ -1788,7 +1790,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     "personal_issue": "I would say gas prices they talk about them a lot and prices of other things.",
     "unlisted_issue": "nope",
     "formats": [
-      "\ud83c\udfae Decision Simulations & Role-Play"
+      "🎮 Decision Simulations & Role-Play"
     ],
     "teacher_note": "no",
     "email": "tay224080@gnspes.ca",
@@ -1847,7 +1849,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       },
       "Citizenship 9 Current Issues Diagnostic": {
         "updated": "2026-09-14T15:02:26.477Z",
-        "summary": "Class: 902 | 1\u00b0 News: tiktok_reels | Freq: weekly_few | Top Debate: ai_employment | Note: Yes",
+        "summary": "Class: 902 | 1° News: tiktok_reels | Freq: weekly_few | Top Debate: ai_employment | Note: Yes",
         "data": {
           "name": "Anna",
           "pin": "ANT",
@@ -1865,12 +1867,12 @@ window.ROOM8_WHERE_INITIAL_DATA = {
             "healthcare_politics": "2"
           },
           "news_sources": [
-            "\ud83d\udcf1 TikTok / Reels / Shorts (Short-form video feeds)",
-            "\ud83d\udcac Instagram Stories / DMs / Meme accounts",
-            "\ud83d\udc7b Snapchat Stories / Group chats / Discover",
-            "\ud83c\udf10 Online News Websites & Apps (CBC News, BBC, etc.)",
-            "\ud83d\udde3\ufe0f Family / Parents talking at home",
-            "\ud83d\udc65 Friends / Classmates in person"
+            "📱 TikTok / Reels / Shorts (Short-form video feeds)",
+            "💬 Instagram Stories / DMs / Meme accounts",
+            "👻 Snapchat Stories / Group chats / Discover",
+            "🌐 Online News Websites & Apps (CBC News, BBC, etc.)",
+            "🗣️ Family / Parents talking at home",
+            "👥 Friends / Classmates in person"
           ],
           "primary_news": "tiktok_reels",
           "news_frequency": "weekly_few",
@@ -1911,7 +1913,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
           "personal_issue": "I would say gas prices they talk about them a lot and prices of other things.",
           "unlisted_issue": "nope",
           "formats": [
-            "\ud83c\udfae Decision Simulations & Role-Play"
+            "🎮 Decision Simulations & Role-Play"
           ],
           "teacher_note": "no"
         }
@@ -1938,8 +1940,8 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops"
     ],
     "overdone": "Posters and the sleep topic.",
     "real_questions": "High school transition",
@@ -2157,7 +2159,7 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "evrrything",
     "real_questions": "",
@@ -2328,10 +2330,10 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udce5 Anonymous Question Box & Real Talk",
-      "\ud83e\uddea Hands-On Movement & Workshops",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "📥 Anonymous Question Box & Real Talk",
+      "🧪 Hands-On Movement & Workshops",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "Posters, slide shows, and the unit about sleep.",
     "real_questions": "I'm not sure.",
@@ -2361,9 +2363,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83c\udfaf Interactive Case Studies & Scenarios",
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "🎯 Interactive Case Studies & Scenarios",
+      "👥 Small-Group Problem Solving",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "Poster Projects and Slideshows",
     "real_questions": "What else do we learn in Citizenship Class?",
@@ -2395,8 +2397,8 @@ window.ROOM8_WHERE_INITIAL_DATA = {
       "Screens, Sleep Debt & Algorithmic Feeds (HL8 Outcome 2)": "this was boring"
     },
     "formats": [
-      "\ud83e\uddea Hands-On Movement & Workshops",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "🧪 Hands-On Movement & Workshops",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "learning about sleep",
     "real_questions": "idk.",
@@ -2426,9 +2428,9 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     },
     "matrix_comments": {},
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udce5 Anonymous Question Box & Real Talk",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "📥 Anonymous Question Box & Real Talk",
+      "🎬 Video Breakdowns & Visual Media"
     ],
     "overdone": "slide shows, sleep.",
     "real_questions": "",
@@ -2437,5 +2439,149 @@ window.ROOM8_WHERE_INITIAL_DATA = {
     "where_global": "Playing basketball, going on walks/runs",
     "where_aspirational": "listening to music, watching movies, reading, hanging out with my family.",
     "teacher_note": ""
+  },
+  "CAS": {
+    "pin": "CAS",
+    "name": "Cameo",
+    "class": "901",
+    "updated_at": "2026-09-16T14:56:55.162903Z",
+    "submission_source": "submitted in Google Classroom",
+    "p1": {
+      "title": "Lake Banook, Dartmouth NS",
+      "desc": "For my personal location I choose lake banook Because even though I don't actually paddle there I spend a lot of time there every summer . It's a great Place to go with friends, family or meet new people. I love walking around, going swimming and taking Pictures overall it's a great place and one of my favorites.",
+      "coords": [
+        44.6853,
+        -63.5574
+      ],
+      "img": ""
+    },
+    "p2": {
+      "title": "Zatzman Sportsplex, Dartmouth NS",
+      "desc": "For my community location I choose sportsplex Because I go there alot after school and with friends. I love going tere because theres so much stuff to do And you never get bored. My favoritr is when they Have open gym because you can do whatever you Want and i usually play volleyball or basketball. Overall Its a great place and very fun.",
+      "coords": [
+        44.6713,
+        -63.5786
+      ],
+      "img": ""
+    },
+    "p3": {
+      "title": "Prince Edward Island (PEI)",
+      "desc": "I choose pei because it's a big part of my Family, we have a cottage there so we go Down every summer . I love going there and Seeing all of my family because its super Fun. My favorite thing to do is go to the water p ark . I've been going there since I was around Six and I look forward to going every year.",
+      "coords": [
+        46.5107,
+        -63.4168
+      ],
+      "img": ""
+    },
+    "p4": {
+      "title": "Miami, Florida",
+      "desc": "I choose Miami as my dream vacation spot because its Super warm and tropical there. I've always wanted to Travel the world but this is one of my dream locations To go to. I love the beach so if I ever went there I would Be in the water all day everyday . All in all I would love To be able to experience going there someday.",
+      "coords": [
+        25.7617,
+        -80.1918
+      ],
+      "img": ""
+    },
+    "p5": {
+      "title": "Shake It Off by Taylor Swift",
+      "desc": "I choose this song because when I think about my childhood I think about taylor swift. I loved to listen to her especially this song. Thats why its a big part of my childhood and this song brings back so many childhood memories like listening to it in the car,house, etc .",
+      "yt": "https://www.youtube.com/watch?v=Z4A9ZZo_rAE"
+    }
+  },
+  "BRE": {
+    "pin": "BRE",
+    "name": "Brielle",
+    "class": "901",
+    "updated_at": "2026-09-16T14:56:55.162903Z",
+    "submission_source": "submitted in Google Classroom",
+    "p1": {
+      "title": "Black Rattle Lake Cottage, NS",
+      "desc": "My cottage on black rattle lake, that my family has been staying at every summer for 10+ years. I’ve spent so much time there with my cousins and family and have made so many memories here over the years. I don’t remember a time when I didn’t come here for a couple weeks in the summer, and it’s so nostalgic and sentimental to me. It’s a beautiful house on a lake and has lots of big open windows. I have thousands of memories from here and I’m sure to make many more.",
+      "coords": [
+        44.385,
+        -64.925
+      ],
+      "img": ""
+    },
+    "p2": {
+      "title": "Irish Dance Studio, Dartmouth NS",
+      "desc": "My dance studio and all of the community that surrounds it. The studio really is my second home and I spend multiple hours a week there. My coaches are all so amazing and my classmates are all super supportive. Some of my best friendships were built up here, and I always feel my best self when I’m here.",
+      "coords": [
+        44.6655,
+        -63.5677
+      ],
+      "img": ""
+    },
+    "p3": {
+      "title": "Calgary, Alberta",
+      "desc": "Calgary hold so many memories and my favourite family members live there. I’ve been to Calgary many times now, some for dance competitions, and some for family trips. We went to a wedding there in August and it was super fun and the food was amazing. I also love seeing the kids who are 2 and 4. It’s super fun connecting with the part of my family who I don’t see as often.",
+      "coords": [
+        51.0447,
+        -114.0719
+      ],
+      "img": ""
+    },
+    "p4": {
+      "title": "Ireland",
+      "desc": "I would do anything to on a trip to Ireland. Doing Irish dancing has obviously connected me a lot with Irish culture and I think it would be such an amazing experience to go to Ireland one day. There is also a large chance that I could go because of dance, if I qualify for worlds, or just decide to go to a competition. I think Ireland is such a beautiful place and it would mean everything to me to be able to go.",
+      "coords": [
+        53.1424,
+        -7.6921
+      ],
+      "img": ""
+    },
+    "p5": {
+      "title": "Shake It Off by Taylor Swift",
+      "desc": "When I was a little kid, I was completely obsessed with Shake It Off by Taylor Swift. I would listen to it all the time and knew all the lyrics by heart from a young age. Now, I can play it on the drums, and even got Mr. Traill to let us play it in band!",
+      "yt": "https://www.youtube.com/watch?v=nfWlot6h_JM"
+    }
+  },
+  "VAD": {
+    "pin": "VAD",
+    "name": "Olivia",
+    "class": "901",
+    "updated_at": "2026-09-16T14:56:55.162903Z",
+    "submission_source": "submitted in Google Classroom",
+    "p1": {
+      "title": "Truro Farmhouse, NS",
+      "desc": "Im not sure where in Truro but when i was younger my family and i would go to tim hortons then head over to Truro and go to my aunts house. I enjoyed going over because her house was like a farmhouse with animals in the front and backyard, like chicken, roosters, lambs, and goats. Me and my siblings would go in the backyard and run with the goats. Once the goats ran out the gate and we had to get the baby and mother goat back in the yard.",
+      "coords": [
+        45.3653,
+        -63.2869
+      ],
+      "img": ""
+    },
+    "p2": {
+      "title": "Zatzman Sportsplex, Dartmouth NS",
+      "desc": "My dad would take me and my siblings down to the zatzman sportsplex everyday in the summer in 2024 we would swim for hours everyday and we would meet our friends at the pool and play games in the water and go down the slides. After we would go in the hot tub but after the cold pool the hot tub is super hot like boiling i would feel like i was gonna die as i slowly got in.",
+      "coords": [
+        44.6713,
+        -63.5786
+      ],
+      "img": ""
+    },
+    "p3": {
+      "title": "Toronto, Ontario",
+      "desc": "I don't really know alot about this place but most of my family are from toronto, and always come down to stay with us for holidays.",
+      "coords": [
+        43.6532,
+        -79.3832
+      ],
+      "img": ""
+    },
+    "p4": {
+      "title": "Jamaica",
+      "desc": "I would love to go to jamaica for the pretty water that i would swim in, and when i have kids we will go there every summer or spring because its just so pretty and probably nice and warm. I would like to go to jamaica because i like how nice and pretty, blue, and crystal clear water is.",
+      "coords": [
+        18.1096,
+        -77.2975
+      ],
+      "img": ""
+    },
+    "p5": {
+      "title": "Baby by Justin Bieber ft. Ludacris",
+      "desc": "Me and my childhood friend named maddie would sing this song everyday at recess, and we would scream and run. But she moved away from the school and she tried to come back this year but i don't think she can because the principal won't give her parents a call back to be in this school.",
+      "yt": "https://www.youtube.com/watch?v=kffacxfA7G4"
+    }
   }
 };
