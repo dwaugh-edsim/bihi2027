@@ -16,13 +16,13 @@
 |---|---|---|---|
 | **LT-A:** Calculate and interpret sleep debt, social jetlag, and caffeine half-life | *Analyse the impact of sleep on youth health (CT, PCD)* | Class 1 stations + cheat sheet; **re-practised today in Sprint R1** | Q5 (MC), Q11, Q14, Q15 |
 | **LT-B:** Diagnose the 10 clinic cases and their concepts | *Analyse the impact of sleep (CT, PCD)* | Class 1 Station Audit; **re-practised today in Sprint R2** | Q3, Q4, Q6 (MC), Q8–10, Q12 |
-| **LT-C:** Explain how app design holds attention (Trigger → Action → Variable Reward → Investment) | *Analyse the impact of technology use (CT, TF, PCD)* | **New today** — Acts 1–2 of the lesson | Q1, Q2, Q7 (MC), Q10, Q13 |
+| **LT-C:** Explain how app design holds attention (Ping → Swipe → The "Maybe" → Lock-In) | *Analyse the impact of technology use (CT, TF, PCD)* | **New today** — Acts 1–2 of the lesson | Q1, Q2, Q7 (MC), Q10, Q13 |
 | **LT-D:** Argue a position using personal data as evidence | *Impact of technology use (TF) + CT* | **New today** — the Defend-Your-Screen debate (3-Night Log + Morgan's phone log as evidence) | feeds Q12–13 reasoning |
 | **LT-E:** Reflect on who is steering their attention (identity → health decisions) | *Reflect on the ways personal identity can shape health-related decisions (CZ, COM, PCD)* | **New today** — the exit ticket ("chosen vs. fed") | Underpins Q12–13; collected as formative |
 
 **The alignment promise:** nothing on Quiz 1 was not taught and practised first — the study sheet says it in one line the students see: *"If you can do this page cold, you walk out with the 5%."* The quiz blueprint (Part A–D) is printed on the study sheet and on deck slide 10, so review is not a mystery game.
 
-**Why the Hook Machine is the right vehicle (not a lecture):** the compressed outline's audit mandate was *zero generic blue-light preaching* — >70% of students arrived burnt out on "screens are bad." The Hook Machine reframes the same indicator as **mechanism** (a 4-part design loop students can name and point to operating on them in real time), **evidence** (their own 3-night logs, Morgan's phone log, sourced national data), and **the inventor's own confession** (Aza Raskin's "behavioural cocaine" quote — BBC 2018). Students leave with analytic vocabulary, not a scolding.
+**Why the Hook Machine is the right vehicle (not a lecture):** the compressed outline's audit mandate was *zero generic blue-light preaching* — >70% of students arrived burnt out on "screens are bad." The Hook Machine reframes the same indicator as **mechanism** (a 4-part design loop students can name and point to operating on them in real time: Ping → Swipe → Maybe → Lock-In), **evidence** (their own 3-night logs, Morgan's phone log, sourced national data), and **the inventor's own confession** (Aza Raskin's "behavioural cocaine" quote — BBC 2018). Students leave with analytic vocabulary, not a scolding.
 
 ---
 
@@ -85,8 +85,8 @@
 **Part A — MC (1 pt each)**
 | Q | Answer | LT | Note |
 |---|---|---|---|
-| 1 | **b** | LT-C | loop order |
-| 2 | **b** | LT-C | unpredictability is the mechanism |
+| 1 | **b** | LT-C | loop order (Ping → Swipe → "Maybe" → Lock-In) |
+| 2 | **b** | LT-C | unpredictability / "maybe" gamble is the mechanism |
 | 3 | **c** | LT-B | Jenna's latency |
 | 4 | **a** | LT-B | adenosine blockade |
 | 5 | **c** | LT-A | >2.0h = red |
@@ -105,7 +105,7 @@
 |---|---|---|
 | 11 | (9.0 − 5.5) × 5 = **17.5 hours** (formula shown = part of the point) | LT-A |
 | 12 | Any **two**: the sleep-in shifts Monday's midpoint (social jetlag — Owen/Marcus evidence); a binge doesn't restore the lost deep-sleep consistency (Devon); the real cause is the 2h10m late scroll (Jenna/Hook Loop) — fix the trigger, not just the total | LT-B/D |
-| 13 | Eating sleep now: **Variable Reward** (unpredictable feed at 11:30pm) — accept Trigger (notification/boredom cue) if justified. Pulling back tomorrow: **Investment** (streaks/follows/watch history trained the feed) — accept Trigger with justification. Reasoning > label. | LT-C |
+| 13 | Eating sleep now: **The "Maybe" / The Swipe** (unpredictable slot machine feed at 11:30pm) — accept The Ping (notification/boredom cue) if justified. Pulling back tomorrow: **The Lock-In** (streaks/follows/watch history trained the feed) — accept The Ping with justification. Reasoning > label. | LT-C |
 
 **Part D — Show Your Work (3 pts each: 1 method, 1 accuracy, 1 interpretation)**
 | Q | Answer | LT |

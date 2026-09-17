@@ -1,0 +1,579 @@
+<!DOCTYPE HTML>
+<!--
+    Healthy Living 9 • Class 2 Smartboard Presentation Deck
+    "Operation: Addictive by Design" — Reverse-Engineering Dark UX & Dopamine Loops
+    Mr. Waugh • Room 8 • Bicentennial Junior High School
+    Usable across all cohorts: Class 901, 902, 903
+
+    Design System: Strongly Typed (Room 8 Default)
+    Arvo slab display, Source Sans Pro body, High-contrast projector light mode,
+    double-rule borders, signature coral accent (#ed786a).
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>HL9 Class 2 • Operation: Addictive by Design</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Source+Code+Pro:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --paper: #f0f0f0;
+            --surface: #ffffff;
+            --rule: #e5e5e5;
+            --rule-dark: #c9c9c9;
+            --ink: #1c1c1c;
+            --ink-body: #333333;
+            --ink-muted: #666666;
+            --accent: #ed786a;
+            --accent-dark: #c95548;
+            --accent-pale: #fdf0ee;
+            --font-display: 'Arvo', Georgia, serif;
+            --font-body: 'Source Sans Pro', sans-serif;
+            --font-mono: 'Source Code Pro', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--font-body);
+            font-size: 17px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Signature double-rule (Strongly Typed layered lines) ── */
+        .double-rule-bottom {
+            border-bottom: 2px solid var(--rule);
+            box-shadow: inset 0 -6px 0 0 var(--surface), inset 0 -8px 0 0 var(--rule);
+        }
+        .double-rule-top {
+            border-top: 2px solid var(--rule);
+            box-shadow: inset 0 6px 0 0 var(--surface), inset 0 8px 0 0 var(--rule);
+        }
+
+        /* ── Header ── */
+        #header {
+            background: var(--surface);
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .header-logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+        .header-logo span { color: var(--accent); }
+        .header-sep {
+            color: var(--rule-dark);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+        .header-sub {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .badge-pill {
+            background: var(--accent-pale);
+            color: var(--accent-dark);
+            border: 1px solid #f9c2bc;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+        .slide-counter {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+        }
+
+        /* ── Slide viewport ── */
+        #viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 30px 48px 36px 48px;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            background: var(--paper);
+        }
+        .slide.active { display: flex; }
+
+        /* ── Slide typography ── */
+        .slide-eyebrow {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #888888;
+            margin-bottom: 10px;
+        }
+        .slide-eyebrow .eyebrow-num {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            color: #ffffff;
+            background: var(--accent);
+            border-radius: 3px;
+            padding: 1px 8px;
+            margin-right: 8px;
+            letter-spacing: 0;
+        }
+
+        .slide-h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+            text-shadow: 0.04em 0.05em 0 rgba(0, 0, 0, 0.07);
+        }
+
+        .slide-sub {
+            font-size: 1.12rem;
+            line-height: 1.5;
+            color: var(--ink-body);
+            max-width: 1150px;
+            margin-bottom: 18px;
+        }
+        .slide-sub strong { color: var(--ink); }
+
+        /* ── Grids ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; }
+
+        /* ── Card (Strongly Typed box) ── */
+        .card {
+            background: var(--surface);
+            border: 1.5px solid var(--rule-dark);
+            border-top-width: 4px;
+            border-radius: 4px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .card.grow { flex: 1; }
+
+        .card-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: #888888;
+            margin-bottom: 2px;
+        }
+
+        .card-h2 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.25;
+        }
+        .card-p {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: var(--ink-body);
+        }
+        .card-p strong { color: var(--ink); }
+
+        .callout-box {
+            background: var(--surface);
+            border: 1.5px solid var(--rule-dark);
+            border-left: 5px solid var(--accent);
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            font-size: 1rem;
+            color: var(--ink-body);
+        }
+
+        /* ── Footer ── */
+        #footer {
+            background: var(--surface);
+            padding: 10px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .footer-hint {
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+            font-weight: 600;
+        }
+        .footer-hint kbd {
+            background: var(--paper);
+            border: 1px solid var(--rule-dark);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--ink);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        }
+        .footer-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-btn {
+            background: var(--surface);
+            border: 1.5px solid var(--rule-dark);
+            color: var(--ink);
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .nav-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent-dark);
+            background: var(--accent-pale);
+        }
+        .nav-btn.primary {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent-dark);
+        }
+        .nav-btn.primary:hover {
+            background: var(--accent-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header" class="double-rule-bottom">
+        <div class="header-brand">
+            <div class="header-logo">Room 8 &bull; <span>Healthy Living 9</span></div>
+            <div class="header-sep">/</div>
+            <div class="header-sub">Class 2: Operation Addictive by Design</div>
+        </div>
+        <div class="header-meta">
+            <span class="badge-pill">NS HL9 OUTCOMES 1 & 10</span>
+            <span class="slide-counter" id="slideCount">1 / 7</span>
+        </div>
+    </header>
+
+    <!-- Slides Viewport -->
+    <main id="viewport">
+
+        <!-- Slide 1: Title & Hook -->
+        <section class="slide active" data-slide="1">
+            <div class="slide-eyebrow"><span class="eyebrow-num">01</span> The Hook & Challenge</div>
+            <h1 class="slide-h1">Operation: Addictive by Design</h1>
+            <p class="slide-sub">You are not lacking willpower. Your brain is going head-to-head with thousands of engineers and behavioral psychologists who are paid six figures to capture your attention.</p>
+            
+            <div class="grid-2" style="margin-top: 10px;">
+                <div class="card" style="border-top-color: #3b82f6;">
+                    <div class="card-tag">The Big Idea</div>
+                    <div class="card-h2">Why Can't You Put Your Phone Down?</div>
+                    <p class="card-p">Ever opened TikTok or Instagram for <em>"just two minutes"</em> and suddenly looked at the clock and 45 minutes have vanished?</p>
+                    <p class="card-p">Today, we are <strong>flipping the script</strong>. Instead of preaching about screen time, you are being hired as an evil <strong>Behavioral Design Consultant</strong>. Your job: take a boring app and make it psychologically impossible to close.</p>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Curriculum Targets</div>
+                    <div class="card-h2">Nova Scotia Standards</div>
+                    <p class="card-p"><strong>• Outcome 1:</strong> Evaluate health behaviours that promote short-term and long-term health (Technology Use & Well-Being).</p>
+                    <p class="card-p"><strong>• Outcome 10:</strong> Evaluate the impact of addiction on health (Behavioral Addictions & Dopamine Hijacking).</p>
+                    <div class="callout-box" style="margin: 6px 0 0 0; padding: 8px 12px; font-size: 0.88rem;">
+                        <strong>The Goal:</strong> By reverse-engineering how app traps are engineered, you build the armor to spot and resist them in real life.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: The 4 Addiction Engines -->
+        <section class="slide" data-slide="2">
+            <div class="slide-eyebrow"><span class="eyebrow-num">02</span> The Core Mechanics</div>
+            <h1 class="slide-h1">The 4 Addiction Engines</h1>
+            <p class="slide-sub">Software companies don't keep you engaged by accident. They bolt four specific behavioral engines into the user interface:</p>
+
+            <div class="grid-4">
+                <div class="card" style="border-top-color: #f59e0b;">
+                    <div class="card-tag">Engine 1</div>
+                    <div class="card-h2">🎰 Variable Rewards</div>
+                    <p class="card-p"><strong>The Slot Machine Effect:</strong> You swipe down to refresh. Will you get a boring post or a viral video? Because you don't know, your brain dumps <strong>dopamine</strong> in anticipation of the surprise.</p>
+                </div>
+                <div class="card" style="border-top-color: #ef4444;">
+                    <div class="card-tag">Engine 2</div>
+                    <div class="card-h2">♾️ Friction Killers</div>
+                    <p class="card-p"><strong>Destroying Stopping Cues:</strong> Books have chapter ends; TV shows had commercials. Apps use <em>infinite scroll</em> and <em>autoplay</em> so your prefrontal cortex never gets a signal to stop.</p>
+                </div>
+                <div class="card" style="border-top-color: #8b5cf6;">
+                    <div class="card-tag">Engine 3</div>
+                    <div class="card-h2">👥 Social Pressure</div>
+                    <p class="card-p"><strong>Monetizing Friendship:</strong> Snapchat Streaks, Read Receipts, and Likes turn human relationships into numbers. Breaking a streak feels like failing a friend, dragging you back daily.</p>
+                </div>
+                <div class="card" style="border-top-color: #06b6d4;">
+                    <div class="card-tag">Engine 4</div>
+                    <div class="card-h2">🔴 Dark Patterns</div>
+                    <p class="card-p"><strong>Visual Urgency:</strong> Red notification badges mimic emergency danger signals in nature. Phantom alerts buzz your pocket when you haven't opened the app in 12 hours.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Step 1 & Step 2 Task Details -->
+        <section class="slide" data-slide="3">
+            <div class="slide-eyebrow"><span class="eyebrow-num">03</span> Mission Briefing</div>
+            <h1 class="slide-h1">Step 1 & Step 2: Weaponize the App</h1>
+            <p class="slide-sub">Open your digital dossier Chromebook form: <code>24_HL9_Class2_Operation_Addictive_By_Design.html</code></p>
+
+            <div class="grid-2">
+                <div class="card" style="border-top-color: var(--accent);">
+                    <div class="card-tag">Step 1</div>
+                    <div class="card-h2">Pick Your Boring App Victim</div>
+                    <p class="card-p">Nobody gets addicted to checking the weather or index cards. Choose one baseline app to overhaul:</p>
+                    <ul style="margin: 8px 0 8px 22px; font-size: 0.95rem; line-height: 1.5;">
+                        <li><strong>Puddle Watch:</strong> Tracks rain puddles in Dartmouth</li>
+                        <li><strong>FlashCard Hero:</strong> Digital French vocabulary index cards</li>
+                        <li><strong>Chore Tracker:</strong> Check off unloading the dishwasher</li>
+                        <li><strong>Water Reminder:</strong> Alerts you to drink water</li>
+                        <li><strong>Your Own Invention:</strong> Describe a boring everyday utility</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Step 2 Requirements</div>
+                    <div class="card-h2">Bolt On All 4 Engines</div>
+                    <p class="card-p">You must design <strong>at least ONE feature</strong> for each category:</p>
+                    <div class="callout-box" style="margin: 6px 0; font-size: 0.9rem;">
+                        <strong>• 2A:</strong> Variable Reward (Loot crate / random points / roulette)<br>
+                        <strong>• 2B:</strong> Friction Killer (Infinite feed / autoplay / auto-advance)<br>
+                        <strong>• 2C:</strong> Social Pressure (Streaks / public leaderboards / rank loss alerts)<br>
+                        <strong>• 2D:</strong> Dark Pattern (Red badges / guilt push alerts / countdown timers)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Step 3 & Step 4 Deliverables -->
+        <section class="slide" data-slide="4">
+            <div class="slide-eyebrow"><span class="eyebrow-num">04</span> Pitch & Reflection</div>
+            <h1 class="slide-h1">Step 3 & Step 4: Pitch & Ethically Tear It Apart</h1>
+            <p class="slide-sub">Building the trap is only half the assignment. The highest marks come from your critical reflection.</p>
+
+            <div class="grid-2">
+                <div class="card" style="border-top-color: #3b82f6;">
+                    <div class="card-tag">Step 3 Pitch</div>
+                    <div class="card-h2">Sell Your Dark App</div>
+                    <p class="card-p">You can paste a link to a Google Slides deck, Canva mockup, or short video walkthrough—<strong>OR</strong> you can write your full 60-second elevator pitch directly in the text area.</p>
+                    <div class="callout-box" style="margin: 8px 0 0 0; font-size: 0.88rem;">
+                        <strong>Key Question:</strong> What is your app's "Secret Weapon"—the single feature that makes it impossible for a teenager to close?
+                    </div>
+                </div>
+                <div class="card" style="border-top-color: #ef4444;">
+                    <div class="card-tag">Step 4 Critical Reflection (8 Marks)</div>
+                    <div class="card-h2">The Ethical Autopsy</div>
+                    <p class="card-p">Answer with complete, thoughtful paragraphs:</p>
+                    <ul style="margin: 6px 0 6px 20px; font-size: 0.92rem; line-height: 1.45;">
+                        <li><strong>1. The Trap:</strong> Which feature YOU designed would steal the most user time? Why does the human brain fall for it?</li>
+                        <li><strong>2. The Real World:</strong> Name one app on YOUR phone that uses this trick. What does it do to your daily hours?</li>
+                        <li><strong>3. The Fix:</strong> How would you redesign that feature to keep the utility while removing the trap?</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Bonus Round Wellness Mode -->
+        <section class="slide" data-slide="5">
+            <div class="slide-eyebrow"><span class="eyebrow-num">05</span> Counter-Measures</div>
+            <h1 class="slide-h1">Bonus: Reclaiming Your Agency</h1>
+            <p class="slide-sub">Can you reverse your own damage? The best designers build "Human-First" technology.</p>
+
+            <div class="grid-3">
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Defense 1</div>
+                    <div class="card-h2">Grayscale Screen</div>
+                    <p class="card-p">Removing color removes the visual candy. Video feeds and notification badges become boring black-and-white text.</p>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Defense 2</div>
+                    <div class="card-h2">Deep Folders</div>
+                    <p class="card-p">Move social apps off the home screen into a folder titled "Boring Utilities". Putting friction back into opening the app forces conscious thought.</p>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Defense 3</div>
+                    <div class="card-h2">Batched Notifications</div>
+                    <p class="card-p">Turn off push alerts and set notifications to deliver only once a day at 4:00 PM. Stop letting algorithms interrupt your focus.</p>
+                </div>
+            </div>
+
+            <div class="callout-box" style="margin-top: 18px;">
+                <strong>Bonus Step 5 in Your Dossier:</strong> Turn your boring app into <strong>"Wellness Mode"</strong>. Describe what happens when the user switches it on (e.g. streaks freeze instead of dying, red dots turn gray, stopping cues appear every 10 mins).
+            </div>
+        </section>
+
+        <!-- Slide 6: Marking & Evaluation -->
+        <section class="slide" data-slide="6">
+            <div class="slide-eyebrow"><span class="eyebrow-num">06</span> Evaluation</div>
+            <h1 class="slide-h1">Marking Breakdown (30 Marks)</h1>
+            <p class="slide-sub">Your digital dossier is assessed across three clear categories:</p>
+
+            <div class="grid-3">
+                <div class="card" style="border-top-color: var(--accent);">
+                    <div class="card-tag">12 Marks</div>
+                    <div class="card-h2">Engagement Tactics</div>
+                    <p class="card-p">Accurately applying all 4 Addiction Engines (Variable Rewards, Friction Killers, Social Pressure, Dark Patterns). Features must clearly explain what the user sees, taps, and feels.</p>
+                </div>
+                <div class="card" style="border-top-color: #3b82f6;">
+                    <div class="card-tag">10 Marks</div>
+                    <div class="card-h2">Design & Pitch</div>
+                    <p class="card-p">Creativity, naming, and presentation. Your pitch clearly articulates why the app hooks users and identifies your "secret weapon."</p>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">8 Marks</div>
+                    <div class="card-h2">Critical Reflection</div>
+                    <p class="card-p">Thoughtful, honest analysis of your own screen habits, connection to real-world apps, and actionable redesign solutions that respect human well-being.</p>
+                </div>
+            </div>
+
+            <div class="callout-box" style="margin-top: 18px;">
+                <strong>💾 Autosave Check:</strong> Log in with your <strong>Name + 3-Letter PIN</strong>. Your work autosaves to Google Cloud every 4 seconds. Look for the green cloud badge in the top right.
+            </div>
+        </section>
+
+        <!-- Slide 7: Action Time / Work Session -->
+        <section class="slide" data-slide="7">
+            <div class="slide-eyebrow"><span class="eyebrow-num">07</span> Work Session</div>
+            <h1 class="slide-h1">Class Mission: Begin Consulting</h1>
+            <p class="slide-sub">Grab a Chromebook, open the portal, and start engineering your dark UX.</p>
+
+            <div class="grid-2">
+                <div class="card" style="border-top-color: var(--accent);">
+                    <div class="card-tag">Checklist</div>
+                    <div class="card-h2">Today's Deliverable Checklist</div>
+                    <ul style="margin: 10px 0 10px 22px; line-height: 1.6;">
+                        <li>[ ] Log in with your 3-Letter PIN</li>
+                        <li>[ ] Select your boring victim app</li>
+                        <li>[ ] Build Engine #1: Variable Reward (Slot Machine / Dopamine)</li>
+                        <li>[ ] Build Engine #2: Friction Killer (Infinite Scroll / Autoplay)</li>
+                        <li>[ ] Build Engine #3: Social Pressure (Streaks / Ranks)</li>
+                        <li>[ ] Build Engine #4: Dark Pattern (Red Alert / Loss Aversion)</li>
+                        <li>[ ] Complete Step 4 Ethical Reflection (3 full paragraphs)</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-tag">Need Assistance?</div>
+                    <div class="card-h2">Help & Questions</div>
+                    <p class="card-p">Click <strong>"📖 THE BRIEFING"</strong> at the top of your Chromebook dossier if you need a refresher on the psychological definitions.</p>
+                    <p class="card-p" style="margin-top: 8px;">If you forgot your 3-letter PIN, click <strong>"Find My PIN"</strong> on the login screen or check with Mr. Waugh.</p>
+                    <div class="callout-box" style="margin-top: 12px; font-weight: 700; color: var(--accent-dark);">
+                        Ready? Open your dossier and make that boring app irresistible!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="double-rule-top">
+        <div class="footer-hint">
+            Press <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>Space</kbd> to navigate slides
+        </div>
+        <div class="footer-nav">
+            <button class="nav-btn" id="prevBtn">&larr; Previous</button>
+            <button class="nav-btn primary" id="nextBtn">Next &rarr;</button>
+        </div>
+    </footer>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 1;
+
+        const countDisplay = document.getElementById('slideCount');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateSlide(n) {
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            slides.forEach(s => {
+                const sNum = parseInt(s.dataset.slide, 10);
+                s.classList.toggle('active', sNum === currentSlide);
+            });
+
+            countDisplay.innerText = `${currentSlide} / ${totalSlides}`;
+            prevBtn.disabled = (currentSlide === 1);
+            nextBtn.innerText = (currentSlide === totalSlides) ? 'Finish' : 'Next →';
+        }
+
+        prevBtn.addEventListener('click', () => updateSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides) {
+                updateSlide(currentSlide + 1);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                updateSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                updateSlide(currentSlide - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                updateSlide(1);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                updateSlide(totalSlides);
+            }
+        });
+
+        updateSlide(1);
+    </script>
+</body>
+</html>

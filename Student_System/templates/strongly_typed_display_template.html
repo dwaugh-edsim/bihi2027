@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+ REUSABLE MASTER CLASSROOM DISPLAY DASHBOARD — Room 8 Student System
+ Mr. Waugh • Bicentennial Junior High • Strongly Typed 1080p Projector Edition
+
+ WHAT THIS IS:
+   A turnkey, production-grade projector display dashboard that fits an entire
+   class of 28-29 students on ONE screen without vertical scrolling:
+     • Left sidebar with live class switcher (ALL, 901, 902, 903 or 801-804)
+     • Dual-column projector grid (14 students left, 14-15 students right)
+     • Live cloud sync button wired directly to StudentAPI.getClassProgress()
+     • Live search box (instant filter by student name)
+     • Quick filter pills (All, Completed All, In Progress, Not Started)
+     • Privacy-first design: No PINs displayed, No judgmental raw score column
+     • Interactive Dossier modal: click any student to inspect their work tabs
+     • Full Paper / Slate Dark mode toggle + Print support
+
+ HOW TO CONFIGURE IT (1 STEP):
+   Edit the DASHBOARD_CONFIG object near the top of the <script> block:
+     course   : 'CIT9' | 'HL9' | 'HL8'
+     classes  : ['901', '902', '903'] or ['801', '802', '803', '804']
+     title    : Your Course Dashboard Title
+     items    : Array of tracked items with IDs and column headers
+═══════════════════════════════════════════════════════════════════════════════
+-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 8 • Master Classroom Submission Dashboard</title>
+    <!-- Google Fonts: Arvo (Headings), Source Sans 3 (Body), JetBrains Mono (Numbers) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="../students_roster_data.js"></script>
+    <script src="../api.js"></script>
+    <style>
+        /* =========================================================
+           STRONGLY TYPED THEME — TWO-PANEL 1080P PROJECTOR LAYOUT
+           Room 8 Default • Fits 28-29 students on ONE screen
+           ========================================================= */
+        :root {
+            --bg-page: #f0f2f5;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --border-card: #d5dbe3;
+            --border-subtle: #e5e9f0;
+            --border-highlight: #ed786a;
+
+            --text-main: #1e2530;
+            --text-heading: #181f2b;
+            --text-muted: #475569;
+            --text-dim: #64748b;
+
+            --coral: #ed786a;
+            --coral-hover: #fd887a;
+            --coral-dark: #d65b4c;
+            --coral-bg: #fff1f0;
+            --coral-border: #fecdd3;
+
+            --blue: #1d4ed8;
+            --blue-hover: #2563eb;
+            --blue-bg: #eff6ff;
+            --blue-border: #bfdbfe;
+
+            --purple: #6d28d9;
+            --purple-hover: #7c3aed;
+            --purple-bg: #f5f3ff;
+            --purple-border: #ddd6fe;
+
+            --emerald: #15803d;
+            --emerald-bg: #dcfce7;
+            --emerald-border: #86efac;
+
+            --amber: #b45309;
+            --amber-bg: #fef3c7;
+            --amber-border: #fde68a;
+
+            --rose: #be123c;
+            --rose-bg: #ffe4e6;
+            --rose-border: #fca5a5;
+
+            --font-heading: 'Arvo', Georgia, serif;
+            --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --sidebar-width: 240px;
+        }
+
+        body.dark-mode {
+            --bg-page: #1e2530;
+            --bg-surface: #2b3544;
+            --bg-card: #2b3544;
+            --bg-card-hover: #374355;
+            --border-card: #424e60;
+            --border-subtle: #374355;
+            --border-highlight: #ed786a;
+            --text-main: #f1f5f9;
+            --text-heading: #ffffff;
+            --text-muted: #cbd5e1;
+            --text-dim: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.4;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Two-panel shell */
+        .dashboard-shell {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-surface);
+            border-right: 2px solid var(--border-card);
+            display: flex;
+            flex-direction: column;
+            padding: 14px 12px;
+            gap: 12px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-subtle);
+        }
+
+        .brand-badge {
+            background: var(--coral);
+            color: #ffffff;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-title {
+            font-family: var(--font-heading);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.15;
+        }
+
+        .section-label {
+            font-family: var(--font-heading);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-class-btn {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-family: var(--font-heading);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-class-btn:hover {
+            border-color: var(--coral);
+            background: var(--bg-card-hover);
+        }
+
+        .sidebar-class-btn.active {
+            background: var(--coral);
+            border-color: var(--coral-dark);
+            color: #ffffff;
+        }
+
+        .cls-count {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.06);
+        }
+
+        .sidebar-class-btn.active .cls-count {
+            background: rgba(255,255,255,0.25);
+            color: #ffffff;
+        }
+
+        .sidebar-stats {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.76rem;
+        }
+
+        .stat-label { color: var(--text-muted); }
+        .stat-value { font-family: var(--font-mono); font-weight: 700; }
+
+        .sidebar-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-pill {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-pill:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        .sidebar-pill.active {
+            background: var(--coral-bg);
+            border-color: var(--coral-border);
+            color: var(--coral-dark);
+            font-weight: 700;
+        }
+
+        .sidebar-controls {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-family: var(--font-body);
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-btn:hover {
+            border-color: var(--coral);
+            color: var(--coral);
+        }
+
+        .btn-sync {
+            background: var(--emerald-bg);
+            border-color: var(--emerald-border);
+            color: var(--emerald);
+        }
+        .btn-sync:hover {
+            background: #bbf7d0;
+            color: #14532d;
+        }
+
+        /* ── MAIN AREA ── */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 8px 12px;
+            gap: 6px;
+        }
+
+        .main-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 6px 12px;
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input {
+            border: 1px solid var(--border-card);
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-family: var(--font-body);
+            width: 190px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--coral);
+        }
+
+        /* ── TWO-COLUMN PROJECTOR GRID ── */
+        .projector-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .column-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border-subtle);
+            padding: 6px 10px;
+            display: grid;
+            grid-template-columns: 26px 1.8fr repeat(var(--col-count, 2), 1fr);
+            gap: 4px;
+            align-items: center;
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        body.dark-mode .panel-header {
+            background: #1e293b;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* STUDENT ROW */
+        .student-row {
+            display: grid;
+            grid-template-columns: 26px 1.8fr repeat(var(--col-count, 2), 1fr);
+            gap: 4px;
+            align-items: center;
+            padding: 4.5px 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.8rem;
+            transition: background 0.1s ease;
+            cursor: pointer;
+        }
+
+        .student-row:last-child { border-bottom: none; }
+        .student-row:hover { background: var(--bg-card-hover); }
+
+        .row-num {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cell-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2.5px 6px;
+            border-radius: 4px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
+
+        .badge-done    { background: var(--emerald-bg); color: var(--emerald); border: 1px solid var(--emerald-border); }
+        .badge-waiting { background: #f1f5f9; color: var(--text-dim); border: 1px solid #cbd5e1; }
+        .badge-prog    { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+
+        /* ── MODAL ── */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 2px solid var(--border-card);
+            border-radius: 8px;
+            width: 760px;
+            max-width: 92vw;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        body.dark-mode .modal-header { background: #1e293b; }
+
+        .modal-header h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            color: var(--text-heading);
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 6px 16px;
+            background: var(--bg-card-hover);
+            border-bottom: 1px solid var(--border-subtle);
+            overflow-x: auto;
+        }
+
+        .modal-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .modal-tab-btn.active {
+            background: var(--bg-surface);
+            border-color: var(--border-card);
+            color: var(--coral-dark);
+            border-bottom-color: var(--bg-surface);
+        }
+
+        #modalTabContent {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+
+        .modal-section-card h4 {
+            font-family: var(--font-heading);
+            font-size: 0.88rem;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        @media print {
+            .sidebar, .main-topbar { display: none !important; }
+            .dashboard-shell { display: block !important; height: auto !important; }
+            .projector-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+            body { overflow: visible !important; height: auto !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand-block">
+                <span class="brand-badge">ROOM 8</span>
+                <div>
+                    <div class="brand-title" id="sidebarTitle">Classroom Dashboard</div>
+                    <div style="font-size:0.68rem; color:var(--text-dim);" id="sidebarSubtitle">Projector Edition</div>
+                </div>
+            </div>
+
+            <!-- Class Selector Buttons -->
+            <div id="sidebarClassButtons">
+                <div class="section-label">Select Class View</div>
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Progress Stats -->
+            <div class="sidebar-stats">
+                <div class="section-label" id="statsTitle">Items Tracked</div>
+                <div id="sidebarStatsList">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="sidebar-filters">
+                <div class="section-label">Filter View</div>
+                <button class="sidebar-pill active" id="flt-ALL" onclick="setFilter('ALL')">All Students</button>
+                <button class="sidebar-pill" id="flt-COMPLETE" onclick="setFilter('COMPLETE')">✅ Completed All</button>
+                <button class="sidebar-pill" id="flt-PROGRESS" onclick="setFilter('PROGRESS')">⏳ In Progress</button>
+                <button class="sidebar-pill" id="flt-WAITING" onclick="setFilter('WAITING')">⚪ Not Started</button>
+            </div>
+
+            <!-- Controls -->
+            <div class="sidebar-controls">
+                <button class="sidebar-btn btn-sync" id="btnSyncCloud" onclick="syncLiveCloud()">
+                    🔄 Sync Live Cloud Data
+                </button>
+                <button class="sidebar-btn" onclick="toggleDarkMode()">
+                    🌓 Toggle Paper / Dark
+                </button>
+                <button class="sidebar-btn" onclick="window.print()">
+                    🖨️ Print Dashboard
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="main-area">
+            <div class="main-topbar">
+                <div class="topbar-title">
+                    <span id="displayClassTitle">All Students</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.8rem; background: var(--coral-bg); color: var(--coral-dark); border: 1px solid var(--coral-border); padding: 2px 8px; border-radius: 4px;" id="displayOverallPct">--%</span>
+                </div>
+                <div>
+                    <input type="text" class="search-input" id="searchBox" placeholder="🔍 Search name..." oninput="renderDashboard()">
+                </div>
+            </div>
+
+            <!-- Two-Panel Projector Grid (fits 28-29 students without scroll) -->
+            <div class="projector-grid">
+                <!-- Column 1 -->
+                <div class="column-panel">
+                    <div class="panel-header" id="col1-header"></div>
+                    <div class="panel-body" id="col1-body"></div>
+                </div>
+
+                <!-- Column 2 -->
+                <div class="column-panel">
+                    <div class="panel-header" id="col2-header"></div>
+                    <div class="panel-body" id="col2-body"></div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- DOSSIER INSPECTOR MODAL -->
+    <div class="modal-backdrop" id="dossierModal" onclick="closeDossierModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalStudentName">Student Name</h3>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;" id="modalStudentMeta">Class --</div>
+                </div>
+                <button class="sidebar-btn" style="width: auto;" onclick="closeDossierModal()">✕ Close</button>
+            </div>
+
+            <div class="modal-tabs" id="modalTabsBar"></div>
+            <div id="modalTabContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // DASHBOARD CONFIGURATION — Edit this object for any course
+        // ═══════════════════════════════════════════════════════════
+        const DASHBOARD_CONFIG = {
+            course: 'CIT9',                             // 'CIT9' | 'HL9' | 'HL8' — connects to Course Sheet
+            title: 'Master Submission Dashboard',
+            subtitle: 'Room 8 • 1080p Projector Edition',
+            classes: ['901', '902', '903'],             // or ['801', '802', '803', '804']
+            defaultClass: 'ALL',
+            // Define the items to track across columns
+            items: [
+                { id: 'survey', label: '1. Survey', icon: '📊', short: 'Survey' },
+                { id: 'item2',  label: '2. Assignment 1', icon: '📁', short: 'Task 1' },
+                { id: 'item3',  label: '3. Assignment 2', icon: '📝', short: 'Task 2' }
+            ]
+        };
+        // ═══════════════════════════════════════════════════════════
+
+        // State variables
+        let currentClass = DASHBOARD_CONFIG.defaultClass;
+        let currentFilter = 'ALL';
+        let currentModalStudent = null;
+        let activeModalTab = DASHBOARD_CONFIG.items[0].id;
+        let studentDataStore = {};
+
+        function init() {
+            // Set CSS column count dynamically based on tracked items
+            document.documentElement.style.setProperty('--col-count', DASHBOARD_CONFIG.items.length);
+
+            document.getElementById('sidebarTitle').innerText = DASHBOARD_CONFIG.title;
+            document.title = `Room 8 • ${DASHBOARD_CONFIG.title}`;
+
+            // Build Class Buttons
+            buildClassButtons();
+
+            // Build Stats Labels
+            buildStatsSidebar();
+
+            // Build Headers for both columns
+            buildPanelHeaders();
+
+            // Initialize Student Data Store from Official Roster
+            initStudentDataFromRoster();
+
+            // Initial render
+            renderDashboard();
+        }
+
+        function buildClassButtons() {
+            const container = document.getElementById('sidebarClassButtons');
+            let html = `<div class="section-label">Select Class View</div>`;
+            html += `
+                <button class="sidebar-class-btn active" id="btn-ALL" onclick="selectClass('ALL')">
+                    All Classes <span class="cls-count" id="count-ALL">0</span>
+                </button>
+            `;
+            DASHBOARD_CONFIG.classes.forEach(c => {
+                html += `
+                    <button class="sidebar-class-btn" id="btn-${c}" onclick="selectClass('${c}')">
+                        Class ${c} <span class="cls-count" id="count-${c}">0</span>
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function buildStatsSidebar() {
+            const list = document.getElementById('sidebarStatsList');
+            list.innerHTML = DASHBOARD_CONFIG.items.map(item => `
+                <div class="stat-row">
+                    <span class="stat-label">${item.icon} ${item.label}</span>
+                    <span class="stat-value" id="stat-${item.id}">--</span>
+                </div>
+            `).join('');
+        }
+
+        function buildPanelHeaders() {
+            const headerHtml = `
+                <span>#</span>
+                <span>Student</span>
+                ${DASHBOARD_CONFIG.items.map(it => `<span title="${it.label}">${it.short || it.label}</span>`).join('')}
+            `;
+            document.getElementById('col1-header').innerHTML = headerHtml;
+            document.getElementById('col2-header').innerHTML = headerHtml;
+        }
+
+        function initStudentDataFromRoster() {
+            const roster = window.MASTER_ROSTER_DATA || [];
+            studentDataStore = {};
+
+            const filtered = roster.filter(s => DASHBOARD_CONFIG.classes.includes(String(s.homeroom || '')));
+            filtered.forEach(s => {
+                const pin = (s.pin || '').toUpperCase();
+                const fn = (pin === 'BEU' || s.first_name === 'Blessing') ? 'Kossi' : s.first_name;
+                const itemsMap = {};
+                DASHBOARD_CONFIG.items.forEach(it => {
+                    itemsMap[it.id] = { done: false, data: {} };
+                });
+
+                studentDataStore[pin] = {
+                    pin: pin,
+                    name: `${fn} ${s.last_name}`,
+                    first_name: fn,
+                    last_name: s.last_name,
+                    class: String(s.homeroom),
+                    homeroom: String(s.homeroom),
+                    items: itemsMap,
+                    tasks_completed: 0
+                };
+            });
+
+            // Update sidebar button counts
+            document.getElementById('count-ALL').innerText = filtered.length;
+            DASHBOARD_CONFIG.classes.forEach(c => {
+                const count = filtered.filter(s => String(s.homeroom) === c).length;
+                const el = document.getElementById(`count-${c}`);
+                if (el) el.innerText = count;
+            });
+        }
+
+        function selectClass(cls) {
+            currentClass = cls;
+            document.querySelectorAll('.sidebar-class-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-${cls}`);
+            if (btn) btn.classList.add('active');
+
+            document.getElementById('displayClassTitle').innerText = 
+                cls === 'ALL' ? `All Classes (${DASHBOARD_CONFIG.classes.join(', ')})` : `Class ${cls}`;
+
+            renderDashboard();
+        }
+
+        function setFilter(flt) {
+            currentFilter = flt;
+            document.querySelectorAll('.sidebar-filters .sidebar-pill').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`flt-${flt}`);
+            if (btn) btn.classList.add('active');
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const col1 = document.getElementById('col1-body');
+            const col2 = document.getElementById('col2-body');
+            col1.innerHTML = '';
+            col2.innerHTML = '';
+
+            const q = (document.getElementById('searchBox')?.value || '').trim().toLowerCase();
+            const totalItems = DASHBOARD_CONFIG.items.length;
+
+            let students = Object.values(studentDataStore);
+
+            // Filter by Class
+            if (currentClass !== 'ALL') {
+                students = students.filter(s => s.class === currentClass);
+            }
+
+            // Sort Alphabetically by Last Name, then First Name
+            students.sort((a, b) => a.last_name.localeCompare(b.last_name) || a.first_name.localeCompare(b.first_name));
+
+            // Update Progress Stats for visible set
+            const totalCount = students.length;
+            DASHBOARD_CONFIG.items.forEach(it => {
+                const doneCount = students.filter(s => s.items[it.id] && s.items[it.id].done).length;
+                const el = document.getElementById(`stat-${it.id}`);
+                if (el) el.innerText = `${doneCount} / ${totalCount}`;
+            });
+
+            const overallDone = students.reduce((acc, s) => acc + s.tasks_completed, 0);
+            const overallMax = totalCount * totalItems;
+            const overallPct = overallMax > 0 ? Math.round((overallDone / overallMax) * 100) : 0;
+            document.getElementById('displayOverallPct').innerText = `${overallPct}% Complete`;
+
+            // Filter by Status
+            if (currentFilter === 'COMPLETE') {
+                students = students.filter(s => s.tasks_completed === totalItems);
+            } else if (currentFilter === 'PROGRESS') {
+                students = students.filter(s => s.tasks_completed > 0 && s.tasks_completed < totalItems);
+            } else if (currentFilter === 'WAITING') {
+                students = students.filter(s => s.tasks_completed === 0);
+            }
+
+            // Filter by Search Query
+            if (q) {
+                students = students.filter(s => 
+                    s.name.toLowerCase().includes(q) || 
+                    s.pin.toLowerCase().includes(q)
+                );
+            }
+
+            // Split across Two Columns (50/50)
+            const mid = Math.ceil(students.length / 2);
+            students.forEach((s, idx) => {
+                const row = createStudentRow(s, idx + 1);
+                if (idx < mid) {
+                    col1.appendChild(row);
+                } else {
+                    col2.appendChild(row);
+                }
+            });
+        }
+
+        function createStudentRow(s, rank) {
+            const row = document.createElement('div');
+            row.className = 'student-row';
+            row.onclick = () => openDossierModal(s);
+
+            let badgesHtml = '';
+            DASHBOARD_CONFIG.items.forEach(it => {
+                const isDone = s.items[it.id] && s.items[it.id].done;
+                badgesHtml += isDone 
+                    ? `<span class="cell-badge badge-done">✅ Done</span>`
+                    : `<span class="cell-badge badge-waiting">⚪ Waiting</span>`;
+            });
+
+            row.innerHTML = `
+                <span class="row-num">${rank}</span>
+                <span class="student-name" title="${s.name}">${s.first_name} ${s.last_name.charAt(0)}.</span>
+                ${badgesHtml}
+            `;
+            return row;
+        }
+
+        // ── DOSSIER MODAL ──
+        function openDossierModal(s) {
+            currentModalStudent = s;
+            document.getElementById('modalStudentName').innerText = s.name;
+            document.getElementById('modalStudentMeta').innerText = `Class ${s.class} • ${s.tasks_completed}/${DASHBOARD_CONFIG.items.length} Tasks Complete`;
+
+            // Build Modal Tabs
+            const tabsBar = document.getElementById('modalTabsBar');
+            tabsBar.innerHTML = DASHBOARD_CONFIG.items.map(it => `
+                <button class="modal-tab-btn ${it.id === activeModalTab ? 'active' : ''}" onclick="switchModalTab('${it.id}')">
+                    ${it.icon} ${it.label}
+                </button>
+            `).join('');
+
+            renderModalTabContent();
+            document.getElementById('dossierModal').style.display = 'flex';
+        }
+
+        function closeDossierModal() {
+            document.getElementById('dossierModal').style.display = 'none';
+        }
+
+        function switchModalTab(tabId) {
+            activeModalTab = tabId;
+            document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderModalTabContent();
+        }
+
+        function renderModalTabContent() {
+            const s = currentModalStudent;
+            if (!s) return;
+            const c = document.getElementById('modalTabContent');
+            const itemData = (s.items[activeModalTab] && s.items[activeModalTab].data) || {};
+
+            c.innerHTML = `
+                <div class="modal-section-card">
+                    <h4>Submission Record: ${activeModalTab}</h4>
+                    <p><strong>Status:</strong> ${s.items[activeModalTab]?.done ? '✅ Completed' : '⚪ Not yet submitted'}</p>
+                    <pre style="margin-top:8px; background:#f8fafc; padding:8px; border-radius:4px; font-size:0.75rem; overflow-x:auto;">${JSON.stringify(itemData, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // ── LIVE CLOUD SYNC ──
+        async function syncLiveCloud() {
+            const btn = document.getElementById('btnSyncCloud');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Syncing Cloud...';
+            }
+
+            try {
+                const targetCls = currentClass === 'ALL' ? 'ALL' : currentClass;
+                const bulkRes = await StudentAPI.getClassProgress(targetCls, DASHBOARD_CONFIG.course);
+                if (bulkRes && bulkRes.status === 'success' && Array.isArray(bulkRes.students)) {
+                    bulkRes.students.forEach(row => {
+                        const pin = (row.pin || '').toUpperCase();
+                        if (studentDataStore[pin]) {
+                            const sd = row.savedData ? (row.savedData.data || row.savedData) : {};
+                            
+                            // Dynamically verify tasks from savedData or row.assignments
+                            DASHBOARD_CONFIG.items.forEach(it => {
+                                if (sd[it.id] || (sd._tasks && sd._tasks[it.id]) || (row.assignments && row.assignments[it.id])) {
+                                    studentDataStore[pin].items[it.id].done = true;
+                                    studentDataStore[pin].items[it.id].data = (sd._tasks && sd._tasks[it.id]?.data) || sd[it.id] || {};
+                                }
+                            });
+
+                            studentDataStore[pin].tasks_completed = Object.values(studentDataStore[pin].items)
+                                .filter(it => it.done).length;
+                        }
+                    });
+                    renderDashboard();
+                }
+            } catch(e) {
+                console.warn("Live cloud sync error:", e);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = '🔄 Sync Live Cloud Data';
+                }
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
