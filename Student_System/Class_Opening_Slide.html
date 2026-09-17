@@ -10,7 +10,7 @@
   agenda from the section's plan (Class_Plan tab) and shows a course outcome strip that
   stays visible for administrators. Announcements / outcome / title are editable on the
   page itself (⚙ or "e") and saved to the Class_Slide tab via the Apps Script webhook.
-  Keyboard: ← / → switch class · e edit · Esc close · F fullscreen.
+  Keyboard: ← / → switch class · e edit · s seating · Esc close · F fullscreen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,6 +185,52 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     border-radius: 6px; padding: 5px 10px; cursor: pointer;
 }
 .section-pick .sp.on { background: var(--coral-bg); border-color: var(--coral-border); color: var(--coral-dark); }
+
+/* ---------- seating popup ---------- */
+#seatOverlay {
+    display: none; position: fixed; inset: 0; z-index: 60;
+    background: var(--bg-page); overflow: auto; padding: 26px 40px;
+}
+#seatOverlay.open { display: block; }
+.seat-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+.seat-head h2 { font-size: 1.6rem; }
+.seat-head .src {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem;
+    border-radius: 999px; padding: 3px 10px; border: 1px solid var(--border-card);
+    background: var(--bg-surface); color: var(--text-dim);
+}
+.seat-head .src.live { color: var(--emerald); border-color: var(--emerald-border); background: var(--emerald-bg); }
+.seat-head .src.snap { color: var(--blue); border-color: var(--blue-border); background: var(--blue-bg); }
+.seat-head .spacer { flex: 1; }
+.seat-head .tool-btn { font-size: 1rem; }
+.front-strip { display: flex; align-items: center; gap: 12px; margin: 6px 0 22px; }
+.front-strip .board {
+    flex: 1; text-align: center; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.25em;
+    color: var(--text-dim); border: 2px dashed var(--border-card); border-radius: 8px; padding: 9px 0;
+}
+.front-strip .tdesk {
+    font-size: 0.75rem; font-weight: 700; color: var(--text-dim); border: 2px dashed var(--border-card);
+    border-radius: 8px; padding: 9px 14px;
+}
+.seat-rows { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+.seat-row { display: flex; gap: 10px; width: 100%; }
+.seat-grp { display: flex; gap: 6px; margin-right: 26px; flex: 1; min-width: 0; }
+.seat-grp:last-child { margin-right: 0; }
+.desk {
+    flex: 1 1 0; min-width: 0; height: 74px;
+    border: 2px solid var(--border-card); border-radius: 8px; background: var(--bg-surface);
+    position: relative; display: flex; align-items: center; justify-content: center; padding: 4px 8px;
+}
+.seat-row.r-front .desk { background: #f3fbf7; border-color: #bfead6; }
+.seat-row.r-mid   .desk { background: #f2f7fe; border-color: #c3ddf9; }
+.seat-row.r-back  .desk { background: #fdf1f7; border-color: #f6cee0; }
+.desk .num { position: absolute; top: 3px; left: 7px; font-family: var(--font-mono);
+    font-weight: 700; font-size: 0.7rem; color: var(--text-dim); }
+.desk .name { font-size: 1.25rem; font-weight: 700; color: var(--text-heading); text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.desk .name.empty { color: #c3c7dd; font-weight: 500; }
+.seat-backnote { font-size: 0.85rem; color: var(--text-dim); margin-top: 10px; }
+.seat-empty { font-size: 1.1rem; color: var(--text-dim); padding: 30px 0; }
 </style>
 </head>
 <body>
@@ -195,6 +241,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="chip" id="cycleChip">…</span>
     <span class="spacer"></span>
     <button class="sync-pill" id="syncPill">SEED</button>
+    <button class="tool-btn" id="seatBtn" title="Seating plan (s)">🪑 Seats</button>
     <button class="tool-btn" id="editBtn" title="Edit announcements / outcome (e)">⚙ Edit</button>
     <button class="tool-btn" id="fsBtn" title="Fullscreen (f)">⛶</button>
 </div>
@@ -223,6 +270,21 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="o-text" id="outcomeText">…</span>
 </div>
 
+<div id="seatOverlay">
+    <div class="seat-head">
+        <h2>Seating · <span id="seatClass" class="mono"></span></h2>
+        <span class="src" id="seatSource"></span>
+        <span class="spacer"></span>
+        <button class="tool-btn" id="seatClose">✕ Close (Esc)</button>
+    </div>
+    <div class="front-strip">
+        <div class="tdesk">DOOR</div>
+        <div class="board">WHITEBOARD · SCREEN</div>
+    </div>
+    <div class="seat-rows" id="seatRows"></div>
+    <div class="seat-backnote">Back row (7) — set along the side of the room · Windows / teacher desk behind · from the teacher's view at the front</div>
+</div>
+
 <div class="overlay" id="overlay">
     <div class="editor">
         <h3>Slide setup — <span id="edSection" class="mono"></span></h3>
@@ -247,6 +309,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
 <script src="class_log_meetings_data.js"></script>
 <script src="class_log_lesson_maps.js"></script>
+<script src="class_seating_data.js"></script>
+<script src="students_roster_data.js"></script>
 <script src="class_log_seed_data.js"></script>
 <script src="api.js"></script>
 <script>
@@ -529,6 +593,136 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         }
     });
 
+    // ---------- seating popup ----------
+    // Sources, best first: the seating doc's own browser storage ("sp_<homeroom>"),
+    // a snapshot in class_seating_data.js, then the alphabetical roster.
+    function rosterNamesFor(homeroom) {
+        const roster = window.MASTER_ROSTER_DATA || [];
+        const kids = roster.filter(s => String(s.homeroom) === homeroom)
+            .map(s => ({ first: s.first_name || s.full_first_name || '', last: (s.last_name || '').trim() }))
+            .sort((a, b) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first));
+        // "First + last initial", extended until same-first-name kids are distinguishable
+        const byFirst = {};
+        kids.forEach(k => (byFirst[k.first] = byFirst[k.first] || []).push(k));
+        return kids.map(k => {
+            const twins = byFirst[k.first];
+            if (twins.length < 2 || !k.last) return k.first + (k.last ? ' ' + k.last.charAt(0).toUpperCase() + '.' : '');
+            for (let len = 1; len <= 8; len++) {
+                const p = k.last.slice(0, len).toLowerCase();
+                if (twins.every(t => t === k || (t.last.slice(0, len).toLowerCase() !== p))) {
+                    return k.first + ' ' + k.last.slice(0, len) + '.';
+                }
+            }
+            return k.first + ' ' + k.last;
+        });
+    }
+    function seatPlanFor(section) {
+        const seating = window.CLASS_SEATING || {};
+        const hr = (seating.homeroomOf || {})[section] || section.replace(/-(CIT|HL|HE)$/, '');
+        let source = 'roster', seats = {};
+        const ls = localStorage.getItem('sp_' + hr);
+        if (ls) {
+            try {
+                const parsed = JSON.parse(ls);
+                if (parsed && Object.keys(parsed).length) { seats = parsed; source = 'live · seating doc (this browser)'; }
+            } catch (e) {}
+        }
+        if (source === 'roster') {
+            const snap = (seating.snapshots || {})[hr];
+            if (snap && snap.seats && Object.keys(snap.seats).length) {
+                seats = snap.seats;
+                source = 'snapshot · ' + (snap.updated || 'undated');
+            }
+        }
+        const layout = seating.layout || [
+            { key: 'front', n: 11, groups: [3, 4, 4] },
+            { key: 'mid', n: 11, groups: [3, 4, 4] },
+            { key: 'back', n: 7, groups: [3, 4] }
+        ];
+        const total = layout.reduce((a, r) => a + r.n, 0);
+        // saved seats win; alphabetical roster fills the rest, front to back
+        const queue = rosterNamesFor(hr);
+        const ordered = [];
+        for (let s = 1; s <= total; s++) {
+            const saved = seats[s] || seats[String(s)];
+            let name = '';
+            if (saved) {
+                name = saved;
+                const i = queue.indexOf(saved);
+                if (i > -1) queue.splice(i, 1);
+            } else if (queue.length) {
+                name = queue.shift();
+            }
+            ordered.push(name);
+        }
+        const leftovers = queue.slice();
+        return { hr, source, layout, ordered, leftovers };
+    }
+    function renderSeats() {
+        const plan = seatPlanFor(current);
+        document.getElementById('seatClass').textContent = plan.hr + ' · ' + current;
+        const srcEl = document.getElementById('seatSource');
+        srcEl.textContent = plan.source;
+        srcEl.className = 'src' + (plan.source.startsWith('live') ? ' live' : plan.source.startsWith('snapshot') ? ' snap' : '');
+        let seat = 0;
+        document.getElementById('seatRows').innerHTML = plan.layout.map(r => {
+            let row = '<div class="seat-row r-' + r.key + '">';
+            r.groups.forEach(size => {
+                row += '<div class="seat-grp">';
+                for (let i = 0; i < size; i++) {
+                    const name = plan.ordered[seat] || '';
+                    row += '<div class="desk"><span class="num">' + (++seat) + '</span>' +
+                        '<div class="name' + (name ? '' : ' empty') + '">' + (name ? escapeHtml(name) : '—') + '</div></div>';
+                }
+                row += '</div>';
+            });
+            return row + '</div>';
+        }).join('') +
+        (plan.leftovers.length
+            ? '<div class="seat-empty">⚠ ' + plan.leftovers.length + ' student' + (plan.leftovers.length > 1 ? 's' : '') + ' wouldn\u2019t fit: ' + escapeHtml(plan.leftovers.join(', ')) + '</div>'
+            : '');
+    }
+    function fitSeatNames() {
+        // shrink font per row until every name fits its desk (same approach as seating-plan.html)
+        document.querySelectorAll('#seatRows .seat-row').forEach(row => {
+            let rowSize = Infinity;
+            const jobs = [...row.querySelectorAll('.desk')].map(d => {
+                const n = d.querySelector('.name');
+                n.style.fontSize = '';
+                return { d, n, text: n.textContent.trim() };
+            });
+            jobs.forEach(({ d, n, text }) => {
+                if (!text || text === '—') return;
+                let size = 22;
+                const probe = document.createElement('span');
+                probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;padding:0;margin:0;font-weight:700;';
+                probe.textContent = text.split(/\s+/).reduce((a, w) => (w.length > a.length ? w : a), '');
+                n.appendChild(probe);
+                const maxW = d.clientWidth - 14, maxH = d.clientHeight - 18;
+                let guard = 60;
+                while (guard-- > 0 && size > 9 && (probe.offsetWidth > maxW || n.scrollHeight > maxH)) {
+                    size -= 0.5;
+                    n.style.fontSize = size + 'px';
+                }
+                probe.remove();
+                if (size < rowSize) rowSize = size;
+            });
+            if (isFinite(rowSize)) jobs.forEach(({ n }) => { n.style.fontSize = rowSize + 'px'; });
+        });
+    }
+    window.addEventListener('resize', () => {
+        if (document.getElementById('seatOverlay').classList.contains('open')) { renderSeats(); fitSeatNames(); }
+    });
+    function toggleSeats(open) {
+        if (open) { renderSeats(); requestAnimationFrame(fitSeatNames); }
+        document.getElementById('seatOverlay').classList.toggle('open', open);
+    }
+    document.getElementById('seatBtn').addEventListener('click', () => toggleSeats(true));
+    document.getElementById('seatClose').addEventListener('click', () => toggleSeats(false));
+    document.getElementById('seatOverlay').addEventListener('click', ev => {
+        if (ev.target === document.getElementById('seatOverlay')) toggleSeats(false);
+    });
+
     // ---------- live sync ----------
     const pill = document.getElementById('syncPill');
     function setPill(state, label) {
@@ -565,14 +759,24 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         else document.documentElement.requestFullscreen();
     });
     document.addEventListener('keydown', ev => {
-        if (ev.key === 'Escape') toggleEditor(false);
-        else if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
+        if (ev.key === 'Escape') {
+            toggleSeats(false);
+            toggleEditor(false);
+            return;
+        }
+        const typing = ev.target && (ev.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(ev.target.tagName));
+        if (typing) return;
+        if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
+        else if (ev.key === 's' || ev.key === 'S') toggleSeats(!document.getElementById('seatOverlay').classList.contains('open'));
         else if (ev.key === 'f' || ev.key === 'F') document.getElementById('fsBtn').click();
         else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
             const today = todaysSections();
             const list = today.length ? today : ORDER;
             const i = list.indexOf(current);
-            if (i !== -1) setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length]);
+            if (i !== -1) {
+                setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length]);
+                if (document.getElementById('seatOverlay').classList.contains('open')) renderSeats();
+            }
         }
     });
 

@@ -35,6 +35,16 @@ curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
   "<SCRIPT_URL>"
 ```
 
+## Seating plans
+
+`seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in
+that page's **browser storage** (`sp_<homeroom>`, JSON seatNumber→name). The opening
+slide's 🪑 popup reads, best first: that storage → snapshot in
+`Student_System/class_seating_data.js` (`snapshots.<homeroom>`) → alphabetical roster
+from `Student_System/students_roster_data.js`. To sync a class for projectors on a
+different browser/origin, mirror its saved layout into `class_seating_data.js`
+snapshots and push. Names only — never PINs/IDs/notes on projector screens.
+
 - Section keys: `902-CIT 902-HL 901-CIT 901-HL 903-CIT 903-HL 801-HE 802-HE 803-HE 804-HE`
   (course = `CIT9` / `HL9` / `HL8`).
 - Dates are `YYYY-MM-DD`. When the teacher says "log that … for <section>", resolve the

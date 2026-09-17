@@ -23,6 +23,11 @@ slide), announcements, and a course outcome strip at the bottom for administrato
   per section in the `Class_Slide` tab via the webhook. Leave the outcome blank to use the
   course outcome for today's lesson (from `class_log_lesson_maps.js`).
 - The outcome strip stays on screen for the whole period — that's the administrator view.
+- **🪑 Seats popup** (`s` key): the Room 8 desk chart (11 · 11 · 7) for the class on screen.
+  Names come from, best first: the seating doc's own browser storage (`sp_<homeroom>` —
+  your live edits in `seating-plan.html` when both pages run in the same browser),
+  a synced snapshot in `class_seating_data.js`, then the alphabetical roster.
+  Ask ZCode to "sync 902's seating snapshot" after reshuffling in the seating doc.
 
 
 ---
