@@ -44,6 +44,7 @@ window.CLASS_LOG_LESSON_MAPS = {
         classes: {
             1: "Course launch",
             5: "Three Levels of Government",
+            6: "Cost-of-living / Numbeo (Real Issues)",
             7: "SL Proposal summative",
             8: "SL Implementation launch",
             9: "TRC / Orange Shirt (U2 open)"
