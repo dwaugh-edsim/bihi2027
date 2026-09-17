@@ -214,17 +214,26 @@ function doGet(e) {
         for (let i = 1; i < rows.length; i++) {
           if (!String(rows[i][0] || '').trim()) continue;
           entries.push({
-            date: String(rows[i][0]).trim(),          // 'YYYY-MM-DD'
+            date: toIsoDate(rows[i][0]),              // 'YYYY-MM-DD' (normalized from date cells)
             section: String(rows[i][1]).trim(),       // e.g. '902-CIT'
             course: String(rows[i][2]).trim(),        // e.g. 'CIT9'
             classNo: String(rows[i][3] || '').trim(), // optional lesson number
             did: String(rows[i][4] || ''),
             next: String(rows[i][5] || ''),
-            timestamp: rows[i][6] || ''
+            timestamp: toIsoStamp(rows[i][6])
           });
         }
       }
-      return successJSON({ status: 'success', entries: entries, plans: readClassPlans(ss) });
+      const rawPlans = readClassPlans(ss);
+      const plans = {};
+      for (const section of Object.keys(rawPlans)) {
+        plans[section] = {
+          note: String(rawPlans[section].note || ''),
+          classNo: String(rawPlans[section].classNo || '').trim(),
+          updated: toIsoStamp(rawPlans[section].updated)
+        };
+      }
+      return successJSON({ status: 'success', entries: entries, plans: plans });
     }
 
     // ==========================================
@@ -489,7 +498,7 @@ function doPost(e) {
       if (lastRow > 1) {
         const data = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
         for (let r = 0; r < data.length; r++) {
-          if (String(data[r][0]).trim() === logDate && String(data[r][1]).trim() === logSection) {
+          if (toIsoDate(data[r][0]) === logDate && String(data[r][1]).trim() === logSection) {
             targetRow = r + 2;
             break;
           }
@@ -553,7 +562,7 @@ function doPost(e) {
       const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
       let removed = 0;
       for (let r = data.length - 1; r >= 0; r--) {
-        if (String(data[r][0]).trim() === delDate && String(data[r][1]).trim() === delSection) {
+        if (toIsoDate(data[r][0]) === delDate && String(data[r][1]).trim() === delSection) {
           sheet.deleteRow(r + 2);
           removed++;
         }
@@ -832,6 +841,24 @@ function clearClassPlan(ss, section) {
 }
 
 /**
+ * Sheets auto-converts '2026-09-17' typed into a cell into a real Date —
+ * normalize every date cell back to 'YYYY-MM-DD' on read/compare so the log,
+ * upsert matching, and deletes work no matter how the row was written.
+ */
+function toIsoDate(value) {
+  if (value instanceof Date) {
+    const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone() || 'America/Halifax';
+    return Utilities.formatDate(value, tz, 'yyyy-MM-dd');
+  }
+  return String(value || '').trim();
+}
+
+function toIsoStamp(value) {
+  if (value instanceof Date) return value.toISOString();
+  return value || '';
+}
+
+/**
  * Class_Log tab — teacher's "what we did / what's next" tracker
  * (Class_Log_Tracker.html). Created on first write.
  */
@@ -850,6 +877,7 @@ function getClassLogSheet(ss) {
     ]);
     sheet.getRange("A1:G1").setFontWeight("bold").setBackground('#f1f5f9');
     sheet.setFrozenRows(1);
+    sheet.getRange('A2:A').setNumberFormat('@'); // keep dates as plain text strings
     sheet.setColumnWidth(5, 320);
     sheet.setColumnWidth(6, 320);
   }

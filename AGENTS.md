@@ -34,6 +34,10 @@ curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
 - Dates are `YYYY-MM-DD`. When the teacher says "log that … for <section>", resolve the
   date to the class's actual meeting date (see `Student_System/class_log_meetings_data.js`
   for every section's meeting dates/periods — the tracker's schedule engine).
+- Reliability notes: the POST's `302` response is **normal** — the script executes on the
+  first hop even though curl shows a redirect (or a cosmetic 411/HTML page with `-L`);
+  trust the follow-up GET, not the POST body. Google intermittently serves an HTML error
+  page on GETs — retry 2–3 times. Verify writes with `get_class_log`, never assume.
 - Optional gate: if a `CLASS_LOG_PIN` Script Property is set, writes need `teacherPin`.
 - UI: `Student_System/Class_Log_Tracker.html` · docs: `Student_System/CLASS_LOG_README.md`
 

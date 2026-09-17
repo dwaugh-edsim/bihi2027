@@ -57,6 +57,13 @@ curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
 `<SCRIPT_URL>` is the webhook in `api.js` (`CONFIG.DEFAULT_SCRIPT_URL`) — also written in
 the repo's `AGENTS.md` so any future ZCode session finds it automatically.
 
+**Curl reliability notes:** the `302` on a POST is normal — the script runs on the first
+hop even if curl shows a redirect or a cosmetic 411/HTML page; confirm writes with
+`get_class_log` rather than trusting the POST response. Google also intermittently serves
+an HTML error page on GETs — retry 2–3×. Dates are always `YYYY-MM-DD` in the API; if you
+type them straight into the Sheet, Google may display them as local dates, which is fine —
+the backend normalizes on read and on upsert/delete matching.
+
 ### D. With any LLM (hands-free)
 Paste your messy note into any LLM along with:
 
