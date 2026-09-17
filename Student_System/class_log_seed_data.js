@@ -27,5 +27,19 @@ window.CLASS_LOG_SEED = {
             timestamp: "2026-09-15T15:05:00Z"
         }
     ],
-    plans: {}
+    plans: {
+        "902-CIT": {
+            note: "Review: three levels of government organizer\nSL proposal work period\nExit ticket — which level handles transit?",
+            classNo: "5",
+            updated: "2026-09-17T08:00:00Z"
+        }
+    },
+    slides: {
+        "902-CIT": {
+            title: "",
+            announcements: "Picture day Thursday\nTerry Fox forms due Friday",
+            outcome: "",
+            updated: "2026-09-17T08:00:00Z"
+        }
+    }
 };

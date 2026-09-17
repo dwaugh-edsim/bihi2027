@@ -27,6 +27,12 @@ curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
 curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
   -d '{"action":"delete_class_log","date":"YYYY-MM-DD","section":"902-CIT"}' \
   "<SCRIPT_URL>"
+
+# Opening-slide extras (projector do-now slide; multi-line values use \n). All-blank clears.
+# Agenda for the slide comes from set_class_plan's note (one line = one agenda item).
+curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
+  -d '{"action":"set_class_slide","section":"902-CIT","title":"","announcements":"Picture day Thursday","outcome":""}' \
+  "<SCRIPT_URL>"
 ```
 
 - Section keys: `902-CIT 902-HL 901-CIT 901-HL 903-CIT 903-HL 801-HE 802-HE 803-HE 804-HE`

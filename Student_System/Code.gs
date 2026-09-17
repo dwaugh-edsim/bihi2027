@@ -233,7 +233,12 @@ function doGet(e) {
           updated: toIsoStamp(rawPlans[section].updated)
         };
       }
-      return successJSON({ status: 'success', entries: entries, plans: plans });
+      return successJSON({
+        status: 'success',
+        entries: entries,
+        plans: plans,
+        slides: readClassSlides(ss)
+      });
     }
 
     // ==========================================
@@ -545,6 +550,28 @@ function doPost(e) {
     }
 
     // ==========================================
+    // ACTION: SET CLASS SLIDE (Class_Opening_Slide.html — projector do-now slide)
+    // payload: { section, title, announcements, outcome } — all blank clears.
+    // ==========================================
+    if (action === 'set_class_slide') {
+      const expectedPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (expectedPin && String(payload.teacherPin || '').trim() !== String(expectedPin)) {
+        throw new Error('Teacher PIN required for class log entries.');
+      }
+      const slideSection = String(payload.section || '').trim();
+      if (!slideSection) throw new Error('Section is required.');
+      const title = String(payload.title || '').trim();
+      const announcements = String(payload.announcements || '').trim();
+      const outcome = String(payload.outcome || '').trim();
+      if (title || announcements || outcome) {
+        writeClassSlide(ss, slideSection, title, announcements, outcome);
+      } else {
+        clearClassSlide(ss, slideSection);
+      }
+      return successJSON({ status: 'class_slide_set', section: slideSection });
+    }
+
+    // ==========================================
     // ACTION: DELETE CLASS LOG ROW (fix test rows / mistakes)
     // payload: { date, section }
     // ==========================================
@@ -830,6 +857,69 @@ function writeClassPlan(ss, section, note, classNo) {
 
 function clearClassPlan(ss, section) {
   const sheet = ss.getSheetByName('Class_Plan');
+  if (!sheet || sheet.getLastRow() <= 1) return;
+  const sections = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  for (let r = sections.length - 1; r >= 0; r--) {
+    if (String(sections[r][0]).trim() === section) {
+      sheet.deleteRow(r + 2);
+      return;
+    }
+  }
+}
+
+/**
+ * Class_Slide tab — per-section extras for the projector opening slide
+ * (Class_Opening_Slide.html). Agenda itself comes from Class_Plan.
+ * A Section | B Title | C Announcements | D Outcome | E Updated
+ */
+function getClassSlideSheet(ss) {
+  let sheet = ss.getSheetByName('Class_Slide');
+  if (!sheet) {
+    sheet = ss.insertSheet('Class_Slide');
+    sheet.appendRow(['Section', 'Title', 'Announcements', 'Outcome', 'Updated']);
+    sheet.getRange("A1:E1").setFontWeight("bold").setBackground('#f1f5f9');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(3, 360);
+    sheet.setColumnWidth(4, 360);
+  }
+  return sheet;
+}
+
+function readClassSlides(ss) {
+  const slides = {};
+  const sheet = ss.getSheetByName('Class_Slide');
+  if (!sheet || sheet.getLastRow() <= 1) return slides;
+  const rows = sheet.getRange(1, 1, sheet.getLastRow(), 5).getValues();
+  for (let i = 1; i < rows.length; i++) {
+    const section = String(rows[i][0] || '').trim();
+    if (!section) continue;
+    slides[section] = {
+      title: String(rows[i][1] || ''),
+      announcements: String(rows[i][2] || ''),
+      outcome: String(rows[i][3] || ''),
+      updated: toIsoStamp(rows[i][4])
+    };
+  }
+  return slides;
+}
+
+function writeClassSlide(ss, section, title, announcements, outcome) {
+  const sheet = getClassSlideSheet(ss);
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    const sections = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (let r = 0; r < sections.length; r++) {
+      if (String(sections[r][0]).trim() === section) {
+        sheet.getRange(r + 2, 2, 1, 4).setValues([[title, announcements, outcome, new Date()]]);
+        return;
+      }
+    }
+  }
+  sheet.appendRow([section, title, announcements, outcome, new Date()]);
+}
+
+function clearClassSlide(ss, section) {
+  const sheet = ss.getSheetByName('Class_Slide');
   if (!sheet || sheet.getLastRow() <= 1) return;
   const sections = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
   for (let r = sections.length - 1; r >= 0; r--) {

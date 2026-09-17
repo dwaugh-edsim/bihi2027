@@ -376,6 +376,18 @@ const StudentAPI = {
         }, courseKey);
     },
 
+    // Opening-slide extras (announcements / outcome / title) per section.
+    async setClassSlide(section, title, announcements, outcome, teacherPin, courseKey = 'HL9') {
+        return this._classLogPost({
+            action: 'set_class_slide',
+            section: section,
+            title: title || '',
+            announcements: announcements || '',
+            outcome: outcome || '',
+            teacherPin: teacherPin || ''
+        }, courseKey);
+    },
+
     async _classLogPost(payload, courseKey) {
         const url = this.getScriptUrl(courseKey);
         const payloadStr = JSON.stringify(payload);

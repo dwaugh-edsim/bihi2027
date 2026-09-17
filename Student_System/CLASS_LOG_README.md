@@ -1,12 +1,29 @@
 # Class Log — "What did we do last class?" Tracker
 
 **Page:** `Student_System/Class_Log_Tracker.html` (on the hub: `…/Student_System/Class_Log_Tracker.html`)
-**Data:** `Class_Log` tab in the **Room 8 Master Google Sheet** (same spreadsheet as the student system)
-**Backend:** the existing Student Webhook Apps Script (new actions `get_class_log` / `submit_class_log`)
+**Opening slide:** `Student_System/Class_Opening_Slide.html` — the projector "do-now" for when students enter
+**Data:** `Class_Log`, `Class_Plan`, and `Class_Slide` tabs in the **Room 8 Master Google Sheet** (same spreadsheet as the student system)
+**Backend:** the existing Student Webhook Apps Script (actions `get_class_log`, `submit_class_log`, `set_class_plan`, `set_class_slide`, `delete_class_log`)
 
-One row per class meeting. The page reads it live, works out **when each section meets
+One log row per class meeting. The tracker reads it live, works out **when each section meets
 next** from the verified 10-day rotation, and shows per-section *Last class → Next class*
-cards with countdowns and a suggested-next-lesson hint.
+cards with countdowns and a suggested-next-lesson hint. The **opening slide** auto-detects
+which class is in session from the clock (bell schedule + rotation), then shows course name
++ date, today's agenda (from that section's plan — so "what's next" in the tracker *is* the
+slide), announcements, and a course outcome strip at the bottom for administrators.
+
+## The opening slide (projector)
+
+- **Zero setup per class**: open `Class_Opening_Slide.html` on the projector — it picks the
+  right class from the time of day. Wrong pick? Click a chip or press ← / →. `F` = fullscreen.
+- **Agenda**: comes from the section's plan in the tracker. In the plan, one line = one
+  agenda item on the slide. If there's no plan, it falls back to the suggested next lesson.
+  "Last class" shows above it as continuing context.
+- **Announcements / title / outcome**: press `⚙` (or `e`) on the slide, type, Save — stored
+  per section in the `Class_Slide` tab via the webhook. Leave the outcome blank to use the
+  course outcome for today's lesson (from `class_log_lesson_maps.js`).
+- The outcome strip stays on screen for the whole period — that's the administrator view.
+
 
 ---
 
@@ -107,8 +124,9 @@ Copy the row into the Sheet (or into the quick-log panel). Done.
 | File | Role |
 |---|---|
 | `Class_Log_Tracker.html` | the dashboard + quick-log panel (teacher-only) |
+| `Class_Opening_Slide.html` | projector do-now slide: auto class detect, agenda, announcements, outcome strip |
 | `class_log_meetings_data.js` | generated: all 10 sections' meeting dates/periods, 2026–27 |
-| `class_log_lesson_maps.js` | class # → lesson/unit titles for the "suggested next" hint |
+| `class_log_lesson_maps.js` | class # → lesson titles + per-unit course outcomes (slide outcome bar) |
 | `class_log_seed_data.js` | offline snapshot (entries + plans; regenerated from the GET endpoint) |
 | `../tools/build_class_log_meetings.py` | schedule engine generator + fixture verification |
 | `Code.gs` | `get_class_log` / `submit_class_log` / `set_class_plan` / `delete_class_log` + sheet helpers |
