@@ -11,6 +11,17 @@ window.CLASS_LOG_LESSON_MAPS = {
     CIT9: {
         label: "Citizenship 9",
         total: 90,
+        // COURSE DIRECTION (teacher, Sep 17): pivoted away from the Head-to-Toe
+        // Citizen opener. Stated sequence: current events / cost-of-living
+        // assignment → checkpoint quiz (NS/Canada map · 3 levels of government ·
+        // cost-of-living basics) → new lesson on taking a moral stand at a cost
+        // (inspired by the Ed Sheeran × Macklemore moment). In progress with
+        // Antigravity — numbering below is provisional until he logs real classes.
+        upcoming: [
+            "Current events: cost of living (Real Issues dossier)",
+            "Checkpoint quiz — NS/Canada map · 3 levels of government · cost-of-living basics",
+            "Moral stand lesson — taking a stand, often at a cost (Ed Sheeran × Macklemore)"
+        ],
         defaultOutcome: "Students analyse and exercise the rights and responsibilities of Canadian citizenship — locally and globally — through inquiry, service learning, and civic action.",
         units: [
             { from: 1, to: 8, title: "U1 · Engaged Citizenship (SL Launch)",
@@ -31,7 +42,7 @@ window.CLASS_LOG_LESSON_MAPS = {
               outcome: "Students present their service learning and reflect on their growth as citizens." }
         ],
         classes: {
-            1: "Head-to-Toe Citizen intro",
+            1: "Course launch",
             5: "Three Levels of Government",
             7: "SL Proposal summative",
             8: "SL Implementation launch",

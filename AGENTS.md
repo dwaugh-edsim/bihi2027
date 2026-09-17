@@ -65,3 +65,13 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
 - The schedule data file is generated: edit `tools/build_class_log_meetings.py`
   (holidays/timetable), run `python tools/build_class_log_meetings.py`; it verifies
   against 586 hand-checked class dates before writing.
+
+## Course direction (teacher-confirmed, updating as he pivots)
+
+- **Citizenship 9**: teacher pivoted away from the "Head-to-Toe Citizen" opener (Sep 17).
+  Stated sequence: current events / cost-of-living assignment → checkpoint quiz
+  (NS/Canada map · 3 levels of government · cost-of-living basics) → a new lesson on
+  **taking a moral stand at a cost** (Ed Sheeran × Macklemore-inspired; being drafted in
+  Antigravity). The class-by-class numbering in the outlines/CALENDAR files is drifting
+  from classroom reality — trust the Class Log's actual entries and the teacher's word
+  over the planning docs, and don't reintroduce dropped lessons.
