@@ -103,6 +103,19 @@
         .btn-secondary { background: transparent; color: var(--text-heading); border-color: var(--text-heading); }
         .btn-secondary:hover { background: #f1f5f9; }
 
+        fieldset#workFieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            min-inline-size: 0;
+        }
+
+        fieldset#workFieldset:disabled {
+            opacity: 0.55;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+
         .sheet {
             background: #ffffff;
             border: 1px solid var(--border);
@@ -509,6 +522,12 @@
                 </div>
             </div>
 
+            <!-- Login Gate Banner -->
+            <div id="loginGateBanner" style="display: block; margin: 16px 0; padding: 14px 18px; border-radius: 8px; background: #eff6ff; border: 1.5px solid #3b82f6; color: #1e3a8a;">
+                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 2px;">🔒 Profile Locked — Enter Your PIN Above to Begin</div>
+                <div style="font-size: 0.85rem; color: #1d4ed8;">Please select your class, enter your first name and 3-letter PIN in the box above to load your profile and begin editing.</div>
+            </div>
+
             <!-- Navigation Tabs -->
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('tab-intake')">1. Identity & Contact</button>
@@ -517,6 +536,7 @@
                 <button class="tab-btn" onclick="switchTab('tab-teacher')">4. Note for Mr. Waugh</button>
             </div>
 
+            <fieldset id="workFieldset" disabled>
             <!-- TAB 1: INTAKE & CONTACT -->
             <div class="tab-pane active" id="tab-intake">
                 <div class="section-title">1. Student Contact & Preferences</div>
@@ -686,6 +706,7 @@
                     <button class="btn" onclick="saveAndSubmitAll()">Save & Submit All Data</button>
                 </div>
             </div>
+            </fieldset>
         </div>
 
     </div>
@@ -710,6 +731,143 @@
             document.getElementById('badgeClass').innerText = `Class ${cls}`;
         }
 
+        // --- RESILIENCY & HARDENED PERSISTENCE ---
+        const draftKey = (pin) => (!pin || pin === '---' || pin === 'draft') ? null : `gas_draft_intake_${pin.toUpperCase()}`;
+        const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+
+        function setAuthState(student) {
+            const fs = document.getElementById('workFieldset');
+            if (fs) fs.disabled = !student;
+            const gate = document.getElementById('loginGateBanner');
+            if (gate) gate.style.display = student ? 'none' : 'block';
+            const topLogout = document.getElementById('topLogoutBtn');
+            if (topLogout) topLogout.style.display = student ? 'inline-block' : 'none';
+            const authLogout = document.getElementById('authLogoutBtn');
+            if (authLogout) authLogout.style.display = student ? 'inline-block' : 'none';
+
+            const badge = document.getElementById('badgeStudent');
+            if (badge) {
+                if (student) {
+                    badge.innerHTML = `Logged in: <strong>${student.name || student.first_name}</strong> (${student.pin})`;
+                    badge.style.color = 'var(--text-main)';
+                } else {
+                    badge.innerText = 'Enter PIN below to load saved data';
+                    badge.style.color = 'var(--text-muted)';
+                }
+            }
+            const syncBadge = document.getElementById('syncBadge');
+            if (syncBadge && !student) syncBadge.style.display = 'none';
+        }
+
+        function isIdentityChange(newPin) {
+            const curPin = Session.getPin();
+            return !!(curPin && curPin !== '---' && curPin.toUpperCase() !== newPin.toUpperCase());
+        }
+
+        function collectFormData() {
+            const email = (document.getElementById('emailInput')?.value || '').trim();
+            const pronouns = (document.getElementById('pronounsInput')?.value || '').trim();
+            const phonetic = (document.getElementById('phoneticInput')?.value || '').trim();
+            const transit = (document.getElementById('transitInput')?.value || '').trim();
+            const curious = (document.getElementById('curiousInput')?.value || '').trim();
+
+            const wherePersonal = (document.getElementById('wherePersonal')?.value || '').trim();
+            const whereCommunity = (document.getElementById('whereCommunity')?.value || '').trim();
+            const whereGlobal = (document.getElementById('whereGlobal')?.value || '').trim();
+            const whereAspirational = (document.getElementById('whereAspirational')?.value || '').trim();
+            const teacherNote = (document.getElementById('teacherNote')?.value || '').trim();
+
+            const matrix = {};
+            document.querySelectorAll('#matrixTable tbody tr').forEach(row => {
+                const topic = row.dataset.topic;
+                const checked = row.querySelector('input[type="radio"]:checked');
+                if (checked) matrix[topic] = checked.value;
+            });
+
+            const formats = Array.from(document.querySelectorAll('#formatsGrid .pill-btn.selected')).map(b => b.innerText.trim());
+
+            return {
+                email, pronouns, phonetic, transit, curious,
+                where_personal: wherePersonal,
+                where_community: whereCommunity,
+                where_global: whereGlobal,
+                where_aspirational: whereAspirational,
+                teacher_note: teacherNote,
+                matrix, formats
+            };
+        }
+
+        function countCompleted(data) {
+            if (!data) return 0;
+            let count = 0;
+            ['email', 'pronouns', 'phonetic', 'transit', 'curious',
+             'where_personal', 'where_community', 'where_global', 'where_aspirational', 'teacher_note'].forEach(k => {
+                if (data[k] && typeof data[k] === 'string' && data[k].trim().length > 0) count++;
+            });
+            if (data.matrix && typeof data.matrix === 'object') {
+                count += Object.keys(data.matrix).length;
+            }
+            if (Array.isArray(data.formats)) {
+                count += data.formats.length;
+            }
+            return count;
+        }
+
+        function clearFormData() {
+            ['emailInput', 'pronounsInput', 'phoneticInput', 'transitInput', 'curiousInput', 
+             'teacherNote', 'wherePersonal', 'whereCommunity', 'whereGlobal', 'whereAspirational'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.querySelectorAll('#matrixTable tbody input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#formatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+        }
+
+        function restoreFormData(d) {
+            if (!d) return;
+            if (d.email && document.getElementById('emailInput')) document.getElementById('emailInput').value = d.email;
+            if (d.pronouns && document.getElementById('pronounsInput')) document.getElementById('pronounsInput').value = d.pronouns;
+            if (d.phonetic && document.getElementById('phoneticInput')) document.getElementById('phoneticInput').value = d.phonetic;
+            if (d.transit && document.getElementById('transitInput')) document.getElementById('transitInput').value = d.transit;
+            if (d.curious && document.getElementById('curiousInput')) document.getElementById('curiousInput').value = d.curious;
+            if (d.teacher_note && document.getElementById('teacherNote')) document.getElementById('teacherNote').value = d.teacher_note;
+            
+            if (d.where_personal && document.getElementById('wherePersonal')) document.getElementById('wherePersonal').value = d.where_personal;
+            if (d.where_community && document.getElementById('whereCommunity')) document.getElementById('whereCommunity').value = d.where_community;
+            if (d.where_global && document.getElementById('whereGlobal')) document.getElementById('whereGlobal').value = d.where_global;
+            if (d.where_aspirational && document.getElementById('whereAspirational')) document.getElementById('whereAspirational').value = d.where_aspirational;
+            
+            if (d.matrix) {
+                document.querySelectorAll('#matrixTable tbody tr').forEach(row => {
+                    const topic = row.dataset.topic;
+                    if (d.matrix[topic]) {
+                        const radio = row.querySelector(`input[value="${d.matrix[topic]}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                });
+            }
+
+            if (d.formats && Array.isArray(d.formats)) {
+                document.querySelectorAll('#formatsGrid .pill-btn').forEach(btn => {
+                    if (d.formats.includes(btn.innerText.trim())) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        function triggerAutoSave() {
+            const pin = Session.getPin();
+            if (!pin || pin === '---') return;
+            const key = draftKey(pin);
+            if (!key) return;
+            const data = collectFormData();
+            data.savedAt = new Date().toISOString();
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) { }
+        }
+
         async function loginAndRestore() {
             const cls = document.getElementById('classSelect').value;
             const name = document.getElementById('firstNameInput').value.trim();
@@ -717,6 +875,7 @@
 
             if (!name || !pin) {
                 showToast("Please enter your First Name and 3-Letter PIN.", true);
+                setAuthState(null);
                 return;
             }
 
@@ -724,157 +883,152 @@
             const auth = StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
                 showToast(auth.message, true);
+                setAuthState(null);
                 return;
             }
 
-            showToast("Verifying PIN and checking Google Sheet for saved data...");
-            const res = await StudentAPI.login(cls, name, pin, cls.startsWith('8') ? 'HL8' : 'HL9');
-            
-            if (res.status === 'success') {
-                document.getElementById('badgeStudent').innerHTML = `Logged in: <strong>${res.name || name}</strong> (${pin})`;
-                document.getElementById('syncBadge').style.display = 'inline-block';
-                
-                // Restore saved profile fields from Google Sheet
-                if (res.email) document.getElementById('emailInput').value = res.email;
-                if (res.pronouns) document.getElementById('pronounsInput').value = res.pronouns;
-                
-                const d = res.savedData || {};
-                if (d.phonetic) document.getElementById('phoneticInput').value = d.phonetic;
-                if (d.transit) document.getElementById('transitInput').value = d.transit;
-                if (d.curious) document.getElementById('curiousInput').value = d.curious;
-                if (d.teacher_note) document.getElementById('teacherNote').value = d.teacher_note;
-                
-                // Restore WHERE places
-                if (d.where_personal) document.getElementById('wherePersonal').value = d.where_personal;
-                if (d.where_community) document.getElementById('whereCommunity').value = d.where_community;
-                if (d.where_global) document.getElementById('whereGlobal').value = d.where_global;
-                if (d.where_aspirational) document.getElementById('whereAspirational').value = d.where_aspirational;
-                
-                // Restore matrix
-                if (d.matrix) {
-                    document.querySelectorAll('#matrixTable tbody tr').forEach(row => {
-                        const topic = row.dataset.topic;
-                        if (d.matrix[topic]) {
-                            const radio = row.querySelector(`input[value="${d.matrix[topic]}"]`);
-                            if (radio) radio.checked = true;
-                        }
-                    });
+            // Atomic identity switch: flush previous student before adopting new identity
+            if (isIdentityChange(pin)) {
+                const prevData = collectFormData();
+                if (countCompleted(prevData) > 0) {
+                    try { await saveAndSubmitAll(false); } catch(e) {}
                 }
-
-                // Restore selected pills
-                if (d.formats && Array.isArray(d.formats)) {
-                    document.querySelectorAll('#formatsGrid .pill-btn').forEach(btn => {
-                        if (d.formats.includes(btn.innerText.trim())) {
-                            btn.classList.add('selected');
-                        }
-                    });
-                }
-
-                showToast(`Welcome back, ${res.name || name}! All previous work loaded from Google Sheets.`);
-
-                const topLogout = document.getElementById('topLogoutBtn');
-                if (topLogout) topLogout.style.display = 'inline-block';
-                const authLogout = document.getElementById('authLogoutBtn');
-                if (authLogout) authLogout.style.display = 'inline-block';
-            } else {
-                showToast(res.message || "Failed to log in.", true);
+                clearFormData();
             }
+
+            const student = { name: auth.name, pin: pin, homeroom: cls };
+            Session.set(cls, auth.name, pin);
+            setAuthState(student);
+
+            showToast("Verifying PIN and checking Google Sheet for saved data...");
+            const courseKey = cls.startsWith('8') ? 'HL8' : 'CIT9';
+            let cloudRes = null;
+            try {
+                cloudRes = await StudentAPI.login(cls, auth.name, pin, courseKey);
+            } catch (e) {
+                console.warn("Cloud login warning:", e);
+            }
+
+            const cloudData = (cloudRes && cloudRes.savedData) ? (cloudRes.savedData.data || cloudRes.savedData) : null;
+            const cloudAt = Date.parse((cloudRes && (cloudRes.updated || (cloudRes.savedData && cloudRes.savedData.updated))) || 0) || 0;
+
+            const key = draftKey(pin);
+            let localObj = null;
+            if (key) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (raw) localObj = JSON.parse(raw);
+                } catch(e) {}
+            }
+            const localAt = draftSavedAt(localObj);
+
+            // Conflict Resolution: newer-wins
+            if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(cloudData)) {
+                restoreFormData(localObj);
+                document.getElementById('syncBadge').style.display = 'inline-block';
+                showToast(`Restored newer local draft from this device. Syncing to Google Sheets...`);
+                saveAndSubmitAll(false);
+                return;
+            }
+
+            if (cloudData && countCompleted(cloudData) > 0) {
+                restoreFormData(cloudData);
+                if (key) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify({ ...cloudData, savedAt: new Date().toISOString() }));
+                    } catch(e) {}
+                }
+                document.getElementById('syncBadge').style.display = 'inline-block';
+                showToast(`Welcome back, ${auth.name}! All previous work loaded from Google Sheets.`);
+                return;
+            }
+
+            if (localObj && countCompleted(localObj) > 0) {
+                restoreFormData(localObj);
+                showToast(`Restored saved draft from this device.`);
+                return;
+            }
+
+            showToast(`Welcome, ${auth.name}! Ready to begin.`);
         }
 
         function logout() {
             if (confirm("Sign out of this session? The form will be cleared for the next student.")) {
+                flushEmergencyBeacon();
                 Session.clear();
+                clearFormData();
+                setAuthState(null);
                 
                 document.getElementById('firstNameInput').value = '';
                 document.getElementById('pinInput').value = '';
-                
-                document.getElementById('badgeStudent').innerText = 'Enter PIN below to load saved data';
-                document.getElementById('badgeStudent').style.color = 'var(--text-muted)';
-                document.getElementById('syncBadge').style.display = 'none';
-
-                ['emailInput', 'pronounsInput', 'phoneticInput', 'transitInput', 'curiousInput', 
-                 'teacherNote', 'wherePersonal', 'whereCommunity', 'whereGlobal', 'whereAspirational'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-
-                document.querySelectorAll('#matrixTable tbody input[type="radio"]').forEach(r => r.checked = false);
-                document.querySelectorAll('#formatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
-
                 showToast("Signed out successfully. Form cleared.");
             }
         }
 
-        async function saveAndSubmitAll() {
+        async function saveAndSubmitAll(showFeedback = true) {
             const name = document.getElementById('firstNameInput').value.trim() || Session.getName();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase() || Session.getPin();
             const cls = document.getElementById('classSelect').value || Session.getClass();
 
             if (!pin || !name) {
-                showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
+                if (showFeedback) showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
                 return;
             }
 
             // --- AUTHORIZED ROSTER GATE ---
             const auth = StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
-                showToast(auth.message, true);
+                if (showFeedback) showToast(auth.message, true);
                 return;
             }
 
-            const email = document.getElementById('emailInput').value.trim();
-            const pronouns = document.getElementById('pronounsInput').value.trim();
-            const phonetic = document.getElementById('phoneticInput').value.trim();
-            const transit = document.getElementById('transitInput').value.trim();
-            const curious = document.getElementById('curiousInput').value.trim();
-
-            const wherePersonal = document.getElementById('wherePersonal').value.trim();
-            const whereCommunity = document.getElementById('whereCommunity').value.trim();
-            const whereGlobal = document.getElementById('whereGlobal').value.trim();
-            const whereAspirational = document.getElementById('whereAspirational').value.trim();
-            const teacherNote = document.getElementById('teacherNote').value.trim();
-
-            // Gather Matrix
-            const matrix = {};
-            document.querySelectorAll('#matrixTable tbody tr').forEach(row => {
-                const topic = row.dataset.topic;
-                const checked = row.querySelector('input[type="radio"]:checked');
-                matrix[topic] = checked ? checked.value : "Not Specified";
-            });
-
-            // Gather Formats
-            const formats = Array.from(document.querySelectorAll('#formatsGrid .pill-btn.selected')).map(b => b.innerText.trim());
-
+            const formData = collectFormData();
             const fullPayload = {
                 name: name,
                 pin: pin,
                 className: cls,
-                email: email,
-                pronouns: pronouns,
-                phonetic: phonetic,
-                transit: transit,
-                curious: curious,
-                matrix: matrix,
-                formats: formats,
-                where_personal: wherePersonal,
-                where_community: whereCommunity,
-                where_global: whereGlobal,
-                where_aspirational: whereAspirational,
-                teacher_note: teacherNote
+                ...formData
             };
 
-            const summary = `Email: ${email || 'None'} | Pronouns: ${pronouns || 'None'} | Places: [P: ${wherePersonal ? 'Yes' : 'No'}, C: ${whereCommunity ? 'Yes' : 'No'}, G: ${whereGlobal ? 'Yes' : 'No'}, A: ${whereAspirational ? 'Yes' : 'No'}] | Note: ${teacherNote ? 'Yes' : 'None'}`;
+            const summary = `Email: ${formData.email || 'None'} | Pronouns: ${formData.pronouns || 'None'} | Places: [P: ${formData.where_personal ? 'Yes' : 'No'}, C: ${formData.where_community ? 'Yes' : 'No'}, G: ${formData.where_global ? 'Yes' : 'No'}, A: ${formData.where_aspirational ? 'Yes' : 'No'}] | Note: ${formData.teacher_note ? 'Yes' : 'None'}`;
 
-            showToast("Syncing all data to Mr. Waugh's master Google Sheet...");
+            if (showFeedback) showToast("Syncing all data to Mr. Waugh's master Google Sheet...");
 
-            const res = await StudentAPI.submitProfile('Student Intake, Diagnostic & WHERE Profile', fullPayload, summary, cls.startsWith('8') ? 'HL8' : 'HL9');
-            if (res.status === 'success') {
-                document.getElementById('syncBadge').style.display = 'inline-block';
-                showToast("All data successfully saved to Google Sheets! You can return on any device anytime.");
-            } else {
-                showToast(res.message || "Failed to save to Google Sheet.", true);
+            const key = draftKey(pin);
+            if (key) {
+                try {
+                    localStorage.setItem(key, JSON.stringify({ ...formData, savedAt: new Date().toISOString() }));
+                } catch(e) {}
+            }
+
+            try {
+                const res = await StudentAPI.submitProfile('Student Intake, Diagnostic & WHERE Profile', fullPayload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
+                if (res.status === 'success') {
+                    document.getElementById('syncBadge').style.display = 'inline-block';
+                    if (showFeedback) showToast("All data successfully saved to Google Sheets! You can return on any device anytime.");
+                } else {
+                    if (showFeedback) showToast(res.message || "Failed to save to Google Sheet.", true);
+                }
+            } catch(e) {
+                if (showFeedback) showToast("Saved to local device (offline). Will sync when connection is restored.");
             }
         }
+
+        function flushEmergencyBeacon() {
+            const pin = Session.getPin();
+            if (!pin || pin === '---') return;
+            const cls = document.getElementById('classSelect').value || Session.getClass();
+            const name = Session.getName();
+            const formData = collectFormData();
+            const fullPayload = {
+                name, pin, className: cls, ...formData
+            };
+            const summary = `Intake emergency beacon for ${name} (${pin})`;
+            StudentAPI.sendEmergencyBeacon('Student Intake, Diagnostic & WHERE Profile', fullPayload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
+        }
+        window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushEmergencyBeacon(); });
+        window.addEventListener('pagehide', flushEmergencyBeacon);
+        window.addEventListener('beforeunload', flushEmergencyBeacon);
 
         /* --- CLAIM & GENERATE PIN HELPERS --- */
         let cachedRoster = null;
@@ -1038,11 +1192,17 @@
 
         window.onload = () => {
             try { localStorage.removeItem('custom_roster_additions'); } catch(e){}
+            document.querySelectorAll('#workFieldset input, #workFieldset textarea, #workFieldset select').forEach(el => {
+                el.addEventListener('input', triggerAutoSave);
+                el.addEventListener('change', triggerAutoSave);
+            });
             if (Session.isLoggedIn()) {
                 document.getElementById('firstNameInput').value = Session.getName();
                 document.getElementById('pinInput').value = Session.getPin();
                 document.getElementById('classSelect').value = Session.getClass();
                 loginAndRestore();
+            } else {
+                setAuthState(null);
             }
         };
     </script>

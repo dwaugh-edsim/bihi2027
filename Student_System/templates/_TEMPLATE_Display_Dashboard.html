@@ -592,6 +592,10 @@
                 <button class="sidebar-btn btn-sync" id="btnSyncCloud" onclick="syncLiveCloud()">
                     🔄 Sync Live Cloud Data
                 </button>
+                <div id="syncTimeLabel" style="font-size:0.75rem; color:var(--text-dim); text-align:center; margin-top:-4px; margin-bottom:4px;">Not synced yet</div>
+                <label style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:0.75rem; color:var(--text-muted); cursor:pointer;">
+                    <input type="checkbox" id="autoPollToggle" onchange="toggleAutoPoll(this.checked)"> Auto-refresh (45s)
+                </label>
                 <button class="sidebar-btn" onclick="toggleDarkMode()">
                     🌓 Toggle Paper / Dark
                 </button>
@@ -603,6 +607,7 @@
 
         <!-- MAIN AREA -->
         <main class="main-area">
+            <div id="syncErrorBanner" style="display:none; background:#fef2f2; border:1.5px solid #ef4444; color:#991b1b; padding:8px 14px; margin: 10px 14px 0 14px; border-radius:6px; font-weight:700; font-size:0.82rem;"></div>
             <div class="main-topbar">
                 <div class="topbar-title">
                     <span id="displayClassTitle">All Students</span>
@@ -741,7 +746,7 @@
             const filtered = roster.filter(s => DASHBOARD_CONFIG.classes.includes(String(s.homeroom || '')));
             filtered.forEach(s => {
                 const pin = (s.pin || '').toUpperCase();
-                const fn = (pin === 'BEU' || s.first_name === 'Blessing') ? 'Kossi' : s.first_name;
+                const fn = s.first_name; // REMOVED hardcoded student name hack
                 const itemsMap = {};
                 DASHBOARD_CONFIG.items.forEach(it => {
                     itemsMap[it.id] = { done: false, data: {} };
@@ -755,6 +760,7 @@
                     class: String(s.homeroom),
                     homeroom: String(s.homeroom),
                     items: itemsMap,
+                    orphanTasks: [],
                     tasks_completed: 0
                 };
             });
@@ -829,12 +835,9 @@
                 students = students.filter(s => s.tasks_completed === 0);
             }
 
-            // Filter by Search Query
+            // Filter by Search Query (Name only — never match PINs on projector)
             if (q) {
-                students = students.filter(s => 
-                    s.name.toLowerCase().includes(q) || 
-                    s.pin.toLowerCase().includes(q)
-                );
+                students = students.filter(s => s.name.toLowerCase().includes(q));
             }
 
             // Split across Two Columns (50/50)
@@ -879,7 +882,7 @@
             // Build Modal Tabs
             const tabsBar = document.getElementById('modalTabsBar');
             tabsBar.innerHTML = DASHBOARD_CONFIG.items.map(it => `
-                <button class="modal-tab-btn ${it.id === activeModalTab ? 'active' : ''}" onclick="switchModalTab('${it.id}')">
+                <button class="modal-tab-btn ${it.id === activeModalTab ? 'active' : ''}" onclick="switchModalTab('${it.id}', this)">
                     ${it.icon} ${it.label}
                 </button>
             `).join('');
@@ -892,31 +895,97 @@
             document.getElementById('dossierModal').style.display = 'none';
         }
 
-        function switchModalTab(tabId) {
+        function switchModalTab(tabId, btnEl) {
             activeModalTab = tabId;
             document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            if (btnEl) btnEl.classList.add('active');
             renderModalTabContent();
+        }
+
+        function scrubForDisplay(obj) {
+            if (Array.isArray(obj)) return obj.map(scrubForDisplay);
+            if (obj && typeof obj === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    if (/^(pin|_requestId|email)$/i.test(k)) continue;
+                    out[k] = scrubForDisplay(v);
+                }
+                return out;
+            }
+            return obj;
         }
 
         function renderModalTabContent() {
             const s = currentModalStudent;
             if (!s) return;
             const c = document.getElementById('modalTabContent');
-            const itemData = (s.items[activeModalTab] && s.items[activeModalTab].data) || {};
+            const rawData = (s.items[activeModalTab] && s.items[activeModalTab].data) || {};
+            const itemData = scrubForDisplay(rawData);
+
+            let answerCards = '';
+            const answersObj = itemData.answers || itemData;
+            if (answersObj && typeof answersObj === 'object' && Object.keys(answersObj).length > 0) {
+                const entries = Object.entries(answersObj).filter(([k]) => !['auditors', 'partner', 'section', 'date', 'name'].includes(k));
+                if (entries.length > 0) {
+                    answerCards = `
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                            ${entries.map(([k, val]) => {
+                                const label = k.replace(/^p\d+_/, '').replace(/_/g, ' ');
+                                const displayVal = Array.isArray(val) ? (val.length ? val.join(', ') : '—') : (val || '—');
+                                return `
+                                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px;">
+                                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); text-transform:uppercase;">${label}</div>
+                                        <div style="font-size:0.85rem; color:var(--text-main); margin-top:2px; word-break:break-word;">${displayVal}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            const orphanAlert = (s.orphanTasks && s.orphanTasks.length) ? `
+                <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:0.78rem; color:#92400e;">
+                    <strong>⚠️ Additional Submissions on File (not in this dashboard config):</strong>
+                    <ul style="margin:4px 0 0 16px;">
+                        ${s.orphanTasks.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : '';
 
             c.innerHTML = `
                 <div class="modal-section-card">
                     <h4>Submission Record: ${activeModalTab}</h4>
                     <p><strong>Status:</strong> ${s.items[activeModalTab]?.done ? '✅ Completed' : '⚪ Not yet submitted'}</p>
-                    <pre style="margin-top:8px; background:#f8fafc; padding:8px; border-radius:4px; font-size:0.75rem; overflow-x:auto;">${JSON.stringify(itemData, null, 2)}</pre>
+                    ${orphanAlert}
+                    ${answerCards}
+                    <details style="margin-top:12px;">
+                        <summary style="font-size:0.78rem; color:var(--text-dim); cursor:pointer;">Show Technical Record (Scrubbed)</summary>
+                        <pre style="margin-top:8px; background:#f8fafc; padding:8px; border-radius:4px; font-size:0.72rem; overflow-x:auto;">${JSON.stringify(itemData, null, 2)}</pre>
+                    </details>
                 </div>
             `;
         }
 
-        // ── LIVE CLOUD SYNC ──
+        // ── LIVE CLOUD SYNC & AUTO-POLL ──
+        let autoPollTimer = null;
+        function toggleAutoPoll(enabled) {
+            if (autoPollTimer) {
+                clearInterval(autoPollTimer);
+                autoPollTimer = null;
+            }
+            if (enabled) {
+                autoPollTimer = setInterval(() => {
+                    syncLiveCloud();
+                }, 45000);
+            }
+        }
+
         async function syncLiveCloud() {
             const btn = document.getElementById('btnSyncCloud');
+            const timeLabel = document.getElementById('syncTimeLabel');
+            const errBanner = document.getElementById('syncErrorBanner');
+
             if (btn) {
                 btn.disabled = true;
                 btn.innerText = '⏳ Syncing Cloud...';
@@ -926,27 +995,54 @@
                 const targetCls = currentClass === 'ALL' ? 'ALL' : currentClass;
                 const bulkRes = await StudentAPI.getClassProgress(targetCls, DASHBOARD_CONFIG.course);
                 if (bulkRes && bulkRes.status === 'success' && Array.isArray(bulkRes.students)) {
+                    const knownKeys = new Set(DASHBOARD_CONFIG.items.flatMap(it => [it.id, it.taskName].filter(Boolean)));
+
                     bulkRes.students.forEach(row => {
                         const pin = (row.pin || '').toUpperCase();
                         if (studentDataStore[pin]) {
                             const sd = row.savedData ? (row.savedData.data || row.savedData) : {};
                             
-                            // Dynamically verify tasks from savedData or row.assignments
+                            // Deterministic matching: [id, taskName] exact equality
                             DASHBOARD_CONFIG.items.forEach(it => {
-                                if (sd[it.id] || (sd._tasks && sd._tasks[it.id]) || (row.assignments && row.assignments[it.id])) {
+                                const aliases = [it.id, it.taskName].filter(Boolean);
+                                let found = null;
+                                for (const k of aliases) {
+                                    if (sd._tasks && sd._tasks[k]) { found = sd._tasks[k]; break; }
+                                    if (sd[k]) { found = sd[k]; break; }
+                                    if (row.assignments && row.assignments[k]) { found = row.assignments[k]; break; }
+                                }
+                                if (found) {
                                     studentDataStore[pin].items[it.id].done = true;
-                                    studentDataStore[pin].items[it.id].data = (sd._tasks && sd._tasks[it.id]?.data) || sd[it.id] || {};
+                                    studentDataStore[pin].items[it.id].data = found.data || (typeof found === 'object' ? found : { value: found });
                                 }
                             });
+
+                            // Orphan detection: unmatched _tasks keys surfaced in student dossier
+                            if (sd._tasks && typeof sd._tasks === 'object') {
+                                const orphans = Object.keys(sd._tasks).filter(k => !knownKeys.has(k));
+                                studentDataStore[pin].orphanTasks = orphans;
+                            }
 
                             studentDataStore[pin].tasks_completed = Object.values(studentDataStore[pin].items)
                                 .filter(it => it.done).length;
                         }
                     });
+
+                    if (errBanner) errBanner.style.display = 'none';
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (timeLabel) timeLabel.innerText = `Last synced: ${timeStr}`;
                     renderDashboard();
+                } else {
+                    throw new Error(bulkRes?.message || 'Invalid response from server');
                 }
             } catch(e) {
                 console.warn("Live cloud sync error:", e);
+                if (errBanner) {
+                    errBanner.innerText = `⚠️ Cloud sync error: ${e.message || 'Network issue'}. Click Sync to retry.`;
+                    errBanner.style.display = 'block';
+                }
+                if (timeLabel) timeLabel.innerText = 'Sync failed';
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -959,7 +1055,15 @@
             document.body.classList.toggle('dark-mode');
         }
 
-        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.MASTER_ROSTER_DATA || !window.MASTER_ROSTER_DATA.length) {
+                const errBanner = document.createElement('div');
+                errBanner.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:9999; background:#fef2f2; border:2px solid #ef4444; color:#991b1b; padding:10px 18px; border-radius:8px; font-weight:700; font-size:0.9rem;';
+                errBanner.innerHTML = '⚠️ Class roster failed to load — check the <code>students_roster_data.js</code> &lt;script&gt; path.';
+                document.body.appendChild(errBanner);
+            }
+            init();
+        });
     </script>
 </body>
 </html>

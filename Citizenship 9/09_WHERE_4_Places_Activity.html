@@ -71,6 +71,19 @@
             border: solid 2px var(--text-heading);
         }
 
+        fieldset#workFieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            min-inline-size: 0;
+        }
+
+        fieldset#workFieldset:disabled {
+            opacity: 0.55;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+
         .sheet {
             background: #ffffff;
             border: 1px solid var(--border);
@@ -260,7 +273,17 @@
                 <input type="text" id="nameInput" placeholder="First Name" style="width: 130px;">
                 <input type="text" id="pinInput" placeholder="3-Letter PIN" maxlength="3" style="width: 90px; text-transform: uppercase; font-family: monospace; font-weight: 700;">
                 <button class="btn btn-secondary" style="padding: 0.3em 0.8em; font-size: 0.75em;" onclick="loadStudentData()">Load My Saved Work</button>
+                <button class="btn btn-secondary" id="authLogoutBtn" type="button" style="display:none; padding: 0.3em 0.8em; font-size: 0.75em;" onclick="logout()">Sign Out</button>
+                <span id="syncStatus" style="margin-left: auto; font-size: 0.82em; color: var(--text-muted);">🔒 Not Logged In</span>
             </div>
+
+            <!-- Login Gate Banner -->
+            <div id="loginGateBanner" style="display: block; margin: 16px 0; padding: 14px 18px; border-radius: 8px; background: #eff6ff; border: 1.5px solid #3b82f6; color: #1e3a8a;">
+                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 2px;">🔒 Activity Locked — Enter Your PIN Above to Begin</div>
+                <div style="font-size: 0.85rem; color: #1d4ed8;">Please select your class, enter your first name and 3-letter PIN in the box above and click "Load My Saved Work" to begin.</div>
+            </div>
+
+            <fieldset id="workFieldset" disabled>
 
             <div class="intro-banner">
                 <strong>Our Concept:</strong> Who you are is deeply shaped by <em>where</em> you have been, where you live now, where your family comes from, and where you dream of going. Below, describe your 4 foundational places.
@@ -322,6 +345,7 @@
                     <button class="btn" onclick="saveWhereProject()">Save 4-Places to Sheet</button>
                 </div>
             </div>
+            </fieldset>
         </div>
 
     </div>
@@ -329,76 +353,246 @@
     <script src="../Student_System/students_roster_data.js"></script>
     <script src="../Student_System/api.js"></script>
     <script>
+        const draftKey = (pin) => (!pin || pin === '---' || pin === 'draft') ? null : `gas_draft_where4_${pin.toUpperCase()}`;
+        const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+
+        function setAuthState(student) {
+            const fs = document.getElementById('workFieldset');
+            if (fs) fs.disabled = !student;
+            const gate = document.getElementById('loginGateBanner');
+            if (gate) gate.style.display = student ? 'none' : 'block';
+            const authLogout = document.getElementById('authLogoutBtn');
+            if (authLogout) authLogout.style.display = student ? 'inline-block' : 'none';
+            const syncEl = document.getElementById('syncStatus');
+            if (syncEl) {
+                syncEl.innerText = student ? `🟢 Logged In: ${student.name || student.first_name} (${student.pin})` : '🔒 Not Logged In';
+            }
+        }
+
+        function isIdentityChange(newPin) {
+            const cur = Session.getPin();
+            return !!(cur && cur !== '---' && cur.toUpperCase() !== newPin.toUpperCase());
+        }
+
+        function collectFormData() {
+            return {
+                where_personal: (document.getElementById('place1')?.value || '').trim(),
+                where_community: (document.getElementById('place2')?.value || '').trim(),
+                where_global: (document.getElementById('place3')?.value || '').trim(),
+                where_aspirational: (document.getElementById('place4')?.value || '').trim()
+            };
+        }
+
+        function countCompleted(data) {
+            if (!data) return 0;
+            let count = 0;
+            ['where_personal', 'where_community', 'where_global', 'where_aspirational'].forEach(k => {
+                if (data[k] && typeof data[k] === 'string' && data[k].trim().length > 0) count++;
+            });
+            return count;
+        }
+
+        function clearFormData() {
+            ['place1', 'place2', 'place3', 'place4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+
+        function restoreFormData(d) {
+            if (!d) return;
+            if (d.where_personal && document.getElementById('place1')) document.getElementById('place1').value = d.where_personal;
+            if (d.where_community && document.getElementById('place2')) document.getElementById('place2').value = d.where_community;
+            if (d.where_global && document.getElementById('place3')) document.getElementById('place3').value = d.where_global;
+            if (d.where_aspirational && document.getElementById('place4')) document.getElementById('place4').value = d.where_aspirational;
+        }
+
+        function triggerAutoSave() {
+            const pin = Session.getPin();
+            if (!pin || pin === '---') return;
+            const key = draftKey(pin);
+            if (!key) return;
+            const data = collectFormData();
+            data.savedAt = new Date().toISOString();
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch(e) {}
+            const syncEl = document.getElementById('syncStatus');
+            if (syncEl) syncEl.innerText = `💾 Draft Saved Locally`;
+        }
+
         async function loadStudentData() {
             const cls = document.getElementById('classSelect').value;
             const name = document.getElementById('nameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
-            const auth = StudentAPI.validateStudent(cls, name, pin);
-            if (!auth.valid) {
-                showToast(auth.message, true);
+            if (!name || !pin) {
+                showToast("Please enter First Name and 3-Letter PIN.", true);
+                setAuthState(null);
                 return;
             }
 
-            showToast("Loading saved work from Google Sheets...");
-            const res = await StudentAPI.login(cls, auth.name || name, pin, cls.startsWith('8') ? 'HL8' : 'CIT9');
-            
-            if (res.status === 'success') {
-                const d = res.savedData || {};
-                if (d.where_personal) document.getElementById('place1').value = d.where_personal;
-                if (d.where_community) document.getElementById('place2').value = d.where_community;
-                if (d.where_global) document.getElementById('place3').value = d.where_global;
-                if (d.where_aspirational) document.getElementById('place4').value = d.where_aspirational;
-                showToast(`Loaded work for ${res.name || auth.name || name}!`);
-            } else {
-                showToast(res.message || "Failed to load.", true);
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
+                setAuthState(null);
+                return;
             }
+
+            if (isIdentityChange(pin)) {
+                const prev = collectFormData();
+                if (countCompleted(prev) > 0) {
+                    try { await saveWhereProject(false); } catch(e) {}
+                }
+                clearFormData();
+            }
+
+            const student = { name: auth.name || name, pin: pin, homeroom: cls };
+            Session.set(cls, auth.name || name, pin);
+            setAuthState(student);
+
+            showToast("Loading saved work from Google Sheets...");
+            const courseKey = cls.startsWith('8') ? 'HL8' : 'CIT9';
+            let cloudRes = null;
+            try {
+                cloudRes = await StudentAPI.login(cls, auth.name || name, pin, courseKey);
+            } catch(e) {
+                console.warn(e);
+            }
+
+            const cloudData = (cloudRes && cloudRes.savedData) ? (cloudRes.savedData.data || cloudRes.savedData) : null;
+            const cloudAt = Date.parse((cloudRes && (cloudRes.updated || (cloudRes.savedData && cloudRes.savedData.updated))) || 0) || 0;
+
+            const key = draftKey(pin);
+            let localObj = null;
+            if (key) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (raw) localObj = JSON.parse(raw);
+                } catch(e) {}
+            }
+            const localAt = draftSavedAt(localObj);
+
+            // Newer-wins conflict resolution
+            if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(cloudData)) {
+                restoreFormData(localObj);
+                showToast(`Restored newer local draft from this device. Syncing to Google Sheets...`);
+                saveWhereProject(false);
+                return;
+            }
+
+            if (cloudData && countCompleted(cloudData) > 0) {
+                restoreFormData(cloudData);
+                if (key) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify({ ...cloudData, savedAt: new Date().toISOString() }));
+                    } catch(e) {}
+                }
+                const syncEl = document.getElementById('syncStatus');
+                if (syncEl) syncEl.innerText = `🟢 Cloud Synced`;
+                showToast(`Loaded saved work from Google Sheets for ${auth.name || name}!`);
+                return;
+            }
+
+            if (localObj && countCompleted(localObj) > 0) {
+                restoreFormData(localObj);
+                showToast("Restored draft saved on this device.");
+                return;
+            }
+
+            showToast(`Welcome, ${auth.name || name}! Ready to write.`);
         }
 
-        async function saveWhereProject() {
+        async function saveWhereProject(showFeedback = true) {
             const cls = document.getElementById('classSelect').value;
             const name = document.getElementById('nameInput').value.trim() || Session.getName();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase() || Session.getPin();
 
-            const auth = StudentAPI.validateStudent(cls, name, pin);
-            if (!auth.valid) {
-                showToast(auth.message, true);
+            if (!pin || !name) {
+                if (showFeedback) showToast("Please log in with PIN and Name first.", true);
                 return;
             }
 
-            const p1 = document.getElementById('place1').value.trim();
-            const p2 = document.getElementById('place2').value.trim();
-            const p3 = document.getElementById('place3').value.trim();
-            const p4 = document.getElementById('place4').value.trim();
+            const auth = StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                if (showFeedback) showToast(auth.message, true);
+                return;
+            }
 
+            const formData = collectFormData();
             const payload = {
                 name: name,
                 pin: pin,
                 className: cls,
-                where_personal: p1,
-                where_community: p2,
-                where_global: p3,
-                where_aspirational: p4
+                ...formData
             };
 
-            const summary = `WHERE 4-Places Draft: Personal (${p1 ? 'Done' : 'Empty'}), Community (${p2 ? 'Done' : 'Empty'}), Global (${p3 ? 'Done' : 'Empty'}), Aspirational (${p4 ? 'Done' : 'Empty'})`;
+            const summary = `WHERE 4-Places Draft: Personal (${formData.where_personal ? 'Done' : 'Empty'}), Community (${formData.where_community ? 'Done' : 'Empty'}), Global (${formData.where_global ? 'Done' : 'Empty'}), Aspirational (${formData.where_aspirational ? 'Done' : 'Empty'})`;
 
-            showToast("Saving to Google Sheet...");
-            const res = await StudentAPI.submitProfile('WHERE 4-Places Project', payload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
-            
-            if (res.status === 'success') {
-                showToast("4-Places successfully saved to Google Sheets!");
-            } else {
-                showToast(res.message || "Save failed.", true);
+            const key = draftKey(pin);
+            if (key) {
+                try {
+                    localStorage.setItem(key, JSON.stringify({ ...formData, savedAt: new Date().toISOString() }));
+                } catch(e) {}
+            }
+
+            if (showFeedback) showToast("Saving to Google Sheet...");
+            try {
+                const res = await StudentAPI.submitProfile('WHERE 4-Places Project', payload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
+                if (res && res.status === 'success') {
+                    const syncEl = document.getElementById('syncStatus');
+                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (syncEl) syncEl.innerText = `🟢 Cloud Synced (${timeStr})`;
+                    if (showFeedback) showToast("4-Places successfully saved to Google Sheets!");
+                } else {
+                    if (showFeedback) showToast(res.message || "Save failed.", true);
+                }
+            } catch(e) {
+                const syncEl = document.getElementById('syncStatus');
+                if (syncEl) syncEl.innerText = `🔴 Offline (Saved Locally)`;
+                if (showFeedback) showToast("Saved to this device. Will sync to Google Sheets when reconnected.");
             }
         }
 
+        function logout() {
+            if (confirm("Sign out of this session? The form will be cleared for the next student.")) {
+                flushEmergencyBeacon();
+                Session.clear();
+                clearFormData();
+                setAuthState(null);
+                document.getElementById('nameInput').value = '';
+                document.getElementById('pinInput').value = '';
+                showToast("Signed out. Form cleared.");
+            }
+        }
+
+        function flushEmergencyBeacon() {
+            const pin = Session.getPin();
+            if (!pin || pin === '---') return;
+            const cls = document.getElementById('classSelect').value || Session.getClass();
+            const name = Session.getName();
+            const formData = collectFormData();
+            const payload = { name, pin, className: cls, ...formData };
+            const summary = `Emergency beacon WHERE 4-Places for ${name} (${pin})`;
+            StudentAPI.sendEmergencyBeacon('WHERE 4-Places Project', payload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
+        }
+
+        window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushEmergencyBeacon(); });
+        window.addEventListener('pagehide', flushEmergencyBeacon);
+        window.addEventListener('beforeunload', flushEmergencyBeacon);
+
         window.onload = () => {
+            document.querySelectorAll('#workFieldset textarea').forEach(el => {
+                el.addEventListener('input', triggerAutoSave);
+                el.addEventListener('change', triggerAutoSave);
+            });
             if (Session.isLoggedIn()) {
                 document.getElementById('nameInput').value = Session.getName();
                 document.getElementById('pinInput').value = Session.getPin();
                 document.getElementById('classSelect').value = Session.getClass();
                 loadStudentData();
+            } else {
+                setAuthState(null);
             }
         };
     </script>

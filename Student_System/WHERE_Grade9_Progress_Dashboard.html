@@ -648,6 +648,10 @@
             <div class="top-actions">
                 <a href="CIT9_Current_Issues_Progress_Dashboard.html" class="btn" style="background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); font-weight: 700;">🗳️ Issues Diagnostic Dashboard &rarr;</a>
                 <button class="btn btn-primary" id="btnLiveCloudSync" style="background: var(--emerald-bg); border-color: var(--emerald-border); color: var(--emerald); font-weight: 700;" onclick="syncLiveCloudData()">🔄 Sync Live Cloud Data</button>
+                <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); cursor:pointer;">
+                    <input type="checkbox" id="autoPollToggle" onchange="toggleAutoPoll(this.checked)"> Auto-refresh (45s)
+                </label>
+                <span id="syncTimeLabel" style="font-size:0.75rem; color:var(--text-dim);">Not synced yet</span>
                 <a href="Places_Of_Significance_Studio.html" target="_blank" class="btn btn-primary">🚀 Launch Places Studio</a>
                 <a href="../Citizenship 9/10_WHERE_Slide_Deck.html" target="_blank" class="btn">🖥️ Slide Deck</a>
                 <button class="btn" onclick="toggleProjectorMode()" id="projBtn">🌙 Dim Mode</button>
@@ -773,7 +777,15 @@
         let MasterMap = null;
         let mapMarkers = [];
         let activeModalStudent = null;
+        let autoPollTimer = null;
         window._LIVE_CLOUD_DATA = Object.assign({}, window.ROOM8_WHERE_INITIAL_DATA || {});
+
+        function toggleAutoPoll(enable) {
+            clearInterval(autoPollTimer);
+            if (enable) {
+                autoPollTimer = setInterval(syncLiveCloudData, 45000);
+            }
+        }
 
         // Default local coordinates for places if not yet customized
         const DEFAULT_LOCAL_COORDS = {
@@ -910,8 +922,38 @@
                     bulkSucceeded = true;
                     bulkRes.students.forEach(row => {
                         const pin = (row.pin || '').toUpperCase();
-                        const d = row.savedData ? (row.savedData.data || row.savedData) : {};
+                        let d = row.savedData ? (row.savedData.data || row.savedData) : {};
                         const assign = row.assignments || {};
+
+                        // Deterministic task matching
+                        const whereAliases = [
+                            'The WHERE Project — Places Portfolio',
+                            'places_portfolio',
+                            'where_portfolio'
+                        ];
+                        let foundTask = null;
+                        if (row._tasks) {
+                            for (const alias of whereAliases) {
+                                if (row._tasks[alias]) { foundTask = row._tasks[alias]; break; }
+                            }
+                        }
+                        if (!foundTask && d._tasks) {
+                            for (const alias of whereAliases) {
+                                if (d._tasks[alias]) { foundTask = d._tasks[alias]; break; }
+                            }
+                        }
+                        if (foundTask) {
+                            d = foundTask.data || foundTask;
+                        }
+
+                        // Orphan task detection
+                        if (row._tasks) {
+                            for (const tName in row._tasks) {
+                                if (!whereAliases.includes(tName) && !tName.toLowerCase().includes('where')) {
+                                    console.info(`Orphan task detected for student ${pin}: "${tName}"`);
+                                }
+                            }
+                        }
 
                         let hasWhere = !!(d.where_personal || d.cat1_personal || d.p1 || d.p2 || d.p3 || d.p4 || d.p5 || (row.task && row.task.includes('WHERE')));
                         for (let k in assign) {
@@ -945,7 +987,11 @@
                         try {
                             const res = await StudentAPI.login(cls, s.first_name, pin, 'CIT9');
                             if (res && res.savedData) {
-                                const d = res.savedData.data || res.savedData;
+                                let d = res.savedData.data || res.savedData;
+                                if (res.savedData._tasks && res.savedData._tasks['The WHERE Project — Places Portfolio']) {
+                                    const t = res.savedData._tasks['The WHERE Project — Places Portfolio'];
+                                    d = t.data || t;
+                                }
                                 if (d.where_personal || d.cat1_personal || d.p1 || d.p2 || d.p3 || d.p4 || d.p5) {
                                     window._LIVE_CLOUD_DATA[pin] = d;
                                     syncCount++;
@@ -965,7 +1011,10 @@
             if (btn) {
                 btn.disabled = false;
                 const totalActive = Object.keys(window._LIVE_CLOUD_DATA).length;
+                const syncTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 btn.innerText = `🟢 Cloud Synced (${totalActive} live portfolios)`;
+                const syncLbl = document.getElementById('syncTimeLabel');
+                if (syncLbl) syncLbl.innerText = `Synced ${syncTime}`;
             }
         }
 
@@ -1025,8 +1074,7 @@
             if (search) {
                 students = students.filter(s => 
                     s.first_name.toLowerCase().includes(search) ||
-                    s.last_name.toLowerCase().includes(search) ||
-                    (s.pin && s.pin.toLowerCase().includes(search))
+                    s.last_name.toLowerCase().includes(search)
                 );
             }
 
@@ -1072,9 +1120,9 @@
                         <div class="student-card-header">
                             <div>
                                 <div class="student-name">${student.first_name} ${student.last_name}</div>
-                                <div class="student-meta">Class ${student.homeroom} &bull; ${student.username || ''}</div>
+                                <div class="student-meta">Class ${student.homeroom}</div>
                             </div>
-                            <span class="pin-pill">${student.pin || '---'}</span>
+                            <span class="pin-pill">Class ${student.homeroom}</span>
                         </div>
 
                         <div class="pillars-row">
@@ -1153,16 +1201,30 @@
             });
         }
 
+        function scrubForDisplay(obj) {
+            if (Array.isArray(obj)) return obj.map(scrubForDisplay);
+            if (obj && typeof obj === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    if (/^(pin|_requestId|email)$/i.test(k)) continue;
+                    out[k] = scrubForDisplay(v);
+                }
+                return out;
+            }
+            return obj;
+        }
+
         function inspectStudent(pin) {
             const roster = getGrade9Students();
             const student = roster.find(s => s.pin === pin);
             if (!student) return;
 
             activeModalStudent = student;
-            const w = getStudentWork(student);
+            const rawWork = getStudentWork(student);
+            const w = scrubForDisplay(rawWork);
 
             document.getElementById('modalStudentName').innerText = `${student.first_name} ${student.last_name}`;
-            document.getElementById('modalStudentMeta').innerText = `Class ${student.homeroom} • 3-Letter PIN: ${student.pin} • Status: ${w.score}/5 Completed`;
+            document.getElementById('modalStudentMeta').innerText = `Class ${student.homeroom} • Status: ${w.score}/5 Completed`;
 
             const grid = document.getElementById('modalPlacesGrid');
             grid.innerHTML = `
