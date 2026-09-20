@@ -1,16 +1,18 @@
 /**
- * Bicentennial Junior High School — Student Webhook Backend (V6 - Hardened Multi-Assignment Ledger Edition)
+ * Bicentennial Junior High School — Student Webhook Backend (V6.0.1 - Hardened Multi-Assignment Ledger Edition)
  * Mr. Waugh (Room 8)
  * 
- * V6 hardening (Sep 20, 2026):
+ * V6.0.1 hardening (Sep 20, 2026 - GLM & MiniMax peer review resolutions):
  * - CONFIG.VERSION + get_health endpoint (drift visibility)
- * - Exemplar guardrail (blocks teacher sample data from saving to student PINs)
+ * - Exemplar guardrail hardened (requires specific IDs or >= 2 signatures; eliminates Mauritius false positives)
+ * - Fresh Column 7 re-read inside waitLock (eliminates multi-device stale-read race)
+ * - Fast string pre-filter on requestId dedupe scan (skips unnecessary JSON.parse)
  * - Demo PIN routing (TST/WAU/DEV/MRW → DEMO tab)
  * - Corrupt-cell merge abort (never silently wipe data on bad JSON)
  * - Idempotency key (requestId dedupe prevents double-writes)
  * - Confirm-after-write (hash + byteLength in response for client verification)
- * - Batch roster write (single setValues call)
- * - Schema stamp (_v: 1 on all writes)
+ * - Schema stamp (_v: 1 on all writes) & batch roster setValues
+ * - Built-in Class 902 Sleep Audit recovery utility (`recoverClass902SleepAudit`)
  *
  * Supports:
  * - Multi-class sections (801, 802, 803, 804, 901, 902, 903)
