@@ -27,10 +27,10 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.0-2026-09-20';
-var CONFIG_DEPLOY_DATE = '2026-09-20T18:40:00Z';
+var CONFIG_VERSION = 'V6.0.1-2026-09-20';
+var CONFIG_DEPLOY_DATE = '2026-09-20T19:30:00Z';
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
-var EXEMPLAR_SIGNATURES = ['Smith Point Road', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Mauritius', 'Yeah Yeah No No'];
+var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
 
 function getSheetForClass(ss, className) {
@@ -373,6 +373,7 @@ function doGet(e) {
     // ==========================================
     if (action === 'get_student_history') {
       const pin = String(params.pin || '').trim().toUpperCase();
+      const includePayload = String(params.includePayload || params.full || '').toLowerCase() === 'true';
       const logSheet = ss.getSheetByName('Submissions_Log');
       if (!logSheet || !pin) {
         return successJSON({ status: 'success', pin: pin, history: [] });
@@ -385,7 +386,7 @@ function doGet(e) {
       const studentHistory = [];
       for (let i = 1; i < rows.length; i++) {
         if (String(rows[i][2] || '').trim().toUpperCase() === pin) {
-          studentHistory.push({
+          const item = {
             timestamp: rows[i][0],
             className: rows[i][1],
             pin: rows[i][2],
@@ -393,10 +394,30 @@ function doGet(e) {
             task: rows[i][4],
             status: rows[i][5],
             summary: rows[i][6]
-          });
+          };
+          if (includePayload) {
+            item.payload = rows[i][7] || '';
+          }
+          studentHistory.push(item);
         }
       }
-      return successJSON({ status: 'success', pin: pin, history: studentHistory });
+      return successJSON({ status: 'success', pin: pin, history: studentHistory, count: studentHistory.length, version: CONFIG_VERSION });
+    }
+
+    // ==========================================
+    // ACTION: RECOVER CLASS 902 SLEEP AUDIT DATA (ONE-TIME RECOVERY UTILITY)
+    // ==========================================
+    if (action === 'recover_902_sleep_audit') {
+      const authPin = String(params.pin || params.teacherPin || '').trim().toUpperCase();
+      if (authPin !== 'WAU' && authPin !== 'MRW') {
+        return successJSON({ status: 'unauthorized', message: 'Teacher authorization required.', version: CONFIG_VERSION });
+      }
+      const recoveryResult = recoverClass902SleepAudit(ss);
+      return successJSON({
+        status: 'success',
+        result: recoveryResult,
+        version: CONFIG_VERSION
+      });
     }
 
     // ==========================================
@@ -749,11 +770,21 @@ function doPost(e) {
       const rawPayloadData = payload.data || {};
 
       // GUARDRAIL: Exemplar signature check — block teacher sample data from saving to real student PINs
+      // Defensively tuned: requires specific unique sample tokens OR >= 2 matching exemplar markers
+      // to avoid false-positive blocking of genuine student research (e.g. students writing about Mauritius)
       if (!isDemoPin) {
         var rawStr = JSON.stringify(rawPayloadData);
-        var isExemplar = EXEMPLAR_SIGNATURES.some(function(sig) { return rawStr.indexOf(sig) !== -1; });
+        var matchCount = 0;
+        for (var si = 0; si < EXEMPLAR_SIGNATURES.length; si++) {
+          if (rawStr.indexOf(EXEMPLAR_SIGNATURES[si]) !== -1) {
+            matchCount++;
+          }
+        }
+        var isExemplar = (rawStr.indexOf('k7n7dESM4Hg') !== -1) || 
+                         (rawStr.indexOf('Smith Point Road, Gull Lake') !== -1) || 
+                         (matchCount >= 2);
         if (isExemplar) {
-          Logger.log('BLOCKED exemplar save to real PIN: ' + pin + ' task: ' + taskName);
+          Logger.log('BLOCKED exemplar save to real PIN: ' + pin + ' task: ' + taskName + ' (matches=' + matchCount + ')');
           return successJSON({
             status: 'blocked_exemplar',
             message: 'Exemplar/sample data cannot be saved to a student profile. This submission was blocked.',
@@ -770,8 +801,10 @@ function doPost(e) {
           var scanStart = Math.max(2, dedupLastRow - 99); // scan last 100 rows
           var dedupRows = logSheetDedup.getRange(scanStart, 1, dedupLastRow - scanStart + 1, 8).getValues();
           for (var dr = dedupRows.length - 1; dr >= 0; dr--) {
+            var rawLogStr = String(dedupRows[dr][7] || '');
+            if (rawLogStr.indexOf(requestId) === -1) continue; // Fast pre-filter: skip JSON.parse
             try {
-              var logPayload = JSON.parse(dedupRows[dr][7] || '{}');
+              var logPayload = JSON.parse(rawLogStr);
               if (logPayload._requestId === requestId) {
                 return successJSON({
                   status: 'submitted_successfully',
@@ -817,8 +850,9 @@ function doPost(e) {
 
       // 2. PRESERVE & MERGE STUDENT ROSTER ROW
       let existingData = {};
-      if (rowIndex !== -1 && studentRow) {
-        var existingCellValue = studentRow[6] || '';
+      if (rowIndex !== -1) {
+        // Re-read ONLY the JSON data cell under lock to prevent any multi-device / rapid-save stale read
+        var existingCellValue = targetSheet.getRange(rowIndex, 7).getValue() || '';
         if (existingCellValue) {
           try {
             existingData = JSON.parse(existingCellValue);
@@ -1131,4 +1165,98 @@ function getClassLogSheet(ss) {
 function doOptions(e) {
   return ContentService.createTextOutput("")
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * ONE-TIME UTILITY: Recover Class 902 Sep 16 Sleep Clinic 10-Station Audit data
+ * Reconstructs missing task `data` slices from Column H of Submissions_Log into sheet `902`.
+ * Can be run from Apps Script Run menu directly or via ?action=recover_902_sleep_audit&pin=WAU
+ */
+function recoverClass902SleepAudit(optionalSs) {
+  const ss = optionalSs || SpreadsheetApp.getActiveSpreadsheet();
+  const logSheet = ss.getSheetByName('Submissions_Log');
+  const classSheet = ss.getSheetByName('902');
+  if (!logSheet || !classSheet) {
+    return { error: 'Required sheets (Submissions_Log or 902) not found.' };
+  }
+
+  const lastLogRow = logSheet.getLastRow();
+  if (lastLogRow <= 1) return { message: 'Submissions_Log empty.' };
+
+  const logData = logSheet.getRange(1, 1, lastLogRow, 8).getValues();
+  // Map latest sleep audit submission per student PIN
+  const latestByPin = {};
+  for (let i = 1; i < logData.length; i++) {
+    const row = logData[i];
+    const timestamp = row[0];
+    const section = String(row[1] || '').trim();
+    const pin = String(row[2] || '').trim().toUpperCase();
+    const task = String(row[4] || '').trim();
+    const status = String(row[5] || '').trim();
+    const summary = String(row[6] || '').trim();
+    const rawPayload = String(row[7] || '').trim();
+
+    if (task.indexOf('Sleep') !== -1) {
+      latestByPin[pin] = {
+        timestamp: timestamp,
+        section: section,
+        pin: pin,
+        status: status,
+        summary: summary,
+        rawPayload: rawPayload
+      };
+    }
+  }
+
+  // Inspect and update Sheet 902
+  const classLastRow = classSheet.getLastRow();
+  if (classLastRow <= 1) return { message: 'Sheet 902 empty.' };
+
+  const classData = classSheet.getRange(1, 1, classLastRow, Math.max(classSheet.getLastColumn(), 9)).getValues();
+  const recoveredStudents = [];
+
+  for (let r = 1; r < classData.length; r++) {
+    const studentPin = String(classData[r][0] || '').trim().toUpperCase();
+    if (!studentPin || !latestByPin[studentPin]) continue;
+
+    const auditEntry = latestByPin[studentPin];
+    let studentJson = {};
+    const rawCell = String(classData[r][6] || '');
+    if (rawCell) {
+      try { studentJson = JSON.parse(rawCell); } catch(e) { studentJson = {}; }
+    }
+
+    studentJson._tasks = studentJson._tasks || {};
+    let parsedPayload = {};
+    try { parsedPayload = JSON.parse(auditEntry.rawPayload); } catch(e) {}
+    const extractedData = parsedPayload.data || parsedPayload;
+
+    // Reconstruct the full task slice with data!
+    studentJson._tasks['HL9 Sleep Clinic 10-Station Audit'] = {
+      updated: auditEntry.timestamp,
+      summary: auditEntry.summary,
+      status: auditEntry.status,
+      data: extractedData
+    };
+
+    // Also mirror into top-level for legacy dashboards if not already present
+    if (extractedData && typeof extractedData === 'object') {
+      for (var k in extractedData) {
+        if (extractedData.hasOwnProperty(k) && !studentJson[k]) {
+          studentJson[k] = extractedData[k];
+        }
+      }
+    }
+
+    // Write back to sheet 902 row r + 1, Column 7 (G)
+    classSheet.getRange(r + 1, 7).setValue(JSON.stringify(studentJson));
+    recoveredStudents.push({ pin: studentPin, summary: auditEntry.summary });
+  }
+
+  Logger.log('Recovered ' + recoveredStudents.length + ' students in Class 902.');
+  return {
+    success: true,
+    recoveredCount: recoveredStudents.length,
+    students: recoveredStudents
+  };
 }

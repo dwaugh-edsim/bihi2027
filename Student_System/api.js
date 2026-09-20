@@ -482,9 +482,6 @@ const StudentAPI = {
                 }
             }
 
-            // Mark hash as dispatched so rapid pagehide doesn't double-fire
-            this._lastSavedHashes[saveKey] = currentHash;
-
             // CHROMEBOOK REALITY: localStorage is wiped on logout. We cannot rely on
             // cross-session replay. Instead, verify the save landed RIGHT NOW (same session)
             // by scheduling a verifyCloudSave() GET after a short delay. The debounced
@@ -508,16 +505,19 @@ const StudentAPI = {
             // IMMEDIATE IN-SESSION VERIFICATION: Fire a verifyCloudSave() GET after 3s
             // to confirm the no-cors POST actually landed. If it didn't, the next
             // debounced autosave (which fires every few seconds) will retry with a new
-            // requestId. This works because the student is still on the page.
+            // requestId because _lastSavedHashes is not stamped until confirmed here.
             const verifyPin = pin;
             const verifyClass = effectiveClass;
             const verifyCourse = courseKey;
             const verifyKey = localKey;
+            const verifyHash = currentHash;
+            const verifySaveKey = saveKey;
             setTimeout(async function() {
                 try {
                     const check = await StudentAPI.verifyCloudSave(verifyClass, verifyPin, verifyCourse);
                     if (check && check.savedData && check.savedData._tasks && check.savedData._tasks[taskName]) {
                         console.log('[api.js] no-cors save CONFIRMED via verify check');
+                        StudentAPI._lastSavedHashes[verifySaveKey] = verifyHash;
                         try {
                             const stored = JSON.parse(localStorage.getItem(verifyKey) || '{}');
                             stored.cloudSynced = true;
@@ -580,13 +580,18 @@ const StudentAPI = {
         };
         const payloadStr = JSON.stringify(payloadObj);
 
-        this._lastSavedHashes[saveKey] = currentHash;
-
         try {
             if (navigator.sendBeacon) {
                 const blob = new Blob([payloadStr], { type: 'text/plain;charset=utf-8' });
-                navigator.sendBeacon(url, blob);
-                return true;
+                const queued = navigator.sendBeacon(url, blob);
+                if (queued) {
+                    this._lastSavedHashes[saveKey] = currentHash;
+                    return true;
+                } else {
+                    delete this._lastSavedHashes[saveKey];
+                    console.warn('[api.js] sendBeacon queue full; beacon not sent.');
+                    return false;
+                }
             } else {
                 fetch(url, {
                     method: 'POST',
@@ -595,9 +600,11 @@ const StudentAPI = {
                     body: payloadStr,
                     keepalive: true
                 });
+                this._lastSavedHashes[saveKey] = currentHash;
                 return true;
             }
         } catch (e) {
+            delete this._lastSavedHashes[saveKey];
             console.warn('[api.js] Emergency beacon failed:', e);
             return false;
         }

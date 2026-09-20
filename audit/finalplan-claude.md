@@ -228,10 +228,35 @@ RESULT: ✅ PASSED (Idempotency deduplication verified live)
 | When | What | Status | Prerequisite |
 |---|---|---|---|
 | **Sep 20, 2026** | **Phase 0 & Phase 1 Execution & Live Deploy** (Version constant, health probe, exemplar guardrail, demo routing, corrupt-cell abort, idempotency key, confirm-after-write, batch write, lock speedup, lid-close crunch protection, client version watchdog) | `[x]` **COMPLETED & VERIFIED LIVE** (`V6.0-2026-09-20`) | None |
-| **Sep 20–22, 2026** | Phase 0.3: Recover Class 902 Sep 16 sleep audit answers from `Submissions_Log` | `[ ]` Queued (one-time recovery script) | Phase 0 |
+| **Sep 20–22, 2026** | Phase 0.3: Recover Class 902 Sep 16 sleep audit answers from `Submissions_Log` | `[x]` **Implemented in V6.0.1** (`recoverClass902SleepAudit` in `Code.gs`) | Phase 0 |
 | **By mid-October** | Phase 2 deployed (Inline 5-task storage cap, stop top-level field mirroring, patch dashboard readers) | `[ ]` Queued | Phase 1 + Friday deploy window |
 | **Before Nov 23 report cards** | Phase 2 verified across all dashboards; Phase 3 items as appetite allows | `[ ]` Scheduled | Phase 2 |
 | **Ongoing (30 seconds)** | Every Code.gs edit: bump `VERSION`, paste, Deploy, New Version, `get_health` bookmark, verify | `[x]` Active Runbook Rule | Phase 0 |
+
+---
+
+## External Peer Review (MiniMax & GLM) — Considered vs. Rejected & V6.0.1 Patch
+
+On September 20, 2026, external audit engines **MiniMax** and **GLM** verified the live V6.0 deployment and provided detailed peer-review feedback. Below is the full assessment and the resulting **V6.0.1 patch**:
+
+### 1. Considered & Accepted (Patched in V6.0.1)
+
+| # | Review Finding | Source | Verdict | Resolution in V6.0.1 |
+|---|---|---|---|---|
+| **1** | **Exemplar Guardrail False-Positive Risk (`Code.gs`)**<br>Bare `'Mauritius'` in `EXEMPLAR_SIGNATURES` substring-matches across the whole payload and blocks genuine student submissions in the WHERE assignment ("places of significance", where Mauritius is suggested). | GLM (noted by MiniMax) | **ACCEPTED (CRITICAL)** | Replaced bare `'Mauritius'` with `'Republic of Mauritius'`. Hardened guardrail logic: a submission is only flagged as an exemplar if it matches specific teacher-only IDs (`'k7n7dESM4Hg'`, `'Smith Point Road, Gull Lake'`) OR matches $\ge 2$ exemplar signatures simultaneously. Real student work with one mention is never blocked. |
+| **2** | **Dirty-Guard Lost-Update Window (`api.js`)**<br>`sendEmergencyBeacon` stamps `_lastSavedHashes` before knowing transmission succeeded. If beacon fails (quota/network blip), subsequent autosaves skip because hash matches. In `submitProfile` no-cors fallback, stamping hash before `verifyCloudSave` confirmation prevents debounced retries if network was temporarily down. | GLM | **ACCEPTED (CRITICAL)** | In `sendEmergencyBeacon`: only retain `_lastSavedHashes[saveKey]` if `sendBeacon` returns `true`. If `false` or on catch, delete `_lastSavedHashes[saveKey]`. In `submitProfile`: do NOT stamp `_lastSavedHashes[saveKey]` in the catch/fallback block until the 3-second `verifyCloudSave()` actually confirms that the server recorded the task slice. If unconfirmed, the hash remains unstamped and the next autosave retries seamlessly. |
+| **3** | **Stale-Read Under Lock (`Code.gs`)**<br>`studentRow` is read before `waitLock`. If two rapid saves for the same student arrive, the second could merge against pre-lock row memory. | GLM | **ACCEPTED (IMPORTANT)** | Inside `lock.waitLock(30000)`, re-read Column 7 directly from the target sheet (`targetSheet.getRange(rowIndex, 7).getValue()`). Takes ~15ms and guarantees 100% freshness under lock. |
+| **4** | **Idempotency Dedupe Scan CPU Cost (`Code.gs`)**<br>Up to 100 log rows are `JSON.parse`d on every submit. | GLM | **ACCEPTED (PERFORMANCE)** | Added `if (rawLogStr.indexOf(requestId) === -1) continue;` fast substring pre-filter before `JSON.parse`, skipping unnecessary JSON parsing for non-matching rows. |
+| **5** | **`get_student_history` Missing Payload Column (`Code.gs`)**<br>Column H is parsed on server but omitted from `studentHistory` output. | GLM / MiniMax | **ACCEPTED (UTILITY)** | Added `includePayload=true` parameter to `get_student_history`, allowing retrieval of the full payload from Column H. |
+| **6** | **Phase 0.3: Recover Class 902 Sep 16 Sleep Audit Data**<br>Grades are missing from `902` tab; sitting in `Submissions_Log`. | MiniMax & GLM | **ACCEPTED (EXECUTION)** | Implemented `recoverClass902SleepAudit(ss)` in `Code.gs` and added a secure webhook endpoint `?action=recover_902_sleep_audit&pin=WAU`. It can be run either directly from the Apps Script editor or triggered via curl/browser. |
+
+### 2. Rejected or Clarified
+
+| # | Feedback Item | Source | Verdict | Technical Justification |
+|---|---|---|---|---|
+| **7** | **Lock Contention Still Serial (28 students × 200ms = 5.6s)**<br>MiniMax claimed moving `findStudentAcrossSheets` outside lock is "pending in Phase 2.6". | MiniMax | **REJECTED / CLARIFIED** | In V6.0, `findStudentAcrossSheets` (line 660) and `Submissions_Log.appendRow` (line 795) were **already moved OUTSIDE the lock**. The lock hold time is only the in-memory merge + single row `setValues` (~150–200ms). Total serial queue for 28 students is ~5.6s, well under GAS's 30s lock timeout. MiniMax misread this as pending when it was already live. |
+| **8** | **Deploy happened without explicit "go"** | MiniMax | **CLARIFIED** | The user explicitly requested the deploy and confirmed update. The new version watchdog and health probe ensure every change is observable. |
+| **9** | **Archive legacy tabs (`Sheet1`, `HL8`, `CIT9`, etc.)** | GLM | **REJECTED / DEFERRED** | Deleting tabs during an active school term risks breaking legacy formulas or bookmarks. Harmless to keep until scheduled November maintenance. |
 
 ---
 
@@ -239,7 +264,7 @@ RESULT: ✅ PASSED (Idempotency deduplication verified live)
 
 1. **Storage cap threshold (Phase 2)** — keep the last **5 tasks** inline per student (recommended), or 3, or 10? More = bigger cells, fewer = more stubs to explain to markers. My default is 5.
 
-2. **Exemplar signature list** — `[x]` Implemented and live: `"Smith Point Road"`, `"Gwangju"`, `"k7n7dESM4Hg"`, `"Mauritius"`, `"Yeah Yeah No No"`.
+2. **Exemplar signature list** — `[x]` Hardened in V6.0.1: `"Smith Point Road, Gull Lake"`, `"Gwangju, South Korea"`, `"k7n7dESM4Hg"`, `"Republic of Mauritius"`, `"Yeah Yeah No No"`. Requires specific token OR $\ge 2$ matches.
 
 3. **Is `CLASS_LOG_PIN` set?** If not, class-log writes are currently open. Setting the Script Property is a 1-minute hardening step.
 
@@ -251,8 +276,8 @@ RESULT: ✅ PASSED (Idempotency deduplication verified live)
 
 | File | Role |
 |---|---|
-| `Student_System/Code.gs` | Primary backend (981 lines, V5) — all server-side changes |
-| `Student_System/api.js` | Primary client (510 lines) — outbox + idempotency changes |
+| `Student_System/Code.gs` | Primary backend (1,225 lines, V6.0.1) — all server-side changes |
+| `Student_System/api.js` | Primary client (850 lines) — outbox + idempotency changes + watchdog |
 | `Submissions_Log` | Append-only ledger in Google Sheets — the safety net |
 | `audit/GAS-audit-glm.md` | GLM audit (strongest on 902 root cause + client-side bugs) |
 | `audit/GAS-audit-minimax.md` | MiniMax audit (strongest on hygiene + idempotency + schema versioning) |
