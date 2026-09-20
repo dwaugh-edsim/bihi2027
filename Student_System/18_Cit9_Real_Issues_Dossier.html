@@ -3456,11 +3456,16 @@
         }
 
         // Emergency Beacon Sync for Chromebook lid close / tab switch
+        let _lastBeaconHash = null;
         function sendEmergencyBeaconSync() {
             const pin = (document.getElementById('authStudentPin').innerText || '').trim().toUpperCase();
             if (!pin || pin === '---') return;
 
             const payload = buildDossierPayload();
+            const currentHash = JSON.stringify(payload);
+            if (_lastBeaconHash === currentHash) return; // Skip duplicate / unchanged beacon dispatch
+            _lastBeaconHash = currentHash;
+
             const summary = `Emergency Beacon: ${payload.name} (${payload.className})`;
             const bodyStr = JSON.stringify({
                 action: 'submit_profile',
@@ -3478,6 +3483,8 @@
                 if (navigator.sendBeacon) {
                     const blob = new Blob([bodyStr], { type: 'text/plain;charset=utf-8' });
                     navigator.sendBeacon(GAS_ENDPOINT, blob);
+                } else {
+                    fetch(GAS_ENDPOINT, { method: 'POST', body: bodyStr, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 }
             } catch(e) {}
         }

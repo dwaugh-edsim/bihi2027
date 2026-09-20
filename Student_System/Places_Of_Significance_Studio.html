@@ -2175,7 +2175,7 @@
             const summaryText = `WHERE Places Portfolio for ${studentName} (${cls}): P1: ${portfolioPayload.p1.title || (portfolioPayload.where_personal ? 'Entered' : 'None')}, P2: ${portfolioPayload.p2.title || (portfolioPayload.where_community ? 'Entered' : 'None')}, P3: ${portfolioPayload.p3.title || (portfolioPayload.where_global ? 'Entered' : 'None')}, P4: ${portfolioPayload.p4.title || (portfolioPayload.where_aspirational ? 'Entered' : 'None')}`;
 
             try {
-                const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey);
+                const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey, { force: true });
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
                     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     if (statusPill) {
@@ -2506,29 +2506,10 @@
             if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW') return;
 
             const payload = buildPortfolioPayload();
+            const courseKey = (payload.class || '').startsWith('8') ? 'HL8' : 'CIT9';
             const summaryText = `WHERE Places Portfolio for ${payload.name} (${payload.class}): P1: ${payload.p1?.title || (payload.where_personal ? 'Entered' : 'None')}`;
 
-            const body = JSON.stringify({
-                action: 'submit_profile',
-                taskName: 'The WHERE Project — Places Portfolio',
-                className: payload.class,
-                name: payload.name,
-                pin: pin,
-                email: '',
-                pronouns: '',
-                data: payload,
-                summary: summaryText
-            });
-
-            const url = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
-            try {
-                if (navigator.sendBeacon) {
-                    const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
-                    navigator.sendBeacon(url, blob);
-                } else {
-                    fetch(url, { method: 'POST', body: body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-                }
-            } catch(e) {}
+            StudentAPI.sendEmergencyBeacon('The WHERE Project — Places Portfolio', payload, summaryText, courseKey);
         }
 
         // Initialize and setup auto-save on load

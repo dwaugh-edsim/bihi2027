@@ -1,7 +1,17 @@
 /**
- * Bicentennial Junior High School — Student Webhook Backend (V5 - Resilient Multi-Assignment Ledger Edition)
+ * Bicentennial Junior High School — Student Webhook Backend (V6 - Hardened Multi-Assignment Ledger Edition)
  * Mr. Waugh (Room 8)
  * 
+ * V6 hardening (Sep 20, 2026):
+ * - CONFIG.VERSION + get_health endpoint (drift visibility)
+ * - Exemplar guardrail (blocks teacher sample data from saving to student PINs)
+ * - Demo PIN routing (TST/WAU/DEV/MRW → DEMO tab)
+ * - Corrupt-cell merge abort (never silently wipe data on bad JSON)
+ * - Idempotency key (requestId dedupe prevents double-writes)
+ * - Confirm-after-write (hash + byteLength in response for client verification)
+ * - Batch roster write (single setValues call)
+ * - Schema stamp (_v: 1 on all writes)
+ *
  * Supports:
  * - Multi-class sections (801, 802, 803, 804, 901, 902, 903)
  * - Concurrency protection: LockService on all write operations (prevents simultaneous Chromebook submission collisions)
@@ -15,6 +25,13 @@
  * - Cross-device persistence
  * - Dedicated Locker & Combination Master Sync (`Lockers_902` tab)
  */
+
+// ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
+var CONFIG_VERSION = 'V6.0-2026-09-20';
+var CONFIG_DEPLOY_DATE = '2026-09-20T18:40:00Z';
+var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
+var EXEMPLAR_SIGNATURES = ['Smith Point Road', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Mauritius', 'Yeah Yeah No No'];
+var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
 
 function getSheetForClass(ss, className) {
   const cleanName = String(className || 'General').trim();
@@ -130,7 +147,7 @@ function getOrCreateAssignmentColumn(sheet, taskName) {
  * Returns { sheet, rowIndex, rowData, className } or null.
  */
 function findStudentAcrossSheets(ss, pin) {
-  const allClasses = ['901', '902', '903', '801', '802', '803', '804'];
+  const allClasses = ALL_CLASSES;
   const cleanPin = String(pin || '').trim().toUpperCase();
   if (!cleanPin) return null;
 
@@ -176,6 +193,29 @@ function doGet(e) {
     const params = e.parameter || {};
     const action = params.action || 'login';
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // ==========================================
+    // ACTION: HEALTH CHECK (deployment drift visibility)
+    // Bookmark this URL and hit it before every class.
+    // ==========================================
+    if (action === 'get_health') {
+      const sheetNames = ss.getSheets().map(function(s) { return s.getName(); });
+      const logSheet = ss.getSheetByName('Submissions_Log');
+      const logRows = logSheet ? logSheet.getLastRow() - 1 : 0;
+      const rowCounts = {};
+      ALL_CLASSES.forEach(function(cls) {
+        var sheet = ss.getSheetByName(cls);
+        rowCounts[cls] = sheet ? sheet.getLastRow() - 1 : 0;
+      });
+      return successJSON({
+        status: 'healthy',
+        version: CONFIG_VERSION,
+        deployedAt: CONFIG_DEPLOY_DATE,
+        sheetInventory: sheetNames,
+        rowCounts: rowCounts,
+        logRows: logRows
+      });
+    }
 
     // ==========================================
     // ACTION: GET LOCKERS
@@ -246,7 +286,7 @@ function doGet(e) {
     // ==========================================
     if (action === 'get_class_progress' || action === 'get_all_progress' || action === 'GET_ALL_PROGRESS') {
       const className = String(params.className || 'ALL').trim();
-      const classesToScan = (className === 'ALL') ? ['801', '802', '803', '804', '901', '902', '903'] : [className];
+      const classesToScan = (className === 'ALL') ? ALL_CLASSES : [className];
       const studentsByPin = {};
       
       for (let c = 0; c < classesToScan.length; c++) {
@@ -422,14 +462,21 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  // CRITICAL CONCURRENCY LOCK: Serializes simultaneous student submissions
+  // Parse payload and get spreadsheet BEFORE acquiring the lock.
+  // This lets guardrail checks and Submissions_Log appends happen without waiting.
+  // The lock is acquired later, only for the roster read-modify-write cycle.
   const lock = LockService.getScriptLock();
+  var lockAcquired = false;
   try {
-    lock.waitLock(30000); // Wait up to 30s for lock
-    
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action; 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // Acquire the lock for all write actions (except submit_profile which manages its own lock)
+    if (action !== 'submit_profile' && action !== 'submit_assignment' && action !== 'submit_diagnostic') {
+      lock.waitLock(30000);
+      lockAcquired = true;
+    }
 
     // ==========================================
     // ACTION: SAVE LOCKERS (Bulk or Single Sync)
@@ -605,6 +652,12 @@ function doPost(e) {
     
     if (!pin) throw new Error("3-Letter PIN is required.");
 
+    // Demo PIN routing: TST/WAU/DEV/MRW always write to DEMO tab
+    var isDemoPin = DEMO_PINS.indexOf(pin) !== -1;
+    if (isDemoPin) {
+      className = 'DEMO';
+    }
+
     // Check if student exists in the targeted sheet
     let sheet = getSheetForClass(ss, className);
     let lastRow = sheet.getLastRow();
@@ -624,7 +677,8 @@ function doPost(e) {
     }
 
     // If not in targeted sheet, check if student already exists in another class sheet
-    if (rowIndex === -1) {
+    // (skip cross-sheet search for demo PINs — they always stay in DEMO)
+    if (rowIndex === -1 && !isDemoPin) {
       const crossMatch = findStudentAcrossSheets(ss, pin);
       if (crossMatch && crossMatch.rowData) {
         sheet = crossMatch.sheet;
@@ -690,10 +744,56 @@ function doPost(e) {
       const email = (payload.email || '').trim();
       const pronouns = (payload.pronouns || '').trim();
       const summary = payload.summary || '';
+      const requestId = payload.requestId || '';
       const now = new Date();
       const rawPayloadData = payload.data || {};
 
-      // 1. IMMUTABLE APPEND TO CENTRAL SUBMISSIONS_LOG (Unlimited scale, permanent audit trail)
+      // GUARDRAIL: Exemplar signature check — block teacher sample data from saving to real student PINs
+      if (!isDemoPin) {
+        var rawStr = JSON.stringify(rawPayloadData);
+        var isExemplar = EXEMPLAR_SIGNATURES.some(function(sig) { return rawStr.indexOf(sig) !== -1; });
+        if (isExemplar) {
+          Logger.log('BLOCKED exemplar save to real PIN: ' + pin + ' task: ' + taskName);
+          return successJSON({
+            status: 'blocked_exemplar',
+            message: 'Exemplar/sample data cannot be saved to a student profile. This submission was blocked.',
+            version: CONFIG_VERSION
+          });
+        }
+      }
+
+      // IDEMPOTENCY: If requestId is provided, check recent Submissions_Log for duplicate
+      if (requestId) {
+        var logSheetDedup = getSubmissionsLogSheet(ss);
+        var dedupLastRow = logSheetDedup.getLastRow();
+        if (dedupLastRow > 1) {
+          var scanStart = Math.max(2, dedupLastRow - 99); // scan last 100 rows
+          var dedupRows = logSheetDedup.getRange(scanStart, 1, dedupLastRow - scanStart + 1, 8).getValues();
+          for (var dr = dedupRows.length - 1; dr >= 0; dr--) {
+            try {
+              var logPayload = JSON.parse(dedupRows[dr][7] || '{}');
+              if (logPayload._requestId === requestId) {
+                return successJSON({
+                  status: 'submitted_successfully',
+                  task: taskName,
+                  deduplicated: true,
+                  message: 'Duplicate requestId — original submission already recorded.',
+                  version: CONFIG_VERSION
+                });
+              }
+            } catch(parseErr) { /* skip unparseable log rows */ }
+          }
+        }
+      }
+
+      // Stamp requestId into the payload for future dedupe lookups
+      if (requestId) {
+        rawPayloadData._requestId = requestId;
+      }
+
+      // 1. IMMUTABLE APPEND TO CENTRAL SUBMISSIONS_LOG — happens OUTSIDE the lock
+      // so that even if the roster merge times out, the payload is permanently safe.
+      // Google Sheets handles concurrent appendRow calls to the same sheet safely.
       const logSheet = getSubmissionsLogSheet(ss);
       logSheet.appendRow([
         now,
@@ -708,13 +808,42 @@ function doPost(e) {
         pronouns
       ]);
 
+      // NOW acquire the lock for the roster read-modify-write cycle.
+      // End-of-class crunch: if 28 students close lids simultaneously, all 28 log
+      // appends above succeed immediately. Only the roster merges queue here.
+      // If a student's merge times out, their data is still in Submissions_Log.
+      lock.waitLock(30000);
+      lockAcquired = true;
+
       // 2. PRESERVE & MERGE STUDENT ROSTER ROW
       let existingData = {};
       if (rowIndex !== -1 && studentRow) {
-        try {
-          existingData = JSON.parse(studentRow[6] || '{}');
-        } catch (err) {
-          existingData = {};
+        var existingCellValue = studentRow[6] || '';
+        if (existingCellValue) {
+          try {
+            existingData = JSON.parse(existingCellValue);
+          } catch (err) {
+            // CORRUPT CELL MERGE ABORT: Non-empty cell that won't parse — never silently wipe it
+            // Stash the corrupt text in Submissions_Log and refuse to overwrite
+            logSheet.appendRow([
+              now,
+              className,
+              pin,
+              studentName,
+              '__corrupt_backup',
+              'CORRUPT_CELL',
+              'Merge aborted: existing cell JSON failed to parse. Raw text stashed here.',
+              String(existingCellValue),
+              email,
+              pronouns
+            ]);
+            Logger.log('CORRUPT CELL for PIN ' + pin + ' in ' + className + ' — merge aborted, raw text backed up to Submissions_Log');
+            return successJSON({
+              status: 'error',
+              message: 'Existing student data is corrupted (cannot parse JSON). Merge aborted to prevent data loss. The corrupt data has been backed up. Please contact Mr. Waugh.',
+              version: CONFIG_VERSION
+            });
+          }
         }
       }
 
@@ -742,17 +871,32 @@ function doPost(e) {
         data: rawPayloadData
       };
 
+      // Schema stamp for future migration
+      mergedData._v = 1;
+
       const rawDataString = JSON.stringify(mergedData);
       
-      // 3. UPDATE CLASS ROSTER ROW
+      // 3. UPDATE CLASS ROSTER ROW (batch write — single setValues call prevents partial writes)
+      // PERFORMANCE: Use pre-fetched studentRow values instead of 4 separate getValue()
+      // remote API calls. This cuts per-student lock hold time from ~1000ms down to ~200ms,
+      // preventing end-of-class lock contention when 30 students close lids simultaneously.
       if (rowIndex !== -1) {
-        if (studentName) sheet.getRange(rowIndex, 2).setValue(studentName);
-        if (email) sheet.getRange(rowIndex, 4).setValue(email);
-        if (pronouns) sheet.getRange(rowIndex, 5).setValue(pronouns);
-        sheet.getRange(rowIndex, 6).setValue(taskName);
-        sheet.getRange(rowIndex, 7).setValue(rawDataString);
-        sheet.getRange(rowIndex, 8).setValue(summary);
-        sheet.getRange(rowIndex, 9).setValue(now);
+        var existingName = (studentRow && studentRow[1]) ? studentRow[1] : '';
+        var existingClass = (studentRow && studentRow[2]) ? studentRow[2] : className;
+        var existingEmail = (studentRow && studentRow[3]) ? studentRow[3] : '';
+        var existingPronouns = (studentRow && studentRow[4]) ? studentRow[4] : '';
+
+        var rosterValues = [
+          [studentName || existingName,
+           existingClass,
+           email || existingEmail,
+           pronouns || existingPronouns,
+           taskName,
+           rawDataString,
+           summary,
+           now]
+        ];
+        sheet.getRange(rowIndex, 2, 1, 8).setValues(rosterValues);
       } else {
         sheet.appendRow([
           pin,
@@ -776,12 +920,20 @@ function doPost(e) {
         sheet.getRange(rowIndex, assignmentCol).setValue("✅ " + dateStamp);
       } catch (colErr) {
         // Fallback gracefully if sheet structure restricts column additions
+        Logger.log('Gradebook column write failed for ' + taskName + ': ' + colErr);
       }
+
+      // 5. CONFIRM-AFTER-WRITE: Return hash + byteLength so client can verify
+      var dataHash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, rawDataString)
+        .map(function(b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
       
       return successJSON({ 
         status: 'submitted_successfully',
         task: taskName,
-        timestamp: now
+        timestamp: now,
+        hash: dataHash,
+        byteLength: rawDataString.length,
+        version: CONFIG_VERSION
       });
     }
     
@@ -793,12 +945,14 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({ 'status': 'error', 'message': error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
-    try { lock.releaseLock(); } catch(e) {}
+    if (lockAcquired) {
+      try { lock.releaseLock(); } catch(e) {}
+    }
   }
 }
 
 function successJSON(data) {
-  data.status = 'success';
+  if (!data.status) data.status = 'success';
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }

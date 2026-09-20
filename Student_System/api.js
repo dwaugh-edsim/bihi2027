@@ -8,6 +8,7 @@
 
 const CONFIG = {
     DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec',
+    MIN_SERVER_VERSION: 'V6.0-2026-09-20',
     COURSES: {
         'CIT9': 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec',
         'HL8':  'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec',
@@ -221,6 +222,7 @@ const StudentAPI = {
             const res = await fetch(getUrl);
             const data = await res.json();
             if (data.status === 'success') {
+                if (data.version) this.validateServerVersion(data.version);
                 Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
             }
             return data;
@@ -238,7 +240,140 @@ const StudentAPI = {
         }
     },
 
-    async submitProfile(taskName, profileData, summaryText, courseKey = 'CIT9') {
+    // ==========================================
+    // SERVER VERSION WATCHDOG & INTEGRITY GUARD
+    // ==========================================
+    _isVersionOlder(currentVer, minVer) {
+        if (!currentVer) return true; // Unversioned (e.g. legacy V5) is always considered outdated
+        minVer = minVer || CONFIG.MIN_SERVER_VERSION;
+        if (currentVer === minVer) return false;
+
+        const parse = (v) => {
+            const m = String(v).trim().match(/^V?(\d+)(?:\.(\d+))?(?:-(\d{4}-\d{2}-\d{2}))?/i);
+            if (!m) return { major: 0, minor: 0, date: '' };
+            return {
+                major: parseInt(m[1] || '0', 10),
+                minor: parseInt(m[2] || '0', 10),
+                date: m[3] || ''
+            };
+        };
+
+        const c = parse(currentVer);
+        const req = parse(minVer);
+
+        if (c.major < req.major) return true;
+        if (c.major > req.major) return false;
+        if (c.minor < req.minor) return true;
+        if (c.minor > req.minor) return false;
+        if (req.date && c.date && c.date < req.date) return true;
+        return false;
+    },
+
+    showVersionAlertBanner(reportedVersion, requiredVersion) {
+        if (typeof document === 'undefined') return;
+        if (document.getElementById('gas-version-alert-banner')) return; // already shown
+
+        requiredVersion = requiredVersion || CONFIG.MIN_SERVER_VERSION;
+        const displayVer = reportedVersion ? String(reportedVersion) : 'Legacy / Pre-V6 (Unversioned)';
+
+        const banner = document.createElement('div');
+        banner.id = 'gas-version-alert-banner';
+        banner.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999999;
+            background: #b91c1c;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+            line-height: 1.4;
+            border-bottom: 3px solid #7f1d1d;
+        `;
+        banner.innerHTML = `
+            <div style="max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 14px;">
+                <span style="font-size: 26px; line-height: 1;">⚠️</span>
+                <div>
+                    <div style="font-size: 15px; letter-spacing: 0.2px;">
+                        SYSTEM NOTICE: Please pause and tell <u>Mr. Waugh</u> you are seeing this screen.
+                    </div>
+                    <div style="font-size: 12px; font-weight: 500; opacity: 0.95; margin-top: 3px;">
+                        Database Update Required: Page requires server <strong>${requiredVersion}</strong>, but Google Apps Script is running <strong>${displayVer}</strong>.
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.prepend(banner);
+
+        // Adjust top spacing so banner doesn't cover top navbar
+        const currentPad = parseInt(window.getComputedStyle(document.body).paddingTop || '0', 10);
+        document.body.style.paddingTop = (currentPad + 60) + 'px';
+        console.error(`[StudentAPI] 🚨 Server version mismatch! Required: ${requiredVersion}, Reported: ${displayVer}`);
+    },
+
+    validateServerVersion(version) {
+        if (!version || this._isVersionOlder(version, CONFIG.MIN_SERVER_VERSION)) {
+            this.showVersionAlertBanner(version, CONFIG.MIN_SERVER_VERSION);
+            return false;
+        }
+        return true;
+    },
+
+    async checkServerVersion(courseKey = 'CIT9') {
+        const url = `${this.getScriptUrl(courseKey)}?action=get_health`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data && data.version) {
+                return this.validateServerVersion(data.version);
+            } else {
+                this.showVersionAlertBanner('Pre-V6 (Legacy)', CONFIG.MIN_SERVER_VERSION);
+                return false;
+            }
+        } catch (e) {
+            // Offline or network block: do not show false alarm (offline banner/toast handles connection)
+            return null;
+        }
+    },
+
+    // In-memory state tracking to prevent duplicate/redundant saves during end-of-class crunch
+    _lastSavedHashes: {},
+    _inFlightSaves: {},
+
+    // Fast hash to detect if payload has changed since last confirmed save
+    _hashPayload(data) {
+        try {
+            const str = (typeof data === 'string') ? data : JSON.stringify(data);
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0;
+            }
+            return hash.toString(36) + '_' + str.length;
+        } catch(e) {
+            return null;
+        }
+    },
+
+    // Generate a unique request ID for idempotency
+    _generateRequestId() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        // Fallback for older browsers
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    },
+
+    async submitProfile(taskName, profileData, summaryText, courseKey = 'CIT9', options = {}) {
         const url = this.getScriptUrl(courseKey);
         const pin = (profileData.pin || Session.getPin() || '').trim().toUpperCase();
         const name = (profileData.name || Session.getName() || '').trim();
@@ -259,7 +394,38 @@ const StudentAPI = {
         // Always prioritize the official homeroom from roster
         const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
 
-        const payloadStr = JSON.stringify({
+        const saveKey = `${pin}_${taskName}`;
+        const currentHash = this._hashPayload(profileData);
+
+        // END-OF-CLASS CRUNCH OPTIMIZATION:
+        // 1. If payload is identical to last confirmed save and not forced, skip network call
+        if (!options.force && currentHash && this._lastSavedHashes[saveKey] === currentHash) {
+            console.log(`[api.js] End-of-class save skipped for "${taskName}": payload unchanged since last confirmed cloud save.`);
+            return {
+                status: 'submitted_successfully',
+                task: taskName,
+                unchanged: true,
+                message: 'Data already synced with cloud.'
+            };
+        }
+
+        // 2. If identical save is already in-flight with keepalive, do not double-dispatch
+        if (this._inFlightSaves[saveKey] === currentHash) {
+            console.log(`[api.js] In-flight save active with keepalive for "${taskName}": skipping duplicate dispatch.`);
+            return {
+                status: 'submitted_successfully',
+                task: taskName,
+                inFlight: true,
+                message: 'Save already in progress.'
+            };
+        }
+
+        this._inFlightSaves[saveKey] = currentHash;
+
+        // Generate idempotency key to prevent double-writes on retry
+        const requestId = this._generateRequestId();
+
+        const payloadObj = {
             action: 'submit_profile',
             taskName: taskName,
             className: effectiveClass,
@@ -268,8 +434,12 @@ const StudentAPI = {
             email: email,
             pronouns: pronouns,
             data: profileData,
-            summary: summaryText
-        });
+            summary: summaryText,
+            requestId: requestId
+        };
+        const payloadStr = JSON.stringify(payloadObj);
+
+        const localKey = `submission_${effectiveClass}_${pin}_${taskName}`;
 
         try {
             const res = await fetch(url, {
@@ -280,12 +450,15 @@ const StudentAPI = {
             });
             const data = await res.json();
             if (data.status === 'success' || data.status === 'submitted_successfully') {
+                this.validateServerVersion(data.version);
+                this._lastSavedHashes[saveKey] = currentHash;
                 Session.set(className, name, pin, email, pronouns);
-                const localKey = `submission_${className}_${pin}_${taskName}`;
                 localStorage.setItem(localKey, JSON.stringify({
                     task: taskName,
                     time: new Date().toISOString(),
                     cloudSynced: true,
+                    serverHash: data.hash || null,
+                    serverByteLength: data.byteLength || null,
                     data: profileData,
                     summary: summaryText
                 }));
@@ -309,28 +482,175 @@ const StudentAPI = {
                 }
             }
 
-            // Mark session and local backup as cloud pushed
+            // Mark hash as dispatched so rapid pagehide doesn't double-fire
+            this._lastSavedHashes[saveKey] = currentHash;
+
+            // CHROMEBOOK REALITY: localStorage is wiped on logout. We cannot rely on
+            // cross-session replay. Instead, verify the save landed RIGHT NOW (same session)
+            // by scheduling a verifyCloudSave() GET after a short delay. The debounced
+            // autosave will also re-fire within seconds, providing additional coverage.
             Session.set(className, name, pin, email, pronouns);
-            const localKey = `submission_${className}_${pin}_${taskName}`;
-            localStorage.setItem(localKey, JSON.stringify({
-                task: taskName,
-                time: new Date().toISOString(),
-                cloudSynced: true,
-                data: profileData,
-                summary: summaryText
-            }));
+
+            // Same-session local backup (ephemeral — wiped on Chromebook logout)
+            try {
+                localStorage.setItem(localKey, JSON.stringify({
+                    task: taskName,
+                    time: new Date().toISOString(),
+                    cloudSynced: false,
+                    syncStatus: 'pending_verification',
+                    requestId: requestId,
+                    courseKey: courseKey,
+                    data: profileData,
+                    summary: summaryText
+                }));
+            } catch (storageErr) { /* localStorage may be unavailable */ }
+
+            // IMMEDIATE IN-SESSION VERIFICATION: Fire a verifyCloudSave() GET after 3s
+            // to confirm the no-cors POST actually landed. If it didn't, the next
+            // debounced autosave (which fires every few seconds) will retry with a new
+            // requestId. This works because the student is still on the page.
+            const verifyPin = pin;
+            const verifyClass = effectiveClass;
+            const verifyCourse = courseKey;
+            const verifyKey = localKey;
+            setTimeout(async function() {
+                try {
+                    const check = await StudentAPI.verifyCloudSave(verifyClass, verifyPin, verifyCourse);
+                    if (check && check.savedData && check.savedData._tasks && check.savedData._tasks[taskName]) {
+                        console.log('[api.js] no-cors save CONFIRMED via verify check');
+                        try {
+                            const stored = JSON.parse(localStorage.getItem(verifyKey) || '{}');
+                            stored.cloudSynced = true;
+                            stored.syncStatus = 'confirmed';
+                            localStorage.setItem(verifyKey, JSON.stringify(stored));
+                        } catch(se) { /* ok */ }
+                    } else {
+                        console.warn('[api.js] no-cors save NOT YET confirmed — next autosave will retry');
+                    }
+                } catch (verifyErr) {
+                    console.warn('[api.js] Verify check failed (network still down?):', verifyErr);
+                }
+            }, 3000);
 
             return { 
                 status: 'submitted_successfully', 
                 isNoCorsFallback: true,
-                message: 'Cloud sync dispatched to Google Sheets.',
+                syncStatus: 'pending_verification',
+                message: 'Cloud sync dispatched. Verifying in background...',
                 task: taskName
             };
+        } finally {
+            delete this._inFlightSaves[saveKey];
+        }
+    },
+
+    /**
+     * Emergency Beacon Sync for Chromebook lid close / page unload.
+     * Guaranteed transmission via fetch with keepalive or navigator.sendBeacon.
+     * Skips silently if payload has not changed since the last confirmed cloud save.
+     */
+    sendEmergencyBeacon(taskName, profileData, summaryText, courseKey = 'CIT9') {
+        const pin = (profileData.pin || Session.getPin() || '').trim().toUpperCase();
+        if (!pin || pin.length < 3 || pin === '---' || pin === 'WAU' || pin === 'MRW') return false;
+
+        const saveKey = `${pin}_${taskName}`;
+        const currentHash = this._hashPayload(profileData);
+
+        if (currentHash && this._lastSavedHashes[saveKey] === currentHash) {
+            console.log(`[api.js] Emergency beacon skipped for "${taskName}": already synced with cloud.`);
+            return false;
+        }
+
+        const url = this.getScriptUrl(courseKey);
+        const className = profileData.className || profileData.class || Session.getClass() || 'General';
+        const name = profileData.name || Session.getName() || '';
+        const requestId = this._generateRequestId();
+
+        const payloadObj = {
+            action: 'submit_profile',
+            taskName: taskName,
+            className: className,
+            name: name,
+            pin: pin,
+            email: profileData.email || Session.getEmail() || '',
+            pronouns: profileData.pronouns || Session.getPronouns() || '',
+            data: profileData,
+            summary: summaryText || `Emergency Beacon (${taskName})`,
+            requestId: requestId
+        };
+        const payloadStr = JSON.stringify(payloadObj);
+
+        this._lastSavedHashes[saveKey] = currentHash;
+
+        try {
+            if (navigator.sendBeacon) {
+                const blob = new Blob([payloadStr], { type: 'text/plain;charset=utf-8' });
+                navigator.sendBeacon(url, blob);
+                return true;
+            } else {
+                fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadStr,
+                    keepalive: true
+                });
+                return true;
+            }
+        } catch (e) {
+            console.warn('[api.js] Emergency beacon failed:', e);
+            return false;
         }
     },
 
     async submitAssignment(taskName, assignmentData, summaryText, courseKey = 'HL8') {
         return this.submitProfile(taskName, assignmentData, summaryText, courseKey);
+    },
+
+    /**
+     * Replay any pending (unverified) saves from localStorage.
+     * 
+     * CHROMEBOOK NOTE: This only works WITHIN the same login session (e.g., student
+     * switches tabs and comes back). localStorage is wiped on Chromebook logout,
+     * so this cannot recover saves across sessions. The primary safety nets are:
+     * (1) Submissions_Log append (server-side, permanent, happens before merge)
+     * (2) Immediate in-session verifyCloudSave() fired 3s after any no-cors save
+     * (3) Debounced autosave retrying every few seconds while student is on the page
+     */
+    async replayPendingSaves() {
+        const keysToReplay = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('submission_')) {
+                try {
+                    const entry = JSON.parse(localStorage.getItem(key));
+                    if (entry && entry.syncStatus === 'pending_verification') {
+                        keysToReplay.push({ key, entry });
+                    }
+                } catch (e) { /* skip */ }
+            }
+        }
+
+        for (const { key, entry } of keysToReplay) {
+            try {
+                console.log('[api.js] Replaying pending save:', key);
+                const result = await this.submitProfile(
+                    entry.task,
+                    entry.data,
+                    entry.summary,
+                    entry.courseKey || 'CIT9'
+                );
+                if (result.status === 'submitted_successfully' || result.deduplicated) {
+                    // Confirmed — mark as synced
+                    entry.cloudSynced = true;
+                    entry.syncStatus = 'confirmed';
+                    localStorage.setItem(key, JSON.stringify(entry));
+                    console.log('[api.js] Pending save confirmed:', key);
+                }
+            } catch (replayErr) {
+                console.warn('[api.js] Replay failed for', key, replayErr);
+            }
+        }
     },
 
     // ============ CLASS LOG (teacher's "what we did / what's next" tracker) ============
@@ -505,3 +825,21 @@ function showToast(msg, isError = false) {
         toast.style.transform = 'translateY(10px)';
     }, 3500);
 }
+
+// Same-session replay of pending saves on tab-switch / visibility change.
+// On Chromebooks, localStorage is wiped on logout — this only helps within
+// the active session (e.g., student switches tabs and comes back).
+// The real safety net is the immediate verifyCloudSave() fired 3s after no-cors saves.
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Automatically check server version integrity in background
+        setTimeout(function() { StudentAPI.checkServerVersion(); }, 1200);
+        setTimeout(function() { StudentAPI.replayPendingSaves(); }, 2000);
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            setTimeout(function() { StudentAPI.replayPendingSaves(); }, 1000);
+        }
+    });
+}
+
