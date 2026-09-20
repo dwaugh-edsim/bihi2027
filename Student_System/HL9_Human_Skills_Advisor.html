@@ -93,6 +93,55 @@
             display: none;
         }
 
+        /* Honest sync pill states (Chromebook data-loss hardening) */
+        .sync-badge.locked { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
+        .sync-badge.saving { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .sync-badge.synced { background: #edf7ed; color: #166534; border-color: #bbf7d0; }
+        .sync-badge.error  { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
+
+        .outbox-badge {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.75em;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 800;
+            display: none;
+        }
+
+        /* Login gate banner (shown whenever no student is logged in) */
+        .login-gate-banner {
+            background: #eff6ff;
+            border: 2px solid var(--dhs-blue);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* REAL FIELDSET: disables every work input until PIN login */
+        fieldset#workFieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            min-inline-size: 0;
+        }
+
+        fieldset#workFieldset:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        fieldset#workFieldset:disabled * {
+            cursor: not-allowed !important;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
         .btn {
             display: inline-block;
             background-color: var(--dhs-blue);
@@ -526,6 +575,7 @@
                 </div>
             </div>
             <div class="user-status">
+                <span class="outbox-badge" id="outboxBadge" style="display:none;" title="Unsynced edits pending network retry">0 Unsynced</span>
                 <span class="sync-badge" id="syncBadge">☁️ Synced to Google Sheets</span>
                 <button class="btn btn-gold" onclick="saveProtocol()">Save & Sync Blueprint</button>
             </div>
@@ -598,12 +648,24 @@
                 </div>
             </div>
 
+            <!-- LOGIN GATE BANNER (shown whenever no student is logged in) -->
+            <div class="login-gate-banner" id="loginGateBanner">
+                <div style="font-size: 1.05em; font-weight: 800; color: #1e3a8a; margin-bottom: 4px;">🔒 Log In With Your 3-Letter PIN to Start</div>
+                <div style="font-size: 0.84em; color: var(--text-muted); margin-bottom: 12px;">
+                    Chromebooks erase anonymous work on logout. Log in first so your blueprint saves directly to Mr. Waugh's Google Sheets system.
+                </div>
+                <button type="button" class="btn btn-gold" onclick="focusPinFromGate()" style="font-size: 0.9em;">🔑 Log In to Begin</button>
+            </div>
+
             <!-- Navigation Tabs -->
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('tab-draft')">1. The Skill Draft Board (Pick 10)</button>
                 <button class="tab-btn" onclick="switchTab('tab-protocol')">2. The Advisory Blueprint (Stress-Tests)</button>
                 <button class="tab-btn" onclick="switchTab('tab-audit')">3. Client Self-Assessment (1–5 Rubric)</button>
             </div>
+
+            <!-- REAL FIELDSET: disables all work inputs until PIN login (no Tab-reachable editing while locked out) -->
+            <fieldset id="workFieldset" disabled>
 
             <!-- TAB 1: SKILL DRAFT BOARD -->
             <div class="tab-pane active" id="tab-draft">
@@ -847,6 +909,8 @@
                 </div>
             </div>
 
+            </fieldset>
+
         </div>
 
     </div>
@@ -856,6 +920,176 @@
     <script>
         let selectedSkills = [];
         let protocolData = {};
+
+        // ═══ Chromebook data-loss hardening (Pattern A — resiliency-delegation.md) ═══
+        // Must stay byte-identical to the submitProfile() call below and the _tasks[] lookup.
+        const BLUEPRINT_TASK_NAME = 'Dartmouth High Human Skills Blueprint';
+        const BLUEPRINT_COURSE = 'HL9';
+        let currentUser = null;
+        let outboxPendingCount = 0;
+        let draftTimer = null;
+
+        // Per-PIN draft key. Anonymous / absent PIN resolves to null: NO anonymous draft
+        // writes or restores, ever. Format preserved: dhs_blueprint_${PIN}
+        const draftKey = (pin) => (!pin || pin === '---' || pin === 'draft') ? null : `dhs_blueprint_${pin.toUpperCase()}`;
+        const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+
+        function countCompleted(data) {
+            if (!data || !data.skills) return 0;
+            let done = 0;
+            for (const name of Object.keys(data.skills)) {
+                const s = data.skills[name] || {};
+                if ((s.description && String(s.description).trim()) ||
+                    (s.stressTest && String(s.stressTest).trim()) ||
+                    (s.evidence && String(s.evidence).trim()) ||
+                    (s.action && String(s.action).trim()) ||
+                    (Number(s.rating) > 0)) done++;
+            }
+            if (data.verdict && String(data.verdict).trim()) done++;
+            return done;
+        }
+
+        function buildSummary(data) {
+            return `DHS Human Skills Blueprint | Advisors: ${data.advisors} | Score: ${data.score}/50 | Skills: ${selectedSkills.map(s => s.name).join(', ')}`;
+        }
+
+        function updateSyncPill(state, detail = '') {
+            const pill = document.getElementById('syncBadge');
+            if (!pill) return;
+            pill.className = `sync-badge ${state}`;
+            pill.style.display = 'inline-block';
+            if (state === 'locked') {
+                pill.innerText = '🔒 Not Logged In — Not Saving';
+            } else if (state === 'saving') {
+                pill.innerText = detail ? `⏳ ${detail}...` : '⏳ Saving to Google Sheets...';
+            } else if (state === 'synced') {
+                pill.innerText = detail ? `🟢 Cloud Synced (${detail})` : '🟢 Cloud Synced';
+            } else if (state === 'error') {
+                pill.innerText = '🔴 Offline — Work saved on device ONLY. DO NOT close lid!';
+            } else {
+                pill.innerText = detail || '⚪ Saved Locally';
+            }
+        }
+
+        function updateOutbox(delta) {
+            if (delta === 0) outboxPendingCount = 0;
+            else outboxPendingCount = Math.max(0, outboxPendingCount + delta);
+            const badge = document.getElementById('outboxBadge');
+            if (badge) {
+                if (outboxPendingCount > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `⚠️ ${outboxPendingCount} Unsynced`;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function setAuthState(student) {
+            currentUser = student;
+            const fieldset = document.getElementById('workFieldset');
+            if (fieldset) fieldset.disabled = !student;
+            const gateBanner = document.getElementById('loginGateBanner');
+            if (gateBanner) gateBanner.style.display = student ? 'none' : 'block';
+            const btnLogout = document.getElementById('authLogoutBtn');
+            if (btnLogout) btnLogout.style.display = student ? 'inline-block' : 'none';
+            if (!student) {
+                updateSyncPill('locked');
+                updateOutbox(0);
+            } else {
+                sessionStorage.setItem('dhs_blueprint_pin', student.pin);
+                sessionStorage.setItem('dhs_blueprint_name', student.name);
+                sessionStorage.setItem('dhs_blueprint_class', student.className);
+                Session.set(student.className, student.name, student.pin);
+            }
+        }
+
+        function isIdentityChange(newStudent) {
+            const cur = currentUser ? (currentUser.pin || '').trim().toUpperCase() : '';
+            return Boolean(cur && (!newStudent || newStudent.pin.toUpperCase() !== cur));
+        }
+
+        function clearFormData() {
+            selectedSkills = [];
+            protocolData = {};
+            const verdict = document.getElementById('advisorVerdict');
+            if (verdict) verdict.value = '';
+            document.querySelectorAll('.skill-card.selected').forEach(c => c.classList.remove('selected'));
+            const counter = document.getElementById('draftCounter');
+            if (counter) { counter.innerText = 'Selected: 0 / 10'; counter.style.background = '#0f172a'; }
+            const scoreVal = document.getElementById('scoreValue');
+            if (scoreVal) scoreVal.innerText = '0';
+            const scoreLbl = document.getElementById('scoreLabel');
+            if (scoreLbl) { scoreLbl.innerText = 'Rate all 10 skills below'; scoreLbl.style.color = '#fbbf24'; }
+            const pc = document.getElementById('protocolContainer');
+            if (pc) pc.innerHTML = '';
+            const ac = document.getElementById('auditContainer');
+            if (ac) ac.innerHTML = '';
+        }
+
+        // Authenticated per-PIN local draft ONLY — the anonymous write path is gone.
+        function saveLocalDraft() {
+            if (!currentUser) return;
+            const key = draftKey(currentUser.pin);
+            if (!key) return; // ANONYMOUS GUARD: never write an anonymous draft
+            try {
+                const data = gatherAllData();
+                data.pin = (currentUser.pin || '').toUpperCase(); // flush under the logged-in pin
+                localStorage.setItem(key, JSON.stringify({ ...data, savedAt: new Date().toISOString() }));
+            } catch (e) {
+                console.warn('Local storage error:', e);
+            }
+        }
+
+        function queueDraftSave() {
+            if (!currentUser) return;
+            if (draftTimer) clearTimeout(draftTimer);
+            draftTimer = setTimeout(saveLocalDraft, 1500);
+        }
+
+        document.addEventListener('input', queueDraftSave);
+
+        // Single cloud submit path (shared by manual save, flushes, and the online retry).
+        async function submitBlueprint(data, summary, silent) {
+            updateSyncPill('saving');
+            try {
+                const res = await StudentAPI.submitProfile('Dartmouth High Human Skills Blueprint', data, summary, 'HL9');
+                if (res.status === 'success') {
+                    updateOutbox(0);
+                    saveLocalDraft(); // stamp the local copy with the confirmed-save time
+                    updateSyncPill('synced', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                    if (!silent) alert("Successfully submitted and synced to Google Sheets!");
+                    return res;
+                }
+                updateOutbox(1);
+                updateSyncPill('error');
+                if (!silent) alert(res.message || "Failed to submit profile.");
+                return res;
+            } catch (e) {
+                console.warn(e);
+                updateOutbox(1);
+                updateSyncPill('error');
+                if (!silent) alert("Cloud sync failed — saved on this Chromebook ONLY. DO NOT close the lid until it syncs!");
+                return null;
+            }
+        }
+
+        // Emergency unload flush: lid close / tab switch / navigation (authenticated only).
+        function flushEmergencyBeacon() {
+            if (!currentUser) return;
+            const pin = (currentUser.pin || '').trim().toUpperCase();
+            if (!pin || pin === '---') return;
+            saveLocalDraft(); // device-only copy in case even the beacon fails
+            const data = gatherAllData();
+            data.pin = pin;
+            StudentAPI.sendEmergencyBeacon('Dartmouth High Human Skills Blueprint', data, buildSummary(data), 'HL9');
+        }
+
+        function focusPinFromGate() {
+            const pinEl = document.getElementById('pinInput');
+            if (pinEl) { pinEl.focus(); pinEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }
+        // ═══ End Chromebook data-loss hardening block ═══
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -867,6 +1101,7 @@
         }
 
         function toggleSkill(el) {
+            if (!currentUser) return; // work is locked until PIN login (the fieldset also blocks focus)
             const skill = el.dataset.skill;
             const pillar = el.dataset.pillar;
 
@@ -885,6 +1120,7 @@
             }
 
             updateDraftCounter();
+            queueDraftSave();
         }
 
         function updateDraftCounter() {
@@ -988,6 +1224,7 @@
         }
 
         function setRating(slotIdx, val, skillName) {
+            if (!currentUser) return; // work is locked until PIN login
             if (!protocolData[skillName]) protocolData[skillName] = {};
             protocolData[skillName].rating = val;
 
@@ -998,6 +1235,7 @@
             });
 
             calculateScore();
+            queueDraftSave();
         }
 
         function calculateScore() {
@@ -1056,6 +1294,10 @@
         }
 
         async function saveProtocol() {
+            if (!currentUser) {
+                alert("Please log in first: enter Advisor 1 Name + your 3-Letter PIN and press 'Load Work'. Anonymous work is not saved.");
+                return;
+            }
             const data = gatherAllData();
             if (!data.pin || !data.advisors) {
                 alert("Please enter Advisor 1 Name and your 3-Letter PIN at the top first.");
@@ -1073,25 +1315,14 @@
                 return;
             }
 
-            const summary = `DHS Human Skills Blueprint | Advisors: ${data.advisors} | Score: ${data.score}/50 | Skills: ${selectedSkills.map(s => s.name).join(', ')}`;
+            const summary = buildSummary(data);
 
-            // Save locally
-            localStorage.setItem(`dhs_blueprint_${data.pin}`, JSON.stringify(data));
+            // Save locally under the AUTHENTICATED pin only (savedAt-stamped; anonymous drafts are never written)
+            saveLocalDraft();
 
             alert("Syncing your Dartmouth High Blueprint to Mr. Waugh's master Google Sheet...");
 
-            try {
-                const res = await StudentAPI.submitProfile('Dartmouth High Human Skills Blueprint', data, summary, 'HL9');
-                if (res.status === 'success') {
-                    document.getElementById('syncBadge').style.display = 'inline-block';
-                    alert("Successfully submitted and synced to Google Sheets!");
-                } else {
-                    alert(res.message || "Failed to submit profile.");
-                }
-            } catch(e) {
-                console.warn(e);
-                alert("Saved locally on your Chromebook.");
-            }
+            await submitBlueprint(data, summary, false);
         }
 
         async function loginAndRestore() {
@@ -1110,45 +1341,115 @@
                 return;
             }
 
-            // Check localStorage first
-            const local = localStorage.getItem(`dhs_blueprint_${pin}`);
-            if (local) {
-                try {
-                    const parsed = JSON.parse(local);
-                    restoreData(parsed);
-                    alert("Loaded saved blueprint from this Chromebook!");
-                    return;
-                } catch(e){}
+            // ATOMIC IDENTITY SWITCH: flush the outgoing student's typed work under THEIR
+            // pin -> wipe the form -> adopt the new identity. Student A's answers can never
+            // leak into Student B's row on a shared cart Chromebook.
+            if (isIdentityChange({ pin: pin, name: name, className: cls })) {
+                const curData = gatherAllData();
+                curData.pin = currentUser.pin; // flush under the OUTGOING student's pin
+                if (countCompleted(curData) > 0) {
+                    await submitBlueprint(curData, buildSummary(curData), true);
+                }
+                clearFormData();
             }
 
-            // Check Google Sheet
+            setAuthState({ pin: pin, name: name || auth.name || 'Student', className: cls });
+
+            // NEWER-WINS RESTORE: local per-PIN draft vs cloud task record
+            const key = draftKey(pin);
+            const localRaw = key ? localStorage.getItem(key) : null;
+            let localObj = null;
+            if (localRaw) {
+                try { localObj = JSON.parse(localRaw); } catch (e) { localObj = null; }
+            }
+
             try {
                 const res = await StudentAPI.login(cls, name || 'Student', pin, 'HL9');
-                const authLogout = document.getElementById('authLogoutBtn');
-                if (authLogout) authLogout.style.display = 'inline-block';
-                if (res.status === 'success' && res.savedData && res.savedData.skills) {
-                    restoreData(res.savedData);
+                let tObj = null;
+                let targetData = null;
+                if (res && res.savedData) {
+                    let d = res.savedData;
+                    if (typeof d === 'string') {
+                        try { d = JSON.parse(d); } catch (e) { }
+                    }
+                    if (d && d.data) {
+                        try { d = (typeof d.data === 'string') ? JSON.parse(d.data) : d.data; } catch (e) { }
+                    }
+                    // Task-specific extraction: isolate THIS assignment from other tasks on the row
+                    if (d && d._tasks && d._tasks['Dartmouth High Human Skills Blueprint']) {
+                        tObj = d._tasks['Dartmouth High Human Skills Blueprint'];
+                        targetData = tObj.data || tObj;
+                    } else if (d && d.skills) {
+                        targetData = d; // legacy shape saved by this page
+                    }
+                }
+
+                if (targetData && targetData.skills) {
+                    // NEWER-WINS CONFLICT RESOLUTION (30s threshold + completed-count guard)
+                    const cloudAt = Date.parse(tObj && tObj.updated) || 0;
+                    const localAt = draftSavedAt(localObj);
+
+                    if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(targetData)) {
+                        // Local is genuinely newer: keep it and push it to the cloud
+                        restoreData(localObj);
+                        updateSyncPill('synced', 'Local newer');
+                        alert('Restored the newer blueprint draft saved on this Chromebook and queued it for Google Sheets.');
+                        const pushData = gatherAllData();
+                        await submitBlueprint(pushData, buildSummary(pushData), true);
+                        return;
+                    }
+
+                    // Cloud newer (or tie): server wins
+                    restoreData(targetData);
+                    if (key) {
+                        try {
+                            localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                        } catch (e) { }
+                    }
+                    updateSyncPill('synced', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
                     alert("Restored your blueprint from Google Sheets!");
+                    return;
+                }
+
+                if (localObj && countCompleted(localObj) > 0) {
+                    restoreData(localObj);
+                    updateSyncPill('synced', 'Draft active');
+                    alert("Loaded saved blueprint from this Chromebook!");
                 } else {
+                    updateSyncPill('synced', 'Ready');
                     alert(`Welcome, ${name || pin}! Ready to start your blueprint.`);
                 }
-            } catch(e) {
-                alert("Ready to start!");
+            } catch (e) {
+                console.warn(e);
+                // Offline: the per-PIN local draft is the only copy
+                if (localObj && countCompleted(localObj) > 0) restoreData(localObj);
+                updateSyncPill('error');
+                alert("Offline — loaded your work saved on this Chromebook ONLY. DO NOT close the lid until it syncs!");
             }
         }
 
-        function logout() {
-            if (confirm("Log out of this blueprint session? The form will be cleared for the next student.")) {
-                Session.clear();
-                document.getElementById('adv1Name').value = '';
-                document.getElementById('adv2Name').value = '';
-                document.getElementById('pinInput').value = '';
-                document.getElementById('advisorVerdict').value = '';
-                const authLogout = document.getElementById('authLogoutBtn');
-                if (authLogout) authLogout.style.display = 'none';
-                document.getElementById('syncBadge').style.display = 'none';
-                alert("Logged out successfully.");
+        async function logout() {
+            if (!confirm("Log out of this blueprint session? The form will be cleared for the next student.")) return;
+
+            // Flush the logged-in student's work under THEIR pin before wiping the screen
+            if (currentUser) {
+                const curData = gatherAllData();
+                curData.pin = currentUser.pin;
+                if (countCompleted(curData) > 0) {
+                    saveLocalDraft();
+                    await submitBlueprint(curData, buildSummary(curData), true);
+                }
             }
+            clearFormData();
+            Session.clear();
+            sessionStorage.removeItem('dhs_blueprint_pin');
+            sessionStorage.removeItem('dhs_blueprint_name');
+            sessionStorage.removeItem('dhs_blueprint_class');
+            document.getElementById('adv1Name').value = '';
+            document.getElementById('adv2Name').value = '';
+            document.getElementById('pinInput').value = '';
+            setAuthState(null);
+            alert("Logged out successfully.");
         }
 
         function restoreData(saved) {
@@ -1188,13 +1489,51 @@
         }
 
         window.onload = () => {
-            if (Session.isLoggedIn()) {
+            // Roster failure banner — PIN login is meaningless without the roster
+            if (!window.MASTER_ROSTER_DATA || !window.MASTER_ROSTER_DATA.length) {
+                const errBanner = document.createElement('div');
+                errBanner.id = 'rosterErrorBanner';
+                errBanner.style.cssText = 'max-width:1040px; margin:0 auto 16px auto; background:#fef2f2; border:2px solid #ef4444; color:#991b1b; padding:12px 18px; border-radius:8px; font-weight:700; font-size:0.9em;';
+                errBanner.innerHTML = '⚠️ Class roster failed to load — check the <code>students_roster_data.js</code> &lt;script&gt; path.';
+                document.body.insertBefore(errBanner, document.body.firstChild);
+            }
+
+            if (Session.isLoggedIn() && Session.getPin()) {
+                // Session restore: prefill the login bar from the active session, then
+                // loginAndRestore() runs setAuthState + the newer-wins load.
+                // (There is deliberately NO anonymous restore branch here.)
                 document.getElementById('pinInput').value = Session.getPin();
                 document.getElementById('adv1Name').value = Session.getName();
                 const cls = Session.getClass();
                 if (cls.startsWith('9')) document.getElementById('classSelect').value = cls;
                 loginAndRestore();
+            } else {
+                // Unauthenticated start: lock every work input behind the fieldset + gate banner
+                setAuthState(null);
             }
+
+            // ── Lifecycle flush listeners (Chromebook lid close / tab switch / reconnect) ──
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') flushEmergencyBeacon();
+            });
+
+            window.addEventListener('pagehide', () => {
+                flushEmergencyBeacon();
+            });
+
+            window.addEventListener('beforeunload', () => {
+                flushEmergencyBeacon();
+            });
+
+            window.addEventListener('online', () => {
+                if (currentUser) {
+                    updateSyncPill('saving', 'Resyncing');
+                    const data = gatherAllData();
+                    if (countCompleted(data) > 0) {
+                        submitBlueprint(data, buildSummary(data), true);
+                    }
+                }
+            });
         };
     </script>
 </body>

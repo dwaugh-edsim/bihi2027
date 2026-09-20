@@ -578,6 +578,12 @@
 
     <div class="ambient-glow"></div>
 
+    <!-- Sync Error Banner (Persistent, not a toast) -->
+    <div id="syncErrorBanner" class="dashboard-warn-banner" style="display:none; background: rgba(220, 38, 38, 0.92); color: #fff; padding: 10px 16px; margin: 0 auto 8px; max-width: 1400px; border-radius: 6px; font-size: 0.85rem; font-family: var(--font-body); align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(0,0,0,0.25);"></div>
+
+    <!-- Orphan Task Banner (submissions with unexpected taskName) -->
+    <div id="orphanBanner" class="dashboard-warn-banner" style="display:none; background: rgba(234, 88, 12, 0.92); color: #fff; padding: 10px 16px; margin: 0 auto 8px; max-width: 1400px; border-radius: 6px; font-size: 0.85rem; font-family: var(--font-body); align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(0,0,0,0.25);"></div>
+
     <div class="container">
 
         <!-- Top Navigation Bar -->
@@ -673,7 +679,7 @@
         <div class="controls-bar">
             <div class="search-wrap">
                 <span style="color: var(--text-muted);">🔍</span>
-                <input type="text" class="search-input" id="searchBox" placeholder="Search by student name or PIN..." oninput="renderStudentCards()">
+                <input type="text" class="search-input" id="searchBox" placeholder="Search by student name..." oninput="renderStudentCards()">
             </div>
 
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -693,7 +699,6 @@
                     <option value="NAME">Sort: Last Name (A-Z)</option>
                     <option value="TASKS">Sort: Most Completed First</option>
                     <option value="PENDING">Sort: Incomplete First</option>
-                    <option value="PIN">Sort: PIN</option>
                 </select>
             </div>
         </div>
@@ -1048,13 +1053,14 @@
             const statusFilter = document.getElementById('statusSelect')?.value || 'ALL';
             const sortBy = document.getElementById('sortSelect')?.value || 'NAME';
 
-            // Filter by Search Query
+            // Filter by Search Query — PIN is intentionally NOT searchable
+            // (PINs are projectable; searching by PIN leaks them onto shared displays.)
             if (query) {
                 students = students.filter(s => {
                     const fn = (s.first_name || '').toLowerCase();
                     const ln = (s.last_name || '').toLowerCase();
-                    const pin = (s.pin || '').toLowerCase();
-                    return fn.includes(query) || ln.includes(query) || pin.includes(query);
+                    const id = String(s.student_id || '').toLowerCase();
+                    return fn.includes(query) || ln.includes(query) || id.includes(query);
                 });
             }
 
@@ -1107,7 +1113,7 @@
                 headerRow.innerHTML = `
                     <span></span>
                     <span>Student</span>
-                    <span>PIN</span>
+                    <span>ID</span>
                     <span>Cls</span>
                     <span>📰 Diag</span>
                     <span>🗺️ Where</span>
@@ -1123,10 +1129,17 @@
                     if (st.isBothDone) stripeClass = 'all-done';
                     else if (st.totalDone === 1) stripeClass = 'some-done';
 
+                    // Scrub: PIN never displayed on the projector view.
+                    // Show last 3 of student_id (or initial-derived fallback) instead.
+                    const idTail = student.student_id
+                        ? String(student.student_id).slice(-3)
+                        : ((student.first_name || '?').charAt(0) +
+                           (student.last_name || '?').charAt(0)).toUpperCase();
+
                     card.innerHTML = `
                         <span class="row-stripe ${stripeClass}"></span>
                         <span class="student-name">${student.last_name}, ${student.first_name}</span>
-                        <span class="student-pin-badge">${student.pin || '---'}</span>
+                        <span class="student-pin-badge" title="Student ID (PIN intentionally hidden)">${idTail}</span>
                         <span class="student-class-badge">${student.homeroom}</span>
                         <span>${st.cit9Done
                             ? '<span class="status-chip done">✅ Done</span>'
@@ -1157,7 +1170,20 @@
 
             const gr9 = (window.MASTER_ROSTER_DATA || []).filter(s => ['901', '902', '903'].includes(String(s.homeroom || '').trim()));
             let newSynced = 0;
+            let errorCount = 0;
+            const errorSamples = [];
             const BATCH_SIZE = 8;
+
+            // ── Deterministic task-matching constants ────────────────────
+            // The dashboard tracks one CIT9 task. Strict matching on the
+            // server-side taskName prevents WHERE-project records (and
+            // any other future task) from being misfiled into the CIT9
+            // diagnostic cache. Combined with [id, taskName] matching,
+            // a submission can only land in the cache if BOTH the PIN
+            // and the task name match expectations.
+            const EXPECTED_TASK_NAME = 'Citizenship 9 Current Issues Diagnostic';
+            const EXPECTED_TASK_NAME_ALT = 'CIT9 Real Issues Case File'; // tolerate the dossier fork
+            const expectedNames = new Set([EXPECTED_TASK_NAME, EXPECTED_TASK_NAME_ALT]);
 
             for (let i = 0; i < gr9.length; i += BATCH_SIZE) {
                 const batch = gr9.slice(i, i + BATCH_SIZE);
@@ -1169,29 +1195,60 @@
                     const cls = String(s.homeroom || '').trim();
                     const pin = (s.pin || '').toUpperCase();
                     const name = s.first_name;
+                    const id = String(s.student_id || '').trim();
 
                     try {
                         const res = await StudentAPI.login(cls, name, pin, 'CIT9');
                         if (res && (res.savedData || res.task)) {
                             const task = res.task || '';
                             const d = res.savedData ? (res.savedData.data || res.savedData) : {};
-                            
-                            // 1. Diagnostic update
-                            if (task.includes('Current Issues') || d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue) {
+
+                            // Deterministic [id, taskName] check:
+                            // Verify both the student id (server-side row) AND
+                            // the taskName match expectations before caching.
+                            const serverPin = String(res.pin || '').toUpperCase();
+                            const idMatches = !serverPin || !pin || serverPin === pin;
+                            const taskMatches = expectedNames.has(task);
+
+                            // 1. Diagnostic update (CIT9 task only)
+                            if (taskMatches && idMatches &&
+                                (d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue)) {
                                 d.task = task;
                                 d.homeroom = cls;
                                 d.student_name = `${s.first_name} ${s.last_name}`;
+                                d.student_id = id;
+                                d.syncedAt = new Date().toISOString();
                                 cachedSubmissions[pin] = d;
                                 newSynced++;
+                            } else if (task && !taskMatches &&
+                                       (d.issues || d.news_sources || d.primary_news)) {
+                                // Orphan: submission came back with CIT9-shaped
+                                // data but a taskName we don't recognize.
+                                // Surface it rather than silently discarding.
+                                if (!window._orphanSubmissions) window._orphanSubmissions = [];
+                                window._orphanSubmissions.push({
+                                    pin, name: `${s.first_name} ${s.last_name}`,
+                                    task, className: cls, id
+                                });
+                                if (window._orphanSubmissions.length <= 5) {
+                                    console.warn(
+                                        `[CIT9 Dashboard] Orphan task for ${s.first_name} (${pin}): "${task}". ` +
+                                        `Expected one of: ${[...expectedNames].join(' | ')}`
+                                    );
+                                }
                             }
 
-                            // 2. WHERE project update
+                            // 2. WHERE project update (handled by sibling code path)
                             if (task.includes('WHERE') || d.p1 || d.where_personal || d.cat1_personal) {
                                 window.ROOM8_WHERE_INITIAL_DATA = window.ROOM8_WHERE_INITIAL_DATA || {};
                                 window.ROOM8_WHERE_INITIAL_DATA[pin] = d;
                             }
                         }
                     } catch(e) {
+                        errorCount++;
+                        if (errorSamples.length < 3) {
+                            errorSamples.push(`${s.first_name} (${pin}): ${e?.message || e}`);
+                        }
                         console.warn(`Sync failed for ${s.first_name} (${pin}):`, e);
                     }
                 }));
@@ -1212,12 +1269,67 @@
 
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = `<span>🟢</span> Cloud Synced (${totalBoth} complete)`;
+                const lastSyncStr = (() => {
+                    try {
+                        const raw = localStorage.getItem('ROOM8_CIT9_LAST_SYNC');
+                        if (!raw) return null;
+                        const dt = new Date(raw);
+                        return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    } catch (e) { return null; }
+                })();
+                btn.innerHTML = `<span>🟢</span> Cloud Synced (${totalBoth} complete)${lastSyncStr ? ` · last ${lastSyncStr}` : ''}`;
+            }
+
+            // Update persistent last-synced timestamp
+            try {
+                localStorage.setItem('ROOM8_CIT9_LAST_SYNC', new Date().toISOString());
+            } catch (e) {}
+
+            // Surface sync errors as a persistent banner (not just toast)
+            const errorBanner = document.getElementById('syncErrorBanner');
+            if (errorBanner) {
+                if (errorCount > 0) {
+                    errorBanner.style.display = 'flex';
+                    errorBanner.innerHTML =
+                        `<strong>⚠ ${errorCount} sync error${errorCount === 1 ? '' : 's'}</strong> ` +
+                        `<span style="opacity:.85;">— e.g., ${errorSamples.join(' · ')}</span>`;
+                } else {
+                    errorBanner.style.display = 'none';
+                }
+            }
+
+            // Surface orphan tasks (submissions with unrecognized taskName)
+            const orphanBanner = document.getElementById('orphanBanner');
+            const orphanList = (window._orphanSubmissions || []).slice(0, 8);
+            if (orphanBanner) {
+                if (orphanList.length > 0) {
+                    orphanBanner.style.display = 'flex';
+                    orphanBanner.innerHTML =
+                        `<strong>📌 ${window._orphanSubmissions.length} orphan task record${window._orphanSubmissions.length === 1 ? '' : 's'}</strong> ` +
+                        `<span style="opacity:.85;">— submissions came back with an unexpected taskName. ` +
+                        `First few: ${orphanList.map(o => `${o.name} ("${o.task}")`).join(', ')}</span>`;
+                } else {
+                    orphanBanner.style.display = 'none';
+                }
             }
 
             if (!isBackground) {
                 showToast(`Sync complete! ${totalBoth} students fully up to date.`);
             }
+        }
+
+        // Deep PIN Scrubbing for Front Projector (Contract Pattern B)
+        function scrubForDisplay(obj) {
+            if (Array.isArray(obj)) return obj.map(scrubForDisplay);
+            if (obj && typeof obj === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    if (/^(pin|_requestId|email)$/i.test(k)) continue;
+                    out[k] = scrubForDisplay(v);
+                }
+                return out;
+            }
+            return obj;
         }
 
         // Inspect Modal (Private Teacher View)
@@ -1232,9 +1344,16 @@
             }
             if (!student) return;
 
+            // Deep scrub any sensitive identifier before rendering
+            if (sub) {
+                sub = scrubForDisplay(sub);
+            }
+
             const modal = document.getElementById('inspectModal');
             document.getElementById('m-student-name').innerText = `${student.first_name} ${student.last_name}`;
-            document.getElementById('m-student-sub').innerText = `Class ${student.homeroom} • PIN: ${student.pin} • ID: ${student.student_id || '---'}`;
+            // Scrub: PIN intentionally not shown in modal subtitle (projector privacy).
+            document.getElementById('m-student-sub').innerText =
+                `Class ${student.homeroom} • ID: ${student.student_id || '---'}`;
 
             const banner = document.getElementById('m-status-banner');
             const issuesGrid = document.getElementById('m-issues-grid');

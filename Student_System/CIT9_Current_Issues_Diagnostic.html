@@ -559,6 +559,23 @@
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* ── Fieldset Login Gate ──────────────────────────────── */
+        fieldset#workFieldset[disabled] {
+            opacity: 0.45;
+            filter: blur(0.4px);
+            pointer-events: none;
+        }
+        fieldset#workFieldset[disabled] .tab-btn { cursor: not-allowed; }
+        fieldset#workFieldset { transition: opacity 0.2s ease; }
+        #loginGateBanner { display: flex; }
+
+        /* ── Honest Sync Badge States ─────────────────────────── */
+        .sync-badge.synced    { background: #047857; color: #fff; }
+        .sync-badge.saving    { background: #1d4ed8; color: #fff; }
+        .sync-badge.offline   { background: #b45309; color: #fff; }
+        .sync-badge.unsynced  { background: #b91c1c; color: #fff; }
+        .sync-badge.never     { background: #64748b; color: #fff; }
     </style>
 </head>
 <body>
@@ -676,6 +693,23 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Login Gate Banner — shows above the tabs until login succeeds -->
+            <div id="loginGateBanner" style="display:none; background: rgba(220, 38, 38, 0.92); color: #fff; padding: 12px 16px; margin: 16px 0 8px; border-radius: 6px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
+                <span style="font-size:1.1rem;">🔒</span>
+                <span>You are <b>not logged in</b>. The form is locked until you enter your <b>First Name</b> and <b>3-Letter PIN</b> above and click <b>Log In &amp; Load</b>. Your answers will not save.</span>
+            </div>
+
+            <!-- Offline Warning Banner — appears when navigator says offline -->
+            <div id="offlineWarningBanner" style="display:none; background: rgba(234, 88, 12, 0.92); color: #fff; padding: 8px 16px; margin: 8px 0; border-radius: 6px; font-family: var(--font-body); font-size: 0.85rem; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <span>📡</span>
+                <span><b>Offline.</b> Your work is saved to this device only. Reconnect to sync with Google Sheets.</span>
+            </div>
+
+            <!-- Fieldset gate: disabled until login succeeds. Disables all form controls
+                 AND descendant buttons (per HTML5 spec). JS toggles `disabled` after login. -->
+            <fieldset id="workFieldset" disabled style="border: none; padding: 0; margin: 0; min-width: 0;">
+                <legend class="sr-only" style="position:absolute;left:-10000px;">Workspace (locked until login)</legend>
 
             <!-- Navigation Tabs -->
             <div class="tab-nav">
@@ -1417,6 +1451,8 @@
                     </button>
                 </div>
             </div>
+            </fieldset>
+            <!-- /workFieldset -->
 
         </div>
 
@@ -1468,6 +1504,231 @@
             // Keep class preference synced
         }
 
+        function updateSyncBadge(state, label) {
+            // Honest multi-state sync indicator. Replaces the binary
+            // "synced / not shown" toggle — students now see exactly
+            // what the cloud knows and what hasn't been pushed yet.
+            const pill = document.getElementById('syncBadge');
+            if (!pill) return;
+            const map = {
+                synced:   { cls: 'synced',   icon: '🟢', label: label || 'Cloud Synced' },
+                saving:   { cls: 'saving',   icon: '⏳', label: label || 'Saving…' },
+                offline:  { cls: 'offline',  icon: '📡', label: label || 'Offline · local-only' },
+                unsynced: { cls: 'unsynced', icon: '🔴', label: label || 'Unsaved changes' },
+                never:    { cls: 'never',    icon: '⚪', label: label || 'Not yet saved' },
+                error:    { cls: 'unsynced', icon: '⚠️', label: label || 'Sync error' }
+            };
+            const cfg = map[state] || map.never;
+            pill.className = `sync-badge ${cfg.cls}`;
+            pill.innerHTML = `<span>${cfg.icon}</span> ${cfg.label}`;
+            pill.style.display = 'inline-block';
+        }
+
+        // --- RESILIENCY & HARDENED PERSISTENCE ---
+        const draftKey = (pin) => (!pin || pin === '---' || pin === 'draft') ? null : `gas_draft_cit9_issues_${pin.toUpperCase()}`;
+        const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+
+        function isIdentityChange(newPin) {
+            const curPin = Session.getPin();
+            return !!(curPin && curPin !== '---' && curPin.toUpperCase() !== (newPin || '').toUpperCase());
+        }
+
+        function collectFormData() {
+            const issues = {};
+            document.querySelectorAll('#tab-issues .issue-card').forEach(card => {
+                const issueId = card.dataset.issueId;
+                const checked = card.querySelector(`input[name="issue_${issueId}"]:checked`);
+                issues[issueId] = checked ? checked.value : "Not Rated";
+            });
+
+            const newsSources = Array.from(document.querySelectorAll('#newsSourcesGrid .pill-btn.selected')).map(b => b.innerText.trim());
+            const primaryNews = document.getElementById('primaryNewsSelect').value;
+            const newsFrequency = document.getElementById('newsFrequencySelect').value;
+            const verificationHabit = document.getElementById('verificationHabitSelect').value;
+
+            const people = {};
+            document.querySelectorAll('#tab-people .issue-card').forEach(card => {
+                const personId = card.dataset.personId;
+                const checked = card.querySelector(`input[name="person_${personId}"]:checked`);
+                people[personId] = checked ? checked.value : "Not Rated";
+            });
+
+            const mechanics = {};
+            document.querySelectorAll('#tab-interest .issue-card[data-mech-id]').forEach(card => {
+                const mechId = card.dataset.mechId;
+                const checked = card.querySelector(`input[name="mech_${mechId}"]:checked`);
+                mechanics[mechId] = checked ? checked.value : "Not Rated";
+            });
+
+            const dilemmas = {};
+            document.querySelectorAll('#tab-interest .issue-card[data-dilemma-id]').forEach(card => {
+                const dilemmaId = card.dataset.dilemmaId;
+                const checked = card.querySelector(`input[name="dilemma_${dilemmaId}"]:checked`);
+                dilemmas[dilemmaId] = checked ? checked.value : "Not Rated";
+            });
+
+            const topDebate = document.getElementById('topDebateSelect').value;
+            const personalIssue = document.getElementById('personalIssueText').value.trim();
+            const unlistedIssue = document.getElementById('unlistedIssueText').value.trim();
+            const teacherNote = document.getElementById('citTeacherNote').value.trim();
+            const formats = Array.from(document.querySelectorAll('#citFormatsGrid .pill-btn.selected')).map(b => b.innerText.trim());
+
+            return {
+                issues, news_sources: newsSources,
+                primary_news: primaryNews,
+                news_frequency: newsFrequency,
+                verification_habit: verificationHabit,
+                people, mechanics, dilemmas,
+                top_debate: topDebate,
+                personal_issue: personalIssue,
+                unlisted_issue: unlistedIssue,
+                formats, teacher_note: teacherNote
+            };
+        }
+
+        function hasFormData(d) {
+            if (!d) return false;
+            if (d.personal_issue && d.personal_issue.trim()) return true;
+            if (d.unlisted_issue && d.unlisted_issue.trim()) return true;
+            if (d.teacher_note && d.teacher_note.trim()) return true;
+            if (d.primary_news || d.news_frequency || d.verification_habit || d.top_debate) return true;
+            if (Array.isArray(d.news_sources) && d.news_sources.length > 0) return true;
+            if (Array.isArray(d.formats) && d.formats.length > 0) return true;
+            if (d.issues) {
+                for (const v of Object.values(d.issues)) {
+                    if (v && v !== 'Not Rated') return true;
+                }
+            }
+            if (d.people) {
+                for (const v of Object.values(d.people)) {
+                    if (v && v !== 'Not Rated') return true;
+                }
+            }
+            if (d.mechanics) {
+                for (const v of Object.values(d.mechanics)) {
+                    if (v && v !== 'Not Rated') return true;
+                }
+            }
+            if (d.dilemmas) {
+                for (const v of Object.values(d.dilemmas)) {
+                    if (v && v !== 'Not Rated') return true;
+                }
+            }
+            return false;
+        }
+
+        function countCompleted(d) {
+            if (!d) return 0;
+            let count = 0;
+            if (d.issues) {
+                for (const v of Object.values(d.issues)) if (v && v !== 'Not Rated') count++;
+            }
+            if (d.people) {
+                for (const v of Object.values(d.people)) if (v && v !== 'Not Rated') count++;
+            }
+            if (d.mechanics) {
+                for (const v of Object.values(d.mechanics)) if (v && v !== 'Not Rated') count++;
+            }
+            if (d.dilemmas) {
+                for (const v of Object.values(d.dilemmas)) if (v && v !== 'Not Rated') count++;
+            }
+            if (Array.isArray(d.news_sources)) count += d.news_sources.length;
+            if (Array.isArray(d.formats)) count += d.formats.length;
+            ['primary_news', 'news_frequency', 'verification_habit', 'top_debate', 'personal_issue', 'unlisted_issue', 'teacher_note'].forEach(k => {
+                if (d[k] && typeof d[k] === 'string' && d[k].trim()) count++;
+            });
+            return count;
+        }
+
+        function clearFormData() {
+            ['primaryNewsSelect', 'newsFrequencySelect', 'verificationHabitSelect', 'topDebateSelect', 'personalIssueText', 'unlistedIssueText', 'citTeacherNote'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            document.querySelectorAll('#tab-issues input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#tab-people input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#tab-interest input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#newsSourcesGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('#citFormatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+        }
+
+        function restoreFormData(d) {
+            if (!d) return;
+            clearFormData();
+
+            // Restore Issue Ratings
+            if (d.issues) {
+                for (const [key, val] of Object.entries(d.issues)) {
+                    const radio = document.querySelector(`input[name="issue_${key}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+                }
+            }
+
+            // Restore News Habits
+            if (d.news_sources && Array.isArray(d.news_sources)) {
+                document.querySelectorAll('#newsSourcesGrid .pill-btn').forEach(btn => {
+                    if (d.news_sources.includes(btn.innerText.trim())) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+            if (d.primary_news) document.getElementById('primaryNewsSelect').value = d.primary_news;
+            if (d.news_frequency) document.getElementById('newsFrequencySelect').value = d.news_frequency;
+            if (d.verification_habit) document.getElementById('verificationHabitSelect').value = d.verification_habit;
+
+            // Restore People Ratings
+            if (d.people) {
+                for (const [key, val] of Object.entries(d.people)) {
+                    const radio = document.querySelector(`input[name="person_${key}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+                }
+            }
+
+            // Restore Civic Mechanics
+            if (d.mechanics) {
+                for (const [key, val] of Object.entries(d.mechanics)) {
+                    const radio = document.querySelector(`input[name="mech_${key}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+                }
+            }
+
+            // Restore Dilemmas
+            if (d.dilemmas) {
+                for (const [key, val] of Object.entries(d.dilemmas)) {
+                    const radio = document.querySelector(`input[name="dilemma_${key}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+                }
+            }
+
+            // Restore open texts
+            if (d.top_debate) document.getElementById('topDebateSelect').value = d.top_debate;
+            if (d.personal_issue) document.getElementById('personalIssueText').value = d.personal_issue;
+            if (d.unlisted_issue) document.getElementById('unlistedIssueText').value = d.unlisted_issue;
+            if (d.teacher_note) document.getElementById('citTeacherNote').value = d.teacher_note;
+
+            // Restore selected pills
+            if (d.formats && Array.isArray(d.formats)) {
+                document.querySelectorAll('#citFormatsGrid .pill-btn').forEach(btn => {
+                    if (d.formats.includes(btn.innerText.trim())) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        function triggerAutoSave() {
+            const pin = Session.getPin();
+            if (!pin || pin === '---') return;
+            const key = draftKey(pin);
+            if (!key) return;
+            const data = collectFormData();
+            data.savedAt = new Date().toISOString();
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {}
+        }
+
         async function loginAndRestore() {
             const cls = document.getElementById('classSelect').value;
             let name = document.getElementById('firstNameInput').value.trim();
@@ -1488,83 +1749,96 @@
                 document.getElementById('firstNameInput').value = name;
             }
 
+            // --- ATOMIC IDENTITY CHANGE ---
+            // If identity changed from a previously active student who had work in form,
+            // flush prior student's data before clearing form and adopting new identity.
+            if (isIdentityChange(pin)) {
+                const prevPin = Session.getPin();
+                const prevName = Session.getName();
+                const prevCls = Session.getClass();
+                const currentForm = collectFormData();
+                if (hasFormData(currentForm) && prevPin && prevPin !== '---') {
+                    try {
+                        const prevPayload = { name: prevName, pin: prevPin, className: prevCls, ...currentForm };
+                        const prevSummary = `Class: ${prevCls} | Atomic identity flush`;
+                        if (navigator.onLine) {
+                            await StudentAPI.submitProfile('Citizenship 9 Current Issues Diagnostic', prevPayload, prevSummary, 'CIT9');
+                        } else if (StudentAPI.sendEmergencyBeacon) {
+                            StudentAPI.sendEmergencyBeacon('Citizenship 9 Current Issues Diagnostic', prevPayload, prevSummary, 'CIT9');
+                        }
+                    } catch (e) {
+                        console.warn("Atomic flush failed for previous student:", e);
+                    }
+                }
+                clearFormData();
+            }
+
             showToast("Verifying profile and checking for existing submissions...");
 
             const res = await StudentAPI.login(cls, name, pin, 'CIT9');
             if (res.status === 'success') {
                 Session.set(cls, res.name || name, pin);
-                
+
                 document.getElementById('badgeStudent').innerText = `Logged in: ${res.name || name} (${cls} • PIN: ${pin})`;
                 document.getElementById('badgeStudent').style.color = 'var(--accent)';
-                document.getElementById('syncBadge').style.display = 'inline-block';
 
-                const d = res.savedData || {};
-                
-                // Restore Issue Ratings
-                if (d.issues) {
-                    for (const [key, val] of Object.entries(d.issues)) {
-                        const radio = document.querySelector(`input[name="issue_${key}"][value="${val}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                }
-
-                // Restore News Habits
-                if (d.news_sources && Array.isArray(d.news_sources)) {
-                    document.querySelectorAll('#newsSourcesGrid .pill-btn').forEach(btn => {
-                        if (d.news_sources.includes(btn.innerText.trim())) {
-                            btn.classList.add('selected');
-                        }
-                    });
-                }
-                if (d.primary_news) document.getElementById('primaryNewsSelect').value = d.primary_news;
-                if (d.news_frequency) document.getElementById('newsFrequencySelect').value = d.news_frequency;
-                if (d.verification_habit) document.getElementById('verificationHabitSelect').value = d.verification_habit;
-
-                // Restore People Ratings
-                if (d.people) {
-                    for (const [key, val] of Object.entries(d.people)) {
-                        const radio = document.querySelector(`input[name="person_${key}"][value="${val}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                }
-
-                // Restore Civic Mechanics
-                if (d.mechanics) {
-                    for (const [key, val] of Object.entries(d.mechanics)) {
-                        const radio = document.querySelector(`input[name="mech_${key}"][value="${val}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                }
-
-                // Restore Dilemmas
-                if (d.dilemmas) {
-                    for (const [key, val] of Object.entries(d.dilemmas)) {
-                        const radio = document.querySelector(`input[name="dilemma_${key}"][value="${val}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                }
-
-                // Restore open texts
-                if (d.top_debate) document.getElementById('topDebateSelect').value = d.top_debate;
-                if (d.personal_issue) document.getElementById('personalIssueText').value = d.personal_issue;
-                if (d.unlisted_issue) document.getElementById('unlistedIssueText').value = d.unlisted_issue;
-                if (d.teacher_note) document.getElementById('citTeacherNote').value = d.teacher_note;
-
-                // Restore selected pills
-                if (d.formats && Array.isArray(d.formats)) {
-                    document.querySelectorAll('#citFormatsGrid .pill-btn').forEach(btn => {
-                        if (d.formats.includes(btn.innerText.trim())) {
-                            btn.classList.add('selected');
-                        }
-                    });
-                }
-
-                showToast(`Welcome, ${res.name || name}! Your data is ready.`);
+                // Unlock the fieldset gate
+                const gate = document.getElementById('workFieldset');
+                if (gate) gate.disabled = false;
+                const banner = document.getElementById('loginGateBanner');
+                if (banner) banner.style.display = 'none';
 
                 const topLogout = document.getElementById('topLogoutBtn');
                 if (topLogout) topLogout.style.display = 'inline-block';
                 const authLogout = document.getElementById('authLogoutBtn');
                 if (authLogout) authLogout.style.display = 'inline-block';
+
+                const rawCloud = res.savedData || {};
+                const cloudData = (rawCloud.data && typeof rawCloud.data === 'object') ? rawCloud.data : rawCloud;
+                const cloudStamp = Date.parse(res.updated || (rawCloud && rawCloud.updated) || 0) || 0;
+
+                // Load local draft
+                const key = draftKey(pin);
+                let localObj = null;
+                if (key) {
+                    try {
+                        const raw = localStorage.getItem(key);
+                        if (raw) localObj = JSON.parse(raw);
+                    } catch(e) {}
+                }
+                const localStamp = draftSavedAt(localObj);
+
+                // Newer-wins conflict resolution
+                if (localObj && localStamp > cloudStamp + 30000 && countCompleted(localObj) > countCompleted(cloudData)) {
+                    restoreFormData(localObj);
+                    updateSyncBadge('synced', 'Restored local draft');
+                    showToast(`Restored newer local draft from this device. Syncing to master Google Sheet...`);
+                    saveAndSubmitAll(false);
+                    return;
+                }
+
+                if (hasFormData(cloudData)) {
+                    restoreFormData(cloudData);
+                    if (key) {
+                        try {
+                            localStorage.setItem(key, JSON.stringify({ ...cloudData, savedAt: new Date().toISOString() }));
+                        } catch(e) {}
+                    }
+                    updateSyncBadge('synced', 'Cloud Loaded · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                    showToast(`Welcome back, ${res.name || name}! Your data is ready.`);
+                    return;
+                }
+
+                if (hasFormData(localObj)) {
+                    restoreFormData(localObj);
+                    updateSyncBadge('synced', 'Restored local draft');
+                    showToast(`Restored saved draft from this device.`);
+                    return;
+                }
+
+                clearFormData();
+                updateSyncBadge('never', 'First login · ready to begin');
+                showToast(`Welcome, ${res.name || name}! Ready to begin.`);
             } else {
                 showToast(res.message || "Failed to log in.", true);
             }
@@ -1572,119 +1846,105 @@
 
         function logout() {
             if (confirm("Sign out of this session? The form will be cleared for the next student.")) {
+                // Flush outgoing work before clearing
+                if (Session.isLoggedIn()) {
+                    const curPin = Session.getPin();
+                    const curName = Session.getName();
+                    const curCls = Session.getClass();
+                    const currentForm = collectFormData();
+                    if (hasFormData(currentForm) && curPin && curPin !== '---') {
+                        try {
+                            const payload = { name: curName, pin: curPin, className: curCls, ...currentForm };
+                            const summary = `Class: ${curCls} | Sign out emergency beacon`;
+                            if (StudentAPI.sendEmergencyBeacon) {
+                                StudentAPI.sendEmergencyBeacon('Citizenship 9 Current Issues Diagnostic', payload, summary, 'CIT9');
+                            }
+                        } catch(e) {}
+                    }
+                }
+
                 Session.clear();
-                
+
                 document.getElementById('firstNameInput').value = '';
                 document.getElementById('pinInput').value = '';
-                
+
                 document.getElementById('badgeStudent').innerText = 'Enter PIN below to load saved data';
                 document.getElementById('badgeStudent').style.color = 'var(--text-muted)';
-                document.getElementById('syncBadge').style.display = 'none';
+                updateSyncBadge('never', 'Signed out');
 
-                ['primaryNewsSelect', 'newsFrequencySelect', 'verificationHabitSelect', 'topDebateSelect', 'personalIssueText', 'unlistedIssueText', 'citTeacherNote'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
+                // Re-lock the fieldset gate
+                const gate = document.getElementById('workFieldset');
+                if (gate) gate.disabled = true;
+                const banner = document.getElementById('loginGateBanner');
+                if (banner) banner.style.display = 'flex';
 
-                document.querySelectorAll('#tab-issues input[type="radio"]').forEach(r => r.checked = false);
-                document.querySelectorAll('#tab-people input[type="radio"]').forEach(r => r.checked = false);
-                document.querySelectorAll('#tab-interest input[type="radio"]').forEach(r => r.checked = false);
-                document.querySelectorAll('#newsSourcesGrid .pill-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('#citFormatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+                const topLogout = document.getElementById('topLogoutBtn');
+                if (topLogout) topLogout.style.display = 'none';
+                const authLogout = document.getElementById('authLogoutBtn');
+                if (authLogout) authLogout.style.display = 'none';
 
+                clearFormData();
                 showToast("Signed out successfully. Form cleared.");
             }
         }
 
-        async function saveAndSubmitAll() {
+        async function saveAndSubmitAll(showFeedback = true) {
             const name = document.getElementById('firstNameInput').value.trim() || Session.getName();
             const pin = document.getElementById('pinInput').value.trim().toUpperCase() || Session.getPin();
             const cls = document.getElementById('classSelect').value || Session.getClass();
 
             if (!pin || !name) {
-                showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
+                if (showFeedback) showToast("Please enter your First Name and 3-Letter PIN at the top first.", true);
                 return;
             }
 
             const auth = StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
-                showToast(auth.message, true);
+                if (showFeedback) showToast(auth.message, true);
                 return;
             }
 
-            // Gather issues matrix
-            const issues = {};
-            document.querySelectorAll('#tab-issues .issue-card').forEach(card => {
-                const issueId = card.dataset.issueId;
-                const checked = card.querySelector(`input[name="issue_${issueId}"]:checked`);
-                issues[issueId] = checked ? checked.value : "Not Rated";
-            });
-
-            // Gather news habits
-            const newsSources = Array.from(document.querySelectorAll('#newsSourcesGrid .pill-btn.selected')).map(b => b.innerText.trim());
-            const primaryNews = document.getElementById('primaryNewsSelect').value;
-            const newsFrequency = document.getElementById('newsFrequencySelect').value;
-            const verificationHabit = document.getElementById('verificationHabitSelect').value;
-
-            // Gather people matrix
-            const people = {};
-            document.querySelectorAll('#tab-people .issue-card').forEach(card => {
-                const personId = card.dataset.personId;
-                const checked = card.querySelector(`input[name="person_${personId}"]:checked`);
-                people[personId] = checked ? checked.value : "Not Rated";
-            });
-
-            // Gather civic mechanics
-            const mechanics = {};
-            document.querySelectorAll('#tab-interest .issue-card[data-mech-id]').forEach(card => {
-                const mechId = card.dataset.mechId;
-                const checked = card.querySelector(`input[name="mech_${mechId}"]:checked`);
-                mechanics[mechId] = checked ? checked.value : "Not Rated";
-            });
-
-            // Gather dilemmas
-            const dilemmas = {};
-            document.querySelectorAll('#tab-interest .issue-card[data-dilemma-id]').forEach(card => {
-                const dilemmaId = card.dataset.dilemmaId;
-                const checked = card.querySelector(`input[name="dilemma_${dilemmaId}"]:checked`);
-                dilemmas[dilemmaId] = checked ? checked.value : "Not Rated";
-            });
-
-            const topDebate = document.getElementById('topDebateSelect').value;
-            const personalIssue = document.getElementById('personalIssueText').value.trim();
-            const unlistedIssue = document.getElementById('unlistedIssueText').value.trim();
-            const teacherNote = document.getElementById('citTeacherNote').value.trim();
-            const formats = Array.from(document.querySelectorAll('#citFormatsGrid .pill-btn.selected')).map(b => b.innerText.trim());
-
+            const formData = collectFormData();
             const fullPayload = {
                 name: name,
                 pin: pin,
                 className: cls,
-                issues: issues,
-                news_sources: newsSources,
-                primary_news: primaryNews,
-                news_frequency: newsFrequency,
-                verification_habit: verificationHabit,
-                people: people,
-                mechanics: mechanics,
-                dilemmas: dilemmas,
-                top_debate: topDebate,
-                personal_issue: personalIssue,
-                unlisted_issue: unlistedIssue,
-                formats: formats,
-                teacher_note: teacherNote
+                ...formData
             };
 
-            const summary = `Class: ${cls} | 1° News: ${primaryNews || 'None'} | Freq: ${newsFrequency || 'None'} | Top Debate: ${topDebate || 'None'} | Note: ${teacherNote ? 'Yes' : 'None'}`;
+            const summary = `Class: ${cls} | 1° News: ${formData.primary_news || 'None'} | Freq: ${formData.news_frequency || 'None'} | Top Debate: ${formData.top_debate || 'None'} | Note: ${formData.teacher_note ? 'Yes' : 'None'}`;
 
-            showToast("Syncing all data to Mr. Waugh's master Google Sheet...");
+            // Save to local device draft immediately
+            const key = draftKey(pin);
+            if (key) {
+                try {
+                    localStorage.setItem(key, JSON.stringify({ ...formData, savedAt: new Date().toISOString() }));
+                } catch(e) {}
+            }
 
-            const res = await StudentAPI.submitProfile('Citizenship 9 Current Issues Diagnostic', fullPayload, summary, 'CIT9');
-            if (res.status === 'success') {
-                document.getElementById('syncBadge').style.display = 'inline-block';
-                showToast("✅ All data successfully saved to Google Sheets! You can return on any device anytime.");
-            } else {
-                showToast(res.message || "Failed to save to Google Sheet.", true);
+            if (showFeedback) showToast("Syncing all data to Mr. Waugh's master Google Sheet...");
+            updateSyncBadge('saving');
+
+            try {
+                const res = await StudentAPI.submitProfile('Citizenship 9 Current Issues Diagnostic', fullPayload, summary, 'CIT9');
+                if (res.status === 'success') {
+                    updateSyncBadge('synced', 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                    if (showFeedback) showToast("✅ All data successfully saved to Google Sheets! You can return on any device anytime.");
+                } else if (!navigator.onLine) {
+                    updateSyncBadge('offline', 'Offline · saved to device only');
+                    if (showFeedback) showToast("📡 No internet. Saved to this device only; sync will retry when you reconnect.", true);
+                } else {
+                    updateSyncBadge('error', (res.message || "Failed to save to Google Sheet.").slice(0, 60));
+                    if (showFeedback) showToast(res.message || "Failed to save to Google Sheet.", true);
+                }
+            } catch (err) {
+                if (!navigator.onLine) {
+                    updateSyncBadge('offline', 'Offline · saved to device only');
+                    if (showFeedback) showToast("📡 Offline. Your work is saved to this device only; will sync when reconnected.", true);
+                } else {
+                    updateSyncBadge('error', 'Network error');
+                    if (showFeedback) showToast("Network error syncing to Google Sheets. Work is saved to this device.", true);
+                }
             }
         }
 
@@ -1795,7 +2055,97 @@
                 document.getElementById('pinInput').value = Session.getPin();
                 document.getElementById('classSelect').value = Session.getClass();
                 loginAndRestore();
+            } else {
+                // Anonymous: lock the fieldset, show the gate banner.
+                const gate = document.getElementById('workFieldset');
+                if (gate) gate.disabled = true;
+                const banner = document.getElementById('loginGateBanner');
+                if (banner) banner.style.display = 'flex';
+                updateSyncBadge('never', 'Login required to save');
             }
+
+            // Offline detection — show honest offline warning
+            const updateOnline = () => {
+                const banner = document.getElementById('offlineWarningBanner');
+                if (!banner) return;
+                if (navigator.onLine) {
+                    banner.style.display = 'none';
+                } else {
+                    banner.style.display = 'flex';
+                }
+            };
+            window.addEventListener('online', updateOnline);
+            window.addEventListener('offline', updateOnline);
+            updateOnline();
+
+            // Emergency beacon — flush pending work to cloud on tab close
+            // so the last few keystrokes don't die with the tab.
+            const beaconOnHide = () => {
+                try {
+                    if (!Session.isLoggedIn()) return;
+                    const name = document.getElementById('firstNameInput').value.trim() || Session.getName();
+                    const pin  = document.getElementById('pinInput').value.trim().toUpperCase() || Session.getPin();
+                    const cls  = document.getElementById('classSelect').value || Session.getClass();
+                    if (!pin || !name) return;
+                    // Reuse the canonical collect path
+                    const issues = {};
+                    document.querySelectorAll('#tab-issues .issue-card').forEach(card => {
+                        const issueId = card.dataset.issueId;
+                        const checked = card.querySelector(`input[name="issue_${issueId}"]:checked`);
+                        issues[issueId] = checked ? checked.value : "Not Rated";
+                    });
+                    const newsSources = Array.from(document.querySelectorAll('#newsSourcesGrid .pill-btn.selected')).map(b => b.innerText.trim());
+                    const fullPayload = {
+                        name, pin, className: cls,
+                        issues,
+                        news_sources: newsSources,
+                        primary_news: document.getElementById('primaryNewsSelect').value,
+                        news_frequency: document.getElementById('newsFrequencySelect').value,
+                        verification_habit: document.getElementById('verificationHabitSelect').value,
+                        people: {},
+                        mechanics: {},
+                        dilemmas: {},
+                        top_debate: document.getElementById('topDebateSelect').value,
+                        personal_issue: document.getElementById('personalIssueText').value.trim(),
+                        unlisted_issue: document.getElementById('unlistedIssueText').value.trim(),
+                        formats: Array.from(document.querySelectorAll('#citFormatsGrid .pill-btn.selected')).map(b => b.innerText.trim()),
+                        teacher_note: document.getElementById('citTeacherNote').value.trim()
+                    };
+                    const summary = `Class: ${cls} | Auto-flush on tab close`;
+                    if (typeof StudentAPI !== 'undefined' && StudentAPI.sendEmergencyBeacon) {
+                        StudentAPI.sendEmergencyBeacon(
+                            'Citizenship 9 Current Issues Diagnostic',
+                            fullPayload, summary, 'CIT9'
+                        );
+                    }
+                } catch (e) { /* ignore — beacon is best-effort */ }
+            };
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') beaconOnHide();
+            });
+            window.addEventListener('pagehide', beaconOnHide);
+
+            // Auto-save local draft on input
+            let __dirty = false;
+            let autoSaveTimer = null;
+            document.addEventListener('input', () => {
+                __dirty = true;
+                if (Session.isLoggedIn()) {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(triggerAutoSave, 1500);
+                }
+            }, { capture: true });
+
+            window.addEventListener('beforeunload', (e) => {
+                if (Session.isLoggedIn()) {
+                    beaconOnHide();
+                    if (__dirty) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        return '';
+                    }
+                }
+            });
         };
     </script>
 </body>

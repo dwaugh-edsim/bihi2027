@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIT9 — The Rent We Pay • Feedback &amp; Approval Console (Teacher Only)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-page: #f0f2f5; --bg-surface: #ffffff;
+    --border-card: #d5dbe3; --border-subtle: #e5e9f0;
+    --text-main: #1e2530; --text-heading: #181f2b; --text-muted: #475569; --text-dim: #64748b;
+    --coral: #ed786a; --coral-dark: #d65b4c; --coral-bg: #fff1f0; --coral-border: #fecdd3;
+    --blue: #1d4ed8; --blue-bg: #eff6ff; --blue-border: #bfdbfe;
+    --emerald: #15803d; --emerald-bg: #dcfce7; --emerald-border: #86efac;
+    --amber: #b45309; --amber-bg: #fef3c7; --amber-border: #fde68a;
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-page); color: var(--text-main); font-family: var(--font-body); padding: 24px; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+h1 { font-family: var(--font-heading); font-size: 1.5rem; color: var(--text-heading); text-shadow: 0.04em 0.06em 0 rgba(0,0,0,0.08); }
+.sub { color: var(--text-muted); margin-top: 4px; font-size: 0.95rem; }
+.badge-room { background: var(--coral); color:#fff; font-family: var(--font-heading); font-weight:700; border-radius:6px; padding:4px 12px; letter-spacing:0.5px; display:inline-block; }
+.pill { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; border-radius: 20px; padding: 3px 10px; display: inline-block; border: 1px solid var(--border-card); background: var(--bg-surface); }
+.pill.live { background: var(--emerald-bg); border-color: var(--emerald-border); color: var(--emerald); }
+.pill.off { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+.toolbar { background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: 8px; padding: 14px 18px; margin: 16px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.toolbar label { font-weight: 700; font-size: 0.85rem; color: var(--text-muted); }
+.toolbar input[type=password] { font-family: var(--font-mono); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; width: 130px; }
+button { font-family: var(--font-body); font-weight: 700; border-radius: 6px; border: 1px solid transparent; padding: 8px 16px; cursor: pointer; font-size: 0.9rem; }
+.btn-save { background: var(--blue); color: #fff; }
+.btn-approve { background: var(--emerald); color: #fff; }
+.btn-ghost { background: var(--bg-surface); color: var(--text-muted); border-color: var(--border-card); }
+button:disabled { opacity: 0.5; cursor: wait; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.stat { background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; }
+.stat b { font-family: var(--font-mono); font-size: 1.05rem; }
+.sec-h { font-family: var(--font-heading); font-size: 1.05rem; margin: 26px 0 10px; border-bottom: 2px solid var(--border-subtle); padding-bottom: 6px; }
+.card { background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 14px; overflow: hidden; }
+.card-h { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); background: #fafbfc; }
+.card-h .nm { font-family: var(--font-heading); font-weight: 700; font-size: 1.02rem; }
+.card-h .meta { font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono); }
+.chip { font-size: 0.68rem; font-weight: 800; border-radius: 12px; padding: 2px 10px; letter-spacing: 0.4px; }
+.chip.approved { background: var(--emerald-bg); color: var(--emerald); border: 1px solid var(--emerald-border); }
+.chip.draft { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.chip.seed { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.chip.none { background: #f1f5f9; color: var(--text-dim); border: 1px solid var(--border-card); }
+.card-b { padding: 14px 16px; }
+.qrow { display: grid; grid-template-columns: 250px 1fr 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border-subtle); align-items: start; }
+.qrow:last-child { border-bottom: none; }
+.qlabel { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+.qlabel .hint { display:block; font-weight: 400; color: var(--text-dim); font-size: 0.72rem; }
+.ans { font-size: 0.85rem; background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px 9px; word-break: break-word; }
+.ans .vbadge { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; border-radius: 4px; padding: 1px 6px; margin-right: 6px; }
+.v-ok { background: var(--emerald-bg); color: var(--emerald); border: 1px solid var(--emerald-border); }
+.v-no { background: var(--coral-bg); color: var(--coral-dark); border: 1px solid var(--coral-border); }
+.v-blank { background: #f1f5f9; color: var(--text-dim); border: 1px solid var(--border-card); }
+textarea { width: 100%; font-family: var(--font-body); font-size: 0.85rem; border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 9px; resize: vertical; min-height: 40px; }
+textarea:focus { outline: 2px solid var(--coral); border-color: var(--coral); }
+.overall-ta { min-height: 60px; margin-bottom: 10px; }
+.card-f { display: flex; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--border-subtle); background: #fafbfc; }
+.card-f .right { margin-left: auto; display: flex; gap: 8px; }
+.savemsg { font-size: 0.78rem; font-family: var(--font-mono); align-self: center; color: var(--text-muted); }
+.missing { font-size: 0.8rem; color: var(--text-dim); padding: 6px 2px; }
+.grouphead { display:flex; align-items:center; gap:10px; margin: 26px 0 10px; }
+.grouphead h2 { font-family: var(--font-heading); font-size: 1.05rem; }
+.grouphead .rule { flex:1; border-bottom: 2px solid var(--border-subtle); box-shadow: inset 0 -4px 0 0 #fff, inset 0 -6px 0 0 var(--border-card); }
+@media (max-width: 900px) { .qrow { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="badge-room">ROOM 8</span> &nbsp;The Rent We Pay — Feedback Console</h1>
+  <div class="sub">Citizenship 9 · Real Issues Case File #1 · Teacher only. Draft comments are pre-seeded (by ZCode) from the math check; edit anything, then <b>Save</b> per student or <b>Approve</b> to lock. Nothing reaches a student until you deliver it.</div>
+
+  <div class="toolbar">
+    <span id="backendPill" class="pill off">checking backend…</span>
+    <span id="subPill" class="pill">submissions: …</span>
+    <label>Teacher PIN <input type="password" id="teacherPin" placeholder="only if set"
+      oninput="if ((this.value||'').trim()) { sessionStorage.setItem('r8_feedback_tpin', this.value.trim()); }"
+      onkeydown="if (event.key === 'Enter') { event.preventDefault(); loadAll(); }"></label>
+    <button class="btn-ghost" onclick="loadAll()">🔓 Unlock & Reload</button>
+    <button class="btn-save" id="saveAllBtn" onclick="saveAllDrafts()">Save all drafts</button>
+  </div>
+  <script>
+    // Restore previously-entered teacher PIN from sessionStorage
+    // (session-scoped only — wiped when tab closes, not persisted to disk).
+    (function () {
+      try {
+        const v = sessionStorage.getItem('r8_feedback_tpin');
+        if (v) {
+          const el = document.getElementById('teacherPin');
+          if (el) el.value = v;
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <div class="stats" id="stats"></div>
+  <div id="content">Loading…</div>
+</div>
+
+<script src="students_roster_data.js"></script>
+<script src="api.js"></script>
+<script src="cit9_rent_feedback_drafts.js"></script>
+<script>
+const TASK = 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay';
+const URL = StudentAPI.getScriptUrl('CIT9');
+
+// question map: [groupLabel, storedKey, subKey, label, hint, numericCheck [lo,hi]]
+const QDEFS = [
+  ['Rent Math', 'rent_math', 'hours_for_rent', '(a) Hours to cover one month\u2019s rent', '$1,938 ÷ $16.75', [110,120]],
+  ['Rent Math', 'rent_math', 'pct_of_pay', '(b) Rent as % of full-time pay', '$1,938 ÷ ~$2,900', [62,72]],
+  ['Rent Math', 'rent_math', 'wage_needed', '(c) The \u201caffordable rent\u201d hourly wage', '×12 ÷ 0.30 ÷ 2,080 → ≈$37.27', [34,40]],
+  ['Rent Math', 'rent_math', 'gap_hourly', 'Gap between that wage and minimum wage', '$37.27 − $16.75 ≈ $20.52', [18,23]],
+  ['Rent Math', 'rent_math', 'gap_compromises', 'Compromises people are forced into', 'roommates, meals, commuting…', null],
+  ['Rent Math', 'rent_math', 'gap_structural', 'Budgeting vs. policy — can personal choices close it?', 'structural reasoning', null],
+  ['Rent Math', 'rent_math', 'gap_reflection', 'Life-at-25 reflection', 'open response', null],
+  ['Evidence', 'evidence', 'most_shocking', 'Most shocking figure on the board', '1,150 · 2.7% · $202 · 220→1,132', null],
+  ['Evidence', 'evidence', 'system_link', 'Vacancy → turnover spike → homelessness link', 'cause-and-effect chain', null],
+  ['Dilemma', 'dilemma', 'position', 'Position chosen (A build / B plan / C public land)', 'no correct answer', null],
+  ['Dilemma', 'dilemma', 'justification', 'Justification citing a specific figure', 'the bar: one number', null],
+  ['Dilemma', 'dilemma', 'counter_tradeoff', 'Downside you accept + answer to opponents', 'engaging the OTHER side', null],
+  ['Power Map', 'power_map', 'target_level', 'Which level of government for the ask?', 'key: municipal (zoning)', null],
+  ['Exit Slip', 'exit_slip', 'q1', 'Q1 hours per month\u2019s rent', 'key: ≈116 (110–120)', [110,120]],
+  ['Exit Slip', 'exit_slip', 'q2', 'Q2 who to contact', 'key: city councillor / HRM', null],
+  ['Exit Slip', 'exit_slip', 'q3', 'Q3 the counter-argument', 'must engage the other side', null],
+  ['Exit Slip', 'exit_slip', 'q4', 'Q4 hardest move + why worth it', 'open, honesty over polish', null]
+];
+
+let SUBS = [];      // submissions for this task
+let FEEDBACK = {};  // saved cloud feedback: '<PIN>' -> row
+let DRAFTS = {};    // merged editable state: '<PIN>' -> {overall, questions:{}, status}
+
+function ansOf(sub, group, field) {
+  const tk = sub && sub.savedData && sub.savedData._tasks;
+  const slice = tk && Object.keys(tk).find(k => k.indexOf('Rent We Pay') !== -1);
+  const data = (slice ? tk[slice].data : null) || sub.savedData || {};
+  const g = data[group];
+  if (g === undefined || g === null) return '';
+  return String(typeof g === 'object' ? (g[field] || '') : g);
+}
+function subOf(pin) { return SUBS.find(s => (s.pin || '').toUpperCase() === pin); }
+
+function validate(numStr, range) {
+  if (!range) return null;
+  if (!String(numStr || '').trim()) return 'blank';
+  const n = parseFloat(String(numStr).replace(/[^0-9.\-]/g, ''));
+  if (isNaN(n)) return 'unparsed';
+  return (n >= range[0] && n <= range[1]) ? 'ok' : 'check';
+}
+
+async function apiGet(action) {
+  const res = await fetch(`${URL}?action=${action}`);
+  return res.json();
+}
+async function apiPost(payloadObj) {
+  const body = JSON.stringify(payloadObj);
+  try {
+    const res = await fetch(URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body, keepalive:true });
+    return await res.json();
+  } catch (e) {
+    try {
+      await fetch(URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body, keepalive:true });
+      return { status:'submitted_no_cors' };
+    } catch (e2) {
+      return { status:'error', message:String(e2) };
+    }
+  }
+}
+
+function mergeState(pin) {
+  if (DRAFTS[pin]) return DRAFTS[pin];
+  const saved = FEEDBACK[pin];
+  const seed = (window.CIT9_RENT_FEEDBACK_DRAFTS || {})[pin];
+  const m = { overall:'', questions:{}, status:'seed' };
+  if (seed) { m.overall = seed.overall || ''; m.questions = Object.assign({}, seed.questions || {}); m.status = 'seed'; }
+  if (saved) {
+    m.overall = (saved.feedback && saved.feedback.overall) || m.overall;
+    m.questions = Object.assign(m.questions, (saved.feedback && saved.feedback.questions) || {});
+    m.status = saved.status || m.status;
+  }
+  DRAFTS[pin] = m;
+  return m;
+}
+
+function chipFor(status) {
+  if (status === 'approved') return '<span class="chip approved">APPROVED</span>';
+  if (status === 'draft') return '<span class="chip draft">DRAFT (saved)</span>';
+  if (status === 'seed') return '<span class="chip seed">ZCODE DRAFT — needs your OK</span>';
+  return '<span class="chip none">no feedback yet</span>';
+}
+
+function render() {
+  const bySec = {};
+  SUBS.forEach(s => { (bySec[s.className] = bySec[s.className] || []).push(s); });
+  Object.keys(bySec).sort().forEach(sec => bySec[sec].sort((a,b)=>(a.name||'').localeCompare(b.name||'')));
+
+  const withMath = SUBS.filter(s => String(ansOf(s,'rent_math','hours_for_rent')).trim()).length;
+  const blank = SUBS.filter(s => !Object.keys((s.savedData&&s.savedData._tasks||{})).some(k=>k.indexOf('Rent We Pay')>-1) ||
+      !Object.values(ansEmptyScan(s)).some(v=>v)).length;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat">dossiers in: <b>${SUBS.length}</b></div>` +
+    `<div class="stat">with rent-math numbers: <b>${withMath}</b></div>` +
+    `<div class="stat">approved: <b>${Object.values(DRAFTS).filter(d=>d.status==='approved').length}</b></div>`;
+
+  let html = '';
+  Object.keys(bySec).sort().forEach(sec => {
+    html += `<div class="grouphead"><h2>Class ${sec}</h2><div class="rule"></div></div>`;
+    bySec[sec].forEach(s => { html += renderCard(s); });
+  });
+  const missing = missingRoster(bySec);
+  if (missing.length) html += `<div class="missing"><b>No dossier submitted yet (${missing.length}):</b> ${missing.join(', ')} — they won\u2019t get feedback until they submit.</div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function ansEmptyScan(s) {
+  const out = {};
+  QDEFS.forEach(q => { out[q[2]] = ansOf(s, q[1], q[2]); });
+  return out;
+}
+
+function renderCard(s) {
+  const pin = (s.pin || '').toUpperCase();
+  const st = mergeState(pin);
+  const tk = s.savedData && s.savedData._tasks;
+  const slice = tk && Object.keys(tk).find(k => k.indexOf('Rent We Pay') !== -1);
+  const updated = (slice && tk[slice].updated || '').slice(0,16).replace('T',' ');
+  const lost = !slice; // task slice exists but no data -> Sep 16 lost-save pattern
+
+  let rows = '';
+  QDEFS.forEach((q,i) => {
+    const [ , group, field, label, hint, range] = q;
+    const val = ansOf(s, group, field);
+    const v = validate(val, range);
+    const vhtml = v === 'ok' ? '<span class="vbadge v-ok">✓ IN RANGE</span>'
+      : v === 'check' ? '<span class="vbadge v-no">✗ CHECK</span>'
+      : v === 'unparsed' ? '<span class="vbadge v-no">? NOT A NUMBER</span>'
+      : v === 'blank' ? '<span class="vbadge v-blank">— blank</span>' : '';
+    const show = String(val).trim() ? String(val).slice(0,400) : '<i style="color:var(--text-dim)">blank</i>';
+    const cid = `c_${pin}_${i}`;
+    rows += `<div class="qrow">
+      <div class="qlabel">${label}<span class="hint">${hint||''}</span></div>
+      <div class="ans">${vhtml}${esc(show)}</div>
+      <textarea id="${cid}" placeholder="comment (optional per question)…">${esc(st.questions[label] || '')}</textarea>
+    </div>`;
+  });
+
+  return `<div class="card" id="card_${pin}">
+    <div class="card-h">
+      <span class="nm">${esc(s.name || 'Student (Name on file)')}</span>
+      <span class="meta">updated ${updated || '?'}${lost ? ' · <b style="color:var(--coral-dark)">data lost (Sep 16) — recovery pending</b>' : ''}</span>
+      ${chipFor(st.status)}
+    </div>
+    <div class="card-b">
+      <textarea class="overall-ta" id="o_${pin}" placeholder="overall comment for this student…">${esc(st.overall)}</textarea>
+      ${rows}
+    </div>
+    <div class="card-f">
+      <span class="savemsg" id="m_${pin}"></span>
+      <div class="right">
+        <button class="btn-save" onclick="saveStudent('${pin}','draft')">Save draft</button>
+        <button class="btn-approve" onclick="saveStudent('${pin}','approved')">Approve</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function collectStudent(pin) {
+  const st = DRAFTS[pin] || { questions:{} };
+  const questions = {};
+  QDEFS.forEach((q,i) => {
+    const el = document.getElementById(`c_${pin}_${i}`);
+    if (el && el.value.trim()) questions[q[3]] = { text: el.value.trim(), status: 'draft' };
+  });
+  const oel = document.getElementById(`o_${pin}`);
+  return { overall: oel ? oel.value.trim() : (st.overall||''), questions: questions };
+}
+
+async function saveStudent(pin, status) {
+  const msg = document.getElementById(`m_${pin}`);
+  msg.textContent = 'saving…';
+  const sub = subOf(pin) || {};
+  const res = await apiPost({
+    action: 'save_feedback',
+    pin: pin,
+    name: sub.name || '',
+    section: String(sub.className || ''),
+    task: TASK,
+    status: status,
+    teacherPin: (document.getElementById('teacherPin').value || '').trim(),
+    feedback: collectStudent(pin)
+  });
+  if (res.status === 'feedback_saved' || res.status === 'submitted_no_cors') {
+    DRAFTS[pin].status = status === 'approved' ? 'approved' : 'draft';
+    FEEDBACK[pin] = { status: status, feedback: collectStudent(pin) };
+    msg.textContent = status === 'approved' ? '✓ approved & saved' : '✓ draft saved';
+    const card = document.getElementById(`card_${pin}`);
+    if (card) card.querySelector('.chip').outerHTML = chipFor(DRAFTS[pin].status);
+  } else if (res.status === 'error' && /action|Unknown/i.test(res.message||'')) {
+    msg.textContent = '⚠ backend action missing — redeploy Code.gs V6.1';
+  } else {
+    msg.textContent = '⚠ ' + (res.message || res.status);
+  }
+  renderStats();
+}
+
+async function saveAllDrafts() {
+  const btn = document.getElementById('saveAllBtn');
+  btn.disabled = true; btn.textContent = 'saving…';
+  for (const pin of Object.keys(DRAFTS)) {
+    if (subOf(pin)) await saveStudentQuiet(pin, 'draft');
+  }
+  btn.disabled = false; btn.textContent = 'Save all drafts';
+}
+async function saveStudentQuiet(pin, status) {
+  const sub = subOf(pin) || {};
+  await apiPost({ action:'save_feedback', pin, name: sub.name||'', section:String(sub.className||''), task: TASK, status,
+    teacherPin:(document.getElementById('teacherPin').value||'').trim(), feedback: collectStudent(pin) });
+  DRAFTS[pin].status = 'draft';
+}
+
+function missingRoster(bySec) {
+  const names = [];
+  const roster = (window.MASTER_ROSTER_DATA || []);
+  const submitted = new Set(SUBS.map(s => (s.pin||'').toUpperCase()));
+  roster.forEach(r => {
+    const hr = String(r.homeroom||'').trim().toLowerCase().replace('cit','').replace('hl','').trim();
+    if (['901','902','903'].includes(hr) && !submitted.has(String(r.pin||'').toUpperCase())) {
+      names.push(`${r.first_name||''} ${r.last_name||''} (${hr})`.trim());
+    }
+  });
+  return names;
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderStats() {
+  const approved = Object.values(DRAFTS).filter(d=>d.status==='approved').length;
+  const withMath = SUBS.filter(s => String(ansOf(s,'rent_math','hours_for_rent')).trim()).length;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat">dossiers in: <b>${SUBS.length}</b></div>` +
+    `<div class="stat">with rent-math numbers: <b>${withMath}</b></div>` +
+    `<div class="stat">approved: <b>${approved}</b></div>`;
+}
+
+async function loadAll() {
+  // Teacher gate: this page shows full dossiers + per-student feedback.
+  // Require an entered teacherPin before pulling data, so the page is
+  // not projectable to the classroom by anyone with the URL.
+  const teacherPinEl = document.getElementById('teacherPin');
+  if (!teacherPinEl || !(teacherPinEl.value || '').trim()) {
+    const pill = document.getElementById('backendPill');
+    if (pill) { pill.textContent = 'teacher login required'; pill.className = 'pill off'; }
+    const content = document.getElementById('content');
+    if (content) content.innerHTML =
+      '<div class="card"><div class="card-b">🔒 This page shows full student dossiers and your private feedback. ' +
+      'Enter your <b>Teacher PIN</b> at the top of the page, then reload. ' +
+      'If your backend has no Teacher PIN set, use any value — but always lock this page before projecting it.</div></div>';
+    return;
+  }
+
+  const pill = document.getElementById('backendPill');
+  pill.textContent = 'checking backend…'; pill.className = 'pill off';
+  try {
+    const h = await apiGet('get_health');
+    pill.textContent = `backend ${h.version}`;
+    pill.className = 'pill ' + (String(h.version).indexOf('V6.1') === 0 ? 'live' : 'off');
+    if (String(h.version).indexOf('V6.1') !== 0) {
+      document.getElementById('content').innerHTML =
+        '<div class="card"><div class="card-b">⚠ Backend is <b>' + esc(h.version) + '</b> — paste the updated Code.gs and redeploy (Deploy → Manage deployments → New version), then reload here. Drafts below come from the local seed until then.</div></div>';
+    }
+  } catch (e) {
+    pill.textContent = 'backend unreachable';
+  }
+  try {
+    const fb = await apiGet('get_feedback&taskName=' + encodeURIComponent(TASK));
+    if (fb && fb.feedback) FEEDBACK = fb.feedback;
+  } catch (e) { FEEDBACK = {}; }
+  try {
+    const p = await apiGet('get_class_progress&className=ALL');
+    SUBS = (p.students || []).filter(s => (s.task||'').indexOf('Rent We Pay') !== -1 || (s.savedData && s.savedData._tasks && Object.keys(s.savedData._tasks).some(k=>k.indexOf('Rent We Pay')!==-1)));
+  } catch (e) { SUBS = []; }
+  document.getElementById('subPill').textContent = 'submissions: ' + SUBS.length;
+  DRAFTS = {};
+  render();
+}
+loadAll();
+</script>
+</body>
+</html>

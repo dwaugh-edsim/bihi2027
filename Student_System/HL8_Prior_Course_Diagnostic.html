@@ -81,6 +81,51 @@
             display: none;
         }
 
+        .outbox-badge {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.72em;
+            font-family: monospace;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 800;
+            display: none;
+        }
+
+        /* Login gate banner + real DOM lock (fieldset) — Chromebook hardening (A1) */
+        .login-gate-banner {
+            background: var(--accent-light);
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        fieldset#workFieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            min-inline-size: 0;
+        }
+
+        fieldset#workFieldset:disabled {
+            opacity: 0.55;
+        }
+
+        fieldset#workFieldset:disabled input,
+        fieldset#workFieldset:disabled textarea,
+        fieldset#workFieldset:disabled select,
+        fieldset#workFieldset:disabled button {
+            cursor: not-allowed !important;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
         .btn {
             display: inline-block;
             background-color: var(--accent);
@@ -546,10 +591,11 @@
                 <span class="user-badge" id="badgeClass">Class 801</span>
                 <span id="badgeStudent" style="color: var(--text-muted); font-size: 0.85em;">Enter PIN below to load saved data</span>
                 <span class="sync-badge" id="syncBadge">☁️ Synced with Google Sheets</span>
+                <span class="outbox-badge" id="outboxBadge" title="Unsynced edits pending network retry">0 Unsynced</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <a href="HL8_Class_Progress_LCD_Dashboard.html" class="btn" style="background: #16a34a; border-color: #15803d; text-decoration: none;" target="_blank">📺 Class LCD Dashboard</a>
-                <button id="topLogoutBtn" class="btn" style="background: #e11d48; border-color: #be123c; color: #ffffff;" onclick="logout()">🚪 Sign Out</button>
+                <button id="topLogoutBtn" class="btn" style="background: #e11d48; border-color: #be123c; color: #ffffff; display: none;" onclick="logout()">🚪 Sign Out</button>
                 <button class="btn" onclick="saveAndSubmitAll()">Save & Submit All</button>
             </div>
         </div>
@@ -587,7 +633,7 @@
                     </div>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn" type="button" onclick="loginAndRestore()">Log In & Load</button>
-                        <button class="btn" id="authLogoutBtn" type="button" style="background: #475569; border-color: #334155; color: #f8fafc;" onclick="logout()">Sign Out</button>
+                        <button class="btn" id="authLogoutBtn" type="button" style="background: #475569; border-color: #334155; color: #f8fafc; display: none;" onclick="logout()">Sign Out</button>
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -645,6 +691,15 @@
                 </div>
             </div>
 
+            <!-- LOGIN GATE BANNER (A1): shown while locked; button focuses the inline login fields above -->
+            <div class="login-gate-banner" id="loginGateBanner" style="display:none;">
+                <div style="font-size: 1.05em; font-weight: 800; color: var(--text-heading); margin-bottom: 4px;">🔒 Log In With Your 3-Letter PIN to Start</div>
+                <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;">
+                    Chromebooks erase anonymous work on logout. Log in first so your work saves directly to Mr. Waugh's Google Sheets system.
+                </div>
+                <button type="button" class="btn" onclick="focusLoginFields()">🔑 Go to Login Fields</button>
+            </div>
+
             <!-- Navigation Tabs -->
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('tab-intake')">1. Identity & Contact</button>
@@ -653,6 +708,9 @@
                 <button class="tab-btn" onclick="switchTab('tab-where')">4. Sleep & Lifestyle Baseline</button>
                 <button class="tab-btn" onclick="switchTab('tab-teacher')">5. Note for Mr. Waugh</button>
             </div>
+
+            <!-- REAL DOM LOCK (A1): every answer input sits inside this disabled fieldset until PIN login -->
+            <fieldset id="workFieldset" disabled>
 
             <!-- TAB 1: INTAKE & CONTACT -->
             <div class="tab-pane active" id="tab-intake">
@@ -998,6 +1056,7 @@
                     <button class="btn" onclick="saveAndSubmitAll()">Save & Submit All Data</button>
                 </div>
             </div>
+            </fieldset>
         </div>
 
     </div>
@@ -1015,7 +1074,265 @@
 
         let autoSaveTimer = null;
 
+        // ═══════════ Chromebook Data-Loss Hardening (resiliency-delegation.md, Pattern A) ═══════════
+        const DIAGNOSTIC_TASK_NAME = 'Healthy Living 8: Grade 7 Learning Audit';
+
+        // ANONYMOUS GUARD: empty / '---' / 'draft' pins never get a draft key (no anonymous writes or restores).
+        const isAnonymousPin = (pin) => {
+            const p = String(pin || '').trim().toUpperCase();
+            return !p || p === '---' || p === 'DRAFT';
+        };
+        // Per-PIN draft key — format unchanged (hl8_draft_<PIN>); returns null for anonymous visitors.
+        const draftKey = (pin) => isAnonymousPin(pin) ? null : `hl8_draft_${String(pin).trim().toUpperCase()}`;
+        const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+        let outboxPendingCount = 0;
+
+        function isWorkUnlocked() {
+            const fs = document.getElementById('workFieldset');
+            return !!(fs && !fs.disabled);
+        }
+
+        // Honest sync pill (A7/A11): locked / saving / synced / error — adapted to this page's #syncBadge.
+        function updateSyncPill(state, detail = '') {
+            const badge = document.getElementById('syncBadge');
+            if (!badge) return;
+            badge.style.display = 'inline-block';
+            if (state === 'locked') {
+                badge.innerText = '🔒 Not Logged In';
+                badge.style.background = '#f1f5f9';
+                badge.style.color = '#475569';
+                badge.style.borderColor = '#cbd5e1';
+            } else if (state === 'saving') {
+                badge.innerText = detail ? `⏳ ${detail}` : '⏳ Saving...';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+                badge.style.borderColor = '#d97706';
+            } else if (state === 'synced') {
+                badge.innerText = detail ? `🟢 ${detail}` : '☁️ Synced with Google Sheets';
+                badge.style.background = '#edf7ed';
+                badge.style.color = '#1e4620';
+                badge.style.borderColor = '#c3e6cb';
+            } else if (state === 'error') {
+                badge.innerText = '🔴 Offline — Work saved on device ONLY. DO NOT close lid!';
+                badge.style.background = '#fef2f2';
+                badge.style.color = '#991b1b';
+                badge.style.borderColor = '#f87171';
+            } else {
+                badge.innerText = detail || '💾 Saved on Chromebook';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+                badge.style.borderColor = '#d97706';
+            }
+        }
+
+        function updateOutbox(delta) {
+            if (delta === 0) outboxPendingCount = 0;
+            else outboxPendingCount = Math.max(0, outboxPendingCount + delta);
+            const badge = document.getElementById('outboxBadge');
+            if (badge) {
+                if (outboxPendingCount > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `⚠️ ${outboxPendingCount} Unsynced`;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        // Centralized auth state (A1/A4): locks or unlocks the fieldset, gate banner, badge and sign-out buttons.
+        function setAuthState(student) {
+            const fieldset = document.getElementById('workFieldset');
+            const gate = document.getElementById('loginGateBanner');
+            const badgeStudent = document.getElementById('badgeStudent');
+            const topLogout = document.getElementById('topLogoutBtn');
+            const authLogout = document.getElementById('authLogoutBtn');
+            if (student) {
+                if (fieldset) fieldset.disabled = false;
+                if (gate) gate.style.display = 'none';
+                if (badgeStudent) {
+                    badgeStudent.innerHTML = `Logged in: <strong>${student.name}</strong> (${student.pin})`;
+                    badgeStudent.style.color = '';
+                }
+                if (topLogout) topLogout.style.display = 'inline-block';
+                if (authLogout) authLogout.style.display = 'inline-block';
+            } else {
+                if (fieldset) fieldset.disabled = true;
+                if (gate) gate.style.display = 'block';
+                if (badgeStudent) {
+                    badgeStudent.innerText = 'Enter PIN below to load saved data';
+                    badgeStudent.style.color = 'var(--text-muted)';
+                }
+                if (topLogout) topLogout.style.display = 'none';
+                if (authLogout) authLogout.style.display = 'none';
+                updateSyncPill('locked');
+                updateOutbox(0);
+            }
+        }
+
+        // True when a DIFFERENT student is currently signed in (their answers may be on screen).
+        function isIdentityChange(newPin) {
+            const curPin = (Session.getPin() || '').trim().toUpperCase();
+            if (!curPin || isAnonymousPin(curPin)) return false;
+            return String(newPin || '').trim().toUpperCase() !== curPin;
+        }
+
+        // Wipes every answer field on screen (identity switch / sign out).
+        function clearFormData() {
+            ['emailInput', 'pronounsInput', 'phoneticInput', 'transitInput', 'curiousInput',
+             'teacherNote', 'overdoneInput', 'realQuestionsInput', 'wherePersonal',
+             'whereCommunity', 'whereGlobal', 'whereAspirational'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.querySelectorAll('#matrixTable tbody input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#matrixTable tbody .topic-comment').forEach(c => c.value = '');
+            document.querySelectorAll('#formatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('input[name^="kc_"]').forEach(r => r.checked = false);
+        }
+
+        // Counts meaningfully answered fields (drives identity flush + newer-wins decisions).
+        function countCompleted(data) {
+            if (!data || typeof data !== 'object') return 0;
+            let done = 0;
+            ['email', 'pronouns', 'phonetic', 'transit', 'curious', 'overdone', 'real_questions',
+             'where_personal', 'where_community', 'where_global', 'where_aspirational', 'teacher_note'].forEach(k => {
+                if (data[k] && String(data[k]).trim() !== '') done++;
+            });
+            if (data.matrix && typeof data.matrix === 'object') {
+                Object.keys(data.matrix).forEach(k => { const v = data.matrix[k]; if (v && v !== 'Not Specified') done++; });
+            }
+            if (data.formats) {
+                const arr = Array.isArray(data.formats) ? data.formats : String(data.formats).split(',');
+                if (arr.filter(f => String(f).trim()).length > 0) done++;
+            }
+            if (data.knowledge_check && typeof data.knowledge_check === 'object') {
+                Object.keys(data.knowledge_check).forEach(k => { const v = data.knowledge_check[k]; if (v && v !== 'Not Answered') done++; });
+            }
+            return done;
+        }
+
+        // Newest on-device copy of this student's work (submission cache + per-PIN draft), with its timestamp.
+        function getLocalDraftMeta(cls, pin) {
+            const p = String(pin || '').trim().toUpperCase();
+            if (isAnonymousPin(p)) return null;
+            const keys = [
+                `submission_${cls}_${p}_${DIAGNOSTIC_TASK_NAME}`,
+                draftKey(p)
+            ];
+            let best = null;
+            for (const k of keys) {
+                if (!k) continue;
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    if (!parsed) continue;
+                    const d = parsed.data ? extractPayloadData(parsed.data) : extractPayloadData(parsed);
+                    if (!d || typeof d !== 'object') continue;
+                    const at = Math.max(
+                        Date.parse(parsed.savedAt) || 0,
+                        Date.parse(parsed.time) || 0,
+                        draftSavedAt(parsed.data) || 0
+                    );
+                    if (!best || at > best.savedAt) best = { data: d, savedAt: at };
+                } catch (e) { }
+            }
+            return best;
+        }
+
+        // Pulls this task's cloud record (with its server `updated` timestamp) out of a messy GAS payload.
+        function findCloudTask(savedData) {
+            let d = savedData;
+            if (typeof d === 'string') {
+                try { d = JSON.parse(d); } catch (e) { return null; }
+            }
+            if (!d || typeof d !== 'object') return null;
+            if (d.data) {
+                let inner = d.data;
+                if (typeof inner === 'string') {
+                    try { inner = JSON.parse(inner); } catch (e) { inner = null; }
+                }
+                if (inner && typeof inner === 'object') d = Object.assign({}, d, inner);
+            }
+            if (d._tasks && typeof d._tasks === 'object') {
+                if (d._tasks[DIAGNOSTIC_TASK_NAME]) return d._tasks[DIAGNOSTIC_TASK_NAME];
+                for (const tKey of Object.keys(d._tasks)) {
+                    if (tKey.includes('Healthy Living 8')) {
+                        const t = d._tasks[tKey];
+                        if (t && typeof t === 'object') return t;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Cloud flush used by identity switch + sign out: submits on-screen work under the signed-in student.
+        async function flushStudentWork(data) {
+            const notesCount = Object.keys(data.matrix_comments || {}).length;
+            const summary = `HL8 Diagnostic (Grade 7 Audit) | Email: ${data.email || 'None'} | Pronouns: ${data.pronouns || 'None'} | Notes: ${notesCount ? notesCount + ' outcome notes' : 'None'} | Note: ${data.teacher_note ? 'Yes' : 'None'}`;
+            updateSyncPill('saving', 'Saving previous work…');
+            try {
+                const res = await StudentAPI.submitProfile(DIAGNOSTIC_TASK_NAME, data, summary, 'HL8');
+                if (res && (res.status === 'success' || res.status === 'submitted_successfully' || res.isNoCorsFallback)) {
+                    updateOutbox(0);
+                    return true;
+                }
+                updateOutbox(1);
+                updateSyncPill('error');
+                return false;
+            } catch (e) {
+                console.warn('Cloud flush failed:', e);
+                updateOutbox(1);
+                updateSyncPill('error');
+                return false;
+            }
+        }
+
+        // Emergency unload flush (A6): Chromebook lid close / tab switch / navigation.
+        function flushEmergencyBeacon() {
+            if (!isWorkUnlocked()) return; // nobody logged in — nothing authoritative to send
+            const pin = (document.getElementById('pinInput').value.trim().toUpperCase()) || Session.getPin();
+            if (isAnonymousPin(pin)) return;
+            const name = document.getElementById('firstNameInput').value.trim() || Session.getName();
+            const cls = document.getElementById('classSelect').value || Session.getClass();
+            const data = gatherHL8Payload(name, pin, cls);
+            if (countCompleted(data) <= 0) return;
+            const notesCount = Object.keys(data.matrix_comments || {}).length;
+            const summary = `HL8 Diagnostic (Grade 7 Audit) | Email: ${data.email || 'None'} | Pronouns: ${data.pronouns || 'None'} | Notes: ${notesCount ? notesCount + ' outcome notes' : 'None'} | Note: ${data.teacher_note ? 'Yes' : 'None'}`;
+            try {
+                StudentAPI.sendEmergencyBeacon(DIAGNOSTIC_TASK_NAME, data, summary, 'HL8');
+            } catch (e) {
+                console.warn('Emergency beacon failed:', e);
+            }
+        }
+
+        // Login gate banner button: focus the inline PIN / name inputs (this page has no login modal).
+        function focusLoginFields() {
+            const nameEl = document.getElementById('firstNameInput');
+            const pinEl = document.getElementById('pinInput');
+            if (nameEl && !nameEl.value.trim()) nameEl.focus();
+            else if (pinEl) pinEl.focus();
+            else if (nameEl) nameEl.focus();
+        }
+
+        // ── Lifecycle listeners: lid close / tab switch / navigation / reconnect (A6) ──
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flushEmergencyBeacon();
+        });
+        window.addEventListener('pagehide', flushEmergencyBeacon);
+        window.addEventListener('beforeunload', flushEmergencyBeacon);
+        window.addEventListener('online', () => {
+            const pin = (document.getElementById('pinInput') ? document.getElementById('pinInput').value.trim().toUpperCase() : '') || Session.getPin();
+            if (!isAnonymousPin(pin) && isWorkUnlocked()) {
+                showToast('🌐 Network reconnected! Auto-syncing...');
+                saveAndSubmitAll();
+            }
+        });
+        // ═══════════ End Chromebook Data-Loss Hardening ═══════════
+
         function togglePill(el) {
+            const fs = document.getElementById('workFieldset');
+            if (fs && fs.disabled) return; // locked: a disabled fieldset does not block div onclick handlers
             el.classList.toggle('selected');
             triggerHL8AutoSave();
         }
@@ -1035,16 +1352,17 @@
 
         function saveLocalDraft() {
             const pin = (document.getElementById('pinInput').value.trim().toUpperCase()) || Session.getPin();
-            if (!pin || pin.length < 3) return;
+            if (isAnonymousPin(pin) || String(pin).trim().length < 3) return; // ANONYMOUS GUARD: never save a draft without a real PIN
             const cls = document.getElementById('classSelect').value || Session.getClass();
             const name = document.getElementById('firstNameInput').value.trim() || Session.getName();
 
             const payload = gatherHL8Payload(name, pin, cls);
-            const draftKey = `hl8_draft_${pin}`;
+            payload.savedAt = new Date().toISOString(); // stamp every draft write (newer-wins resolution)
+            const key = draftKey(pin);                  // null when anonymous — guarded above
             const subKey = `submission_${cls}_${pin}_Healthy Living 8: Grade 7 Learning Audit`;
 
             try {
-                localStorage.setItem(draftKey, JSON.stringify(payload));
+                if (key) localStorage.setItem(key, JSON.stringify(payload));
                 localStorage.setItem(subKey, JSON.stringify({
                     task: 'Healthy Living 8: Grade 7 Learning Audit',
                     time: new Date().toISOString(),
@@ -1055,14 +1373,7 @@
                 if (name) localStorage.setItem('hl8_last_name', name);
                 if (cls) localStorage.setItem('hl8_last_class', cls);
 
-                const syncBadge = document.getElementById('syncBadge');
-                if (syncBadge) {
-                    syncBadge.innerText = '💾 Saved on Chromebook';
-                    syncBadge.style.display = 'inline-block';
-                    syncBadge.style.background = '#fef3c7';
-                    syncBadge.style.color = '#92400e';
-                    syncBadge.style.borderColor = '#d97706';
-                }
+                updateSyncPill('saving', 'Saved on Chromebook — syncs on Submit');
             } catch(e) {
                 console.warn("Local draft save error:", e);
             }
@@ -1106,7 +1417,7 @@
         }
 
         function getLocalSavedData(cls, pin) {
-            if (!pin) return null;
+            if (!pin || isAnonymousPin(pin)) return null; // no anonymous restores
             pin = pin.toUpperCase();
             const taskName = 'Healthy Living 8: Grade 7 Learning Audit';
 
@@ -1259,7 +1570,21 @@
                 }
             }
 
-            document.getElementById('badgeStudent').innerHTML = `Logged in: <strong>${name}</strong> (${pin})`;
+            // ATOMIC IDENTITY SWITCH (A2): if another student's answers are on screen,
+            // flush their work to the cloud under THEIR pin, wipe the form, then adopt the new student.
+            if (isIdentityChange(pin)) {
+                clearTimeout(autoSaveTimer);
+                setAuthState(null); // lock inputs so nothing can be typed mid-switch
+                const prevPin = (Session.getPin() || '').trim().toUpperCase();
+                const prevData = gatherHL8Payload(Session.getName() || '', prevPin,
+                    Session.getClass() || document.getElementById('classSelect').value);
+                if (countCompleted(prevData) > 0) {
+                    await flushStudentWork(prevData);
+                }
+                clearFormData();
+            }
+
+            setAuthState({ name: name, pin: pin, className: cls });
 
             Session.set(cls, name, pin);
             localStorage.setItem('hl8_last_pin', pin);
@@ -1272,23 +1597,13 @@
             if (localData) {
                 applySavedData(localData);
                 restoredLocally = true;
-                const syncBadge = document.getElementById('syncBadge');
-                if (syncBadge) {
-                    syncBadge.innerText = '💾 Restored from Chromebook';
-                    syncBadge.style.display = 'inline-block';
-                    syncBadge.style.background = '#fef3c7';
-                    syncBadge.style.color = '#92400e';
-                    syncBadge.style.borderColor = '#d97706';
-                }
+                updateSyncPill('saving', 'Restored from Chromebook — checking cloud…');
                 showToast(`Restored saved draft for ${name}! Checking Google Sheets...`);
             } else {
                 showToast(`Verifying profile for ${name} (${pin}) with Google Sheets...`);
             }
 
-            const topLogout = document.getElementById('topLogoutBtn');
-            if (topLogout) topLogout.style.display = 'inline-block';
-            const authLogout = document.getElementById('authLogoutBtn');
-            if (authLogout) authLogout.style.display = 'inline-block';
+            // (Sign-out buttons + fieldset unlock were handled by setAuthState above.)
 
             // STEP 2: CHECK CLOUD GOOGLE SHEETS FOR MASTER RECORD
             try {
@@ -1302,6 +1617,8 @@
                     }
 
                     const cloudData = extractPayloadData(res.savedData);
+                    const cloudTask = findCloudTask(res.savedData);
+                    const cloudUpdatedAt = (cloudTask && Date.parse(cloudTask.updated)) || 0;
                     const hasCloudContent = cloudData && (
                         cloudData.phonetic || cloudData.curious || cloudData.where_personal ||
                         (cloudData.matrix && Object.keys(cloudData.matrix).length > 0) ||
@@ -1309,6 +1626,18 @@
                     );
 
                     if (hasCloudContent) {
+                        // NEWER-WINS (A3): local draft wins only if >30s newer AND strictly fuller, then pushes to cloud.
+                        const localDraftMeta = getLocalDraftMeta(cls, pin);
+                        const localNewer = localDraftMeta &&
+                            localDraftMeta.savedAt > cloudUpdatedAt + 30000 &&
+                            countCompleted(localDraftMeta.data) > countCompleted(cloudData);
+                        if (localNewer) {
+                            applySavedData(localDraftMeta.data);
+                            updateSyncPill('synced', 'Restored newer local draft — pushing to cloud…');
+                            showToast('Restored newer draft saved on this Chromebook. Syncing to Google Sheets...');
+                            saveAndSubmitAll();
+                            return;
+                        }
                         applySavedData(cloudData);
                         const subKey = `submission_${cls}_${pin}_Healthy Living 8: Grade 7 Learning Audit`;
                         localStorage.setItem(subKey, JSON.stringify({
@@ -1319,28 +1648,36 @@
                         }));
                     }
 
-                    const syncBadge = document.getElementById('syncBadge');
-                    if (syncBadge) {
-                        syncBadge.innerText = '☁️ Synced with Google Sheets';
-                        syncBadge.style.display = 'inline-block';
-                        syncBadge.style.background = '#edf7ed';
-                        syncBadge.style.color = '#1e4620';
-                        syncBadge.style.borderColor = '#c3e6cb';
-                    }
+                    updateSyncPill('synced', `Cloud Synced (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`);
                     showToast(`Welcome, ${name}! Your profile is fully loaded.`);
-                } else if (!restoredLocally) {
-                    showToast(res.message || "Connected offline. Saved data will sync upon reconnect.", true);
+                } else {
+                    updateSyncPill('error');
+                    if (!restoredLocally) {
+                        showToast(res.message || "Connected offline. Saved data will sync upon reconnect.", true);
+                    }
                 }
             } catch (err) {
                 console.warn("Cloud login fetch error:", err);
+                updateSyncPill('error');
                 if (!restoredLocally) {
                     showToast("Offline mode: Working from local Chromebook storage.", true);
                 }
             }
         }
 
-        function logout() {
+        async function logout() {
             if (confirm("Sign out of this session? The form will be cleared for the next student.")) {
+                // Flush on-screen work to the cloud under THIS student's PIN before clearing (A2).
+                clearTimeout(autoSaveTimer);
+                setAuthState(null); // lock inputs while flushing
+                const sessPin = (Session.getPin() || '').trim().toUpperCase();
+                if (!isAnonymousPin(sessPin)) {
+                    const sessData = gatherHL8Payload(Session.getName() || '', sessPin,
+                        Session.getClass() || document.getElementById('classSelect').value);
+                    if (countCompleted(sessData) > 0) {
+                        await flushStudentWork(sessData);
+                    }
+                }
                 Session.clear();
                 localStorage.removeItem('hl8_last_pin');
                 localStorage.removeItem('hl8_last_name');
@@ -1349,21 +1686,8 @@
                 document.getElementById('firstNameInput').value = '';
                 document.getElementById('pinInput').value = '';
 
-                document.getElementById('badgeStudent').innerText = 'Enter PIN below to load saved data';
-                document.getElementById('badgeStudent').style.color = 'var(--text-muted)';
-                document.getElementById('syncBadge').style.display = 'none';
-
-                ['emailInput', 'pronounsInput', 'phoneticInput', 'transitInput', 'curiousInput', 
-                 'teacherNote', 'overdoneInput', 'realQuestionsInput', 'wherePersonal', 
-                 'whereCommunity', 'whereGlobal', 'whereAspirational'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-
-                document.querySelectorAll('#matrixTable tbody input[type="radio"]').forEach(r => r.checked = false);
-                document.querySelectorAll('#matrixTable tbody .topic-comment').forEach(c => c.value = '');
-                document.querySelectorAll('#formatsGrid .pill-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('input[name^="kc_"]').forEach(r => r.checked = false);
+                clearFormData();
+                setAuthState(null);
 
                 showToast("Signed out successfully. Form cleared.");
             }
@@ -1466,6 +1790,9 @@
             const notesCount = Object.keys(fullPayload.matrix_comments || {}).length;
             const summary = `HL8 Diagnostic (Grade 7 Audit) | Email: ${fullPayload.email || 'None'} | Pronouns: ${fullPayload.pronouns || 'None'} | Notes: ${notesCount ? notesCount + ' outcome notes' : 'None'} | Note: ${fullPayload.teacher_note ? 'Yes' : 'None'}`;
 
+            if (!pin || isAnonymousPin(pin)) return; // ANONYMOUS GUARD: never write a draft under an empty/anonymous key
+            fullPayload.savedAt = new Date().toISOString(); // stamp every draft write (newer-wins resolution)
+
             // Save to Chromebook storage immediately
             const subKey = `submission_${cls}_${pin}_Healthy Living 8: Grade 7 Learning Audit`;
             localStorage.setItem(subKey, JSON.stringify({
@@ -1481,17 +1808,12 @@
             localStorage.setItem('hl8_last_class', cls);
 
             showToast("Saving to Google Sheets master database...");
+            updateSyncPill('saving', 'Saving to Google Sheets…');
 
             const res = await StudentAPI.submitProfile('Healthy Living 8: Grade 7 Learning Audit', fullPayload, summary, 'HL8');
             if (res.status === 'success' || res.status === 'submitted_successfully' || res.isNoCorsFallback) {
-                const syncBadge = document.getElementById('syncBadge');
-                if (syncBadge) {
-                    syncBadge.innerText = '☁️ Synced with Google Sheets';
-                    syncBadge.style.display = 'inline-block';
-                    syncBadge.style.background = '#edf7ed';
-                    syncBadge.style.color = '#1e4620';
-                    syncBadge.style.borderColor = '#c3e6cb';
-                }
+                updateOutbox(0);
+                updateSyncPill('synced', `Cloud Synced (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`);
                 localStorage.setItem(subKey, JSON.stringify({
                     task: 'Healthy Living 8: Grade 7 Learning Audit',
                     time: new Date().toISOString(),
@@ -1501,6 +1823,8 @@
                 }));
                 showToast("All data successfully saved to Google Sheets & Chromebook! You can return on any device anytime.");
             } else {
+                updateOutbox(1);
+                updateSyncPill('error');
                 showToast(res.message || "Saved on this Chromebook! Cloud sync will retry automatically.", false);
             }
         }
@@ -1668,6 +1992,8 @@
         function initMatrixRadioClick() {
             document.querySelectorAll('#matrixTable td.col-radio').forEach(td => {
                 td.addEventListener('click', (e) => {
+                    const fs = document.getElementById('workFieldset');
+                    if (fs && fs.disabled) return; // locked: programmatic .checked would bypass the disabled fieldset
                     if (e.target.tagName !== 'INPUT') {
                         const radio = td.querySelector('input[type="radio"]');
                         if (radio) radio.checked = true;
@@ -1679,6 +2005,18 @@
         window.onload = () => {
             initMatrixRadioClick();
             try { localStorage.removeItem('custom_roster_additions'); } catch(e){}
+
+            // Roster failure banner (A10)
+            if (!window.MASTER_ROSTER_DATA || !window.MASTER_ROSTER_DATA.length) {
+                const errBanner = document.createElement('div');
+                errBanner.id = 'rosterErrorBanner';
+                errBanner.style.cssText = 'max-width:980px; margin:0 auto 16px auto; background:#fef2f2; border:2px solid #ef4444; color:#991b1b; padding:12px 18px; border-radius:8px; font-weight:700; font-size:0.9rem;';
+                errBanner.innerHTML = '⚠️ Class roster failed to load — check the <code>students_roster_data.js</code> &lt;script&gt; path.';
+                document.body.insertBefore(errBanner, document.body.firstChild);
+            }
+
+            // Start LOCKED (A1): no editing and no anonymous drafts until a real PIN login succeeds.
+            setAuthState(null);
 
             // Auto-save listeners on all inputs and textareas
             document.addEventListener('input', (e) => {
@@ -1722,7 +2060,7 @@
                 ? sessClass 
                 : (localStorage.getItem('hl8_last_class') || '801');
 
-            if (rememberedPin) {
+            if (rememberedPin && !isAnonymousPin(rememberedPin)) {
                 if (rememberedClass) {
                     document.getElementById('classSelect').value = rememberedClass;
                     onClassChange();

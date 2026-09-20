@@ -725,6 +725,7 @@
                 <button class="ctrl-btn ctrl-btn-primary" id="btnRefresh" onclick="refreshLiveData()">
                     <span id="refreshIcon">🔄</span> Refresh Sheet
                 </button>
+                <span id="syncTimeLabel" style="font-size: 0.82em; color: var(--text-muted); font-weight: 600;">Not synced yet</span>
                 <button class="ctrl-btn" id="btnAutoPoll" onclick="toggleAutoPoll()">
                     ⏱️ Auto-Sync: <span id="autoPollStatus" style="font-weight: 700; color: var(--emerald);">ON (15s)</span>
                 </button>
@@ -739,6 +740,9 @@
                 </a>
             </div>
         </header>
+
+        <!-- Sync failure banner: shown when a cloud refresh cannot reach Google Sheets -->
+        <div id="syncErrorBanner" role="alert" style="display: none; background: #991b1b; border: 1px solid #ef4444; color: #ffffff; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-weight: 700; font-size: 0.9em;"></div>
 
         <!-- Class Selector Bar -->
         <section class="class-selector-bar">
@@ -1140,49 +1144,64 @@
         }
 
         function escapeHTML(str) {
-            return (str || '').replace(/[&<>'"]/g, 
+            str = (str == null) ? '' : String(str);
+            return str.replace(/[&<>'"]/g, 
                 tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
             );
+        }
+
+        // Deep scrub: strip pin / _requestId / email keys from anything rendered on the projector
+        function scrubForDisplay(obj) {
+            if (Array.isArray(obj)) return obj.map(scrubForDisplay);
+            if (obj && typeof obj === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    if (/^(pin|_requestId|email)$/i.test(k)) continue;
+                    out[k] = scrubForDisplay(v);
+                }
+                return out;
+            }
+            return obj;
         }
 
         // Teacher Detail Modal
         function openStudentModal(student, sub) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
-            const d = (sub && sub.savedData) ? sub.savedData : {};
+            const d = scrubForDisplay((sub && sub.savedData) ? sub.savedData : {});
 
             content.innerHTML = `
                 <h2 style="font-family: var(--font-display); font-size: 1.6em; margin-bottom: 6px;">
                     ${student.first_name} ${student.last_name}
                 </h2>
                 <p style="color: var(--text-muted); font-size: 0.88em; margin-bottom: 20px;">
-                    Class ${student.homeroom} &bull; Email: ${sub?.email || student.email || 'None registered'} &bull; Pronouns: ${sub?.pronouns || 'None noted'}
+                    Class ${student.homeroom} &bull; Email: On file — not displayed &bull; Pronouns: ${escapeHTML(sub?.pronouns) || 'None noted'}
                 </p>
 
                 <div style="display: grid; gap: 14px; font-size: 0.9em;">
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card);">
                         <strong>🔒 Private Note for Mr. Waugh:</strong><br>
-                        <span style="color: var(--text-muted);">${d.teacher_note || 'No private note entered.'}</span>
+                        <span style="color: var(--text-muted);">${escapeHTML(d.teacher_note) || 'No private note entered.'}</span>
                     </div>
 
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card);">
                         <strong>❓ Real Health Questions:</strong><br>
-                        <span style="color: var(--text-muted);">${d.real_questions || 'None entered.'}</span>
+                        <span style="color: var(--text-muted);">${escapeHTML(d.real_questions) || 'None entered.'}</span>
                     </div>
 
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card);">
                         <strong>🗺️ Places of Significance:</strong><br>
                         <ul style="padding-left: 20px; color: var(--text-muted); margin-top: 4px;">
-                            <li><strong>Personal:</strong> ${d.where_personal || 'None'}</li>
-                            <li><strong>Community:</strong> ${d.where_community || 'None'}</li>
-                            <li><strong>Global:</strong> ${d.where_global || 'None'}</li>
-                            <li><strong>Aspirational:</strong> ${d.where_aspirational || 'None'}</li>
+                            <li><strong>Personal:</strong> ${escapeHTML(d.where_personal) || 'None'}</li>
+                            <li><strong>Community:</strong> ${escapeHTML(d.where_community) || 'None'}</li>
+                            <li><strong>Global:</strong> ${escapeHTML(d.where_global) || 'None'}</li>
+                            <li><strong>Aspirational:</strong> ${escapeHTML(d.where_aspirational) || 'None'}</li>
                         </ul>
                     </div>
 
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card);">
                         <strong>🎯 Learning Formats Voted:</strong><br>
-                        <span style="color: var(--text-muted);">${(d.formats && d.formats.length) ? d.formats.join(', ') : 'None selected'}</span>
+                        <span style="color: var(--text-muted);">${(d.formats && d.formats.length) ? escapeHTML(d.formats.join(', ')) : 'None selected'}</span>
                     </div>
                 </div>
             `;
@@ -1209,6 +1228,7 @@
             
             // Check local and remote submissions in batches
             let updatedCount = 0;
+            let failCount = 0;
             const promises = students.map(async s => {
                 const pin = s.pin;
                 try {
@@ -1217,12 +1237,28 @@
                         liveSubmissionsCache[pin] = res;
                         updatedCount++;
                     }
-                } catch(e) {}
+                } catch(e) { failCount++; }
             });
 
             await Promise.all(promises);
 
             icon.style.animation = 'none';
+
+            // Sync health: 'Last synced' stamp on success, visible error banner when the whole refresh fails
+            const timeLabel = document.getElementById('syncTimeLabel');
+            const errBanner = document.getElementById('syncErrorBanner');
+            if (students.length > 0 && failCount >= students.length) {
+                if (timeLabel) timeLabel.innerText = 'Sync failed';
+                if (errBanner) {
+                    errBanner.innerText = '⚠️ Cloud sync failed — showing last known data. Click 🔄 Refresh Sheet to retry.';
+                    errBanner.style.display = 'block';
+                }
+            } else {
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (timeLabel) timeLabel.innerText = `Last synced: ${now}`;
+                if (errBanner) errBanner.style.display = 'none';
+            }
+
             renderDashboard();
             showToast(`Synced Class ${currentClass}! (${updatedCount} active records)`);
         }

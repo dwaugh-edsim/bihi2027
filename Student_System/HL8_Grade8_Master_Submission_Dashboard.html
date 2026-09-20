@@ -912,6 +912,7 @@
                 <button class="sidebar-btn btn-sync-now" onclick="syncWithGoogleSheets(false)" id="btnCloudSync">
                     <span id="syncIcon">⚡</span> Sync Now
                 </button>
+                <div id="syncTimeLabel" style="font-size:0.72rem; color:var(--text-dim); text-align:center;">Not synced yet</div>
                 <button class="sidebar-btn" onclick="toggleAutoSync()" id="btnAutoSyncToggle">
                     ⏸️ Pause
                 </button>
@@ -922,6 +923,7 @@
 
         <!-- ========== MAIN CONTENT AREA ========== -->
         <main class="main-area">
+            <div id="syncErrorBanner" style="display:none; background:#991b1b; border:1.5px solid #ef4444; color:#ffffff; padding:8px 14px; margin-bottom:8px; border-radius:6px; font-weight:700; font-size:0.82rem;"></div>
             <div class="main-topbar">
                 <span class="showing-text" id="rosterShowingText">Showing 112 students</span>
                 <div class="search-box">
@@ -955,7 +957,7 @@
             <div class="modal-head">
                 <div>
                     <div style="font-family: var(--font-mono); font-size: 0.74rem; font-weight: 800; color: var(--cyan); text-transform: uppercase;" id="modalMetaSub">
-                        Class 801 &bull; PIN: ASD
+                        Class 801 &bull; Student ID: ---
                     </div>
                     <h2 style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;" id="modalStudentName">
                         Jason Desveaux
@@ -968,6 +970,12 @@
                 <div class="modal-tabs">
                     <button class="modal-tab-btn active" id="tabBtn5D" onclick="switchModalTab('5D')">🔬 5-Dimensions Systems Audit</button>
                     <button class="modal-tab-btn" id="tabBtnSurvey" onclick="switchModalTab('SURVEY')">📝 Grade 7 Initial Survey</button>
+                </div>
+
+                <!-- Orphan task alert: submissions on file under task names not tracked by this dashboard -->
+                <div id="modalOrphanAlert" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:8px 12px; margin-bottom:16px; font-size:0.82rem; color:#92400e;">
+                    <strong>⚠️ Also on file (not in dashboard config):</strong>
+                    <ul id="modalOrphanList" style="margin:4px 0 0 18px;"></ul>
                 </div>
 
                 <!-- Tab 1: 5-Dimensions Audit -->
@@ -1065,6 +1073,57 @@
         let activeFilter = 'ALL';
         let searchQuery = '';
         let currentModalStudent = null;
+
+        // ── Projector privacy hardening (canonical Pattern B) ──
+        // Tracked tasks for deterministic [id, taskName] matching + orphan detection
+        const HL8_DASHBOARD_ITEMS = [
+            { id: 'HL8 5-Dimension Systems Audit', label: '5D Systems Audit' },
+            { id: 'Healthy Living 8: Grade 7 Learning Audit', label: 'Grade 7 Initial Survey' }
+        ];
+        function taskAliases(it) { return [it.id, it.taskName].filter(Boolean); }
+        function findTrackedTask(tasksObj, item) {
+            if (!tasksObj || typeof tasksObj !== 'object') return null;
+            for (const k of taskAliases(item)) {
+                if (Object.prototype.hasOwnProperty.call(tasksObj, k) && tasksObj[k]) return tasksObj[k];
+            }
+            return null;
+        }
+        // Deep scrub: strip pin / _requestId / email keys from anything rendered on the projector
+        function scrubForDisplay(obj) {
+            if (Array.isArray(obj)) return obj.map(scrubForDisplay);
+            if (obj && typeof obj === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    if (/^(pin|_requestId|email)$/i.test(k)) continue;
+                    out[k] = scrubForDisplay(v);
+                }
+                return out;
+            }
+            return obj;
+        }
+        function escapeHTML(str) {
+            return String(str == null ? '' : str).replace(/[&<>'"]/g,
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+        // Students rendered in the current tile grid — tiles reference them by index so PINs never enter the DOM
+        let lastRenderedStudents = [];
+        // Sync health: Last-synced stamp + visible error banner
+        function markSyncSucceeded() {
+            const timeLabel = document.getElementById('syncTimeLabel');
+            const errBanner = document.getElementById('syncErrorBanner');
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (timeLabel) timeLabel.innerText = `Last synced: ${now}`;
+            if (errBanner) errBanner.style.display = 'none';
+        }
+        function markSyncFailed(msg) {
+            const timeLabel = document.getElementById('syncTimeLabel');
+            const errBanner = document.getElementById('syncErrorBanner');
+            if (timeLabel) timeLabel.innerText = 'Sync failed';
+            if (errBanner) {
+                errBanner.innerText = `⚠️ Cloud sync error: ${msg || 'Network issue'}. Data shown may be stale — click ⚡ Sync Now to retry.`;
+                errBanner.style.display = 'block';
+            }
+        }
 
         // Initialize from SEED_DATA and localStorage overrides if present
         let students = SEED_DATA.map(s => {
@@ -1210,13 +1269,13 @@
                 if (activeFilter === 'SURVEY_DONE' && !isSurvDone) return false;
                 if (activeFilter === 'REMAINING' && (is5DDone && isSurvDone)) return false;
 
-                // Search query
+                // Search query — NAME ONLY. Never match PINs/usernames on the projector
+                // (every roster username embeds the student's 3-letter PIN, so matching
+                // usernames would let anyone look a student up by typing their PIN).
                 if (searchQuery) {
                     const q = searchQuery.toLowerCase();
                     const nameMatch = `${s.first_name} ${s.last_name}`.toLowerCase().includes(q) ||
-                                      (s.full_first_name || '').toLowerCase().includes(q) ||
-                                      
-                                      (s.username || '').toLowerCase().includes(q);
+                                      (s.full_first_name || '').toLowerCase().includes(q);
                     if (!nameMatch) return false;
                 }
 
@@ -1226,6 +1285,7 @@
 
         function renderRosterTable() {
             const filtered = getFilteredStudents();
+            lastRenderedStudents = filtered; // tiles open the dossier by index, keeping PINs out of the DOM
             const grid = document.getElementById('rosterTableBody');
             document.getElementById('rosterShowingText').innerText = `Showing ${filtered.length} students • ${activeClass === 'ALL' ? 'All Classes' : 'Class ' + activeClass}`;
 
@@ -1234,7 +1294,7 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(s => {
+            grid.innerHTML = filtered.map((s, idx) => {
                 const initials = (s.first_name?.[0] || '') + (s.last_name?.[0] || '');
                 const is5D = s.five_dim_submitted;
                 const inProg5D = s.in_progress_5d || (s.live_task === 'Active / Logged In' && !is5D);
@@ -1260,7 +1320,7 @@
                 }
 
                 return `
-                    <div class="student-tile${bothDone ? ' both-done' : ''}" onclick="openDossier('${s.pin}')" title="${s.first_name} ${s.last_name} (${s.homeroom})">
+                    <div class="student-tile${bothDone ? ' both-done' : ''}" onclick="openDossierAt(${idx})" title="${s.first_name} ${s.last_name} (${s.homeroom})">
                         <div class="tile-top">
                             <span class="tile-avatar">${initials}</span>
                             <span class="tile-name">${s.first_name} ${s.last_name}</span>
@@ -1336,6 +1396,12 @@
         }
 
         // Modal Operations
+        // Tile click handler: resolves the student by render index so PINs never appear in the DOM
+        function openDossierAt(i) {
+            const s = lastRenderedStudents[i];
+            if (s) openDossier(s.pin);
+        }
+
         function openDossier(pin) {
             const s = students.find(st => st.pin === pin);
             if (!s) return;
@@ -1344,8 +1410,20 @@
             document.getElementById('modalStudentName').innerText = `${s.first_name} ${s.last_name}`;
             document.getElementById('modalMetaSub').innerText = `Class ${s.homeroom} • Student ID: ${s.student_id || 'Room 8'}`;
 
-            // 5D Audit Tab Setup
-            const d5 = s.five_dim_data || {};
+            // Orphan tasks: submissions on file under task names this dashboard doesn't track
+            const orphanAlertEl = document.getElementById('modalOrphanAlert');
+            if (orphanAlertEl) {
+                const orphans = s.orphanTasks || [];
+                if (orphans.length) {
+                    document.getElementById('modalOrphanList').innerHTML = orphans.map(t => `<li>${escapeHTML(t)}</li>`).join('');
+                    orphanAlertEl.style.display = 'block';
+                } else {
+                    orphanAlertEl.style.display = 'none';
+                }
+            }
+
+            // 5D Audit Tab Setup (payload scrubbed: no pin / _requestId / email reaches the projector)
+            const d5 = scrubForDisplay(s.five_dim_data || {});
             const a5 = d5.answers || d5;
 
             const dims = [
@@ -1389,9 +1467,10 @@
 
             document.getElementById('btnOpen5DInteractive').href = `HL8_5_Dimensions_System_Audit_Interactive.html?pin=${s.pin}&class=${s.homeroom}`;
 
-            // Initial Survey Tab Setup
-            const surv = s.survey_data || {};
-            document.getElementById('modalSurveyEmail').innerText = s.email || s.username || 'Not recorded';
+            // Initial Survey Tab Setup (payload scrubbed: no pin / _requestId / email reaches the projector)
+            const surv = scrubForDisplay(s.survey_data || {});
+            // Privacy: student emails are never rendered on the projector (scrubbed dossier)
+            document.getElementById('modalSurveyEmail').innerText = 'On file — not displayed';
             document.getElementById('modalSurveyPronouns').innerText = s.pronouns || 'Not specified';
             document.getElementById('modalSurveyPhonetic').innerText = surv.phonetic || 'None';
             document.getElementById('modalSurveyPeers').innerText = surv.peers || surv.transit || 'None listed';
@@ -1502,10 +1581,11 @@
 
             // Check 5D Audit (via task name, savedData, _tasks, OR assignments column)
             let is5D = false;
+            const found5D = findTrackedTask(tasksObj, HL8_DASHBOARD_ITEMS[0]); // exact [id, taskName] match
             if (task.includes('5-Dimension') || task.includes('Systems Audit') || (task.startsWith('HL8') && task.includes('Audit'))) {
                 is5D = true;
             }
-            if (tasksObj['HL8 5-Dimension Systems Audit'] || saved.answers || saved.radar_phys) {
+            if (found5D || saved.answers || saved.radar_phys) {
                 is5D = true;
             }
             for (let key in assignments) {
@@ -1516,7 +1596,7 @@
 
             if (is5D) {
                 s.five_dim_submitted = true;
-                s.five_dim_data = tasksObj['HL8 5-Dimension Systems Audit']?.data || saved;
+                s.five_dim_data = (found5D && found5D.data) || saved;
                 s.in_progress_5d = false;
             } else if (task === 'Active / Logged In') {
                 s.in_progress_5d = true;
@@ -1524,7 +1604,8 @@
 
             // Check Survey (via task name, savedData, _tasks, OR assignments column)
             let isSurvey = false;
-            if (task.includes('Learning Audit') || task.includes('Prior Course') || saved.matrix || tasksObj['Healthy Living 8: Grade 7 Learning Audit']) {
+            const foundSurvey = findTrackedTask(tasksObj, HL8_DASHBOARD_ITEMS[1]); // exact [id, taskName] match
+            if (task.includes('Learning Audit') || task.includes('Prior Course') || saved.matrix || foundSurvey) {
                 isSurvey = true;
             }
             for (let key in assignments) {
@@ -1536,6 +1617,15 @@
             if (isSurvey) {
                 s.survey_submitted = true;
                 s.survey_data = saved;
+            }
+
+            // Orphan detection: _tasks keys that matched no tracked dashboard item,
+            // surfaced in the student's dossier ("Also on file (not in dashboard config)")
+            if (saved._tasks && typeof saved._tasks === 'object') {
+                const knownKeys = new Set(HL8_DASHBOARD_ITEMS.flatMap(it => taskAliases(it)));
+                s.orphanTasks = Object.keys(saved._tasks).filter(k => !knownKeys.has(k));
+            } else {
+                s.orphanTasks = [];
             }
 
             s.is_active = (task === 'Active / Logged In') || s.five_dim_submitted || s.survey_submitted;
@@ -1573,6 +1663,7 @@
                     });
                     updateKPIs();
                     renderRosterTable();
+                    markSyncSucceeded(); // 'Last synced' stamp + clear any error banner
                     if (!isSilent) showToast(`Live synced ${bulkData.students.length} student records!`);
                 }
             } catch (err) {
@@ -1583,6 +1674,7 @@
             if (!bulkSucceeded) {
                 const targets = (activeClass === 'ALL') ? students : students.filter(s => s.homeroom === activeClass);
                 const BATCH_SIZE = 7;
+                let okCount = 0;
 
                 for (let i = 0; i < targets.length; i += BATCH_SIZE) {
                     const batch = targets.slice(i, i + BATCH_SIZE);
@@ -1592,6 +1684,7 @@
                             const res = await fetch(fetchUrl, { method: 'GET' });
                             const data = await res.json();
                             if (data && data.status === 'success') {
+                                okCount++;
                                 applyStudentCloudUpdate(s, data.task, data.savedData, data.email, data.pronouns);
                             }
                         } catch (err) {
@@ -1601,6 +1694,11 @@
                 }
                 updateKPIs();
                 renderRosterTable();
+                if (okCount === 0) {
+                    markSyncFailed('could not reach Google Sheets'); // visible banner + retry guidance
+                } else {
+                    markSyncSucceeded(); // 'Last synced' stamp + clear any error banner
+                }
                 if (!isSilent) showToast(`Live sync complete for ${targets.length} students!`);
             }
 

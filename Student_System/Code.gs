@@ -29,8 +29,8 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.0.1-2026-09-20';
-var CONFIG_DEPLOY_DATE = '2026-09-20T19:30:00Z';
+var CONFIG_VERSION = 'V6.1-2026-09-20';
+var CONFIG_DEPLOY_DATE = '2026-09-20T20:00:00Z';
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
 var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
@@ -217,6 +217,20 @@ function doGet(e) {
         rowCounts: rowCounts,
         logRows: logRows
       });
+    }
+
+    // ==========================================
+    // ACTION: GET FEEDBACK (teacher feedback drafts/approvals, per student + task)
+    // Returns { feedback: { '<PIN>||<taskName>': {...row} } }
+    // ==========================================
+    if (action === 'get_feedback') {
+      const fbTask = String(params.taskName || '').trim();
+      const all = readFeedback(ss);
+      const out = {};
+      for (var fk in all) {
+        if (!fbTask || all[fk].task === fbTask) out[fk] = all[fk];
+      }
+      return successJSON({ status: 'success', feedback: out, version: CONFIG_VERSION });
     }
 
     // ==========================================
@@ -639,6 +653,32 @@ function doPost(e) {
         clearClassSlide(ss, slideSection);
       }
       return successJSON({ status: 'class_slide_set', section: slideSection });
+    }
+
+    // ==========================================
+    // ACTION: SAVE FEEDBACK (teacher comments per student + task, upsert on pin+task)
+    // payload: { pin, name, section, task, status, teacherPin,
+    //            feedback: { overall: '...', questions: { '<qid>': { text, status } } } }
+    // 'status' is the row-level status: 'draft' | 'approved'.
+    // ==========================================
+    if (action === 'save_feedback') {
+      const expectedPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (expectedPin && String(payload.teacherPin || '').trim() !== String(expectedPin)) {
+        throw new Error('Teacher PIN required to save feedback.');
+      }
+      const fbPin = String(payload.pin || '').trim().toUpperCase();
+      const fbTask = String(payload.task || '').trim();
+      if (!fbPin || !fbTask) throw new Error('Feedback requires pin and task.');
+      const saved = upsertFeedback(ss, {
+        pin: fbPin,
+        name: String(payload.name || '').trim(),
+        section: String(payload.section || '').trim(),
+        task: fbTask,
+        status: (payload.status === 'approved') ? 'approved' : 'draft',
+        feedback: payload.feedback || { overall: '', questions: {} },
+        updated: new Date()
+      });
+      return successJSON({ status: 'feedback_saved', key: fbPin + '||' + fbTask, row: saved, version: CONFIG_VERSION });
     }
 
     // ==========================================
@@ -1118,6 +1158,72 @@ function clearClassSlide(ss, section) {
       return;
     }
   }
+}
+
+/**
+ * Feedback tab — teacher comments per student + assignment (drafts -> approved).
+ * One row per (PIN + task). Column F holds the per-question feedback JSON.
+ * A Section | B PIN | C Name | D Task | E Status | F Feedback (JSON) | G Updated
+ */
+function getFeedbackSheet(ss) {
+  let sheet = ss.getSheetByName('Feedback');
+  if (!sheet) {
+    sheet = ss.insertSheet('Feedback');
+    sheet.appendRow(['Section', 'PIN', 'Name', 'Task', 'Status', 'Feedback (JSON)', 'Updated']);
+    sheet.getRange('A1:G1').setFontWeight('bold').setBackground('#f1f5f9');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(4, 260);
+    sheet.setColumnWidth(6, 420);
+  }
+  return sheet;
+}
+
+function readFeedback(ss) {
+  const out = {};
+  const sheet = ss.getSheetByName('Feedback');
+  if (!sheet || sheet.getLastRow() <= 1) return out;
+  const rows = sheet.getRange(1, 1, sheet.getLastRow(), 7).getValues();
+  for (let i = 1; i < rows.length; i++) {
+    const pin = String(rows[i][1] || '').trim().toUpperCase();
+    const task = String(rows[i][3] || '').trim();
+    if (!pin || !task) continue;
+    let fb = { overall: '', questions: {} };
+    try { fb = JSON.parse(rows[i][5] || '{}') || fb; } catch (e) { fb = { overall: '', questions: {} }; }
+    out[pin + '||' + task] = {
+      section: String(rows[i][0] || ''),
+      pin: pin,
+      name: String(rows[i][2] || ''),
+      task: task,
+      status: String(rows[i][4] || 'draft'),
+      feedback: fb,
+      updated: toIsoStamp(rows[i][6])
+    };
+  }
+  return out;
+}
+
+function upsertFeedback(ss, entry) {
+  const sheet = getFeedbackSheet(ss);
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    const keys = sheet.getRange(2, 2, lastRow - 1, 3).getValues(); // B pin, C name, D task
+    for (let r = 0; r < keys.length; r++) {
+      if (String(keys[r][0]).trim().toUpperCase() === entry.pin &&
+          String(keys[r][2]).trim() === entry.task) {
+        const row = r + 2;
+        sheet.getRange(row, 1, 1, 7).setValues([[
+          entry.section, entry.pin, entry.name, entry.task,
+          entry.status, JSON.stringify(entry.feedback), entry.updated
+        ]]);
+        return { row: row, updated: true };
+      }
+    }
+  }
+  sheet.appendRow([
+    entry.section, entry.pin, entry.name, entry.task,
+    entry.status, JSON.stringify(entry.feedback), entry.updated
+  ]);
+  return { row: sheet.getLastRow(), updated: false };
 }
 
 /**
