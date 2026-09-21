@@ -943,7 +943,11 @@ const StudentAPI = {
 
     async getClassProgress(className = 'ALL', courseKey = 'HL8') {
         const url = this.getScriptUrl(courseKey);
-        const getUrl = `${url}?action=get_class_progress&className=${encodeURIComponent(className)}`;
+        // slim=1: GAS (once GAS_PATCH_slim_progress.md is applied) returns a
+        // few-KB payload instead of full savedData blobs; deployments without
+        // the patch ignore the param and return the full shape, which the
+        // calling page normalizes either way.
+        const getUrl = `${url}?action=get_class_progress&className=${encodeURIComponent(className)}&slim=1`;
 
         // GAS cold-starts after deploy can run 15-20s. Without a timeout the
         // browser fetch hangs and the page silently shows "no data". Use an

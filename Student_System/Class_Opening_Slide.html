@@ -521,6 +521,15 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     margin-bottom: 2px;
 }
 .prog-head-row h2 { margin: 0; font-size: 1.3rem; }
+.prog-fresh {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-left: 8px;
+    vertical-align: middle;
+}
+.prog-fresh.stale { color: #b45309; font-weight: 700; }
 .prog-task-badge {
     font-family: var(--font-mono);
     font-size: 0.82rem;
@@ -792,7 +801,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         </section>
         <section class="panel progress" id="progressPanel" style="display:none;">
             <div class="prog-head-row">
-                <h2>Task Progress</h2>
+                <h2>Task Progress <span class="prog-fresh" id="progFresh"></span></h2>
                 <div style="display:flex;align-items:center;gap:6px;">
                     <select id="progTaskSelect" class="prog-task-select" title="Choose which assignment to report"></select>
                     <button class="tool-btn" id="progExpandBtn" style="padding:2px 8px;font-size:0.75rem;" title="Expand full roster matrix (p)">⛶</button>
@@ -1486,7 +1495,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const inCourse = s => {
             const names = [s.task];
             if (s.assignments) names.push(...Object.keys(s.assignments));
-            if (s.savedData && s.savedData._tasks) names.push(...Object.keys(s.savedData._tasks));
+            if (s._t) names.push(...Object.keys(s._t));
             return names.some(t => t && courseAligned(t, course));
         };
         const records = [];
@@ -1495,10 +1504,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             let text = '';
             if (s.task === taskName) text = s.summary || '';
             if (!text && s.assignments && s.assignments[taskName]) text = s.assignments[taskName];
-            if (!text && s.savedData && s.savedData._tasks && s.savedData._tasks[taskName]) {
-                const t = s.savedData._tasks[taskName];
-                text = (t && (t.summary || (t.data && t.data.summary))) || '';
-            }
+            if (!text && s._t && s._t[taskName]) text = s._t[taskName].summary;
             let done = 0, total = 0;
             const m = text.match(/(\d+)\s*\/\s*(\d+)/);
             if (m) { done = parseInt(m[1], 10); total = parseInt(m[2], 10); }
@@ -1506,10 +1512,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
             records.push({
                 name: displayName,
-                partner: (s.savedData && s.savedData.partner) || '',
+                partner: s.partner || '',
                 done: done, total: total,
                 pct: total > 0 ? Math.round((done / total) * 100) : 0,
-                started: !!text
+                started: hasWritten(s, taskName)
             });
         });
         records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
@@ -1547,8 +1553,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                     if (s.assignments[t]) candidates.add(t.trim());
                 });
             }
-            if (s.savedData && s.savedData._tasks && typeof s.savedData._tasks === 'object') {
-                Object.keys(s.savedData._tasks).forEach(t => {
+            if (s._t) {
+                Object.keys(s._t).forEach(t => {
                     candidates.add(t.trim());
                 });
             }
@@ -1582,9 +1588,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (!text && s.assignments && s.assignments[activeTask]) {
                 text = s.assignments[activeTask];
             }
-            if (!text && s.savedData && s.savedData._tasks && s.savedData._tasks[activeTask]) {
-                const tObj = s.savedData._tasks[activeTask];
-                text = (tObj && (tObj.summary || (tObj.data && tObj.data.summary))) || '';
+            if (!text && s._t && s._t[activeTask]) {
+                text = s._t[activeTask].summary;
             }
 
             let done = 0, total = 24, hasData = false;
@@ -1593,7 +1598,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 done = parseInt(m[1], 10);
                 total = parseInt(m[2], 10);
                 hasData = true;
-            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask]) || (s.savedData && s.savedData._tasks && s.savedData._tasks[activeTask])) {
+            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask]) || (s._t && s._t[activeTask])) {
                 hasData = true;
             }
 
@@ -1601,8 +1606,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 totalDone += done;
                 totalItems += total;
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-                let partner = '';
-                if (s.savedData && s.savedData.partner) partner = s.savedData.partner;
+                let partner = s.partner || '';
                 let displayName = s.name || '';
                 if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
                 records.push({
@@ -1632,6 +1636,62 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         };
     }
 
+    // Normalize a ledger row to a canonical shape so the parsers work unchanged
+    // with both the full GAS payload (savedData._tasks) and the slim one
+    // (tasks:{name:{summary,written}} — see GAS_PATCH_slim_progress.md).
+    function normalizeStudent(s) {
+        const saved = s.savedData || {};
+        if (s.partner === undefined) s.partner = saved.partner || '';
+        const legacy = saved._tasks || {};
+        const slim = s.tasks || {};
+        const names = {};
+        Object.keys(legacy).forEach(k => names[k] = 1);
+        Object.keys(slim).forEach(k => names[k] = 1);
+        s._t = {};
+        Object.keys(names).forEach(k => {
+            const l = legacy[k] || {};
+            const v = slim[k] || {};
+            const d = l.data || {};
+            const sum = String(l.summary || v.summary || d.summary || '');
+            let written = !!sum.trim() || !!(v && v.written);
+            if (!written) {
+                for (const k2 in d) {
+                    const val = d[k2];
+                    if (typeof val === 'string' && val.trim()) { written = true; break; }
+                    if (val && typeof val === 'object' &&
+                        Object.keys(val).some(k3 => String(val[k3]).trim())) { written = true; break; }
+                }
+            }
+            s._t[k] = { summary: sum, written: written };
+        });
+        return s;
+    }
+
+    const progFresh = {};   // hr → Date.now() of the last successful ledger fetch
+    let progRetryTimer = null;
+    function freshLabel(sec) {
+        const t = progFresh[homeroomOf(sec)];
+        if (!t) return { text: 'ledger · stale', stale: true };
+        const s = Math.round((Date.now() - t) / 1000);
+        if (s < 90) return { text: 'ledger · just now', stale: false };
+        const m = Math.round(s / 60);
+        return { text: 'ledger · ' + m + ' min ago', stale: m >= 10 };
+    }
+    function updateFreshMarker() {
+        const el = document.getElementById('progFresh');
+        if (!el || !current) return;
+        const f = freshLabel(current);
+        el.textContent = f.text;
+        el.classList.toggle('stale', f.stale);
+    }
+    function scheduleProgressRetry(sec) {
+        if (progRetryTimer) return; // one catch-up retry in flight at a time
+        progRetryTimer = setTimeout(() => {
+            progRetryTimer = null;
+            loadProgressFor(sec, true).then(p => { if (p) renderProgress(sec); });
+        }, 45000);
+    }
+
     async function loadProgressFor(sec, force = false) {
         const hr = homeroomOf(sec);
         const course = (MEET[sec] && MEET[sec].course) || 'HL9';
@@ -1642,13 +1702,20 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (window.StudentAPI && StudentAPI.getClassProgress) {
                 const data = await StudentAPI.getClassProgress(hr, course);
                 if (data && data.status === 'success' && Array.isArray(data.students)) {
+                    data.students.forEach(normalizeStudent);
                     rawStudentsByHr[hr] = data.students;
+                    progFresh[hr] = Date.now();
                     classProgressCache[hr] = parseProgressFor(sec, data.students);
+                    updateFreshMarker();
                     return classProgressCache[hr];
                 }
             }
+            progFresh[hr] = 0;
+            scheduleProgressRetry(sec);
         } catch (e) {
             console.warn('Progress load failed:', e);
+            progFresh[hr] = 0;
+            scheduleProgressRetry(sec);
         }
         return null;
     }
@@ -1690,7 +1757,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         (rawStudentsByHr[hr] || []).forEach(s => {
             if (s.task) add(s.task);
             if (s.assignments) Object.keys(s.assignments).forEach(add);
-            if (s.savedData && s.savedData._tasks) Object.keys(s.savedData._tasks).forEach(add);
+            if (s._t) Object.keys(s._t).forEach(add);
         });
         return opts;
     }
@@ -1702,19 +1769,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (s.task === taskName && (s.summary || '').trim()) return true;
         const a = (s.assignments || {})[taskName];
         if (a && String(a).trim()) return true;
-        const t = ((s.savedData || {})._tasks || {})[taskName];
-        if (t) {
-            const sum = (t.summary || '') || ((t.data || {}).summary || '');
-            if (String(sum).trim()) return true;
-            const d = t.data || {};
-            for (const k in d) {
-                const v = d[k];
-                if (typeof v === 'string' && v.trim()) return true;
-                if (v && typeof v === 'object' &&
-                    Object.keys(v).some(k2 => String(v[k2]).trim())) return true;
-            }
-        }
-        return false;
+        const t = (s._t || {})[taskName];
+        return !!(t && (t.written || t.summary.trim()));
     }
     function missingWritersFor(sec, taskName) {
         const roster = window.MASTER_ROSTER_DATA;
@@ -1749,6 +1805,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         panel.style.display = 'flex';
         contentEl.classList.add('has-progress');
         populateTaskSelect(sec);
+        updateFreshMarker();
 
         document.getElementById('progStatsStrip').innerHTML =
             `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Active'}</span>` +
