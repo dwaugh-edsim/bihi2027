@@ -504,10 +504,11 @@
                 <label>Lead Designer (Your Name):</label>
                 <input type="text" id="metaAuditors" placeholder="Click 'Login' above or type your name" oninput="handleInput()">
             </div>
-            <div class="meta-field">
-                <label>Co-Designer (Partner Name / PIN):</label>
-                <input type="text" id="metaPartner" placeholder="e.g. Taylor B. (TAB)" oninput="handleInput()">
-            </div>
+                <div class="meta-field">
+                    <label>Co-Designer (Partner PIN — pairs your two dossiers):</label>
+                    <input type="text" id="metaPartner" placeholder="e.g. TAB" maxlength="3" style="text-transform:uppercase; font-family:'JetBrains Mono',monospace; font-weight:700; letter-spacing:0.08em;" oninput="onPartnerInput()">
+                    <div id="partnerStatus" style="font-size:0.68rem; margin-top:2px; color:#64748b; font-weight:600;">Pick a role above, then type your partner's 3-letter PIN.</div>
+                </div>
             <div class="meta-field">
                 <label>Class:</label>
                 <select id="metaSection" onchange="onClassChange(); handleInput();"></select>
@@ -520,14 +521,14 @@
 
         <!-- TEAM DELEGATION STRIP -->
         <div class="team-delegation-strip" style="background:#eff6ff; border:1.5px solid #3b82f6; border-radius:6px; padding:10px 14px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-            <div style="font-size:0.84rem; font-weight:700; color:#1e40af; display:flex; align-items:center; gap:6px;">
-                <span>👥 Team Section Focus:</span>
-                <span style="font-size:0.75rem; font-weight:500; color:#3b82f6;">(Working on your own Chromebook? Choose your half of the dossier)</span>
+            <div style="font-size:0.84rem; font-weight:700; color:#1e40af; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span>👥 Team Dossier — split the work, and it assembles itself:</span>
+                <span style="font-size:0.75rem; font-weight:500; color:#3b82f6;">Two Chromebooks? Pick your half + pair PINs below — your partner's answers appear on your page automatically. One Chromebook? Stay Solo and take turns.</span>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button type="button" class="btn btn-outline" id="roleBtnAll" style="padding:4px 10px; font-size:0.75rem; background:#2563eb; color:#fff;" onclick="setRoleMode('all')">Solo / Full Project (All Sections)</button>
-                <button type="button" class="btn btn-outline" id="roleBtnA" style="padding:4px 10px; font-size:0.75rem;" onclick="setRoleMode('partnerA')">Partner 1 (Engines 1 & 2 + Pitch)</button>
-                <button type="button" class="btn btn-outline" id="roleBtnB" style="padding:4px 10px; font-size:0.75rem;" onclick="setRoleMode('partnerB')">Partner 2 (Engines 3 & 4 + Reflection)</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-outline" id="roleBtnAll" style="padding:4px 10px; font-size:0.75rem; background:#2563eb; color:#fff;" onclick="setRoleMode('all')">Solo (whole project)</button>
+                <button type="button" class="btn btn-outline" id="roleBtnA" style="padding:4px 10px; font-size:0.75rem;" onclick="setRoleMode('partnerA')">I'm Partner 1 (Step 1 + Engines 1-2 + Pitch)</button>
+                <button type="button" class="btn btn-outline" id="roleBtnB" style="padding:4px 10px; font-size:0.75rem;" onclick="setRoleMode('partnerB')">I'm Partner 2 (Engines 3-4 + Reflection)</button>
             </div>
         </div>
 
@@ -722,7 +723,7 @@
                 {
                     id: 'step1',
                     title: 'Step 1 — Choose Your "Boring" App Victim',
-                    description: 'Every great behavioral design consultant starts with something nobody wants to open. Pick a base app to overhaul — or invent your own snooze-fest.',
+                    description: 'Every great behavioral design consultant starts with something nobody wants to open. Pick a base app to overhaul — or invent your own snooze-fest. 🤝 TEAM CHOICE: Partner 1 types this half — Partner 2 sees it appear on their page automatically.',
                     fields: [
                         { id: 's1_base', type: 'select', label: 'Which boring app are you rebuilding?', full: true, options: [
                             'Puddle Watch — tracks rain puddles in your neighborhood',
@@ -967,11 +968,13 @@
             return {
                 name: resolvedName,
                 auditors: lead,
-                partner: document.getElementById('metaPartner')?.value || '',
+                partner: teamState.pin ? `${teamState.name} (${teamState.pin})` : '',
                 section: document.getElementById('metaSection')?.value || '',
                 className: document.getElementById('metaSection')?.value || '',
                 date: document.getElementById('metaDate')?.value || '',
                 pin: (!pin || pin === '---') ? '' : pin,
+                role: currentRoleMode,
+                teamWith: teamState.pin || '',
                 answers: answers
             };
         }
@@ -986,53 +989,209 @@
             return done;
         }
 
+        // ── Team pairing (split-section, merge-on-read) ──────────
+        // Each partner saves their own half to their own PIN. This page polls
+        // the partner's row and renders their sections READ-ONLY, so the team
+        // dossier assembles itself without either kid touching the same field.
         let currentRoleMode = 'all'; // 'all' | 'partnerA' | 'partnerB'
         const ROLE_SECTIONS = {
-            all: ['step1', 'step2a', 'step2b', 'step2c', 'step2d', 'step3', 'step4', 'step5'],
-            partnerA: ['step1', 'step2a', 'step2b', 'step3'],
-            partnerB: ['step1', 'step2c', 'step2d', 'step4', 'step5']
+            all:      ['step1', 'step2a', 'step2b', 'step2c', 'step2d', 'step3', 'step4', 'step5'],
+            partnerA: ['step1', 'step2a', 'step2b', 'step3'],   // Step 1 = the team choice; Partner 1 owns it
+            partnerB: ['step2c', 'step2d', 'step4', 'step5']
         };
+        let teamState = { pin: '', name: '', role: '', lastSync: 0, data: null, timer: null };
+        let partnerDebounce = null;
 
-        function setRoleMode(mode) {
+        (function injectMirrorStyles() {
+            const st = document.createElement('style');
+            st.textContent = `
+                .partner-mirror { background:#f8fafc; border:1.5px dashed #94a3b8; border-radius:6px; padding:10px 12px; font-size:0.85rem; margin-bottom:8px; }
+                .pm-head { font-weight:700; color:#1e40af; margin-bottom:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+                .pm-refresh { border:none; background:#eff6ff; color:#1d4ed8; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:0.8rem; }
+                .pm-empty { color:#64748b; font-style:italic; }
+                .pm-row { display:flex; gap:8px; padding:3px 0; border-bottom:1px dotted #e2e8f0; }
+                .pm-row:last-child { border-bottom:none; }
+                .pm-label { flex:0 0 42%; font-weight:600; color:#334155; }
+                .pm-val { flex:1; color:#0f172a; white-space:pre-wrap; word-break:break-word; }
+            `;
+            document.head.appendChild(st);
+        })();
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function setRoleMode(mode, opts = {}) {
             currentRoleMode = mode;
             ['all', 'partnerA', 'partnerB'].forEach(m => {
                 const btn = document.getElementById(m === 'all' ? 'roleBtnAll' : (m === 'partnerA' ? 'roleBtnA' : 'roleBtnB'));
                 if (btn) {
-                    if (m === mode) {
-                        btn.style.background = '#2563eb';
-                        btn.style.color = '#ffffff';
-                    } else {
-                        btn.style.background = '#ffffff';
-                        btn.style.color = '#000000';
-                    }
+                    btn.style.background = (m === mode) ? '#2563eb' : '#ffffff';
+                    btn.style.color = (m === mode) ? '#ffffff' : '#000000';
                 }
             });
 
             ASSIGNMENT.sections.forEach(sec => {
                 const card = document.getElementById(`section_${sec.id}`);
                 if (!card) return;
-                const isAssigned = ROLE_SECTIONS[mode].includes(sec.id);
-                let badge = card.querySelector('.delegate-badge');
+                const grid = card.querySelector('.fields-grid');
+                let mirror = card.querySelector('.partner-mirror');
+                const badge = card.querySelector('.delegate-badge');
+                const isMine = ROLE_SECTIONS[mode].includes(sec.id);
 
-                if (mode === 'all' || isAssigned) {
+                if (isMine) {
                     card.style.opacity = '1';
                     card.style.border = '2px solid #000000';
                     if (badge) badge.remove();
+                    if (grid) grid.style.display = '';
+                    if (mirror) mirror.style.display = 'none';
                 } else {
-                    card.style.opacity = '0.55';
+                    // Partner-owned section: keep it READABLE — their answers
+                    // render here instead of a dead input form.
+                    card.style.opacity = '1';
                     card.style.border = '2px dashed #94a3b8';
-                    if (!badge) {
-                        badge = document.createElement('div');
-                        badge.className = 'delegate-badge';
-                        badge.style.cssText = 'background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:700; padding:4px 8px; border-radius:4px; margin-bottom:8px; display:inline-block; border:1px solid #fde68a;';
-                        badge.innerText = '🤝 Delegated to Partner (Optional on this Chromebook)';
+                    if (badge) badge.remove();
+                    if (!mirror) {
+                        mirror = document.createElement('div');
+                        mirror.className = 'partner-mirror';
                         const h2 = card.querySelector('h2');
-                        if (h2) h2.insertAdjacentElement('afterend', badge);
+                        if (h2) h2.insertAdjacentElement('afterend', mirror);
                     }
+                    if (grid) grid.style.display = 'none';
+                    mirror.style.display = 'block';
                 }
             });
 
-            showToast(mode === 'all' ? 'Full project view active' : (mode === 'partnerA' ? 'Focused on Partner 1 Sections (Engines 1 & 2 + Pitch)' : 'Focused on Partner 2 Sections (Engines 3 & 4 + Reflection)'));
+            renderPartnerMirror();
+            if (!opts.silent) {
+                showToast(mode === 'all' ? 'Solo mode: the whole dossier is yours to fill.'
+                    : (mode === 'partnerA' ? 'Partner 1: your half is editable — pair PINs below and your partner\u2019s half appears here.'
+                    : 'Partner 2: your half is editable — pair PINs below and your partner\u2019s half appears here.'));
+                handleInput(); // persist the role choice (no-op while logged out)
+            }
+        }
+
+        function onPartnerInput() {
+            const el = document.getElementById('metaPartner');
+            const raw = (el.value || '').trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+            el.value = raw;
+            if (partnerDebounce) clearTimeout(partnerDebounce);
+            partnerDebounce = setTimeout(() => validatePartner(raw), 700);
+        }
+
+        async function validatePartner(pin) {
+            stopPartnerPolling();
+            teamState = { pin: '', name: '', role: '', lastSync: 0, data: null, timer: null };
+            const statusEl = document.getElementById('partnerStatus');
+            if (!statusEl) return;
+            if (!pin) {
+                statusEl.textContent = 'Pick a role above, then type your partner\u2019s 3-letter PIN.';
+                statusEl.style.color = '#64748b';
+                handleInput();
+                return;
+            }
+            const myPin = (document.getElementById('authStudentPin')?.innerText || '').trim().toUpperCase();
+            if (myPin && myPin !== '---' && pin === myPin) {
+                statusEl.textContent = '\u26a0\ufe0f That\u2019s YOUR PIN — enter your partner\u2019s.';
+                statusEl.style.color = '#b45309';
+                return;
+            }
+            if (!/^[A-Z]{3}$/.test(pin)) {
+                statusEl.textContent = '\u26a0\ufe0f PINs are exactly 3 letters.';
+                statusEl.style.color = '#b45309';
+                return;
+            }
+            statusEl.textContent = '\u23f3 Looking up that PIN\u2026';
+            statusEl.style.color = '#64748b';
+            let name = '';
+            try {
+                if (window.StudentAPI) {
+                    const r = await StudentAPI.resolveStudentRemote(pin);
+                    if (r && r.ok && r.valid) {
+                        name = [r.firstName, r.lastInitial].filter(Boolean).join(' ');
+                    } else if (r && r.ok && !r.valid) {
+                        statusEl.textContent = `\u274c PIN "${pin}" is not on the official class list.`;
+                        statusEl.style.color = '#b91c1c';
+                        return;
+                    }
+                }
+            } catch (e) { /* offline — pair by PIN alone */ }
+            if (DEMO_PINS.includes(pin)) name = 'Demo Partner';
+            teamState.pin = pin;
+            teamState.name = name || pin;
+            statusEl.textContent = `\u2705 Paired with ${teamState.name} (${pin}) — syncing their half\u2026`;
+            statusEl.style.color = '#15803d';
+            handleInput(); // persist teamWith
+            await syncPartnerNow();
+            startPartnerPolling();
+        }
+
+        function startPartnerPolling() {
+            stopPartnerPolling();
+            teamState.timer = setInterval(() => syncPartnerNow(true), 60000);
+        }
+
+        function stopPartnerPolling() {
+            if (teamState.timer) { clearInterval(teamState.timer); teamState.timer = null; }
+        }
+
+        async function syncPartnerNow(silent = false) {
+            if (!teamState.pin) return;
+            try {
+                const url = StudentAPI.getScriptUrl(ASSIGNMENT.course);
+                const cls = encodeURIComponent(document.getElementById('metaSection')?.value || ASSIGNMENT.defaultClass);
+                const res = await fetch(`${url}?action=login&className=${cls}&pin=${encodeURIComponent(teamState.pin)}&name=${encodeURIComponent(teamState.name)}&cb=${Date.now()}`, { cache: 'no-store' });
+                const json = await res.json();
+                if (json && json.status === 'success') {
+                    teamState.data = json.savedData || {};
+                    teamState.lastSync = Date.now();
+                    updatePartnerStatus();
+                    renderPartnerMirror();
+                }
+            } catch (e) {
+                if (!silent) showToast('\u26a0\ufe0f Couldn\u2019t reach the cloud for your partner\u2019s half — will retry.', true);
+            }
+        }
+
+        function updatePartnerStatus() {
+            const statusEl = document.getElementById('partnerStatus');
+            if (!statusEl || !teamState.pin) return;
+            const theirRole = (teamState.data && teamState.data.role) || 'all';
+            if (theirRole === currentRoleMode && theirRole !== 'all') {
+                const label = theirRole === 'partnerA' ? 'Partner 1' : 'Partner 2';
+                statusEl.textContent = `\u26a0\ufe0f Paired with ${teamState.name} (${teamState.pin}) — but you\u2019re BOTH set as ${label}. One of you should switch!`;
+                statusEl.style.color = '#b45309';
+            } else {
+                statusEl.textContent = `\u2705 Paired with ${teamState.name} (${teamState.pin})`;
+                statusEl.style.color = '#15803d';
+            }
+        }
+
+        function renderPartnerMirror() {
+            ASSIGNMENT.sections.forEach(sec => {
+                const card = document.getElementById(`section_${sec.id}`);
+                if (!card) return;
+                const mirror = card.querySelector('.partner-mirror');
+                if (!mirror || mirror.style.display === 'none') return;
+                if (ROLE_SECTIONS[currentRoleMode].includes(sec.id)) return;
+                if (!(teamState.pin && teamState.data)) {
+                    mirror.innerHTML = '<div class="pm-empty">\ud83e\udd1d Pair with your partner\u2019s PIN (top of the page) — their answers for this section will appear here automatically.</div>';
+                    return;
+                }
+                const answers = (teamState.data && (teamState.data.answers || teamState.data)) || {};
+                const synced = teamState.lastSync ? Math.max(0, Math.round((Date.now() - teamState.lastSync) / 1000)) : null;
+                const head = `<div class="pm-head">\ud83e\udd1d <strong>${escapeHtml(teamState.name)}</strong>\u2019s answers` +
+                    (synced !== null ? ` \u00b7 synced ${synced}s ago` : '') +
+                    ` <button type="button" class="pm-refresh" onclick="syncPartnerNow()">\ud83d\udd04 refresh</button></div>`;
+                const rows = sec.fields.map(f => {
+                    const v = answers[f.id];
+                    const shown = Array.isArray(v) ? (v.length ? v.join(', ') : '\u2014') : (v && String(v).trim() !== '' ? v : '\u2014');
+                    return `<div class="pm-row"><span class="pm-label">${escapeHtml(f.label.replace(/:$/, ''))}</span><span class="pm-val">${escapeHtml(shown)}</span></div>`;
+                }).join('');
+                mirror.innerHTML = head + rows;
+            });
         }
 
         function updateProgress(data) {
@@ -1052,8 +1211,18 @@
         function restoreFormData(data) {
             if (!data) return;
             if (data.auditors && document.getElementById('metaAuditors')) document.getElementById('metaAuditors').value = data.auditors;
-            if (data.partner && document.getElementById('metaPartner')) document.getElementById('metaPartner').value = data.partner;
+            // Pairing restores from the structured PIN (teamWith), not the old
+            // free-text partner field. Re-pair only when it actually changed.
+            if (data.teamWith) {
+                const pEl = document.getElementById('metaPartner');
+                const pPin = String(data.teamWith).toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+                if (pEl && pEl.value !== pPin) {
+                    pEl.value = pPin;
+                    validatePartner(pPin);
+                }
+            }
             if (data.date && document.getElementById('metaDate')) document.getElementById('metaDate').value = data.date;
+            if (data.role && ROLE_SECTIONS[data.role]) setRoleMode(data.role, { silent: true });
             // NOTE: the class (metaSection) is owned by the login — the server
             // roster resolves it from the PIN — so restored data never changes it.
             let answers = data.answers || data;   // tolerate flat legacy payloads
@@ -1246,6 +1415,14 @@
                 }
             }
             clearFormData();
+            stopPartnerPolling();
+            teamState = { pin: '', name: '', role: '', lastSync: 0, data: null, timer: null };
+            const psEl = document.getElementById('partnerStatus');
+            if (psEl) {
+                psEl.textContent = 'Pick a role above, then type your partner\u2019s 3-letter PIN.';
+                psEl.style.color = '#64748b';
+            }
+            setRoleMode('all', { silent: true });
             Session.clear();
             sessionStorage.removeItem(`gas_${SLUG}_pin`);
             sessionStorage.removeItem(`gas_${SLUG}_name`);
@@ -1557,6 +1734,11 @@
 
         function copyForGoogleDocs() {
             const data = collectData();
+            // Team assembly: in a partner role, pull the partner's synced half
+            // into the export so the copied document is the WHOLE dossier.
+            const paired = currentRoleMode !== 'all' && teamState.pin && teamState.data;
+            const partnerAnswers = paired ? ((teamState.data && (teamState.data.answers || teamState.data)) || {}) : null;
+            const partnerLabel = teamState.name ? `${teamState.name} (${teamState.pin})` : (teamState.pin || '');
             let md = `# ${ASSIGNMENT.title}\n`;
             md += `**Lead Designer:** ${data.auditors || 'Not entered'}  \n`;
             if (data.partner) md += `**Co-Designer:** ${data.partner}  \n`;
@@ -1564,9 +1746,18 @@
             md += `**Date:** ${data.date || new Date().toLocaleDateString()}  \n\n`;
 
             for (const sec of ASSIGNMENT.sections) {
-                md += `## ${sec.title}\n\n`;
+                const mine = ROLE_SECTIONS[currentRoleMode].includes(sec.id);
+                const src = mine ? data.answers : partnerAnswers;
+                if (mine || currentRoleMode === 'all') {
+                    md += `## ${sec.title}\n\n`;
+                } else if (!src) {
+                    md += `## ${sec.title}\n\n_(Partner's half — it saves to their PIN; pair PINs on your page to include it here)_\n\n`;
+                    continue;
+                } else {
+                    md += `## ${sec.title} _(by ${partnerLabel})_\n\n`;
+                }
                 for (const f of sec.fields) {
-                    const v = data.answers[f.id];
+                    const v = src[f.id];
                     const shown = Array.isArray(v) ? (v.length ? v.join(', ') : '—') : (v && String(v).trim() !== '' ? v : '—');
                     md += `- **${f.label.replace(/:$/, '')}:** ${shown}\n`;
                 }

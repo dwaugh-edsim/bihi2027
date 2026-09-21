@@ -278,3 +278,31 @@ Standing server item (unchanged): `get_roster_meta` → `loaded:false`. Push
 until then pages validate kid PINs via the public-roster fallback (which
 still carries PINs).
 
+---
+
+## Addendum 4 (Tier 2 pairing built + tested on Op Addictive)
+
+`24_HL9_Class2_Operation_Addictive_By_Design.html` now does real
+two-Chromebook pair work — split-section, merge-on-read, **no GAS changes**
+(role/teamWith live in each kid's savedData; partner reads use the existing
+`login` action):
+
+- Role buttons are honest now: Solo (whole project) / I'm Partner 1 (Step 1 +
+  Engines 1-2 + Pitch) / I'm Partner 2 (Engines 3-4 + Reflection). Step 1 is
+  the TEAM CHOICE and Partner 1 owns it, so the two halves can't disagree.
+- Co-Designer is now a PIN field: pairing validates the PIN (server roster /
+  client fallback), rejects self/invalid, and shows a status chip.
+- Once paired, the partner's sections render READ-ONLY on your page
+  ("🤝 <Name>'s answers · synced Xs ago 🔄"), refreshed by a 60s poll +
+  manual refresh button. Neither kid can type into the other's fields.
+- Role + teamWith persist in savedData; survive reload/re-login. Both-same-role
+  conflicts are flagged in the status chip.
+- 📋 Copy for Docs assembles the WHOLE team dossier: your half + partner's
+  synced half (tagged "by <name>").
+- Two-tab live test (TST as Partner 1 ↔ WAU as Partner 2, DEMO tab): pairing,
+  both-direction mirrors, team export, and reload-restore all PASS; server
+  rows confirmed carrying `role` + `teamWith`.
+
+Follow-up ideas (not built): HL9 dashboard grouping by teamWith; extending
+pairing to the Sleep Clinic (it also says "work in pairs").
+
