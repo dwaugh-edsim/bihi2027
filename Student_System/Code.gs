@@ -29,8 +29,8 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.1-2026-09-20';
-var CONFIG_DEPLOY_DATE = '2026-09-20T20:00:00Z';
+var CONFIG_VERSION = 'V6.1.1-2026-09-21';
+var CONFIG_DEPLOY_DATE = '2026-09-21T12:55:00Z';
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
 var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
@@ -894,7 +894,7 @@ function doPost(e) {
       let existingData = {};
       if (rowIndex !== -1) {
         // Re-read ONLY the JSON data cell under lock to prevent any multi-device / rapid-save stale read
-        var existingCellValue = targetSheet.getRange(rowIndex, 7).getValue() || '';
+        var existingCellValue = sheet.getRange(rowIndex, 7).getValue() || '';
         if (existingCellValue) {
           try {
             existingData = JSON.parse(existingCellValue);
