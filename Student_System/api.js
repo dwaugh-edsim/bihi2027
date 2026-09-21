@@ -202,16 +202,9 @@ const StudentAPI = {
         }
 
         if (!student) {
-            // Check global roster
+            // Check global roster — auto-resolve homeroom if student selected wrong class in dropdown
             const globalMatch = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
             if (globalMatch) {
-                // If the student is in a different homeroom, block cross-class confusion with a clear explanation
-                if (cleanClass && String(globalMatch.homeroom || '').trim() !== cleanClass) {
-                    return {
-                        valid: false,
-                        message: `❌ Class Mismatch: PIN "${pin}" belongs to ${globalMatch.first_name} ${globalMatch.last_name.charAt(0)}. in Class ${globalMatch.homeroom}, not Class ${cleanClass}.\n\nPlease check your 3-letter PIN slip for Class ${cleanClass}.`
-                    };
-                }
                 student = globalMatch;
             }
         }
@@ -260,7 +253,7 @@ const StudentAPI = {
             valid: true, 
             student: student, 
             name: student.first_name, 
-            pin: student.pin,
+            pin: student.pin, 
             className: student.homeroom || className
         };
     },
@@ -279,27 +272,38 @@ const StudentAPI = {
         const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
 
         const url = this.getScriptUrl(courseKey);
-        try {
-            const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
-            const res = await fetch(getUrl);
-            const data = await res.json();
-            if (data.status === 'success') {
-                if (data.version) this.validateServerVersion(data.version);
-                Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
+        let lastError = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
+                const res = await fetch(getUrl);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    if (data.version) this.validateServerVersion(data.version);
+                    Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
+                    return data;
+                } else if (data.status === 'error') {
+                    return data;
+                }
+            } catch (e) {
+                lastError = e;
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 600 * attempt));
+                }
             }
-            return data;
-        } catch (e) {
-            console.warn("GAS Cloud Fetch failed (Offline / network issue):", e);
-            Session.set(effectiveClass, auth.name || firstName, pin);
-            return { 
-                status: 'offline', 
-                isOffline: true, 
-                name: auth.name || firstName, 
-                className: effectiveClass,
-                message: 'Could not connect to Google Sheets. Using local browser memory.',
-                savedData: {} 
-            };
         }
+
+        console.warn("GAS Cloud Fetch failed after retries (Offline / network issue):", lastError);
+        Session.set(effectiveClass, auth.name || firstName, pin);
+        return { 
+            status: 'offline', 
+            isOffline: true, 
+            error: true,
+            name: auth.name || firstName, 
+            className: effectiveClass, 
+            message: 'Could not connect to Google Sheets. Server busy or network hiccup.',
+            savedData: null 
+        };
     },
 
     // ==========================================

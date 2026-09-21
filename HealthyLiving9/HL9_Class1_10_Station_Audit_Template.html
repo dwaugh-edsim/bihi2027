@@ -1963,9 +1963,11 @@
         // ==========================================
         // CLOUD SYNC & RESTORATION
         // ==========================================
+        let cloudFetchFailed = false;
         async function loadCloudWorkForStudent(cls, pin, name) {
-            showToast(`Loading saved work for ${name} (${pin})...`);
-            updateSyncPill('saving', 'Loading');
+            showToast(`Loading clinical record for ${name} (${pin})...`);
+            updateSyncPill('saving');
+            cloudFetchFailed = false;
 
             const key = getDraftStorageKey(pin);
             const localDraft = key ? localStorage.getItem(key) : null;
@@ -1979,25 +1981,37 @@
 
             try {
                 const res = await StudentAPI.login(cls, name, pin, 'HL9');
+                if (!res || res.status === 'offline' || res.error || !res.savedData) {
+                    cloudFetchFailed = true;
+                    updateSyncPill('error', 'Cloud busy / offline');
+                    showToast(`⚠️ Cloud busy or network hiccup for ${name}. Click "Switch Student / Login" to retry.`, true);
+                    return;
+                }
+
                 if (res && res.savedData) {
                     let d = res.savedData;
                     if (typeof d === 'string') {
                         try { d = JSON.parse(d); } catch (e) {}
                     }
-                    if (d && d.data) {
-                        try {
-                            d = (typeof d.data === 'string') ? JSON.parse(d.data) : d.data;
-                        } catch (e) { }
-                    }
-                    // Task-specific extraction: check _tasks[TASK_NAME] FIRST to isolate assignments
+                    // Task-specific extraction: check _tasks FIRST to isolate assignments
                     let targetData = null;
                     let tObj = null;
-                    if (d && d._tasks && d._tasks[TASK_NAME]) {
-                        tObj = d._tasks[TASK_NAME];
-                        targetData = tObj.data || tObj;
+                    let rawTasks = d && d._tasks;
+                    if (typeof rawTasks === 'string') {
+                        try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                    }
+                    if (rawTasks && typeof rawTasks === 'object') {
+                        tObj = rawTasks[TASK_NAME] ||
+                               Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('sleep clinic') || k.toLowerCase().includes('10-station'))?.[1];
+                        if (tObj) {
+                            targetData = tObj.data || tObj;
+                        }
                     }
                     if (!targetData) {
                         targetData = d;
+                    }
+                    if (typeof targetData === 'string') {
+                        try { targetData = JSON.parse(targetData); } catch (e) {}
                     }
 
                     if (targetData && (targetData.stations || targetData.auditors)) {
@@ -2038,6 +2052,7 @@
                 }
             } catch (e) {
                 console.warn("GAS fetch error:", e);
+                cloudFetchFailed = true;
                 updateSyncPill('error');
                 showToast(`Loaded local draft for ${name}.`);
             }
@@ -2055,6 +2070,13 @@
 
             const data = collectData();
             const completedCount = countCompletedStations(data);
+
+            // Guard against blank overwrite if cloud fetch failed
+            if (!isManualClick && cloudFetchFailed && completedCount === 0) {
+                console.warn('[submitClinicalAudit] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
+
             updateSyncPill('saving');
 
             const summaryText = `HL9 10-Station Sleep Audit | Lead: ${data.auditors || data.name} | Section: ${data.section} | Stations: ${completedCount}/10`;

@@ -969,8 +969,15 @@
         function setChips(fieldId, values) {
             const wrap = document.querySelector(`.tag-buttons[data-field="${fieldId}"]`);
             if (!wrap || !values) return;
+            let arr = values;
+            if (typeof arr === 'string') {
+                try { arr = JSON.parse(arr); } catch (e) { arr = arr.split(',').map(s => s.trim()); }
+            }
+            if (!Array.isArray(arr)) arr = [arr];
+            const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
+            const normArr = arr.map(norm);
             wrap.querySelectorAll('.tag-btn').forEach(btn => {
-                btn.classList.toggle('active', values.includes(btn.textContent.trim()));
+                btn.classList.toggle('active', normArr.includes(norm(btn.textContent)));
             });
         }
 
@@ -1081,13 +1088,17 @@
             if (data.partner && document.getElementById('metaPartner')) document.getElementById('metaPartner').value = data.partner;
             if (data.date && document.getElementById('metaDate')) document.getElementById('metaDate').value = data.date;
             if ((data.section || data.className) && document.getElementById('metaSection')) {
-                const clsVal = String(data.section || data.className).replace('HL', '').replace('CIT', '').trim();
+                const clsVal = String(data.section || data.className).replace(/[^0-9]/g, '').trim();
                 const sel = document.getElementById('metaSection');
                 for (const opt of sel.options) {
                     if (opt.value === clsVal) { sel.value = clsVal; break; }
                 }
             }
-            const answers = data.answers || data;   // tolerate flat legacy payloads
+            let answers = data.answers || data;   // tolerate flat legacy payloads
+            if (typeof answers === 'string') {
+                try { answers = JSON.parse(answers); } catch (e) {}
+            }
+            const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
             for (const f of ALL_FIELDS) {
                 const v = answers[f.id];
                 if (v === undefined || v === null) continue;
@@ -1095,7 +1106,23 @@
                     setChips(f.id, v);
                 } else {
                     const el = document.getElementById(`f_${f.id}`);
-                    if (el) el.value = v;
+                    if (el) {
+                        if (el.tagName === 'SELECT') {
+                            el.value = v;
+                            if (el.value !== v && v) {
+                                // Dash / encoding tolerant matching for select dropdowns
+                                const vNorm = norm(v);
+                                for (const opt of el.options) {
+                                    if (norm(opt.value) === vNorm || (vNorm.length > 5 && norm(opt.value).startsWith(vNorm.slice(0, 15)))) {
+                                        el.value = opt.value;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            el.value = v;
+                        }
+                    }
                 }
             }
             updateProgress(collectData());
@@ -1279,7 +1306,7 @@
         async function performLogin() {
             const name = document.getElementById('loginNameInput').value.trim();
             const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
-            const cls = document.getElementById('loginClassSelect').value;
+            let cls = document.getElementById('loginClassSelect').value;
 
             const auth = StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
@@ -1287,6 +1314,11 @@
                 return;
             }
             const student = auth.student || { first_name: auth.name, pin: auth.pin, homeroom: cls };
+            if (student.homeroom) {
+                cls = String(student.homeroom);
+                const sel = document.getElementById('loginClassSelect');
+                if (sel) sel.value = cls;
+            }
 
             // ATOMIC IDENTITY CHANGE: flush outgoing student work -> clear form -> adopt new student
             if (isIdentityChange(student)) {
@@ -1369,9 +1401,11 @@
         }
 
         // ── Cloud sync ───────────────────────────────────────────
+        let cloudFetchFailed = false;
         async function loadCloudWorkForStudent(cls, pin, name) {
             showToast(`Loading saved work for ${name} (${pin})...`);
             updateSyncPill('saving', 'Loading');
+            cloudFetchFailed = false;
 
             const key = draftKey(pin);
             const localDraft = key ? localStorage.getItem(key) : null;
@@ -1385,25 +1419,40 @@
 
             try {
                 const res = await StudentAPI.login(cls, name, pin, ASSIGNMENT.course);
+                if (!res || res.status === 'offline' || res.error || !res.savedData) {
+                    cloudFetchFailed = true;
+                    updateSyncPill('error', 'Cloud busy / offline');
+                    showToast(`⚠️ Cloud busy or network hiccup for ${name}. Click "Switch Student / Login" to retry.`, true);
+                    return;
+                }
+
                 if (res && res.savedData) {
                     let d = res.savedData;
                     if (typeof d === 'string') {
                         try { d = JSON.parse(d); } catch (e) { }
                     }
-                    if (d && d.data) {
-                        try {
-                            d = (typeof d.data === 'string') ? JSON.parse(d.data) : d.data;
-                        } catch (e) { }
-                    }
-                    // Task-specific extraction: check _tasks[ASSIGNMENT.taskName] FIRST to isolate assignments
+                    // Task-specific extraction: check _tasks FIRST
                     let targetData = null;
                     let tObj = null;
-                    if (d && d._tasks && d._tasks[ASSIGNMENT.taskName]) {
-                        tObj = d._tasks[ASSIGNMENT.taskName];
-                        targetData = tObj.data || tObj;
+                    let rawTasks = d && d._tasks;
+                    if (typeof rawTasks === 'string') {
+                        try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                    }
+                    if (rawTasks && typeof rawTasks === 'object') {
+                        tObj = rawTasks[ASSIGNMENT.taskName] || 
+                               Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('addictive by design'))?.[1];
+                        if (tObj) {
+                            targetData = tObj.data || tObj;
+                        }
                     }
                     if (!targetData) {
                         targetData = d;
+                    }
+                    if (typeof targetData === 'string') {
+                        try { targetData = JSON.parse(targetData); } catch (e) {}
+                    }
+                    if (targetData && typeof targetData.answers === 'string') {
+                        try { targetData.answers = JSON.parse(targetData.answers); } catch (e) {}
                     }
 
                     if (targetData && (targetData.answers || targetData.auditors)) {
@@ -1443,6 +1492,7 @@
                 }
             } catch (e) {
                 console.warn('GAS fetch error:', e);
+                cloudFetchFailed = true;
                 updateSyncPill('error');
                 showToast(`Loaded local draft for ${name}.`);
             }
@@ -1460,6 +1510,13 @@
 
             const data = collectData();
             const done = countCompleted(data);
+
+            // Guard against blank overwrite if cloud fetch failed
+            if (!isManualClick && cloudFetchFailed && done === 0) {
+                console.warn('[submitWork] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
+
             updateSyncPill('saving');
 
             const summaryText = `${ASSIGNMENT.taskName} | Lead: ${data.auditors || data.name} | Class: ${data.section} | Completed: ${done}/${TOTAL_FIELDS}`;
