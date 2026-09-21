@@ -136,16 +136,27 @@ if (targetData && (targetData.answers || targetData.auditors)) {
 
 ---
 
-### Fix 3: Smart Local Draft Scanner (Legacy / Anonymous Draft Adoption)
+### Fix 3: Intra-Session Draft Recovery vs. Cross-Session Reality
 
-**Problem:** If a student typed before logging in, or if an assignment was started prior to the mandatory PIN gate, the browser stored it under `gas_draft_${SLUG}_draft` or an unauthenticated key.
+> [!IMPORTANT]
+> **Clarification on Chromebook Storage:**
+> Because school Chromebooks wipe all local storage upon logout/reboot, **`localStorage` is strictly an INTRA-SESSION safety net** (protecting against accidental tab closes, page refreshes, or Wi-Fi hiccups during the *same class period*). It CANNOT recover work from a previous day or after a student logs out of the Chromebook.
+>
+> **The Google Sheet is the ONLY persistent cross-day datastore.**
 
-**Implementation in `loadCloudWorkForStudent`:**
+**Why the Local Draft Scanner Exists:**
+During a single class period, a student might:
+1. Refresh the browser tab.
+2. Accidentally switch tabs or have Chrome crash mid-class.
+3. Log in with their PIN after already starting to type (if an assignment had an unauthenticated window).
+
+The scanner ensures that *while the Chromebook session is still active*, any in-memory/browser-cached draft keys (`gas_draft_${SLUG}_${pin}` or `gas_draft_${SLUG}_draft`) are salvaged and pushed immediately to Google Sheets before the student logs out:
+
 ```javascript
 const key = draftKey(pin);
 
-// SMART LOCAL DRAFT RECOVERY:
-// Check student PIN draft, anonymous legacy draft, and any local key matching this assignment
+// INTRA-SESSION SALVAGE (active session only):
+// Check student PIN draft, anonymous in-session draft, or any local key matching this assignment
 const candidateKeys = [key, `gas_draft_${SLUG}_draft`];
 for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
@@ -171,6 +182,7 @@ candidateKeys.forEach(k => {
     } catch (e) { }
 });
 
+// If salvaged within this active session, populate form and push to cloud immediately
 if (localObj && bestLocalCount > 0) {
     restoreFormData(localObj);
 }
@@ -237,7 +249,7 @@ When migrating an assignment to this resilient standard, verify each of the foll
 
 - [ ] **1. Mandatory Login Gate:** Form has `<fieldset id="workFieldset" disabled>` and `#loginGateBanner`. Typing is impossible before PIN verification.
 - [ ] **2. Roster Cross-Class Resolution:** Uses `StudentAPI.validateStudent(cls, name, pin)` which automatically falls back across all homerooms if a student selected the wrong class dropdown.
-- [ ] **3. Smart Draft Scanner:** Scans candidate keys in `localStorage` including `gas_draft_${SLUG}_draft`.
+- [ ] **3. Intra-Session Draft Salvage:** Scans candidate keys in `localStorage` to rescue in-session work if a tab crashes or refreshes during class.
 - [ ] **4. Real Work Trumps Blank Cloud:** `localCount > 0 && cloudCount === 0` restores local and syncs to cloud immediately.
 - [ ] **5. Cloud Hiccup Guard:** `cloudFetchFailed && done === 0` aborts autosaves to protect the student's cloud ledger.
 - [ ] **6. Dropdown Tolerant Matching:** `norm()` replaces en-dashes/em-dashes so restored select menus don't wipe.
