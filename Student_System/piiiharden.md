@@ -98,30 +98,75 @@ Known specifics:
 - `HL8_Class_Progress_LCD_Dashboard.html`: pin compares are internal; hunt for
   pin text renders.
 
-### Pool B — ZCode (coupled cluster + gated steps)
+### Pool B — Antigravity (re-key cluster; ZCode surveyed every site, follow exactly)
 
-- [ ] Re-key the pin-keyed public snapshots to names-only:
-      `Student_System/cit9_dashboard_data.js` (176 pin keys),
-      `Student_System/where_dashboard_data.js` (58),
-      `Student_System/places_brainstorm_data.js` (78) — top-level keys ARE the
-      PINs. Plan: re-key by `"first_name last_name"`, update the 3 consumer
-      dashboards to join server rows by **name** (server rows carry names) with
-      pin fallback until the final strip.
-- [ ] `Student_System/WHERE_Grade9_Progress_Dashboard.html` (consumer of
-      where/places snapshots; roster.find-by-pin at ~1219 → name-first join)
-- [ ] `Student_System/CIT9_Current_Issues_Progress_Dashboard.html` (cit9
-      snapshot consumer; also `student_id` tail displays ~1134, ~1356 → replace
-      with class)
-- [ ] `Places_Of_Significance_Studio.html` brainstorm join if re-key affects it
-- [ ] Code.gs: add server-side name enrichment to `get_class_progress` /
-      `get_feedback` responses if dashboards still need pin→name after re-key
+The three public snapshot files are keyed BY PIN (pin list + names = bulk
+exposure). Re-key them by NAME and add name-key fallbacks at the consumer
+sites. Do NOT touch the runtime-write sites (they keep pin keys in memory —
+that's fine, runtime maps are not public files).
+
+**Transform the 3 data files** (keep ALL entry content except: drop each
+entry's `pin` field if present; drop `email` field if present; new keys):
+- `Student_System/cit9_dashboard_data.js` — TWO globals:
+  `ROOM8_HL9_INITIAL_DATA` (~12 entries) AND `ROOM8_CIT9_INITIAL_DATA` (rest).
+  New key: `FIRST + ' ' + LAST_INITIAL`, uppercased, derived from the entry's
+  `name` (else `student_name`) field. Example: name "Zana Shala" -> key
+  `"ZANA S."`. Keep JSON pretty-printed; keep the trailing
+  `window.ROOM8_CIT9_INITIAL_DATA = ...` second global.
+- `Student_System/where_dashboard_data.js` — same rule (`name` field).
+- `Student_System/places_brainstorm_data.js` — new key: LOWERCASE FIRST NAME
+  from `matched_name` (else keep `raw_name`), e.g. `"kossy"`. This matches the
+  existing consumer fallbacks; no consumer edit needed for this file.
+
+**Consumer edits** (add a helper once per file, right above first use):
+```js
+function piiNameKey(r) {
+    const nm = (r && (r.name || r.student_name || r.first_name)) || '';
+    const parts = String(nm).trim().split(/\s+/);
+    const first = parts[0] || '';
+    const lastI = (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '');
+    return (first + (lastI ? ' ' + lastI : '')).toUpperCase();
+}
+```
+- `Student_System/CIT9_Current_Issues_Progress_Dashboard.html`:
+  - line ~928 `let sub = cachedSubmissions[pin];` ->
+    `let sub = cachedSubmissions[pin] || cachedSubmissions[piiNameKey(s)] || null;`
+    (confirm the loop variable that holds the server row; it has
+    first_name/last_name or name).
+  - lines ~1134-1135 and ~1356: remove the `student_id` tail/ID displays —
+    show `Class ${student.homeroom}` instead (student_id no longer exists).
+  - DO NOT touch lines 884, 892, 1221 (runtime cache assembly/writes).
+- `Student_System/WHERE_Grade9_Progress_Dashboard.html`:
+  - line ~831 `let cloudData = window._LIVE_CLOUD_DATA[pin] || null;` ->
+    add `|| window._LIVE_CLOUD_DATA[piiNameKey(<studentRow>)] || null`.
+  - line ~1219 `const student = roster.find(s => s.pin === pin);` ->
+    keep it, then add a name-based second attempt:
+    `if (!student) student = roster.find(s => piiNameKey(s) === piiNameKey(rowVar));`
+    (roster rows have first_name/last_name; rowVar = the progress row in scope).
+  - DO NOT touch lines 781, 820, 836, 964, 996 (runtime/localStorage/console).
+- `Student_System/Places_Of_Significance_Studio.html` (both copies): NO edit
+  needed — brainstorm fallback already tries `bData[first_name.toLowerCase()]`.
+
+**Verify after** (must all pass):
+```bash
+grep -c '"pin"' Student_System/cit9_dashboard_data.js Student_System/where_dashboard_data.js Student_System/places_brainstorm_data.js   # want 0 0 0
+grep -n "piiNameKey" Student_System/CIT9_Current_Issues_Progress_Dashboard.html Student_System/WHERE_Grade9_Progress_Dashboard.html      # helper present at both
+```
+Then open both dashboards (live Pages or file://) and confirm student cards
+still render names/statuses from the seeds. Commit only these 5 files with
+prefix `[pii-harden]`, then log below.
+
+### Pool C — ZCode (gated on teacher / review)
+
+- [ ] Review + merge-check Antigravity's Pool A/B commits
 - [ ] TEACHER HAND-OFF: paste Code.gs V6.3.0 into Apps Script editor, set
       `CLASS_LOG_PIN` Script Property, redeploy, push roster
       (`Private_Student_Data/roster_gas_payload.json` via `set_roster` curl —
       verify with `get_roster_meta`)
 - [ ] FINAL STRIP (only after GAS V6.3.0 is live + roster pushed):
       `python tools/roster_privacy.py --emit --drop-pin`; patch the two local
-      pin tools to rely on their embedded rosters; final leak-lint; push.
+      pin tools (student_pins_printable.html, teacher_pin_kiosk.html) to rely
+      on their embedded rosters; final leak-lint; push.
 
 ## 5. Git protocol (same tree — follow exactly)
 
@@ -160,3 +205,4 @@ rule. When unsure: leave it out and write the question in the log.
 | 2026-09-21 ~19:05 | ZCode | CLAIM Pool B (snapshots + WHERE/CIT9 progress + Places join + Code.gs enrichment + hand-off + final strip) | in progress |
 | 2026-09-21 ~19:05 | ZCode | OFFER Pool A to Antigravity | unclaimed |
 | 2026-09-21 ~19:40 | ZCode | template x2 | FIXED: an over-greedy splice had deleted performLogin (commit d61bc85) — restored with server-first await; all pages re-verified for login entry points. Antigravity: if you pulled d61bc85, pull again. |
+| 2026-09-21 ~20:10 | ZCode | Pool B reassigned to Antigravity with full spec (snapshot re-key + consumer edits); Pool C stays ZCode |
