@@ -1603,18 +1603,22 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     }
 
     async function toggleProgress(open) {
-        document.getElementById('progOverlay').classList.toggle('open', open);
-        if (open) {
-            renderProgressModal();
-            const hr = homeroomOf(current);
-            if (!classProgressCache[hr]) {
-                const sub = document.getElementById('progModalSub');
-                if (sub) sub.textContent = 'Fetching live progress from Google Sheets…';
-                await loadProgressFor(current, true);
-                renderProgress(current);
-                renderProgressModal();
-            }
+        if (!open) {
+            document.getElementById('progOverlay').classList.toggle('open', false);
+            return;
         }
+        // Don't paint "no data" before the fetch resolves — that frame is what
+        // made the slide look broken even when the ledger actually had data.
+        const sub = document.getElementById('progModalSub');
+        if (sub) sub.textContent = 'Fetching live progress from Google Sheets…';
+        document.getElementById('progOverlay').classList.toggle('open', true);
+
+        const hr = homeroomOf(current);
+        if (!classProgressCache[hr]) {
+            await loadProgressFor(current, true);
+        }
+        renderProgress(current);
+        renderProgressModal();
     }
 
     document.getElementById('progBtn').addEventListener('click', () => toggleProgress(true));

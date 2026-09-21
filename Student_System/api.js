@@ -814,13 +814,34 @@ const StudentAPI = {
 
     async getClassProgress(className = 'ALL', courseKey = 'HL8') {
         const url = this.getScriptUrl(courseKey);
+        const getUrl = `${url}?action=get_class_progress&className=${encodeURIComponent(className)}`;
+
+        // GAS cold-starts after deploy can run 15-20s. Without a timeout the
+        // browser fetch hangs and the page silently shows "no data". Use an
+        // AbortController at 25s and one automatic retry.
+        const fetchOnce = async () => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 25000);
+            try {
+                const res = await fetch(getUrl, { signal: controller.signal, cache: 'no-store' });
+                return await res.json();
+            } finally {
+                clearTimeout(timer);
+            }
+        };
+
         try {
-            const getUrl = `${url}?action=get_class_progress&className=${encodeURIComponent(className)}`;
-            const res = await fetch(getUrl);
-            const data = await res.json();
-            return data;
+            return await fetchOnce();
         } catch (err) {
-            console.warn("Bulk class progress fetch failed:", err);
+            if (err && err.name === 'AbortError') {
+                try {
+                    return await fetchOnce(); // one retry for the cold-start case
+                } catch (e2) {
+                    console.warn('Bulk class progress fetch timed out twice:', e2);
+                    return { status: 'error', error: 'timeout' };
+                }
+            }
+            console.warn('Bulk class progress fetch failed:', err);
             return { status: 'error', error: err.toString() };
         }
     },
