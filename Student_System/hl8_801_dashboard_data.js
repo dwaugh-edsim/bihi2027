@@ -1,10 +1,8 @@
-// Room 8 - Class 801 Live Survey Data
+// Room 8 - Class 801 Live Survey Data (names-only public snapshot; PINs live server-side)
 window.CLASS_801_DATA = [
   {
-    "pin": "RUC",
     "first_name": "Ruby",
     "last_name": "Cook",
-    "username": "ruby.ruc",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -20,10 +18,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "TAD",
     "first_name": "Talia",
     "last_name": "David",
-    "username": "talia.tad",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -39,10 +35,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "ASD",
     "first_name": "Jason",
     "last_name": "Desveaux",
-    "username": "jason.asd",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "djm568510@gnspes.ca",
@@ -65,10 +59,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "MAD",
     "first_name": "Mae'ijah",
     "last_name": "Downey",
-    "username": "mae'ijah.mad",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -84,10 +76,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "STE",
     "first_name": "Steven",
     "last_name": "Elejorde",
-    "username": "steven.ste",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "esa474784@gnspes.ca",
@@ -108,15 +98,13 @@ window.CLASS_801_DATA = [
       "Substance Literacy, Harms, Refusal & Brain Growth (HL7 Outcome 6)": "Deep"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83e\uddea Hands-On Movement & Workshops"
+      "👥 Small-Group Problem Solving",
+      "🧪 Hands-On Movement & Workshops"
     ]
   },
   {
-    "pin": "ZEG",
     "first_name": "Zephyr",
     "last_name": "Gallagher",
-    "username": "zephyr.zeg",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "gzr464702@gnspes.ca",
@@ -139,10 +127,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SAH",
     "first_name": "Samuel",
     "last_name": "Hendricks Apud",
-    "username": "samuel.sah",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "hs986332@gnspes.ca",
@@ -165,10 +151,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "KEK",
     "first_name": "Kenzie",
     "last_name": "King",
-    "username": "kenzie.kek",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "kkm480567@gnspes.ca",
@@ -191,10 +175,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "AYE",
     "first_name": "Jayden",
     "last_name": "Lee",
-    "username": "jayden.aye",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "ly602789@gnspes.ca",
@@ -217,10 +199,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "AER",
     "first_name": "Jaela",
     "last_name": "Lorenz-Ashley",
-    "username": "jaela.aer",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "lajr483421@gnspes.ca",
@@ -243,10 +223,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "TRU",
     "first_name": "Trey",
     "last_name": "Lucas",
-    "username": "trey.tru",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "lta504571@gnspes.ca",
@@ -267,15 +245,13 @@ window.CLASS_801_DATA = [
       "Substance Literacy, Harms, Refusal & Brain Growth (HL7 Outcome 6)": "Deep"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "🎬 Video Breakdowns & Visual Media"
     ]
   },
   {
-    "pin": "RUM",
     "first_name": "Ruby",
     "last_name": "MacKay",
-    "username": "ruby.rum",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -291,10 +267,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SAM",
     "first_name": "Samuel",
     "last_name": "MacLellan",
-    "username": "samuel.sam",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "mst467507@gnspes.ca",
@@ -317,10 +291,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "MAM",
     "first_name": "Marieke",
     "last_name": "Mans",
-    "username": "marieke.mam",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "mm474560@gnspes.ca",
@@ -343,10 +315,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "ANM",
     "first_name": "Ainslie",
     "last_name": "Mercer",
-    "username": "ainslie.anm",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "maj476011@gnspes.ca",
@@ -367,17 +337,15 @@ window.CLASS_801_DATA = [
       "Substance Literacy, Harms, Refusal & Brain Growth (HL7 Outcome 6)": "Never"
     },
     "formats": [
-      "\ud83c\udfaf Interactive Case Studies & Scenarios",
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83d\udce5 Anonymous Question Box & Real Talk",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "🎯 Interactive Case Studies & Scenarios",
+      "👥 Small-Group Problem Solving",
+      "📥 Anonymous Question Box & Real Talk",
+      "🎬 Video Breakdowns & Visual Media"
     ]
   },
   {
-    "pin": "UEM",
     "first_name": "Juliet",
     "last_name": "Miller",
-    "username": "juliet.uem",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "mjb488909@gnspes.ca",
@@ -400,10 +368,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SME",
     "first_name": "Samuel",
     "last_name": "Miller",
-    "username": "samuel.sme",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -419,10 +385,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SHB",
     "first_name": "Shaviah",
     "last_name": "O'Brien",
-    "username": "shaviah.shb",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -438,10 +402,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "ARA",
     "first_name": "Alex",
     "last_name": "Ramazanov",
-    "username": "alex.ara",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -457,10 +419,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SAS",
     "first_name": "Samuel",
     "last_name": "Santos",
-    "username": "samuel.sas",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "sss770362@gnspes.ca",
@@ -483,10 +443,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "SYS",
     "first_name": "Sydney",
     "last_name": "Sawyer-Patterson",
-    "username": "sydney.sys",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "spsjm474222@gnspes.ca",
@@ -509,10 +467,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "NAS",
     "first_name": "Fiona",
     "last_name": "Schandall",
-    "username": "fiona.nas",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -528,10 +484,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "NES",
     "first_name": "Nehemiah",
     "last_name": "Skeete",
-    "username": "nehemiah.nes",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -547,10 +501,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "NKS",
     "first_name": "Nikolas",
     "last_name": "Stulac",
-    "username": "nikolas.nks",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "sna464744@gnspes.ca",
@@ -571,15 +523,13 @@ window.CLASS_801_DATA = [
       "Substance Literacy, Harms, Refusal & Brain Growth (HL7 Outcome 6)": "Over-Covered"
     },
     "formats": [
-      "\ud83d\udc65 Small-Group Problem Solving",
-      "\ud83c\udfac Video Breakdowns & Visual Media"
+      "👥 Small-Group Problem Solving",
+      "🎬 Video Breakdowns & Visual Media"
     ]
   },
   {
-    "pin": "AMT",
     "first_name": "James",
     "last_name": "Taiani",
-    "username": "james.amt",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "tjp461492@gnspes.ca",
@@ -602,10 +552,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "UAT",
     "first_name": "Julia",
     "last_name": "Tylak",
-    "username": "julia.uat",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -621,10 +569,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "MAV",
     "first_name": "Martin",
     "last_name": "Vanslyke",
-    "username": "martin.mav",
     "has_submitted": false,
     "task": "Active / Logged In",
     "email": "",
@@ -640,10 +586,8 @@ window.CLASS_801_DATA = [
     "formats": []
   },
   {
-    "pin": "AEW",
     "first_name": "Alex",
     "last_name": "Warby",
-    "username": "alex.aew",
     "has_submitted": true,
     "task": "Healthy Living 8: Grade 7 Learning Audit",
     "email": "wa718206@gnspes.ca",

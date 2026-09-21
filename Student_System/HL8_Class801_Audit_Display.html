@@ -1207,6 +1207,7 @@
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
         let studentsData = window.CLASS_801_DATA || [];
+        studentsData.forEach((s, i) => { s._i = i; });
         let isPolling = true;
         let pollTimer = null;
 
@@ -1256,8 +1257,7 @@
 
             let filtered = studentsData.filter(s => {
                 const matchesSearch = s.first_name.toLowerCase().includes(search) ||
-                                      s.last_name.toLowerCase().includes(search) ||
-                                      s.pin.toLowerCase().includes(search);
+                                      s.last_name.toLowerCase().includes(search);
                 if (!matchesSearch) return false;
                 if (filter === 'DONE') return s.has_submitted;
                 if (filter === 'WAIT') return !s.has_submitted;
@@ -1284,14 +1284,13 @@
                         <div class="student-header">
                             <div>
                                 <div class="student-name">${s.first_name} ${s.last_name} ${pronounStr}</div>
-                                <div style="font-size:0.75em; color:var(--text-dim);">${s.email || s.username || 'Class 801'}</div>
+                                <div style="font-size:0.75em; color:var(--text-dim);">${s.email || 'Class 801'}</div>
                             </div>
-                            <span class="student-pin">${s.pin}</span>
                         </div>
                     </div>
                     <div class="student-badge-row">
                         ${statusHtml}
-                        <button class="btn-view" onclick="openDossier('${s.pin}')">👁️ Dossier</button>
+                        <button class="btn-view" onclick="openDossier(${s._i})">👁️ Dossier</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1318,7 +1317,7 @@
 
                 box.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <strong>${s.first_name} ${s.last_name} (${s.pin})</strong>
+                        <strong>${s.first_name} ${s.last_name}</strong>
                         <span style="font-size:0.80em; color:var(--cyan); font-weight:700;">${s.pronouns || 'No pronouns listed'}</span>
                     </div>
                     ${s.phonetic ? `<div style="font-size:0.85em; margin-bottom:4px;"><strong>Phonetic Name:</strong> ${s.phonetic}</div>` : ''}
@@ -1329,8 +1328,8 @@
             });
         }
 
-        function openDossier(pin) {
-            const s = studentsData.find(st => st.pin === pin);
+        function openDossier(idx) {
+            const s = studentsData[idx];
             if (!s) return;
 
             const content = document.getElementById('modalContent');
@@ -1338,9 +1337,8 @@
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
                     <div>
                         <h2 style="font-family:var(--font-display); font-size:1.5em; font-weight:800;">${s.first_name} ${s.last_name}</h2>
-                        <div style="color:var(--text-muted); font-size:0.85em;">Class 801 &bull; GNSPES: ${s.email || s.username || 'Not set'}</div>
+                        <div style="color:var(--text-muted); font-size:0.85em;">Class 801 &bull; GNSPES: ${s.email || 'Not set'}</div>
                     </div>
-                    <span class="student-pin" style="font-size:1.0em; padding:4px 10px;">${s.pin}</span>
                 </div>
 
                 <div class="dossier-row">
@@ -1403,15 +1401,18 @@
             const batch = unsubmitted.slice(0, 6);
             let updatedAny = false;
 
+            const roster = window.MASTER_ROSTER_DATA || [];
             for (const s of batch) {
+                const r = roster.find(r => r.first_name === s.first_name && r.last_name === s.last_name);
+                if (!r || !r.pin) continue;
                 try {
                     const res = await fetch(API_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        headers: { 'Content-Type: text/plain;charset=utf-8' },
                         body: JSON.stringify({
                             action: 'login',
                             className: '801',
-                            pin: s.pin,
+                            pin: r.pin,
                             name: s.first_name
                         })
                     });
