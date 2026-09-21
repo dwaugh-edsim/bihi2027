@@ -1408,13 +1408,36 @@
             cloudFetchFailed = false;
 
             const key = draftKey(pin);
-            const localDraft = key ? localStorage.getItem(key) : null;
+            
+            // SMART LOCAL DRAFT RECOVERY:
+            // Check student PIN draft, anonymous draft from Thursday (gas_draft_..._draft), and any local match
+            const candidateKeys = [key, `gas_draft_${SLUG}_draft`];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith(`gas_draft_${SLUG}_`) && !candidateKeys.includes(k)) {
+                    candidateKeys.push(k);
+                }
+            }
+
             let localObj = null;
-            if (localDraft) {
+            let bestLocalCount = -1;
+
+            candidateKeys.forEach(k => {
+                if (!k) return;
                 try {
-                    localObj = JSON.parse(localDraft);
-                    restoreFormData(localObj);
+                    const raw = localStorage.getItem(k);
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    const cnt = countCompleted(parsed);
+                    if (cnt > bestLocalCount) {
+                        bestLocalCount = cnt;
+                        localObj = parsed;
+                    }
                 } catch (e) { }
+            });
+
+            if (localObj && bestLocalCount > 0) {
+                restoreFormData(localObj);
             }
 
             try {
@@ -1456,12 +1479,26 @@
                     }
 
                     if (targetData && (targetData.answers || targetData.auditors)) {
-                        // NEWER-WINS CONFLICT RESOLUTION
+                        const cloudCount = countCompleted(targetData);
+                        const localCount = countCompleted(localObj);
                         const cloudAt = Date.parse(tObj && tObj.updated) || 0;
                         const localAt = draftSavedAt(localObj);
 
-                        if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(targetData)) {
-                            // Local is genuinely newer: keep it, restore it, and push to cloud
+                        // RULE 1: Real work ALWAYS trumps empty placeholders!
+                        // If local has answers but cloud is empty/blank (e.g. from an empty initial autosave today), local wins!
+                        if (localObj && localCount > 0 && cloudCount === 0) {
+                            restoreFormData(localObj);
+                            if (key) {
+                                localStorage.setItem(key, JSON.stringify({ ...localObj, savedAt: new Date().toISOString() }));
+                            }
+                            showToast(`Restored your saved work from this device, ${name}!`);
+                            updateSyncPill('synced', 'Device draft saved');
+                            submitWork(false); // Push to cloud immediately
+                            return;
+                        }
+
+                        // RULE 2: Local has more completed answers and is newer
+                        if (localObj && localAt > cloudAt + 30000 && localCount > cloudCount) {
                             restoreFormData(localObj);
                             showToast('Restored newer draft saved on this device.');
                             updateSyncPill('synced', 'Local newer');
@@ -1469,23 +1506,26 @@
                             return;
                         }
 
-                        // Cloud newer (or tie): server wins
-                        restoreFormData(targetData);
-                        if (key) {
-                            localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                        // RULE 3: Cloud has equal or more work (or is valid)
+                        if (cloudCount >= localCount || cloudCount > 0) {
+                            restoreFormData(targetData);
+                            if (key) {
+                                localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                            }
+                            const now = new Date();
+                            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            updateSyncPill('synced', timeStr);
+                            const btn = document.getElementById('btnVerifyCert');
+                            if (btn) btn.style.display = 'inline-flex';
+                            showToast(`Restored your cloud work, ${name}!`);
+                            return;
                         }
-                        const now = new Date();
-                        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        updateSyncPill('synced', timeStr);
-                        const btn = document.getElementById('btnVerifyCert');
-                        if (btn) btn.style.display = 'inline-flex';
-                        showToast(`Restored your cloud work, ${name}!`);
-                        return;
                     }
                 }
                 if (localObj && countCompleted(localObj) > 0) {
                     updateSyncPill('synced', 'Draft active');
                     showToast(`Ready! Local draft active for ${name}.`);
+                    submitWork(false); // Save to cloud
                 } else {
                     updateSyncPill('synced', 'Ready');
                     showToast(`Ready for ${name}!`);
