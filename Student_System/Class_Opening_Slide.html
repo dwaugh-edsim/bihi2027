@@ -582,6 +582,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     background: linear-gradient(90deg, #2563eb, #10b981);
     transition: width 0.4s ease;
 }
+.prog-missing {
+    background: var(--amber-bg);
+    border: 1px solid var(--amber-border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+.prog-missing b { color: var(--text-heading); }
 .prog-list-wrap {
     flex: 1;
     min-height: 0;
@@ -792,6 +802,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <div class="prog-class-bar-wrap">
                 <div class="prog-class-bar-fill" id="progClassBarFill" style="width:0%;"></div>
             </div>
+            <div class="prog-missing" id="progMissing" style="display:none;"></div>
             <div class="prog-list-wrap" id="progListWrap"></div>
         </section>
     </div>
@@ -1684,6 +1695,45 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return opts;
     }
 
+    // Roster-vs-ledger diff: names-only roster (matched by PIN) against the
+    // selected task — anyone assigned-worthy of the class with no written
+    // content for it gets called out on the slide.
+    function hasWritten(s, taskName) {
+        if (s.task === taskName && (s.summary || '').trim()) return true;
+        const a = (s.assignments || {})[taskName];
+        if (a && String(a).trim()) return true;
+        const t = ((s.savedData || {})._tasks || {})[taskName];
+        if (t) {
+            const sum = (t.summary || '') || ((t.data || {}).summary || '');
+            if (String(sum).trim()) return true;
+            const d = t.data || {};
+            for (const k in d) {
+                const v = d[k];
+                if (typeof v === 'string' && v.trim()) return true;
+                if (v && typeof v === 'object' &&
+                    Object.keys(v).some(k2 => String(v[k2]).trim())) return true;
+            }
+        }
+        return false;
+    }
+    function missingWritersFor(sec, taskName) {
+        const roster = window.MASTER_ROSTER_DATA;
+        if (!roster || !taskName) return [];
+        const hr = homeroomOf(sec);
+        const students = rawStudentsByHr[hr] || [];
+        const byPin = {};
+        students.forEach(s => { byPin[String(s.pin || '').trim().toUpperCase()] = s; });
+        const out = [];
+        roster.forEach(r => {
+            if (String(r.homeroom) !== hr) return;
+            const x = byPin[String(r.pin || '').trim().toUpperCase()];
+            if (x && hasWritten(x, taskName)) return;
+            const last = (r.last_name || '').trim();
+            out.push(r.first_name + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''));
+        });
+        return out;
+    }
+
     async function renderProgress(sec) {
         const panel = document.getElementById('progressPanel');
         const prog = await loadProgressFor(sec);
@@ -1706,6 +1756,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             `<span class="prog-stat-chip"><b>${prog.finishedCount}/${prog.totalActive}</b> Done</span>`;
 
         document.getElementById('progClassBarFill').style.width = prog.classAvg + '%';
+
+        const miss = missingWritersFor(sec, prog.taskName);
+        const missEl = document.getElementById('progMissing');
+        if (missEl) {
+            if (miss.length) {
+                missEl.style.display = '';
+                missEl.innerHTML = 'Hey <b>' + miss.map(escapeHtml).join(', ') + '</b> — is it working for you?';
+                missEl.title = 'No saves yet for: ' + prog.taskName;
+            } else {
+                missEl.style.display = 'none';
+                missEl.innerHTML = '';
+            }
+        }
 
         document.getElementById('progListWrap').innerHTML = prog.records.map(r => `
             <div class="prog-row${r.started ? '' : ' ns'}">
