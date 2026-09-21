@@ -128,13 +128,24 @@ teacher's point: local storage is a real data layer in all of these tests
   not visible in per-class reads → F3 open.
 - 16:1x — Class routing fix verified via captured POST (`"className":"803"`).
 
-## Open questions / next steps
+## Verdict for tomorrow (803 + 802)
 
-1. F3: unique-marker save + timed re-reads; if reads never update, escalate —
-   it would mean `submit_profile` and `get_class_progress` touch different
-   stores (GAS source needed).
-2. Sweep the class-dropdown removal across the remaining assignment pages.
-3. Verify HL9 Sleep Clinic + HL9 Operation Addictive By Design end-to-end
-   (same method).
-4. Optional UX: "ledger updated X min ago" already shipped on the opening
-   slide; consider the same for assignment pages.
+| Page | Render | Login (no class pick for kids) | Autosave | Server write | Restore |
+|---|---|---|---|---|---|
+| HL8 5-Dimension Systems Audit | ✅ (after F1 fix) | ✅ | ✅ | ✅ accepted | ✅ |
+| HL9 Sleep Clinic 10-Station Audit | ✅ | dropdown still present | ✅ | ✅ | ✅ |
+| HL9 Operation Addictive by Design | ✅ (after F1 fix) | dropdown still present | ✅ | ✅ | ✅ |
+
+**Ready for class**, with one caveat: the opening slide / dashboard progress
+numbers lag real saves by a few minutes because the GAS caches
+`get_class_progress` (F3). Kids' work is never lost — local drafts cover
+failed round-trips, and the per-student read path (`action=login`) is
+instant. Applying the F3 GAS snippet (skip-cache / shorter TTL) closes the gap.
+
+## Left for a future session
+
+1. Dropdown sweep on the remaining pages (HL9 ×3 copies, Cit9 dossier ×2,
+   templates) — mechanical, same pattern as HL8.
+2. GAS: honour `cache=0` / shorten TTL in the `get_class_progress` branch.
+3. Ledger cleanup action in the GAS (no delete exists; TST rows are inert).
+
