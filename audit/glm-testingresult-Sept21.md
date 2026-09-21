@@ -85,6 +85,24 @@ teacher's point: local storage is a real data layer in all of these tests
 
 ## Test log (times ADT / UTC-3)
 
+### HL9 Operation Addictive by Design (`HealthyLiving9/24_HL9_Class2_...`) — PASS
+- 19:5x — Live page loads; **form renders (19+ fields pre-login, 0/24)** —
+  this is the page that would have been blank before tonight's
+  `claimClassSelect` crash guard.
+- Login TST/901 ("AppTest") OK. Filled 3 fields → progress 0/24 → 3/24 ✓.
+- Autosave → verified server-side via `action=login` read: stamp
+  `ZTEST-APP 19:56:47` present ✓.
+- Reload + re-login → restore verified: progress 3/24, stamp field back ✓.
+
+### HL8 localStorage draft layer — PASS
+- `gas_draft_…_systems_audit_TST` in localStorage, `savedAt` updates on every
+  successful save (observed at the exact F3-probe save time). So even when a
+  cloud round-trip fails, the Chromebook holds the latest work per PIN and
+  re-offers it at next login (Restore & Sync banner / silent restore).
+- Note: the draft/cloud restore merges the SAVED `data.section` back into the
+  form's class field — after tonight's fix the login-resolved homeroom wins
+  over it, so cross-class test residue can't misroute new saves.
+
 ### HL9 Sleep Clinic (`HealthyLiving9/HL9_Class1_10_Station_Audit_Template.html`) — PASS
 - 19:4x — Live page loads (TASK_NAME matches ledger: "HL9 Sleep Clinic 10-Station Audit").
 - Login TST/901 OK (demo fallback name "Teacher Demo" — page's name placeholder
