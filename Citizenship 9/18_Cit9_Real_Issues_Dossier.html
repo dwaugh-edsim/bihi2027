@@ -1831,6 +1831,8 @@
         <div style="display: flex; gap: 8px; align-items: center;">
             <button class="btn btn-outline btn-sm" id="btnVerifyCert" style="display: none;"
                 onclick="openVerifyModal()">🛡️ Verify Cloud Record</button>
+            <button class="btn btn-outline btn-sm" id="btnLogout" style="display: none;"
+                onclick="logOut()">🚪 Log Out</button>
             <button class="btn btn-amber btn-sm" id="btnLoginModalBtn" onclick="openLoginModal()">🔑 Switch Student /
                 Login</button>
         </div>
@@ -3044,10 +3046,10 @@
                 <button class="btn btn-outline btn-sm" onclick="closeLoginModal()">✕</button>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div>
+                <div id="loginClassRow" style="display:none;">
                     <label
                         style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">CLASS
-                        SECTION</label>
+                        SECTION (TEACHER DEMO ONLY)</label>
                     <select id="loginClassSelect">
                         <option value="902">Class 902 (Homeroom / Citizenship 9)</option>
                         <option value="901">Class 901 (Citizenship 9)</option>
@@ -3065,7 +3067,7 @@
                         style="font-size: 0.76rem; font-weight: 700; color: var(--ink-dark); display: block; margin-bottom: 4px;">3-LETTER
                         PIN</label>
                     <input type="text" id="loginPinInput" maxlength="3" placeholder="e.g. ABC"
-                        style="font-family: var(--font-mono); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
+                        style="font-family: var(--font-mono); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;" oninput="updateLoginClassRow()">
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                     <span style="font-size: 0.75rem; color: var(--text-dim, #64748b); font-weight: 600;">Forgot your PIN? Ask Mr. Waugh</span>
@@ -3174,7 +3176,7 @@
     <!-- CLIENT JAVASCRIPT: AUTH, AUTOSAVE, NUMBEO CALC, BEACON SYNC             -->
     <!-- ======================================================================= -->
     <script>
-        const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec';
+        const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycby8XaHRRj07UUQ-4NTK7AH4s2qVp3GKe6XRyMA_tGLap52ZUWYg2faJbVhIB7Ea7_VJ/exec';
         const TASK_NAME = 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay';
 
         let autoSaveTimer = null;
@@ -3657,22 +3659,8 @@
             if (!data) return;
 
             if (data.name) document.getElementById('docStudentName').value = data.name;
-            if (data.className) {
-                const sel = document.getElementById('docStudentClass');
-                const v = String(data.className);
-                sel.value = v;
-                if (sel.value !== v && v) {
-                    // Dash / encoding tolerant matching for select dropdowns
-                    const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
-                    const vNorm = norm(v);
-                    for (const opt of sel.options) {
-                        if (norm(opt.value) === vNorm || norm(opt.textContent) === vNorm || (vNorm.length > 5 && norm(opt.value).startsWith(vNorm.slice(0, 15)))) {
-                            sel.value = opt.value;
-                            break;
-                        }
-                    }
-                }
-            }
+            // NOTE: the class (docStudentClass) is owned by the login — the
+            // roster resolves it from the PIN — so restored data never changes it.
             if (data.date) document.getElementById('docDate').value = data.date;
             if (data.signature) document.getElementById('docSignature').value = data.signature;
 
@@ -3942,10 +3930,13 @@
             sessionStorage.setItem('bh_pin', student.pin);
             sessionStorage.setItem('bh_name', student.first_name);
             sessionStorage.setItem('bh_class', student.homeroom || '902');
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) btnLogout.style.display = 'inline-flex';
         }
 
         function openLoginModal() {
             document.getElementById('loginModal').style.display = 'flex';
+            updateLoginClassRow();
             setTimeout(() => document.getElementById('loginNameInput')?.focus(), 50);
         }
 
@@ -4052,10 +4043,46 @@
         }
 
 
+        async function logOut() {
+            const pin = (document.getElementById('authStudentPin')?.innerText || '').trim().toUpperCase();
+            if (pin && pin !== '---') {
+                // Commit any work still inside the autosave window before the
+                // session goes away — cloud write first, THEN tear down.
+                await dispatchCloudSync(false);
+            }
+            clearFormData();
+            sessionStorage.removeItem('bh_pin');
+            sessionStorage.removeItem('bh_name');
+            sessionStorage.removeItem('bh_class');
+
+            document.getElementById('authStudentName').innerText = 'Not Logged In';
+            document.getElementById('authStudentPin').innerText = '---';
+            document.getElementById('authStudentClass').innerText = 'Class 902';
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) btnLogout.style.display = 'none';
+            const gate = document.getElementById('workFieldset');
+            if (gate) gate.disabled = true;
+            const banner = document.getElementById('loginGateBanner');
+            if (banner) banner.style.display = 'flex';
+            const resetBtn = document.getElementById('btnResetDossier');
+            if (resetBtn) resetBtn.disabled = true;
+
+            showToast('Logged out. Your work is saved to the cloud — log in with your PIN to get it back.');
+        }
+
+        // The class dropdown is for TEACHER DEMO PINS only. Real students are
+        // resolved by their PIN alone — the server roster knows their homeroom.
+        const DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
+        function updateLoginClassRow() {
+            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
+            document.getElementById('loginClassRow').style.display =
+                DEMO_PINS.includes(pin) ? '' : 'none';
+        }
+
         async function performLogin() {
             const name = document.getElementById('loginNameInput').value.trim();
             const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
-            const cls = document.getElementById('loginClassSelect').value;
+            const cls = DEMO_PINS.includes(pin) ? document.getElementById('loginClassSelect').value : '';
 
             // 1. PIN is strictly required
             if (!pin) {
@@ -4076,6 +4103,15 @@
                 }
                 updateAuthDisplay(teacherObj);
                 closeLoginModal();
+
+                // Unlock the fieldset gate for demo sessions too (same as real logins).
+                const demoGate = document.getElementById('workFieldset');
+                if (demoGate) demoGate.disabled = false;
+                const demoBanner = document.getElementById('loginGateBanner');
+                if (demoBanner) demoBanner.style.display = 'none';
+                const demoReset = document.getElementById('btnResetDossier');
+                if (demoReset) demoReset.disabled = false;
+
                 loadCloudWorkForStudent(cls, pin, teacherObj.first_name);
                 return;
             }
