@@ -1414,14 +1414,26 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (!students || !students.length) return null;
         const taskCounts = {};
         students.forEach(s => {
-            if (s.task && s.task.trim()) {
-                taskCounts[s.task] = (taskCounts[s.task] || 0) + 1;
-            }
+            const candidates = new Set();
+            if (s.task && s.task.trim()) candidates.add(s.task.trim());
             if (s.assignments && typeof s.assignments === 'object') {
                 Object.keys(s.assignments).forEach(t => {
-                    if (s.assignments[t]) taskCounts[t] = (taskCounts[t] || 0) + 1;
+                    if (s.assignments[t]) candidates.add(t.trim());
                 });
             }
+            if (s.savedData && s.savedData._tasks && typeof s.savedData._tasks === 'object') {
+                Object.keys(s.savedData._tasks).forEach(t => {
+                    candidates.add(t.trim());
+                });
+            }
+
+            candidates.forEach(c => {
+                const cLower = c.toLowerCase();
+                const isAligned = (course === 'CIT9' && (cLower.includes('cit') || cLower.includes('citizenship') || cLower.includes('rent') || cLower.includes('where'))) ||
+                                  ((course === 'HL9' || course === 'HL8') && (cLower.includes('hl') || cLower.includes('addictive') || cLower.includes('sleep') || cLower.includes('dimension')));
+                const weight = isAligned ? 10 : 1;
+                taskCounts[c] = (taskCounts[c] || 0) + weight;
+            });
         });
 
         let activeTask = '';
@@ -1444,6 +1456,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (!text && s.assignments && s.assignments[activeTask]) {
                 text = s.assignments[activeTask];
             }
+            if (!text && s.savedData && s.savedData._tasks && s.savedData._tasks[activeTask]) {
+                const tObj = s.savedData._tasks[activeTask];
+                text = (tObj && (tObj.summary || (tObj.data && tObj.data.summary))) || '';
+            }
 
             let done = 0, total = 24, hasData = false;
             const m = (text + ' ' + (s.summary || '')).match(/(\d+)\s*\/\s*(\d+)/);
@@ -1451,7 +1467,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 done = parseInt(m[1], 10);
                 total = parseInt(m[2], 10);
                 hasData = true;
-            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask])) {
+            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask]) || (s.savedData && s.savedData._tasks && s.savedData._tasks[activeTask])) {
                 hasData = true;
             }
 
@@ -1492,7 +1508,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     async function loadProgressFor(sec, force = false) {
         const hr = homeroomOf(sec);
         const course = (MEET[sec] && MEET[sec].course) || 'HL9';
-        if (!force && classProgressCache[hr] !== undefined) {
+        if (!force && classProgressCache[hr]) {
             return classProgressCache[hr];
         }
         try {
@@ -1506,7 +1522,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         } catch (e) {
             console.warn('Progress load failed:', e);
         }
-        classProgressCache[hr] = null;
         return null;
     }
 
@@ -1587,9 +1602,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         `).join('');
     }
 
-    function toggleProgress(open) {
+    async function toggleProgress(open) {
         document.getElementById('progOverlay').classList.toggle('open', open);
-        if (open) renderProgressModal();
+        if (open) {
+            renderProgressModal();
+            const hr = homeroomOf(current);
+            if (!classProgressCache[hr]) {
+                const sub = document.getElementById('progModalSub');
+                if (sub) sub.textContent = 'Fetching live progress from Google Sheets…';
+                await loadProgressFor(current, true);
+                renderProgress(current);
+                renderProgressModal();
+            }
+        }
     }
 
     document.getElementById('progBtn').addEventListener('click', () => toggleProgress(true));
