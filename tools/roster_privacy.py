@@ -37,9 +37,10 @@ def load_roster():
     with io.open(ROSTER_JS, encoding="utf-8") as f:
         src = f.read()
     prefix = "window.MASTER_ROSTER_DATA = "
-    if not src.startswith(prefix):
+    idx = src.find(prefix)
+    if idx == -1:
         sys.exit("unexpected roster JS header: %r" % src[:60])
-    return json.loads(src[len(prefix):].strip().rstrip(";").strip())
+    return json.loads(src[idx + len(prefix):].strip().rstrip(";").strip())
 
 
 def public_record(rec, drop_pin):

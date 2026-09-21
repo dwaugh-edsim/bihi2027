@@ -67,7 +67,12 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   first hop even though curl shows a redirect (or a cosmetic 411/HTML page with `-L`);
   trust the follow-up GET, not the POST body. Google intermittently serves an HTML error
   page on GETs — retry 2–3 times. Verify writes with `get_class_log`, never assume.
-- Optional gate: if a `CLASS_LOG_PIN` Script Property is set, writes need `teacherPin`.
+- GATE IS ACTIVE (since Sept 21): `CLASS_LOG_PIN` is set on the deployed project,
+  so every class-log WRITE (`submit_class_log`, `set_class_plan`,
+  `set_class_slide`, `delete_class_log`) and `set_roster` now requires
+  `"teacherPin":"<ask the teacher>"` in the POST body — GETs are unaffected.
+  The PIN value is deliberately NOT recorded in this repo; ask the teacher for
+  it at the start of any session that needs writes.
 - UI: `Student_System/Class_Log_Tracker.html` · docs: `Student_System/CLASS_LOG_README.md`
 
 ## Repo conventions
