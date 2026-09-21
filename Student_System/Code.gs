@@ -29,8 +29,9 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.1.1-2026-09-21';
-var CONFIG_DEPLOY_DATE = '2026-09-21T12:55:00Z';
+var CONFIG_VERSION = 'V6.2.0-2026-09-21';
+var CONFIG_DEPLOY_DATE = '2026-09-21T13:30:00Z';
+var MASTER_PIN_HOMEROOM_MAP = {"RUC":"801","TAD":"801","ASD":"801","MAD":"801","STE":"801","ZEG":"801","SAH":"801","KEK":"801","AYE":"801","AER":"801","TRU":"801","RUM":"801","SAM":"801","MAM":"801","ANM":"801","UEM":"801","SME":"801","SHB":"801","ARA":"801","SAS":"801","SYS":"801","NAS":"801","NES":"801","NKS":"801","AMT":"801","UAT":"801","MAV":"801","AEW":"801","AZB":"802","HEB":"802","DRB":"802","UGC":"802","CAC":"802","DAC":"802","HAD":"802","WAE":"802","BEE":"802","MAG":"802","MEG":"802","KAG":"802","MYH":"802","SHA":"802","SPH":"802","MSK":"802","AMK":"802","MAA":"802","MCM":"802","EMM":"802","ACM":"802","ENR":"802","ADR":"802","ARS":"802","SCT":"802","MKV":"802","ANW":"802","GAW":"802","SAA":"803","ZEA":"803","YHB":"803","TYB":"803","WEH":"803","AMB":"803","ASB":"803","BEB":"803","ENB":"803","NEC":"803","EVC":"803","DRG":"803","STG":"803","THH":"803","AEA":"803","SAK":"803","ENE":"803","CHZ":"803","DRM":"803","NMA":"803","SMA":"803","AMM":"803","MUN":"803","EAT":"803","HAT":"803","BEV":"803","EMV":"803","MAW":"803","RTA":"804","ACA":"804","CRA":"804","HAB":"804","VAB":"804","THD":"804","CAD":"804","MDN":"804","KAD":"804","HED":"804","MYG":"804","MAH":"804","EZE":"804","CAM":"804","CHM":"804","RSM":"804","RNM":"804","CET":"804","ARP":"804","MAP":"804","SPR":"804","ERS":"804","HAS":"804","DES":"804","ASP":"804","TAT":"804","CHT":"804","KHY":"804","USA":"901","CAB":"901","TEB":"901","NVB":"901","RSB":"901","NAC":"901","HNC":"901","VAD":"901","ABE":"901","BRE":"901","NNG":"901","ADH":"901","DRA":"901","TRH":"901","DUK":"901","AUA":"901","BEG":"901","DUM":"901","AUM":"901","SAN":"901","AVP":"901","DAP":"901","MPU":"901","ARE":"901","CAS":"901","ANS":"901","CAT":"901","MAT":"901","MNA":"902","HNB":"902","GEB":"902","NAB":"902","NCA":"902","BEC":"902","YAE":"902","SEH":"902","THA":"902","RDH":"902","AAN":"902","SKU":"902","DUA":"902","MAY":"902","AXM":"902","SMM":"902","ZAN":"902","MHR":"902","THV":"902","MRP":"902","SCP":"902","CHR":"902","RDS":"902","SES":"902","HST":"902","ANT":"902","NVT":"902","MSC":"903","ADC":"903","WAD":"903","SCD":"903","AVS":"903","APA":"903","BES":"903","AVG":"903","MHU":"903","BEK":"903","KEA":"903","AMA":"903","CMA":"903","TMM":"903","AAM":"903","DMQ":"903","CMZ":"903","ZEM":"903","AMU":"903","MCN":"903","MAR":"903","VES":"903","PAS":"903","ZES":"903","PSA":"903","ZAS":"903","EVS":"903","BEU":"903","GWW":"903"};
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
 var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
@@ -437,11 +438,32 @@ function doGet(e) {
     }
 
     // ==========================================
+    // ACTION: CLEAN MISMATCHED CLASS ENTRIES
+    // ==========================================
+    if (action === 'clean_mismatched_classes') {
+      const authPin = String(params.pin || params.teacherPin || '').trim().toUpperCase();
+      if (authPin !== 'WAU' && authPin !== 'MRW') {
+        return successJSON({ status: 'unauthorized', message: 'Teacher authorization required.', version: CONFIG_VERSION });
+      }
+      const cleanResult = cleanMismatchedClassEntries(ss);
+      return successJSON({
+        status: 'success',
+        result: cleanResult,
+        version: CONFIG_VERSION
+      });
+    }
+
+    // ==========================================
     // ACTION: SINGLE STUDENT LOGIN / SYNC (GET)
     // ==========================================
     const pin = String(params.pin || '').trim().toUpperCase();
-    const className = String(params.className || 'General').trim();
+    let className = String(params.className || 'General').trim();
     if (!pin) throw new Error("3-Letter PIN is required.");
+    if (DEMO_PINS.indexOf(pin) !== -1) {
+      className = 'DEMO';
+    } else if (MASTER_PIN_HOMEROOM_MAP[pin]) {
+      className = MASTER_PIN_HOMEROOM_MAP[pin];
+    }
 
     const sheet = getSheetForClass(ss, className);
     const lastRow = sheet.getLastRow();
@@ -719,6 +741,8 @@ function doPost(e) {
     var isDemoPin = DEMO_PINS.indexOf(pin) !== -1;
     if (isDemoPin) {
       className = 'DEMO';
+    } else if (MASTER_PIN_HOMEROOM_MAP[pin]) {
+      className = MASTER_PIN_HOMEROOM_MAP[pin];
     }
 
     // Check if student exists in the targeted sheet
@@ -1366,5 +1390,97 @@ function recoverClass902SleepAudit(optionalSs) {
     success: true,
     recoveredCount: recoveredStudents.length,
     students: recoveredStudents
+  };
+}
+
+
+/**
+ * Clean Mismatched Class Entries:
+ * Scans all student class tabs (901-903, 801-804), finds students whose PIN belongs
+ * to another homeroom, merges their data into their official homeroom tab, and
+ * removes the misplaced orphan row.
+ */
+function cleanMismatchedClassEntries(ss) {
+  const allClasses = ALL_CLASSES;
+  const migrated = [];
+  const log = [];
+
+  for (let c = 0; c < allClasses.length; c++) {
+    const cls = allClasses[c];
+    const sheet = ss.getSheetByName(cls);
+    if (!sheet) continue;
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) continue;
+
+    // Scan bottom-to-top so row deletion doesn't offset indices
+    for (let r = lastRow; r >= 2; r--) {
+      const rowValues = sheet.getRange(r, 1, 1, Math.max(sheet.getLastColumn(), 9)).getValues()[0];
+      const pin = String(rowValues[0] || '').trim().toUpperCase();
+      if (!pin || DEMO_PINS.indexOf(pin) !== -1) continue;
+
+      const officialCls = MASTER_PIN_HOMEROOM_MAP[pin];
+      if (officialCls && officialCls !== cls) {
+        // Move to official homeroom
+        const targetSheet = getSheetForClass(ss, officialCls);
+        const targetLastRow = targetSheet.getLastRow();
+        let targetRowIndex = -1;
+        let targetRowData = null;
+
+        if (targetLastRow > 1) {
+          const targetData = targetSheet.getRange(1, 1, targetLastRow, Math.max(targetSheet.getLastColumn(), 9)).getValues();
+          for (let tr = 1; tr < targetData.length; tr++) {
+            if (String(targetData[tr][0]).trim().toUpperCase() === pin) {
+              targetRowIndex = tr + 1;
+              targetRowData = targetData[tr];
+              break;
+            }
+          }
+        }
+
+        let sourceJSON = {};
+        try { sourceJSON = JSON.parse(rowValues[6] || '{}'); } catch(e) { sourceJSON = {}; }
+
+        if (targetRowIndex !== -1 && targetRowData) {
+          // Merge source into existing target row
+          let targetJSON = {};
+          try { targetJSON = JSON.parse(targetRowData[6] || '{}'); } catch(e) { targetJSON = {}; }
+
+          const targetTasks = targetJSON._tasks || {};
+          const sourceTasks = sourceJSON._tasks || {};
+          const mergedTasks = Object.assign({}, targetTasks, sourceTasks);
+          const mergedJSON = Object.assign({}, targetJSON, sourceJSON, { _tasks: mergedTasks, className: officialCls });
+
+          targetRowData[6] = JSON.stringify(mergedJSON);
+          if (rowValues[5] && rowValues[5] !== 'Active / Logged In') targetRowData[5] = rowValues[5];
+          if (rowValues[7] && rowValues[7] !== 'Initial Login') targetRowData[7] = rowValues[7];
+          targetRowData[8] = new Date();
+
+          targetSheet.getRange(targetRowIndex, 1, 1, Math.max(targetSheet.getLastColumn(), 9)).setValues([targetRowData]);
+          migrated.push({ pin: pin, name: rowValues[1], from: cls, to: officialCls, action: 'merged_into_existing' });
+        } else {
+          // Append as new row in target sheet
+          rowValues[2] = officialCls;
+          if (sourceJSON) {
+            sourceJSON.className = officialCls;
+            rowValues[6] = JSON.stringify(sourceJSON);
+          }
+          rowValues[8] = new Date();
+          targetSheet.appendRow(rowValues);
+          migrated.push({ pin: pin, name: rowValues[1], from: cls, to: officialCls, action: 'appended_new_row' });
+        }
+
+        // Delete the misplaced row
+        sheet.deleteRow(r);
+        log.push('Moved ' + pin + ' (' + rowValues[1] + ') from ' + cls + ' to ' + officialCls);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    count: migrated.length,
+    migrated: migrated,
+    log: log,
+    timestamp: new Date()
   };
 }
