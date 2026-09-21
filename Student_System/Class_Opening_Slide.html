@@ -10,7 +10,7 @@
   agenda from the section's plan (Class_Plan tab) and shows a course outcome strip that
   stays visible for administrators. Announcements / outcome / title are editable on the
   page itself (⚙ or "e") and saved to the Class_Slide tab via the Apps Script webhook.
-  Keyboard: ← / → switch class · e edit · s seating · Esc close · F fullscreen.
+  Keyboard: ← / → switch class · e edit · s seating · p progress · Esc close · F fullscreen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +45,156 @@
     --font-heading: 'Arvo', Georgia, serif;
     --font-body: 'Source Sans 3', 'Source Sans Pro', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+
+    /* Theme accent (overridden per-course) */
+    --theme-accent: var(--coral);
+    --theme-accent-dark: var(--coral-dark);
+    --theme-accent-bg: var(--coral-bg);
+    --theme-accent-border: var(--coral-border);
+    --theme-hero-bg: #181f2b;
+    --theme-hero-fg: #ffffff;
+    --theme-hero-icon: '📋';
+    --theme-bar-bg: #181f2b;
+    --theme-bar-fg: #f5f7fa;
 }
+
+/* ===== COURSE THEMES ===== */
+
+/* CIT9 — Canadian civic: warm red, maple, Parliament silhouette feeling */
+body[data-theme="CIT9"] {
+    --theme-accent: #c72c41;
+    --theme-accent-dark: #a01830;
+    --theme-accent-bg: #fff0f0;
+    --theme-accent-border: #fbb4b4;
+    --theme-hero-bg: linear-gradient(135deg, #7f1d1d 0%, #991b1b 30%, #b91c1c 60%, #c72c41 100%);
+    --theme-hero-fg: #ffffff;
+    --theme-hero-icon: '🍁';
+    --theme-bar-bg: #450a0a;
+    --theme-bar-fg: #fef2f2;
+    --bg-page: #faf5f3;
+}
+body[data-theme="CIT9"] .hero {
+    background: var(--theme-hero-bg);
+    color: var(--theme-hero-fg);
+    border-radius: 12px;
+    padding: 20px 32px 18px;
+    border: none;
+    box-shadow: 0 4px 24px rgba(127,29,29,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+}
+body[data-theme="CIT9"] .hero::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background:
+        radial-gradient(circle at 92% 15%, rgba(255,255,255,0.06) 0%, transparent 60%),
+        radial-gradient(circle at 8% 90%, rgba(255,255,255,0.04) 0%, transparent 50%);
+    pointer-events: none;
+}
+body[data-theme="CIT9"] .hero .course { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+body[data-theme="CIT9"] .hero .meta { color: rgba(255,255,255,0.75); }
+body[data-theme="CIT9"] .hero .school-line { color: rgba(255,255,255,0.55); }
+body[data-theme="CIT9"] .badge-room { background: var(--theme-accent); }
+body[data-theme="CIT9"] .outcomebar {
+    background: var(--theme-bar-bg);
+    border-top: 3px solid var(--theme-accent);
+}
+body[data-theme="CIT9"] .outcomebar .o-label { color: #fca5a5; }
+body[data-theme="CIT9"] .period-chip.current { border-color: var(--theme-accent); box-shadow: 0 0 0 2px var(--theme-accent-bg); }
+body[data-theme="CIT9"] .period-chip .p { color: var(--theme-accent-dark); }
+body[data-theme="CIT9"] .agenda .n { color: var(--theme-accent); }
+body[data-theme="CIT9"] .panel.announce { border-left-color: var(--theme-accent); }
+
+/* HL9 — Healthy Living 9: teal/emerald nature wellness */
+body[data-theme="HL9"] {
+    --theme-accent: #0d9488;
+    --theme-accent-dark: #0f766e;
+    --theme-accent-bg: #f0fdfa;
+    --theme-accent-border: #99f6e4;
+    --theme-hero-bg: linear-gradient(135deg, #064e3b 0%, #065f46 35%, #047857 65%, #0d9488 100%);
+    --theme-hero-fg: #ffffff;
+    --theme-hero-icon: '💚';
+    --theme-bar-bg: #022c22;
+    --theme-bar-fg: #ecfdf5;
+    --bg-page: #f2faf7;
+}
+body[data-theme="HL9"] .hero {
+    background: var(--theme-hero-bg);
+    color: var(--theme-hero-fg);
+    border-radius: 12px;
+    padding: 20px 32px 18px;
+    border: none;
+    box-shadow: 0 4px 24px rgba(6,78,59,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+}
+body[data-theme="HL9"] .hero::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background:
+        radial-gradient(circle at 88% 20%, rgba(255,255,255,0.07) 0%, transparent 55%),
+        radial-gradient(circle at 12% 85%, rgba(16,185,129,0.15) 0%, transparent 50%);
+    pointer-events: none;
+}
+body[data-theme="HL9"] .hero .course { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+body[data-theme="HL9"] .hero .meta { color: rgba(255,255,255,0.75); }
+body[data-theme="HL9"] .hero .school-line { color: rgba(255,255,255,0.55); }
+body[data-theme="HL9"] .badge-room { background: var(--theme-accent); }
+body[data-theme="HL9"] .outcomebar {
+    background: var(--theme-bar-bg);
+    border-top: 3px solid var(--theme-accent);
+}
+body[data-theme="HL9"] .outcomebar .o-label { color: #6ee7b7; }
+body[data-theme="HL9"] .period-chip.current { border-color: var(--theme-accent); box-shadow: 0 0 0 2px var(--theme-accent-bg); }
+body[data-theme="HL9"] .period-chip .p { color: var(--theme-accent-dark); }
+body[data-theme="HL9"] .agenda .n { color: var(--theme-accent); }
+body[data-theme="HL9"] .panel.announce { border-left-color: var(--theme-accent); }
+
+/* HE8 — Healthy Living 8 (Health Education): sky blue / coral active youth */
+body[data-theme="HE8"] {
+    --theme-accent: #2563eb;
+    --theme-accent-dark: #1e40af;
+    --theme-accent-bg: #eff6ff;
+    --theme-accent-border: #93c5fd;
+    --theme-hero-bg: linear-gradient(135deg, #1e3a5f 0%, #1e40af 35%, #2563eb 65%, #3b82f6 100%);
+    --theme-hero-fg: #ffffff;
+    --theme-hero-icon: '🏃';
+    --theme-bar-bg: #172554;
+    --theme-bar-fg: #eff6ff;
+    --bg-page: #f0f5ff;
+}
+body[data-theme="HE8"] .hero {
+    background: var(--theme-hero-bg);
+    color: var(--theme-hero-fg);
+    border-radius: 12px;
+    padding: 20px 32px 18px;
+    border: none;
+    box-shadow: 0 4px 24px rgba(30,64,175,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+}
+body[data-theme="HE8"] .hero::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background:
+        radial-gradient(circle at 90% 25%, rgba(255,255,255,0.08) 0%, transparent 55%),
+        radial-gradient(circle at 5% 80%, rgba(59,130,246,0.15) 0%, transparent 50%);
+    pointer-events: none;
+}
+body[data-theme="HE8"] .hero .course { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+body[data-theme="HE8"] .hero .meta { color: rgba(255,255,255,0.75); }
+body[data-theme="HE8"] .hero .school-line { color: rgba(255,255,255,0.55); }
+body[data-theme="HE8"] .badge-room { background: var(--theme-accent); }
+body[data-theme="HE8"] .outcomebar {
+    background: var(--theme-bar-bg);
+    border-top: 3px solid var(--theme-accent);
+}
+body[data-theme="HE8"] .outcomebar .o-label { color: #93c5fd; }
+body[data-theme="HE8"] .period-chip.current { border-color: var(--theme-accent); box-shadow: 0 0 0 2px var(--theme-accent-bg); }
+body[data-theme="HE8"] .period-chip .p { color: var(--theme-accent-dark); }
+body[data-theme="HE8"] .agenda .n { color: var(--theme-accent); }
+body[data-theme="HE8"] .panel.announce { border-left-color: var(--theme-accent); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
@@ -55,6 +204,7 @@ body {
     display: flex; flex-direction: column;
     overflow: hidden;
     padding: 22px 34px 0;
+    transition: background-color 0.4s ease;
 }
 h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--text-heading); }
 .mono { font-family: var(--font-mono); }
@@ -65,6 +215,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     background: var(--coral); color: #fff; font-family: var(--font-heading);
     font-weight: 700; border-radius: 6px; padding: 4px 12px; letter-spacing: 0.5px;
     box-shadow: 0 2px 6px rgba(237,120,106,0.3); font-size: 1rem;
+    transition: background 0.3s;
 }
 .topbar .date { font-family: var(--font-heading); font-weight: 700; font-size: 1.5rem;
     text-shadow: 0.04em 0.06em 0 rgba(0,0,0,0.08); }
@@ -79,7 +230,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     border-radius: 6px; padding: 5px 11px; cursor: pointer; font-size: 0.85rem; font-weight: 700;
     font-family: var(--font-body);
 }
-.tool-btn:hover { border-color: var(--coral); color: var(--coral-dark); }
+.tool-btn:hover { border-color: var(--theme-accent); color: var(--theme-accent-dark); }
 .sync-pill {
     font-size: 0.75rem; font-weight: 700; letter-spacing: 0.4px;
     border-radius: 999px; padding: 4px 11px; border: 1px solid var(--border-card);
@@ -96,19 +247,41 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     display: inline-flex; gap: 7px; align-items: center;
     background: var(--bg-surface); border: 1px solid var(--border-card);
     border-radius: 6px; padding: 4px 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.period-chip .p { font-family: var(--font-mono); font-weight: 700; color: var(--coral-dark); font-size: 0.8rem; }
+.period-chip .p { font-family: var(--font-mono); font-weight: 700; color: var(--coral-dark); font-size: 0.8rem;
+    transition: color 0.2s; }
 .period-chip.current { border-color: var(--coral); box-shadow: 0 0 0 2px var(--coral-bg); }
 .period-chip.past { opacity: 0.45; }
 
 /* ---------- hero ---------- */
-.hero { margin-top: 26px; padding-bottom: 16px;
+.hero {
+    margin-top: 26px; padding: 12px 0 16px;
     border-bottom: 2px solid var(--border-subtle);
     box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+    transition: background 0.4s, box-shadow 0.4s, border-radius 0.4s, padding 0.4s;
 }
-.hero .course { font-family: var(--font-heading); font-weight: 700; font-size: 3.4rem;
-    line-height: 1.05; text-shadow: 0.04em 0.06em 0 rgba(0,0,0,0.08); }
-.hero .meta { margin-top: 8px; font-size: 1.25rem; color: var(--text-muted); font-weight: 600; }
+.hero .course-icon {
+    font-size: 2.8rem;
+    margin-right: 14px;
+    line-height: 1;
+    vertical-align: middle;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.hero .course {
+    font-family: var(--font-heading); font-weight: 700; font-size: 3.2rem;
+    line-height: 1.05; text-shadow: 0.04em 0.06em 0 rgba(0,0,0,0.08);
+    transition: color 0.3s;
+}
+.hero .school-line {
+    font-family: var(--font-body); font-size: 1.05rem; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 4px;
+    transition: color 0.3s;
+}
+.hero .meta { margin-top: 8px; font-size: 1.25rem; color: var(--text-muted); font-weight: 600;
+    transition: color 0.3s; }
 .hero .meta .mono { font-size: 1.15rem; }
 
 /* ---------- content ---------- */
@@ -119,7 +292,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .panel h2 { font-size: 1.15rem; letter-spacing: 0.5px; margin-bottom: 12px; }
 .panel.today { flex: 1.6; }
-.panel.announce { flex: 1; border-left: 4px solid var(--amber); }
+.panel.announce { flex: 1; border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
 .last-line { font-size: 1.02rem; color: var(--text-muted); margin-bottom: 14px; }
 .last-line b { color: var(--text-heading); }
 .agenda { list-style: none; }
@@ -129,7 +302,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     border-bottom: 1px dashed var(--border-subtle);
 }
 .agenda li:last-child { border-bottom: none; }
-.agenda .n { font-family: var(--font-mono); font-weight: 800; color: var(--coral); font-size: 1.1rem; }
+.agenda .n { font-family: var(--font-mono); font-weight: 800; color: var(--coral); font-size: 1.1rem;
+    transition: color 0.3s; }
 .agenda .lesson-tag { font-size: 0.85rem; color: var(--purple); font-weight: 700; margin-left: 8px; }
 .empty-note { font-size: 1.1rem; color: var(--text-dim); font-style: italic; }
 .announce p { font-size: 1.2rem; line-height: 1.45; padding: 7px 0; border-bottom: 1px dashed var(--border-subtle); }
@@ -140,10 +314,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     margin: 20px -34px 0; padding: 16px 34px 18px;
     background: var(--text-heading); color: #f5f7fa;
     display: flex; gap: 18px; align-items: baseline;
+    transition: background 0.4s, border-color 0.4s;
 }
 .outcomebar .o-label {
     font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
     letter-spacing: 2px; color: var(--coral); white-space: nowrap;
+    transition: color 0.3s;
 }
 .outcomebar .o-text { font-size: 1.18rem; line-height: 1.35; }
 
@@ -167,14 +343,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 10px; background: #fff;
 }
 .editor textarea { resize: vertical; min-height: 64px; }
-.editor input:focus, .editor textarea:focus { outline: none; border-color: var(--coral); box-shadow: 0 0 0 2px var(--coral-bg); }
+.editor input:focus, .editor textarea:focus { outline: none; border-color: var(--theme-accent); box-shadow: 0 0 0 2px var(--theme-accent-bg); }
 .editor .hint { font-size: 0.78rem; color: var(--text-dim); margin-top: 3px; }
 .editor .btns { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
 .editor button {
     border: none; border-radius: 6px; padding: 8px 18px; cursor: pointer;
     font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem;
 }
-.editor .save { background: var(--coral); color: #fff; }
+.editor .save { background: var(--theme-accent); color: #fff; }
 .editor .clear { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-card); }
 .editor .close { background: transparent; color: var(--text-dim); margin-left: auto; }
 .editor .status { font-size: 0.85rem; font-weight: 600; color: var(--emerald); }
@@ -184,53 +360,364 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     background: var(--bg-page); border: 1px solid var(--border-card); color: var(--text-muted);
     border-radius: 6px; padding: 5px 10px; cursor: pointer;
 }
-.section-pick .sp.on { background: var(--coral-bg); border-color: var(--coral-border); color: var(--coral-dark); }
+.section-pick .sp.on { background: var(--theme-accent-bg); border-color: var(--theme-accent-border); color: var(--theme-accent-dark); }
 
-/* ---------- seating popup ---------- */
+/* ---------- seating popup (Room 8 v2 Physical Blueprint) ---------- */
 #seatOverlay {
     display: none; position: fixed; inset: 0; z-index: 60;
-    background: var(--bg-page); overflow: auto; padding: 26px 40px;
+    background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px);
+    overflow: auto; padding: 12px 18px;
+    align-items: center; justify-content: center;
 }
-#seatOverlay.open { display: block; }
-.seat-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
-.seat-head h2 { font-size: 1.6rem; }
+#seatOverlay.open { display: flex; }
+.seat-sheet {
+    max-width: 1560px; width: 100%; max-height: calc(100vh - 24px); height: 100%;
+    background: #fdfdff; border: 1px solid #c9cde6; border-radius: 14px;
+    padding: 12px 18px 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.seat-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex: none; }
+.seat-head h2 { font-size: 1.35rem; font-weight: 800; color: #1e2438; }
 .seat-head .src {
-    font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem;
-    border-radius: 999px; padding: 3px 10px; border: 1px solid var(--border-card);
-    background: var(--bg-surface); color: var(--text-dim);
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.72rem;
+    border-radius: 999px; padding: 3px 10px; border: 1px solid #c9cde6;
+    background: #f1f5f9; color: #64748b;
 }
-.seat-head .src.live { color: var(--emerald); border-color: var(--emerald-border); background: var(--emerald-bg); }
-.seat-head .src.snap { color: var(--blue); border-color: var(--blue-border); background: var(--blue-bg); }
+.seat-head .src.live { color: #047857; border-color: #a7f3d0; background: #ecfdf5; }
+.seat-head .src.snap { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
 .seat-head .spacer { flex: 1; }
-.seat-head .tool-btn { font-size: 1rem; }
-.front-strip { display: flex; align-items: center; gap: 12px; margin: 6px 0 22px; }
-.front-strip .board {
-    flex: 1; text-align: center; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.25em;
-    color: var(--text-dim); border: 2px dashed var(--border-card); border-radius: 8px; padding: 9px 0;
+.seat-head .tool-btn { font-size: 0.85rem; font-weight: 700; border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+
+/* Front Strip */
+.seat-front-strip { display: flex; align-items: center; gap: 10px; margin: 2px 0 6px; flex: none; }
+.seat-door-tag {
+    font-size: 0.7rem; font-weight: 800; color: #4338ca; background: #e0e7ff;
+    border: 1.5px dashed #818cf8; border-radius: 8px; padding: 5px 16px; letter-spacing: 0.1em;
 }
-.front-strip .tdesk {
-    font-size: 0.75rem; font-weight: 700; color: var(--text-dim); border: 2px dashed var(--border-card);
-    border-radius: 8px; padding: 9px 14px;
+.seat-board {
+    flex: 1; text-align: center; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.25em;
+    color: #7a80a0; border: 2px dashed #c9cde6; border-radius: 8px; padding: 5px 0;
+    background: #fafbff;
 }
-.seat-rows { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-.seat-row { display: flex; gap: 10px; width: 100%; }
-.seat-grp { display: flex; gap: 6px; margin-right: 26px; flex: 1; min-width: 0; }
-.seat-grp:last-child { margin-right: 0; }
-.desk {
-    flex: 1 1 0; min-width: 0; height: 74px;
-    border: 2px solid var(--border-card); border-radius: 8px; background: var(--bg-surface);
-    position: relative; display: flex; align-items: center; justify-content: center; padding: 4px 8px;
+
+/* Room Blueprint */
+.room-blueprint {
+    flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px;
+    justify-content: space-between;
 }
-.seat-row.r-front .desk { background: #f3fbf7; border-color: #bfead6; }
-.seat-row.r-mid   .desk { background: #f2f7fe; border-color: #c3ddf9; }
-.seat-row.r-back  .desk { background: #fdf1f7; border-color: #f6cee0; }
-.desk .num { position: absolute; top: 3px; left: 7px; font-family: var(--font-mono);
-    font-weight: 700; font-size: 0.7rem; color: var(--text-dim); }
-.desk .name { font-size: 1.25rem; font-weight: 700; color: var(--text-heading); text-align: center;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.desk .name.empty { color: #c3c7dd; font-weight: 500; }
-.seat-backnote { font-size: 0.85rem; color: var(--text-dim); margin-top: 10px; }
-.seat-empty { font-size: 1.1rem; color: var(--text-dim); padding: 30px 0; }
+.room-upper { flex: 1; min-height: 0; display: flex; gap: 10px; }
+
+/* Wall Columns (Left & Right) */
+.wall-col { width: 140px; flex: none; display: flex; flex-direction: column; justify-content: space-between; }
+.wall-top-open {
+    flex: 0.85; min-height: 44px; border: 1.5px dashed #c9cde6; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(241, 245, 249, 0.45); margin-bottom: 5px;
+}
+.wall-top-cupboards {
+    flex: 0.85; min-height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f1f5f9; margin-bottom: 5px;
+}
+.open-label { font-size: 0.6rem; font-weight: 800; color: #7a80a0; letter-spacing: 0.12em; text-transform: uppercase; }
+.cupboard-label { font-size: 0.6rem; font-weight: 800; color: #475569; letter-spacing: 0.12em; text-transform: uppercase; }
+
+.wall-lower-cluster {
+    flex: 1.5; display: flex; flex-direction: column; gap: 4px;
+    background: #fffdf5; border: 1.5px solid #fde68a; border-radius: 10px; padding: 5px;
+    justify-content: space-between;
+}
+.wall-title { font-size: 0.62rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
+
+/* Center Area */
+.center-area {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 5px;
+    padding: 2px 4px;
+}
+.row-label {
+    font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;
+}
+.row-label.front-label { color: #047857; }
+.row-label.second-label { color: #1d4ed8; }
+.pairs-row { display: flex; gap: 8px; width: 100%; }
+.pairs-row.center-pairs { justify-content: center; padding: 0 40px; }
+.pair {
+    flex: 1; display: flex; gap: 4px; min-width: 0;
+    background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 4px;
+}
+
+/* Room Bottom */
+.room-bottom { flex: none; display: flex; gap: 10px; align-items: stretch; }
+.wall-back-two-thirds {
+    flex: 2.2; display: flex; flex-direction: column; gap: 3px;
+    background: #fdf4f8; border: 1.5px solid #fbcfe8; border-radius: 10px; padding: 5px 7px;
+}
+.wall-back-two-thirds .wall-title { color: #be185d; }
+.wall-back-desks { display: flex; gap: 5px; width: 100%; }
+
+.teacher-station-corner { flex: 0.9; display: flex; align-items: stretch; }
+.tdesk-box {
+    width: 100%; border: 2px dashed #059669; background: #ecfdf5; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 5px 10px; text-align: center; gap: 8px;
+}
+.tdesk-icon { font-size: 1.2rem; line-height: 1; }
+.tdesk-text { font-size: 0.8rem; font-weight: 800; color: #065f46; letter-spacing: 0.08em; }
+
+/* Desks */
+.seat-sheet .desk {
+    position: relative; flex: 1; min-width: 0;
+    aspect-ratio: 1.7 / 1; min-height: 42px;
+    border: 1.5px solid #c9cde6; border-radius: 6px;
+    background: #fff; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    user-select: none;
+}
+.seat-sheet .desk-front { background: #ecfdf5; border-color: #a7f3d0; }
+.seat-sheet .desk-second { background: #eff6ff; border-color: #bfdbfe; }
+.seat-sheet .desk-wall { background: #fffbeb; border-color: #fde68a; }
+.seat-sheet .desk-back { background: #fdf2f8; border-color: #fbcfe8; }
+.seat-sheet .desk .num {
+    position: absolute; top: 2px; left: 5px;
+    font-size: clamp(0.56rem, 0.3vw + 0.35vh, 0.78rem); font-weight: 700; color: #7a80a0;
+}
+.seat-sheet .desk .name {
+    width: 100%; text-align: center; font-weight: 700; color: #1e2438;
+    font-size: clamp(0.72rem, 0.55vw + 0.65vh, 1.15rem); line-height: 1.15;
+    padding: 0 4px; margin-top: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.seat-sheet .desk .name.empty { color: #cbd5e1; font-weight: 400; }
+.seat-leftovers { font-size: 0.82rem; color: #dc2626; padding: 4px 0 0; text-align: center; font-weight: 600; }
+
+/* ---------- content side & progress panel ---------- */
+.content-side {
+    flex: 1.25;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+.panel.announce { border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
+.panel.progress {
+    border-left: 4px solid var(--blue);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    flex: 1;
+}
+.prog-head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+.prog-head-row h2 { margin: 0; font-size: 1.15rem; }
+.prog-task-badge {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--blue);
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.prog-stats-strip {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.prog-stat-chip {
+    background: var(--bg-page);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+.prog-stat-chip b {
+    font-family: var(--font-mono);
+    color: var(--text-heading);
+    font-size: 0.92rem;
+    margin-right: 3px;
+}
+.prog-class-bar-wrap {
+    height: 9px;
+    background: #e2e8f0;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+}
+.prog-class-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #10b981);
+    transition: width 0.4s ease;
+}
+.prog-list-wrap {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+    max-height: 280px;
+}
+.prog-row {
+    background: var(--bg-page);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.88rem;
+}
+.prog-row-lead {
+    font-weight: 700;
+    color: var(--text-heading);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.prog-row-partner {
+    color: var(--text-dim);
+    font-weight: 500;
+    font-size: 0.78rem;
+    margin-left: 5px;
+}
+.prog-row-meter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.prog-row-val {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--text-main);
+    min-width: 44px;
+    text-align: right;
+}
+.prog-mini-bar {
+    width: 60px;
+    height: 6px;
+    background: #cbd5e1;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.prog-mini-fill {
+    height: 100%;
+    background: var(--blue);
+}
+
+/* ---------- progress modal overlay ---------- */
+#progOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(20, 26, 38, 0.65);
+    z-index: 55; align-items: center; justify-content: center;
+}
+#progOverlay.open { display: flex; }
+.prog-modal {
+    background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-card);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.3); width: min(1060px, 95vw); max-height: 90vh;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.prog-modal-head {
+    padding: 16px 24px; border-bottom: 2px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+}
+.prog-modal-stats {
+    padding: 12px 24px; background: var(--bg-page); border-bottom: 1px solid var(--border-subtle);
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+.prog-modal-body {
+    padding: 20px 24px; overflow-y: auto; flex: 1;
+}
+.prog-grid-2col {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.prog-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-card);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.prog-card-left {
+    min-width: 0;
+    flex: 1;
+}
+.prog-card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--text-heading);
+}
+.prog-card-pin {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 800;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.prog-card-sub {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.prog-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.prog-card-ratio {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--text-heading);
+}
+.prog-card-bar {
+    width: 85px;
+    height: 7px;
+    background: #e2e8f0;
+    border-radius: 3.5px;
+    overflow: hidden;
+}
+.prog-card-fill {
+    height: 100%;
+    background: var(--blue);
+}
+.prog-card-fill.done {
+    background: var(--emerald);
+}
 </style>
 </head>
 <body>
@@ -242,6 +729,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="spacer"></span>
     <button class="sync-pill" id="syncPill">SEED</button>
     <button class="tool-btn" id="seatBtn" title="Seating plan (s)">🪑 Seats</button>
+    <button class="tool-btn" id="progBtn" title="Class task progress (p)">📊 Progress</button>
     <button class="tool-btn" id="editBtn" title="Edit announcements / outcome (e)">⚙ Edit</button>
     <button class="tool-btn" id="fsBtn" title="Fullscreen (f)">⛶</button>
 </div>
@@ -250,6 +738,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
 <div class="hero">
     <div class="course" id="courseLine">…</div>
+    <div class="school-line">Bicentennial Junior High</div>
     <div class="meta" id="metaLine">…</div>
 </div>
 
@@ -259,10 +748,26 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         <div class="last-line" id="lastLine"></div>
         <ul class="agenda" id="agendaList"></ul>
     </section>
-    <section class="panel announce" id="announcePanel">
-        <h2>Announcements</h2>
-        <div id="announceBody"></div>
-    </section>
+    <div class="content-side" id="contentSide">
+        <section class="panel announce" id="announcePanel">
+            <h2>Announcements</h2>
+            <div id="announceBody"></div>
+        </section>
+        <section class="panel progress" id="progressPanel" style="display:none;">
+            <div class="prog-head-row">
+                <h2>Task Progress</h2>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="prog-task-badge" id="progTaskBadge">Loading…</span>
+                    <button class="tool-btn" id="progExpandBtn" style="padding:2px 8px;font-size:0.75rem;" title="Expand full roster matrix (p)">⛶</button>
+                </div>
+            </div>
+            <div class="prog-stats-strip" id="progStatsStrip"></div>
+            <div class="prog-class-bar-wrap">
+                <div class="prog-class-bar-fill" id="progClassBarFill" style="width:0%;"></div>
+            </div>
+            <div class="prog-list-wrap" id="progListWrap"></div>
+        </section>
+    </div>
 </div>
 
 <div class="outcomebar">
@@ -270,19 +775,147 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="o-text" id="outcomeText">…</span>
 </div>
 
+<div id="progOverlay" class="overlay">
+    <div class="prog-modal">
+        <div class="prog-modal-head">
+            <div>
+                <h2 style="margin:0;font-family:var(--font-heading);font-size:1.35rem;">Task Progress · <span id="progModalSection" class="mono"></span></h2>
+                <div id="progModalSub" style="font-size:0.88rem;color:var(--text-muted);margin-top:2px;"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button class="tool-btn" id="progRefreshBtn">🔄 Refresh</button>
+                <button class="tool-btn" id="progClose">✕ Close (Esc)</button>
+            </div>
+        </div>
+        <div class="prog-modal-stats" id="progModalStats"></div>
+        <div class="prog-modal-body">
+            <div class="prog-grid-2col" id="progModalGrid"></div>
+        </div>
+    </div>
+</div>
+
 <div id="seatOverlay">
-    <div class="seat-head">
-        <h2>Seating · <span id="seatClass" class="mono"></span></h2>
-        <span class="src" id="seatSource"></span>
-        <span class="spacer"></span>
-        <button class="tool-btn" id="seatClose">✕ Close (Esc)</button>
+    <div class="seat-sheet">
+        <div class="seat-head">
+            <h2>Seating · <span id="seatClass" class="mono"></span></h2>
+            <span class="src" id="seatSource"></span>
+            <span class="spacer"></span>
+            <a href="../seating-plan-v2.html" target="_blank" class="tool-btn" style="text-decoration:none;margin-right:8px;" title="Open editable seating chart in new tab">✎ Edit Plan ↗</a>
+            <button class="tool-btn" id="seatClose">✕ Close (Esc)</button>
+        </div>
+
+        <div class="seat-front-strip">
+            <div class="seat-door-tag">DOOR</div>
+            <div class="seat-board">WHITEBOARD · SCREEN</div>
+        </div>
+
+        <div class="room-blueprint">
+            <div class="room-upper">
+                <!-- Left Wall Column (Top Doorway Aisle Open; Lower Half has 4 desks) -->
+                <div class="wall-col wall-left">
+                    <div class="wall-top-open">
+                        <span class="open-label">DOORWAY AISLE</span>
+                    </div>
+                    <div class="wall-lower-cluster">
+                        <div class="wall-title">Left Wall (4)</div>
+                        <div class="desk desk-wall" data-seat="15"><span class="num">15</span><div class="name" data-seat="15"></div></div>
+                        <div class="desk desk-wall" data-seat="16"><span class="num">16</span><div class="name" data-seat="16"></div></div>
+                        <div class="desk desk-wall" data-seat="17"><span class="num">17</span><div class="name" data-seat="17"></div></div>
+                        <div class="desk desk-wall" data-seat="18"><span class="num">18</span><div class="name" data-seat="18"></div></div>
+                    </div>
+                </div>
+
+                <!-- Center Area (4 Front Pairs + 3 Second Row Pairs) -->
+                <div class="center-area">
+                    <!-- Front Row -->
+                    <div>
+                        <div class="row-label front-label">
+                            <span>Front Row (8)</span>
+                        </div>
+                        <div class="pairs-row">
+                            <div class="pair">
+                                <div class="desk desk-front" data-seat="1"><span class="num">1</span><div class="name" data-seat="1"></div></div>
+                                <div class="desk desk-front" data-seat="2"><span class="num">2</span><div class="name" data-seat="2"></div></div>
+                            </div>
+                            <div class="pair">
+                                <div class="desk desk-front" data-seat="3"><span class="num">3</span><div class="name" data-seat="3"></div></div>
+                                <div class="desk desk-front" data-seat="4"><span class="num">4</span><div class="name" data-seat="4"></div></div>
+                            </div>
+                            <div class="pair">
+                                <div class="desk desk-front" data-seat="5"><span class="num">5</span><div class="name" data-seat="5"></div></div>
+                                <div class="desk desk-front" data-seat="6"><span class="num">6</span><div class="name" data-seat="6"></div></div>
+                            </div>
+                            <div class="pair">
+                                <div class="desk desk-front" data-seat="7"><span class="num">7</span><div class="name" data-seat="7"></div></div>
+                                <div class="desk desk-front" data-seat="8"><span class="num">8</span><div class="name" data-seat="8"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div>
+                        <div class="row-label second-label">
+                            <span>Second Row (6)</span>
+                        </div>
+                        <div class="pairs-row center-pairs">
+                            <div class="pair">
+                                <div class="desk desk-second" data-seat="9"><span class="num">9</span><div class="name" data-seat="9"></div></div>
+                                <div class="desk desk-second" data-seat="10"><span class="num">10</span><div class="name" data-seat="10"></div></div>
+                            </div>
+                            <div class="pair">
+                                <div class="desk desk-second" data-seat="11"><span class="num">11</span><div class="name" data-seat="11"></div></div>
+                                <div class="desk desk-second" data-seat="12"><span class="num">12</span><div class="name" data-seat="12"></div></div>
+                            </div>
+                            <div class="pair">
+                                <div class="desk desk-second" data-seat="13"><span class="num">13</span><div class="name" data-seat="13"></div></div>
+                                <div class="desk desk-second" data-seat="14"><span class="num">14</span><div class="name" data-seat="14"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Wall Column (Top Cupboards; Lower Half has 3 desks) -->
+                <div class="wall-col wall-right">
+                    <div class="wall-top-cupboards">
+                        <span class="cupboard-label">CUPBOARDS</span>
+                    </div>
+                    <div class="wall-lower-cluster">
+                        <div class="wall-title">Right Wall (3)</div>
+                        <div class="desk desk-wall" data-seat="19"><span class="num">19</span><div class="name" data-seat="19"></div></div>
+                        <div class="desk desk-wall" data-seat="20"><span class="num">20</span><div class="name" data-seat="20"></div></div>
+                        <div class="desk desk-wall" data-seat="21"><span class="num">21</span><div class="name" data-seat="21"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Bottom: Back Wall (8 Desks · Windows) + Teacher Desk in Back-Right Corner -->
+            <div class="room-bottom">
+                <div class="wall-back-two-thirds">
+                    <div class="wall-title">Back Wall · Windows (8)</div>
+                    <div class="wall-back-desks">
+                        <div class="desk desk-back" data-seat="22"><span class="num">22</span><div class="name" data-seat="22"></div></div>
+                        <div class="desk desk-back" data-seat="23"><span class="num">23</span><div class="name" data-seat="23"></div></div>
+                        <div class="desk desk-back" data-seat="24"><span class="num">24</span><div class="name" data-seat="24"></div></div>
+                        <div class="desk desk-back" data-seat="25"><span class="num">25</span><div class="name" data-seat="25"></div></div>
+                        <div class="desk desk-back" data-seat="26"><span class="num">26</span><div class="name" data-seat="26"></div></div>
+                        <div class="desk desk-back" data-seat="27"><span class="num">27</span><div class="name" data-seat="27"></div></div>
+                        <div class="desk desk-back" data-seat="28"><span class="num">28</span><div class="name" data-seat="28"></div></div>
+                        <div class="desk desk-back" data-seat="29"><span class="num">29</span><div class="name" data-seat="29"></div></div>
+                    </div>
+                </div>
+
+                <!-- Teacher Desk in Back Right Corner -->
+                <div class="teacher-station-corner">
+                    <div class="tdesk-box">
+                        <span class="tdesk-icon">🧑‍🏫</span>
+                        <span class="tdesk-text">TEACHER DESK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="seatLeftovers"></div>
     </div>
-    <div class="front-strip">
-        <div class="tdesk">DOOR</div>
-        <div class="board">WHITEBOARD · SCREEN</div>
-    </div>
-    <div class="seat-rows" id="seatRows"></div>
-    <div class="seat-backnote">Back row (7) — set along the side of the room · Windows / teacher desk behind · from the teacher's view at the front</div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -472,8 +1105,24 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                       '" data-sec="' + s + '">' + s.replace('-', ' ') + '</span>').join(''));
 
         // hero
-        document.getElementById('courseLine').textContent =
-            (info ? info.label : sec) + (slides[sec] && slides[sec].title ? ' · ' + slides[sec].title : '');
+        const THEME_MAP = {
+            'CIT': 'CIT9',
+            'HL': 'HL9',
+            'HE': 'HE8'
+        };
+        const ICON_MAP = {
+            'CIT9': '🍁',
+            'HL9': '💚',
+            'HE8': '🏃'
+        };
+        const course = info ? info.course : '';
+        const themeKey = THEME_MAP[course.replace(/[0-9]/g, '')] || 'CIT9';
+        document.body.setAttribute('data-theme', themeKey);
+        const icon = ICON_MAP[themeKey] || '📋';
+
+        document.getElementById('courseLine').innerHTML =
+            '<span class="course-icon">' + icon + '</span>' +
+            escapeHtml((info ? info.label : sec) + (slides[sec] && slides[sec].title ? ' · ' + slides[sec].title : ''));
         document.getElementById('metaLine').innerHTML =
             '<span class="mono">' + sec + '</span>' +
             (m ? ' · ' + m.p + ' · ' + escapeHtml(info.room) : ' · not scheduled today') +
@@ -503,6 +1152,9 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
         // outcome bar
         document.getElementById('outcomeText').textContent = outcomeFor(sec) || '—';
+
+        // task progress breakdown
+        renderProgress(sec);
 
         // editor section picker + fields
         renderSectionPick();
@@ -599,7 +1251,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     function rosterNamesFor(homeroom) {
         const roster = window.MASTER_ROSTER_DATA || [];
         const kids = roster.filter(s => String(s.homeroom) === homeroom)
-            .map(s => ({ first: s.first_name || s.full_first_name || '', last: (s.last_name || '').trim() }))
+            .map(s => {
+                let first = s.first_name || s.full_first_name || '';
+                if (s.pin === 'BEU' || first === 'Blessing') first = 'Kossy';
+                return { first, last: (s.last_name || '').trim() };
+            })
             .sort((a, b) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first));
         // "First + last initial", extended until same-first-name kids are distinguishable
         const byFirst = {};
@@ -620,43 +1276,70 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const seating = window.CLASS_SEATING || {};
         const hr = (seating.homeroomOf || {})[section] || section.replace(/-(CIT|HL|HE)$/, '');
         let source = 'roster', seats = {};
-        const ls = localStorage.getItem('sp_' + hr);
-        if (ls) {
+        // 1. check v2 localStorage from seating-plan-v2.html
+        let ls2 = localStorage.getItem('sp2_' + hr);
+        if (ls2 && hr === '903' && ls2.includes('"7":"Addy C."')) {
+            try { localStorage.removeItem('sp2_903'); ls2 = null; } catch(e){}
+        }
+        if (ls2 && hr === '902' && (ls2.includes('"1":"Sebastian H."') || !ls2.includes('"27":"Morgan P."'))) {
+            try { localStorage.removeItem('sp2_902'); ls2 = null; } catch(e){}
+        }
+        if (ls2) {
             try {
-                const parsed = JSON.parse(ls);
-                if (parsed && Object.keys(parsed).length) { seats = parsed; source = 'live · seating doc (this browser)'; }
+                const parsed = JSON.parse(ls2);
+                if (parsed && Object.keys(parsed).length) {
+                    seats = parsed;
+                    source = 'live · seating doc v2 (this browser)';
+                }
             } catch (e) {}
         }
-        if (source === 'roster') {
+        // 2. check legacy localStorage if v2 not present
+        if (!Object.keys(seats).length) {
+            const ls = localStorage.getItem('sp_' + hr);
+            if (ls) {
+                try {
+                    const parsed = JSON.parse(ls);
+                    if (parsed && Object.keys(parsed).length) {
+                        seats = parsed;
+                        source = 'live · seating doc (this browser)';
+                    }
+                } catch (e) {}
+            }
+        }
+        // 3. check snapshots in class_seating_data.js
+        if (!Object.keys(seats).length) {
             const snap = (seating.snapshots || {})[hr];
             if (snap && snap.seats && Object.keys(snap.seats).length) {
                 seats = snap.seats;
                 source = 'snapshot · ' + (snap.updated || 'undated');
             }
         }
-        const layout = seating.layout || [
-            { key: 'front', n: 11, groups: [3, 4, 4] },
-            { key: 'mid', n: 11, groups: [3, 4, 4] },
-            { key: 'back', n: 7, groups: [3, 4] }
-        ];
-        const total = layout.reduce((a, r) => a + r.n, 0);
-        // saved seats win; alphabetical roster fills the rest, front to back
+
+        const total = 29;
         const queue = rosterNamesFor(hr);
-        const ordered = [];
+        const map = {};
         for (let s = 1; s <= total; s++) {
             const saved = seats[s] || seats[String(s)];
-            let name = '';
             if (saved) {
-                name = saved;
-                const i = queue.indexOf(saved);
+                map[s] = saved;
+                let i = queue.indexOf(saved);
+                if (i === -1 && saved === 'Kossy U.') i = queue.indexOf('Blessing U.');
+                if (i === -1 && saved === 'Blessing U.') i = queue.indexOf('Kossy U.');
                 if (i > -1) queue.splice(i, 1);
-            } else if (queue.length) {
-                name = queue.shift();
+            } else {
+                map[s] = '';
             }
-            ordered.push(name);
+        }
+        // if in pure roster mode, populate front-to-back
+        if (source === 'roster') {
+            for (let s = 1; s <= total; s++) {
+                if (!map[s] && queue.length) {
+                    map[s] = queue.shift();
+                }
+            }
         }
         const leftovers = queue.slice();
-        return { hr, source, layout, ordered, leftovers };
+        return { hr, source, seats: map, leftovers };
     }
     function renderSeats() {
         const plan = seatPlanFor(current);
@@ -664,50 +1347,45 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const srcEl = document.getElementById('seatSource');
         srcEl.textContent = plan.source;
         srcEl.className = 'src' + (plan.source.startsWith('live') ? ' live' : plan.source.startsWith('snapshot') ? ' snap' : '');
-        let seat = 0;
-        document.getElementById('seatRows').innerHTML = plan.layout.map(r => {
-            let row = '<div class="seat-row r-' + r.key + '">';
-            r.groups.forEach(size => {
-                row += '<div class="seat-grp">';
-                for (let i = 0; i < size; i++) {
-                    const name = plan.ordered[seat] || '';
-                    row += '<div class="desk"><span class="num">' + (++seat) + '</span>' +
-                        '<div class="name' + (name ? '' : ' empty') + '">' + (name ? escapeHtml(name) : '—') + '</div></div>';
-                }
-                row += '</div>';
-            });
-            return row + '</div>';
-        }).join('') +
-        (plan.leftovers.length
-            ? '<div class="seat-empty">⚠ ' + plan.leftovers.length + ' student' + (plan.leftovers.length > 1 ? 's' : '') + ' wouldn\u2019t fit: ' + escapeHtml(plan.leftovers.join(', ')) + '</div>'
-            : '');
+
+        // Populate every desk in the blueprint
+        document.querySelectorAll('#seatOverlay .desk').forEach(d => {
+            const seatNum = d.dataset.seat;
+            const nameEl = d.querySelector('.name');
+            const name = (plan.seats && plan.seats[seatNum]) || '';
+            if (nameEl) {
+                nameEl.textContent = name || '—';
+                nameEl.className = 'name' + (name ? '' : ' empty');
+            }
+        });
+
+        const leftEl = document.getElementById('seatLeftovers');
+        if (leftEl) {
+            leftEl.innerHTML = plan.leftovers.length
+                ? '<div class="seat-leftovers">⚠ ' + plan.leftovers.length + ' student' + (plan.leftovers.length > 1 ? 's' : '') + ' unassigned: ' + escapeHtml(plan.leftovers.join(', ')) + '</div>'
+                : '';
+        }
     }
     function fitSeatNames() {
-        // shrink font per row until every name fits its desk (same approach as seating-plan.html)
-        document.querySelectorAll('#seatRows .seat-row').forEach(row => {
-            let rowSize = Infinity;
-            const jobs = [...row.querySelectorAll('.desk')].map(d => {
-                const n = d.querySelector('.name');
-                n.style.fontSize = '';
-                return { d, n, text: n.textContent.trim() };
-            });
-            jobs.forEach(({ d, n, text }) => {
-                if (!text || text === '—') return;
-                let size = 22;
-                const probe = document.createElement('span');
-                probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;padding:0;margin:0;font-weight:700;';
-                probe.textContent = text.split(/\s+/).reduce((a, w) => (w.length > a.length ? w : a), '');
-                n.appendChild(probe);
-                const maxW = d.clientWidth - 14, maxH = d.clientHeight - 18;
-                let guard = 60;
-                while (guard-- > 0 && size > 9 && (probe.offsetWidth > maxW || n.scrollHeight > maxH)) {
-                    size -= 0.5;
-                    n.style.fontSize = size + 'px';
-                }
-                probe.remove();
-                if (size < rowSize) rowSize = size;
-            });
-            if (isFinite(rowSize)) jobs.forEach(({ n }) => { n.style.fontSize = rowSize + 'px'; });
+        document.querySelectorAll('#seatOverlay .desk').forEach(d => {
+            const n = d.querySelector('.name');
+            if (!n) return;
+            n.style.fontSize = '';
+            const text = n.textContent.trim();
+            if (!text || text === '—') return;
+            let size = 20;
+            const probe = document.createElement('span');
+            probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;padding:0;margin:0;font-weight:700;';
+            probe.textContent = text;
+            d.appendChild(probe);
+            const maxW = d.clientWidth - 10;
+            let guard = 50;
+            while (guard-- > 0 && size > 11 && probe.offsetWidth > maxW) {
+                size -= 0.5;
+                probe.style.fontSize = size + 'px';
+            }
+            n.style.fontSize = size + 'px';
+            probe.remove();
         });
     }
     window.addEventListener('resize', () => {
@@ -721,6 +1399,211 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     document.getElementById('seatClose').addEventListener('click', () => toggleSeats(false));
     document.getElementById('seatOverlay').addEventListener('click', ev => {
         if (ev.target === document.getElementById('seatOverlay')) toggleSeats(false);
+    });
+
+    // ---------- task progress breakdown ----------
+    const classProgressCache = {};
+    let activeProgressData = null;
+
+    function homeroomOf(sec) {
+        const seating = window.CLASS_SEATING || {};
+        return (seating.homeroomOf || {})[sec] || sec.replace(/-(CIT|HL|HE)$/, '');
+    }
+
+    function parseProgressData(students, course) {
+        if (!students || !students.length) return null;
+        const taskCounts = {};
+        students.forEach(s => {
+            if (s.task && s.task.trim()) {
+                taskCounts[s.task] = (taskCounts[s.task] || 0) + 1;
+            }
+            if (s.assignments && typeof s.assignments === 'object') {
+                Object.keys(s.assignments).forEach(t => {
+                    if (s.assignments[t]) taskCounts[t] = (taskCounts[t] || 0) + 1;
+                });
+            }
+        });
+
+        let activeTask = '';
+        let maxCount = 0;
+        for (const [t, cnt] of Object.entries(taskCounts)) {
+            if (cnt > maxCount) {
+                maxCount = cnt;
+                activeTask = t;
+            }
+        }
+        if (!activeTask || maxCount === 0) return null;
+
+        let totalDone = 0;
+        let totalItems = 0;
+        const records = [];
+
+        students.forEach(s => {
+            let text = '';
+            if (s.task === activeTask) text = s.summary || '';
+            if (!text && s.assignments && s.assignments[activeTask]) {
+                text = s.assignments[activeTask];
+            }
+
+            let done = 0, total = 24, hasData = false;
+            const m = (text + ' ' + (s.summary || '')).match(/(\d+)\s*\/\s*(\d+)/);
+            if (m) {
+                done = parseInt(m[1], 10);
+                total = parseInt(m[2], 10);
+                hasData = true;
+            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask])) {
+                hasData = true;
+            }
+
+            if (hasData) {
+                totalDone += done;
+                totalItems += total;
+                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                let partner = '';
+                if (s.savedData && s.savedData.partner) partner = s.savedData.partner;
+                let displayName = s.name || '';
+                if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
+                records.push({
+                    name: displayName,
+                    pin: s.pin,
+                    partner: partner,
+                    done: done,
+                    total: total,
+                    pct: pct
+                });
+            }
+        });
+
+        records.sort((a, b) => b.pct - a.pct || b.done - a.done);
+
+        const classAvg = records.length && totalItems > 0
+            ? Math.round((totalDone / totalItems) * 100)
+            : 0;
+
+        return {
+            taskName: activeTask,
+            records: records,
+            totalActive: records.length,
+            finishedCount: records.filter(r => r.pct === 100).length,
+            classAvg: classAvg
+        };
+    }
+
+    async function loadProgressFor(sec, force = false) {
+        const hr = homeroomOf(sec);
+        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
+        if (!force && classProgressCache[hr] !== undefined) {
+            return classProgressCache[hr];
+        }
+        try {
+            if (window.StudentAPI && StudentAPI.getClassProgress) {
+                const data = await StudentAPI.getClassProgress(hr, course);
+                if (data && data.status === 'success' && Array.isArray(data.students)) {
+                    classProgressCache[hr] = parseProgressData(data.students, course);
+                    return classProgressCache[hr];
+                }
+            }
+        } catch (e) {
+            console.warn('Progress load failed:', e);
+        }
+        classProgressCache[hr] = null;
+        return null;
+    }
+
+    async function renderProgress(sec) {
+        const panel = document.getElementById('progressPanel');
+        const prog = await loadProgressFor(sec);
+        activeProgressData = prog;
+
+        if (!prog || !prog.records.length) {
+            panel.style.display = 'none';
+            return;
+        }
+
+        panel.style.display = 'flex';
+        const cleanName = prog.taskName.replace(/^(HL[89]|CIT9)\s*/, '');
+        document.getElementById('progTaskBadge').textContent = cleanName;
+        document.getElementById('progTaskBadge').title = prog.taskName;
+
+        document.getElementById('progStatsStrip').innerHTML =
+            `<span class="prog-stat-chip"><b>${prog.totalActive}</b> Active</span>` +
+            `<span class="prog-stat-chip"><b>${prog.classAvg}%</b> Class Avg</span>` +
+            `<span class="prog-stat-chip"><b>${prog.finishedCount}/${prog.totalActive}</b> Done</span>`;
+
+        document.getElementById('progClassBarFill').style.width = prog.classAvg + '%';
+
+        document.getElementById('progListWrap').innerHTML = prog.records.map(r => `
+            <div class="prog-row">
+                <div class="prog-row-lead">
+                    ${escapeHtml(r.name)}
+                    ${r.partner ? '<span class="prog-row-partner">+ ' + escapeHtml(r.partner) + '</span>' : ''}
+                </div>
+                <div class="prog-row-meter">
+                    <span class="prog-row-val">${r.done}/${r.total}</span>
+                    <div class="prog-mini-bar">
+                        <div class="prog-mini-fill" style="width:${r.pct}%;background:${r.pct === 100 ? 'var(--emerald)' : 'var(--blue)'};"></div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderProgressModal() {
+        const sec = current;
+        const hr = homeroomOf(sec);
+        const prog = classProgressCache[hr] || activeProgressData;
+        document.getElementById('progModalSection').textContent = sec;
+
+        if (!prog || !prog.records.length) {
+            document.getElementById('progModalSub').textContent = 'No digital task progress recorded yet for ' + sec + '.';
+            document.getElementById('progModalStats').innerHTML = '';
+            document.getElementById('progModalGrid').innerHTML = '<div style="padding:20px;color:var(--text-dim);font-style:italic;grid-column:span 2;">No active assignments recorded in ledger.</div>';
+            return;
+        }
+
+        document.getElementById('progModalSub').textContent = prog.taskName + ' · Live Class Ledger';
+        document.getElementById('progModalStats').innerHTML =
+            `<span class="prog-stat-chip"><b>${prog.totalActive}</b> Students Active</span>` +
+            `<span class="prog-stat-chip"><b>${prog.classAvg}%</b> Class Average</span>` +
+            `<span class="prog-stat-chip"><b>${prog.finishedCount}</b> Completed (100%)</span>` +
+            `<span class="prog-stat-chip"><b>${prog.totalActive - prog.finishedCount}</b> In Progress</span>`;
+
+        document.getElementById('progModalGrid').innerHTML = prog.records.map(r => `
+            <div class="prog-card">
+                <div class="prog-card-left">
+                    <div class="prog-card-title">
+                        <span>${escapeHtml(r.name)}</span>
+                        ${r.pin ? '<span class="prog-card-pin">' + escapeHtml(r.pin) + '</span>' : ''}
+                    </div>
+                    <div class="prog-card-sub">${r.partner ? 'Partner: ' + escapeHtml(r.partner) : 'Independent / Lead'}</div>
+                </div>
+                <div class="prog-card-right">
+                    <div class="prog-card-ratio">${r.done}/${r.total} <span style="font-size:0.75rem;font-weight:600;color:var(--text-dim);">(${r.pct}%)</span></div>
+                    <div class="prog-card-bar">
+                        <div class="prog-card-fill ${r.pct === 100 ? 'done' : ''}" style="width:${r.pct}%"></div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleProgress(open) {
+        document.getElementById('progOverlay').classList.toggle('open', open);
+        if (open) renderProgressModal();
+    }
+
+    document.getElementById('progBtn').addEventListener('click', () => toggleProgress(true));
+    document.getElementById('progExpandBtn').addEventListener('click', () => toggleProgress(true));
+    document.getElementById('progClose').addEventListener('click', () => toggleProgress(false));
+    document.getElementById('progOverlay').addEventListener('click', ev => {
+        if (ev.target === document.getElementById('progOverlay')) toggleProgress(false);
+    });
+    document.getElementById('progRefreshBtn').addEventListener('click', async () => {
+        document.getElementById('progRefreshBtn').textContent = '⏳…';
+        await loadProgressFor(current, true);
+        renderProgress(current);
+        renderProgressModal();
+        document.getElementById('progRefreshBtn').textContent = '🔄 Refresh';
     });
 
     // ---------- live sync ----------
@@ -746,6 +1629,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (!live) setPill('seed', 'SEED (offline)');
         }
         render();
+        loadProgressFor(current, true).then(() => renderProgress(current));
     }
     pill.addEventListener('click', () => refreshLive(false));
     setInterval(() => refreshLive(true), 3 * 60 * 1000);
@@ -762,12 +1646,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (ev.key === 'Escape') {
             toggleSeats(false);
             toggleEditor(false);
+            toggleProgress(false);
             return;
         }
         const typing = ev.target && (ev.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(ev.target.tagName));
         if (typing) return;
         if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
         else if (ev.key === 's' || ev.key === 'S') toggleSeats(!document.getElementById('seatOverlay').classList.contains('open'));
+        else if (ev.key === 'p' || ev.key === 'P') toggleProgress(!document.getElementById('progOverlay').classList.contains('open'));
         else if (ev.key === 'f' || ev.key === 'F') document.getElementById('fsBtn').click();
         else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
             const today = todaysSections();
@@ -776,6 +1662,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (i !== -1) {
                 setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length]);
                 if (document.getElementById('seatOverlay').classList.contains('open')) renderSeats();
+                if (document.getElementById('progOverlay').classList.contains('open')) renderProgressModal();
             }
         }
     });

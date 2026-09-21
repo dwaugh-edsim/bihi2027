@@ -2098,7 +2098,7 @@ window.MASTER_ROSTER_DATA = [
     "grade": 9,
     "last_name": "Hall",
     "full_first_name": "Sebastian Lundin",
-    "first_name": "Sebastian",
+    "first_name": "Seb",
     "student_id": "3102342098",
     "courses": [
       "CIT 9",
@@ -2803,7 +2803,7 @@ window.MASTER_ROSTER_DATA = [
     "grade": 9,
     "last_name": "Umeokafor",
     "full_first_name": "Blessing Kosisochukwu",
-    "first_name": "Blessing",
+    "first_name": "Kossy",
     "student_id": "3103472845",
     "courses": [
       "CIT 9",
