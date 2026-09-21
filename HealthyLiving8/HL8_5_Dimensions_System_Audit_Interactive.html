@@ -532,8 +532,8 @@
                 <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="closeLoginModal()">✕</button>
             </div>
             <div class="modal-row" style="margin-top:0;">
-                <div>
-                    <label class="modal-label">CLASS</label>
+                <div id="loginClassRow" style="display:none;">
+                    <label class="modal-label">CLASS (TEACHER DEMO ONLY)</label>
                     <select id="loginClassSelect" class="modal-input"></select>
                 </div>
                 <div>
@@ -542,7 +542,7 @@
                 </div>
                 <div>
                     <label class="modal-label">3-LETTER PIN</label>
-                    <input type="text" id="loginPinInput" class="modal-input" maxlength="3" placeholder="e.g. ABC" style="font-family:'JetBrains Mono',monospace; font-weight:800; text-transform:uppercase; letter-spacing:0.1em;">
+                    <input type="text" id="loginPinInput" class="modal-input" maxlength="3" placeholder="e.g. ABC" style="font-family:'JetBrains Mono',monospace; font-weight:800; text-transform:uppercase; letter-spacing:0.1em;" oninput="updateLoginClassRow()">
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                     <span style="font-size:0.75rem; color:var(--text-dim, #64748b); font-weight:600;">Forgot your PIN? Ask Mr. Waugh</span>
@@ -727,7 +727,8 @@ const ASSIGNMENT = {
             const classOptions = ASSIGNMENT.classes.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
             document.getElementById('metaSection').innerHTML = classOptions;
             document.getElementById('loginClassSelect').innerHTML = classOptions;
-            document.getElementById('claimClassSelect').innerHTML = classOptions;
+            const claimSelect = document.getElementById('claimClassSelect'); // optional element
+            if (claimSelect) claimSelect.innerHTML = classOptions;
             document.getElementById('metaSection').value = String(ASSIGNMENT.defaultClass);
             document.getElementById('authStudentClass').innerText = `Class ${ASSIGNMENT.defaultClass}`;
 
@@ -854,13 +855,8 @@ const ASSIGNMENT = {
             if (data.auditors && document.getElementById('metaAuditors')) document.getElementById('metaAuditors').value = data.auditors;
             if (data.partner && document.getElementById('metaPartner')) document.getElementById('metaPartner').value = data.partner;
             if (data.date && document.getElementById('metaDate')) document.getElementById('metaDate').value = data.date;
-            if ((data.section || data.className) && document.getElementById('metaSection')) {
-                const clsVal = String(data.section || data.className).replace('HL', '').replace('CIT', '').trim();
-                const sel = document.getElementById('metaSection');
-                for (const opt of sel.options) {
-                    if (opt.value === clsVal) { sel.value = clsVal; break; }
-                }
-            }
+            // NOTE: the class (metaSection) is owned by the login — the server
+            // roster resolves it from the PIN — so restored data never changes it.
             const answers = data.answers || data;   // tolerate flat legacy payloads
             const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
             for (const f of ALL_FIELDS) {
@@ -1058,14 +1054,24 @@ const ASSIGNMENT = {
 
         function openLoginModal() {
             document.getElementById('loginModal').style.display = 'flex';
+            updateLoginClassRow();
             setTimeout(() => document.getElementById('loginNameInput')?.focus(), 50);
         }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
 
+        // The class dropdown is for TEACHER DEMO PINS only. Real students are
+        // resolved by their PIN alone — the server roster knows their homeroom.
+        const DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
+        function updateLoginClassRow() {
+            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
+            document.getElementById('loginClassRow').style.display =
+                DEMO_PINS.includes(pin) ? '' : 'none';
+        }
+
         async function performLogin() {
             const name = document.getElementById('loginNameInput').value.trim();
             const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
-            const cls = document.getElementById('loginClassSelect').value;
+            const cls = DEMO_PINS.includes(pin) ? document.getElementById('loginClassSelect').value : '';
 
             const auth = await StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
@@ -1084,6 +1090,14 @@ const ASSIGNMENT = {
             }
 
             setAuthState(student);
+            // Sync the top-form class to the login-resolved homeroom so saves
+            // always file under the student's real class (demo pins: picked class).
+            const home = String(student.homeroom || student.className || '');
+            const metaSel = document.getElementById('metaSection');
+            if (home && metaSel && Array.from(metaSel.options).some(o => o.value === home)) {
+                metaSel.value = home;
+                onClassChange();
+            }
             closeLoginModal();
             loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
         }
