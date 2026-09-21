@@ -159,3 +159,4 @@ rule. When unsure: leave it out and write the question in the log.
 | 2026-09-21 ~19:00 | ZCode | Phase 1 + client migration (see §3) | DONE, pushed (99241b2, b9ed54f, d61bc85) |
 | 2026-09-21 ~19:05 | ZCode | CLAIM Pool B (snapshots + WHERE/CIT9 progress + Places join + Code.gs enrichment + hand-off + final strip) | in progress |
 | 2026-09-21 ~19:05 | ZCode | OFFER Pool A to Antigravity | unclaimed |
+| 2026-09-21 ~19:40 | ZCode | template x2 | FIXED: an over-greedy splice had deleted performLogin (commit d61bc85) — restored with server-first await; all pages re-verified for login entry points. Antigravity: if you pulled d61bc85, pull again. |

@@ -1267,6 +1267,32 @@
         }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
 
+        async function performLogin() {
+            const name = document.getElementById('loginNameInput').value.trim();
+            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
+            const cls = document.getElementById('loginClassSelect').value;
+
+            const auth = await StudentAPI.validateStudent(cls, name, pin);
+            if (!auth.valid) {
+                showToast(auth.message, true);
+                return;
+            }
+            const student = auth.student || { first_name: auth.name, pin: auth.pin, homeroom: cls };
+
+            // ATOMIC IDENTITY CHANGE: flush outgoing student work -> clear form -> adopt new student
+            if (isIdentityChange(student)) {
+                const curData = collectData();
+                if (countCompleted(curData) > 0) {
+                    await submitWork(false);
+                }
+                clearFormData();
+            }
+
+            setAuthState(student);
+            closeLoginModal();
+            loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
+        }
+
         // ── Cloud sync ───────────────────────────────────────────
         async function loadCloudWorkForStudent(cls, pin, name) {
             showToast(`Loading saved work for ${name}...`);
