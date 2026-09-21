@@ -58,7 +58,7 @@ flowchart TD
 * **`StudentAPI.submitProfile(taskName, profileData, summaryText, courseKey)`:** Pushes payloads to Google Apps Script. Features a **guaranteed `mode: 'no-cors'` fallback** to bypass school proxy and browser CORS redirect blocks, ensuring zero student work is ever lost.
 
 ### B. Cloud Webhook Backend (`Code.gs`)
-* **Endpoint:** `https://script.google.com/macros/s/AKfycbzsfWqIHC5ToS-6tYPexArJ6SvW0NAChEnZR5YQmwkK4MYm1CMD-zqgleTTDqLMcPsW/exec`
+* **Endpoint:** `https://script.google.com/macros/s/AKfycby8XaHRRj07UUQ-4NTK7AH4s2qVp3GKe6XRyMA_tGLap52ZUWYg2faJbVhIB7Ea7_VJ/exec`
 * **Features:**
   * Auto-creates and routes rows into dedicated class tabs: `901`, `902`, `903`, `801`, `802`, `803`, `804`, `Lockers_902`.
   * Preserves past student work via JSON merging (`mergedData._tasks[taskName]`) so multiple assignments do not overwrite each other.

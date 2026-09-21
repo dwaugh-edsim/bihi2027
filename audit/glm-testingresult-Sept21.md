@@ -149,3 +149,91 @@ instant. Applying the F3 GAS snippet (skip-cache / shorter TTL) closes the gap.
 2. GAS: honour `cache=0` / shorten TTL in the `get_class_progress` branch.
 3. Ledger cleanup action in the GAS (no delete exists; TST rows are inert).
 
+---
+
+## Addendum (Sept 21, late night — dropdown sweep DONE + live V6.3.0 checks)
+
+### Dropdown sweep — all 8 remaining files done (item 1 above: closed)
+
+Same pattern as HL8: `loginClassRow` is hidden unless the typed PIN is a demo
+pin (TST/WAU/DEV/MRW), `performLogin` passes an empty class for real kids, the
+login-resolved homeroom forces the save class after login, and the restore
+paths no longer overwrite the class from saved data.
+
+- `HealthyLiving9/24_HL9_Class2_Operation_Addictive_By_Design.html`
+- `HL9_Class1_10_Station_Audit_Template.html` ×3 (HealthyLiving9, `Unit 1 - Sleep`,
+  Day1_Deliverables — the three were byte-identical; edited one, mirrored two)
+- `18_Cit9_Real_Issues_Dossier.html` ×2 (Citizenship 9 + Student_System — drifted
+  versions, edited separately)
+- `_TEMPLATE_GAS_Assignment.html` ×2 (Student_System + templates — identical)
+
+Two latent bugs found & fixed during the sweep (Cit9 dossier only):
+
+- **Student_System copy:** `buildDossierPayload()` returned bare `name` / `pin` /
+  `cls` identifiers that are not declared anywhere in that page → every save
+  would have thrown ReferenceError and silently died. Now reads the login-owned
+  fields (`docStudentName` / `authStudentPin` / `docStudentClass`), same as the
+  older copy. This page would have crashed on first save — worth a quick live
+  test before the Cit9 classes use it.
+- **Citizenship 9 copy:** the restore block iterated `.options` on
+  `docStudentClass`, which is a text *input* (no `.options`) → restore would
+  crash mid-way. Block removed along with the class-restore fix.
+
+Also note: on all pages the F2-style fix (login-resolved homeroom wins) now
+matches HL8, so cross-class residue in old saved drafts can't misroute saves.
+
+### Live GAS checks after the teacher's V6.3.0 paste (~22:00–22:30Z)
+
+- `get_health` → `V6.3.0-2026-09-21` ✓ · `get_class_log` reads fine ✓
+- `resolve_student` is live: `TST` → `demo:true, className:DEMO` ✓,
+  bogus pin → `valid:false` ✓
+- ⚠️ **`get_roster_meta` → `loaded:false`** — `ROSTER_PRIVATE` is NOT loaded
+  server-side, so every real PIN returns `valid:false` and all pages are still
+  running on the public-roster fallback (which still carries PINs). Push it via
+  the gated `set_roster` action (payload lives on the private-data machine),
+  then re-check `get_roster_meta` → `loaded:true`.
+- ⚠️ **F3 NOT fixed by the deploy (yet):** fresh TST save to 803
+  (marker `F3RETEST-1790028459`, ~22:27Z) is visible **instantly** via
+  `action=login` but still absent from `get_class_progress&className=803`
+  (+10 s and later). Saves also still answer "submitted_successfully
+  (V6.2.1)". Combined with `deployedAt: 18:30Z` in get_health, the served
+  script still looks like the earlier mixed variant — i.e. the repo Code.gs
+  paste didn't take (not saved, or the deployment wasn't bumped to a new
+  version). In the editor: confirm Code.gs is saved, then **Deploy → Manage
+  deployments → ✏️ edit the existing Web app deployment → Version: New
+  version → Deploy** (keeps the same URL — never create a new deployment),
+  then re-run the marker probe. Once the repo copy is truly live,
+  `get_class_progress` reads the sheet directly (no cache) and F3 + item 2
+  above close together.
+
+---
+
+## Addendum 2 (Sept 21 night — full smoke tests: ALL PASS + 1 more Cit9 fix)
+
+### Smoke test matrix (login → dropdown checks → fill marker → save → server
+read-back → logout → re-login → cloud restore), run in a real browser over
+localhost against the live GAS. Demo saves land in the real ledger as inert
+TST rows (names `ZSmoke-Add`, `ZSmoke-Sleep`, `ZSmoke-Tmpl`, `ZSmoke-CitA`,
+`ZSmoke-CitB`).
+
+| Page | Dropdown hidden for kid pins / shown for TST | Login | Save → server | Logout wipe | Re-login restore |
+|---|---|---|---|---|---|
+| HL9 Op Addictive (24_HL9_Class2) | ✅ / ✅ | ✅ 902 | ✅ SMK-ADD marker + cert modal | ✅ | ✅ marker back, 1/24 |
+| HL9 Sleep Clinic template | ✅ / ✅ | ✅ 902 | ✅ SMK-SLP marker | ✅ | ✅ marker back |
+| _TEMPLATE_GAS_Assignment | ✅ / ✅ | ✅ 902 | ✅ SMK-TPL marker | ✅ | ✅ marker back |
+| Cit9 dossier (Citizenship 9 copy) | ✅ / ✅ | ✅ 902 | ✅ SMK-CITA marker | ✅ (session clear + reload) | ✅ marker back |
+| Cit9 dossier (Student_System copy) | ✅ / ✅ | ✅ 902 | ✅ SMK-CITB marker, className 902 | ✅ | ✅ marker back |
+
+Byte-identical copies (Sleep ×2 mirrors, template mirror) inherit the PASS.
+
+**New fix found by the smoke test (both Cit9 copies):** the demo-pin branch of
+`performLogin` returned before the fieldset-unlock lines, so after a TST login
+the whole `workFieldset` stayed `disabled` and the red gate banner stayed up —
+a teacher demo could log in but couldn't type a thing (and couldn't have been
+smoke-tested at all). Demo branch now unlocks the fieldset, hides the banner,
+and enables the reset button, same as real logins.
+
+Verdict: **all 8 swept files ready for class** on the page side. Server-side
+caveats from Addendum 1 still stand (redeploy didn't take; ROSTER_PRIVATE not
+loaded).
+
