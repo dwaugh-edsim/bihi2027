@@ -85,6 +85,19 @@ teacher's point: local storage is a real data layer in all of these tests
 
 ## Test log (times ADT / UTC-3)
 
+### HL9 Sleep Clinic (`HealthyLiving9/HL9_Class1_10_Station_Audit_Template.html`) — PASS
+- 19:4x — Live page loads (TASK_NAME matches ledger: "HL9 Sleep Clinic 10-Station Audit").
+- Login TST/901 OK (demo fallback name "Teacher Demo" — page's name placeholder
+  differs from HL8's, cosmetic).
+- Filled stations 1–3 (hrs/risk/notes): progress counter 0/10 → 3/10 ✓.
+- Autosave (4s debounce → `submit_profile`, no-cors) → **verified server-side**
+  via `action=login` read: stamps + risk values present ✓.
+- Reload + re-login → cloud restore verified: s1_hrs 6.5, s1_risk CRITICAL,
+  s1_notes stamp, progress 3/10 ✓.
+- Note: TST/901 row carries old smoke-test residue keys (`test`, `foo`) — inert.
+- Note: autosave uses no-cors POST → invisible to network probes; verify via
+  `action=login` reads (that's the authoritative per-student read).
+
 - 15:0x — Live HL8 page loads; login modal OK; page advertises PIN TST.
 - 15:1x — Login 803/TestRun/TST → OK ("Restored your cloud work" — prior
   smoke-test data exists for this pin).
