@@ -27,6 +27,12 @@ Click into any subfolder below to access its detailed architecture documentation
 | [**`ILT/`**](ILT/README.md) | Instructional Leadership Time & Games | 7 ILT, 902, 903 | [Read Guide](ILT/README.md) |
 | [**`Student_System/`**](Student_System/README.md) | PIN Auth, Master Rosters & Google Sync | All Classes (Grades 7, 8, 9) | [Read Guide](Student_System/README.md) |
 | [**`Day1_Deliverables/`**](Day1_Deliverables/README.md) | Turnkey Opening Week Binder Packages | Homeroom 902 & All Classes | [Read Guide](Day1_Deliverables/README.md) |
+| [**`Homeroom_902/`**](Homeroom_902/) | Homeroom 902 Clipboard, Decks & Schedules | Homeroom 902 | Room 8 Routines |
+| [**`sub_folder/`**](sub_folder/) | Substitute Teacher Binder & Master Rosters | All Classes / Room 8 | Emergency Sub Package |
+| [**`curriculum-planning/`**](curriculum-planning/) | Year Plans & Three-Term Assessment Weights | All Courses | Master Planning |
+| [**`system-maintenance/`**](system-maintenance/) | Hardening Audits & Resiliency Proposals | Infrastructure | Architecture & Audits |
+| [**`tools/`**](tools/) | Data Sync & Automation Scripts | Developer | Automation Scripts |
+| [**`data/`**](data/) | Classroom Codes & Google Sheets CSV Exports | All Classes | Data Store |
 
 ---
 
@@ -37,11 +43,13 @@ Click into any subfolder below to access its detailed architecture documentation
    * Authentication is powered by unique 3-letter student PINs (e.g. `MON`, `JHB`, `NTT`) preloaded via `Student_System/students_roster_data.js`.
    * Real-time student work syncs directly to Google Apps Script via `StudentAPI` in `Student_System/api.js` using background debouncing (2s pause), tab switching triggers, and `mode: 'no-cors'` fallbacks.
 
-2. **Room 8 Homeroom 902 Operations:**
-   * Physical locker assignments, Dudley combination locks, and printable slips: `902-locker-assignments.html`, `902_desk_lock_slips.html`.
-   * Complete 10-day cycle student clipboard with daily schedules and point rubrics: `902_Class_Clipboard_10Day_Cycle.html`.
+2. **Room 8 Homeroom 902 Operations (`Homeroom_902/`):**
+   * Physical locker assignments, Dudley combination locks, and printable slips: `Day1_Deliverables/902-locker-assignments.html`, `Day1_Deliverables/902_desk_lock_slips.html`.
+   * Complete 10-day cycle student clipboard with daily schedules and point rubrics: `Homeroom_902/902_Class_Clipboard_10Day_Cycle.html`.
+   * Today's schedule and morning briefing deck: `Homeroom_902/902_Today_Schedule_Deck.html`.
 
-3. **Substitute Teacher / Emergency Binder:**
-   * All class lists, medical alerts, and course enrollments: `sub_folder_class_lists.html` and `SUB_FOLDER_CLASS_LISTS.md`.
-   * 10-day cycle teacher schedules across all 5 daily periods: `sub_folder_schedules.html` and `SUB_FOLDER_SCHEDULES.md`.
-   * Binder cover and spine inserts: `sub_folder_binder_cover_and_spine.html`.
+3. **Substitute Teacher / Emergency Binder (`sub_folder/`):**
+   * All class lists, medical alerts, and course enrollments: `sub_folder/sub_folder_class_lists.html` and `sub_folder/SUB_FOLDER_CLASS_LISTS.md`.
+   * 10-day cycle teacher schedules across all 5 daily periods: `sub_folder/sub_folder_schedules.html` and `sub_folder/SUB_FOLDER_SCHEDULES.md`.
+   * Binder cover and spine inserts: `sub_folder/sub_folder_binder_cover_and_spine.html`.
+   * Printable A4 landscape master schedule: `sub_folder/MrWaugh_Teaching_Schedule_10Day_Cycle_A4.html`.
