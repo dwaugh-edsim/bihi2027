@@ -29,12 +29,81 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.2.1-2026-09-21';
-var CONFIG_DEPLOY_DATE = '2026-09-21T13:35:00Z';
-var MASTER_PIN_HOMEROOM_MAP = {"RUC":"801","TAD":"801","ASD":"801","MAD":"801","STE":"801","ZEG":"801","SAH":"801","KEK":"801","AYE":"801","AER":"801","TRU":"801","RUM":"801","SAM":"801","MAM":"801","ANM":"801","UEM":"801","SME":"801","SHB":"801","ARA":"801","SAS":"801","SYS":"801","NAS":"801","NES":"801","NKS":"801","AMT":"801","UAT":"801","MAV":"801","AEW":"801","AZB":"802","HEB":"802","DRB":"802","UGC":"802","CAC":"802","DAC":"802","HAD":"802","WAE":"802","BEE":"802","MAG":"802","MEG":"802","KAG":"802","MYH":"802","SHA":"802","SPH":"802","MSK":"802","AMK":"802","MAA":"802","MCM":"802","EMM":"802","ACM":"802","ENR":"802","ADR":"802","ARS":"802","SCT":"802","MKV":"802","ANW":"802","GAW":"802","SAA":"803","ZEA":"803","YHB":"803","TYB":"803","WEH":"803","AMB":"803","ASB":"803","BEB":"803","ENB":"803","NEC":"803","EVC":"803","DRG":"803","STG":"803","THH":"803","AEA":"803","SAK":"803","ENE":"803","CHZ":"803","DRM":"803","NMA":"803","SMA":"803","AMM":"803","MUN":"803","EAT":"803","HAT":"803","BEV":"803","EMV":"803","MAW":"803","RTA":"804","ACA":"804","CRA":"804","HAB":"804","VAB":"804","THD":"804","CAD":"804","MDN":"804","KAD":"804","HED":"804","MYG":"804","MAH":"804","EZE":"804","CAM":"804","CHM":"804","RSM":"804","RNM":"804","CET":"804","ARP":"804","MAP":"804","SPR":"804","ERS":"804","HAS":"804","DES":"804","ASP":"804","TAT":"804","CHT":"804","KHY":"804","USA":"901","CAB":"901","TEB":"901","NVB":"901","RSB":"901","NAC":"901","HNC":"901","VAD":"901","ABE":"901","BRE":"901","NNG":"901","ADH":"901","DRA":"901","TRH":"901","DUK":"901","AUA":"901","BEG":"901","DUM":"901","AUM":"901","SAN":"901","AVP":"901","DAP":"901","MPU":"901","ARE":"901","CAS":"901","ANS":"901","CAT":"901","MAT":"901","MNA":"902","HNB":"902","GEB":"902","NAB":"902","NCA":"902","BEC":"902","YAE":"902","SEH":"902","THA":"902","RDH":"902","AAN":"902","SKU":"902","DUA":"902","MAY":"902","AXM":"902","SMM":"902","ZAN":"902","MHR":"902","THV":"902","MRP":"902","SCP":"902","CHR":"902","RDS":"902","SES":"902","HST":"902","ANT":"902","NVT":"902","MSC":"903","ADC":"903","WAD":"903","SCD":"903","AVS":"903","APA":"903","BES":"903","AVG":"903","MHU":"903","BEK":"903","KEA":"903","AMA":"903","CMA":"903","TMM":"903","AAM":"903","DMQ":"903","CMZ":"903","ZEM":"903","AMU":"903","MCN":"903","MAR":"903","VES":"903","PAS":"903","ZES":"903","PSA":"903","ZAS":"903","EVS":"903","BEU":"903","GWW":"903"};
+var CONFIG_VERSION = 'V6.3.0-2026-09-21';
+var CONFIG_DEPLOY_DATE = '2026-09-21T18:30:00Z';
+// PRIVACY: the student PIN -> homeroom map no longer lives in this file (this
+// repo is public). The authoritative roster is pushed into the hidden
+// 'Roster_Private' tab by the teacher-gated `set_roster` action, sourced from
+// Private_Student_Data/roster_gas_payload.json. Kept as an empty stub so any
+// legacy references degrade to client-sent class + cross-sheet search.
+var MASTER_PIN_HOMEROOM_MAP = {};
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
 var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
+
+// ===== PRIVATE ROSTER (hidden 'Roster_Private' tab — never exposed to clients) =====
+// Tab layout: A1 banner, A2 updated ISO, A3 aliases JSON, row 5 headers,
+// rows 6+ = pin | hr | first | last | grade. Pushed via set_roster only.
+var ROSTER_TAB = 'Roster_Private';
+
+function getRosterPrivate() {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('ROSTER_PRIVATE');
+  if (hit) {
+    try { return JSON.parse(hit); } catch (e) { /* fall through to sheet */ }
+  }
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(ROSTER_TAB);
+  if (!sheet || sheet.getLastRow() < 6) return null;
+  let aliases = {};
+  try { aliases = JSON.parse(sheet.getRange(3, 1).getValue() || '{}'); } catch (e) { aliases = {}; }
+  const rows = sheet.getRange(6, 1, sheet.getLastRow() - 5, 5).getValues();
+  const students = rows
+    .filter(function (r) { return String(r[0] || '').trim(); })
+    .map(function (r) {
+      return {
+        pin: String(r[0]).trim().toUpperCase(),
+        hr: String(r[1]).trim(),
+        first: String(r[2]).trim(),
+        last: String(r[3]).trim(),
+        grade: r[4]
+      };
+    });
+  const data = {
+    updated: String(sheet.getRange(2, 1).getValue() || ''),
+    aliases: aliases,
+    students: students
+  };
+  try { cache.put('ROSTER_PRIVATE', JSON.stringify(data), 300); } catch (e) { /* cache full is non-fatal */ }
+  return data;
+}
+
+// Resolve a typed PIN to its private roster entry, honouring aliases
+// (e.g. typed "SHA" -> canonical "SAH"). Returns null when unknown/not loaded.
+function resolveRosterEntry(pin) {
+  const up = String(pin || '').trim().toUpperCase();
+  if (!up) return null;
+  const roster = getRosterPrivate();
+  if (!roster || !Array.isArray(roster.students)) return null;
+  for (var i = 0; i < roster.students.length; i++) {
+    if (roster.students[i].pin === up) return roster.students[i];
+  }
+  const alias = roster.aliases && roster.aliases[up];
+  if (alias) {
+    const canon = String(alias).trim().toUpperCase();
+    for (var j = 0; j < roster.students.length; j++) {
+      if (roster.students[j].pin === canon) return roster.students[j];
+    }
+  }
+  return null;
+}
+
+// Official homeroom for a PIN: private roster first, legacy stub as fallback.
+function officialHomeroomFor(pin) {
+  const hit = resolveRosterEntry(pin);
+  if (hit && hit.hr) return hit.hr;
+  return MASTER_PIN_HOMEROOM_MAP[pin] || null;
+}
 
 function getSheetForClass(ss, className) {
   const cleanName = String(className || 'General').trim();
@@ -454,6 +523,56 @@ function doGet(e) {
     }
 
     // ==========================================
+    // ACTION: RESOLVE STUDENT (server-side PIN validation for assignment pages)
+    // Returns ONLY the matched student's display info — never roster lists.
+    // ==========================================
+    if (action === 'resolve_student') {
+      const rPin = String(params.pin || '').trim().toUpperCase();
+      if (!rPin) throw new Error('3-Letter PIN is required.');
+      if (DEMO_PINS.indexOf(rPin) !== -1) {
+        return successJSON({
+          status: 'success', valid: true, demo: true, pin: rPin,
+          className: 'DEMO', firstName: 'Demo', lastInitial: '', version: CONFIG_VERSION
+        });
+      }
+      const rHit = resolveRosterEntry(rPin);
+      if (!rHit) {
+        return successJSON({ status: 'success', valid: false, pin: rPin, version: CONFIG_VERSION });
+      }
+      return successJSON({
+        status: 'success',
+        valid: true,
+        pin: rPin,
+        className: String(rHit.hr || 'General'),
+        firstName: String(rHit.first || ''),
+        lastInitial: String(rHit.last || '').charAt(0).toUpperCase(),
+        grade: rHit.grade || '',
+        version: CONFIG_VERSION
+      });
+    }
+
+    // ==========================================
+    // ACTION: GET ROSTER META (teacher sanity check after set_roster —
+    // counts only, never names/pins)
+    // ==========================================
+    if (action === 'get_roster_meta') {
+      const roster = getRosterPrivate();
+      if (!roster) {
+        return successJSON({ status: 'success', loaded: false, version: CONFIG_VERSION });
+      }
+      const perClass = {};
+      roster.students.forEach(function (s) { perClass[s.hr] = (perClass[s.hr] || 0) + 1; });
+      return successJSON({
+        status: 'success',
+        loaded: true,
+        updated: roster.updated,
+        count: roster.students.length,
+        perClass: perClass,
+        version: CONFIG_VERSION
+      });
+    }
+
+    // ==========================================
     // ACTION: SINGLE STUDENT LOGIN / SYNC (GET)
     // ==========================================
     const pin = String(params.pin || '').trim().toUpperCase();
@@ -461,8 +580,9 @@ function doGet(e) {
     if (!pin) throw new Error("3-Letter PIN is required.");
     if (DEMO_PINS.indexOf(pin) !== -1) {
       className = 'DEMO';
-    } else if (MASTER_PIN_HOMEROOM_MAP[pin]) {
-      className = MASTER_PIN_HOMEROOM_MAP[pin];
+    } else {
+      const official = officialHomeroomFor(pin);
+      if (official) className = official;
     }
 
     const sheet = getSheetForClass(ss, className);
@@ -573,6 +693,70 @@ function doPost(e) {
       }
 
       return successJSON({ status: 'no_data_provided' });
+    }
+
+    // ==========================================
+    // ACTION: SET ROSTER (teacher-only roster push)
+    // Body: { action:'set_roster', teacherPin, roster:{ updated, aliases,
+    //        students:[{pin, hr, first, last, grade}] } }
+    // FAIL-CLOSED: refuses to run unless the CLASS_LOG_PIN Script Property is
+    // set AND matches — otherwise anyone could overwrite the private roster.
+    // Writes the hidden Roster_Private tab; student login reads it.
+    // ==========================================
+    if (action === 'set_roster') {
+      const expectedRosterPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (!expectedRosterPin) {
+        throw new Error('ROSTER REFUSED: set the CLASS_LOG_PIN Script Property first (fail-closed).');
+      }
+      if (String(payload.teacherPin || '').trim() !== String(expectedRosterPin)) {
+        throw new Error('Teacher PIN required for set_roster.');
+      }
+      const rosterIn = payload.roster || null;
+      if (!rosterIn || !Array.isArray(rosterIn.students) || !rosterIn.students.length) {
+        throw new Error('set_roster requires payload.roster.students[].');
+      }
+      const seen = {};
+      let dupes = 0;
+      const students = rosterIn.students
+        .map(function (s) {
+          return {
+            pin: String(s.pin || '').trim().toUpperCase(),
+            hr: String(s.hr || '').trim(),
+            first: String(s.first || '').trim(),
+            last: String(s.last || '').trim(),
+            grade: s.grade === '' ? '' : (Number(s.grade) || '')
+          };
+        })
+        .filter(function (s) {
+          if (!s.pin || !s.hr) return false;
+          if (seen[s.pin]) { dupes++; return false; }
+          seen[s.pin] = true;
+          return true;
+        });
+      const updated = String(rosterIn.updated || new Date().toISOString());
+      const aliases = rosterIn.aliases || {};
+
+      let rosterSheet = ss.getSheetByName(ROSTER_TAB);
+      if (!rosterSheet) {
+        rosterSheet = ss.insertSheet(ROSTER_TAB);
+        rosterSheet.hideSheet();
+      }
+      rosterSheet.clear();
+      rosterSheet.getRange(1, 1).setValue('ROSTER_PRIVATE — auto-managed by set_roster. Do not edit by hand.');
+      rosterSheet.getRange(2, 1).setValue(updated);
+      rosterSheet.getRange(3, 1).setValue(JSON.stringify(aliases));
+      rosterSheet.getRange(5, 1, 1, 5).setValues([['pin', 'hr', 'first', 'last', 'grade']]).setFontWeight('bold');
+      const rows = students.map(function (s) { return [s.pin, s.hr, s.first, s.last, s.grade]; });
+      rosterSheet.getRange(6, 1, rows.length, 5).setValues(rows);
+      try { CacheService.getScriptCache().remove('ROSTER_PRIVATE'); } catch (e) { /* non-fatal */ }
+
+      return successJSON({
+        status: 'roster_saved',
+        count: students.length,
+        duplicatesSkipped: dupes,
+        updated: updated,
+        version: CONFIG_VERSION
+      });
     }
 
     // ==========================================
@@ -741,8 +925,9 @@ function doPost(e) {
     var isDemoPin = DEMO_PINS.indexOf(pin) !== -1;
     if (isDemoPin) {
       className = 'DEMO';
-    } else if (MASTER_PIN_HOMEROOM_MAP[pin]) {
-      className = MASTER_PIN_HOMEROOM_MAP[pin];
+    } else {
+      var official = officialHomeroomFor(pin);
+      if (official) className = official;
     }
 
     // Check if student exists in the targeted sheet
@@ -1418,7 +1603,7 @@ function cleanMismatchedClassEntries(ss) {
       const pin = String(rowValues[0] || '').trim().toUpperCase();
       if (!pin || DEMO_PINS.indexOf(pin) !== -1) continue;
 
-      const officialCls = MASTER_PIN_HOMEROOM_MAP[pin];
+      const officialCls = officialHomeroomFor(pin);
       if (officialCls && officialCls !== cls) {
         // Move to official homeroom
         const targetSheet = getSheetForClass(ss, officialCls);
