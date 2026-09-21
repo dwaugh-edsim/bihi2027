@@ -10,10 +10,10 @@
 | Student | Score (out of 30) | Status |
 |---|---|---|
 | **Kendra Bell** | 25/30 | Good - missed a few technical details. |
-| **Lachlan McMahon** | 20/30* | Satisfactory - many answers replaced by URLs. |
+| **Student08** | 20/30* | Satisfactory - many answers replaced by URLs. |
 | **Leo Ewing** | 27/30 | Excellent - very thorough, only a few minor errors. |
 
-*\*Lachlan appears to have pasted URLs into the answer column for several questions, which were counted as missing the descriptive answer.*
+*\*Student08 appears to have pasted URLs into the answer column for several questions, which were counted as missing the descriptive answer.*
 
 ---
 
@@ -24,12 +24,12 @@
 
 *   **Q6 (Cold Ramen):** ❌ Incorrect. Explained wage difference but didn't define the "Cold Ramen" problem (barely affording one meal).
 *   **Q19 (Wastewater):** ❌ Missing.
-*   **Q20 (Lachlan's Age):** ❌ Missing.
+*   **Q20 (Student08's Age):** ❌ Missing.
 *   **Q22 (YESS Age):** ❌ Incorrect (Said 14-18, key says 15-30).
 *   **Q23 (Unemployment):** ❌ Missing.
 *   **Q30 (Health Risks):** ⚠️ Partial/Incorrect. Listed symptoms (wheezing, coughing) rather than health risks (heart disease, cancer).
 
-### 👱 Lachlan McMahon
+### 👱 Student08
 **Score: 20/30**
 
 *   **Missing (URLs used instead of answers):** Q11, Q12, Q13, Q16, Q19, Q20.
@@ -40,7 +40,7 @@
 ### 👱 Leo Ewing
 **Score: 27/30**
 
-*   **Q20 (Lachlan's Age):** ❌ Incorrect (Said 13, key says 14).
+*   **Q20 (Student08's Age):** ❌ Incorrect (Said 13, key says 14).
 *   **Q23 (Unemployment):** ❌ Incorrect (Provided China's rate 18.7% for Canada).
 *   **Q24 (SDG 14):** ❌ Incorrect (Named the issue "ocean temp rising" instead of Goal 14).
 *   **Q28 (Wildfire increase):** ✅ Correct (Matched "6 times larger").
@@ -49,7 +49,7 @@
 
 ## 📋 Comprehensive Marks Table
 
-| # | Question | Answer Key | Kendra | Lachlan | Leo |
+| # | Question | Answer Key | Kendra | Student08 | Leo |
 |---|---|---|---|---|---|
 | 1 | Children below low-income | Over 40,000 | ✅ | ✅ | ✅ |
 | 2 | Poverty rates decrease | ~4% | ✅ | ✅ | ✅ |
@@ -70,7 +70,7 @@
 | 17 | Bill C-61 aim | Affirm self-gov right | ✅ | ✅ | ✅ |
 | 18 | NS First Nation advisories | Zero | ✅ | ✅ | ✅ |
 | 19 | Wastewater fail rate | 34% | ➖ | 🔗 | ✅ |
-| 20 | Lachlan McMahon age | 14 | ➖ | 🔗 | ❌ |
+| 20 | Student08 age | 14 | ➖ | 🔗 | ❌ |
 | 21 | Work-integ. learning $ | $635 million | ✅ | ✅ | ✅ |
 | 22 | YESS Age range | 15-30 | ❌ | ✅ | ✅ |
 | 23 | Canada Unemployment | 28.4% | ➖ | ✅ | ❌ |
@@ -98,12 +98,12 @@ My initial assessment had different scores due to interpretation differences in 
 | Student | My Initial Score | Antigravity Score | Final Score |
 |---------|------------------|-------------------|-------------|
 | Kendra Bell | 19/30 | 25/30 | 25/30 |
-| Lachlan McMahon | 22/30 | 20/30 | 20/30 |
+| Student08 | 22/30 | 20/30 | 20/30 |
 | Leo Ewing | 19/30 | 27/30 | 27/30 |
 
 **Key Differences in Interpretation:**
 1. **Kendra Bell:** Some answers were marked as missing (Q19, Q20, Q23) rather than incorrect
-2. **Lachlan McMahon:** Some answers contained URLs instead of text descriptions
+2. **Student08:** Some answers contained URLs instead of text descriptions
 3. **Leo Ewing:** Some answers were marked as correct when they matched the expected meaning
 
 ---
@@ -112,6 +112,6 @@ My initial assessment had different scores due to interpretation differences in 
 
 1. **Kendra Bell:** Good understanding overall. Review the specific definitions and ensure all questions have descriptive answers, not just URLs.
 
-2. **Lachlan McMahon:** Ensure answers are typed out fully rather than using URLs. The detailed unemployment comparison shows strong research skills.
+2. **Student08:** Ensure answers are typed out fully rather than using URLs. The detailed unemployment comparison shows strong research skills.
 
 3. **Leo Ewing:** Excellent work! Focus on remembering specific SDG numbers and ensuring accurate statistics for Canada vs other countries.

@@ -1,4 +1,4 @@
-# 🗳️ Halifax West 2026 — Citizenship 9 Election Simulation  
+# 🗳️ Bicentennial 2026 — Citizenship 9 Election Simulation  
 ## 📰 BREAKING NEWS: War Room Clear!  
 
 ---
@@ -10,11 +10,11 @@
 
 | Party Name | Leader | Members | Status |
 |------------|--------|---------|--------|
-| **The Party De Solution** | MadhavanK | MadhavanK, RemyP, YunhoP | ✅ QUALIFIED |
-| **The Healthier Future** | Joshua Abraham | Clark, Joshua | ✅ QUALIFIED |
-| **The Islamic Associations** | MD Farhan Rahman | Abdul, Farhan | ✅ QUALIFIED |
-| **The Niche Halligonians** | Lachlan McM | Lachlan McM, Lachlan Mac, Nolan | ✅ QUALIFIED |
-| **Team tomorrow** | Laila Awad | Laila A, Josie S, Huda B | ✅ QUALIFIED |
+| **The Party De Solution** | Student05K | Student05K, Student06P, Student07P | ✅ QUALIFIED |
+| **The Healthier Future** | Student03 Abraham | Student04, Student03 | ✅ QUALIFIED |
+| **The Islamic Associations** | Student01 | Student02, Student01 | ✅ QUALIFIED |
+| **The Niche Halligonians** | Student08 McM | Student08 McM, Student08 Mac, Student10 | ✅ QUALIFIED |
+| **Team tomorrow** | Student11 Awad | Student11 A, Student12 S, Student13 B | ✅ QUALIFIED |
 
 ---
 
@@ -78,7 +78,7 @@ If you are **QUALIFIED**, your mission today is to prepare for the Newsroom.
 
 | Time | Activity |
 |------|----------|
-| 0:00 | Review this Briefing & Group Suggestions |
+| 0:00 | RStudent25w this Briefing & Group Suggestions |
 | 0:05 | Qualified parties prep speeches; Pending parties finalize |
 | 0:20 | "LOCK IN" Deadline & Tech Check |
 | 0:25 | **PRESS SCRUM BEGINS!** |

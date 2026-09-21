@@ -1,1009 +1,873 @@
 # Citizenship 9 — Master Course Plan (90 Classes)
 
-> **Status:** Rewrite — adds unit tests throughout, restructures Unit 2 and 5 with MM Studies content, keeps Service Learning Project structure. Aligned to `cit9-assessment-plan.md`, `cit9-outcomes-enhanced.md`, `cit9-simulation-concepts.md`, and `cit9-study-content.md`. MM Studies 11 Units 10–14 recycled into Units 2 and 5 at Grade 9 level. All class titles, activities, and resources below trace back to those source documents.
+> **Status:** v2 Realignment (September 2026). Aligned to the published syllabus (`Day1_Deliverables/02_Cit9_Syllabus_Calendar_2026_27.html`) and the student hub. **Unit 1 is now "Who Am I as a Citizen?" — anchored by the WHERE Project (Classes 1–8). The Service Learning Project relaunches AFTER October** (early Term 2, ~Class 26), as part of the school-wide service learning conversation; its proposal lands in Term 2, execution in Unit 5, and Showcase in June. Per-section dates live in `CIT9-CALENDAR-2026-27.md` (the 90 verified class slots are unchanged — only the content mapping moved). MM Studies 11 Units 10–14 content is still recycled into Units 2 and 5 at Grade 9 level.
 
 ---
 
 ## 1. Course Overview
 
-Citizenship 9 delivers Nova Scotia's Grade 9 Citizenship curriculum across **~90 classes** running from September to mid-June, on a **5-classes-per-2-week-cycle schedule (~2.5 per week)**. The course covers all six units (Engaged Citizenship, Who Am I as a Citizen?, Financial Citizenship, Digital Citizenship, Governance, Global Citizenship) through a mix of direct instruction, case-study analysis, Socratic seminars, structured role-plays, project-based learning, and reflection.
+Citizenship 9 delivers Nova Scotia's Grade 9 Citizenship curriculum across **90 classes** (5 classes per 2-week cycle, Sept 3 – Jun 30) through direct instruction, case-study analysis, structured parliamentary debate, desk-based caucus simulations, digital project work, and reflection. **Term 1 opens with civic identity and how government actually works; the Service Learning Project becomes the course spine from Term 2 onward.**
 
-**Unit weighting (suggested):**
+**Unit map (matches the published syllabus):**
 
-| Unit | Title | Classes | Notes |
-|------|-------|---------|-------|
-| 1 | Engaged Citizenship (Service Learning) | 18 | Course spine — runs alongside other units; Showcase + reflection block at year-end |
-| 2 | Who Am I as a Citizen? (Indigenous Citizenship + Treaty + Reconciliation) | 14 | MM Studies residential schools + Sixties Scoop + treaties + Donald Marshall Jr. + Gladue + Leo cannabis |
-| 3 | Financial Citizenship | 12 | Taxes, budgets, economic fairness |
-| 4 | Digital Citizenship | 12 | Media literacy, digital footprint, anonymity |
-| 5 | Governance (Indigenous + Protest + Mock Election) | 18 | Idle No More + Sipekne'katik 2020 + Ipperwash + Mock NS Election + Sentencing Circles |
-| 6 | Global Citizenship | 14 | Canadian response to global issues + Action Plan |
-| — | Buffer / Capstone | 2 | Capstone Portfolio + course close |
-| **Total** | | **90** | |
+| Unit | Title | Classes | Term | Anchor Activities |
+|------|-------|---------|------|-------------------|
+| 1 | Who Am I as a Citizen? (Identity, WHERE Project, Government Foundations) | 1–8 | T1 (Sept–Oct) | Head-to-Toe Canvas · 5-Place StoryMap · Policy Dossier · Desk Caucus |
+| 2 | Rights, Treaties & Truth and Reconciliation | 9–25 | T1 (Oct–Nov) | Netukulimk launch · 1752 Treaty Sim · Shubenacadie · Marshall + Gladue · **U2 Test (Cl. 24)** |
+| 3 | Economic Citizenship | 26–37 | T2 (Nov–Jan) | **SL Relaunch (Cl. 26–27)** · Living Wage budget sim · **U3 Test (Cl. 37)** |
+| 4 | Digital Citizenship | 38–49 | T2 (Jan–Feb) | Spot the Bias audit (**Media Project, Cl. 46**) · **U4 Test (Cl. 48)** |
+| 5 | Governance & Service | 50–70 | T2/T3 (Feb–Apr) | **Bicentennial Mock Election (Cl. 53–56)** · protest case studies · SL execution · **U5 Test (Cl. 69)** |
+| 6 | Global Citizenship | 71–90 | T3 (May–Jun) | Diplomat sim · **SL Showcase (Cl. 83–84)** · Country Profile Capstone (Cl. 85–88) |
 
-**Unit-test-driven pacing:** Each content unit (2, 3, 4, 5, 6) ends in a dedicated **UNIT TEST** modelled on the Mi'kmaw Studies 11 June test — 50 minutes, MCQ + short answer + 1 extended-response scenario. The pacing inside every content unit follows the same shape: **activity classes → 1 review class → 1 unit test class → 1 test-review/return class**. A cumulative **Term-End Exam** (Classes 88–89) closes the course, modelled on the MM Studies June test.
+**Assessment architecture (matches the syllabus grid, 100% — one 10% block per unit, U4/U5 split between project and test):**
 
-**The course's spine is the Service Learning Project (Unit 1)**, which spans ~18 classes across the year — front-loaded launch + proposal in September/October, four implementation check-ins across Terms 1 and 2, and a culminating Showcase + reflection block at year-end. Every other unit orbits around it.
+| Component | Weight | When |
+|-----------|-------:|------|
+| WHERE Project Portfolio (digital submission) | 10% | Classes 3–4 (+ polish at Cl. 8) |
+| Unit 2 Summative Test | 10% | Class 24 (Nov 18 — inside Term 1) |
+| Service Learning Proposal | 10% | Class 30 |
+| Unit 3 Financial Assessment | 10% | Class 37 |
+| Unit 4 Media Project (Spot the Bias audit) | 5% | Class 46 |
+| Unit 4 Test | 5% | Class 48 |
+| Unit 5 Election Simulation (campaign work + vote justification) | 6% | Classes 53–56 |
+| Unit 5 Test | 4% | Class 69 |
+| Service Learning Showcase + Implementation Log | 10% | Classes 83–84 |
+| Country Profile Capstone | 10% | Classes 85–88 |
+| Ongoing formative + civic foundations (quizzes are formative retrieval checks) | 20% | Continuous |
+| **Total** | **100%** | |
 
-**Indigenous content is a unifying thread**, not an add-on. Nova Scotia is Mi'kma'ki. Treaty Education, Mi'kmaw history, UNDRIP, and TRC Calls to Action are woven through Units 1, 2, 3, 4, 5, and 6 — concentrated in Unit 2 (with MM Studies material: Residential Schools, Sixties Scoop, Donald Marshall Jr., Gladue Rights, Leo cannabis) and Unit 5 (with MM Studies protest material: Idle No More, Sipekne'katik 2020, Ipperwash Crisis, Sentencing Circles). The course does not treat reconciliation as a one-week topic.
+**Term alignment:** T1 (Sept 3–Nov 20, Classes 1–25) carries WHERE Portfolio 10% + U2 Test 10% + the Term-1 share of the 20% formative ≈ 30% of the year's assessed work. T2 (Nov 23–Mar 5, Classes 26–56) carries SL Proposal 10% + U3 10% + U4 10% + formative ≈ 30%. T3 (Mar 8–Jun 30, Classes 57–90) carries Election Sim 10% + Capstone 10% + Showcase 10% + formative ≈ 40%. The five vocabulary quizzes (Classes 23, 36, 47, 68, 80) are **formative retrieval checks**, not graded. There is **no final exam** — the Country Profile Capstone is the course's closing academic summative.
+
+**Indigenous content is a unifying thread, not an add-on.** Nova Scotia is Mi'kma'ki. Unit 2 now OPENS with Mi'kmaw worldview (Netukulimk, the 7 Districts) before the treaty work, so students meet the worldview before the documents. MM Studies material (Shubenacadie, Sixties Scoop, Donald Marshall Jr., Gladue, Idle No More, Ipperwash, Sipekne'katik 2020) is concentrated in Units 2 and 5 at Grade 9 depth.
 
 ---
 
 ## 2. Sequencing Rationale
 
-Outcomes are ordered to build civic identity from "I" → "we" → "the system" → "the world":
+1. **Identity before institutions (U1, Classes 1–8):** Students locate themselves (Head-to-Toe, WHERE 5-Place StoryMap) and then learn the machinery — three levels of government, jurisdiction, bylaw/directive/law — through the three issues THEY flagged in the Current Issues Diagnostic (housing, tariffs, cellphone bans). The Unit ends with a desk-based caucus, not a podium speech: the cohort asked for real debates and zero-performance formats, and this delivers both.
+2. **Worldview before treaties (U2, Classes 9–25):** Unit 2 launches with Netukulimk and the 7 Districts of Mi'kma'ki (Class 9) and lands the 1752/1760–61 treaties ON Treaty Day (Oct 1, Class 10) — Sept 30's Orange Shirt day is observed the class before via the launch's framing. From there the arc runs enfranchisement → residential schools → Sixties Scoop → Marshall/Gladue → Elder visit → **test at Class 24, Nov 18 — inside Term 1**, so the November report card carries a real summative.
+3. **Service Learning relaunches post-October (Classes 26–27):** The school-wide service learning conversation owns October; Cit 9's project work relaunches in early Term 2 with a need audit and partner outreach, proposal due Class 30. The project then runs as a monthly check-in thread with its execution window in Unit 5 and Showcase in June.
+4. **Economics and media literacy (U3–U4):** With identity, rights, and jurisdiction established, students interrogate economic systems (who pays, who benefits) and media systems (who's framed how) — the media audit feeding the Term 2 Media Project major.
+5. **Governance deepened, not re-taught (U5):** Jurisdiction was front-loaded in Class 5, so U5 spends its time on worldview→values→policy, the Mock Election, Indigenous governance and protest, and Three Lanes of Change. The old jurisdiction-intro class becomes a deepening "power audit."
+6. **Global citizenship last (U6):** The course arc opens on personal place (WHERE) and closes on global place (Country Profile Capstone + Global Citizen Action Plan). No final exam — the capstone closes the course.
 
-1. **Service Learning first (Unit 1, ~7 classes front-loaded):** Students need to *do* citizenship early to anchor every later unit. The project becomes a recurring touchstone ("How does this concept apply to your project?") and the year-end Showcase becomes a unifying summative.
-2. **Identity, rights, and worldview next (Unit 2, ~14 classes):** Once students are actively engaged, they need the conceptual toolkit — what *is* citizenship, whose voices have been included or excluded, what does reconciliation require of *me*? The Mi'kmaw rights + Treaties + Donald Marshall Jr. + Gladue Rights + Leo cannabis deep dive lives here (with cultural humility; ideally co-facilitated with Mi'kmaw education consultants).
-3. **Economics and media literacy (Units 3 and 4):** Once students understand citizenship conceptually, they need critical-evaluation tools to interrogate systems — economic systems (who pays, who benefits) and media systems (who's framed how, who's missing). Unit 4's media literacy also preps Unit 5's political platform analysis.
-4. **Governance and political action (Unit 5, ~18 classes):** With critical-evaluation tools in hand, students can now meaningfully engage with parties, platforms, and the political process. The Mock NS Election is the centerpiece. Indigenous governance gets specific treatment (Idle No More, Sipekne'katik 2020 lobster dispute, Ipperwash Crisis, Sentencing Circles, modern treaty implementation).
-5. **Global citizenship last (Unit 6):** The course arc opens on local action (Unit 1) and closes on global action (Unit 6). Students finish the year with a personal **Global Citizen Action Plan** that bookends the Service Learning project.
-
-**Why this ordering serves the calendar:**
-- The **Unit 2 test (Classes 24–26)** sits at the end of the Indigenous citizenship block — far from December holidays (when reconciliation content feels tone-deaf).
-- The **Mi'kmaw Elder visit** in Unit 2 (Class ~21) sits in the middle of the heavy Treaty/Reconciliation block — far from Christmas and far from exam pressure.
-- The **Mock NS Election** in Unit 5 (Classes ~58–62) sits roughly halfway through Term 2 — late enough that students have the political-spectrum and platform-analysis tools, early enough that the experience still informs their year-end reflections and the Unit 6 capstone.
-- The **Unit 5 test (Classes ~70–72)** includes Idle No More, Sipekne'katik 2020, and Indigenous governance content — students are tested on the Indigenous dimensions of governance, not only on federal/provincial/municipal mechanics.
-- Sensitive content (Unit 2B reconciliation, Unit 5 protest case studies) is never the last thing before a break.
-- The **Service Learning Showcase** (Classes 82–86, ~late May/early June) sits at the very end of the year, when projects have had 6–8 months to mature.
+**Calendar anchors built in:** Treaty Day (Oct 1) = treaty content; Take Our Kids to Work Day (Nov 4) = absence-tolerant work classes (Classes 19–20); Remembrance Day, Christmas break, March break, and Easter all absorbed per `CIT9-CALENDAR-2026-27.md`. The **Knowledge Keeper / Elder visit (Class 21)** needs 6+ weeks of coordination — outreach must go out in the first week of September for a Nov 5–9 window.
 
 ---
 
 ## 3. Calendar Spine (Reference)
 
-**18 instructional cycles × 5 classes = 90 classes.** Terms split 45/45 around the Christmas break. **NS-specific holidays absorbed inside cycles (no lost classes):**
+90 verified class slots across three sections (901 = 94 slots, 902 = 90, 903 = 91). **The class-by-class date appendix lives in `CIT9-CALENDAR-2026-27.md` and is unchanged by this realignment** — only the content mapping below moved. Key section-drift notes:
 
-| Cycle | Approx. Dates | Classes | Unit Block | Notes |
-|-------|---------------|---------|------------|-------|
-| C1 | Sept 3 – Sept 12 | 1–5 | U1 SL Launch | Year opener; Need Hunt begins |
-| C2 | Sept 15 – Sept 26 | 6–10 | U1 SL Proposal + U2A | Service Learning proposal + Worldview intro |
-| C3 | Sept 29 – Oct 10 | 11–15 | U2A Rights + Treaties intro | Citizenship Through Time + Peace & Friendship Treaties |
-| C4 | Oct 13 – Oct 24 | 16–20 | U2B Residential Schools + Sixties Scoop | Shubenacadie + TRC + IRSSA |
-| C5 | Oct 27 – Nov 7 | 21–25 | U2B Reconciliation + Donald Marshall Jr. | Mi'kmaw Elder visit (Class 21) + Gladue Rights |
-| C6 | Nov 10 – Nov 21 | 26–30 | U2 Review + U2 Test | Leo cannabis case sim (Class 27) → Review (Class 29) → U2 TEST (Class 30) |
-| C7 | Nov 24 – Dec 5 | 31–35 | U3A Economic perspectives + SL check-in | Tax dollar, cultural money, fairness scenarios |
-| C8 | Dec 8 – Dec 19 | 36–40 | U3B Personal finance | Budget simulation |
-| *Dec 22 – Jan 2* | Christmas break | — | — | Project work resumes in January |
-| C9 | Jan 5 – Jan 16 | 41–45 | U3B wrap + U3 Test + U4A start | Budget sim reflection → U3 TEST → Media audit setup |
-| C10 | Jan 19 – Jan 30 | 46–50 | U4A/B + SL check-in | Digital footprint, anonymity |
-| C11 | Feb 2 – Feb 13 | 51–55 | U4 wrap + U4 Test + U5A start | Citizen Charter → U4 TEST → Worldview → values chain |
-| C12 | Feb 16 – Feb 27 | 56–60 | U5A Mock NS Election | Parties form, campaign, debate, vote |
-| *Mar 2 – Mar 6* | March break | — | — | |
-| C13 | Mar 9 – Mar 20 | 61–65 | U5B Governance + Idle No More | Indigenous governance, Sipekne'katik 2020 |
-| C14 | Mar 23 – Apr 3 | 66–70 | U5C Protest + Ipperwash + Sentencing Circle | Three Lanes of Change; Sentencing Circle sim |
-| C15 | Apr 6 – Apr 17 | 71–75 | U5 Review + U5 TEST + U6A intro | U5 TEST → Globalization 101, climate lenses |
-| C16 | Apr 20 – May 1 | 76–80 | U6A/B | UDHR, Canada's Response, Diplomat sim |
-| C17 | May 4 – May 15 | 81–85 | U6 wrap + U6 TEST + SL prep | U6 TEST → SL Showcase prep |
-| C18 | May 18 – Jun 12 | 86–90 | SL Showcase + Term-End Exam + Course Close | Showcase, Cumulative Term-End Exam, Portfolio |
+- **Class 1 = Thursday Sept 3 for all three sections.** Classes 1–8 run Sept 3–28.
+- **Treaty Day (Oct 1):** 901 and 903 hit it at Class 10; **902 hits it at Class 9** — 902 runs the treaty class first and flips the Netukulimk launch to its Class 10 (Oct 5).
+- **Take Our Kids to Work Day (Nov 4):** 902/903 Class 19 and 901 Class 20 — those classes are designed absence-tolerant (pair work sessions, not sensitive-content delivery).
+- **Class 24 (U2 Test) = Nov 18 for ALL three sections** — the only common-date summative of the year; protect it.
 
-**Single-day holidays handled inside cycles:**
-- **Thanksgiving (Oct 13)** falls on Monday of C4 — the cycle's 5 classes shift accordingly (no class Mon Oct 13; classes Tue/Wed/Fri + 2 of the following week).
-- **Remembrance Day (Nov 11)** falls inside C6 — Classes 26–30. If Citizenship lands on Nov 11, swap to alternate-day schedule; content is paced so any single lost class has flex.
-- **NS Family Day (Feb 16)** is part of a week-long school break in many NS boards; C12 ends Feb 13 and resumes Feb 23 — clean break.
-- **Good Friday (Apr 18)** + **Easter Monday (Apr 21)** land between C15 and C16 — both fit inside the Easter long weekend; C15 (ending Apr 17) and C16 (starting Apr 20) absorb.
-- **PD days / exam days / snow days:** the **buffer classes (Class 39 and Class 89)** absorb unexpected closures.
+**Single-day holidays absorbed inside cycles:** Thanksgiving (Oct 12), Remembrance Day (Nov 11), Christmas break (Dec 21–Jan 1), March Break (Mar 15–19 — 901 hits it at Classes 54–55; election campaign stretches across it), Good Friday/Easter Monday. Buffer: the two SL relaunch classes (26–27) and Class 90 absorb closures. See `CIT9-CALENDAR-2026-27.md` for the full holiday handling.
 
 ---
 
-## 4. Term 1 — September to January (Classes 1–45)
+## 4. Term 1 — September to November 20 (Classes 1–25)
 
-### UNIT 1 — Engaged Citizenship (Service Learning) — Front-Loaded Launch (Classes 1–8, plus check-ins)
+### UNIT 1 — Who Am I as a Citizen? (Classes 1–8)
 
-*Construct a collaboratively-designed service learning project which addresses a need in the school or larger community.*
+*Evaluate evolving concepts and attributes of citizenship · Investigate how worldview impacts understanding of citizenship · Investigate the structure of government in Canada.*
 
-*Sub-themes: Identifying authentic needs · Evaluating personal skills · Planning · Implementing · Evaluating citizenship-skill development*
+*Sub-themes: Civic identity and place · Personal and cultural geography · Civic rights and responsibilities · Three levels of government and jurisdiction · Current Canadian policy issues · Parliamentary debate protocols*
 
-*Vocabulary in play: service learning, community need, stakeholder, project plan, role allocation, evaluation, reflection, reciprocity, sustainability*
+*Vocabulary in play: citizen, citizenship, civic identity, worldview, rights, responsibilities, jurisdiction, federal, provincial, municipal, bylaw, directive, statute, policy, YCJA, accountability, proportionality, rehabilitation*
 
-**Simulation pick: Option A — "THE NEED HUNT"** (community-identified-need model). Best fit because it centres authentic community voice, makes the project genuinely student-driven, and creates the strongest service-learning experience. Real implementation with a real NS community partner is the highest-value option. The Service Learning Launch spans Classes 1–8 (one stage per class). Implementation check-ins run throughout the year at Classes 15, 23, 35, 45, 54, 64, 73, and 82–86 (Showcase block).
+**Design principles (from the student-voice audit):** zero public speaking in the opening unit · digital submission over presentation · direct instruction under 12 minutes · desk-based caucus structures · no posters.
 
-**Resources used throughout Unit 1:** `ServiceLearningIntro.html`, `ServiceLearningMenu.html`, `ServiceLearningProposal/` (templates), `ServiceLearningProject/` (running folder), `ServiceLearningResponse.html` (reflection scaffolds). External: Mi'kmaw Native Friendship Centre (Halifax), local food banks/seniors' homes/youth orgs, Learning for a Sustainable Future (LSF) Service Learning Guide.
-
----
-
-**Class 1 — "Citizens, Begin." (Cycle 1, ~Sept 3)**
-
-- **Activity:** Course opener. First 15 min: **"A Citizen I'd Like to Meet" (Head-to-Toe)** — using the body-outline template (`resources/Unit_01_Engaged_Citizenship/1. Citizenship Head-to-toe_.docx`), students brainstorm the qualities of an "engaged citizen" and illustrate/label them on the template (e.g., a citizen who "sees others' points of view" might draw a large eye). Gallery walk of drawings — what qualities appeared most? Least? Which do you already have? Bring the drawings back in Class 90 as a bookend: "Would you change anything now?"
-Remaining class time: Students receive the year-at-a-glance (the calendar spine table above) and the unit map. Set up the personal reflection log (Google Doc or paper-based exit slips). Introduce the **Service Learning Project** as the course's spine: by year-end, every student will have planned and contributed to a real project addressing a real community need. Class norms established (mutual respect, "step out / step up" language, anonymous option for sensitive contributions, no personal-attack norms).
-- **Materials:** Body-outline template (`resources/Unit_01_Engaged_Citizenship/1. Citizenship Head-to-toe_.docx`), coloured pencils/markers, calendar spine (one-page handout), Service Learning Project overview (one-page from `ServiceLearningIntro.html`), reflection log template, norms anchor chart. **Keep drawings — return them in Class 90.**
-- **Homework/Extension:** Pre-read `ServiceLearningIntro.html` (10 min). Reflection #1: "What's one thing I already do that counts as citizenship?" (private, teacher feedback only).
-- **Assessment:** Norms co-created (formative participation); Head-to-Toe drawing (formative, kept for Class 90 comparison); reflection #1 (formative).
-
-**Class 2 — "The Need Hunt Begins" (Cycle 1, ~Sept 3)**
-
-- **Activity:** Launch the Need Hunt. Teacher models a community-need scan (local news, charity websites, school notices, neighbourhood walks). Students receive the **Need Audit toolkit**: (1) 5 informant interview prompts (counsellor, custodial staff, local librarian, community org rep, neighbour); (2) neighbourhood walk + photo journal template; (3) local news + charity data scan. Pairs/teams of 3–4 form. Class brainstorms categories (food security, mental health, environment, newcomer support, seniors' isolation, Indigenous community priorities, etc.).
-- **Materials:** Need Audit toolkit handout, informant interview script template (informed-consent reminder for adults), photo journal template, brainstorm wall.
-- **Homework/Extension:** Conduct 1 informant interview before next class (record on template). Bring back at least one piece of evidence (quote, photo, news link).
-- **Assessment:** Interview participation logged (formative); brief in-class check-in (turn-and-talk: "Who did you interview and what surprised you?").
-
-**Class 3 — "The Pitch Slam" (Cycle 1, ~Sept 3)**
-
-- **Activity:** Teams pitch 2 candidate community needs using the **Pitch Slam rubric** (evidence quality, scope, fit with Grade 9 capacity, equity implications, reciprocity). 60 seconds per pitch, hard timer. Class listens with rubric in hand. After all pitches, gallery walk of photo journals + interview quotes. Teacher-circulated formative feedback. Pitches must name: (a) the need, (b) the evidence, (c) who else has tried to address it, (d) why this need centres equity and reciprocity rather than charity.
-- **Materials:** Pitch Slam rubric (one-page), timer, gallery walk setup.
-- **Homework/Extension:** Finalize pitch slides for Class 4 vote; bring one-page rationale (evidence summary).
-- **Assessment:** Pitch Slam rubric (formative; contributes to project plan grade).
-
-**Class 4 — "The Class Vote + Skills Inventory" (Cycle 1, ~Sept 3)**
-
-- **Activity:** Morning: each pitch team delivers their final 90-second pitch. Whole-class **structured vote** using dotmocracy + rubric-driven justification. The class selects 1 shared project (or 2 if there is clear division of interest — small-group projects can work). Afternoon: **Skills & Strengths Inventory** — students complete a personal inventory (skills, languages, networks, accessibility needs, schedules) and self-rank role preferences (researcher, designer, communicator, fundraiser, evaluator, logistics). Teacher circulates with mapping worksheet.
-- **Materials:** Dotmocracy dots, rubric cards, Skills Inventory template, role-preference worksheet, mapping wheel (school / neighbourhood / family / faith community / hobby community / online community).
-- **Homework/Extension:** Reflect in log: "Why this need? Whose voice am I centering in my answer?"
-- **Assessment:** Class vote participation (formative); Skills Inventory (formative).
-
-**Class 5 — "Partner Outreach + Org Research" (Cycle 1, ~Sept 3)**
-
-- **Activity:** For the chosen project, identify 2–3 candidate community partner organizations (NS-specific examples: **Mi'kmaw Native Friendship Centre, Halifax Food Bank, Boys & Girls Club of Nova Scotia, Out of the Cold, Parker Street Food Bank, Halifax Regional Search & Rescue, Veith House, Elizabeth Fry Society, YMCA NS, Ecology Action Centre, WelcomeNS, Refugee Health NS, local seniors' homes, schools in nearby Mi'kmaw communities**). Teams draft 3 outreach emails/letters (teacher reviews for tone). Whole class reviews the **Service Learning Proposal** template structure (Goal, Activities, Timeline, Roles, Resources, Risks, Success Indicators) from `ServiceLearningProposal/`.
-- **Materials:** Outreach email template, partner org list (NS-specific, teacher-curated), Proposal template.
-- **Homework/Extension:** Send outreach emails (teacher CC'd or reviewed first); exit slip: "What partnership would feel most reciprocal - not extractive?"
-- **Assessment:** Outreach draft quality (formative); proposal structure understanding (formative).
-
-**Class 6 — "Proposal Writing Workshop" (Cycle 2, ~Sept 15)**
-
-- **Activity:** In-class proposal drafting workshop. Students work in project teams. Teacher circulates with mini-conferences (3–5 min each). Required sections: Goal, Activities, Timeline (4–8 weeks), Roles, Resources (incl. partner org), Risks (incl. accessibility, weather, partner availability), Success Indicators (how we'll know it worked). Last 15 min: peer-trading drafts for first read. Bridge to next class's peer critique.
-- **Materials:** Proposal rubric (full markscheme), Google Doc/Slides template, planning worksheet, mini-conference notes form.
-- **Homework/Extension:** Polish proposal draft for Class 7 peer critique.
-- **Assessment:** Mini-conference notes (formative).
-
-**Class 7 — "Peer Critique + Finalize Proposal" (Cycle 2, ~Sept 15)**
-
-- **Activity:** Structured peer critique using proposal rubric (glow / grow / question). Each team presents 5 minutes, gets 5 minutes of feedback from 2 peer teams. Teacher circulates with observation checklist. Last 20 min: teams finalize proposals and submit to Google Classroom. Implementation begins **next week** — calendar of activities, weekly check-ins established.
-- **Materials:** Peer-feedback Google Form, proposal rubric, observation checklist.
-- **Homework/Extension:** Begin implementation per the approved plan; pre-read Class 8 worldview intro materials.
-- **Assessment:** **Summative 1A — Service Learning Proposal (6%)** (rubric: goal clarity, feasibility, role allocation, evaluation plan, equity framing).
-
-**Class 8 — 🌱 SL Implementation Launch + Worldview Intro Bridge (Cycle 2, ~Sept 15)**
-
-- **Activity:** First 20 min: **Service Learning Implementation Launch** — teams meet with teacher for 1:1 kickoff; weekly stand-up routine established; implementation log distributed. Last 30+ min: bridge into Unit 2A. Open Unit 2A. Introduce the concept of **worldview** as a lens on citizenship. Class builds a working definition of "citizen" on the wall. Then 4–6 short readings / videos / clips explore different worldviews: a Mi'kmaw elder's reflection on citizenship; a newcomer Syrian-Canadian teen; a 4th-generation African Nova Scotian; a 2nd-generation Canadian of any background. For each "window," students answer: **What does "citizen" mean here? What are the rights? What are the responsibilities?** Discussion: whose Canada?
-- **Materials:** Service Learning kickoff checklist, Worldview Windows case studies (teacher-curated), definition wall, `HeritageMinutes/` clips as starting set (vetted), analysis worksheet.
-- **Homework/Extension:** Identify one "window" that felt closest to your lived experience and one that felt furthest. 1 paragraph each (reflection log).
-- **Assessment:** Worldview Windows analysis (formative, collected); SL stand-up #1 (formative).
+**Resources for Unit 1:** `Day1_Deliverables/01_Cit9_Head_to_Toe_Citizen.html`, `Day1_Deliverables/09_WHERE_4_Places_Activity.html` (5-place drafting sheet), `Student_System/Places_Of_Significance_Studio.html` (5-place StoryMap studio), `Student_System/WHERE_Grade9_Progress_Dashboard.html` (async grading), `Day1_Deliverables/10_WHERE_Slide_Deck.html`, `Student_System/CIT9_Current_Issues_Diagnostic.html` (top-3 survey issues), `cit9-policy-dossiers.md` (Class 6 dossiers), `cit9-u1-quiz-bank.md` (Class 8 check), `debate format ideas.md` (Format #1 — desk caucus variant).
 
 ---
 
-### UNIT 2 — Who Am I as a Citizen? — Indigenous Citizenship + Treaties + Reconciliation (Classes 9–22, 14 classes)
+**Class 1 — "Citizens, Begin." (Sept 3, all sections)** *(as-run)*
+
+- **Activity:** Course opener. First 15 min: **Head-to-Toe Citizen Canvas** — students label a body outline with the qualities of an engaged citizen (a citizen who "sees others' points of view" draws a large eye). Gallery-style silent tour. Remaining time: year-at-a-glance, course norms (step up / step out language, anonymous options for sensitive topics), reflection log setup (`03_Cit9_Reflection_Log_Starter.html`). **The Service Learning Project is introduced as a Term-2 course spine** — name it, promise it, don't start it. **Keep the canvases — they return at Class 89 as the course bookend.**
+- **Materials:** Head-to-Toe canvas (print or `01_Cit9_Head_to_Toe_Citizen.html`), markers, year-at-a-glance handout, reflection log starter.
+- **Homework/Extension:** Reflection #1: "What's one thing I already do that counts as citizenship?" (private, teacher feedback only).
+- **Assessment:** Head-to-Toe canvas (formative → Civic Foundations portfolio, revisited Class 89); reflection #1 (formative).
+
+**Class 2 — "The WHERE Project — Places of Significance" (Sept 9–11)** *(as-run)*
+
+- **Activity:** Launch the **WHERE Project**: students map who they are through **five places of significance** (spanning personal, community, cultural/heritage, and global dimensions of identity). Brainstorm candidate places; define what makes a place *significant* (not just favourite). Studio accounts set up; drafting sheet (`09_WHERE` handout) issued. Slide deck anchor (`10_WHERE_Slide_Deck.html`).
+- **Materials:** `Places_Of_Significance_Studio.html` (student accounts/PINs), drafting sheet, slide deck.
+- **Homework/Extension:** Narrow to 5 candidate places; collect 1 photo per place (or plan to use studio's image tools).
+- **Assessment:** Brainstorm + place list (formative check for completion).
+
+**Class 3 — "WHERE Studio Work Session" (Sept 10–14)**
+
+- **Activity:** Full work session in the **StoryMap Studio**: students pin their five places on the live Leaflet map, add coordinates, images, and captions explaining each place's significance to their civic identity. Teacher circulates for 1:1 conferences on caption depth ("so what does this place make you responsible for?"). Mini-lesson (≤10 min): caption = evidence, not description.
+- **Materials:** Devices, Studio, drafting sheet, caption sentence-stems.
+- **Homework/Extension:** Studio draft complete for Class 4 submission.
+- **Assessment:** Studio draft (formative conference notes).
+
+**Class 4 — "WHERE Submission — Silent Gallery" (Sept 14, all sections)**
+
+- **Activity:** Students **click submit** in the Studio — the WHERE Portfolio becomes the course's first digital artifact. **Zero public speaking:** a silent gallery instead — StoryMaps projected on rotation (or shared links) while students leave sticky-note-style digital comments (one glow, one question each, assigned rotation so every map gets 3). Teacher grades **asynchronously on the Progress Dashboard** against the WHERE rubric (place selection authenticity, caption evidence, geographic/cultural range, completion).
+- **Materials:** Studio submissions, Progress Dashboard, peer-comment protocol card.
+- **Homework/Extension:** Read peer comments on your map before Class 8.
+- **Assessment:** **📋 WHERE Project Portfolio (10%) — logged here**; peer comments (formative).
+
+**Class 5 — "Three Levels of Government — The Jurisdictional Matrix" (Sept 15–17)**
+
+- **Activity:** Mini-lesson (≤12 min): Canada's division of powers — **federal** (Constitution Act 1867 s.91: defence, currency, criminal law, Indigenous matters, trade), **provincial** (s.92: health, education, highways, natural resources), **municipal** (delegated by the province: zoning, transit, recreation, garbage). Students build a **Jurisdictional Matrix** one-pager sorting 15 real responsibilities into the three levels. **Five testable legal definitions locked down** (in `cit9-study-content.md`): *jurisdiction, federal jurisdiction, provincial jurisdiction, municipal delegation, bylaw*. Bridge: "Every issue you cared about in the diagnostic lives at one of these levels — tomorrow we find out which."
+- **Materials:** Jurisdictional Matrix template (textbook *Engaged Citizenship* pp. 82–83 as reference chart), sorting cards, definition anchor chart.
+- **Homework/Extension:** Memorize the 5 definitions — retrieval check at Class 8.
+- **Assessment:** Matrix (formative, collected).
+
+**Class 6 — "The Policy Dossier: Housing, Tariffs & Cell Bans" (Sept 17–21)**
+
+- **Activity:** Case-study deep dive on the **top three issues from the Current Issues Diagnostic** (`CIT9_Current_Issues_Diagnostic.html`): **(1) Housing** — who acts? HRM zoning bylaws, provincial housing directives, federal housing programs. **(2) Tariffs** — federal trade law and its provincial/municipal ripple effects. **(3) School cellphone bans** — the provincial directive (announced June 2024, in force since 2024–25: devices off and away during instructional time) vs. school-level implementation. In trios, students dissect each dossier in `cit9-policy-dossiers.md`: *which level of government acts, with what instrument (bylaw / directive / statute), and who feels it?* Each trio completes a "Who Acts?" strip for each issue.
+- **Materials:** `cit9-policy-dossiers.md` (three one-page teacher dossiers), "Who Acts?" analysis strips, jurisdictional matrix from Class 5.
+- **Homework/Extension:** Pick the dossier issue you'd most want to debate — 2 sentences why.
+- **Assessment:** "Who Acts?" strips (formative, collected).
+
+**Class 7 — "Desk Caucus: Parliamentary Workshop" (Sept 23, all sections)**
+
+- **Activity:** **Desk-Based Parliamentary Caucus Workshop** (Format #1 from `debate format ideas.md`, desk variant — no podium, no standing). Government vs. Opposition benches by table clusters; each caucus writes a **one-page policy brief** on one dossier issue (Class 6), with Research Pairs drafting evidence slips and cross-exam questions to pass forward. Frontbench speakers deliver 60–90 second openings from their seats; backbenchers take the **Hot Seat** for 45-second interventions. Teacher chairs. Close with **YCJA foundations** (5 min): the *Youth Criminal Justice Act* s.3 principles — accountability, proportionality, rehabilitation — as the model for how policy language balances values. (This seeds Debate 04, Term 2.)
+- **Materials:** Caucus role cards, evidence-slip templates, policy brief template, YCJA s.3 one-pager, timer.
+- **Homework/Extension:** Reflection: "What did your caucus do when evidence contradicted your position?"
+- **Assessment:** Policy brief (formative → Civic Foundations portfolio); caucus participation observation.
+
+**Class 8 — "Unit 1 Formative Check + Fast Transition" (Sept 24–28)**
+
+- **Activity:** **10-question content check** (`cit9-u1-quiz-bank.md`) — jurisdiction matrix, 5 definitions, dossier issues, YCJA principles. **Formative — marked and returned next class; not part of the grade.** Students self-score and set one study action. Then the Unit 1 close-out: WHERE Portfolio polish window (students may improve captions based on peer comments before final grading); Head-to-Toe micro-revisit ("would you add anything to your citizen now?"). Last 15 min: bridge to Unit 2 — "You know who you are as a citizen and who makes the rules. Now: whose rules were they *always*? The land you mapped has a older legal story." Show the 7 Districts map as the hook.
+- **Materials:** Quiz papers, WHERE rubric final window, Head-to-Toe canvases, 7 Districts map (for the hook).
+- **Homework/Extension:** None — clean entry into Unit 2.
+- **Assessment:** Quiz (formative, self-scored); WHERE polish (final 10% grade locks).
+
+---
+
+### UNIT 2 — Rights, Treaties & Truth and Reconciliation (Classes 9–25, 17 classes)
+
+> **Recycling note (Sept 2026):** Taught primarily from **recycled Mi'kmaw Studies 11 content** (Annie Francis Sixties Scoop simulation, Donald Marshall Jr. case study, Sugar Falls / Hard Road to Walk excerpts, Sentencing Circle materials), simplified for 14–15-year-olds. Unit 2 now **opens with Mi'kmaw worldview before the treaty documents** — students meet Netukulimk and the 7 Districts first, then read the treaties through that lens.
 
 *Evaluate evolving concepts and attributes of citizenship · Evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people.*
 
-*Sub-themes (2A): Rights & responsibilities · Worldview & citizenship · Personal strengths · Evolving citizenship*
-*Sub-themes (2B — MM Studies–infused): Citizenship rights evolution · Peace & Friendship Treaties · Residential Schools (Shubenacadie, IRSSA, TRC) · Sixties Scoop + child welfare · Reconciliation as ongoing civic responsibility · Donald Marshall Jr. + Gladue Rights + sentencing circles · Leo cannabis case study*
+*Sub-themes: Indigenous worldview (Netukulimk, msit no'kmaq) · Peace & Friendship Treaties (1752, 1760–61) · Historical enfranchisement · Residential Schools (Shubenacadie) · Sixties Scoop · Donald Marshall Jr. + Gladue Rights · Reconciliation as ongoing civic responsibility*
 
-*Vocabulary in play: citizen, citizenship, rights, responsibilities, worldview, treaty, reconciliation, UNDRIP, TRC Calls to Action, Indian Act, residential schools, Shubenacadie Indian Residential School, IRSSA, Sixties Scoop, child welfare, Gladue Rights, Donald Marshall Jr., moderate livelihood, Crown, settler, ally, sentencing circle, restorative justice, overrepresentation*
+*Vocabulary in play: Mi'kma'ki, district, Netukulimk, msit no'kmaq, treaty, Peace and Friendship Treaties, truckhouse, moderate livelihood, enfranchisement, Indian Act, residential schools, Shubenacadie, IRSSA, TRC, Sixties Scoop, Section 88, Donald Marshall Jr., Gladue Rights, reconciliation*
 
-**Simulation picks:** Option B — **"RIGHTS OVER TIME"** (case-study arc) for 2A and the historical rights portion of 2B; MM Studies Units 10–14 content for the 2B deep dive (Residential Schools → Sixties Scoop → Treaties + Marshall → Gladue + Leo cannabis). Span: Classes 11–13 (Rights Over Time groups + presentations); Classes 16–19 (Residential Schools + Sixties Scoop + Annie Francis sim); Classes 20–22 (Treaties + Marshall + Gladue + Sentencing Circle intro); Classes 26–27 (Leo cannabis case sim); Class 28 (Reconciliation Action Plan).
+**Cultural humility note:** Coordinate with **Mi'kmaw Kina'matnewey** or the **Mi'kmaw Native Friendship Centre** before delivery. The **Knowledge Keeper visit (Class 21)** requires 6+ weeks lead — **outreach in the first week of September.** Avoid having non-Indigenous students role-play Mi'kmaw community members or Elders.
 
-**Cultural humility note for Treaty + Residential Schools work:** Coordinate with **Mi'kmaw Kina'matnewey** or the **Mi'kmaw Native Friendship Centre** before delivery. Strongest design: invite a Mi'kmaw Knowledge Keeper or community educator (in-person or via Zoom) for Class 21 (Elder visit) and use MM Studies resources alongside, NOT as a substitute for, Indigenous voice. Avoid having non-Indigenous students role-play Mi'kmaw community members without informed consent.
+**Section drift — Treaty Day:** 901 and 903 run Classes 9–10 in order (Netukulimk Sept 28/29 → treaties Oct 1). **902's Class 9 falls ON Treaty Day (Oct 1): run the treaty class first (Class 10 content), then Netukulimk (Class 9 content) on Oct 5.** Content is identical; order flips.
 
 ---
 
-**Class 9 — "Rights & Responsibilities Across a Lifetime" (Cycle 2, ~Sept 15)**
+**Class 9 — "Netukulimk & the Seven Districts of Mi'kma'ki" (Sept 28/29; 902 flips to Oct 5)**
 
-- **Activity:** **Timeline activity — "Rights & Responsibilities at 14, 25, 50, 75."** Students plot civic rights/responsibilities they have now (driver's licence eligibility, part-time work, school council voting, taxes on earnings), anticipate changes at 25 (full voting, jury duty eligibility, alcohol, full tax filing), and reflect on those at 50 (full civic participation, possibly elder-care responsibilities) and 75 (likely retired, possibly grandparent caregiving, possibly community leadership). Compare to peers; surface that citizenship is layered across the life course. Bridge to Unit 5 (Governance): voting as a discrete civic act requires analysis tools we'll build later.
-- **Materials:** Timeline template, civic-rights reference sheet (NS-specific: voting age, jury duty age, MLAs' voting age, etc.), discussion prompts.
-- **Homework/Extension:** Interview a family member or neighbour 50+: "What's one civic responsibility that surprised you when it arrived?" Bring quote next class.
-- **Assessment:** Timeline participation (formative); quote interview (collected for completion).
+- **Activity:** **Unit 2 launch — worldview before documents.** Open on the land students just mapped in WHERE: every place they pinned sits inside **Mi'kma'ki**. Introduce the **seven traditional districts** (Unama'kik, Sipekne'katik, Kespukwitk, Eskikewa'kik, Epekwitk, Siknikt, Kespek) and have students locate their five WHERE places by district. Then introduce **Netukulimk** — the Mi'kmaw concept of "the use, protection and stewardship of the land and resources provided by the Creator for the sustenance and well-being of the Mi'kmaq" (Assembly of NS Mi'kmaw Chiefs definition) — and **msit no'kmaq** ("all my relations"). Framing discussion: a worldview of reciprocity and stewardship vs. a worldview of extraction and maximum yield — what does each assume about who the land belongs to? Sept 30 (Orange Shirt Day) is named here: "Wednesday, wear orange — tomorrow we begin why."
+- **Materials:** 7 Districts map (`resources/Unit_02_Who_Am_I_as_a_Citizen/` — see `Netukulimk_Explainer.md`), mikmaqrights.com Netukulimk definition card, WHERE StoryMaps for the district-location activity, Orange Shirt Day announcement.
+- **Homework/Extension:** Wear orange Sept 30; ask a family member what they know about treaties in NS — bring one sentence.
+- **Assessment:** District-location of WHERE places (formative, collected — links U1's identity work to U2's content); discussion observation.
 
-**Class 10 — "Citizenship Through Time — Groups Form" (Cycle 2, ~Sept 15)**
+**Class 10 — "Treaty Day — The 1752 & 1760/61 Peace and Friendship Treaties" (Oct 1; 902 Oct 5)**
 
-- **Activity:** Launch **Rights Over Time** simulation. Class is divided into 3 groups, each assigned a historical rights arc in Canada: (Group A) Status of women — Persons Case 1929, employment equity milestones; (Group B) Status of Indigenous peoples — Indian Act evolution, 1969 White Paper, 1982 Constitution, UNDRIP, Mi'kmaw self-government; (Group C) Status of African Nova Scotian and other racialized communities — Viola Desmond, Africville, immigration act reforms. Each group receives primary + secondary source pack (teacher-curated; Heritage Minutes where relevant). Begin research; final product is a one-slide infographic **Rights Timeline Card**.
-- **Materials:** Source packs per group, Rights Timeline Card template, Heritage Minutes clips (`HeritageMinutes/` folder — verify which are appropriate), rubric.
-- **Homework/Extension:** Group research outside class; one member brings a 1-paragraph update next class.
-- **Assessment:** Group process observation (formative checklist).
+- **Activity:** **Run on Treaty Day itself.** The Peace and Friendship Treaties (1725–1779 series; key NS instruments 1752 and 1760–61) were agreements of **coexistence and trade — not land surrender**. Students work through the **`Leo-1752-Treaty-Sim/leo_1752.html`** simulation: negotiate/parse the 1752 treaty terms, then examine the **1760 truckhouse clause** — the Crown's promise that Mi'kmaq could bring goods to trade at government truckhouses — as the legal seed of the "moderate livelihood" argument that blooms in *R. v. Marshall* (1999) and the 2020 lobster fishery. Framing: "You are holding a promise Canada is still working out — Class 20 and Unit 5 will prove it." Treaty Day is named explicitly as a living observance in Nova Scotia.
+- **Materials:** `Leo-1752-Treaty-Sim/leo_1752.html` (built sim), truckhouse clause excerpt (simplified primary source), Mi'kma'ki treaty map, "living treaty" exit strip.
+- **Homework/Extension:** Exit strip: "What does 'we are all treaty people' commit YOU to?" (collected).
+- **Assessment:** Sim participation (formative); exit strip (formative, collected — reused in Class 23's Reconciliation work).
 
-**Class 11 — "Heritage Minutes + Rights Stories" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 11 — "Rights & Responsibilities Across a Lifetime" (Oct 7–9)**
 
-- **Activity:** Selected Heritage Minutes relevant to Cit 9 (e.g., **Persons Case, Underground Railroad, Viola Desmond, Japanese-Canadian internment, Treaties segment if present** — teacher must vet each clip for tone and accuracy before showing). After each clip: structured 4-question response (What changed? Who fought for the change? What's still contested? What surprised you?). Small-group synthesis: patterns across the minutes. Connection to Group work: each group incorporates 1+ minutes into their Rights Timeline Card.
-- **Materials:** Selected Heritage Minutes (`HeritageMinutes/` folder), 4-question response sheet, synthesis worksheet.
-- **Homework/Extension:** Group continues research; each member responsible for 1 timeline entry.
+- **Activity:** **Timeline activity — "Rights & Responsibilities at 14, 25, 50, 75."** Students plot civic rights/responsibilities they have now (school, part-time work limits, taxes on earnings), anticipate changes at 18/25 (voting, jury duty, contracts, full tax filing), and reflect on 50 and 75. Compare to peers; surface that citizenship is layered across the life course. Bridge: "Now imagine a group told for a century *when* and *whether* they could be citizens at all."
+- **Materials:** Timeline template, civic-rights reference sheet (NS-specific), discussion prompts.
+- **Homework/Extension:** Interview someone 50+: "What civic responsibility surprised you when it arrived?" Bring a quote.
+- **Assessment:** Timeline (formative); quote interview (collected for completion).
+
+**Class 12 — "Living Timeline — Canadian Citizenship & Enfranchisement" (Oct 8–13)**
+
+- **Activity:** **Living Timeline of Canadian Citizenship** (lesson from `resources/Unit_02_Who_Am_I_as_a_Citizen/Living Timeline_Canadian Citizenhip_ Lesson_.docx`). ~13 pairs/trios receive a **blank timeline card** (`Timeline Cards_Blank_.docx`) with an assigned date/event (1867 Confederation, 1885 Chinese Immigration Act, 1918 women's federal vote, 1960 First Nations federal vote without status loss, 1982 Charter, 2016 —ISA restorations—). Groups research, write concise facts, design an illustrative symbol, and physically stand on a rope timeline scaled to the room. **Sticky-note wrap:** most significant event (one colour) + predicted future change (another) placed on the timeline including the future.
+- **Materials:** Blank timeline cards, teacher reference deck (`Timeline of Canadian Citizenship and Franchisement_Teacher resource.docx`), rope/craft paper, markers, sticky notes (2 colours), devices.
+- **Homework/Extension:** 1-paragraph "why this still matters" on one timeline event.
+- **Assessment:** Timeline card (formative, collected); sticky-note reasoning (formative).
+
+**Class 13 — "Living Timeline Debrief + Four Corners on Enfranchisement" (Oct 13–15)**
+
+- **Activity:** Timeline still up. Whole-class debrief from the teacher guide: *What surprised you? Which changes were hardest won? Are all changes progressive? What's missing?* (Surface omissions — Trans rights, disability rights, Bill C-31 reinstatement of Indigenous women.) Then **four-corners debate** using sticky-note predictions as motions ("Permanent residents should vote municipally," etc.). Debrief: *who decides* who is a citizen?
+- **Materials:** Timeline display, four-corners signs, sentence-stems poster, Class 12 predictions.
+- **Homework/Extension:** Read the Treaty Education primer for Class 16.
+- **Assessment:** Four-corners participation (observation checklist; reasoning quality).
+
+**Class 14 — "Heritage Minutes + Rights Stories" (Oct 15–19)**
+
+- **Activity:** Selected Heritage Minutes (`HeritageMinutes/` — teacher vets each clip: Persons Case, Underground Railroad, Viola Desmond, Japanese-Canadian internment, Inuit dental/health if present). After each: structured 4-question response (What changed? Who fought for it? What's still contested? What surprised you?). Small-group synthesis: patterns across the minutes. Connection: which of these stories appear on the Class 12 timeline — which are missing from it?
+- **Materials:** Vetted Heritage Minutes clips, 4-question response sheet, synthesis worksheet.
+- **Homework/Extension:** One timeline entry per student finalized for Class 15.
 - **Assessment:** 4-question responses (formative, collected).
 
-**Class 12 — "Citizenship Skills I Bring" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 15 — "Rights Over Time — Group Research + Wall Timeline" (Oct 21, all sections)**
 
-- **Activity:** **Personal inventory + mapping** to the **Community Contribution Wheel** (school, neighbourhood, family, faith community, hobby community, online community, Indigenous community for those who identify). Students list skills (technical, social, language, cultural, athletic, caregiving, etc.) and map them onto the wheel. Connect to Unit 1: which of your skills are you already using in your Service Learning project? Which are unused? Bridge to PCD (Personal Career Development) — citizenship skills and career skills overlap.
-- **Materials:** Skills Inventory template, Community Contribution Wheel worksheet.
-- **Homework/Extension:** Identify 1 unused skill you'd like to deploy this term (could be in your project or another context).
-- **Assessment:** Wheel mapping (formative, collected).
+- **Activity:** Compressed **Rights Over Time** investigation: three groups research one rights arc each — (A) Status of women (Persons Case → employment equity), (B) Indigenous peoples (Indian Act → 1960 federal vote → s.35 → UNDRIP Act), (C) African Nova Scotians and racialized communities (Viola Desmond → Africville apology → immigration reform). Each group produces a one-slide **Rights Timeline Card** and presents it (5 min + Q&A); class assembles a giant wall timeline. Culminating discussion: which "wins" are fragile? Rights gained through courts vs. legislatures — what's the difference? *(Absence-tolerant: groups of 3–4, roles split.)*
+- **Materials:** Source packs per group (teacher-curated), Rights Timeline Card template, wall timeline backing, presentation rubric (formative).
+- **Homework/Extension:** 1-paragraph "why this matters today" reflection.
+- **Assessment:** Timeline card + presentation (formative peer + teacher).
 
-**Class 13 — "Living Timeline — Canadian Citizenship & Enfranchisement" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 16 — "Residential Schools — Shubenacadie + Sugar Falls" (Oct 21–26)**
 
-- **Activity:** **Living Timeline of Canadian Citizenship** (full lesson from `resources/Unit_02_Who_Am_I_as_a_Citizen/Living Timeline_Canadian Citizenhip_ Lesson_.docx`). Class forms ~13 pairs/trios; each group receives a **blank timeline card** (`Timeline Cards_Blank_.docx`) with an assigned date/event (e.g., 1867 Confederation, 1885 Chinese Immigration Act, 1918 women's federal vote, 1960 First Nations voting rights, 1982 Charter, 2015 Indigenous peoples vote in full for first time since 1876). Groups research their event, write concise facts on the card, and design an illustrative symbol. Groups physically stand on a rope timeline scaled to the room (teacher sets scale ahead of time — e.g., 50 cm per decade). **Sticky note wrap-up:** each student writes (1) the most significant event and why on one colour sticky note, (2) a predicted future citizenship change on another colour — placed on the timeline in the correct position including the future.
-- **Materials:** Blank timeline cards (`resources/Unit_02_Who_Am_I_as_a_Citizen/Timeline Cards_Blank_.docx`), teacher reference deck (`Timeline of Canadian Citizenship and Franchisement_Teacher resource.docx`), string/yarn or craft paper for the timeline, markers, sticky notes (2 colours), plain paper for symbols, classroom devices for research.
-- **Homework/Extension:** Pick one timeline event and write a 1-paragraph "why this still matters" reflection before Class 14.
-- **Assessment:** Timeline card (formative, collected); sticky-note evidence of comprehension and critical thinking (formative, teacher reviews for "most significant" reasoning quality).
+- **Activity:** Deep dive into **Shubenacadie Indian Residential School** (the only residential school in the Maritimes, 1930–1967) using MM Studies Unit 10 materials. **Content-warning protocol** at the door (ground-rules opener, opt-out seating, counsellor referral card). Read the ***Sugar Falls*** excerpt (Betty Ross's story — `resources/Unit_02.../SugarFalls/`) with the structured response: *what did you see, what policy mechanism was at work?* Rita Joe's **"I Lost My Talk"** as anchor poem. Discussion: what was the federal goal? What did it cost? Why does this matter for citizenship today?
+- **Materials:** MM Studies Unit 10 (Shubenacadie), Sugar Falls excerpt + dossier, "I Lost My Talk" handout, content-warning poster, discussion protocols.
+- **Homework/Extension:** Read *Sugar Falls* follow-up or Chanie Wenjack pre-read for Class 17.
+- **Assessment:** Structured response (formative, collected — handled with care, private feedback).
 
-**Class 14 — "Living Timeline Debrief + Four Corners on Enfranchisement" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 17 — "IRSSA + Chanie Wenjack + the TRC Calls to Action" (Oct 22–26)**
 
-- **Activity:** Start with the physical timeline still up. Whole-class discussion using the teacher guide questions (from `Living Timeline_Canadian Citizenhip_ Lesson_.docx`): *What surprised you? Which changes were hardest won? Are all changes progressive? What's missing?* (Surface omissions — e.g., Trans rights, disability rights, Bill C-31 Indigenous women reinstated.) Then **four-corners debate** using 4–5 of the sticky-note predictions from Class 13 as the motion statements ("Permanent residents should be able to vote in municipal elections," "Dual citizens should be able to hold any elected office," etc.). Students move to their corner (Strongly Agree / Agree / Disagree / Strongly Disagree) and defend their position. Debrief: what does this tell us about *who decides* who is a citizen? Bridge: we've seen how citizenship has changed over time for different groups — now we go deeper on the group whose citizenship was most systematically denied. Residential schools unit begins next class.
-- **Materials:** Timeline still displayed, four-corners signs, sentence-stems poster, sticky-note predictions from Class 13.
-- **Homework/Extension:** Read Treaty Education primer (provided) for next class.
-- **Assessment:** Four-corners participation (formative, observation checklist); quality of reasoning in corner defence.
+- **Activity:** Introduce the **Indian Residential Schools Settlement Agreement** (2007 — largest class-action settlement in Canadian history; five pillars) and the **TRC (2008–2015)** with its 94 Calls to Action, focusing on **#62–65 (education for reconciliation)**. Anchor case: **the lonely death of Chanie Wenjack (1966)** using the `ConnectTheDots/Chanie_Wenjack_Inquest.html` case file. Discussion: what does it mean that Canada settled out of court for harms caused by government policy? What does a "Call to Action" demand of a Grade 9 student?
+- **Materials:** MM Studies Unit 10 (IRSSA), Wenjack inquest case file, TRC primer (#62–65 focus), discussion prompts.
+- **Homework/Extension:** Sixties Scoop timeline pre-read; exit ticket: "Name 2 Calls to Action that affect this school."
+- **Assessment:** Exit ticket (formative).
 
-**Class 15 — 🌱 SERVICE LEARNING CHECK-IN #1 + Rights Timeline Presentations (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 18 — "Sixties Scoop + Annie Francis Case Simulation" (Oct 26–Nov 2)**
 
-- **Activity:** First 20 min: SL check-in #1 — project teams report: what we did since launch, what's working, what's stuck, what support we need. Teacher acts as consultant. Last 30+ min: each group delivers their **Rights Timeline Card** (5-min presentation + Q&A). Class builds a giant wall timeline using all three groups' cards. Culminating discussion: which "wins" are actually fragile? Which group's rights evolved fastest, and what made that possible? What patterns do you see (rights lost in wartime, rights gained through courts vs. legislatures, etc.)?
-- **Materials:** Implementation log template, Wall timeline backing (large butcher paper), groups' slides, presentation rubric.
-- **Homework/Extension:** Pick one timeline entry and write a 1-paragraph "why this matters today" reflection.
-- **Assessment:** Implementation log (formative participation); hours-log verification; presentation rubric (formative peer + teacher).
+- **Activity:** Introduce the **Sixties Scoop** (1960s–1980s mass removal of Indigenous children into child welfare; Section 88 (1951) as the legal door) via the MM Studies timeline. Run the **Annie Francis case sim** (`mm-june-guide.md` Part 04 materials; characters FICTIONAL — say so explicitly): pairs work evidence cards — the 1963 apprehension form's loaded language, the "Anne Peters" file renaming, the two-branch family tree (physical erasure vs. legal erasure under the Indian Act's second-generation cut-off). Driving question: *what is being erased, and how?* *(Absence-tolerant: pairs complete what they can; sim continues Class 19.)*
+- **Materials:** Annie Francis case file (fictional form, family tree), evidence cards, MM glossary, wall timeline backing.
+- **Homework/Extension:** One current child-welfare news item involving Indigenous families — 2 sentences.
+- **Assessment:** Case analysis (formative, collected).
 
-**Class 16 — "Peace & Friendship Treaties — Map and Meaning" (Cycle 4, ~Oct 13)**
+**Class 19 — "From the Scoop to Today — Child Welfare Now" (Oct 29–Nov 4)**
 
-- **Activity:** Introduce the 1760–1763 **Peace and Friendship Treaties** (NS-specific context). Students investigate using a teacher-curated primary source pack + **Treaty Education Nova Scotia** resources: what was agreed, by whom, what's the relationship between Mi'kmaw and Crown today, why are treaties "living" rather than historical? Map activity: students plot the treaty territories across Mi'kma'ki on a class map. Discussion: what does it mean to be a citizen in a country founded on treaties with the land's original peoples?
-- **Materials:** Treaty primary source pack, Map of Mi'kma'ki (laminated), Treaty Education NS resources, analysis worksheet.
-- **Homework/Extension:** Pre-read for Class 17: brief on Shubenacadie Indian Residential School (the only residential school in the Maritimes).
-- **Assessment:** Map annotation (formative, collected).
+- **Activity:** **Designed absence-tolerant (Take Our Kids to Work Day hits 902/903 here).** Complete the Annie Francis debrief with those present; then a jigsaw on the modern continuum: Sixties Scoop → Millennial Scoop → **An Act respecting First Nations, Inuit and Métis children, youth and families (2019)** affirming Indigenous jurisdiction over child welfare. Present groups synthesize a "Scoop → today" wall timeline. Intergenerational trauma introduced via *The Outside Circle* excerpt (`HardRoadToWalk/`).
+- **Materials:** Annie Francis debrief guide, 2019 federal Act primer, *Outside Circle* excerpt, wall timeline.
+- **Homework/Extension:** Prepare 3 questions for the Knowledge Keeper visit (protocols: gift offering if appropriate, no recording without permission).
+- **Assessment:** Jigsaw synthesis (formative); question prep (checked).
 
-**Class 17 — "Residential Schools — Shubenacadie + 'We Were Children'" (Cycle 4, ~Oct 13)**
+**Class 20 — "Donald Marshall Jr. + Gladue Rights" (Nov 4–6)**
 
-- **Activity:** Deep dive into the **Shubenacadie Indian Residential School** (the only residential school in the Maritimes, operated 1929–1967). Introduce the broader residential school system in Canada (1830s–1996) using **MM Studies Unit 10** materials. View selected clips from **"We Were Children"** (survivor testimonies from Shubenacadie and other schools) — teacher must preview for content warnings and prepare students. Use **Rita Joe's "I Lost My Talk"** poem as anchor text. Discussion: what was the federal goal of residential schools? What did it cost? Why does this matter for citizenship today?
-- **Materials:** MM Studies Unit 10 (Shubenacadie materials, "We Were Children" clips — verify availability), Rita Joe "I Lost My Talk" poem handout, content-warning poster, discussion protocols.
-- **Homework/Extension:** Read MM Studies "Sugar Falls" graphic novel excerpt (or summary) for Class 18.
-- **Assessment:** Discussion participation (formative observation, carefully facilitated).
+- **Activity:** **Designed to run with reduced numbers (901 hits TKOW here).** Case-timeline pair work: **Donald Marshall Jr.** — Sydney NS teenager wrongly convicted of murder (1971), 11 years imprisoned, exonerated 1989; the Royal Commission found systemic racism and led to the Mi'kmaw Legal Support Network. Use the DonaldMarshall slide pack + transcript excerpts (`DonaldMarshall/`). Then **Gladue Rights** (*R. v. Gladue*, 1999): courts must consider Indigenous background factors and seek alternatives to incarceration. Pairs annotate the case timeline's "points of systemic failure" and answer: *how does Marshall's case show what Gladue tries to fix?* Bridge: "A real sentencing circle is coming in Unit 5 — Class 60."
+- **Materials:** DonaldMarshall slide JPGs + transcripts, case-timeline worksheet, Gladue primer card, content note.
+- **Homework/Extension:** One other wrongful-conviction case (Indigenous person in Canada) — 3 sentences.
+- **Assessment:** Annotated timeline (formative, collected).
 
-**Class 18 — "IRSSA + The Secret Path + TRC Calls to Action" (Cycle 4, ~Oct 13)**
+**Class 21 — "Mi'kmaw Knowledge Keeper / Elder Visit" (Nov 5–9)**
 
-- **Activity:** Introduce the **Indian Residential Schools Settlement Agreement (IRSSA, 2007)** and its components (Common Experience Payment, Independent Assessment Process, Truth and Reconciliation Commission). Anchor case: **the Lonely Death of Chanie Wenjack** (1966) using MM Studies materials. Introduce the **TRC's 94 Calls to Action** — focus especially on **#62–#65 (Education for Reconciliation)**. Discussion: what does it mean that Canada settled out of court for harms caused by government policy? What does "Call to Action" demand of every Canadian?
-- **Materials:** MM Studies Unit 10 (IRSSA materials, "The Secret Path"/Chanie Wenjack case), TRC Calls to Action primer (teacher-prepared, focusing on #62–65), discussion prompts.
-- **Homework/Extension:** Read MM Studies Sixties Scoop timeline; pre-read Class 19 materials.
-- **Assessment:** Exit ticket — "Name 2 TRC Calls to Action that affect your school or community" (formative).
+- **Activity:** Invited **Knowledge Keeper, Elder, or community educator** (in-person or Zoom; Mi'kmaw Native Friendship Centre or Mi'kmaw Kina'matnewey) speaks on Mi'kmaw citizenship, the treaty relationship, and reconciliation from a Mi'kmaw perspective. Students use pre-prepared questions (protocols taught Class 19). Structured reflection after. **Booking outreach: first week of September — this is the course's most time-critical external dependency.** Fallback if unbookable: recorded Mi'kmaw educator address + structured Q&A response (e.g., Treaty Education NS video resources) — do not substitute silently; note the change.
+- **Materials:** Pre-visit protocols handout, question list, honorarium/gift arrangement, reflection worksheet.
+- **Homework/Extension:** Reflection slip: "One thing I want to remember from today."
+- **Assessment:** Question prep (formative); reflection slip (formative).
 
-**Class 19 — "Sixties Scoop + Annie Francis Case Sim" (Cycle 4, ~Oct 13)**
+**Class 22 — "Mi'kmaw Self-Government, Modern Treaties & the Duty to Consult" (Nov 9–12)**
 
-- **Activity:** Introduce the **Sixties Scoop** (1960s–1980s) using MM Studies Unit 14 timeline — the mass removal of Indigenous children from families into child welfare systems across Canada. Run the **Annie Francis Sixties Scoop case sim** (adapted from MM Studies folder): students analyze the case of Annie Francis, a Mi'kmaw child from Nova Scotia taken into care in the 1960s, whose experiences led to the 1985 *Shubenacadie Indian Band v. Canada* case. Pairs work through evidence cards: (1) what happened to Annie; (2) what policy enabled it; (3) what was the legal outcome; (4) what's still unresolved today. Class builds a "Sixties Scoop → child welfare today" timeline on the wall. Bridge: how does the Sixties Scoop connect to today's overrepresentation of Indigenous children in care?
-- **Materials:** MM Studies Unit 14 Sixties Scoop timeline, Annie Francis case study materials (adapt from MM folder), evidence cards, wall timeline backing.
-- **Homework/Extension:** Research one current Canadian child-welfare case involving an Indigenous child or family. 2-sentence summary.
-- **Assessment:** Case sim participation (formative observation); case evidence analysis (formative, collected).
+- **Activity:** Mi'kmaw governance structures — traditional (Grand Council/Santé Mawio'mi, district chiefs) vs. Indian Act band councils vs. modern self-government negotiations (**Mi'kmaq–Nova Scotia–Canada Framework Agreement**; MM Studies Unit 11). The **Crown's duty to consult**. Connect back: the Marshall decision (1999) confirmed the treaty right to hunt/fish/gather for a **moderate livelihood** — a 1760s truckhouse promise still shaping law. Discussion: how does a 260-year-old treaty drive 2026 headlines?
+- **Materials:** MM Studies Unit 11, Framework Agreement primer, Marshall decision summary, governance comparison chart.
+- **Homework/Extension:** U2 vocabulary self-rating (test at Class 24); one current Mi'kmaw self-government item — 1 paragraph.
+- **Assessment:** Comparison chart (formative, collected); vocab self-rating (formative).
 
-**Class 20 — "From Residential Schools to Reconciliation — Modern Context" (Cycle 4, ~Oct 13)**
+**Class 23 — "Leo Cannabis Case Sim + U2 Review + Quiz 1" (Nov 12–16)**
 
-- **Activity:** Connect residential schools → Sixties Scoop → modern child welfare (the cycle continues). Use MM Studies content on intergenerational trauma and healing. Introduce the **An Act respecting First Nations, Inuit and Métis children, youth and families** (2019 federal legislation affirming Indigenous jurisdiction over child welfare). Discussion: what does "reconciliation" actually mean as policy? What does it ask of non-Indigenous Canadians? Begin scaffolding for the **Mi'kmaw Elder visit** (Class 21).
-- **Materials:** MM Studies Unit 14 (current issues, intergenerational trauma), federal child-welfare legislation primer, discussion prompts, Elder visit prep protocol.
-- **Homework/Extension:** Prepare 3 questions for the Elder visit using protocols for engaging with Elders (gift offering if appropriate, mind's ear listening, no recording without permission).
-- **Assessment:** Exit ticket — "What is intergenerational trauma and how does it connect to citizenship?" (formative).
+- **Activity:** **Unit Quiz 1 (10 min, formative retrieval)** on U2 vocabulary. Then the **Leo cannabis case sim** (MM Studies materials) as applied review: a Mi'kmaw man asserts treaty "moderate livelihood" against a cannabis charge — groups work Crown brief, defence brief, Gladue considerations, then argue. Close with the **Reconciliation Action Plan** synthesis (formative): "One thing I'm doing, one I'll start, one I'll keep learning" — grounded in the Class 10 exit strips and TRC #62–65. Distribute the U2 study guide.
+- **Materials:** Quiz 1, Leo case materials, Crown/defence brief templates, Gladue card, study guide, Action Plan slips.
+- **Homework/Extension:** Study for Class 24 test.
+- **Assessment:** Quiz 1 (formative); case sim participation; Action Plan slip (formative — feeds Civic Foundations portfolio).
 
-**Class 21 — "Mi'kmaw Elder Visit (or Guest Speaker)" (Cycle 5, ~Oct 27 – Nov 7)**
+**Class 24 — 📋 SUMMATIVE: UNIT 2 TEST (Nov 18 — all three sections, inside Term 1)**
 
-- **Activity:** Invited **Mi'kmaw Knowledge Keeper, Elder, or community educator** (in-person or via Zoom) speaks to the class about Mi'kmaw citizenship, treaty relationship, and what reconciliation looks like from a Mi'kmaw perspective. Strong fit with **Mi'kmaw Native Friendship Centre (Halifax)** or **Mi'kmaw Kina'matnewey**. Students prepare 3–5 questions in advance using protocols for engaging with Elders (gift offering if appropriate, mind's ear listening, no recording without permission). After the visit: structured reflection writing.
-- **Materials:** Pre-visit protocols handout (gift, thanks, smudging if requested), student question list template, reflection worksheet.
-- **Homework/Extension:** Reflection slip: "One thing I want to remember from the Elder's visit." Pre-read Donald Marshall Jr. materials for Class 22.
-- **Assessment:** Question preparation (formative); reflection exit slip (formative).
+- **Activity:** **Unit 2 Test (10% — the syllabus's Unit 2 Summative).** 50 minutes. Section A — Multiple choice (15–18 items: districts/Netukulimk framing, treaties 1752/1760–61 + truckhouse, enfranchisement dates, Shubenacadie, IRSSA, TRC, Sixties Scoop, Section 88, Marshall + Gladue). Section B — Short answer (5–7: explain the truckhouse→moderate livelihood thread; how Section 88 enabled the Scoop; what "living treaty" means). Section C — Extended response (1 scenario: e.g., "A classmate says treaties are history. Use two pieces of Unit 2 evidence to respond."). Last 5 min: anonymous confidence form. **Item bank: `cit9-test-bank.md` Unit 2 section (updated).**
+- **Materials:** Test papers (Google Forms MCQ + handwritten written sections), confidence form, content-warning poster.
+- **Homework/Extension:** None.
+- **Assessment:** **📋 Unit 2 Test (10%)** — lands Nov 18, inside Term 1 for the report card.
 
-**Class 22 — "Donald Marshall Jr. + Gladue Rights" (Cycle 5, ~Oct 27 – Nov 7)**
+**Class 25 — "U2 Test Return + Bridge to Economic Citizenship" (Nov 19–23)**
 
-- **Activity:** Examine **Donald Marshall Jr.** (Mi'kmaw man from Nova Scotia; wrongfully convicted of murder in 1971, acquitted on appeal in 1989 after 11 years in prison; led to the **Marshall inquiry** into Nova Scotia justice). Then introduce **Gladue Rights** (1999 Supreme Court ruling in *R. v. Gladue*) — requires courts to consider the unique circumstances of Indigenous offenders, including systemic background factors. Discussion: how does the Donald Marshall Jr. case illustrate what Gladue Rights try to address? Why is overrepresentation of Indigenous people in Canadian prisons a citizenship issue? Bridge: in Unit 5 we'll do a Sentencing Circle activity that puts Gladue Rights into practice.
-- **Materials:** Donald Marshall Jr. case summary (teacher-prepared, age-appropriate), Marshall inquiry findings overview, Gladue Rights primer, discussion prompts.
-- **Homework/Extension:** Read about one other wrongful conviction case involving an Indigenous person in Canada.
-- **Assessment:** Discussion participation (formative observation); Marshall-Gladue concept map (formative, collected).
-
-**Class 23 — 🌱 SL CHECK-IN #2 + Unit 2 Vocabulary Review Setup (Cycle 5, ~Oct 27 – Nov 7)**
-
-- **Activity:** First 30 min: SL check-in #2 — project teams report progress, log hours, identify support needs. Teacher circulates. Last 20+ min: distribute **Unit 2 Vocabulary List** (terms students will be tested on at the test in Class 30) — students self-rate confidence on each term. Quick review game (Connect-4 matching) to surface gaps.
-- **Materials:** Implementation log template, U2 vocabulary list, Connect-4 cards, self-rating rubric.
-- **Homework/Extension:** Pre-read for Class 26 Leo cannabis case materials; study U2 vocab for test.
-- **Assessment:** Implementation log (formative); vocabulary self-rating (formative).
-
-**Class 24 — "Mi'kmaw Self-Government + Modern Treaties + Duty to Consult" (Cycle 5, ~Oct 27 – Nov 7)**
-
-- **Activity:** Introduce **Mi'kmaw governance structures** (elected band council under Indian Act + traditional governance + the **Mi'kmaq–Nova Scotia–Canada Framework Agreement** on self-government). Examine the concept of the **Crown's duty to consult** Indigenous peoples when decisions affect their rights or territory (from MM Studies Unit 11). Connect to the **Marshall decision** (R. v. Marshall, 1999) — Mi'kmaw treaty right to hunt, fish, and gather for a "moderate livelihood." Discussion: how does a 1760 treaty still shape Canadian law in 2026? What does "living treaty" mean?
-- **Materials:** MM Studies Unit 11 (self-government + treaty materials), Marshall decision summary, Mi'kmaq–NS–Canada Framework Agreement primer.
-- **Homework/Extension:** Research one current Mi'kmaw self-government negotiation. 1 paragraph.
-- **Assessment:** Discussion participation (formative observation).
-
-**Class 25 — "Leo Cannabis Case Study — Indigenous Justice in Practice" (Cycle 5, ~Oct 27 – Nov 7)**
-
-- **Activity:** Run the **Leo cannabis case study simulation** (adapted from MM Studies folder). Background: a Mi'kmaw man named Leo faces a cannabis-possession charge and asserts his treaty right to pursue a "moderate livelihood" under the Marshall decision. Students work through evidence cards and legal briefs in groups: (1) Crown's argument — federal law applies uniformly; (2) Defence argument — treaty right supersedes; (3) Sentencing considerations — does Gladue apply? What factors matter? Debrief: what does this case reveal about the ongoing tension between Indigenous treaty rights and Canadian criminal law? Where does reconciliation sit when the law conflicts?
-- **Materials:** MM Studies Leo cannabis case materials (adapted), evidence cards, Crown/Defence briefs template, Gladue reference card.
-- **Homework/Extension:** Reflection exit slip: "If you were the judge, what would you decide in the Leo case and why?"
-- **Assessment:** Case sim participation (formative observation); one-page judge-decision rationale (formative, collected).
-
-**Class 26 — "Reconciliation in Action — TRC + Personal Action Plan" (Cycle 6, ~Nov 10)**
-
-- **Activity:** Revisit the **TRC Calls to Action** (especially #62–#65 on education for reconciliation). Class identifies 5 Calls most relevant to their lives as NS teens. Then individual **Reconciliation Action Plan**: "One thing I'm already doing, one thing I'll start, one thing I'll keep learning about." Bridge to Service Learning: which of your actions could become a longer-term practice? Share action plans in pairs; partner offers structured feedback (specific, realistic, reciprocal).
-- **Materials:** TRC Calls to Action primer (teacher-prepared; reference trc.ca), Reconciliation Action Plan template, peer feedback rubric.
-- **Homework/Extension:** Begin / continue Reconciliation action plan; study U2 vocab for test.
-- **Assessment:** **Summative 2 — Reconciliation Action Plan (5%)** (rubric: specificity, actionability, connection to TRC, realism).
-
-**Class 27 — "Annie Francis Case Sim (Continued) — Justice Denied?" (Cycle 6, ~Nov 10)**
-
-- **Activity:** Re-anchor the Annie Francis Sixties Scoop case sim from Class 19 — return to it now that students have full Unit 2 vocabulary and Gladue Rights context. Pairs complete a written analysis: (1) what factors led to Annie's removal from her family? (2) what policy framework enabled the harm? (3) what was the legal outcome of *Shubenacadie Indian Band v. Canada*? (4) what would Gladue Rights mean if applied to Annie today? (5) what would "just resolution" actually require? Debrief: how does the Annie Francis case connect to the Donald Marshall Jr. case and to contemporary Indigenous child welfare?
-- **Materials:** Annie Francis case materials (continuation), Gladue reference card, written analysis template.
-- **Homework/Extension:** Pre-read MMIWG (Missing and Murdered Indigenous Women and Girls) materials for Unit 5.
-- **Assessment:** Written case analysis (formative, collected).
-
-**Class 28 — "Unit 2 Review Day" (Cycle 6, ~Nov 10)**
-
-- **Activity:** Start class with **Unit Quiz 1 (10 min)** covering Unit 2 vocabulary. Then full Unit 2 review class. **Vocabulary drill** using MM Studies Unit Test-style items (MC, true/false, matching on residential schools, Sixties Scoop, treaties, Donald Marshall Jr., Gladue Rights, TRC). Then **practice scenarios** using MM Studies item-bank style: 4 short scenarios (a residential school survivor seeking redress, an Indigenous youth navigating Gladue court, a community in Sixties Scoop aftermath, a band council negotiating self-government). Students identify the relevant Unit 2 concept + propose a response. Last 10 min: distribute study guide for Class 30 Unit Test.
-- **Materials:** Quiz paper, U2 vocabulary cards (residential school, Shubenacadie, IRSSA, TRC, Sixties Scoop, child welfare, Donald Marshall Jr., Gladue Rights, treaty right, moderate livelihood, sentencing circle, reconciliation, UNDRIP), 4 practice scenarios, study guide handout.
-- **Homework/Extension:** Study for Class 30 Unit Test.
-- **Assessment:** **Unit Quiz 1 (2%)**; practice scenarios (formative); self-assessment rubric.
-
-**Class 29 — "Unit 2 Test Review + Last-Minute Q&A" (Cycle 6, ~Nov 10)**
-
-- **Activity:** Brief last-minute review. Anonymous Google Form: "What's still unclear?" — answers shape the final review. Then a structured review game (Jeopardy-style) covering all Unit 2 vocabulary + key case studies (Shubenacadie, IRSSA, Sixties Scoop, Donald Marshall Jr., Gladue, Leo cannabis, Annie Francis). Teacher circulates with observation checklist. Last 10 min: distribute the **Unit 2 Test** paper preview (so students see format) and confirm test logistics.
-- **Materials:** Jeopardy review game (teacher-built), anonymous Google Form, observation checklist, test paper preview.
-- **Homework/Extension:** Get a good night's sleep; bring a pencil.
-- **Assessment:** Google Form (formative); self-assessment rubric.
-
-**Class 30 — 📋 SUMMATIVE UNIT 2 TEST (Cycle 6, ~Nov 10)**
-
-- **Activity:** **Unit 2 Test** modelled on the MM Studies June test format. 50 minutes total. Section A — Multiple Choice (15–18 items on residential schools, Shubenacadie, IRSSA, Sixties Scoop, child welfare, treaties, Donald Marshall Jr., Gladue Rights, TRC, UNDRIP, sentencing circles). Section B — Short Answer (5–7 items: define, explain, identify). Section C — Extended Response (1 scenario: e.g., "Apply Gladue Rights + treaty rights to the Leo cannabis case. What factors would a judge weigh?"). Last 5 min: anonymous confidence Google Form.
-- **Materials:** Test paper (Google Forms or paper), confidence Google Form, content-warning poster.
-- **Homework/Extension:** Pre-read Class 31 Economic perspectives materials.
-- **Assessment:** **Summative Unit 2 Test (5%)** — Indigenous Citizenship, Treaties, Residential Schools, Sixties Scoop, Donald Marshall Jr., Gladue Rights.
-
-**Class 31 — "Unit 2 Test Return + Reconciliation Bridge to Unit 3" (Cycle 7, ~Nov 24 – Dec 5)**
-
-- **Activity:** First 30 min: **Unit 2 Test Return + Review**. Teacher returns tests, walks through common errors, addresses questions. Students self-assess against the rubric and identify 1 area for growth. Last 20+ min: bridge to Unit 3 — quick Money Around the World warm-up (show 3 images: a stack of cash, a gift exchange, a digital payment screen; ask students which represents "money" to them). Connect: how does economic inequality connect to the citizenship rights work of Unit 2?
-- **Materials:** Returned test papers, test-review key, warm-up images.
-- **Homework/Extension:** Pick one of your "money" associations and write 2 sentences on why.
-- **Assessment:** Test review participation (formative); implementation log updated (formative).
+- **Activity:** Test return + common-error walkthrough; students self-assess and set one growth action. Bridge to U3: three images (cash stack, gift exchange, digital payment) — "which is money?" How does economic inequality connect to everything Unit 2 just showed? *(902/903: this class lands Nov 23 = Term 2; return still happens first class of T2.)*
+- **Materials:** Returned tests, review key, warm-up images.
+- **Homework/Extension:** 2 sentences on your "money" association.
+- **Assessment:** Test review participation (formative).
 
 ---
 
-### UNIT 3 — Financial Citizenship (Classes 32–42, 12 classes)
+### UNIT 3 — Economic Citizenship (Classes 26–37, 12 classes) — **SL RELAUNCH LIVES HERE**
 
 *Compare the impact of economic decisions from the perspectives of various groups · Analyse how effective decision-making and informed participation in society affect, and are affected by, personal financial management.*
 
-*Sub-themes (3A): Cultural ideas of needs/wants/money/value · Taxation · Government priorities & economic equality · Economic disparity · Fairness vs. equality*
-*Sub-themes (3B): Personal financial management · Goal setting · Impact on self and others · Internal/external factors*
+*Sub-themes: Cultural ideas of needs/wants/money/value · Taxation · Government priorities & economic equality (Indigenous peoples) · Economic disparity · Fairness vs. equality vs. equity · Personal financial management*
 
-*Vocabulary in play: needs vs. wants, money, value, taxation, income tax, GST/HST, property tax, carbon tax, economic disparity, equality vs. equity, budget, credit, debt, savings, financial literacy, payday loan, gig economy*
+*Vocabulary in play: needs vs. wants, taxation, income tax, HST, property tax, carbon pricing, economic disparity, equality vs. equity, budget, credit, debt, savings, payday loan, living wage*
 
-**Simulation picks:** Option C — **"FAIR vs. EQUAL"** (economic decision-making scenarios) for 3A's fairness/equality distinction; Option B — **"FOLLOW THE TAX DOLLAR"** for the taxation deep dive; Option A — **"LIVING WAGE MONTH"** for 3B's personal finance empathy-building. Span: Classes 32–35 (3A); Classes 36–40 (3B); Class 41 (review); Class 42 (test).
+**Service Learning relaunch (post-October commitment):** Classes 26–27 relaunch the course spine after the school-wide October service conversation. **Proposal due Class 30 (10%, Term 2 major).** Monthly check-ins follow (Classes 31, 41, 55, 63, 67); execution window in Unit 5; Showcase Classes 83–84.
 
 ---
 
-**Class 32 — "Money Around the World — Cultural Money Map" (Cycle 7, ~Nov 24 – Dec 5)**
+**Class 26 — "🌱 SL Relaunch 1 — The School-Wide Service Conversation" (Nov 23–26)**
 
-- **Activity:** **Cultural Money Map research project.** Students research how a specific culture conceptualizes money, value, or exchange (Mi'kmaw gift economies and trade networks, gifting traditions in Pacific Islander cultures, Islamic finance, haggling cultures, mobile money in East Africa, time-banking). Use `Country-Profile-Project/` and `countryoftheday/` as scaffolds. Each student produces a one-page research brief + a 2-minute presentation. Compare: how is "money" universal and how is it culturally specific?
-- **Materials:** Research brief template, `Country-Profile-Project/` scaffolding, presentation rubric.
-- **Homework/Extension:** Research write-up; rehearse 2-min presentation.
-- **Assessment:** Research brief (formative, collected); presentation (formative peer feedback).
+- **Activity:** Debrief the school-wide service learning conversation from October: what needs did the school community surface? Re-introduce the SL architecture (`ServiceLearningIntro.html`, `ServiceLearningMenu.html`): process + product, reciprocity not charity, real partner, real hours. Teams form (3–4); **Need Audit toolkit** issued — 5 informant interviews, neighbourhood/photo scan, news/charity data scan. Teams claim 2 candidate needs.
+- **Materials:** `ServiceLearningMenu.html`, Need Audit toolkit (interview prompts, photo journal template), brainstorm wall, team rosters.
+- **Homework/Extension:** One informant interview before Class 27 (evidence: quote or photo).
+- **Assessment:** Team formation + interview log (formative).
 
-**Class 33 — "Is It Fair? Scenarios" (Cycle 7, ~Nov 24 – Dec 5)**
+**Class 27 — "🌱 SL Relaunch 2 — Need Pitches + Partner Outreach" (Nov 25–30)**
 
-- **Activity:** **"Fair vs. Equal" scenarios gallery walk** (Option C). 8–10 short scenarios posted around the room: "Two workers do the same job, one earns more — that's fair if…", "Inheriting wealth is…", "Reserves have less access to clean water because…", "A carbon tax hurts rural low-income families but helps…", "Scholarships go to highest marks vs. greatest need…", etc. Students walk, annotate, position themselves on a "fair / not fair" spectrum, justify with evidence. Small-group debate on 2 trickiest scenarios.
-- **Materials:** Scenario cards, spectrum posters, annotation stickers, debate prompts.
-- **Homework/Extension:** Identify one scenario where your position shifted during the gallery walk. Write 1 paragraph in reflection log.
-- **Assessment:** Spectrum annotations (formative, collected); reflection entry.
+- **Activity:** Quick **Pitch Slam** (60s/team, desk-based): evidence, scope, Grade 9 capacity, equity framing, reciprocity. Class flags the strongest 1–2 needs per team via dotmocracy (teams keep their own need — the vote informs, not decides). Then **partner outreach**: draft 3 outreach emails from the NS partner shortlist (teacher reviews tone before sending). Proposal template walkthrough (`ServiceLearningProposal/`): Goal, Activities, Timeline, Roles, Resources, Risks, Success Indicators.
+- **Materials:** Pitch rubric (formative), dotmocracy dots, partner org list, outreach email template, proposal template.
+- **Homework/Extension:** Send outreach emails (teacher CC'd); proposal drafting begins.
+- **Assessment:** Pitch (formative); outreach drafts (formative).
 
-**Class 34 — "Federal Budget 101 — Where Does the Money Go?" (Cycle 7, ~Nov 24 – Dec 5)**
+**Class 28 — "Money Around the World — Cultural Money Map" (Nov 26–Dec 2)**
 
-- **Activity:** Teacher-led overview of the **federal budget structure** (using the most recent federal budget). Class maps the major spending categories (health transfers, education, Indigenous services, defense, infrastructure, environment, debt service). Then a Socratic seminar: if you had to CUT 10% of next year's spending, what would you cut and why? Frame as "where does the money go?" not "is taxation good?" — stay analytical, not partisan.
-- **Materials:** Federal Budget highlights (teacher-curated, simplified), Socratic seminar prompts, sentence-stems poster.
-- **Homework/Extension:** Pre-read class payroll activity for next class.
-- **Assessment:** Socratic seminar participation (formative).
+- **Activity:** **Cultural Money Map:** students research how a culture conceptualizes money/value/exchange (Mi'kmaw gift economies and trade networks, Pacific gifting, Islamic finance, mobile money, time-banking). One-page brief + 2-minute desk share. Compare: what's universal about money, what's cultural? *(Ties back to Netukulimk's reciprocity framing — Class 9.)*
+- **Materials:** Research brief template, `countryoftheday/` hooks, share protocol.
+- **Homework/Extension:** Finish brief; rehearse share.
+- **Assessment:** Brief (formative, collected); share (formative peer feedback).
 
-**Class 35 — 🌱 SL CHECK-IN #3 + Taxes Payroll Activity (Cycle 7, ~Nov 24 – Dec 5)**
+**Class 29 — "Is It Fair? — Scenarios Gallery Walk" (Dec 2–7)**
 
-- **Activity:** First 25 min: SL check-in #3 — project teams report progress, log hours, identify support needs. Cross-team learning. Last 30+ min: **Mock payroll activity.** Given fictional jobs and incomes (NS minimum wage, $45K, $75K, $120K), students calculate federal income tax, NS provincial income tax, CPP, EI, and GST/HST on common purchases. Use a teacher-built simplified tax calculator (not full tax software). Discussion: who bears what burden and where the revenue goes (healthcare, education, infrastructure, defense, Indigenous services). Bridge to carbon tax discussion (NS context — federal carbon tax + NS output-based pricing system).
-- **Materials:** Implementation log, mock payroll worksheet, simplified tax tables (teacher-built), NS tax context sheet.
-- **Homework/Extension:** Find one news article about a recent NS or federal tax policy change. 2-sentence summary.
-- **Assessment:** Implementation log (formative); payroll worksheet (formative, collected).
+- **Activity:** 8–10 fairness scenarios posted around the room (`cit9-simulation-concepts.md` Option C bank): "Same job, different pay — fair if…", "Inheriting wealth is…", "Reserves' water access…", "Carbon pricing hits rural low-income first…". Students walk, annotate, stand on the fair/not-fair spectrum, justify with evidence. Small-group debate on the two split-decision scenarios.
+- **Materials:** Scenario cards, spectrum posters, annotation stickers.
+- **Homework/Extension:** 1 paragraph: the scenario where your position shifted.
+- **Assessment:** Spectrum annotations (formative, collected); reflection.
 
-**Class 36 — "Follow the Tax Dollar — Socratic Seminar" (Cycle 8, ~Dec 8)**
+**Class 30 — "📋 SL Proposal Workshop + Submission" (Dec 3–10)**
 
-- **Activity:** **Follow the Tax Dollar** simulation (Option B). Each student picks one tax stream ($5 of their income tax) and traces it through three levels of government: federal (defence? health transfers? Indigenous services?), provincial (healthcare? education? highways?), municipal (transit? garbage? libraries?). Build a **"Tax Dollar Flow Map"** showing where the dollar actually ended up, then compare to where they *thought* it went. Socratic seminar follows: (1) Where did your dollar go that surprised you? (2) Which programs have you personally benefited from that you didn't realize were publicly funded? (3) Difference between "I don't want to pay taxes" and "I want my taxes to go somewhere different"?
-- **Materials:** Government budget summaries (federal + NS + HRM), Tax Dollar Flow Map template, Socratic seminar setup.
-- **Homework/Extension:** Pre-read Indigenous Economic Inequality case study materials.
-- **Assessment:** Flow maps (formative, collected); Socratic seminar participation.
+- **Activity:** Full workshop: teams finalize the **Service Learning Proposal** (Goal, Activities, Timeline 4–8 weeks, Roles, Resources incl. partner, Risks incl. accessibility/weather/partner availability, Success Indicators). Peer read (glow/grow/question) in the first 20 min; teacher mini-conferences; submit by end of class. Implementation may begin once a partner replies.
+- **Materials:** Proposal rubric (summative), templates, peer-feedback slips, mini-conference tracker.
+- **Homework/Extension:** Begin implementation per the approved plan.
+- **Assessment:** **📋 Service Learning Proposal (10% — Term 2 major)** (rubric: goal clarity, feasibility, roles, evaluation plan, reciprocity framing).
 
-**Class 37 — "Indigenous Economic Inequality in Canada" (Cycle 8, ~Dec 8)**
+**Class 31 — "Federal Budget 101 + 🌱 SL Check-in #1" (Dec 7–14)**
 
-- **Activity:** Brief research on economic outcomes for Mi'kmaw and other Indigenous peoples in Canada (income gaps, on-reserve infrastructure, access to capital, treaty rights to fisheries). Discussion: how do government priorities (spending, law, policy) shape these outcomes? Connect to Unit 2 treaty work: the Marshall decision + 2020 NS lobster dispute are economic issues as well as governance issues. Use **APTN National News** as a media source alongside mainstream outlets.
-- **Materials:** Indigenous economic inequality case study (teacher-curated), APTN archive links, discussion prompts.
-- **Homework/Extension:** Exit slip: "One specific government policy I'd change to reduce Indigenous economic inequality, and why."
-- **Assessment:** Case study notes (formative); reflection entry.
+- **Activity:** First 20 min: **SL check-in #1** — implementation logs opened; what's heard back from partners. Then **Federal Budget 101**: map major spending (health transfers, Indigenous services, defence, debt service); Socratic prompt: "cut 10% — what goes?" Stay analytical, not partisan.
+- **Materials:** Implementation log template, budget highlights (simplified), Socratic prompts.
+- **Homework/Extension:** Pre-read payroll activity.
+- **Assessment:** Log check (formative); seminar participation.
 
-**Class 38 — "Fair vs. Equal — Concept Map + U3A Wrap" (Cycle 8, ~Dec 8)**
+**Class 32 — "Mock Payroll + Follow the Tax Dollar" (Dec 9–16)**
 
-- **Activity:** **Concept-mapping the Fair vs. Equal distinction.** Students build a visual concept map of equality (same resources for all), equity (resources based on need), and the situations where each is appropriate. Then small-group review of U3A vocabulary + concepts (taxation, disparity, fairness, equality, economic systems). Exit ticket: write one specific question you still have about economic fairness — these become review focus for Class 40 review.
-- **Materials:** Concept map template, U3A vocabulary review sheet.
-- **Homework/Extension:** Pre-read budget simulation materials.
+- **Activity:** First half: **mock payroll** — fictional NS incomes (minimum wage $16.75, $45K, $75K, $120K); calculate federal/provincial income tax, CPP, EI; HST on purchases (NS = 15%). Second half: **Tax Dollar Flow Map** — trace $5 of income tax through three levels; Socratic: "I don't want to pay taxes" vs. "I want my taxes to go somewhere different."
+- **Materials:** Payroll worksheet, simplified 2026 tax tables (`resources/Unit_03_Financial_Citizenship/`), Flow Map template.
+- **Homework/Extension:** Flow map finished if unfinished in class.
+- **Assessment:** Payroll worksheet + Flow Map (formative, collected); seminar participation.
+
+**Class 33 — "Indigenous Economic Inequality" (Dec 10–18)**
+
+- **Activity:** Economic outcomes for Mi'kmaw and other Indigenous peoples (income gaps, on-reserve infrastructure, access to capital, treaty fisheries as economy). How do government priorities shape these? Connect: Marshall decision + Sipekne'katik 2020 are economic as well as governance issues. **APTN** as a primary source alongside mainstream media.
+- **Materials:** Case study pack, APTN links, discussion prompts.
+- **Homework/Extension:** Exit slip: "One policy I'd change to reduce Indigenous economic inequality, and why."
+- **Assessment:** Case notes (formative); exit slip (collected).
+
+**Class 34 — "Fair vs. Equal — Concept Map + U3 Vocabulary" (Dec 16–Jan 4)**
+
+- **Activity:** Concept-map **equality** (same for all) vs. **equity** (by need) vs. **fairness** (a judgment); when does each fit? Vocabulary review sheet distributed for the Class 37 test. Exit ticket: one remaining economic-fairness question.
+- **Materials:** Concept map template, vocab list, exit tickets.
+- **Homework/Extension:** Pre-read budget simulation brief.
 - **Assessment:** Concept map (formative, collected); exit ticket.
 
-**Class 39 — "Budget vs. Reality — Simulation Launch" (Cycle 8, ~Dec 8)**
+**Class 35 — "Budget vs. Reality — Simulation Launch" (Dec 17–Jan 7)**
 
-- **Activity:** Launch **Living Wage Month** simulation (Option A). Each student is assigned a fictional profile: age 22, single, full-time minimum-wage job in Halifax, specific rent scenario (roommate / solo / living at home), debt load (or not), recurring expenses based on real HRM rent averages + NS minimum wage + utilities. Maintain a 30-day budget log. Sensitivity note: opt-out alternative (analyze a published budget diary) for students who may already be living this reality. Teacher shares real NS cost-of-living data transparently.
-- **Materials:** Profile cards, real HRM/NS cost-of-living data (teacher-compiled), Budget Log template, opt-out alternative (published budget diary).
-- **Homework/Extension:** Complete first week of budget log.
-- **Assessment:** Week 1 budget log (formative check-in).
+- **Activity:** **Living Wage Month simulation**: fictional profile — age 22, full-time **minimum wage $16.75/hr** (NS rate since April 1, 2026), HRM rent scenario (roommate/solo/home), debt or none. **30-day budget log** runs across the break. **Opt-out alternative** (analyze a published budget diary) for students living this reality; teacher shares real NS cost-of-living data transparently.
+- **Materials:** Profile cards, real HRM cost data (`resources/Unit_03_Financial_Citizenship/` dataset), Budget Log template, opt-out alternative.
+- **Homework/Extension:** Week 1 of budget log (over break).
+- **Assessment:** Log week 1 (formative check-in).
 
-**Class 40 — "Budget vs. Reality — Continues + U3 Vocabulary List" (Cycle 8, ~Dec 8)**
+**Class 36 — "Budget Check-in + Surprise Events + Quiz 2 + Review" (Jan 4–11)**
 
-- **Activity:** Continue budget simulation. Unexpected events hit at random (car repair, phone replacement, medical expense, friend gets married out of province, layoff threat). Students adjust their budget and write a 2-sentence response in their simulation log. Mid-simulation check-in: where in your budget did you have actual choice, and where was it fixed? Bridge to taxation: how do government supports (GST credit, NS poverty reduction credits) change your bottom line? Last 10 min: distribute **Unit 3 Vocabulary List** for the Class 42 test.
-- **Materials:** Updated Budget Log template, surprise event cards, NS supports reference sheet, U3 vocabulary list.
-- **Homework/Extension:** Complete second week of budget log; study U3 vocab for test.
-- **Assessment:** Week 2 budget log (formative); vocabulary list (formative).
+- **Activity:** Surprise-event cards hit (car repair, phone dies, layoff scare); students adjust budgets and log a 2-sentence response. Written debrief: what was choice, what was fixed? How do government supports (GST credit, NS poverty-reduction credits) change the bottom line? **Unit Quiz 2 (formative retrieval)** + Connect-4 vocab review. Distribute study guide.
+- **Materials:** Event cards, Budget Log, Quiz 2, Connect-4 cards, study guide.
+- **Homework/Extension:** Study for Class 37 test.
+- **Assessment:** Budget reflection (formative); Quiz 2 (formative).
 
-**Class 41 — "Budget vs. Reality — Reflection + U3 Review" (Cycle 9, ~Jan 5)**
+**Class 37 — 📋 SUMMATIVE: UNIT 3 FINANCIAL ASSESSMENT (Jan 6–13)**
 
-- **Activity:** Start class with **Unit Quiz 2 (10 min)** on Unit 3 vocabulary. Then complete 30-day budget simulation. Write a one-page reflection: what worked, what didn't, and what this experience taught you about decisions made by people on low incomes. Discussion: how would your decisions shift if you had a child? A disability? A sick parent? Class debrief: what surprised you most? Bridge to: this is one profile — economic decisions affect different groups very differently (ties back to U3A economic disparity). Last 10 min: U3 review game (Connect-4).
-- **Materials:** Quiz paper, Reflection template, discussion prompts, Connect-4 cards.
-- **Homework/Extension:** Study for Class 42 Unit 3 Test.
-- **Assessment:** **Summative 3A — Budget Simulation Reflection (3%)** (rubric: depth of analysis, empathy, connection to U3A concepts); **Unit Quiz 2 (2%)**; Connect-4 participation (formative).
-
-**Class 42 — 📋 SUMMATIVE UNIT 3 TEST (Cycle 9, ~Jan 5)**
-
-- **Activity:** **Unit 3 Test** modelled on the MM Studies June test format. 50 minutes total. Section A — Multiple Choice (15–18 items on needs/wants, taxation types, economic disparity, fairness vs. equality vs. equity, personal financial management, government priorities, Indigenous economic inequality). Section B — Short Answer (5–7 items: define, calculate, explain). Section C — Extended Response (1 scenario: e.g., "Apply fair vs. equal reasoning to a real economic decision; identify tax streams and where they go"). Last 5 min: anonymous confidence Google Form.
-- **Materials:** Test paper (Google Forms or paper), confidence Google Form.
-- **Homework/Extension:** Pre-read Class 43 Media Audit setup materials.
-- **Assessment:** **Summative Unit 3 Test (5%)** — Financial Citizenship, Taxation, Fairness, Personal Finance.
+- **Activity:** **Unit 3 Test (10% — the syllabus's Financial Assessment).** 50 minutes. Section A — MC (15–18: needs/wants, tax types + levels, HST 15%, regressive vs. progressive, disparity, equality/equity/fairness, budgeting, payday loans). Section B — Short answer (5–7: calculate + explain; identify which level collects what). Section C — Extended response (1 scenario: e.g., "flat $500 for every household vs. expanded low-income credit — equality or equity? Defend."). Item bank: `cit9-test-bank.md` Unit 3.
+- **Materials:** Test papers, confidence form.
+- **Homework/Extension:** None.
+- **Assessment:** **📋 Unit 3 Financial Assessment (10%)**.
 
 ---
 
-## 5. Term 2 — February to June (Classes 46–90)
-
-### UNIT 4 — Digital Citizenship (Classes 43–52, 12 classes total)
+### UNIT 4 — Digital Citizenship (Classes 38–49, 12 classes)
 
 *Evaluate how perceptions of current issues are influenced by various media · Evaluate risks, rights, and responsibilities of digital citizens.*
 
-*Sub-themes (4A): Representation & omission · Media impact on issue awareness · Citizens/governments choices affected by media*
-*Sub-themes (4B): Digital opportunities & risks · Digital footprint · Anonymity*
+*Sub-themes: Representation & omission · Media impact on issue awareness · Citizens/governments choices affected by media · Digital footprint · Anonymity*
 
-*Vocabulary in play: media representation, agenda-setting, attention economy, algorithm, filter bubble, echo chamber, digital footprint, anonymity, accountability, privacy, digital rights, data ethics, Cambridge Analytica, micro-targeting*
+*Vocabulary in play: media representation, agenda-setting, attention economy, algorithm, filter bubble, echo chamber, digital footprint, anonymity, accountability, privacy, digital rights, data ethics, micro-targeting*
 
-**Simulation picks:** Option A — **"SPOT THE BIAS"** (10-source media audit) for 4A; Option B — **"FOOTPRINT FORENSICS"** for 4B's digital footprint work; Option C — **"ANONYMOUS OR NOT"** for 4B's anonymity work. Resources used throughout: `DigCit/` (primary), `PerceptionVsReality/` (primary for 4A), `election-polparties-marking/` (bridges to Unit 5).
-
----
-
-**Class 43 — "U3 Test Return + Media Audit Setup" (Cycle 9, ~Jan 5)**
-
-- **Activity:** First 25 min: **Unit 3 Test Return + Review**. Teacher returns tests, walks through common errors. Last 25+ min: Launch **Spot the Bias** media audit (Option A). Teacher picks one current news story with political/ethical weight (a protest, court ruling, policy announcement, international event — NS-relevant where possible). Students collect coverage from **at least 10 sources spanning the spectrum**: CBC, CTV, Global, National Post, Globe & Mail, Toronto Star, True North (or equivalent), a Mi'kmaw/Indigenous outlet (**APTN** or SaltWire), an international outlet (BBC, Al Jazeera), and at least one social-media thread (X, Reddit, TikTok). For each source record: headline, lead, who gets quoted, who doesn't, what visuals are used, what words are loaded, what's missing.
-- **Materials:** Returned test papers, test-review key, Source Comparison Chart template, `PerceptionVsReality/` starter materials, source list (teacher-vetted, NS-relevant where possible).
-- **Homework/Extension:** Begin source collection (10 sources minimum).
-- **Assessment:** Source collection log (formative).
-
-**Class 44 — "Spot the Bias — 10 Source Audit Work Session" (Cycle 9, ~Jan 5)**
-
-- **Activity:** In-class work session on the media audit. Students continue collecting sources and filling in the comparison chart. Teacher circulates with mini-conferences, focusing on (a) source diversity, (b) framing analysis rigor, (c) avoiding "this source is wrong" framing (instead: "this source frames X differently because…"). Last 20 min: pair comparison — students share their 2 most-different sources and discuss why.
-- **Materials:** Source Comparison Chart, mini-conference form, observation checklist.
-- **Homework/Extension:** Complete audit for Class 45 algorithmic exercise.
-- **Assessment:** Audit progress (formative).
-
-**Class 45 — "Algorithmic Awareness Exercise" (Cycle 9, ~Jan 5)**
-
-- **Activity:** Students review one of their own social media feeds for 15 minutes (with opt-out for any student uncomfortable — alternate: review a public figure's feed). Log: what posts appeared, why (likely), what didn't appear (likely). Class discussion: who decides what you see? What does an algorithm optimize for? Connection to **issue awareness** (4A): algorithms shape what issues you even know about. Tie to **Cambridge Analytica / micro-targeting** as preview of Class 48.
-- **Materials:** Algorithmic Awareness log template, opt-out alternative activity, discussion prompts.
-- **Homework/Extension:** Skim one explainer on recommendation algorithms (e.g., MediaSmarts, Wall Street Journal's "How TikTok Works" series).
-- **Assessment:** Algorithmic Awareness logs (formative, collected).
-
-**Class 46 — "Issue Awareness Heat Map" (Cycle 10, ~Jan 19)**
-
-- **Activity:** Pick 5 issues that have been in the news recently. Students investigate: how long has each been in the news? Why this issue and not that one? What forces shape issue visibility (lobbying, social movements, tragedy, election cycles, proximity)? Build a class **heat map** showing issue salience over time. Discussion: who's responsible for putting an issue on the map — journalists, politicians, activists, algorithms, you?
-- **Materials:** Issue Heat Map template (large wall or digital), MediaSmarts resources, 5-issue starter list (teacher-curated, NS-relevant where possible).
-- **Homework/Extension:** Pick one under-covered issue you'd want on the map. 1 paragraph: who isn't talking about it and why?
-- **Assessment:** Heat map contributions (formative).
-
-**Class 47 — "Government & Media — Targeted Ad Case Study" (Cycle 10, ~Jan 19)**
-
-- **Activity:** Case study of **Cambridge Analytica / micro-targeting / elections interference** (or a more recent Canadian equivalent). Students investigate: how was media used to shape government and citizen choices? What are the policy responses (e.g., Canada's privacy law reform, Elections Canada social-media rules)? What responsibilities do platforms bear? Bridge to Unit 5 Mock Election — the next time you see a political ad, what questions should you ask?
-- **Materials:** Cambridge Analytica case summary (teacher-prepared, age-appropriate), Canadian policy response documents, discussion prompts.
-- **Homework/Extension:** Find one recent example of targeted political advertising in NS or Canada. 2-sentence summary.
-- **Assessment:** Case study notes (formative).
-
-**Class 48 — "Digital Footprint Self-Audit" (Cycle 10, ~Jan 19)**
-
-- **Activity:** **Footprint Forensics** simulation (Option B). Each student does a **personal digital footprint audit**: Google themselves (safely), audit public social-media profiles (last 10 posts), review privacy settings on 3 platforms, identify what data each platform collects. Build a **Footprint Profile** showing intended vs. actual projection. Opt-out for students with complicated home situations visible in their footprint: use a fictional profile or a public figure. Reflection: what does a future employer / university / romantic partner / landlord see?
-- **Materials:** Footprint Profile template, privacy settings action plan template, opt-out alternative activity (fictional profile), school counsellor referral info.
-- **Homework/Extension:** Implement 3 privacy changes on real accounts.
-- **Assessment:** Footprint Profile (private, teacher feedback only — does not get shared peer-to-peer).
-
-**Class 49 — "Anonymity — With or Without Your Name" (Cycle 10, ~Jan 19)**
-
-- **Activity:** **Anonymous or Not** simulation (Option C). 4–5 case studies of anonymous online speech that caused real consequences (defamation, doxxing, harassment, whistleblowing, false accusations, organized pile-ons). For each: what harm was done, who was harmed, was anonymity the cause / enabler / red herring, what should the response be (legal, platform, cultural)? Socratic seminar on the central tension: anonymity protects dissidents AND protects abusers. How do we tell which is which?
-- **Materials:** Case study set (teacher-curated, real cases from news archives), Socratic seminar setup, sentence-stems poster.
-- **Homework/Extension:** Exit slip: "When has anonymous speech changed the world for the better? When has it destroyed someone's life?"
-- **Assessment:** Case study analyses (formative); Socratic seminar participation.
-
-**Class 50 — "Digital Citizen Charter Co-Creation + U4 Vocabulary List" (Cycle 10, ~Jan 19)**
-
-- **Activity:** As a culminating activity for Unit 4, the class co-writes a **Digital Citizen Charter**: rights (privacy, expression, access, safety) and responsibilities (honesty, accuracy, accountability, kindness). Structured drafting: small groups propose 2–3 charter articles each; class debates, refines, votes. Charter posted in classroom and reviewed annually. Last 10 min: distribute **Unit 4 Vocabulary List** for the Class 52 test. Bridge to Unit 5: what rights and responsibilities do we have as citizens in a democracy?
-- **Materials:** Charter drafting template, rights/responsibilities brainstorming sheet, voting protocol, U4 vocabulary list.
-- **Homework/Extension:** Study U4 vocab for test.
-- **Assessment:** Charter draft participation (formative peer + teacher).
-
-**Class 51 — "U4 Review Day" (Cycle 11, ~Feb 2)**
-
-- **Activity:** Start class with **Unit Quiz 3 (10 min)** on Unit 4 vocabulary. Then full Unit 4 review class. **Vocabulary drill** using MM Studies Unit Test-style items (MC, true/false, matching on media representation, agenda-setting, algorithm, digital footprint, anonymity, digital rights, data ethics, micro-targeting). **Connect 4 matching game** (vocabulary ↔ definitions). Practice scenarios: 4 short digital-citizenship cases (the friend who's being impersonated, the political ad that targets you, the deepfake of a school administrator, the data-broker leak). Students identify the relevant 4A/4B concept + propose a response.
-- **Materials:** Quiz paper, U4 vocabulary cards, Connect 4 cards, 4 practice scenarios, observation checklist.
-- **Homework/Extension:** Study for Class 52 Unit 4 Test.
-- **Assessment:** **Unit Quiz 3 (2%)**; practice scenarios (formative); self-assessment rubric.
-
-**Class 52 — 📋 SUMMATIVE UNIT 4 TEST (Cycle 11, ~Feb 2)**
-
-- **Activity:** **Unit 4 Test** modelled on the MM Studies June test format. 50 minutes total. Section A — Multiple Choice (15–18 items on media representation, agenda-setting, algorithm, digital footprint, anonymity, digital rights, data ethics, micro-targeting, Cambridge Analytica). Section B — Short Answer (5–7 items: define, explain, identify). Section C — Extended Response (1 scenario: e.g., "A classmate's been impersonated online. Apply digital citizenship concepts to identify the issues and propose a response"). Last 5 min: anonymous confidence Google Form.
-- **Materials:** Test paper (Google Forms or paper), confidence Google Form.
-- **Homework/Extension:** Pre-read Class 53 Worldview mapping materials.
-- **Assessment:** **Summative Unit 4 Test (5%)** — Digital Citizenship, Media Literacy, Digital Footprint, Anonymity.
+**Summative note:** The **Spot the Bias 10-source audit** is the unit's graded product — the **Media Project (10%, Term 2 major, Class 46)**.
 
 ---
 
-### UNIT 5 — Governance (Classes 53–71, 18 classes — Indigenous + Protest + Mock NS Election)
+**Class 38 — "U3 Test Return + Spot the Bias Launch" (Jan 11–15)**
+
+- **Activity:** Test return + common-error walkthrough. Launch **Spot the Bias**: one live news story with political/ethical weight; students collect ≥10 sources spanning the spectrum (CBC, CTV, Global, National Post, Globe & Mail, Toronto Star, True North or equivalent, **APTN or SaltWire**, BBC or Al Jazeera, one social thread). For each: headline, lead, who's quoted, who's missing, visuals, loaded words, omissions.
+- **Materials:** Returned tests, Source Comparison Chart, `PerceptionVsReality/` starter materials (verify contents), source list.
+- **Homework/Extension:** Begin source collection.
+- **Assessment:** Source log (formative).
+
+**Class 39 — "Audit Work Session" (Jan 13–18)**
+
+- **Activity:** In-class work session in the library/lab. Teacher mini-conferences on (a) source diversity, (b) framing rigor ("this source frames X differently because…", not "this source is wrong"). Pair comparison: two most-different sources, why.
+- **Materials:** Comparison charts, conference form, lab booking (confirm 1 week ahead).
+- **Homework/Extension:** Audit complete for Class 40.
+- **Assessment:** Progress check (formative).
+
+**Class 40 — "Algorithmic Awareness" (Jan 14–21)**
+
+- **Activity:** Students review one of their own feeds for 15 minutes (**opt-out**: public figure's feed): what appeared, why, what didn't. Discussion: who decides what you see; what does an algorithm optimize for? Link to issue awareness (4A). Preview Cambridge Analytica/micro-targeting.
+- **Materials:** Awareness log template, opt-out alternative, explainer links (MediaSmarts).
+- **Homework/Extension:** Skim one algorithm explainer.
+- **Assessment:** Awareness logs (formative, collected).
+
+**Class 41 — "Issue Awareness Heat Map + 🌱 SL Check-in #2" (Jan 18–25)**
+
+- **Activity:** SL check-in #2 (implementation logs; partner contact status). Then the **Issue Heat Map**: 5 current issues — how long in the news, why this and not that, what forces shape visibility (lobbying, movements, tragedy, election cycles, proximity)? Class builds the salience map.
+- **Materials:** Implementation log, Heat Map template, MediaSmarts resources, starter issue list.
+- **Homework/Extension:** 1 paragraph: an under-covered issue you'd map.
+- **Assessment:** Log check (formative); heat map contributions (formative).
+
+**Class 42 — "Government & Media — Targeted Ad Case Study" (Jan 20–27)**
+
+- **Activity:** Cambridge Analytica / micro-targeting / elections-interference case study (or recent Canadian equivalent): how media shaped citizen and government choices; policy responses (privacy reform, Elections Canada rules); platform responsibility. Bridge: "Next unit you run the election — what will you ask of every ad?"
+- **Materials:** Case summary (teacher-prepared, age-appropriate), policy documents, discussion prompts.
+- **Homework/Extension:** One recent targeted-political-ad example — 2 sentences.
+- **Assessment:** Case notes (formative).
+
+**Class 43 — "Footprint Forensics" (Jan 21–29)**
+
+- **Activity:** **Personal digital footprint audit** (**real opt-out**: fictional profile or public figure for complicated home situations): Google self-search, last-10-posts audit, privacy settings on 3 platforms, data-collection check. Build a **Footprint Profile**: intended vs. actual projection. Private reflection — teacher feedback only, never shared.
+- **Materials:** Profile template, privacy action plan, opt-out alternative, counsellor referral card.
+- **Homework/Extension:** Implement 3 privacy changes.
+- **Assessment:** Footprint Profile (formative, private).
+
+**Class 44 — "Anonymity — With or Without Your Name" (Jan 27–Feb 1)**
+
+- **Activity:** **Anonymous or Not**: 4–5 real cases of anonymous online speech with consequences (defamation, doxxing, whistleblowing, pile-ons). For each: harm, who was harmed, was anonymity cause/enabler/red herring, right response? Socratic seminar on the core tension: anonymity protects dissidents AND abusers.
+- **Materials:** Case set (teacher-curated), seminar setup, sentence stems.
+- **Homework/Extension:** Exit slip: "When has anonymous speech changed the world for better/worse?"
+- **Assessment:** Case analyses (formative); seminar participation.
+
+**Class 45 — "Digital Citizen Charter" (Jan 28–Feb 4)**
+
+- **Activity:** Class co-writes a **Digital Citizen Charter**: rights (privacy, expression, access, safety) and responsibilities (honesty, accuracy, accountability, kindness). Groups draft articles; class debates, refines, votes; charter posted. Bridge to U5: rights and responsibilities in a democracy.
+- **Materials:** Charter template, voting protocol.
+- **Homework/Extension:** Study U4 vocab.
+- **Assessment:** Charter participation (formative).
+
+**Class 46 — "📋 Media Project — Audit Finalization + Submission" (Feb 1–8)**
+
+- **Activity:** Final work block: students complete the bias audit's written analysis (the "so what": where sources converged, diverged, what the pattern reveals) and **submit the Media Project** — chart + 1-page analysis. Gallery skim of classmates' headline walls if time allows.
+- **Materials:** Submission checklist, rubric.
+- **Assessment:** **📋 Unit 4 Media Project (10% — Term 2 major)** (rubric: source diversity, framing analysis rigor, synthesis quality).
+
+**Class 47 — "U4 Review + Quiz 3" (Feb 3–10)**
+
+- **Activity:** **Unit Quiz 3 (formative retrieval)**, vocabulary drill (MC/T-F/matching), 4 practice scenarios (impersonation, targeted ad, deepfake, data leak). Distribute study guide.
+- **Materials:** Quiz 3, vocab cards, scenario set, study guide.
+- **Homework/Extension:** Study for Class 48 test.
+- **Assessment:** Quiz 3 (formative).
+
+**Class 48 — 📋 SUMMATIVE: UNIT 4 TEST (Feb 4–12)**
+
+- **Activity:** **Unit 4 Test (10%).** 50 minutes. Section A — MC (15–18: representation, agenda-setting, algorithms, filter bubbles, footprint, anonymity, data ethics, micro-targeting). Section B — Short answer (5–7). Section C — Extended response (1 scenario: e.g., "A classmate is impersonated online — identify the issues, propose the response"). Item bank: `cit9-test-bank.md` Unit 4.
+- **Materials:** Test papers, confidence form.
+- **Assessment:** **📋 Unit 4 Test (10%)**.
+
+**Class 49 — "U4 Test Return + Worldview Mapping Launch" (Feb 10–18)**
+
+- **Activity:** Test return + walkthrough. Launch U5A: **worldview mapping** — students trace 3 personal values to their sources (family, faith, school, media, community, identity) and one value through to a policy position. Discussion: how do we talk to people whose worldview produced different policies?
+- **Materials:** Returned tests, Worldview mapping template, sentence stems.
+- **Homework/Extension:** Interview: "Where did your views on X come from?" Bring a quote.
+- **Assessment:** Test reflection (formative); worldview map (formative, collected).
+
+---
+
+### UNIT 5 — Governance & Service (Classes 50–70, 21 classes) — **SL EXECUTION WINDOW**
 
 *Analyse how issues become valued · Investigate the structure, operation, and selection of government · Evaluate strategies to meaningfully engage as citizens.*
 
-*Sub-themes (5A): Worldview → values → policy · Canadian values · Political party platforms*
-*Sub-themes (5B — MM Studies–infused): Government formation (federal/provincial/territorial/municipal/Indigenous) · Indigenous vs. non-Indigenous governance · Sipekne'katik 2020 · Idle No More · Ipperwash Crisis*
-*Sub-themes (5C): Within/outside government · Advocacy · Resistance & protest · Sentencing Circles · Unequal access to democracy*
+*Sub-themes: Worldview → values → policy · Canadian values · Political spectrum & platforms · Mock Election · Indigenous governance · Protest & resistance (Idle No More, Sipekne'katik 2020, Ipperwash) · Sentencing circles · Three Lanes of Change · Unequal access to democracy*
 
-*Vocabulary in play: worldview, values, political spectrum, left/right, party platform, federal, provincial, municipal, Indigenous governance, band council, self-government, modern treaty, Sipekne'katik, treaty right, moderate livelihood, Idle No More, Ipperwash Crisis, Dudley George, OCCUPATION, lobbying, advocacy, petition, protest, civil disobedience, Charter Section 2(b), Section 1, sentencing circle, restorative justice, Gladue Rights*
+*Vocabulary in play: worldview, values, political spectrum, party platform, federal, provincial, municipal, band council, self-government, modern treaty, Sipekne'katik, moderate livelihood, Idle No More, Ipperwash, Dudley George, Charter Section 2(b) freedom of expression, Section 2(c) peaceful assembly, Section 1 reasonable limits, sentencing circle, restorative justice, Gladue Rights, civil disobedience*
 
-**Simulation picks:** Option A — **"MOCK NS ELECTION"** (full campaign simulation) for 5A and into 5C — the centerpiece engagement activity of the course; Option C — **"PROTEST & RESPONSE"** (with MM Studies protest material) for 5C's resistance indicator; **Sentencing Circle activity** (adapted from MM Studies Unit 13) for the Gladue Rights + Indigenous justice material. **Idle No More case study** (MM Studies Unit 12), **Sipekne'katik 2020 lobster dispute case** (NS-specific), and **Ipperwash Crisis** (MM Studies Unit 12 — "One Dead Indian") all live in 5B/5C.
-
-**NS-specific political parties to study:** **Nova Scotia Liberal Party**, **Nova Scotia Progressive Conservatives (PC)**, **Nova Scotia New Democratic Party (NDP)**, **Green Party of Nova Scotia**. (Plus optional independent / new parties if relevant to the current cycle.)
+**Note:** Jurisdiction basics were front-loaded in Class 5 — Class 64's power audit *deepens*, it does not re-teach. **NS parties for the Mock Election:** NS Liberal, NS PC, NS NDP, Green Party of NS. The election kit is rebranded **Bicentennial** (Dartmouth-area riding) before running.
 
 ---
 
-**Class 53 — "U4 Test Return + Where Do My Views Come From?" (Cycle 11, ~Feb 2)**
+**Class 50 — "Where Do My Views Come From? — Worldview Mapping" (Feb 17–24)**
 
-- **Activity:** First 20 min: **Unit 4 Test Return + Review**. Teacher returns tests, walks through common errors. Last 30+ min: launch Unit 5A. **Worldview mapping** — students trace 3 of their own values to where they came from (family, faith, school, media, community, identity, lived experience). Then they trace one of those values to a policy position. Discussion: if my worldview shaped my policy, what does that mean about how we should talk to people who hold different policies? Bridge to Mock Election — every campaign platform reflects someone's worldview.
-- **Materials:** Returned test papers, test-review key, Worldview mapping template, sentence-stems poster, discussion prompts.
-- **Homework/Extension:** Interview a family member: "Where did your views on X come from?" Bring quote.
-- **Assessment:** Worldview map (formative, collected); quote interview (collected).
+- **Activity:** Full worldview mapping workshop (Class 49's launch, deepened): values → sources → policy positions; class spectrum of positions on one live issue. Discussion: respect across disagreement — caucus norms from Class 7 return.
+- **Materials:** Mapping templates, current-issue list, caucus norms anchor.
+- **Homework/Extension:** Family interview quote (if not gathered Class 49).
+- **Assessment:** Worldview map (formative, collected).
 
-**Class 54 — "What Are Canadian Values?" (Cycle 11, ~Feb 2)**
+**Class 51 — "What Are Canadian Values?" (Feb 18–26)**
 
-- **Activity:** Students conduct a short survey (class + family) asking what people think Canada's core values are. Compile results, then critically examine: **Whose Canada? Which voices are missing? How have "Canadian values" been used historically to exclude?** Discussion: pluralism vs. monoculture; how can "Canadian values" be claimed by opposing political parties at once? Connect to worldview mapping from Class 53.
-- **Materials:** Survey template (Google Form), Canadian values primer (teacher-prepared), critical analysis worksheet.
-- **Homework/Extension:** Bring 1 quote from a family member about "Canadian values."
-- **Assessment:** Survey responses (formative); critical analysis (collected).
+- **Activity:** Class + family survey on core Canadian values; compile; then critique: **whose Canada? which voices are missing? how have "Canadian values" been used to include and to exclude?** Pluralism vs. monoculture; how opposing parties claim the same values.
+- **Materials:** Survey (Google Form), critical-analysis worksheet.
+- **Homework/Extension:** 1 family quote on "Canadian values."
+- **Assessment:** Survey + analysis (formative, collected).
 
-**Class 55 — "How Does a Group Decide? + Political Spectrum Self-Location" (Cycle 11, ~Feb 2)**
+**Class 52 — "Tower Building + Political Spectrum Self-Location" (Feb 24–Mar 1)**
 
-- **Activity:** First 25 min: **Tower Building Simulation** (`resources/Unit_01_Engaged_Citizenship/2. Citizenship  Communitites Intro Activity_.docx`) — class splits into A groups (teacher-assigned authoritarian leader, no dissent allowed), B groups (elected leader, questions OK, no objections once decided), C groups (full collaborative consensus, any structure). Build the tallest free-standing tower from craft materials in 20 minutes. **Debrief:** which group "won"? How did decision-making work? Who was heard? What happens when citizens disagree? Pulls the governance thread that runs through the year into focus just before the Mock Election.
-Remaining class: Using `political-spectrum/` resources, students explore the political spectrum (left/right, also authoritarian/libertarian). Self-locate on a class-generated spectrum built from real current issues. Discussion: do my views fit one party? Use **IsideWith** or Vote Compass as data sources (not as definitive labels). Bridge to Mock Election.
-- **Materials:** Craft materials (straws, pipe-cleaners, cups, tape, clay — enough for each team), timer, political spectrum resources (`political-spectrum/`), self-location worksheet, current issues list.
-- **Homework/Extension:** Take Vote Compass for fun — bring your result next class.
-- **Assessment:** Tower debrief participation (formative); self-location worksheet (formative, private).
+- **Activity:** **Tower Building simulation** (`2. Citizenship Communities Intro Activity_.docx`): A groups (authoritarian leader), B groups (elected leader), C groups (consensus) — build the tallest tower in 20 min. Debrief: who was heard? What does decision-making structure do to outcomes? Then **political spectrum self-location** (`political-spectrum/`) on real current issues; quick jurisdiction-matrix reactivation (Class 5) as the election warm-up — no re-teach.
+- **Materials:** Craft materials, timer, spectrum resources, self-location sheet (private).
+- **Homework/Extension:** Vote Compass for fun — bring result.
+- **Assessment:** Debrief participation; self-location (formative, private).
 
-**Class 56 — "Mock NS Election — Parties Form" (Cycle 12, ~Feb 16)**
+**Class 53 — "Mock Bicentennial Election — Parties Form" (Feb 25–Mar 4)**
 
-- **Activity:** **Launch the Mock NS Election** (Option A — the centerpiece activity of the course). Class forms **4 political parties** — NS Liberal, NS PC, NS NDP, Green NS (or an independent / new party if relevant to the current cycle). Each party picks a leader (elected by caucus), adopts a real-platform-derived 3–5 key policies (researched from actual party platforms on Elections Nova Scotia), and designs a brand (name, slogan, logo, colour). Press corps role (rotating) established. Timeline: campaign launches today; vote day in Class 59.
-- **Materials:** `election-polparties-marking/` (primary), real NS party platforms (current), campaign timeline handout, Elections Nova Scotia voter education materials.
-- **Homework/Extension:** Party caucus meeting outside class; research platform policies.
-- **Assessment:** Party formation participation (formative).
+- **Activity:** **Launch the Mock NS Election** (`election-polparties-marking/`, rebranded Bicentennial 2027): 4 parties (Liberal, PC, NDP, Green) — elected leader, 3–5 policies from real platforms (Elections Nova Scotia), brand (name, slogan, logo, colour). Press corps established. Campaign timeline: vote day Class 56. *(902 forms parties Mar 4, right before break — their campaign week stretches past March Break; all sections reach vote day by Class 56.)*
+- **Materials:** Election kit, real platform summaries, campaign timeline handout.
+- **Homework/Extension:** Caucus meeting; platform research.
+- **Assessment:** Party formation (formative).
 
-**Class 57 — "Mock NS Election — Campaign Week 1" (Cycle 12, ~Feb 16)**
+**Class 54 — "Campaign Week 1" (Mar 1–15)**
 
-- **Activity:** **Campaign Week 1.** Parties develop policy launch materials (posters, one-page platforms, 60-second ads — must be factual). Press corps writes "scouting reports" on each party. Teacher plays **hostile press** — press conferences with tough questions. Discussion: what makes a campaign message persuasive vs. manipulative? Connect to Unit 4 media literacy.
-- **Materials:** Campaign materials template, press conference setup, media literacy rubric.
-- **Homework/Extension:** Party prepares Leader's Debate talking points.
-- **Assessment:** Campaign materials (formative peer + teacher); press articles (formative).
+- **Activity:** Policy launch materials (posters are banned — digital graphics, one-page platforms, 60-second video ads, all factual). Press corps scouting reports. **Teacher plays hostile press** — press conferences with tough questions. Persuasion vs. manipulation discussion (links U4).
+- **Materials:** Campaign templates, press-conference setup, media-literacy rubric.
+- **Homework/Extension:** Debate prep.
+- **Assessment:** Campaign materials (formative); press articles (formative).
 
-**Class 58 — 🌱 SL CHECK-IN #4 + Mock Election Week 2 / Leader's Debate (Cycle 12, ~Feb 16)**
+**Class 55 — "🌱 SL Check-in #3 + Leader's Debate" (Mar 3–18)**
 
-- **Activity:** First 25 min: SL check-in #4 — project teams report progress, log hours, identify support needs. Cross-team learning: teams share 1 success and 1 challenge. Last 30+ min: **Mock Election Leader's Debate** — formal structure (opening statements, moderated questions, closing statements). All students observe + take notes using a structured rubric (policy substance, responsiveness, persuasion tactics).
-- **Materials:** Implementation log, debate format handout, debate rubric.
-- **Homework/Extension:** Prepare vote justification paragraph.
-- **Assessment:** Implementation log (formative); debate participation (formative rubric).
+- **Activity:** SL check-in #3 (implementation targets; 50% hours target). Then the **Leader's Debate** — formal structure (opening statements, moderated questions, closing), audience scores with the structured rubric (policy substance, responsiveness, persuasion tactics).
+- **Materials:** Implementation log, debate rubric, moderator question bank.
+- **Homework/Extension:** Vote justification prep.
+- **Assessment:** Log check; debate observation (formative).
 
-**Class 59 — "Mock NS Election — Vote Day + Post-Mortem" (Cycle 12, ~Feb 16)**
+**Class 56 — "📋 Vote Day + Post-Mortem" (Mar 4–22)**
 
-- **Activity:** **Vote Day** — secret ballot using a Google Form or paper ballot (replicates real NS election privacy). Each student votes + writes a **vote justification** (1 paragraph: who I voted for and why). Results announced. **Post-mortem discussion:** How did you decide which platform to adopt? Whose interests did your party centre? What did the campaign reveal about persuasion vs. substance? Did the actual vote match what the platforms predicted — and if not, why? Critical reflection: what did the simulation NOT capture (real money, real media, real voter suppression)?
-- **Materials:** Ballot template, vote justification template, post-mortem discussion prompts.
-- **Homework/Extension:** Exit slip: "What did running a democracy teach me that I didn't know about democracy?"
-- **Assessment:** **Summative 5A — Vote Justification + Reflection (4%)** (rubric: reasoning, evidence, engagement with simulation limits).
+- **Activity:** **Secret ballot** (Google Form/paper, replicating real ballot privacy). Every student votes + writes a **vote justification** (who and why, evidence-based). Results announced; **post-mortem**: whose interests did your party centre? What did the campaign reveal about persuasion vs. substance? What can a classroom election NOT capture (money, media ecosystems, suppression)?
+- **Materials:** Ballots, justification template, post-mortem prompts.
+- **Assessment:** **📋 Unit 5 Election Simulation (10% — campaign work + vote justification + post-mortem reflection).**
 
-**Class 60 — "Sounds of Social Studies + Idle No More Case Study" (Cycle 12, ~Feb 16)**
+**Class 57 — "Sounds of Social Studies + Idle No More" (Mar 15–24)**
 
-- **Activity:** First 20 min: **Sounds of Social Studies — Protest Music** (`resources/Unit_05_Governance/Sounds of Social Studies lesson idea.docx`). Teacher prepares a short playlist of 3–4 protest/advocacy songs with Indigenous or social justice themes (e.g., *Buffy Sainte-Marie — "Now That the Buffalo's Gone"*, *A Tribe Called Red — "Stadium Pow Wow"*, *Gord Downie — "The Stranger"* from Secret Path, *Lido Pimienta — "Nada"*). Students read lyrics first, predict style and issue, listen to 90-second clip, then complete the Song Analysis sheet (`resources/Unit_05_Governance/Song Analysis_ Sounds of Social Studies_.docx`): What's the message? Who is the audience? Is the song effective as civic action? Mini-share-out.
-Remaining class: **Idle No More** case study — the 2012–13 Indigenous-led protest movement (MM Studies Unit 12). Students investigate: (1) the spark (Bill C-45, omnibus legislation weakening environmental protections on reserve lands); (2) tactics (round dances, flash mobs, blockades, social media); (3) outcomes (Theresa Spence hunger strike, INM Day of Action Jan 11 2013); (4) lasting impact (Land Back movement). Discussion: how does protest music connect to protest movements? What does it reveal about the limits of formal political channels?
-- **Materials:** Song playlist (teacher-prepared; use clean versions), Song Analysis sheets (`resources/Unit_05_Governance/Song Analysis_ Sounds of Social Studies_.docx`), MM Studies Unit 12 Idle No More materials, video clips (round dance footage — verify), INM Day of Action timeline.
-- **Homework/Extension:** Pre-read Sipekne'katik 2020 lobster dispute case for Class 61.
-- **Assessment:** Song Analysis sheet (formative, collected); case study analysis worksheet (formative, collected).
+- **Activity:** **Protest music** (playlist: Buffy Sainte-Marie, A Tribe Called Red, Gord Downie, Lido Pimienta): lyrics first, predict, listen, analyze (message, audience, effectiveness as civic action). Then **Idle No More** (MM Studies Unit 12): the spark (Bill C-45), tactics (round dances, blockades, social media), outcomes (Theresa Spence, Day of Action), legacy (Land Back). How does protest music connect to protest movements?
+- **Materials:** Playlist (clean versions), Song Analysis sheets (`Song Analysis_ Sounds of Social Studies_.docx`), MM Unit 12 materials.
+- **Homework/Extension:** Pre-read Sipekne'katik brief.
+- **Assessment:** Song analysis + case worksheet (formative, collected).
 
-**Class 61 — "Sipekne'katik 2020 — Mi'kmaw Treaty Right vs. Commercial Fishery" (Cycle 13, ~Mar 9)**
+**Class 58 — "Sipekne'katik 2020 — Treaty Right vs. Commercial Fishery" (Mar 17–Apr 1)**
 
-- **Activity:** **Sipekne'katik 2020 lobster dispute case study** — the most important NS-specific Indigenous governance + protest case of the past decade. Context: in September 2020, Sipekne'katik First Nation launched a self-regulated fishery outside the federally designated season, asserting their treaty right to a "moderate livelihood" under the 1999 Marshall decision. The commercial fishery responded with violence, vandalism, and arson. DFO was widely criticized for inaction. RCMP arrested both Mi'kmaw harvesters and non-Indigenous commercial fishermen. Discussion: what does this case reveal about treaty rights? About the duty to consult? About whose voices count? What did it take for Sipekne'katik to assert a treaty right that should have been protected by Canadian law?
-- **Materials:** Sipekne'katik case study (teacher-prepared), APTN news archive, Marshall decision summary, MM Studies context materials, discussion prompts.
-- **Homework/Extension:** Pre-read Ipperwash Crisis materials for Class 62.
-- **Assessment:** Case study analysis (formative, collected); Socratic seminar participation.
+- **Activity:** The defining NS case of the decade: September 2020, Sipekne'katik launches a self-regulated lobster fishery outside DFO seasons, citing the 1999 Marshall decision's moderate-livelihood right. Violence, vandalism, arson from some commercial fishers; DFO inaction criticized; RCMP arrests on both sides. Discussion: what does this reveal about treaty rights, the duty to consult, whose voices count? Media packet: `resources/Unit_05_Governance/Sipeknekatik_2020_Media_Packet.md` (four perspectives). Frame as jurisdictional dispute — never "take a side."
+- **Materials:** Media packet, Marshall summary, discussion prompts.
+- **Homework/Extension:** Pre-read Ipperwash brief (content note: real death).
+- **Assessment:** Perspective analysis (formative, collected); seminar participation.
 
-**Class 62 — "Ipperwash Crisis 1995 — 'One Dead Indian'" (Cycle 13, ~Mar 9)**
+**Class 59 — "Ipperwash 1995 — Dudley George" (Mar 18–Apr 5)**
 
-- **Activity:** **Ipperwash Crisis** case study from MM Studies Unit 12 — September 1995, **Dudley George**, an Anishinaabe (Ojibway) protester, was shot and killed by Ontario Provincial Police at Ipperwash Provincial Park after Stoney Point First Nation members occupied the park to assert a land claim. The subsequent **Ipperwash Inquiry** (2007) found systemic racism in OPP. Discussion: what does Dudley George's death reveal about how Indigenous protest is policed in Canada? Connect to Charter Section 2(b) (freedom of peaceful assembly) and Section 1 (reasonable limits). Bridge: how does this case compare to Sipekne'katik 2020? Whose right to protest is more often protected vs. criminalized?
-- **Materials:** MM Studies Unit 12 Ipperwash materials ("One Dead Indian" case study), video clips (verify), Ipperwash Inquiry findings overview, Charter reference card, discussion prompts.
-- **Homework/Extension:** Pick one of the three protest case studies (Idle No More, Sipekne'katik 2020, Ipperwash) — write 1 paragraph on which tactics seemed most/least effective.
-- **Assessment:** Case study comparative analysis (formative, collected).
+- **Activity:** MM Studies Unit 12 case: Sept 1995, **Dudley George**, Anishinaabe protester, shot and killed by OPP during the Ipperwash park occupation; the 2007 Inquiry found systemic racism. **Content warning + opt-out** (Inquiry recommendations analysis instead of the shooting timeline). Escalation mapping: where could it have de-escalated? Charter framing done right: **Section 2(c)** peaceful assembly, **Section 2(b)** expression, **Section 1** reasonable limits. Compare to Sipekne'katik: whose protest gets protected vs. criminalized?
+- **Materials:** MM Unit 12 materials, escalation timeline template, Charter reference card (2b/2c/1 — corrected), Inquiry findings overview.
+- **Homework/Extension:** 1 paragraph: most/least effective tactics across the three protest cases.
+- **Assessment:** Comparative analysis (formative, collected).
 
-**Class 63 — "Sentencing Circle — Gladue Rights in Practice" (Cycle 13, ~Mar 9)**
+**Class 60 — "Sentencing Circle — Gladue Rights in Practice" (Mar 24–Apr 7)**
 
-- **Activity:** Run the **Sentencing Circle activity** (adapted from MM Studies Unit 13 and the AI-generated graphic novel script **"Two Paths: Liam's Journey"** in the `MM Studies\Justice` folder). Scenario: a 16-year-old Mi'kmaw youth (Liam) is before the court for a non-violent offence (breaking a store window in Sydney, Cape Breton to get warm and take bread/flannel shirt to survive a freezing cold front). The judge is considering whether to apply the **Youth Criminal Justice Act** alone or to invoke **Gladue Rights** + sentencing circle. Class divides into a sentencing circle (Elder, Crown, Defence, community members, Liam, the store owner Mr. Thomas, support worker Claire). Each role plays their perspective; the circle deliberates toward a restorative outcome (community service, active repair plan, restitution, support services, vs. jail). Debrief: how does this process differ from a conventional Canadian courtroom? What does it reveal about the role of community + culture in justice?
-- **Materials:** "Two Paths: Liam's Journey" graphic novel script and resources, scenario card, role descriptions, Gladue reference card, observation rubric.
-- **Homework/Extension:** Exit slip reflection: "What surprised you most about the sentencing circle process?"
-- **Assessment:** Role-play participation (formative observation); debrief notes (formative, collected).
+- **Activity:** **Sentencing Circle simulation** (MM Studies Unit 13 + "Two Paths: Liam's Journey"): 16-year-old Mi'kmaw youth, non-violent offence (broken store window in Sydney to survive a freezing night). Roles: Elder (facilitator — **non-Indigenous students do NOT role-play the Elder**; the Elder role guides circle principles), Crown, defence, community members, Liam, store owner, support worker. Circle deliberates a restorative outcome vs. YCJA-alone custody. Debrief: formal vs. substantive equality.
+- **Materials:** Graphic novel script, role cards, Gladue reference, observation rubric.
+- **Homework/Extension:** Exit slip: "What surprised you about the circle?"
+- **Assessment:** Role-play participation (formative); debrief notes (collected).
 
-**Class 64 — 🌱 SL CHECK-IN #5 + Indigenous vs. Non-Indigenous Governance Side-by-Side (Cycle 13, ~Mar 9)**
+**Class 61 — "🌱 SL Action Launch + Governance Side-by-Side" (Mar 25–Apr 9)**
 
-- **Activity:** First 25 min: SL check-in #5 — project teams report progress, log hours, identify support needs. Last 30+ min: **Investigation + comparison.** Mi'kmaw governance (elected band council under Indian Act + traditional governance + the **Mi'kmaq–Nova Scotia–Canada Framework Agreement**) vs. Canadian parliamentary system. Students compare: how are leaders chosen? How are decisions made? How is accountability structured? What happens when the two systems collide (fishery conflicts, land disputes, child welfare)?
-- **Materials:** Implementation log, Mi'kmaw governance primer, Mi'kmaq–NS–Canada Framework Agreement summary, comparison worksheet, **Indigenous Services Canada** primer.
-- **Homework/Extension:** Research one current Mi'kmaw self-government negotiation. 1 paragraph.
-- **Assessment:** Implementation log (formative); comparison worksheet (formative, collected).
+- **Activity:** **Service Learning execution window opens** — projects move to full implementation (Showcase is Classes 83–84; hours targets set). Then **Indigenous vs. non-Indigenous governance side-by-side**: band council + traditional governance + Framework Agreement vs. parliamentary system — leaders chosen, decisions made, accountability, and what happens when systems collide (fisheries, land, child welfare).
+- **Materials:** Implementation log, governance primers, comparison worksheet.
+- **Homework/Extension:** Research one current self-government negotiation — 1 paragraph.
+- **Assessment:** Log check; comparison worksheet (formative, collected).
 
-**Class 65 — "Federal-Provincial-Municipal Flow + 'Whose Voice Counts?' Power Audit" (Cycle 13, ~Mar 9)**
+**Class 62 — "Three Lanes of Change + Lane 1" (Mar 31–Apr 12)**
 
-- **Activity:** First 20 min: map **jurisdictional responsibilities** in Canada (federal: defense, criminal law, currency, Indigenous; provincial: healthcare, education, driver's licences, natural resources; municipal: local roads, garbage, recreation, zoning). Last 30+ min: **"Whose Voice Counts?" Power Audit** — students investigate a recent Canadian civic decision (election, policy, protest response). Ask: **who showed up to vote, who organized, who was consulted, who was excluded?** Reflect: what makes some voices easier to amplify than others (time, money, language, race, geography, age, disability)? NS context: rural vs. urban voter turnout, Acadian community voice, African Nova Scotian community voice, Mi'kmaw community voice.
-- **Materials:** Jurisdiction map (laminated), recent NS civic decision summary (teacher-prepared), Power audit template, discussion prompts.
-- **Homework/Extension:** Pick one under-represented NS community — research their civic engagement barriers.
-- **Assessment:** Power audit (formative, collected).
-
-**Class 66 — "Three Lanes of Change — Intro + Lane 1 Inside Government" (Cycle 14, ~Mar 23 – Apr 3)**
-
-- **Activity:** Introduce **Three Lanes of Change** framework: **Lane 1 — Inside government** (lobby an MP/MLA, petition, vote, run for student council); **Lane 2 — Outside government** (advocacy orgs, social media campaigns, public education, op-eds); **Lane 3 — Resistance** (protest, strike, civil disobedience). Class discusses the ethics, risks, and effectiveness of each. Last 20 min: deep dive on **Lane 1** — how does a bill become law in Nova Scotia? Students draft a **petition** on a real NS issue.
-- **Materials:** Three Lanes framework poster, NS bill-to-law flow chart, petition template, MLA contact list.
-- **Homework/Extension:** Draft a one-page letter to your NS MLA on a real issue.
+- **Activity:** **Three Lanes of Change** framework: Lane 1 inside government (petition, lobby, vote, run); Lane 2 outside (advocacy orgs, media campaigns, op-eds); Lane 3 resistance (protest, strike, civil disobedience). Deep dive Lane 1: how a bill becomes NS law; students draft a **petition on a real NS issue** (MLA contact list).
+- **Materials:** Three Lanes poster, bill-to-law flow chart, petition template, MLA list.
+- **Homework/Extension:** Draft a one-page letter to your MLA.
 - **Assessment:** Petition draft (formative).
 
-**Class 67 — "Lane 2 Outside Government + Lane 3 Resistance + U5 Vocabulary List" (Cycle 14, ~Mar 23 – Apr 3)**
+**Class 63 — "Lanes 2 & 3 + U5 Vocabulary + 🌱 SL Check-in #4" (Apr 1–15)**
 
-- **Activity:** First 25 min: deep dive on **Lane 2** — NS advocacy organizations (**Ecology Action Centre**, **Canadian Centre for Policy Alternatives – NS**, **Mi'kmaw Native Friendship Centre**, **Springtide Collective**, **Nova Scotia Environmental Network**). Students sketch an **advocacy plan** for their chosen cause: target audience, message, channels, calls-to-action. Last 25+ min: **Lane 3 — Resistance** intro. Distinguish protest / strike / civil disobedience / direct action. **Charter Section 2(b)** (freedom of peaceful assembly) and **Section 1** (reasonable limits). When is protest protected? When is it restricted? Distribute **Unit 5 Vocabulary List** for the Class 71 test.
-- **Materials:** NS advocacy org list, advocacy plan template, op-ed writing guide, Charter reference card, U5 vocabulary list.
-- **Homework/Extension:** Draft a 200-word op-ed or social media campaign post; study U5 vocab.
-- **Assessment:** Advocacy plan (formative, collected).
+- **Activity:** SL check-in #4 (implementation logs; 60% target). Lane 2: NS advocacy organizations (Ecology Action Centre, CCPA-NS, Mi'kmaw Native Friendship Centre, Springtide) — students sketch an advocacy plan. Lane 3: protest vs. strike vs. civil disobedience vs. direct action; **Charter 2(b) expression, 2(c) assembly, Section 1 limits** — when is protest protected? U5 vocabulary list distributed.
+- **Materials:** Advocacy org list, plan template, Charter card, vocab list.
+- **Homework/Extension:** 200-word op-ed or campaign post; study vocab.
+- **Assessment:** Log check; advocacy plan (formative, collected).
 
-**Class 68 — 🌱 SL CHECK-IN #6 + More Protest Case Studies + Issue I Care About Brief (Cycle 14, ~Mar 23 – Apr 3)**
+**Class 64 — "Whose Voice Counts? — Power Audit" (Apr 7–19)**
 
-- **Activity:** First 20 min: SL check-in #6 — project teams: 90% implementation target — Showcase prep intensifies. Last 30+ min: additional protest case studies (Wet'suwet'en anti-pipeline protests, 2012 Quebec Maple Spring, anti-mask rallies, Black Lives Matter). Discussion: which protest tactics seemed most/least effective? Whose right to protest is more often protected vs. criminalized? Last 10 min: launch **Issue I Care About Brief** — each student picks an NS-relevant issue for their 3–5 minute brief.
-- **Materials:** Implementation log, additional case study set (teacher-curated, NS-relevant), Charter reference, brief template.
-- **Homework/Extension:** Begin Issue I Care About research.
-- **Assessment:** Implementation log (formative); case study participation (formative).
+- **Activity:** **Power audit** (deepened — jurisdiction already known from Class 5): pick a recent Canadian civic decision; investigate who voted, who organized, who was consulted, who was excluded; what makes voices easy to amplify (time, money, language, race, geography, age, disability)? NS context: rural/urban turnout, Acadian, African NS, Mi'kmaw community voice.
+- **Materials:** Recent NS decision brief, power-audit template.
+- **Homework/Extension:** One under-represented NS community — civic-barrier research.
+- **Assessment:** Power audit (formative, collected).
 
-**Class 69 — "Issue I Care About — Briefs" (Cycle 14, ~Mar 23 – Apr 3)**
+**Class 65 — "More Protest Cases + Issue I Care About Launch" (Apr 8–21)**
 
-- **Activity:** Each student delivers a 3–5 minute **"Issue I Care About" brief**: what is the issue, who values it, who doesn't, why, what would shift its status. Class asks questions, gives structured feedback (glow / grow / question). Bridges Units 5 → 6: this brief becomes the foundation for the Unit 6 Canada's Response Brief. Strong NS-specific brief topics: lobster fishery management (post-Sipekne'katik), rural internet access, Mi'kmaw water infrastructure, healthcare staffing, youth mental health services, housing affordability, reconciliation implementation.
-- **Materials:** Brief template, presentation rubric, feedback form.
-- **Homework/Extension:** Refine brief for Unit 6 Canada's Response.
-- **Assessment:** **Summative 5B — Issue I Care About Brief (5%)** (rubric: depth of research, reasoning, clarity, connection to lived experience).
+- **Activity:** Additional protest case studies (Wet'suwet'en, Maple Spring, BLM, anti-mask rallies) — tactics, effectiveness, policing asymmetry. Launch the **Issue I Care About Brief**: each student picks an NS-relevant issue for a 3–5 minute desk-brief (what is it, who values it, who doesn't, what would shift it).
+- **Materials:** Case set, brief template, topic bank (lobster management, rural internet, water infrastructure, healthcare staffing, housing, reconciliation implementation).
+- **Homework/Extension:** Begin brief research.
+- **Assessment:** Case participation (formative).
 
-**Class 70 — "U5 Review Day" (Cycle 14, ~Mar 23 – Apr 3)**
+**Class 66 — "📋 Issue I Care About — Briefs" (Apr 12–23)**
 
-- **Activity:** Start class with **Unit Quiz 4 (10 min)** on Unit 5 vocabulary. Then full Unit 5 review class. **Vocabulary drill** using MM Studies Unit Test-style items (MC, true/false, matching on political spectrum, party platform, federal/provincial/municipal, Indigenous governance, Sipekne'katik, treaty right, moderate livelihood, Idle No More, Ipperwash, Dudley George, OCCUPATION, Charter Section 2(b), Section 1, sentencing circle, restorative justice, Gladue Rights). Practice scenarios: 4 short scenarios (an Indigenous protester, a lobbying effort, a voting decision, a sentencing circle). Students identify the relevant Unit 5 concept + propose a response. Last 10 min: distribute study guide for Class 71 Unit Test.
-- **Materials:** Quiz paper, U5 vocabulary cards, 4 practice scenarios, study guide handout, observation checklist.
-- **Homework/Extension:** Study for Class 71 Unit 5 Test.
-- **Assessment:** **Unit Quiz 4 (2%)**; practice scenarios (formative); self-assessment rubric.
+- **Activity:** Desk-based briefs (caucus format — small panels, hot-seat questions). Structured peer feedback (glow/grow/question). Bridge: the brief becomes the foundation for U6's Canada's Response Brief.
+- **Materials:** Brief rubric, feedback forms, timer.
+- **Assessment:** Brief (formative — graded artifact in Civic Foundations/formative portfolio; feeds U6 summative work).
 
-**Class 71 — 📋 SUMMATIVE UNIT 5 TEST (Cycle 15, ~Apr 6)**
+**Class 67 — "🌱 SL Action Studio" (Apr 14–26)**
 
-- **Activity:** **Unit 5 Test** modelled on the MM Studies June test format. 50 minutes total. Section A — Multiple Choice (18–20 items covering both non-Indigenous governance AND Indigenous governance + protest — worldview → values chain, Canadian values, political spectrum, party platforms, federal/provincial/municipal jurisdiction, Indigenous governance (band council + self-government + modern treaties), Sipekne'katik 2020, treaty right, moderate livelihood, Idle No More, Ipperwash, Dudley George, Charter Section 2(b) + Section 1, sentencing circles, Gladue Rights, restorative justice, Three Lanes of Change). Section B — Short Answer (5–7 items: define, explain, identify). Section C — Extended Response (1 scenario: e.g., "Apply Idle No More, Sipekne'katik, and Ipperwash to a current Indigenous governance issue. What do these cases reveal about whose right to protest is protected vs. criminalized?"). Last 5 min: anonymous confidence Google Form.
-- **Materials:** Test paper (Google Forms or paper), confidence Google Form.
-- **Homework/Extension:** Pre-read Class 72 Globalization materials.
-- **Assessment:** **Summative Unit 5 Test (6%)** — Governance, Political Action, Indigenous Governance, Protest, Sentencing Circles.
+- **Activity:** Full execution work session: projects hit the 75% implementation target; logistics audit for the Showcase (partner confirmations, evidence collection, photos, impact data). Teacher conferences with each team on their Showcase story arc.
+- **Materials:** Implementation logs, Showcase prep checklist, conference tracker.
+- **Assessment:** Log verification (formative; Implementation Log grading begins).
+
+**Class 68 — "U5 Review + Quiz 4" (Apr 15–29)**
+
+- **Activity:** **Unit Quiz 4 (formative retrieval)**; vocabulary drill; 4 practice scenarios (protester, lobbying effort, voting decision, sentencing circle). Study guide distributed.
+- **Materials:** Quiz 4, vocab cards, scenario set, study guide.
+- **Homework/Extension:** Study for Class 69 test.
+- **Assessment:** Quiz 4 (formative).
+
+**Class 69 — 📋 SUMMATIVE: UNIT 5 TEST (Apr 15–29)**
+
+- **Activity:** **Unit 5 Test (10%).** 50 minutes. Section A — MC (18–20: worldview→values, parties/platforms, jurisdictions (recall), Indigenous governance, Sipekne'katik, Idle No More, Ipperwash, Charter **2(b)/2(c)/1** — corrected, sentencing circles, Three Lanes). Section B — Short answer (5–7). Section C — Extended response (1 scenario: e.g., "Apply the three protest cases to a current Indigenous governance issue — whose protest is protected vs. criminalized?"). Item bank: `cit9-test-bank.md` Unit 5 (Charter items corrected).
+- **Materials:** Test papers, confidence form.
+- **Assessment:** **📋 Unit 5 Test (10%)**.
+
+**Class 70 — "U5 Test Return + Showcase Briefing + Bridge to Global" (Apr 21–May 3)**
+
+- **Activity:** Test return + walkthrough. **SL Showcase logistics briefing** (audience invitations, program, AV — 3 weeks out). Bridge to U6: globalization in one image flow map (goods, people, capital, ideas, pollution).
+- **Materials:** Returned tests, showcase checklist, globalization flows map.
+- **Assessment:** Test reflection (formative).
 
 ---
 
-### UNIT 6 — Global Citizenship (Classes 72–82, 14 classes)
+### UNIT 6 — Global Citizenship + SHOWCASE + CAPSTONE (Classes 71–90, 20 classes)
 
 *Evaluate the consequences of action and inaction as twenty-first century global citizens.*
 
-*Sub-themes: Globalization · Global issues from multiple perspectives · Intended/unintended consequences · Universal human rights · Canada's response*
+*Sub-themes: Globalization · Global issues from multiple perspectives · Intended/unintended consequences · UDHR & human rights · Canada's response · Global Citizen Action Plan · SL Showcase · Country Profile Capstone*
 
-*Vocabulary in play: globalization, global issue, perspective, intended consequences, unintended consequences, Universal Declaration of Human Rights (UDHR), cultural relativism, foreign policy, foreign aid, climate justice, refugees, global citizenship*
+*Vocabulary in play: globalization, global issue, perspective, intended/unintended consequences, UDHR, cultural relativism, foreign policy, foreign aid, climate justice, refugees, global citizenship, SDGs*
 
-**Simulation picks:** Option C — **"ONE GLOBAL ISSUE, FIVE LENSES"** for the multi-perspective deep dive; Option A — **"GLOBAL ISSUE COURT"** for the prosecution/defence activity; Option B — **"COUNTRY DEEP-DIVE"** for context. Resources used throughout: `Country-Profile-Project/`, `countryoftheday/`, `cuba62/`, `cit9sites/`. **Global issues relevant to NS:** fisheries (especially given the lobster dispute context), climate change (Atlantic Canada climate impacts), immigration (NS immigration trends, Syrian refugee resettlement, WelcomeNS), Indigenous rights globally, ocean plastics, pandemic preparedness.
+**Summative note:** Unit 6's graded summatives are the **Global Citizen Action Plan (in the Capstone/formative category)**, the **SL Showcase + Log (10%)**, and the **Country Profile Capstone (10%)**. There is **no U6 unit test and no final exam** — Class 80's retrieval check is formative; the capstone closes the course academically.
 
 ---
 
-**Class 72 — "U5 Test Return + Globalization 101 + UDHR Intro" (Cycle 15, ~Apr 6)**
+**Class 71 — "Globalization 101 + UDHR Intro" (Apr 22–May 5)**
 
-- **Activity:** First 20 min: **Unit 5 Test Return + Review**. Teacher returns tests, walks through common errors. Last 30+ min: introduce **globalization**: trade, movement, technology, culture, environment. Map the flows (goods, people, capital, ideas, pollution, disease). Then introduce the **Universal Declaration of Human Rights (UDHR)** — read 5–6 key articles. Discussion: are human rights universal, or culturally specific? How does this question show up in NS (e.g., Mi'kmaw rights, francophone Acadian rights)?
-- **Materials:** Returned test papers, test-review key, Globalization flows map, UDHR text (un.org/en/udhr), discussion prompts.
-- **Homework/Extension:** Pick 1 UDHR article — research how it's respected (or not) in 3 countries.
-- **Assessment:** UDHR article research notes (formative).
+- **Activity:** Globalization flows mapped (trade, movement, technology, culture, environment). Then the **UDHR**: read 5–6 key articles. Discussion: are human rights universal or culturally specific — and where does that question land in NS (Mi'kmaw rights, Acadian francophone rights)?
+- **Materials:** Flows map, UDHR text (un.org/en/udhr), discussion prompts.
+- **Homework/Extension:** One UDHR article across 3 countries — notes.
+- **Assessment:** Research notes (formative).
 
-**Class 73 — "Same Issue, Five Lenses" (Cycle 15, ~Apr 6)**
+**Class 72 — "Same Issue, Five Lenses" (Apr 26–May 7)**
 
-- **Activity:** **One Global Issue, Five Lenses** simulation (Option C). Class picks ONE global issue relevant to NS (recommended: **climate change** — Atlantic Canada is on the front line of sea-level rise and fishery collapse; OR **migration/refugees** — NS has resettled Syrian refugees and continues to welcome newcomers). Working in 5-person teams, each adopts one lens: **Global South activist · Global North corporation · youth activist · government policymaker · refugee/affected person**. Research for one week, then build a multi-perspective case file.
-- **Materials:** Lens briefing templates, research scaffold, `Country-Profile-Project/` as reference.
-- **Homework/Extension:** Lens research (assigned reading).
+- **Activity:** Class picks ONE global issue (recommended: climate change — Atlantic front line; or migration — NS resettlement experience). Five-person teams, one lens each: **Global South activist · Global North corporation · youth activist · government policymaker · refugee/affected person**. Research week begins; multi-perspective case file is the product.
+- **Materials:** Lens briefing templates, research scaffold, `Country-Profile-Project/` reference.
 - **Assessment:** Lens research notes (formative).
 
-**Class 74 — "Action or Inaction — Consequence Mapping" (Cycle 15, ~Apr 6)**
+**Class 73 — "Action or Inaction — Consequence Mapping" (Apr 28–May 10)**
 
-- **Activity:** For the chosen global issue (climate or migration), map both branches: **Action** — country bans single-use plastics, accepts X refugees, signs onto climate accord; intended consequences, unintended consequences (industry shifts, jobs lost, alternative materials' own impacts). **Inaction** — no ban; intended consequences (continuity), unintended consequences (microplastics in food chain, fishery collapse, health costs, climate displacement). Students present both, then argue which "cost" is greater. NS-specific: lobster fishery + climate impact on lobster stock is a real-world action/inaction case.
-- **Materials:** Consequence map template, NS-specific data on climate impacts, discussion prompts.
-- **Homework/Extension:** Pre-read Canada's Response Brief template.
+- **Activity:** Map both branches for the chosen issue: **Action** (ban, accept, sign) — intended + unintended consequences; **Inaction** — continuity + delayed costs. NS anchor: lobster fishery + climate impacts on stocks. Teams argue which "cost" is greater.
+- **Materials:** Consequence map template, NS climate/fishery data.
 - **Assessment:** Consequence maps (formative, collected).
 
-**Class 75 — 🌱 SL CHECK-IN #7 + Universal Human Rights Investigation (Cycle 15, ~Apr 6)**
+**Class 74 — "🌱 SL Check-in #5 + UDHR Investigation" (Apr 29–May 13)**
 
-- **Activity:** First 20 min: SL check-in #7 — project teams: Showcase prep 100% complete — presentation drafts done, logistics confirmed (room, AV, audience invitations), rehearsal scheduled. Cross-team Showcase dry-run. Last 30+ min: each student picks 3–4 articles from the UDHR. For each: how is this right respected in Canada? How is it respected in 3 other countries (varied economies and political systems)? What happens when globalization brings these rights into conflict with local laws or traditions? Pair-share on the trickiest tensions.
-- **Materials:** Implementation log, UDHR text, country-research scaffold, `Country-Profile-Project/` templates.
-- **Homework/Extension:** Continue UDHR research; refine Canada's Response Brief.
-- **Assessment:** Implementation log (formative); UDHR research notes (formative).
+- **Activity:** SL check-in #5 — **Showcase prep 100% confirmed** (room, AV, invitations, rehearsals scheduled); cross-team dry run. Then each student picks 3–4 UDHR articles: respected in Canada? in 3 other countries? Where does globalization bring rights into conflict with local law or tradition?
+- **Materials:** Implementation log, UDHR text, country-research scaffold.
+- **Assessment:** Log check; UDHR notes (formative).
 
-**Class 76 — "Canada's Response Brief — Research + Presentations" (Cycle 16, ~Apr 20 – May 1)**
+**Class 75 — "📋 Canada's Response Briefs" (May 5–17)**
 
-- **Activity:** First 25 min: each student picks one global issue (ideally the same one they've been working on in Classes 73–75) and presents the **Canada's Response Brief**: what is Canada doing? Through what mechanisms (foreign policy, trade, aid, military, treaties, climate commitments)? What's working? What's not? What would a critic say? Last 25+ min: brief presentations (3–5 minutes each). Class asks questions, gives feedback (one specific glow, one specific grow). Teacher takes observation notes on quality of evidence and reasoning. Bridge: how does this brief connect to your Service Learning project?
-- **Materials:** Brief template, source list, research scaffold, peer feedback form.
-- **Homework/Extension:** Refine brief based on feedback.
-- **Assessment:** **Summative 6A — Canada's Response Brief (3%)** (rubric: depth of research, reasoning, engagement with multiple perspectives).
+- **Activity:** Each student presents a **Canada's Response Brief** (3–5 min, desk panels): what is Canada doing on their issue (foreign policy, trade, aid, military, treaties, climate commitments)? What's working, what's not, what would a critic say? Structured peer feedback.
+- **Materials:** Brief template, source list, feedback forms.
+- **Assessment:** Brief (formative — graded artifact; feeds the Global Citizen Action Plan).
 
-**Class 77 — "Diplomat Simulation Setup + Prep" (Cycle 16, ~Apr 20 – May 1)**
+**Class 76 — "Diplomat Simulation — Setup" (May 6–19)**
 
-- **Activity:** **"If I Were a Canadian Diplomat" simulation setup.** Students assigned country + issue. Briefing: how real Canadian foreign policy gets made (PM, Cabinet, Foreign Affairs, Parliament, civil society, public opinion). Assigned positions + coalition-building prep. Country teams finalize opening statements, identify allies, anticipate objections, draft compromise language. Teacher circulates with mini-conferences on negotiation strategy (win-win, BATNA, principled negotiation).
-- **Materials:** Country/issue assignment sheet, diplomat briefing pack, negotiation strategy reference sheet, BATNA worksheet, mini-conference form.
-- **Homework/Extension:** Rehearse with team.
+- **Activity:** **"If I Were a Canadian Diplomat"**: country + issue assignments; how Canadian foreign policy actually gets made (PM, Cabinet, Global Affairs, Parliament, public opinion). Teams finalize opening statements, map allies, draft compromise language. Mini-conferences on negotiation (BATNA, win-win).
+- **Materials:** Assignments, briefing pack, negotiation reference, BATNA worksheet.
 - **Assessment:** Prep participation (formative).
 
-**Class 78 — "If I Were a Canadian Diplomat — Simulation" (Cycle 16, ~Apr 20 – May 1)**
+**Class 77 — "Diplomat Simulation" (May 10–21)**
 
-- **Activity:** **Execute the diplomat simulation.** Formal structure: opening statements (1 min each), moderated negotiation (3 rounds), final resolution vote. Teacher plays UN Secretary-General role. Reflection: what compromises were needed? What does Canada actually have leverage to do? Where did you have to choose between your country's interests and your principles?
-- **Materials:** Simulation format handout, resolution template, observation rubric.
-- **Homework/Extension:** Exit slip: "What did the simulation teach me about judging from a distance?"
-- **Assessment:** Simulation participation (formative rubric); exit slip reflection.
+- **Activity:** Execute: opening statements (1 min/country), 3 moderated negotiation rounds, resolution vote. Teacher chairs as Secretary-General. Reflection: what compromises were needed? Where did interests collide with principles?
+- **Materials:** Resolution template, observation rubric.
+- **Assessment:** Simulation participation (formative); exit reflection.
 
-**Class 79 — "Globalization — Who Benefits? + Global Issue Court Setup" (Cycle 16, ~Apr 20 – May 1)**
+**Class 78 — "Who Benefits? + Global Issue Court Setup" (May 12–27)**
 
-- **Activity:** First 25 min: **Inequality mapping.** Pick a global commodity relevant to NS (e.g., **lobster** — NS lobster is exported globally, especially to China; **cobalt** for smartphones; **fast fashion** manufactured in Bangladesh). Map the chain: who extracts raw materials, who manufactures, who sells, who buys, who profits most at each stage, who bears the environmental and human costs. NS-specific: lobster fishery — Mi'kmaw treaty right to "moderate livelihood" vs. commercial fishery season. Last 25+ min: **Global Issue Court** simulation setup (Option A). Half the class = **Citizens' Prosecution**; half = **Citizens' Defence**; smaller group = **Justices**.
-- **Materials:** Commodity map template, NS lobster case data, Prosecution/Defence/Justice briefing packs, court format handout, Charter / UDHR reference.
-- **Homework/Extension:** Research assigned side.
-- **Assessment:** Commodity map (formative, collected); prep participation (formative).
+- **Activity:** **Inequality mapping** of a global commodity (NS lobster → China export; cobalt; fast fashion): who extracts, manufactures, sells, profits, pays? NS lobster carries the treaty-rights thread one more time. Then **Global Issue Court** setup: Citizens' Prosecution, Citizens' Defence, Justices.
+- **Materials:** Commodity map template, court briefing packs, UDHR/Charter references.
+- **Assessment:** Commodity map (formative, collected).
 
-**Class 80 — "Global Issue Court — Simulation + Global Citizen Action Plan Draft" (Cycle 16, ~Apr 20 – May 1)**
+**Class 79 — "Global Issue Court + Action Plan Draft" (May 13–31)**
 
-- **Activity:** First 25 min: **Execute the Global Issue Court.** Opening statements (Prosecution, Defence), evidence presentation, Justice questions, closing arguments, Justice deliberation, verdict with rationale. Teacher monitors for tone and frames as perspective-taking, not scoring. Last 25+ min: each student begins the **Global Citizen Action Plan** draft — "Three things I will do as a 21st-century global citizen this year — one in my personal life, one in my community, one in solidarity with a global community." Distribute **Unit 6 Vocabulary List** for the Class 82 test.
-- **Materials:** Court format, evidence submission template, verdict form, Action Plan draft template, U6 vocabulary list.
-- **Homework/Extension:** Refine Action Plan; study U6 vocab.
-- **Assessment:** Simulation participation (formative rubric); Action Plan draft (formative peer + teacher).
+- **Activity:** Execute the court: openings, evidence, justice questions, verdicts with rationale (framed as perspective-taking, not scoring). Then draft the **Global Citizen Action Plan**: "Three things I will do — one personal, one community, one in solidarity." U6 vocabulary distributed.
+- **Materials:** Court format, verdict forms, Action Plan template, vocab list.
+- **Assessment:** Court participation (formative); plan draft (formative peer + teacher).
 
-**Class 81 — "U6 Review Day" (Cycle 17, ~May 4)**
+**Class 80 — "U6 Retrieval Check + Review + Action Plan Workshop" (May 19–Jun 2)**
 
-- **Activity:** Start class with **Unit Quiz 5 (10 min)** on Unit 6 vocabulary. Then full Unit 6 review class. **Vocabulary drill** using MM Studies Unit Test-style items (MC, true/false, matching on globalization, global issue, perspective, intended/unintended consequences, UDHR, cultural relativism, foreign policy, foreign aid, climate justice, refugees, global citizenship). Practice scenarios: 4 short scenarios (climate action, refugee response, trade policy, human rights). Students identify the relevant Unit 6 concept + propose a response. Last 10 min: distribute study guide for Class 82 Unit Test.
-- **Materials:** Quiz paper, U6 vocabulary cards, 4 practice scenarios, study guide handout, observation checklist.
-- **Homework/Extension:** Study for Class 82 Unit 6 Test.
-- **Assessment:** **Unit Quiz 5 (2%)**; practice scenarios (formative); self-assessment rubric.
+- **Activity:** **Quiz 5 (formative retrieval — U6 vocabulary; NOT graded)**, vocab drill, 4 practice scenarios. Then Action Plan workshop: drafts peer-reviewed (glow/grow), feasibility conference with teacher. *(No unit test follows — the capstone is Unit 6's summative.)*
+- **Materials:** Quiz 5, vocab cards, Action Plan drafts, conference tracker.
+- **Assessment:** Quiz 5 (formative); plan progress (formative).
 
-**Class 82 — 📋 SUMMATIVE UNIT 6 TEST (Cycle 17, ~May 4)**
+**Class 81 — "📋 Global Citizen Action Plan — Finalization + Submission" (May 20–Jun 4)**
 
-- **Activity:** **Unit 6 Test** modelled on the MM Studies June test format. 50 minutes total. Section A — Multiple Choice (15–18 items on globalization, global issues, perspective, intended/unintended consequences, UDHR, cultural relativism, foreign policy, climate justice, refugees, global citizenship). Section B — Short Answer (5–7 items: define, explain, identify). Section C — Extended Response (1 scenario: e.g., "A Global South country takes a controversial climate action. Apply UDHR + globalization concepts to evaluate it"). Last 5 min: anonymous confidence Google Form.
-- **Materials:** Test paper (Google Forms or paper), confidence Google Form.
-- **Homework/Extension:** Polish Global Citizen Action Plan.
-- **Assessment:** **Summative Unit 6 Test (5%)** — Global Citizenship, Globalization, UDHR, Canada's Response.
+- **Activity:** Finalize and submit the **Global Citizen Action Plan** — the course's synthesis artifact connecting Units 1–6 (WHERE identity → rights → economic/media/governance tools → global action). Pair-share with structured feedback.
+- **Materials:** Final template, peer feedback form.
+- **Assessment:** **📋 Global Citizen Action Plan** (graded within the Capstone & Formative category — rubric: authenticity, course connections, feasibility, follow-through intent).
 
----
+**Class 82 — "Citizen Selfie + Showcase Rehearsal" (May 26–Jun 7)**
 
-### SERVICE LEARNING SHOWCASE + CAPSTONE (Classes 83–90, 8 classes)
+- **Activity:** **Citizen Selfie** individual reflection: "Three citizenship skills I exercised, one to develop, one thing I'll do differently." Final Showcase rehearsal with tech check; audience confirmed.
+- **Materials:** Selfie template, rehearsal rubric.
+- **Assessment:** **Citizen Selfie** (formative portfolio artifact; rubric: depth, honesty, growth articulation).
 
-**Class 83 — "U6 Test Return + Action Plan Final" (Cycle 17, ~May 4)**
+**Class 83 — "🌱 SL SHOWCASE — Day 1" (May 27–Jun 10)**
 
-- **Activity:** First 20 min: **Unit 6 Test Return + Review**. Teacher returns tests, walks through common errors. Last 30+ min: Finalize and submit **Global Citizen Action Plan** (Unit 6 summative). Pair-share: read each other's plan, offer one glow, one grow.
-- **Materials:** Returned test papers, test-review key, Action Plan template, peer feedback form.
-- **Homework/Extension:** Begin Citizen Selfie reflection; finalize Showcase materials.
-- **Assessment:** **Summative 6B — Global Citizen Action Plan (4%)** (rubric: personal authenticity, connections to course concepts, feasibility, follow-through intent).
+- **Activity:** Half the teams present (5 min + Q&A) to a public audience (other classes, admin, families, partner orgs): what we did, what worked, what didn't, how our citizenship understanding shifted. **Implementation Logs submitted** (signed hours + activities).
+- **Materials:** Program, presentation rubric, audience feedback forms.
+- **Assessment:** **📋 SL Showcase Presentation + Implementation Log (10% combined)**.
 
-**Class 84 — "Citizen Selfie Reflection + Showcase Rehearsal" (Cycle 17, ~May 4)**
+**Class 84 — "🌱 SL SHOWCASE — Day 2 + Cross-Project Learning Circle" (Jun 2–18)**
 
-- **Activity:** First 25 min: each student writes their **Citizen Selfie** individual reflection — "Three citizenship skills I exercised during this project, one I want to develop further, and one thing I'll do differently next time." Last 25+ min: final Showcase rehearsal — project teams run through their presentations with peer + teacher feedback. Tech check (AV, slides, displays). Audience invitations confirmed.
-- **Materials:** Citizen Selfie template, rehearsal rubric, presentation rubric.
-- **Homework/Extension:** Final polish; confirm Showcase logistics.
-- **Assessment:** **Summative 1B — Citizen Selfie Reflection (2%)** (rubric: depth, honesty, growth articulation); rehearsal rubric (formative).
+- **Activity:** Remaining teams present. Then the **Learning Circle**: patterns across projects, service vs. charity, reciprocity (did the partner get as much as the students?), what we'd do differently.
+- **Materials:** Program, rubric, circle prompts.
+- **Assessment:** Showcase (continued); circle participation (formative).
 
-**Class 85 — 🌱 SERVICE LEARNING SHOWCASE — Day 1 (Presentations) (Cycle 17, ~May 4)**
+**Class 85 — "Capstone Country Profile — Final Polish" (Jun 3–16)**
 
-- **Activity:** **Service Learning Showcase — Day 1.** Half the teams present. Each team delivers a 5-minute presentation: what they did, what worked, what didn't, how their understanding of citizenship shifted, how they'll evaluate impact. Public audience invited. Each student also submits their **Implementation Log** (signed hours + activities).
-- **Materials:** Showcase program, presentation rubric, audience feedback forms, Implementation Log collection.
-- **Homework/Extension:** Prepare for Day 2; reflect on Day 1.
-- **Assessment:** **Summative 1C — Team Showcase Presentation (10%)**; **Summative 1D — Implementation Log (10%)**.
+- **Activity:** Final workshop on the **Country Profile Project** (`Country-Profile-Project/`): dashboard tools, APA citation helper, interactive checklist. 1:1 troubleshooting. Cross-Project Reflection written from Class 84's circle.
+- **Materials:** Project dashboards, citation guide, checklist, rubric.
+- **Assessment:** Checklist verification (formative); Cross-Project Reflection (formative portfolio artifact).
 
-**Class 86 — 🌱 SERVICE LEARNING SHOWCASE — Day 2 (Presentations continued) + Cross-Project Learning Circle (Cycle 18, ~May 18 – Jun 12)**
+**Class 86 — "Capstone Presentations — Day 1" (Jun 7–18)**
 
-- **Activity:** First 30 min: **Service Learning Showcase — Day 2.** Remaining teams present. Same rubric. Audience Q&A throughout. Last 15 min: **Cross-Project Learning Circle** — students discuss patterns across projects, transferable lessons about civic action, what "service" really means vs. "charity," what they'd do differently next time. Reflection on reciprocity — did the partner org get as much out of this as the students did?
-- **Materials:** Showcase program, presentation rubric, audience feedback forms, discussion circle setup.
-- **Homework/Extension:** Begin final polish of Capstone Country Profile Project.
-- **Assessment:** **Summative 1C** (continued); participation in circle (formative observation).
+- **Activity:** Pairs deliver 5–6 minute **Country Profile presentations**: country background, the global issue, the country's action/inaction, intended + unintended consequences, comparison to Canada, why Canadians should care. Peer feedback slips.
+- **Materials:** Project rubric, feedback forms, AV.
+- **Assessment:** Presentation quality (toward the Capstone grade).
 
-**Class 87 — "Capstone Project: Country Profile Final Polish" (Cycle 18, ~May 18 – Jun 12)**
+**Class 87 — "Capstone Presentations — Day 2" (Jun 9–21)**
 
-- **Activity:** Review the **Global Citizenship Country Profile Project** guidelines and requirements from the `Country-Profile-Project/` folder. In pairs, students use the project dashboard, APA citation helper, and interactive checklist to finalize their slideshow presentation profiling their selected country and global issue (e.g., deforestation in Brazil, air pollution in India, refugee policies in the UK). Teacher holds 1:1 troubleshooting meetings on research, arguments, and correct APA citations. Students also submit their **Cross-Project Reflection** (based on Class 86 Learning Circle).
-- **Materials:** `Country-Profile-Project/` dashboard tools, citation guide, project checklist, rubric.
-- **Homework/Extension:** Finalize slides and practice presentation.
-- **Assessment:** **Summative 1F — Cross-Project Reflection (3%)**; checklist verification (formative).
+- **Activity:** Remaining pairs present; class-wide debrief: common threads in how countries respond; Canada's role in the world.
+- **Materials:** Rubric, debrief prompts.
+- **Assessment:** Presentation quality (continued); debrief participation.
 
-**Class 88 — "Capstone Project: Country Profile Presentations — Day 1" (Cycle 18, ~May 18 – Jun 12)**
+**Class 88 — "📂 Capstone Submission + Cross-Project Reflection Lock" (Jun 10–24)**
 
-- **Activity:** Day 1 of **Country Profile Presentations**. Pairs deliver their 5–6 minute slideshow presentations on their profiled country and global issue. Presentations must detail the selected country's actions or inaction, intended and unintended consequences, a direct comparison to Canada's policies on the same issue, and a reflection on why Canadians should care. Audience takes notes and completes peer-review feedback slips.
-- **Materials:** Project rubric, peer-review feedback forms, presentation AV setup.
-- **Homework/Extension:** Prepare for Day 2.
-- **Assessment:** Presentation performance and content (graded as part of the Capstone Project); peer feedback quality (formative).
+- **Activity:** Final slides submitted to Google Classroom; citations verified; last rubric conferences. *(901 only: Jun 10 — spare slots follow.)*
+- **Materials:** Submission checklist.
+- **Assessment:** **📋 Country Profile Capstone (10%)** — rubric: issue analysis, country response, Canada comparison, reflection depth, citation rigor.
 
-**Class 89 — "Capstone Project: Country Profile Presentations — Day 2" (Cycle 18, ~May 18 – Jun 12)**
+**Class 89 — "Course Close — The Head-to-Toe Bookend" (Jun 16–28)**
 
-- **Activity:** Day 2 of **Country Profile Presentations**. Remaining pairs deliver their slideshow presentations. Followed by a class-wide debrief: what common threads did we see in how different countries respond to global issues? How do these compare to Canada's role in the world?
-- **Materials:** Project rubric, peer-review feedback forms, debrief questions.
-- **Homework/Extension:** Prepare final slide files for submission.
-- **Assessment:** Presentation performance and content (graded as part of the Capstone Project); debrief participation (formative).
+- **Activity:** Return Class 1's **Head-to-Toe canvases**: "Would you change anything now?" Students annotate their September selves — what would they add, remove, redraw? Quiet reflection circle (volunteers, one word each). Anonymous exit form: "one thing from this course I'll keep." Course-portrait synthesis: WHERE → WHO → HOW → WORLD.
+- **Materials:** Original canvases, annotation pens, exit form.
+- **Assessment:** Bookend annotation (formative — completes the Civic Foundations portfolio).
 
-**Class 90 — "📂 Capstone Slides Submission + Course Wrap-Up" (Cycle 18, ~May 18 – Jun 12)**
+**Class 90 — "Celebration & Farewell" (Jun 17–30)**
 
-- **Activity:** First 10 min: submit final **Capstone Country Profile** slideshow in Google Classroom. Middle 20 min: optional short student reflection share-out — volunteers share one thing about their profiled country that surprised them. Final 20 min: course wrap-up — anonymous Google Form "one thing from this course I'll keep," a quiet reflection circle (volunteers share one word), and teacher thank-you. **Course capstone complete.**
-- **Materials:** Submission checklist, anonymous Google Form, closing circle setup.
-- **Homework/Extension:** None — enjoy the summer.
-- **Assessment:** **Summative 1E — Capstone Project: Country Profile Project (15%)** (rubric: issue analysis, country response, comparison with Canada, reflection depth, citation rigor).
+- **Activity:** Course celebration — showcase highlights reel/board, thank-yous to partners and guests, high-school-transition send-off (links to the HL9 transition thread). 901/903 have spare slots (Classes 91–94) for catch-ups and cleanup.
+- **Materials:** Highlights board, partner thank-you cards.
+- **Assessment:** None — enjoy the summer.
 
 ---
 
-## 6. Term Breaks & Holidays (Calendar Anchors)
+## 5. Term Breaks & Holidays (Calendar Anchors)
 
-| Date | Event | Notes |
-|------|-------|-------|
-| ~Oct 13 (Mon) | Thanksgiving | C4 cycle — schedule adjusts; no class that Monday. |
-| Nov 11 (Mon) | Remembrance Day | C6 — Citizenship class not scheduled that day. |
-| ~Dec 22 – Jan 2 | **Christmas break** (2 weeks) | Splits Term 1 / Term 2. Class 39 last class pre-break; Class 41 first class back. Pre-break due dates: Class 39 buffer; Class 40 budget sim continues; Class 41 reflection + U3 review. |
-| ~Feb 16 – Feb 20 | NS Family Day week | C12 ends before; C13 resumes after. Mock Election timing absorbs. |
-| ~Mar 2 – Mar 6 | **March break** (1 week) | Splits U5. Class 62 last class pre-break; Class 63 first class back. |
-| Apr 18 + Apr 21 | Good Friday / Easter Monday | Falls between C14 and C15 — extra buffer; both fit. |
+| Date | Event | Handling |
+|------|-------|----------|
+| Sept 30 | Orange Shirt Day / TRC | Named in Class 9; no school Sept 30 — content framed the class before |
+| Oct 1 | **Treaty Day** | Class 10 = treaty content (902: flips to Class 9 slot — see drift note) |
+| Oct 12 | Thanksgiving | Absorbed in cycle — see calendar appendix |
+| Nov 4 | **Take Our Kids to Work Day** | Classes 19–20 designed absence-tolerant (pair work sessions) |
+| Nov 11 | Remembrance Day | Absorbed; Class 23 flexes if hit |
+| ~Nov 18 | **U2 Test — all sections** | Common date; protect it |
+| Dec 21–Jan 1 | Christmas break | Budget log runs across it (Class 35→36) |
+| Feb – | Report card T2 window | U3 Test (Cl. 37) and Media Project (Cl. 46) land inside |
+| Mar 15–19 | March Break | Election campaign stretches across (902); timeline absorbs |
+| Apr 2/6 (approx.) | Good Friday / Easter Monday | Absorbed between cycles |
+| Jun 10 | June thin-out rule | Last testable summative: U5 Test (Cl. 69, by Apr 29) + graded artifacts — June belongs to Showcase + Capstone |
 
-**Built-in buffer classes** absorb any unexpected PD days or single-day closures:
-- **Class 39** (U3B Budget sim launch) is positioned at a low-stakes point in U3 where a single lost class would still allow full coverage.
-- **Class 87** (Capstone prep workshop) sits at a low-stakes point near year-end where a single lost class would still allow presentations.
-- The **review classes** before each summative (Class 28, Class 41, Class 51, Class 70, Class 81) can also flex into content catch-up if needed.
-
----
-
-## 7. Test Calendar (Aligned to cit9-assessment-plan.md)
-
-| Test / Quiz | Class | Cycle | Approx. Date | Format | Topics Covered | Weight |
-|------|-------|-------|--------------|--------|----------------|--------|
-| **Unit Quiz 1** | Class 28 | Cycle 6 | ~Nov 10–21 | Vocabulary Matching | Unit 2 vocabulary (treaties, Residential Schools, Gladue, TRC) | 2% |
-| **Unit 2 Test** | Class 30 | Cycle 6 | ~Nov 10–21 | MC + Short Answer + Extended Response | Residential schools, treaties, Donald Marshall Jr., Gladue Rights, reconciliation | 6% |
-| **Unit Quiz 2** | Class 41 | Cycle 9 | ~Jan 5–16 | Vocabulary Matching | Unit 3 vocabulary (HST, economics, equality vs. equity) | 2% |
-| **Unit 3 Test** | Class 42 | Cycle 9 | ~Jan 5–16 | MC + Short Answer + Extended Response | Needs/wants, taxation, economic disparity, fairness vs. equality vs. equity | 6% |
-| **Unit Quiz 3** | Class 51 | Cycle 11 | ~Feb 2–13 | Vocabulary Matching | Unit 4 vocabulary (agenda-setting, filter bubble, algorithm) | 2% |
-| **Unit 4 Test** | Class 52 | Cycle 11 | ~Feb 2–13 | MC + Short Answer + Extended Response | Media representation, algorithms, digital footprints, data ethics | 6% |
-| **Unit Quiz 4** | Class 70 | Cycle 14 | ~Mar 23–Apr 3 | Vocabulary Matching | Unit 5 vocabulary (spectrum, jurisdiction, band council) | 2% |
-| **Unit 5 Test** | Class 71 | Cycle 15 | ~Apr 6–17 | MC + Short Answer + Extended Response | Worldview, political spectrum, jurisdictions, Sipekne'katik 2020, Charter protest | 6% |
-| **Unit Quiz 5** | Class 81 | Cycle 17 | ~May 4–15 | Vocabulary Matching | Unit 6 vocabulary (globalization, UDHR, foreign policy) | 2% |
-| **Unit 6 Test** | Class 82 | Cycle 17 | ~May 4–15 | MC + Short Answer + Extended Response | Globalization, global issues, UDHR, Canada's response, action/inaction | 6% |
-
-**Total course grading breakdown:**
-- **Unit Tests:** 30% (5 tests @ 6% each)
-- **Unit Quizzes:** 10% (5 quizzes @ 2% each)
-- **Service Learning Project:** 30% (Proposal 5% + Log 10% + Showcase 10% + Selfie 2% + Cross-Project 3%)
-- **Capstone Project: Country Profile:** 15% (paired project, Classes 87–90)
-- **Participation & Formative Work:** 15% (continuous)
-- **TOTAL:** 100%
+**Buffers:** SL relaunch classes (26–27) and Class 90 absorb closures; review classes (23, 36, 47, 68, 80) can flex into content catch-up.
 
 ---
 
-## 8. Suggested Activity / Simulation Picks (cross-reference to `cit9-simulation-concepts.md`)
+## 6. Summative Assessment Calendar
 
-| Unit | Primary Pick | Secondary Pick | Rationale |
-|------|--------------|----------------|-----------|
-| **U1 — Engaged Citizenship** | A — "The Need Hunt" (community-identified-need model) | B — "Partner Project" if no time for full Need Hunt | Strongest student agency; real NS community partner creates highest-value experience. Service Learning runs ~18 classes across the year. |
-| **U2 — Who Am I as a Citizen?** | B — "Rights Over Time" + MM Studies 10–14 content (Residential Schools, Sixties Scoop, Annie Francis sim, Donald Marshall Jr., Gladue Rights, Leo cannabis case) | C — "Worldview Windows" for personal identity work | MM Studies content is recycled at Grade 9 level — residential schools, Sixties Scoop, treaties, Donald Marshall Jr., Gladue Rights. Annie Francis and Leo cannabis sims pulled from MM folder. Strongest fit for treaty + reconciliation work. |
-| **U3 — Financial Citizenship** | B — "Follow the Tax Dollar" + C — "Fair vs. Equal" + A — "Living Wage Month" | (all three are used; pick any one if time is tight) | Three complementary activities cover 3A taxation + 3A fairness + 3B personal finance. Build empathy and critical-evaluation skills. |
-| **U4 — Digital Citizenship** | A — "Spot the Bias" (10-source audit) + C — "Anonymous or Not" | B — "Footprint Forensics" if 4B's footprint work needs reinforcement | Spot the Bias is the centerpiece for 4A media literacy. Anonymous or Not addresses 4B's unique anonymity indicator. |
-| **U5 — Governance** | A — "Mock NS Election" + C — "Protest & Response" (with MM Studies protest material: Idle No More, Sipekne'katik 2020, Ipperwash) + Sentencing Circle activity (MM Studies Unit 13) | B — "Advocacy in Action" (can fold into Service Learning projects) | Mock NS Election is the centerpiece engagement activity — biggest payoff in the course. MM Studies protest content (Idle No More + Ipperwash + Sipekne'katik) anchors Indigenous protest cases. Sentencing Circle activity puts Gladue Rights into practice. |
-| **U6 — Global Citizenship** | C — "One Global Issue, Five Lenses" + A — "Global Issue Court" | B — "Country Deep-Dive" if scaffolding is needed | Five Lenses gives the multi-perspective depth. Global Issue Court gives the consequence-mapping and prosecution/defence practice. |
+| Assessment | Class | Dates (range) | Weight |
+|------------|-------|---------------|--------|
+| WHERE Project Portfolio | 3–4 (lock at 8) | Sept 10–28 | 10% |
+| **Unit 2 Test** | **24** | **Nov 18 — all sections (T1)** | **10%** |
+| SL Proposal | 30 | Dec 3–10 (T2) | 10% |
+| **Unit 3 Test** | **37** | Jan 6–13 | **10%** |
+| Unit 4 Media Project | 46 | Feb 1–8 | 5% |
+| **Unit 4 Test** | **48** | Feb 4–12 | **5%** |
+| Unit 5 Election Simulation | 53–56 | Mar 1–22 | 6% |
+| **Unit 5 Test** | **69** | Apr 15–29 | **4%** |
+| SL Showcase + Implementation Log | 83–84 | May 27–Jun 18 | 10% |
+| Country Profile Capstone | 85–88 | Jun 3–24 | 10% |
+| Ongoing formative + civic foundations | continuous | all year | 20% |
 
----
-
-## 9. Special Class Types — Where They Live
-
-| Special Class Type | Classes | Notes |
-|--------------------|---------|-------|
-| **Service learning project work sessions** | 1–8 (launch/proposal), 15, 23, 35, 45, 54, 64, 73 (check-ins), 84–86 (Showcase block) | 18 dedicated classes; project work also continues outside class time |
-| **Unit Tests (MM Studies June-test format)** | 30 (U2), 42 (U3), 52 (U4), 71 (U5), 82 (U6) | 5 dedicated test classes — 50 min each, MC + short answer + 1 scenario response |
-| **Unit Quizzes (vocabulary matching)** | 28, 41, 51, 70, 81 | 10-minute retrieval checks administered during review classes |
-| **Test Review classes** | 28, 41, 51, 70, 81 | Dedicated review classes the day before each unit test |
-| **Test Return + Bridge classes** | 31, 43, 53, 72, 83 | Teacher returns tests, walks through common errors, bridges to next unit |
-| **Mock NS election campaign** | 56–59 | Full 4-class block: parties form, campaign week 1, debate, vote + post-mortem |
-| **Mi'kmaw Elder visit / guest speaker** | 21 | Single class; coordinate with Mi'kmaw Native Friendship Centre or Mi'kmaw Kina'matnewey at least 6 weeks ahead |
-| **Annie Francis Sixties Scoop case sim** | 19 (intro) + 27 (continuation + analysis) | Pulled from MM Studies folder; runs as a 2-class investigation |
-| **Donald Marshall Jr. + Gladue Rights lesson** | 22 | Single class; case study + Gladue primer; bridge to sentencing circle |
-| **Leo cannabis case sim** | 25 | Pulled from MM Studies folder; single-class investigation |
-| **Sentencing Circle activity** | 63 | Adapted from MM Studies Unit 13 and graphic novel script; Liam Cape Breton incident |
-| **Idle No More case study** | 60 | MM Studies Unit 12 content; NS/Atlantic Canada roots |
-| **Sipekne'katik 2020 lobster dispute case** | 61 | NS-specific anchor case; ties to Marshall decision |
-| **Ipperwash Crisis 1995** | 62 | MM Studies Unit 12 ("One Dead Indian"); Dudley George case |
-| **Mock parliament / city council / diplomat** | 66 (jurisdiction), 77–78 (Diplomat sim), 80 (Global Issue Court) | Multiple activities use negotiation/debate structure |
-| **Media audit field trip (library or computer lab)** | 44 (Spot the Bias work session) | Schedule in school library or computer lab; confirm booking 1 week ahead |
-| **Guest speaker (politician, activist, journalist)** | 21 (Elder), 66 (potential MLA office visit for petition presentation), flexible within U5 | Possible guest: local councillor, MLA, APTN journalist, climate activist, Ecology Action Centre rep |
-| **Project presentations** | 85–86 (Service Learning Showcase, 2 days), 88–89 (Country Profile Presentations) | Public audience; partner orgs, classmates, families invited |
-| **Exit slips and check-ins** | Completed in review and project classes | Formative observation and participation check-ins |
-| **Socratic seminars** | 14 (Citizenship Role Timeline), 34 (Tax priorities), 36 (Tax Dollar), 49 (Anonymity), 61 (Sipekne'katik + protest), 66 (Protest rights) | 6 dedicated Socratic seminars; structured sentence-stems used throughout |
-| **Field trip opportunities** (out of current 90-class plan but worth flagging) | Optional: Class 21 could expand into a Friendship Centre visit; Class 66 could include an MLA office visit | Coordinate with administration 4–6 weeks ahead; build in schedule flexibility |
+*Full rubrics and the class-by-class assessment calendar: `cit9-assessment-plan.md`. The five unit quizzes (Classes 23, 36, 47, 68, 80) are formative retrieval checks — they do not carry grade weight.*
 
 ---
 
-## 10. NS-Specific Anchors Throughout the Year
+## 7. Suggested Activity / Simulation Picks (cross-reference to `cit9-simulation-concepts.md`)
 
-**Unit 1 — Service Learning:** Students work with a real NS community organization. Recommended partner short-list: **Mi'kmaw Native Friendship Centre (Halifax), Halifax Food Bank, Parker Street Food Bank, Boys & Girls Club of Nova Scotia, Out of the Cold, Veith House, Elizabeth Fry Society, WelcomeNS, YMCA NS, Ecology Action Centre, Nova Scotia Environmental Network, Refugee Health NS, local Mi'kmaw community schools (e.g., Indian Brook), Sipekne'katik, Millbrook**.
-
-**Unit 2 — Treaties + Reconciliation + MM Studies content:** Anchor in the **1760–1763 Peace and Friendship Treaties** (NS-specific). Invite a **Mi'kmaw Knowledge Keeper** (Class 21). Use the **Marshall decision (R. v. Marshall, 1999)** and the **2020 Sipekne'katik Mi'kmaw lobster dispute** as recurring case studies. Use **TRC Calls to Action #62–#65** as the reconciliation framework. Recycle MM Studies content: **Shubenacadie Indian Residential School** (only residential school in the Maritimes), **IRSSA (2007)**, **TRC 94 Calls to Action**, **Sixties Scoop timeline**, **Annie Francis case** (*Shubenacadie Indian Band v. Canada*), **Donald Marshall Jr.**, **Gladue Rights** (1999), **Leo cannabis case study**. Optional resources: *21 Things You May Not Know About the Indian Act* by Bob Joseph; *The Inconvenient Indian* by Thomas King; *Sugar Falls* (graphic novel); *The Secret Path* (Gord Downie).
-
-**Unit 3 — Financial Citizenship:** NS-specific taxation (NS provincial income tax, NS HST = 15%, HRM property tax via rent proxy, federal carbon tax with NS output-based pricing system). NS economic indicators (NS minimum wage, HRM rent averages, NS poverty rates). Indigenous economic inequality in NS context (on-reserve infrastructure, treaty rights to fisheries). Use **NS Budget documents**, **CRA NS resources**.
-
-**Unit 4 — Digital Citizenship:** NS-relevant media sources: **CBC Nova Scotia, CTV Atlantic, Global Halifax, SaltWire Network (Chronicle Herald), APTN**. NS-specific privacy considerations: **PIPEDA**, **NS Personal Information International Disclosure Protection Act**, the **Nova Scotia Cyber-Safety Act**. NS-specific misinformation cases if available.
-
-**Unit 5 — Governance:** **Nova Scotia Liberal Party**, **Nova Scotia Progressive Conservatives (NS PC)**, **Nova Scotia New Democratic Party (NDP)**, **Green Party of Nova Scotia** — these are the 4 parties studied in the Mock Election. NS Legislature (55 MLAs), the role of the **Premier and Cabinet**, **Elections Nova Scotia** (provincial + municipal). HRM (Halifax Regional Municipality) as the largest NS municipality; municipal council structure. **Sipekne'katik Mi'kmaw lobster dispute (2020)** as a recurring NS governance case. **Idle No More** originated partly from NS/Atlantic Canada; **Mi'kmaw-led protests in NS** as protest case studies. **Ipperwash Crisis 1995** (Dudley George) for cross-Canada Indigenous protest context. **Mi'kmaq–Nova Scotia–Canada Framework Agreement** on self-government.
-
-**Unit 6 — Global Citizenship:** Global issues relevant to NS: **fisheries (especially lobster, given the 2020 dispute), Atlantic Canada climate impacts (sea-level rise, fishery collapse, coastal erosion), immigration (NS Syrian refugee resettlement, WelcomeNS), Indigenous rights globally, ocean plastics (NS coastline), pandemic preparedness**. Use **APTN National News** for Indigenous global perspective; **CBC's The National** + **The Fifth Estate** for international coverage.
+| Unit | Primary Picks | Rationale |
+|------|--------------|-----------|
+| U1 | WHERE 5-Place StoryMap + Policy Dossiers + Desk Caucus | Student-voice driven: zero public speaking, digital submission, real diagnostic issues |
+| U2 | Leo-1752 Treaty Sim + Annie Francis case file + MM Studies 10–13 content | Worldview-first launch; spiral from MM Studies at Grade 9 depth |
+| U3 | Living Wage Month + Follow the Tax Dollar + Fair vs. Equal | Empathy + analytical tools; 2026 wage data built into the kit |
+| U4 | Spot the Bias (Media Project) + Footprint Forensics + Anonymous or Not | Audit = graded major; footprint/anonymity with real opt-outs |
+| U5 | Mock Bicentennial Election + protest trio (INM/Sipekne'katik/Ipperwash) + Sentencing Circle + SL execution | Engagement centerpiece + Indigenous governance + project execution window |
+| U6 | Five Lenses + Diplomat Sim + Global Issue Court + Country Profile Capstone | Multi-perspective depth; capstone closes the course |
 
 ---
 
-## 11. Cross-Unit Synergies (Use These to Reduce Workload)
+## 8. Special Class Types — Where They Live
 
-| Synergy | Where It Saves Time | How to Use |
-|---------|---------------------|------------|
-| **Unit 1 Service Learning + Unit 5 Advocacy** | If your SL project has a policy dimension | Run the advocacy campaign ON the SL issue — one project, two units of assessment |
-| **Unit 3 Taxation + Unit 5 Parties** | Class 55–59 Mock Election | Real party platforms are competing answers to "where should the tax dollar go?" Same data, two frames |
-| **Unit 4 Spot the Bias + Unit 5 Mock Election** | Class 43–52 → 56–59 | The bias-audit skills are perfect prep for evaluating party platforms. Sequence: media literacy first, then election |
-| **Unit 6 Country Deep-Dive + Unit 2 Rights Over Time** | Class 73–75 | A country deep-dive can centre on that country's citizenship-rights history — kills two indicators at once |
-| **Unit 2 Treaty work + Unit 5 Indigenous governance + Sipekne'katik 2020** | Class 16 → 24 → 61 | The Marshall decision appears in three places — use it as a recurring thread (treaty + Gladue + lobster dispute) |
-| **Unit 2 Reconciliation + Unit 6 UNDRIP** | Class 26 → 72 | TRC Calls to Action (especially #62–65) align with UNDRIP implementation in Canada |
-| **Unit 3 Budget simulation + Unit 1 SL reflection** | Class 39–41 → 85–86 | Economic empathy developed in the budget sim shows up in SL Showcase reflections |
-| **Unit 2 Annie Francis + Unit 5 Sentencing Circle** | Class 19/27 → 63 | Sixties Scoop child welfare connects to Gladue Rights + sentencing circles as Indigenous justice responses |
-| **Unit 2 Leo cannabis + Unit 5 Sipekne'katik 2020** | Class 25 → 61 | Both cases test the limits of Marshall decision / treaty right vs. Canadian law |
-| **Unit 5 Idle No More + Unit 5 Ipperwash + Unit 5 Sipekne'katik** | Class 60 → 62 → 61 | Three protest case studies (MM Studies content) anchor Unit 5 Indigenous protest work |
-
----
-
-## 12. Cross-Unit Themes Tracked
-
-| Theme | Appears In | Why It Matters |
-|-------|------------|----------------|
-| **Perspective / Worldview** | U2 (explicit), U3 (cultural money), U4 (media representation), U5 (values), U6 (global issues) | Cit 9's deepest cross-cutting concept — students must move from "my view" to "whose view is missing" |
-| **Rights & Responsibilities** | U2 (explicit), U4 (digital rights), U5 (democratic participation), U6 (human rights) | The "what can I do?" question is the throughline |
-| **Action & Civic Participation** | U1 (service learning), U5 (engagement), U6 (global action) | Opens and closes the course — local action → global action → local action |
-| **Power & Equity** | U2 (Indigenous rights), U3 (economic disparity), U4 (media representation), U5 (democratic access), U6 (globalization) | "Whose voice? Whose interest? Whose cost?" — the critical question for every unit |
-| **Indigenous Citizenship & Reconciliation** | U1, U2, U3, U4, U5, U6 (unifying thread — MM Studies content concentrated in U2 + U5) | NS is Mi'kma'ki — foundational, not additive. MM Studies Units 10–14 recycled into Cit9 Units 2 and 5 at Grade 9 level |
-| **Critical Evaluation of Information** | U3 (financial decisions), U4 (media), U5 (party platforms), all unit tests | Source criticism, evidence weighing, distinguishing claim from fact. Every unit test assesses this |
-| **Personal → Collective → Systemic Thinking** | Every unit | Students must reach the systemic level by year-end |
-| **Testable Content + Applied Practice** | All units + cumulative exam | The course is assessment-driven: every content unit ends in a unit test modelled on MM Studies June test format |
+| Type | Classes |
+|------|---------|
+| WHERE Project (digital, submission-based) | 2–4 (polish window 8) |
+| Unit Tests | 24 (U2), 37 (U3), 48 (U4), 69 (U5) |
+| Formative retrieval quizzes | 23, 36, 47, 68, 80 |
+| SL relaunch + proposal | 26–27, 30 |
+| SL check-ins / studios | 31, 41, 55, 61, 63, 67 |
+| SL execution window | 61–67 (within U5) |
+| SL Showcase | 83–84 |
+| Mock Election | 53–56 |
+| Knowledge Keeper visit | 21 (book by first week of September) |
+| Case sims | 10 (Leo-1752), 18–19 (Annie Francis), 20 (Marshall), 58 (Sipekne'katik), 59 (Ipperwash), 60 (Sentencing Circle) |
+| Desk caucuses / structured debate | 7, 66 (briefs), election debates 54–55 |
+| Socratic seminars | 31, 32, 44, 58, 64 |
+| Capstone | 85–88 |
 
 ---
 
-## 13. Assessment Summary (Aligned to cit9-assessment-plan.md)
+## 9. NS-Specific Anchors Throughout the Year
 
-The course grade is divided into five clear categories that sum to exactly 100%. Individual unit assignments are submitted and reviewed formatively, and are graded summatively as curated artifacts in the **Capstone Portfolio**.
-
-### 1. Service Learning Project (30%)
-- **1A. Proposal (5%):** Goal clarity, feasibility, role allocation, equity framing (Class 7).
-- **1B. Citizen Selfie Reflection (2%):** Individual growth and skill articulation (Class 84).
-- **1C. Team Showcase Presentation (10%):** Public evidence of project impact and reflection (Classes 85–86).
-- **1D. Implementation Log (10%):** Log of hours, setbacks, partner coordination, and milestones (Class 85).
-- **1F. Cross-Project Reflection (3%):** Connecting project outcomes to peers' work in Learning Circle (Class 87).
-
-### 2. Capstone Portfolio (15%)
-- **1E. Capstone Portfolio (15%):** Curation, reflective depth, and cross-unit concept mapping. Includes final reflective introduction and compilation of key unit artifacts (Class 90).
-
-### 3. Unit Tests (30%)
-- **Unit 2 Test (6%):** Indigenous Citizenship + Treaties + reconciliation (Class 30).
-- **Unit 3 Test (6%):** Financial Citizenship + economics (Class 42).
-- **Unit 4 Test (6%):** Digital Citizenship + media literacy (Class 52).
-- **Unit 5 Test (6%):** Governance + Mock Election + protest (Class 71).
-- **Unit 6 Test (6%):** Global Citizenship + human rights (Class 82).
-
-### 4. Unit Quizzes (10%)
-- **5 Unit Quizzes (2% each):** Vocabulary-focused retrieval checks administered during review classes (Classes 28, 41, 51, 70, 81).
-
-### 5. Participation & Formative Work (15%)
-- Continuous observation during Socratic seminars, discussions, campaign simulation, and exit-slip completion.
-
-| Category | Weight | Target Classes |
-|----------|-------:|----------------|
-| **Service Learning Project** | **30%** | Classes 7, 84, 85–86, 87 |
-| **Capstone Portfolio** | **15%** | Classes 87–90 |
-| **Unit Tests** | **30%** | Classes 30, 42, 52, 71, 82 |
-| **Unit Quizzes** | **10%** | Classes 28, 41, 51, 70, 81 |
-| **Participation & Formative Work** | **15%** | Continuous |
-| **TOTAL** | **100%** | |
-
-> **Note on Unit Summatives:** Core assignments (Reconciliation Action Plan, Budget Sim Reflection, Mock Election Vote Justification, Issue I Care About Brief, Canada's Response Brief, Global Citizen Action Plan) are graded as part of the **Capstone Portfolio (15%)** to ensure students are assessed on draft revisions, self-reflection, and portfolio completeness rather than one-off deadlines.
+- **U1:** NS three-level government examples (HRM zoning, NS directives, federal programs); the diagnostic's real issues.
+- **U2:** 1752/1760–61 Peace and Friendship Treaties + truckhouse clause; Netukulimk (Assembly of NS Mi'kmaw Chiefs definition); the 7 Districts; Shubenacadie; Donald Marshall Jr.; the 13 Mi'kmaw communities in NS (use community names, verify with UNSI/TCM lists).
+- **U3:** NS HST 15%; minimum wage $16.75 (Apr 2026) rising to $17.00 (Oct 2026); HRM rents; Mi'kmaq–NS–Canada Framework Agreement economic dimensions.
+- **U4:** CBC NS, SaltWire, APTN; NS Cyber-Safety Act; PIPEDA.
+- **U5:** NS parties; 55 MLAs; Sipekne'katik 2020; Bicentennial election kit (Dartmouth-area riding); Idle No More; Ipperwash.
+- **U6:** Atlantic climate impacts; lobster export economy; NS newcomer resettlement; APTN global perspective.
 
 ---
 
-## 14. Notes for Future Refinement
+## 10. Cross-Unit Synergies
 
-- **NAS audit required before finalizing:** The simulation concept document flagged that several NAS folders (PerceptionVsReality, DigCit, political-spectrum, election-polparties-marking, Country-Profile-Project, countryoftheday, cuba62, HeritageMinutes) should have their actual contents verified before relying on specific filenames in lesson plans. See `cit9-simulation-concepts.md` "Day 1 / Planning Adjustments" section. **Additionally, MM Studies folders** (`10. Residential Schools`, `11. Government`, `12. Protest`, `13. Justice`, `14. Current Issues`) need to be inspected for actual file contents — the outline references them by content topic but specific filenames should be verified.
-- **Mi'kmaw cultural coordination:** Class 21 (Elder visit) and Classes 17–20 (Residential Schools + Sixties Scoop + Reconciliation), Class 22 (Donald Marshall Jr. + Gladue), Class 25 (Leo cannabis), Class 61 (Sipekne'katik), and Class 63 (Sentencing Circle) all require early coordination (6+ weeks ahead) with Mi'kmaw Native Friendship Centre, Mi'kmaw Kina'matnewey, or a local Knowledge Keeper. Do NOT proceed without informed co-facilitation for these classes.
-- **MM Studies content pacing:** When recycling MM Studies Units 10–14 into Cit9 Units 2 and 5, the content is **compressed and reframed** for Grade 9 level. Some MM Studies depth (e.g., "We Were Children" full documentary, Sugar Falls graphic novel in full) is reduced to excerpts + structured response sheets. Teacher should preview all MM Studies materials before classroom use.
-- **Real-time political events:** If a NS provincial or municipal election is called during the school year, adjust the Mock Election (Classes 56–59) to anchor in the live cycle. The Mock Election gains significant relevance when paired with a real election.
-- **NS-specific calendar adjustments:** Some NS school boards observe **NS Heritage Day** (3rd Monday in February), which may shift Class 60's timing. Some boards also have a longer spring break that affects Class 81 timing.
-- **IndigenousCitizenship folder:** Build out a dedicated `IndigenousCitizenship/` NAS folder (or extend `cit9sites/`) with verified, currently-available PDFs, videos, and web links for treaty education, TRC, UNDRIP, Mi'kmaw-specific resources, MM Studies Units 10–14 materials. Treat as Priority 1.
-- **FridayMay15/ folder:** Contents unclear (per `cit9-outcomes-enhanced.md`); verify before any classroom use.
-- **Unit test item bank:** Build a Google Forms item bank per unit, drawn from `cit9-study-content.md` (testable content) and the MM Studies Unit Test templates. Each unit test should have: 15–20 MC items, 5–7 short-answer items, 1–2 extended-response scenarios. Cumulative exam: 25–30 MC items, 8–10 short-answer items, 2 extended-response scenarios.
+| Synergy | Classes | Use |
+|---------|---------|-----|
+| WHERE identity → Capstone country choice | 2–4 → 85 | Students choose capstone countries connected to their global-heritage place where authentic |
+| Jurisdiction front-load → Election + Power Audit | 5 → 53–56, 64 | Class 5 matrix is reactivated, not re-taught |
+| YCJA seed → Debate 04 + Sentencing Circle | 7 → 60 (+ Term 2 debate) | s.3 principles introduced early |
+| Truckhouse → Marshall → Sipekne'katik | 10 → 20 → 58 | The moderate-livelihood thread runs the year |
+| Media audit → Election platforms | 38–46 → 53–56 | Bias-audit skills prep platform evaluation |
+| Issue I Care About brief → Canada's Response Brief | 66 → 75 | Same issue, national-to-global lens |
+| SL issue → advocacy campaign | 30 → 62–63 | Policy-dimension projects double as Lane 1/2 work |
+| Budget sim empathy → SL Showcase reflection | 35–36 → 83–84 | Economic empathy surfaces in project reflection |
+| Head-to-Toe bookend | 1 → 89 | Identity arc made visible |
 
 ---
 
-*Citizenship 9 master course plan prepared for September 2026 teaching appointment. This document operationalizes the Nova Scotia Citizenship 9 Foundational Outcomes (2020–21), integrates Mi'kmaw Studies 11 Units 10–14 content recycled into Cit9 Units 2 and 5 at Grade 9 level, and adds unit tests modelled on the MM Studies June test format. All resources should be verified for age-appropriateness, accuracy, and current availability before classroom use. The Indigenous Citizenship thread is foundational and not optional.*
+## 11. Notes for Future Refinement
+
+- **NAS/resource audit still required before relying on specific filenames:** `PerceptionVsReality/`, `DigCit/`, MM Studies folders, `FridayMay15/` (contents unknown). Verify before classroom use.
+- **Mi'kmaw cultural coordination:** Class 21 (Knowledge Keeper) and Classes 9–10, 16–20, 58–60 need early coordination (6+ weeks). Outreach pack: `Elder_Visit_Outreach_Pack.md`.
+- **Built tools now anchored:** `Leo-1752-Treaty-Sim` (Cl. 10), `Places_Of_Significance_Studio` + `WHERE_Grade9_Progress_Dashboard` (Cl. 3–4), `CIT9_Current_Issues_Diagnostic` (Cl. 6), election kit (Cl. 53–56, rebranded Bicentennial), Country Profile suite (Cl. 85–88), Heritage Minutes game (U2 warm-ups).
+- **Real-time events:** if a NS election is called during the year, re-anchor the Mock Election to the live cycle.
+- **Section drift:** 902's calendar runs its own path at Treaty Day (Oct 1), TKOW (Nov 4), and March Break — the drift notes in each unit header are the authority.

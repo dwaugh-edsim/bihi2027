@@ -1,4 +1,4 @@
-# 🗳️ Halifax West 2026 — Party Campaign Records
+# 🗳️ Bicentennial 2026 — Party Campaign Records
 ### Consolidated Records — April 16, 2026
 
 *Note: Data has been consolidated from fragmented entries to ensure all student progress is preserved.*
@@ -6,8 +6,8 @@
 ---
 
 ## 1. The Party De Solution ✅ WAR ROOM COMPLETE
-**Leader:** MadhavanK  
-**Members:** MadhavanK, RemyP, YunhoP  
+**Leader:** Student05K  
+**Members:** Student05K, Student06P, Student07P  
 **PIN:** BONKE  
 **Color:** #ffffff  
 **Slogan:** *"Procrastination is for the weak"*  
@@ -28,8 +28,8 @@
 ---
 
 ## 2. The Healthier Future ✅ WAR ROOM COMPLETE
-**Leader:** Joshua Abraham  
-**Members:** Clark, Joshua  
+**Leader:** Student03 Abraham  
+**Members:** Student04, Student03  
 **PIN:** ABCDD  
 **Color:** #3b82f6  
 **Slogan:** *"The Path to the Healthy Future starts with a Healthy Body"*  
@@ -49,8 +49,8 @@
 ---
 
 ## 3. The Islamic Associations of Halifax ✅ WAR ROOM COMPLETE
-**Leader:** MD Farhan Rahman  
-**Members:** Abdul and Farhan  
+**Leader:** Student01  
+**Members:** Student02 and Student01  
 **PIN:** ISLAM  
 **Color:** #1d6825  
 **Slogan:** *"Islam is Peace,Justice and Unity"*  
@@ -59,7 +59,7 @@
 > The people of Canada should vote for a Government that puts Ethics Over Profits & People Over Politics. The people should vote for a government that fights corruption, forbids it, and promotes social welfare.
 
 ### 🛡️ Strategy Lead
-> Humanitarian. Humanity is obligatory, must to do, must to act upon and must save a person’s life; that's what our party will fund from taxes to invest, just for the people, for lives that are at risk in Canada and in the entire globe. Build homes for people to live. Anti-corruption government. Governments in the past were corrupt, and economic inflation, which ended the party, which is a fact, but this government will focus on unity, a state of being one, undivided, which means no sects and no conflicts, peace and harmony. Social welfare. Building a strong social space for people, a safe society where people can hang out and host events. We ensure the protection of our most vulnerable neighbours. Economic justice. Prioritizing and promoting fair wealth given to people and interest-free business finance. Our goal is an economy where everyone has the opportunity to grow. Pluralism. Many different groups of people live together peacefully while keeping their own unique traditions and beliefs. Instead of everyone being the same, it’s about respecting those differences and sharing power fairly. Responsible for the Environment. Our duty to respect the environment, which includes wildlife, camping, forests and marine life. If we all respect the environment, it will respect and treat you back as a non-toxic garbage littered place in the HRM were u happyly and enjoyably rest and breathe in peace. Honest Administrations of the Government. Honesty about the state of our party, no lying (especially Abdul), we want Halifax to be the honest province in Canada and the most truthful place in the globe. Healthcare. This also falls under the humanitarian goals. Responsible for lives, free healthcare for all ages, and tax-funded hospitals.
+> Humanitarian. Humanity is obligatory, must to do, must to act upon and must save a person’s life; that's what our party will fund from taxes to invest, just for the people, for lives that are at risk in Canada and in the entire globe. Build homes for people to live. Anti-corruption government. Governments in the past were corrupt, and economic inflation, which ended the party, which is a fact, but this government will focus on unity, a state of being one, undivided, which means no sects and no conflicts, peace and harmony. Social welfare. Building a strong social space for people, a safe society where people can hang out and host events. We ensure the protection of our most vulnerable neighbours. Economic justice. Prioritizing and promoting fair wealth given to people and interest-free business finance. Our goal is an economy where everyone has the opportunity to grow. Pluralism. Many different groups of people live together peacefully while keeping their own unique traditions and beliefs. Instead of everyone being the same, it’s about respecting those differences and sharing power fairly. Responsible for the Environment. Our duty to respect the environment, which includes wildlife, camping, forests and marine life. If we all respect the environment, it will respect and treat you back as a non-toxic garbage littered place in the HRM were u happyly and enjoyably rest and breathe in peace. Honest Administrations of the Government. Honesty about the state of our party, no lying (especially Student02), we want Halifax to be the honest province in Canada and the most truthful place in the globe. Healthcare. This also falls under the humanitarian goals. Responsible for lives, free healthcare for all ages, and tax-funded hospitals.
 
 ### 💰 Financial Chief
 > Our funds will be focused on people and the environment, making living and working conditions more efficient for the economy. And we will create the teams for our humanitarian and environment goal just to sustain the people of Halifax’s satisfaction. The team will consist of taking care of the marine, forest, livestock, eco-society, and humanitarian, with this, our budget will withhold 13% of the tax. Here’s our list to break it down: Marine/livestock gets 1.5%, Court and law 2%, forest/eco-society gets 3.5%, Decrease housing prices with the carried budget via increasing job salaries 1.3%, Lastly, the humanitarian gets the closest attention of the remaining 5.7%. For the reason being humanitarian reasons, we want Housing and Eco to be the best place for people in poverty and people who sought refuge, who are the refugees from variation nation, to recognize and feel that this nation is the kindess and most hospitable.
@@ -67,8 +67,8 @@
 ---
 
 ## 4. The Niche Halligonians ✅ WAR ROOM COMPLETE
-**Leader:** Lachlan McM  
-**Members:** Lachlan McM, Lachlan Mac and Nolan  
+**Leader:** Student08 McM  
+**Members:** Student08 McM, Student08 Mac and Student10  
 **PIN:** NOLAN  
 **Color:** #ffffff  
 **Slogan:** *"If not now, then when?"*  
@@ -85,8 +85,8 @@
 ---
 
 ## 5. Team tomorrow ✅ WAR ROOM COMPLETE
-**Leader:** Laila Awad  
-**Members:** Laila A, Josie S, Huda B  
+**Leader:** Student11 Awad  
+**Members:** Student11 A, Student12 S, Student13 B  
 **PIN:** LAILA  
 **Color:** #f43bf7  
 **Slogan:** *"See you tommorow!"*  
@@ -103,8 +103,8 @@
 ---
 
 ## 6. The Halifax Climate Protection Party 🟡 NEEDS WAR ROOM
-**Leader:** Ali  
-**Members:** Ali and Kai  
+**Leader:** Student27  
+**Members:** Student27 and Student28  
 **PIN:** ABCDE  
 **Color:** #3b82f6  
 **Slogan:** *"Were tryin' to make the enviroment better for yall don't stress"*  
@@ -112,41 +112,41 @@
 ---
 
 ## 7. Communist Party Of Halifax (CPOH) 🟡 NEEDS WAR ROOM
-**Leader:** Leo  
+**Leader:** Student15  
 **PIN:** OREOS  
-**Members:** Brody, Leo  
+**Members:** Student14, Student15  
 
 ---
 
 ## 8. The Unity Party 🟡 NEEDS WAR ROOM
-**Leader:** Elizabeth  
+**Leader:** Student16  
 **PIN:** PAINT  
-**Members:** Fatima, Alia, Elizabeth  
+**Members:** Student17, Student18, Student16  
 
 ---
 
 ## 9. Equitable Rights Party Of Halifax 🟡 NEEDS WAR ROOM
-**Leader:** Rifa  
+**Leader:** Student19  
 **PIN:** ILYSM  
-**Members:** Rifa, Sarah  
+**Members:** Student19, Student20  
 
 ---
 
 ## 10. Environmentalists at Work 🟡 NEEDS WAR ROOM
-**Leader:** Natalia  
+**Leader:** Student29  
 **PIN:** DUCKT  
-**Members:** Natalia F., Jessa S., Delisha D.  
+**Members:** Student29 F., Student21 S., Student22 D.  
 
 ---
 
 ## 11. The yellow progression party 🟡 NEEDS WAR ROOM
-**Leader:** Kendra  
+**Leader:** Student23  
 **PIN:** ABCDE  
-**Members:** Zankia, Kendra  
+**Members:** Student24, Student23  
 
 ---
 
 ## 12. The Equity Party 🟡 NEEDS WAR ROOM
-**Leader:** Evie Wilde-McDowell  
+**Leader:** Student25   
 **PIN:** IDK  
-**Members:** JanaA, EvieW  
+**Members:** Student26A, Student25W  

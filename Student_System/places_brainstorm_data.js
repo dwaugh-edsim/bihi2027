@@ -1,10 +1,36 @@
 // Auto-generated Brainstorm Data from Google Sheets
 window.PLACES_BRAINSTORM_DATA = {
+  "BEU": {
+    "timestamp": "9/3/2026 13:33:03",
+    "raw_name": "kossy",
+    "matched_name": "Blessing Umeokafor",
+    "pin": "BEU",
+    "class": "903",
+    "cat1_personal": "my house and my bed , my house because it cozy in there and my bed is beacuse i love laying down ad just taking either a nap or just doing nothing or going on my phone",
+    "cat2_community": "mic mall, halifax shopping centre(becaus ei hang out w my friend )",
+    "cat3_global": "",
+    "cat4_aspirational": "florida or the UK i wanna go to the UK because my ccousin and his parents are there and i miss them, while florida because i think its really cool over there from what i see on tiktok.",
+    "cat5_music": "i don't have one",
+    "youtube_url": ""
+  },
   "kossy": {
     "timestamp": "9/3/2026 13:33:03",
     "raw_name": "kossy",
-    "matched_name": "kossy",
-    "pin": "",
+    "matched_name": "Blessing Umeokafor",
+    "pin": "BEU",
+    "class": "903",
+    "cat1_personal": "my house and my bed , my house because it cozy in there and my bed is beacuse i love laying down ad just taking either a nap or just doing nothing or going on my phone",
+    "cat2_community": "mic mall, halifax shopping centre(becaus ei hang out w my friend )",
+    "cat3_global": "",
+    "cat4_aspirational": "florida or the UK i wanna go to the UK because my ccousin and his parents are there and i miss them, while florida because i think its really cool over there from what i see on tiktok.",
+    "cat5_music": "i don't have one",
+    "youtube_url": ""
+  },
+  "kossi": {
+    "timestamp": "9/3/2026 13:33:03",
+    "raw_name": "kossi",
+    "matched_name": "Blessing Umeokafor",
+    "pin": "BEU",
     "class": "903",
     "cat1_personal": "my house and my bed , my house because it cozy in there and my bed is beacuse i love laying down ad just taking either a nap or just doing nothing or going on my phone",
     "cat2_community": "mic mall, halifax shopping centre(becaus ei hang out w my friend )",

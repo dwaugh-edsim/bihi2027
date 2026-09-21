@@ -5,7 +5,7 @@
 ---
 
 ## 1. First Stage Deliverables (What they do NOW)
-Welcome to the Official Halifax West Election Campaign! Since the platforms (Comms, Strategy, Finance) are already complete and posted to the Official Voter Guide, groups must immediately split up and work on the following three deliverables:
+Welcome to the Official Bicentennial Election Campaign! Since the platforms (Comms, Strategy, Finance) are already complete and posted to the Official Voter Guide, groups must immediately split up and work on the following three deliverables:
 
 1.  **The 2-Minute Launch Speech (Use Google Docs):** A written script designed to be spoken out loud. It must merge their Communications Message, 3 Policy Points, and end with their Official Slogan. One group member will write this on a shared Google Doc.
 2.  **The Campaign Slide Deck (Use Canva or Google Slides):** A highly visual, 3-4 slide presentation that will play on the projector behind the speaker. 
@@ -13,7 +13,7 @@ Welcome to the Official Halifax West Election Campaign! Since the platforms (Com
     *   *Slide 2:* The Core Platform (The 3 main promises).
     *   *Slide 3:* The Budget (Where the money is coming from).
     *   *Action:* Have your Campaign Manager launch Canva or Google Slides to build this deck.
-3.  **The Opposition Research (Use the provided Web App):** Using the digital *Halifax West Opposition Research Hub*, students must read the platforms of their rivals and draft **one highly specific, respectful attack question** targeting a flaw in a rival's plan.
+3.  **The Opposition Research (Use the provided Web App):** Using the digital *Bicentennial Opposition Research Hub*, students must read the platforms of their rivals and draft **one highly specific, respectful attack question** targeting a flaw in a rival's plan.
 
 ---
 

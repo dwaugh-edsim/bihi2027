@@ -33,7 +33,7 @@
 17. What is the primary aim of "Bill C-61"?
 18. How many long-term drinking water advisories currently exist across the 13 First Nations in Nova Scotia?
 19. What percentage of wastewater systems nationwide still fail to meet effluent regulations?
-20. At what age did student Lachlan McMahon start his job at the Canada Games Centre?
+20. At what age did student Student08 start his job at the Canada Games Centre?
 21. How much money has the government set aside for "work-integrated learning opportunities" between 2026 and 2029?
 22. What is the specific age range of young people helped by the Youth Employment and Skills Strategy (YESS)?
 23. What was the reported unemployment rate for people aged 13-24 in Canada? (Compare this to the UK or China if you can!)

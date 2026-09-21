@@ -10,63 +10,76 @@
 
 ---
 
-## Unit 1 — Engaged Citizenship (Service Learning Project)
+## Unit 1 — Who Am I as a Citizen? (WHERE Project + Government Foundations)
+
+*Unit 1 is assessed through the **WHERE Project Portfolio (10%)** and the **Civic Foundations portfolio** — there is no U1 unit test. The Class 8 content check is formative. The Service Learning spine relaunches in Term 2 (Classes 26–30) — its vocabulary lives at the bottom of this section.*
 
 ### Curriculum Indicators (the filter)
-- Evaluate the merit of a collaboratively-selected need
-- Evaluate personal skills, strengths and interests in relation to the service learning project
-- Plan a service learning project to achieve the goal
-- Implement a service learning plan
-- Evaluate the development of citizenship skills in relation to the service learning project
+- Compare rights and responsibilities as current and future citizens
+- Investigate how worldview impacts understanding of citizenship
+- Investigate the structure and operation of government in Canada *(early foundation — deepened in Unit 5)*
 
-### Key Vocabulary
-- **Service learning** [HIGH] — Learning by doing real work that helps a community; combines action with reflection.
-- **Community need** [HIGH] — A real problem or gap in the school, neighbourhood, or wider community.
-- **Stakeholder** [MEDIUM] — Anyone affected by or interested in the project (students, partners, community members).
-- **Action plan** [HIGH] — A written plan with a goal, steps, people, timeline, resources, and a way to measure success.
-- **Reflection** [HIGH] — Looking honestly at what happened, what was learned, what worked, and what to change.
-- **Citizenship skills** [HIGH] — Skills used to take part in community life: communication, planning, teamwork, advocacy, problem-solving.
-- **Sustainability** [MEDIUM] — Whether the project's impact or activities can keep going after the first effort.
-- **Community partner** [MEDIUM] — An outside group or organization that helps the school run the project.
-- **Personal strengths** [MEDIUM] — The skills, talents, and qualities a student brings to the project.
-- **Civic action** [LOW] — Any action a citizen takes to address a community issue.
-- **Goal setting** [MEDIUM] — Deciding what to achieve and how to get there.
+### Key Vocabulary (the Class 8 check draws from these)
+- **Civic identity** [HIGH] — who you are as a member of your school, community, province, country, and world.
+- **Worldview** [HIGH] — the lens (culture, family, experience, place) through which a person understands citizenship and belonging.
+- **Jurisdiction** [HIGH] — the authority of a government to make and enforce laws over an area or subject.
+- **Federal jurisdiction** [HIGH] — powers assigned to Canada under the *Constitution Act, 1867* (s. 91): defence, currency, criminal law, Indigenous matters, trade and tariffs, postal service.
+- **Provincial jurisdiction** [HIGH] — powers assigned to the provinces (s. 92): healthcare, education, highways, natural resources, property and civil rights.
+- **Municipal delegation** [HIGH] — municipalities have only the powers the province gives them: zoning, transit, recreation, garbage, local bylaws.
+- **Bylaw** [HIGH] — a law made by a municipal government under delegated authority (e.g., an HRM zoning bylaw).
+- **Directive** [MEDIUM] — an instruction from a provincial ministry governing how schools and agencies operate (e.g., the NS school cellphone directive).
+- **Statute** [MEDIUM] — a law passed by a federal or provincial legislature.
+- **YCJA** [MEDIUM] — the *Youth Criminal Justice Act* (2003), the federal law governing 12–17-year-olds.
+- **Accountability, proportionality, rehabilitation** [MEDIUM] — YCJA s. 3 principles: young people are accountable, consequences must fit the offence, and the system aims to rehabilitate and reintegrate.
 
 ### Core Concepts
-1. **Service learning is not just volunteering.** [TESTABLE] Service learning combines real community action with reflection and academic learning. Volunteering helps others; service learning also helps the student learn and grow as a citizen.
-2. **Evaluating a community need before acting.** [TESTABLE] Students should ask: Is the need real? Can our effort make a measurable difference? Is the partner credible? Will students be safe and respected? Evaluating the merit of a need comes *before* the project starts.
-3. **Planning makes service learning work.** [TESTABLE] An action plan names the goal, the people, the steps, the timeline, the resources, and how success will be measured. Plans usually change — having one makes changes easier.
-4. **Reflection is required, not optional.** [TESTABLE] Reflection is where most of the learning happens. Students look at what they did, what worked, what didn't, what they learned about themselves, and what they would do differently.
-5. **Citizenship skills grow through practice.** [TESTABLE] Skills like communication, planning, teamwork, and advocacy are not just for school — they transfer to work, voting, volunteering, and family life.
+1. **Citizenship is layered and personal.** [TESTABLE] A Grade 9 student is a citizen of a school, a neighbourhood, a province, a country, and a world — and their five significant places can span all of those layers.
+2. **Worldview shapes what "good citizen" means.** [TESTABLE] A worldview built on individual rights frames citizenship as personal freedom; one built on collective responsibility frames it as reciprocity. Neither is automatically correct — both are real.
+3. **Government in Canada is layered by enumerated powers.** [TESTABLE] Federal (s. 91), provincial (s. 92), municipal (delegated). Knowing which level holds which power tells you *who can actually act* on an issue.
+4. **Every policy issue has a level — often more than one.** [TESTABLE] Housing = municipal zoning + provincial directives + federal programs. Tariffs = federal trade law with provincial ripple effects. The school cellphone ban = a provincial directive implemented by schools.
+5. **Youth justice balances accountability with rehabilitation.** [TESTABLE] The YCJA treats young people as accountable but developing — consequences should be proportionate and aim at reintegration, not just punishment.
 
 ### NS-Specific Content
-- **Possible NS partners (teacher verify current names):** food banks (Feed Nova Scotia), shelters, the Ecology Action Centre, Mi'kmaw community centres (only with a formal invitation from the community), youth organizations, and libraries.
-- **NS service themes:** coastal cleanup, food insecurity, Mi'kmaw cultural revitalization, youth mental health, rural internet access, affordable housing.
-- Class projects usually run in groups of 3–5 so each project has at least three roles: lead, communicator, recorder.
+- **Housing:** HRM zoning bylaws (municipal), provincial housing directives, federal housing programs — all three levels, one issue.
+- **Cellphone directive:** announced June 2024, in force since the 2024–25 school year — personal devices off and out of sight during instructional time in all NS public schools.
+- **Minimum wage (for Unit 3):** NS minimum wage is **$16.75/hr (April 1, 2026)**, rising to **$17.00/hr on October 1, 2026**.
+- **WHERE Project:** five Places of Significance mapped in the StoryMap Studio; graded asynchronously on the Progress Dashboard (place authenticity, caption evidence, range, completion).
 
-### Sample Test Items
+### Sample Test Items (Class 8 formative check — full bank in `cit9-u1-quiz-bank.md`)
 
-**Q1 — Multiple choice.** What is the main difference between volunteering and service learning?
-- a) Volunteering pays money; service learning does not.
-- b) Service learning combines real action with reflection and academic learning.
-- c) Volunteering happens at school; service learning happens outside.
-- d) There is no difference.
+**Q1 — Multiple choice.** The rule that personal cellphones must be off and away during class exists because of:
+- a) An HRM bylaw
+- b) A provincial directive
+- c) A federal statute
+- d) A school fundraiser decision
 **Answer:** b
 
-**Q2 — Short answer.** Name three things that should appear in a service learning action plan.
-**Model answer:** A goal, a timeline with steps and deadlines, the people responsible, the resources needed, and a way to measure success. (Any three of these or close equivalents.)
+**Q2 — Multiple choice.** Tariffs on imported goods are set by which level of government?
+- a) Municipal
+- b) Provincial
+- c) Federal
+- d) School boards
+**Answer:** c
 
-**Q3 — Scenario.** Your partner organization says they need help this Saturday, but the school schedule does not allow it. What should your group do first?
-**Model answer:** Revisit the action plan. Look at the timeline, the roles, and the backup plan. Contact the partner to renegotiate the date or shift tasks within the rules already agreed on. Do not just ignore the partner.
+**Q3 — Multiple choice.** A rule about what can be built on a specific Halifax street is an example of:
+- a) A federal statute
+- b) A provincial directive
+- c) A municipal bylaw
+- d) A YCJA provision
+**Answer:** c
 
-**Q4 — Reflect.** Describe one personal strength you bring to group work and explain why matching strengths to roles matters.
-**Model answer:** Any strength is fine as long as the student names it clearly (e.g., "I'm good at talking to new people") and links it to a project role. The "why it matters" part should explain that matching strengths makes the project work better and that everyone has something to contribute.
+**Q4 — Short answer.** Why do we say municipal powers are "delegated" rather than "enumerated"?
+**Model answer:** Municipalities get only the powers the province gives them (delegation). Federal and provincial powers are written directly into the Constitution (enumerated, s. 91 and s. 92). A city can't invent a power the province hasn't handed over.
 
-**Q5 — Evaluate.** A project helped only three people, but every student in the class says they grew a lot as a citizen. Was the project successful? Defend your answer.
-**Model answer:** Marked successful on personal growth grounds, with the caveat that future projects should aim for more reach. Or marked partially successful, with a clear explanation of what "success" means to the student. Both answers are acceptable if defended well — the test is the quality of reasoning.
+**Q5 — Scenario.** A harbour's water quality is making people sick. Name one action each level of government could legally take.
+**Model answer:** Federal — navigation/shipping and fisheries law, criminal-law penalties for pollution. Provincial — environmental regulations, health directives. Municipal — local sewer/stormwater bylaws, waterfront zoning. (Any reasonable action per level.)
 
-**Q6 — Short essay (Unit 1).** Explain why reflection is described as "required, not optional" in service learning. Use one specific example from a project you have done or could imagine doing.
-**Model answer (3–5 sentences):** Reflection is where the learning gets locked in. Doing the project without reflecting is like reading a book without thinking about it — the experience slides off. A specific example: after a food drive, a student reflects that they learned how to talk to strangers and that they underestimated how much time sorting donations takes. They now know what to change for next time. Reflection turns action into growth.
+**Q6 — Reflect.** Name one responsibility you already carry as a citizen and one that arrives at 18.
+**Model answer:** Any honest current responsibility (following school rules, contributing to household/community); at 18 — voting, jury duty eligibility, contracts, full legal adulthood.
+
+### Service Learning Project — spine vocabulary (Terms 2–3; assessed by project rubrics, no unit test)
+- **Service learning** [HIGH] — learning by doing real work that helps a community; combines action with reflection (volunteering helps others; service learning also helps the citizen grow).
+- **Community need** [HIGH] · **Stakeholder** [MEDIUM] · **Action plan** [HIGH] · **Reflection** [HIGH] · **Citizenship skills** [HIGH] · **Reciprocity** [MEDIUM] — the partner gives as much as they receive; the opposite of extractive "charity" · **Sustainability** [MEDIUM] · **Community partner** [MEDIUM].
 
 ---
 
@@ -87,7 +100,9 @@
 - **Responsibilities** [HIGH] — Duties you have as a member of a community (obey laws, vote, pay taxes, respect others).
 - **Worldview** [HIGH] — The set of beliefs and values through which a person understands the world. Shaped by culture, family, and experience.
 - **Treaty** [HIGH] — A formal agreement between nations. In Canada, this refers both to historical treaties with Indigenous nations and to the Constitution Act, 1982.
-- **Peace and Friendship Treaties** [HIGH] — Treaties between the British Crown and the Mi'kmaq (1725–1779). These were agreements to share territory peacefully — *not* surrenders of land. (See Timeline.)
+- **Peace and Friendship Treaties** [HIGH] — Treaties between the British Crown and the Mi'kmaq (1725–1779 series; key NS instruments **1752** and **1760–61**). These were agreements of coexistence and trade — *not* surrenders of land. The **1760 truckhouse clause** promised Mi'kmaq the ability to bring goods to trade at Crown truckhouses — the legal seed of the "moderate livelihood" right confirmed in *R. v. Marshall* (1999). (See Timeline.)
+- **Netukulimk** [MEDIUM] — Mi'kmaw concept: "the use, protection and stewardship of the land and resources provided by the Creator for the sustenance and well-being of the Mi'kmaq" (Assembly of NS Mi'kmaw Chiefs). A worldview of reciprocity and stewardship — not maximizing yield. Connected to **msit no'kmaq** ("all my relations").
+- **Seven Districts of Mi'kma'ki** [MEDIUM] — the traditional districts: **Unama'kik** (Cape Breton), **Sipekne'katik** (central mainland NS), **Kespukwitk** (southwestern NS), **Eskikewa'kik** (eastern shore NS), **Epekwitk** (PEI), **Siknikt** (Chignecto isthmus region), **Kespek** (Gaspé). Spelling varies across sources; verify current usage with Mi'kmaw sources before assessing. (Verified against heritage.nf.ca, Mi'kmawey Debert Cultural Centre, and MKI materials, Sept 2026.)
 - **Reconciliation** [HIGH] — The ongoing work of building respectful relationships between Indigenous and non-Indigenous peoples in Canada, addressing past harms and current inequities.
 - **Residential schools** [HIGH] — Government- and church-run schools that took Indigenous children from their families (late 1800s–1996). The TRC described their legacy as *cultural genocide*.
 - **Indian Act** [MEDIUM] — A federal law first passed in 1876 that controls status, bands, and reserves. It still has many rules from that era and is widely seen as unfair. (See Cross-Reference.)
@@ -132,7 +147,9 @@
 ### Timeline — Grade 9 Essentials
 *Less is more. These are the dates students should be able to place.*
 
-- **1760–1761** — Treaties signed in Halifax and elsewhere. Peace and friendship agreements between the British Crown and Mi'kmaw chiefs. *Why it matters:* These treaties — not surrenders of land — are still the legal basis of the Crown–Mi'kmaq relationship today.
+- **1725–1779** — Peace and Friendship treaty series era. *Why it matters:* These are coexistence and trade agreements — not land surrenders — and they remain the legal basis of the Crown–Mi'kmaq relationship today.
+- **1752** — Treaty signed at Halifax (Governor Hopson and Chief Jean-Baptiste Cope). *Why it matters:* A key NS instrument promising peace, hunting/fishing rights, and trade protection — the treaty at the heart of the `Leo-1752` simulation.
+- **1760–1761** — Treaties signed in Halifax and elsewhere, including the **truckhouse clause** (Crown-run trade houses where Mi'kmaq could sell goods). *Why it matters:* The truckhouse promise is the legal seed of the "moderate livelihood" right the Supreme Court confirmed in 1999.
 - **1876** — *Indian Act* first passed. *Why it matters:* Created the legal framework that has controlled Indigenous identity, bands, and reserves ever since.
 - **1920** — Residential school attendance made mandatory by law. *Why it matters:* Made forced removal of children a legal duty, not a choice.
 - **1930–1967** — Shubenacadie Indian Residential School (NS) is open. *Why it matters:* The only residential school in the Maritimes; a direct NS link.
@@ -368,7 +385,7 @@
 2. **"Canadian values" is a contested phrase.** [TESTABLE] Sometimes "Canadian values" is used to include everyone; sometimes it is used politically to exclude newcomers, Indigenous people, or minority views. Students should be able to spot the difference.
 3. **Government in Canada is layered.** [TESTABLE] Federal (Canada), provincial/territorial (e.g., NS), municipal (cities/towns), and Indigenous (traditional and modern). Each level has its own areas. Section 35 of the Constitution affects how the federal and provincial governments interact with Indigenous governments.
 4. **Citizens can work inside or outside government.** [TESTABLE] *Inside:* voting, running for office, writing elected officials, joining civic organizations, registered lobbying. *Outside:* petitions, protests, social media campaigns, mutual aid, civil disobedience. Both are legitimate. Many rights Canadians have today were won by movements outside government.
-5. **Protests and resistance have shaped Canada.** [TESTABLE] Idle No More (2012–), the 1999 Burnt Church fishery dispute, the 2020 Sipekne'katik lobster dispute, the Ipperwash Crisis (1995, Dudley George), women's suffrage marches, climate strikes — all are examples of citizens acting outside formal political structures. Protest is protected under the Charter (sections 2(b) and 2(c)) but is not unlimited; hate speech, incitement, and violence are crimes.
+5. **Protests and resistance have shaped Canada.** [TESTABLE] Idle No More (2012–), the 1999 Burnt Church fishery dispute, the 2020 Sipekne'katik lobster dispute, the Ipperwash Crisis (1995, Dudley George), women's suffrage marches, climate strikes — all are examples of citizens acting outside formal political structures. Protest is protected under the Charter — **Section 2(b) guarantees freedom of expression; Section 2(c) guarantees freedom of peaceful assembly** — and limited by **Section 1**; hate speech, incitement, and violence are crimes. *(Do not teach 2(b) as "assembly" — that is the 2(c) right. This correction matters: it appeared incorrectly in earlier test drafts.)*
 6. **Democracy is uneven.** [TESTABLE] Some voices are more powerful than others, based on wealth, location, language, race, age, time, and networks. Voter turnout in Canada is lower among young people, low-income people, and Indigenous communities — for reasons of access, trust, distance, and historic exclusion.
 7. **Mi'kmaw governance is both traditional and modern.** [TESTABLE] Traditionally, Mi'kmaw communities were led by District Chiefs and the Grand Council (Santé Mawio'mi), with decisions made collectively. The *Indian Act* (1876) imposed elected band councils that replaced (and sometimes ran alongside) traditional structures. Many NS communities are now working toward self-government agreements that recognize Mi'kmaw authority.
 

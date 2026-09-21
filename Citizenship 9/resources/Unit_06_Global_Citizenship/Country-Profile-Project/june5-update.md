@@ -4,11 +4,11 @@
 Previous teacher feedback is stored in the dashboard's `studentFeedback` object on the "Country Topics & Sign-Up" tab. This document shows the current state of each project as of June 5, with praise for work done and continued guidance for what's still needed.
 
 ## Summary of Progress
-- **Strong response to feedback:** 4 projects (Turkey, Elizabeth/Alia, Remy, Farhan)
-- **Partial response:** 3 projects (Kendra/Zankia, Madhavan/Leo, Huda, Ali/Kai)
+- **Strong response to feedback:** 4 projects (Turkey, Student16/Student18, Student06, Student01)
+- **Partial response:** 3 projects (Student23/Student24, Student05/Student15, Student13, Student27/Student28)
 - **No response (but project was already strong):** 1 project (North Korea - reviewed late yesterday)
-- **No response to feedback (project still weak):** 3 projects (Natalia, Evie/Brazil, Jessa/Philippines)
-- **New projects needing first-time feedback:** 1 (Delisha/Germany)
+- **No response to feedback (project still weak):** 3 projects (Student29, Student25/Brazil, Student21/Philippines)
+- **New projects needing first-time feedback:** 1 (Student22/Germany)
 
 ---
 
@@ -36,7 +36,7 @@ I love that you chose the Amazon. It often gets called "the lungs of the Earth" 
 
 ---
 
-### MADHAVAN & LEO (Topic 3 - India, Air Pollution) - Topic 3
+### Student05 & Student15 (Topic 3 - India, Air Pollution) - Topic 3
 **Status: Some progress - added slide titles. Now needs content.**
 
 **What I see:**
@@ -56,7 +56,7 @@ I love that you chose the Amazon. It often gets called "the lungs of the Earth" 
 
 ---
 
-### ZANKIA & KENDRA (Topic 8 - South Africa, Income Inequality) - Topic 8
+### Student24 & Student23 (Topic 8 - South Africa, Income Inequality) - Topic 8
 **Status: Good progress on slides 3-4. The statistics work is excellent.**
 
 **Praise:**
@@ -177,7 +177,7 @@ Your presentation is organized beautifully! Having a slide dedicated to each sec
 
 ---
 
-### FARHAN (Topic 32 - Syria, Civil War/Refugee Crisis) - Topic 32
+### STUDENT01 (Topic 32 - Syria, Civil War/Refugee Crisis) - Topic 32
 **Status: Continued depth added. Excellent research, presentation needs condensing.**
 
 **Praise:**
@@ -215,11 +215,11 @@ Great choice of topic, guys! The Nile River water dispute (especially with the c
 
 ---
 
-### LACHLAN & LACHLAN (Topic 31 - North Korea, Nuclear Weapons) - Topic 31
+### Student08 & Student08 (Topic 31 - North Korea, Nuclear Weapons) - Topic 31
 **Status: This feedback was just given yesterday, so no action expected yet.**
 
 **What's looking great:**
-This is a great project, Lachlans! North Korea is endlessly fascinating, especially given the secrecy. You've done some very solid research into how isolation creates a global security crisis, and your analysis of how they use selective alliances and tourism to manage their image is very insightful. Great job including Canada's maritime monitoring response! For your Canada section, you could also mention that we've had diplomatic relations since 2001 under a "controlled engagement policy" (accredited via Seoul), and that Global Affairs Canada has an active ["Avoid all travel" warning](https://travel.gc.ca/destinations/north-korea) due to risks of arbitrary detention.
+This is a great project, Student08s! North Korea is endlessly fascinating, especially given the secrecy. You've done some very solid research into how isolation creates a global security crisis, and your analysis of how they use selective alliances and tourism to manage their image is very insightful. Great job including Canada's maritime monitoring response! For your Canada section, you could also mention that we've had diplomatic relations since 2001 under a "controlled engagement policy" (accredited via Seoul), and that Global Affairs Canada has an active ["Avoid all travel" warning](https://travel.gc.ca/destinations/north-korea) due to risks of arbitrary detention.
 
 **Next steps to focus on:**
 - **Clarify the direction of aid:** On Slide 4, you mention that North Korea builds alliances by promising food and healthcare to other countries. Double-check your sources on this! North Korea actually struggles with severe domestic food and healthcare shortages and is typically the recipient of aid rather than the provider. In fact, food aid helps keep the country afloat. Some historians, political scientists (and also me!), would argue that North Korea uses its nuclear threats to shake other countries down for food aid! It is a crazy dynamic: you can see long lines of aid trucks heading to the border from South Korea, the exact same country that North Korea has hundreds of thousands of artillery cannons aimed at across the border toward the capital, Seoul.
@@ -270,7 +270,7 @@ The Philippines is a perfect country choice for studying natural disasters and c
 
 ---
 
-### DELISHA (Germany - Energy Transition & Renewable Energy) - NEW
+### Student22 (Germany - Energy Transition & Renewable Energy) - NEW
 **Critical issue:** This file is a German-language Slidesgo template with placeholder text about planets. None of the slides contain actual project content.
 
 **What needs to happen:**
@@ -297,10 +297,10 @@ The Philippines is a perfect country choice for studying natural disasters and c
 
 ## Summary for You (Teacher)
 
-The students who responded to feedback made meaningful progress today. The Turkey project is essentially complete. Elizabeth/Alia and Remy are close. Kendra/Zankia made strong progress on their statistics. Farhan continued to add depth.
+The students who responded to feedback made meaningful progress today. The Turkey project is essentially complete. Student16/Student18 and Student06 are close. Student23/Student24 made strong progress on their statistics. Student01 continued to add depth.
 
 For students who haven't responded yet - they may just not have had a chance to look at the feedback. The original feedback in the dashboard still applies and can guide their next steps.
 
-The only new project is Delisha's Germany, which needs to be rebuilt from scratch.
+The only new project is Student22's Germany, which needs to be rebuilt from scratch.
 
-Consider sharing praise for the strong responders (Jana, Elizabeth/Alia, Remy, Kendra/Zankia) with the class as motivation. The students who haven't responded may benefit from a check-in conversation or a more concrete deadline.
+Consider sharing praise for the strong responders (Student26, Student16/Student18, Student06, Student23/Student24) with the class as motivation. The students who haven't responded may benefit from a check-in conversation or a more concrete deadline.

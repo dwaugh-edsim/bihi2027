@@ -11,13 +11,13 @@
 const SS_ID = null;
 
 const PIN_LIST = {
-  'Farhan': 'HRNH', 'Abdul': 'ALZZ', 'Joshua A': 'RUXG', 'Clark': '9F3K',
-  'Madhavan': 'R4MT', 'Remy': 'YMRP', 'Yunho': 'T4N5', 'Lachlan McM': 'FFAN',
-  'Lachlan Mac': '25VT', 'Nolan': 'KFK6', 'Laila': 'V4BC', 'Josie': 'MVQW',
-  'Huda': '6SUB', 'Brody': 'JY2P', 'Leo': 'RKKJ', 'Elizabeth': 'FNG3',
-  'Fatima': 'T6U2', 'Alia': 'LJFM', 'Rifa': '57G5', 'Sarah': '96EU',
-  'Jessa': 'HSZU', 'Delisha': 'Q2YA', 'Kendra': 'MTGG', 'Zankia': 'CA3J',
-  'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8', 'Natalia': 'RING', 'Isaac': 'CASK', 'Dave': 'TCHR'
+  Student01: 'HRNH', Student02: 'ALZZ', Student03: 'RUXG', Student04: '9F3K',
+  Student05: 'R4MT', Student06: 'YMRP', Student07: 'T4N5', Student08: 'FFAN',
+  Student09: '25VT', Student10: 'KFK6', Student11: 'V4BC', Student12: 'MVQW',
+  Student13: '6SUB', Student14: 'JY2P', Student15: 'RKKJ', Student16: 'FNG3',
+  Student17: 'T6U2', Student18: 'LJFM', Student19: '57G5', Student20: '96EU',
+  Student21: 'HSZU', Student22: 'Q2YA', Student23: 'MTGG', Student24: 'CA3J',
+  Student25: 'R7SX', Student26: 'TT8D', Student27: 'D2ZD', Student28: 'VFW8', Student29: 'RING', Student30: 'CASK', 'Dave': 'TCHR'
 };
 
 function getSheet() {

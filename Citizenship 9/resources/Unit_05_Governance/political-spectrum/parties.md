@@ -125,4 +125,4 @@ Now you know how the real ones do it. 🇨🇦
 
 ---
 
-*Citizenship 9 — Halifax West Election Challenge*
+*Citizenship 9 — Bicentennial Election Challenge*
