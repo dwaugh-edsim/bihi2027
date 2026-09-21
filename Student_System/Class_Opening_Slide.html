@@ -292,6 +292,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .panel h2 { font-size: 1.15rem; letter-spacing: 0.5px; margin-bottom: 12px; }
 .panel.today { flex: 1.6; }
+/* When live task progress is on screen it becomes the primary column */
+.content.has-progress .panel.today { flex: 0.75; }
+.content.has-progress .panel.announce { flex: 0 0 auto; }
+.content.has-progress .content-side { flex: 2.1; }
+.content.has-progress .agenda li { font-size: 1.18rem; padding: 6px 0; }
+.content.has-progress .last-line { font-size: 0.92rem; margin-bottom: 8px; }
 .panel.announce { flex: 1; border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
 .last-line { font-size: 1.02rem; color: var(--text-muted); margin-bottom: 14px; }
 .last-line b { color: var(--text-heading); }
@@ -515,18 +521,18 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     gap: 8px;
     margin-bottom: 2px;
 }
-.prog-head-row h2 { margin: 0; font-size: 1.15rem; }
+.prog-head-row h2 { margin: 0; font-size: 1.3rem; }
 .prog-task-badge {
     font-family: var(--font-mono);
-    font-size: 0.74rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--blue);
     background: var(--blue-bg);
     border: 1px solid var(--blue-border);
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 4px;
     display: inline-block;
-    max-width: 250px;
+    max-width: 340px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -542,21 +548,21 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     background: var(--bg-page);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 0.82rem;
+    padding: 5px 12px;
+    font-size: 0.95rem;
     color: var(--text-dim);
     font-weight: 600;
 }
 .prog-stat-chip b {
     font-family: var(--font-mono);
     color: var(--text-heading);
-    font-size: 0.92rem;
+    font-size: 1.05rem;
     margin-right: 3px;
 }
 .prog-class-bar-wrap {
-    height: 9px;
+    height: 12px;
     background: #e2e8f0;
-    border-radius: 5px;
+    border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
 }
@@ -567,23 +573,24 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .prog-list-wrap {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-content: start;
     padding-right: 4px;
-    max-height: 280px;
 }
 .prog-row {
     background: var(--bg-page);
     border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 6px 10px;
+    border-radius: 8px;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    font-size: 0.88rem;
+    font-size: 1.02rem;
 }
 .prog-row-lead {
     font-weight: 700;
@@ -595,7 +602,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 .prog-row-partner {
     color: var(--text-dim);
     font-weight: 500;
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     margin-left: 5px;
 }
 .prog-row-meter {
@@ -607,16 +614,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 .prog-row-val {
     font-family: var(--font-mono);
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     color: var(--text-main);
-    min-width: 44px;
+    min-width: 52px;
     text-align: right;
 }
 .prog-mini-bar {
-    width: 60px;
-    height: 6px;
+    width: 96px;
+    height: 8px;
     background: #cbd5e1;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
 }
 .prog-mini-fill {
@@ -962,6 +969,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     let slides = (window.CLASS_LOG_SEED && window.CLASS_LOG_SEED.slides) || {};
     let live = false;
     let current = null;
+    let manualPick = false; // teacher picked a section — stop auto-switching
     const PIN_KEY = 'room8_class_log_pin';
 
     // ---------- date / period helpers ----------
@@ -1003,13 +1011,18 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             const nowSec = todaysSections().find(sec => meetingToday(sec).p === p);
             if (nowSec) return nowSec;
         }
-        // outside a period: next class still ahead today, else last remembered, else first today
+        // outside a period: next class still ahead today (by start time, not list
+        // order), else last remembered, else first today
         const now = minutesNow();
-        const upcoming = todaysSections().find(sec => {
+        let upcoming = null, upcomingStart = Infinity;
+        for (const sec of todaysSections()) {
             const m = meetingToday(sec);
             const bell = BELLS.find(b => b[0] === m.p);
-            return bell && toMin(bell[1]) > now;
-        });
+            if (bell && toMin(bell[1]) > now && toMin(bell[1]) < upcomingStart) {
+                upcoming = sec;
+                upcomingStart = toMin(bell[1]);
+            }
+        }
         if (upcoming) return upcoming;
         const remembered = localStorage.getItem('room8_slide_section');
         if (remembered && MEET[remembered]) return remembered;
@@ -1175,15 +1188,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // ---------- events ----------
     document.getElementById('dayStrip').addEventListener('click', ev => {
         const chip = ev.target.closest('[data-sec]');
-        if (chip) setSection(chip.getAttribute('data-sec'));
+        if (chip) setSection(chip.getAttribute('data-sec'), { manual: true });
     });
     document.getElementById('sectionPick').addEventListener('click', ev => {
         const chip = ev.target.closest('[data-pick]');
-        if (chip) setSection(chip.getAttribute('data-pick'));
+        if (chip) setSection(chip.getAttribute('data-pick'), { manual: true });
     });
-    function setSection(sec) {
+    function setSection(sec, opts) {
         if (!MEET[sec]) return;
         current = sec;
+        if (opts && opts.manual) manualPick = true;
         localStorage.setItem('room8_slide_section', sec);
         render();
     }
@@ -1530,12 +1544,15 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const prog = await loadProgressFor(sec);
         activeProgressData = prog;
 
+        const contentEl = document.querySelector('.content');
         if (!prog || !prog.records.length) {
             panel.style.display = 'none';
+            contentEl.classList.remove('has-progress');
             return;
         }
 
         panel.style.display = 'flex';
+        contentEl.classList.add('has-progress');
         const cleanName = prog.taskName.replace(/^(HL[89]|CIT9)\s*/, '');
         document.getElementById('progTaskBadge').textContent = cleanName;
         document.getElementById('progTaskBadge').title = prog.taskName;
@@ -1661,9 +1678,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     }
     pill.addEventListener('click', () => refreshLive(false));
     setInterval(() => refreshLive(true), 3 * 60 * 1000);
-    // Re-check the clock every minute: auto-follows the period change
+    // Re-check the clock every minute: auto-follows the period change, but never
+    // overrides a teacher's manual pick (pill / arrow keys) or a ?section= URL pin
     setInterval(() => {
-        if (!new URLSearchParams(location.search).get('section')) setSection(autoPickSection());
+        if (new URLSearchParams(location.search).get('section')) return;
+        if (manualPick) return;
+        setSection(autoPickSection());
     }, 60 * 1000);
 
     document.getElementById('fsBtn').addEventListener('click', () => {
@@ -1688,7 +1708,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             const list = today.length ? today : ORDER;
             const i = list.indexOf(current);
             if (i !== -1) {
-                setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length]);
+                setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length], { manual: true });
                 if (document.getElementById('seatOverlay').classList.contains('open')) renderSeats();
                 if (document.getElementById('progOverlay').classList.contains('open')) renderProgressModal();
             }
