@@ -630,6 +630,13 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     height: 100%;
     background: var(--blue);
 }
+.prog-row.ns { opacity: 0.72; }
+.prog-row-ns {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    font-style: italic;
+}
 
 /* ---------- progress modal overlay ---------- */
 #progOverlay {
@@ -1424,8 +1431,68 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return (seating.homeroomOf || {})[sec] || sec.replace(/-(CIT|HL|HE)$/, '');
     }
 
+    // The assignment each course is working on right now. When set, the progress
+    // panel always reports THIS task — even before anyone has saved — instead of
+    // whichever old task has the most ledger data. Must match the TASK_NAME the
+    // assignment page writes to the GAS ledger.
+    const CURRENT_TASK = {
+        CIT9: 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay'
+    };
+
+    // Pinned-task view: cohort = ledger students of this course (spotted by their
+    // citizenship-task footprints); students without the pinned task show as
+    // "Not started", so a fresh assignment renders correctly at 0.
+    function parsePinnedTaskProgress(students, taskName) {
+        const hasTask = s => s.task === taskName ||
+            (s.assignments && Object.prototype.hasOwnProperty.call(s.assignments, taskName)) ||
+            (s.savedData && s.savedData._tasks && Object.prototype.hasOwnProperty.call(s.savedData._tasks, taskName));
+        const inCourse = s => {
+            const names = [s.task];
+            if (s.assignments) names.push(...Object.keys(s.assignments));
+            if (s.savedData && s.savedData._tasks) names.push(...Object.keys(s.savedData._tasks));
+            return names.some(t => t && /cit|citizenship|rent|where/i.test(t));
+        };
+        const records = [];
+        students.forEach(s => {
+            if (!inCourse(s)) return;
+            let text = '';
+            if (s.task === taskName) text = s.summary || '';
+            if (!text && s.assignments && s.assignments[taskName]) text = s.assignments[taskName];
+            if (!text && s.savedData && s.savedData._tasks && s.savedData._tasks[taskName]) {
+                const t = s.savedData._tasks[taskName];
+                text = (t && (t.summary || (t.data && t.data.summary))) || '';
+            }
+            let done = 0, total = 0;
+            const m = text.match(/(\d+)\s*\/\s*(\d+)/);
+            if (m) { done = parseInt(m[1], 10); total = parseInt(m[2], 10); }
+            let displayName = s.name || '';
+            if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
+            records.push({
+                name: displayName,
+                partner: (s.savedData && s.savedData.partner) || '',
+                done: done, total: total,
+                pct: total > 0 ? Math.round((done / total) * 100) : 0,
+                started: !!text
+            });
+        });
+        records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
+            (b.done - a.done) || a.name.localeCompare(b.name));
+        return {
+            taskName: taskName,
+            pinned: true,
+            records: records,
+            totalActive: records.length,
+            startedCount: records.filter(r => r.started).length,
+            finishedCount: records.filter(r => r.pct === 100).length,
+            classAvg: records.length
+                ? Math.round(records.reduce((a, r) => a + r.pct, 0) / records.length)
+                : 0
+        };
+    }
+
     function parseProgressData(students, course) {
         if (!students || !students.length) return null;
+        if (CURRENT_TASK[course]) return parsePinnedTaskProgress(students, CURRENT_TASK[course]);
         const taskCounts = {};
         students.forEach(s => {
             const candidates = new Set();
@@ -1558,23 +1625,25 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         document.getElementById('progTaskBadge').title = prog.taskName;
 
         document.getElementById('progStatsStrip').innerHTML =
-            `<span class="prog-stat-chip"><b>${prog.totalActive}</b> Active</span>` +
+            `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Active'}</span>` +
             `<span class="prog-stat-chip"><b>${prog.classAvg}%</b> Class Avg</span>` +
             `<span class="prog-stat-chip"><b>${prog.finishedCount}/${prog.totalActive}</b> Done</span>`;
 
         document.getElementById('progClassBarFill').style.width = prog.classAvg + '%';
 
         document.getElementById('progListWrap').innerHTML = prog.records.map(r => `
-            <div class="prog-row">
+            <div class="prog-row${r.started ? '' : ' ns'}">
                 <div class="prog-row-lead">
                     ${escapeHtml(r.name)}
                     ${r.partner ? '<span class="prog-row-partner">+ ' + escapeHtml(r.partner) + '</span>' : ''}
                 </div>
                 <div class="prog-row-meter">
-                    <span class="prog-row-val">${r.done}/${r.total}</span>
-                    <div class="prog-mini-bar">
-                        <div class="prog-mini-fill" style="width:${r.pct}%;background:${r.pct === 100 ? 'var(--emerald)' : 'var(--blue)'};"></div>
-                    </div>
+                    ${r.started && r.total > 0
+                        ? `<span class="prog-row-val">${r.done}/${r.total}</span>
+                            <div class="prog-mini-bar">
+                                <div class="prog-mini-fill" style="width:${r.pct}%;background:${r.pct === 100 ? 'var(--emerald)' : 'var(--blue)'};"></div>
+                            </div>`
+                        : `<span class="prog-row-ns">${r.started ? 'In progress…' : 'Not started'}</span>`}
                 </div>
             </div>
         `).join('');
@@ -1593,12 +1662,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             return;
         }
 
-        document.getElementById('progModalSub').textContent = prog.taskName + ' · Live Class Ledger';
+        document.getElementById('progModalSub').textContent = prog.pinned
+            ? prog.taskName + ' · ' + prog.startedCount + ' of ' + prog.totalActive + ' started'
+            : prog.taskName + ' · Live Class Ledger';
         document.getElementById('progModalStats').innerHTML =
-            `<span class="prog-stat-chip"><b>${prog.totalActive}</b> Students Active</span>` +
+            `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Students Active'}</span>` +
             `<span class="prog-stat-chip"><b>${prog.classAvg}%</b> Class Average</span>` +
             `<span class="prog-stat-chip"><b>${prog.finishedCount}</b> Completed (100%)</span>` +
-            `<span class="prog-stat-chip"><b>${prog.totalActive - prog.finishedCount}</b> In Progress</span>`;
+            `<span class="prog-stat-chip"><b>${prog.totalActive - prog.finishedCount}</b> ${prog.pinned ? 'Not Started' : 'In Progress'}</span>`;
 
         document.getElementById('progModalGrid').innerHTML = prog.records.map(r => `
             <div class="prog-card">
@@ -1609,10 +1680,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                     <div class="prog-card-sub">${r.partner ? 'Partner: ' + escapeHtml(r.partner) : 'Independent / Lead'}</div>
                 </div>
                 <div class="prog-card-right">
-                    <div class="prog-card-ratio">${r.done}/${r.total} <span style="font-size:0.75rem;font-weight:600;color:var(--text-dim);">(${r.pct}%)</span></div>
-                    <div class="prog-card-bar">
-                        <div class="prog-card-fill ${r.pct === 100 ? 'done' : ''}" style="width:${r.pct}%"></div>
-                    </div>
+                    ${r.started && r.total > 0
+                        ? `<div class="prog-card-ratio">${r.done}/${r.total} <span style="font-size:0.75rem;font-weight:600;color:var(--text-dim);">(${r.pct}%)</span></div>
+                            <div class="prog-card-bar">
+                                <div class="prog-card-fill ${r.pct === 100 ? 'done' : ''}" style="width:${r.pct}%"></div>
+                            </div>`
+                        : `<div class="prog-card-ratio" style="color:var(--text-dim);font-style:italic;">${r.started ? 'In progress…' : 'Not started'}</div>`}
                 </div>
             </div>
         `).join('');
