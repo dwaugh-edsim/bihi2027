@@ -896,6 +896,7 @@ const ASSIGNMENT = {
                 }
             }
             const answers = data.answers || data;   // tolerate flat legacy payloads
+            const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
             for (const f of ALL_FIELDS) {
                 const v = answers[f.id];
                 if (v === undefined || v === null) continue;
@@ -903,7 +904,23 @@ const ASSIGNMENT = {
                     setChips(f.id, v);
                 } else {
                     const el = document.getElementById(`f_${f.id}`);
-                    if (el) el.value = v;
+                    if (el) {
+                        if (el.tagName === 'SELECT') {
+                            el.value = v;
+                            if (el.value !== v && v) {
+                                // Dash / encoding tolerant matching for select dropdowns
+                                const vNorm = norm(v);
+                                for (const opt of el.options) {
+                                    if (norm(opt.value) === vNorm || (vNorm.length > 5 && norm(opt.value).startsWith(vNorm.slice(0, 15)))) {
+                                        el.value = opt.value;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            el.value = v;
+                        }
+                    }
                 }
             }
             updateProgress(collectData());
@@ -1195,9 +1212,11 @@ const ASSIGNMENT = {
         }
 
         // ── Cloud sync ───────────────────────────────────────────
+        let cloudFetchFailed = false;
         async function loadCloudWorkForStudent(cls, pin, name) {
             showToast(`Loading saved work for ${name} (${pin})...`);
             updateSyncPill('saving', 'Loading');
+            cloudFetchFailed = false;
 
             const key = draftKey(pin);
             const localDraft = key ? localStorage.getItem(key) : null;
@@ -1211,6 +1230,13 @@ const ASSIGNMENT = {
 
             try {
                 const res = await StudentAPI.login(cls, name, pin, ASSIGNMENT.course);
+                if (!res || res.status === 'offline' || res.error || !res.savedData) {
+                    cloudFetchFailed = true;
+                    updateSyncPill('error', 'Cloud busy / offline');
+                    showToast(`⚠️ Cloud busy or network hiccup for ${name}. Click "Switch Student / Login" to retry.`, true);
+                    return;
+                }
+
                 if (res && res.savedData) {
                     let d = res.savedData;
                     if (typeof d === 'string') {
@@ -1224,21 +1250,48 @@ const ASSIGNMENT = {
                     // Task-specific extraction: check _tasks[ASSIGNMENT.taskName] FIRST to isolate assignments
                     let targetData = null;
                     let tObj = null;
-                    if (d && d._tasks && d._tasks[ASSIGNMENT.taskName]) {
-                        tObj = d._tasks[ASSIGNMENT.taskName];
-                        targetData = tObj.data || tObj;
+                    let rawTasks = d && d._tasks;
+                    if (typeof rawTasks === 'string') {
+                        try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                    }
+                    if (rawTasks && typeof rawTasks === 'object') {
+                        tObj = rawTasks[ASSIGNMENT.taskName] ||
+                               Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('dimensions'))?.[1];
+                        if (tObj) {
+                            targetData = tObj.data || tObj;
+                        }
                     }
                     if (!targetData) {
                         targetData = d;
                     }
+                    if (typeof targetData === 'string') {
+                        try { targetData = JSON.parse(targetData); } catch (e) {}
+                    }
+                    if (targetData && typeof targetData.answers === 'string') {
+                        try { targetData.answers = JSON.parse(targetData.answers); } catch (e) {}
+                    }
 
                     if (targetData && (targetData.answers || targetData.auditors)) {
-                        // NEWER-WINS CONFLICT RESOLUTION
+                        const cloudCount = countCompleted(targetData);
+                        const localCount = countCompleted(localObj);
                         const cloudAt = Date.parse(tObj && tObj.updated) || 0;
                         const localAt = draftSavedAt(localObj);
 
-                        if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(targetData)) {
-                            // Local is genuinely newer: keep it, restore it, and push to cloud
+                        // RULE 1: Real work ALWAYS trumps empty placeholders!
+                        // If local has answers but cloud is empty/blank (e.g. from an empty initial autosave today), local wins!
+                        if (localObj && localCount > 0 && cloudCount === 0) {
+                            restoreFormData(localObj);
+                            if (key) {
+                                localStorage.setItem(key, JSON.stringify({ ...localObj, savedAt: new Date().toISOString() }));
+                            }
+                            showToast(`Restored your saved work from this device, ${name}!`);
+                            updateSyncPill('synced', 'Device draft saved');
+                            submitWork(false); // Push real work to cloud immediately
+                            return;
+                        }
+
+                        // RULE 2: Local has more completed answers and is newer
+                        if (localObj && localAt > cloudAt + 30000 && localCount > cloudCount) {
                             restoreFormData(localObj);
                             showToast('Restored newer draft saved on this device.');
                             updateSyncPill('synced', 'Local newer');
@@ -1246,18 +1299,20 @@ const ASSIGNMENT = {
                             return;
                         }
 
-                        // Cloud newer (or tie): server wins
-                        restoreFormData(targetData);
-                        if (key) {
-                            localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                        // RULE 3: Cloud has equal or more work (or is valid)
+                        if (cloudCount >= localCount || cloudCount > 0) {
+                            restoreFormData(targetData);
+                            if (key) {
+                                localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                            }
+                            const now = new Date();
+                            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            updateSyncPill('synced', timeStr);
+                            const btn = document.getElementById('btnVerifyCert');
+                            if (btn) btn.style.display = 'inline-flex';
+                            showToast(`Restored your cloud work, ${name}!`);
+                            return;
                         }
-                        const now = new Date();
-                        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        updateSyncPill('synced', timeStr);
-                        const btn = document.getElementById('btnVerifyCert');
-                        if (btn) btn.style.display = 'inline-flex';
-                        showToast(`Restored your cloud work, ${name}!`);
-                        return;
                     }
                 }
                 if (localObj && countCompleted(localObj) > 0) {
@@ -1269,6 +1324,7 @@ const ASSIGNMENT = {
                 }
             } catch (e) {
                 console.warn('GAS fetch error:', e);
+                cloudFetchFailed = true;
                 updateSyncPill('error');
                 showToast(`Loaded local draft for ${name}.`);
             }
@@ -1286,6 +1342,13 @@ const ASSIGNMENT = {
 
             const data = collectData();
             const done = countCompleted(data);
+
+            // Guard against blank overwrite if cloud fetch failed
+            if (!isManualClick && cloudFetchFailed && done === 0) {
+                console.warn('[submitWork] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
+
             updateSyncPill('saving');
 
             const summaryText = `${ASSIGNMENT.taskName} | Lead: ${data.auditors || data.name} | Class: ${data.section} | Completed: ${done}/${TOTAL_FIELDS}`;
@@ -1293,6 +1356,7 @@ const ASSIGNMENT = {
             try {
                 const res = await StudentAPI.submitProfile(ASSIGNMENT.taskName, data, summaryText, ASSIGNMENT.course, { force: isManualClick });
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
+                    cloudFetchFailed = false;
                     lastCloudSaveTime = new Date();
                     lastCloudPayload = data;
                     const key = draftKey(pin);

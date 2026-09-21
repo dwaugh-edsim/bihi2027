@@ -3646,9 +3646,9 @@
             const checkedTargetLevel = document.querySelector('input[name="power_target_level"]:checked');
 
             return {
-                name: name,
-                pin: pin,
-                className: cls,
+                name: document.getElementById('docStudentName')?.value || '',
+                pin: (document.getElementById('authStudentPin')?.innerText || '').trim().toUpperCase(),
+                className: document.getElementById('docStudentClass')?.value || '',
                 date: document.getElementById('docDate').value,
                 signature: document.getElementById('docSignature').value,
                 rent_math: {
@@ -3712,7 +3712,22 @@
             if (!data) return;
 
             if (data.name) document.getElementById('docStudentName').value = data.name;
-            if (data.className) document.getElementById('docStudentClass').value = data.className;
+            if (data.className) {
+                const sel = document.getElementById('docStudentClass');
+                const v = String(data.className);
+                sel.value = v;
+                if (sel.value !== v && v) {
+                    // Dash / encoding tolerant matching for select dropdowns
+                    const norm = s => String(s || '').replace(/[\u2013\u2014\ufffd\-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
+                    const vNorm = norm(v);
+                    for (const opt of sel.options) {
+                        if (norm(opt.value) === vNorm || norm(opt.textContent) === vNorm || (vNorm.length > 5 && norm(opt.value).startsWith(vNorm.slice(0, 15)))) {
+                            sel.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+            }
             if (data.date) document.getElementById('docDate').value = data.date;
             if (data.signature) document.getElementById('docSignature').value = data.signature;
 
@@ -3843,6 +3858,12 @@
                 return;
             }
 
+            // Guard against blank overwrite if cloud fetch failed
+            if (!isFinalSubmit && cloudFetchFailed && countDossierCompleted(payload) === 0) {
+                console.warn('[dispatchCloudSync] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
+
             const pill = document.getElementById('cloudSyncStatus');
             if (pill) {
                 pill.className = 'sync-pill saving';
@@ -3873,6 +3894,10 @@
                     keepalive: true
                 });
                 const resData = await res.json();
+                if (!resData || resData.error || (resData.status && resData.status !== 'success' && resData.status !== 'submitted_successfully')) {
+                    throw new Error(resData && resData.error ? resData.error : 'Cloud submit rejected');
+                }
+                cloudFetchFailed = false;
                 lastCloudSaveTime = new Date();
                 lastCloudPayload = payload;
 
@@ -3888,6 +3913,7 @@
                 }
             } catch (err) {
                 // Fallback no-cors dispatch
+                cloudFetchFailed = true;
                 try {
                     fetch(GAS_ENDPOINT, {
                         method: 'POST',
@@ -3902,8 +3928,8 @@
                 lastCloudPayload = payload;
 
                 if (pill) {
-                    pill.className = 'sync-pill synced';
-                    pill.innerHTML = '<span>🟢</span> Cloud Synced';
+                    pill.className = 'sync-pill offline';
+                    pill.innerHTML = '<span>🔴</span> Offline — Work saved on device ONLY. DO NOT close lid!';
                 }
                 document.getElementById('btnVerifyCert').style.display = 'inline-flex';
 
@@ -4262,11 +4288,52 @@
             loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
         }
 
+        // Completed-answer counter used by conflict resolution & blank-overwrite guard
+        function countDossierCompleted(data) {
+            if (!data || typeof data !== 'object') return 0;
+            let done = 0;
+            const nonEmpty = v => v !== undefined && v !== null && String(v).trim() !== '';
+            if (nonEmpty(data.signature)) done++;
+            if (data.rent_math) {
+                ['hours_for_rent', 'pct_of_pay', 'wage_needed', 'gap_hourly', 'gap_compromises', 'gap_structural'].forEach(k => { if (nonEmpty(data.rent_math[k])) done++; });
+            }
+            if (data.evidence) {
+                ['most_shocking', 'system_link'].forEach(k => { if (nonEmpty(data.evidence[k])) done++; });
+            }
+            if (data.dilemma) {
+                if (nonEmpty(data.dilemma.position)) done++;
+                ['justification', 'counter_tradeoff'].forEach(k => { if (nonEmpty(data.dilemma[k])) done++; });
+            }
+            if (Array.isArray(data.global_numbeo)) {
+                data.global_numbeo.forEach(r => { if (nonEmpty(r.halifax_price) || nonEmpty(r.city_price) || nonEmpty(r.pct_difference)) done++; });
+            }
+            if (data.ppp) {
+                ['career', 'annual_salary', 'hfx_hours', 'delhi_hours', 'analysis'].forEach(k => { if (nonEmpty(data.ppp[k])) done++; });
+            }
+            if (data.power_map) {
+                ['city_ask', 'prov_ask', 'fed_ask', 'target_level', 'one_question'].forEach(k => { if (nonEmpty(data.power_map[k])) done++; });
+            }
+            if (data.deputation) {
+                for (let i = 1; i <= 5; i++) { if (nonEmpty(data.deputation[`starter_${i}`])) done++; }
+            }
+            if (data.fast_finisher) {
+                if (nonEmpty(data.fast_finisher.topic) || nonEmpty(data.fast_finisher.response)) done++;
+            }
+            if (data.exit_slip) {
+                ['q1', 'q2', 'q3', 'q4'].forEach(k => { if (nonEmpty(data.exit_slip[k])) done++; });
+            }
+            return done;
+        }
+
+        let cloudFetchFailed = false;
         async function loadCloudWorkForStudent(cls, pin, name) {
             showToast(`Loading saved work for ${name} (${pin})...`);
+            cloudFetchFailed = false;
+
+            const draftKey = `cit9_dossier_draft_${pin}`;
 
             // Step 1: check the local draft
-            const localDraftRaw = localStorage.getItem(`cit9_dossier_draft_${pin}`);
+            const localDraftRaw = localStorage.getItem(draftKey);
             let localDraft = null;
             if (localDraftRaw) {
                 try {
@@ -4276,64 +4343,110 @@
 
             // Step 2: fetch cloud
             let cloudDraft = null;
+            let cloudUpdated = 0;
             try {
                 const getUrl = `${GAS_ENDPOINT}?action=login&className=${encodeURIComponent(cls)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(name)}`;
                 const res = await fetch(getUrl);
                 const data = await res.json();
+                if (!data || data.status === 'offline' || data.error || !data.savedData) {
+                    cloudFetchFailed = true;
+                    const pill = document.getElementById('cloudSyncStatus');
+                    if (pill) {
+                        pill.className = 'sync-pill offline';
+                        pill.innerHTML = '<span>🔴</span> Cloud busy / offline';
+                    }
+                    showToast(`⚠️ Cloud busy or network hiccup for ${name}. Click "Switch Student / Login" to retry.`, true);
+                    return;
+                }
                 if (data.status === 'success' && data.savedData) {
                     const saved = data.savedData;
-                    const d = saved.data || saved;
-                    if (d.rent_math || d.global_numbeo || d.dilemma || d.ppp || d.power_map) {
+                    let d = saved;
+                    let tObj = null;
+                    let rawTasks = saved && saved._tasks;
+                    if (typeof rawTasks === 'string') {
+                        try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                    }
+                    if (rawTasks && typeof rawTasks === 'object') {
+                        tObj = rawTasks[TASK_NAME] ||
+                               Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('real issues') || k.toLowerCase().includes('rent'))?.[1];
+                        if (tObj) d = tObj.data || tObj;
+                    } else if (saved && saved.data) {
+                        d = saved.data;
+                    }
+                    if (typeof d === 'string') {
+                        try { d = JSON.parse(d); } catch (e) {}
+                    }
+                    if (d && (d.rent_math || d.global_numbeo || d.dilemma || d.ppp || d.power_map || d.signature || d.exit_slip)) {
                         cloudDraft = d;
+                        cloudUpdated = Date.parse((tObj && tObj.updated) || saved.lastUpdated || saved.updated || (d && (d.savedAt || d.updated))) || 0;
                     }
                 }
             } catch (e) {
                 console.warn("GAS fetch error:", e);
-            }
-
-            // Step 3: NEWER-WINS conflict resolution.
-            // Compare `savedAt` between local and cloud; whichever is more
-            // recent is the one we restore to the form. `updated` (server
-            // timestamp) is the fallback for cloud records saved before
-            // this hardening shipped. If neither has a timestamp, prefer
-            // cloud as the canonical store.
-            const localStamp = localDraft?.savedAt ? new Date(localDraft.savedAt).getTime() : 0;
-            const cloudStamp = (() => {
-                if (!cloudDraft) return 0;
-                if (cloudDraft.savedAt) return new Date(cloudDraft.savedAt).getTime();
-                if (cloudDraft.updated) return new Date(cloudDraft.updated).getTime();
-                return 0;
-            })();
-
-            let chosen = cloudDraft;
-            let source = 'cloud';
-            if (localDraft && (!cloudDraft || localStamp > cloudStamp)) {
-                chosen = localDraft;
-                source = 'local';
-            }
-
-            if (chosen) {
-                applyPayloadToForm(chosen);
-                // Persist the chosen version locally so a Chromebook restart
-                // can recover. Always overwrite with whichever we picked —
-                // never let stale local state shadow fresher cloud state.
-                chosen.savedAt = chosen.savedAt || new Date().toISOString();
-                localStorage.setItem(`cit9_dossier_draft_${pin}`, JSON.stringify(chosen));
+                cloudFetchFailed = true;
                 const pill = document.getElementById('cloudSyncStatus');
                 if (pill) {
-                    pill.className = 'sync-pill synced';
-                    pill.innerHTML = source === 'cloud'
-                        ? '<span>🟢</span> Cloud Synced'
-                        : '<span>🟡</span> Local (Cloud Sync Pending)';
+                    pill.className = 'sync-pill offline';
+                    pill.innerHTML = '<span>🔴</span> Cloud busy / offline';
                 }
-                document.getElementById('btnVerifyCert').style.display = 'inline-flex';
-                if (source === 'cloud') {
-                    showToast(`✅ Welcome, ${name}! Your dossier is restored.`);
-                } else {
-                    showToast(`⚠ Restored local draft (newer than cloud). Re-syncing to cloud...`);
+                showToast(`⚠️ Cloud busy or network hiccup for ${name}. Click "Switch Student / Login" to retry.`, true);
+                return;
+            }
+
+            // Step 3: CONFLICT RESOLUTION — Real work ALWAYS trumps empty placeholders.
+            const localCount = countDossierCompleted(localDraft);
+            const cloudCount = countDossierCompleted(cloudDraft);
+            const localAt = (localDraft && localDraft.savedAt) ? (Date.parse(localDraft.savedAt) || 0) : 0;
+
+            if (cloudDraft || localDraft) {
+                // RULE 1: Real work ALWAYS trumps empty placeholders!
+                // If local has answers but cloud is empty/blank (e.g. from an empty initial autosave today), local wins!
+                if (localDraft && localCount > 0 && cloudCount === 0) {
+                    applyPayloadToForm(localDraft);
+                    localDraft.savedAt = localDraft.savedAt || new Date().toISOString();
+                    localStorage.setItem(draftKey, JSON.stringify(localDraft));
+                    const pill = document.getElementById('cloudSyncStatus');
+                    if (pill) {
+                        pill.className = 'sync-pill synced';
+                        pill.innerHTML = '<span>🟡</span> Local (Cloud Sync Pending)';
+                    }
+                    document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+                    showToast(`Restored your saved work from this device, ${name}!`);
+                    dispatchCloudSync(false); // Push real work to cloud immediately
+                    return;
+                }
+
+                // RULE 2: Local has more completed answers and is newer
+                if (localDraft && localAt > cloudUpdated + 30000 && localCount > cloudCount) {
+                    applyPayloadToForm(localDraft);
+                    localDraft.savedAt = localDraft.savedAt || new Date().toISOString();
+                    localStorage.setItem(draftKey, JSON.stringify(localDraft));
+                    const pill = document.getElementById('cloudSyncStatus');
+                    if (pill) {
+                        pill.className = 'sync-pill synced';
+                        pill.innerHTML = '<span>🟡</span> Local (Cloud Sync Pending)';
+                    }
+                    document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+                    showToast('Restored newer draft saved on this device.');
                     dispatchCloudSync(false);
+                    return;
                 }
-            } else if (!cloudDraft) {
+
+                // RULE 3: Cloud has equal or more work (or is valid)
+                if (cloudDraft && (cloudCount >= localCount || cloudCount > 0)) {
+                    applyPayloadToForm(cloudDraft);
+                    cloudDraft.savedAt = cloudDraft.savedAt || new Date().toISOString();
+                    localStorage.setItem(draftKey, JSON.stringify(cloudDraft));
+                    const pill = document.getElementById('cloudSyncStatus');
+                    if (pill) {
+                        pill.className = 'sync-pill synced';
+                        pill.innerHTML = '<span>🟢</span> Cloud Synced';
+                    }
+                    document.getElementById('btnVerifyCert').style.display = 'inline-flex';
+                    showToast(`✅ Welcome, ${name}! Your dossier is restored.`);
+                    return;
+                }
+            } else {
                 showToast(`Ready for ${name}!`);
             }
         }

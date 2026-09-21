@@ -2226,15 +2226,49 @@
             try {
                 showToast("Checking cloud database for prior submissions...");
                 const res = await StudentAPI.login(student.homeroom || cls, student.first_name, pin, courseKey);
-                if (res && res.savedData) {
-                    const d = res.savedData.data || res.savedData;
-                    if (d && (d.p1 || d.p2 || d.p3 || d.p4 || d.p5 || d.where_personal || d.cat1_personal)) {
-                        cloudData = d;
-                        cloudAt = Date.parse(res.savedData.updated || res.savedData.savedAt || (res.savedData._tasks && res.savedData._tasks['The WHERE Project — Places Portfolio']?.updated)) || 0;
+                if (!res || res.status === 'offline' || res.error || !res.savedData) {
+                    // Cloud Hiccup Guard: endpoint throttled/unreachable — flag it so blank autosaves can't fire
+                    cloudFetchFailed = true;
+                    if (statusPill) {
+                        statusPill.style.background = '#fee2e2';
+                        statusPill.style.borderColor = '#ef4444';
+                        statusPill.style.color = '#b91c1c';
+                        statusPill.innerHTML = "🔴 Cloud busy / offline";
                     }
+                    showToast(`⚠️ Cloud busy or network hiccup for ${student.first_name}. Click "Login" to retry.`, true);
+                    return;
+                }
+                let d = res.savedData;
+                let tObj = null;
+                let rawTasks = d && d._tasks;
+                if (typeof rawTasks === 'string') {
+                    try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                }
+                if (rawTasks && typeof rawTasks === 'object') {
+                    tObj = rawTasks['The WHERE Project — Places Portfolio'] ||
+                           Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('places portfolio'))?.[1];
+                    if (tObj) d = tObj.data || tObj;
+                } else if (d && d.data) {
+                    d = d.data;
+                }
+                if (typeof d === 'string') {
+                    try { d = JSON.parse(d); } catch (e) {}
+                }
+                if (d && (d.p1 || d.p2 || d.p3 || d.p4 || d.p5 || d.where_personal || d.cat1_personal)) {
+                    cloudData = d;
+                    cloudAt = Date.parse((tObj && tObj.updated) || res.savedData.updated || res.savedData.savedAt || (d && (d.savedAt || d.updated))) || 0;
                 }
             } catch (e) {
                 console.warn("Cloud check notice:", e);
+                cloudFetchFailed = true;
+                if (statusPill) {
+                    statusPill.style.background = '#fee2e2';
+                    statusPill.style.borderColor = '#ef4444';
+                    statusPill.style.color = '#b91c1c';
+                    statusPill.innerHTML = "🔴 Cloud busy / offline";
+                }
+                showToast(`⚠️ Cloud busy or network hiccup for ${student.first_name}. Click "Login" to retry.`, true);
+                return;
             }
 
             // Check local draft
@@ -2251,8 +2285,28 @@
                 } catch (e) { }
             }
 
-            // Conflict Resolution: newer-wins (local wins only if >30s newer than cloud)
-            if (localData && localAt > cloudAt + 30000) {
+            // CONFLICT RESOLUTION — Real work ALWAYS trumps empty placeholders.
+            const localCount = countDraftCompleted(localData);
+            const cloudCount = countDraftCompleted(cloudData);
+
+            // RULE 1: Real work ALWAYS trumps empty placeholders!
+            // If local has answers but cloud is empty/blank (e.g. from an empty initial autosave today), local wins!
+            if (localData && localCount > 0 && cloudCount === 0) {
+                applyDraftData(localData);
+                localStorage.setItem(`places_draft_${pin}`, JSON.stringify({ ...localData, savedAt: new Date().toISOString() }));
+                if (statusPill) {
+                    statusPill.style.background = '#fef3c7';
+                    statusPill.style.borderColor = '#f59e0b';
+                    statusPill.style.color = '#92400e';
+                    statusPill.innerHTML = `⚠️ Local Draft Restored (Syncing...)`;
+                }
+                showToast(`Restored your saved work from this device, ${student.first_name}!`);
+                backgroundCloudSync(true); // Push real work to cloud immediately
+                return;
+            }
+
+            // RULE 2: Local has more completed answers and is newer
+            if (localData && localAt > cloudAt + 30000 && localCount > cloudCount) {
                 applyDraftData(localData);
                 if (statusPill) {
                     statusPill.style.background = '#fef3c7';
@@ -2260,12 +2314,13 @@
                     statusPill.style.color = '#92400e';
                     statusPill.innerHTML = `⚠️ Local Draft Restored (Syncing...)`;
                 }
-                showToast(`Restored newer local draft from this device. Syncing to Google Sheets...`);
-                savePortfolio();
+                showToast('Restored newer draft saved on this device.');
+                backgroundCloudSync(true);
                 return;
             }
 
-            if (cloudData) {
+            // RULE 3: Cloud has equal or more work (or is valid)
+            if (cloudData && (cloudCount >= localCount || cloudCount > 0)) {
                 applyDraftData(cloudData);
                 localStorage.setItem(`places_draft_${pin}`, JSON.stringify({ ...cloudData, savedAt: new Date().toISOString() }));
                 if (statusPill) {
@@ -2276,18 +2331,6 @@
                 }
                 document.getElementById('btnVerifyCloud').style.display = 'inline-flex';
                 showToast(`✅ Loaded saved work from Google Sheets for ${student.first_name}!`);
-                return;
-            }
-
-            if (localData) {
-                applyDraftData(localData);
-                if (statusPill) {
-                    statusPill.style.background = '#fef3c7';
-                    statusPill.style.borderColor = '#f59e0b';
-                    statusPill.style.color = '#92400e';
-                    statusPill.innerHTML = `⚠️ Draft Saved Locally (Click Save to Cloud)`;
-                }
-                showToast(`Work restored on this Chromebook! Click 'Save to Google Sheets' to sync.`);
                 return;
             }
 
@@ -2359,8 +2402,34 @@
             };
         }
 
+        // Completed-answer counter for draft/cloud payloads (conflict resolution + blank-overwrite guard)
+        function countDraftCompleted(d) {
+            if (!d || typeof d !== 'object') return 0;
+            let count = 0;
+            const nonEmpty = v => v !== undefined && v !== null && String(v).trim() !== '';
+            ['p1', 'p2', 'p3', 'p4'].forEach(k => {
+                if (d[k] && typeof d[k] === 'object') {
+                    if (nonEmpty(d[k].title)) count++;
+                    if (nonEmpty(d[k].desc)) count++;
+                }
+            });
+            if (d.p5 && typeof d.p5 === 'object') {
+                if (nonEmpty(d.p5.title)) count++;
+                if (nonEmpty(d.p5.desc)) count++;
+                if (nonEmpty(d.p5.yt)) count++;
+            }
+            if (nonEmpty(d.where_personal) || nonEmpty(d.cat1_personal)) count++;
+            if (nonEmpty(d.where_community) || nonEmpty(d.cat2_community)) count++;
+            if (nonEmpty(d.where_global) || nonEmpty(d.cat3_global)) count++;
+            if (nonEmpty(d.where_aspirational) || nonEmpty(d.cat4_aspirational)) count++;
+            if (nonEmpty(d.cat5_music)) count++;
+            if (nonEmpty(d.youtube_url)) count++;
+            return count;
+        }
+
         let isCloudSaving = false;
         let cloudDebounceTimer = null;
+        let cloudFetchFailed = false;
 
         async function backgroundCloudSync(silent = false) {
             let pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
@@ -2377,6 +2446,12 @@
             }
 
             if (!pin || pin.length < 3 || pin === 'WAU' || pin === 'MRW' || isCloudSaving) return;
+
+            // Guard against blank overwrite if cloud fetch failed
+            if (silent && cloudFetchFailed && countCompletedFields() === 0) {
+                console.warn('[backgroundCloudSync] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
 
             const payload = buildPortfolioPayload();
             const courseKey = payload.class.startsWith('8') ? 'HL8' : 'CIT9';
@@ -2396,6 +2471,7 @@
             try {
                 const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', payload, summaryText, courseKey);
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
+                    cloudFetchFailed = false;
                     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     if (statusPill) {
                         statusPill.style.background = '#ecfdf5';
@@ -2409,6 +2485,7 @@
                 }
             } catch (e) {
                 console.warn("Cloud sync error:", e);
+                cloudFetchFailed = true;
                 if (syncEl) syncEl.innerText = `• Cloud sync pending`;
             } finally {
                 isCloudSaving = false;
@@ -2499,6 +2576,7 @@
             try {
                 const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey, { force: true });
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
+                    cloudFetchFailed = false;
                     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     if (statusPill) {
                         statusPill.style.background = '#ecfdf5';

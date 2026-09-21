@@ -355,6 +355,7 @@
     <script>
         const draftKey = (pin) => (!pin || pin === '---' || pin === 'draft') ? null : `gas_draft_where4_${pin.toUpperCase()}`;
         const draftSavedAt = (data) => Date.parse(data && data.savedAt) || 0;
+        let cloudFetchFailed = false;
 
         function setAuthState(student) {
             const fs = document.getElementById('workFieldset');
@@ -460,8 +461,16 @@
                 console.warn(e);
             }
 
+            // Cloud Hiccup Guard: don't risk a blank autosave when the endpoint is unreachable
+            if (!cloudRes || cloudRes.status === 'offline' || cloudRes.error || !cloudRes.savedData) {
+                cloudFetchFailed = true;
+                const syncEl = document.getElementById('syncStatus');
+                if (syncEl) syncEl.innerText = `🔴 Cloud busy / offline`;
+                showToast(`⚠️ Cloud busy or network hiccup for ${auth.name || name}. Click "Login" to retry.`, true);
+                return;
+            }
+
             const cloudData = (cloudRes && cloudRes.savedData) ? (cloudRes.savedData.data || cloudRes.savedData) : null;
-            const cloudAt = Date.parse((cloudRes && (cloudRes.updated || (cloudRes.savedData && cloudRes.savedData.updated))) || 0) || 0;
 
             const key = draftKey(pin);
             let localObj = null;
@@ -471,27 +480,71 @@
                     if (raw) localObj = JSON.parse(raw);
                 } catch(e) {}
             }
-            const localAt = draftSavedAt(localObj);
 
-            // Newer-wins conflict resolution
-            if (localObj && localAt > cloudAt + 30000 && countCompleted(localObj) > countCompleted(cloudData)) {
-                restoreFormData(localObj);
-                showToast(`Restored newer local draft from this device. Syncing to Google Sheets...`);
-                saveWhereProject(false);
-                return;
+            // Task-specific extraction: check _tasks FIRST to isolate assignments
+            let targetData = null;
+            let tObj = null;
+            if (cloudData) {
+                let rawTasks = cloudData._tasks;
+                if (typeof rawTasks === 'string') {
+                    try { rawTasks = JSON.parse(rawTasks); } catch (e) {}
+                }
+                if (rawTasks && typeof rawTasks === 'object') {
+                    tObj = rawTasks['WHERE 4-Places Project'] ||
+                           Object.entries(rawTasks).find(([k]) => k.toLowerCase().includes('where'))?.[1];
+                    if (tObj) targetData = tObj.data || tObj;
+                }
+                if (!targetData) targetData = cloudData;
+                if (typeof targetData === 'string') {
+                    try { targetData = JSON.parse(targetData); } catch (e) {}
+                }
             }
 
-            if (cloudData && countCompleted(cloudData) > 0) {
-                restoreFormData(cloudData);
-                if (key) {
-                    try {
-                        localStorage.setItem(key, JSON.stringify({ ...cloudData, savedAt: new Date().toISOString() }));
-                    } catch(e) {}
+            const cloudCount = countCompleted(targetData);
+            const localCount = countCompleted(localObj);
+            const cloudAt = Date.parse((tObj && tObj.updated) || (targetData && (targetData.savedAt || targetData.updated))) || 0;
+            const localAt = draftSavedAt(localObj);
+
+            if (targetData && (cloudCount > 0 || localCount > 0)) {
+                // RULE 1: Real work ALWAYS trumps empty placeholders!
+                // If local has answers but cloud is empty/blank (e.g. from an empty initial autosave today), local wins!
+                if (localObj && localCount > 0 && cloudCount === 0) {
+                    restoreFormData(localObj);
+                    if (key) {
+                        try {
+                            localStorage.setItem(key, JSON.stringify({ ...localObj, savedAt: new Date().toISOString() }));
+                        } catch(e) {}
+                    }
+                    showToast(`Restored your saved work from this device, ${auth.name || name}!`);
+                    const syncEl = document.getElementById('syncStatus');
+                    if (syncEl) syncEl.innerText = `🟢 Cloud Synced (Device draft saved)`;
+                    saveWhereProject(false); // Push real work to cloud immediately
+                    return;
                 }
-                const syncEl = document.getElementById('syncStatus');
-                if (syncEl) syncEl.innerText = `🟢 Cloud Synced`;
-                showToast(`Loaded saved work from Google Sheets for ${auth.name || name}!`);
-                return;
+
+                // RULE 2: Local has more completed answers and is newer
+                if (localObj && localAt > cloudAt + 30000 && localCount > cloudCount) {
+                    restoreFormData(localObj);
+                    showToast('Restored newer draft saved on this device.');
+                    const syncEl = document.getElementById('syncStatus');
+                    if (syncEl) syncEl.innerText = `🟢 Cloud Synced (Local newer)`;
+                    saveWhereProject(false);
+                    return;
+                }
+
+                // RULE 3: Cloud has equal or more work (or is valid)
+                if (cloudCount >= localCount || cloudCount > 0) {
+                    restoreFormData(targetData);
+                    if (key) {
+                        try {
+                            localStorage.setItem(key, JSON.stringify({ ...targetData, savedAt: new Date().toISOString() }));
+                        } catch(e) {}
+                    }
+                    const syncEl = document.getElementById('syncStatus');
+                    if (syncEl) syncEl.innerText = `🟢 Cloud Synced`;
+                    showToast(`Loaded saved work from Google Sheets for ${auth.name || name}!`);
+                    return;
+                }
             }
 
             if (localObj && countCompleted(localObj) > 0) {
@@ -520,6 +573,13 @@
             }
 
             const formData = collectFormData();
+
+            // Guard against blank overwrite if cloud fetch failed
+            if (!showFeedback && cloudFetchFailed && countCompleted(formData) === 0) {
+                console.warn('[saveWhereProject] Autosave skipped: cloud fetch failed previously and form is blank.');
+                return;
+            }
+
             const payload = {
                 name: name,
                 pin: pin,
@@ -540,6 +600,7 @@
             try {
                 const res = await StudentAPI.submitProfile('WHERE 4-Places Project', payload, summary, cls.startsWith('8') ? 'HL8' : 'CIT9');
                 if (res && res.status === 'success') {
+                    cloudFetchFailed = false;
                     const syncEl = document.getElementById('syncStatus');
                     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     if (syncEl) syncEl.innerText = `🟢 Cloud Synced (${timeStr})`;
