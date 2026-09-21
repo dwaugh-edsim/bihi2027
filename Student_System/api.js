@@ -581,7 +581,7 @@ const StudentAPI = {
         }
 
         // Enforce Authorized Roster Verification
-        const auth = this.validateStudent(className, name, pin);
+        const auth = await this.validateStudent(className, name, pin);
         if (!auth.valid) {
             return { status: 'error', message: auth.message };
         }
