@@ -154,12 +154,23 @@ const StudentAPI = {
     async resolveStudentRemote(pin, courseKey) {
         pin = (pin || '').trim().toUpperCase();
         if (!pin) return { ok: false, reason: 'empty' };
+        // Skip-cache: once we learn the deployed GAS predates resolve_student
+        // (or is unreachable), stop probing for a while so kid logins stay
+        // instant via the roster fallback.
+        try {
+            const skipUntil = Number(sessionStorage.getItem('gas_resolve_skip_until') || 0);
+            if (Date.now() < skipUntil) return { ok: false, reason: 'unsupported' };
+        } catch (e) { /* storage unavailable */ }
         const url = this.getScriptUrl(courseKey);
         let lastError = null;
-        for (let attempt = 1; attempt <= 3; attempt++) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 4000) : null;
             try {
-                const getUrl = `${url}?action=resolve_student&pin=${encodeURIComponent(pin)}`;
-                const res = await fetch(getUrl);
+                const res = await fetch(
+                    `${url}?action=resolve_student&pin=${encodeURIComponent(pin)}`,
+                    ctrl ? { signal: ctrl.signal } : undefined
+                );
                 const data = await res.json();
                 if (data && data.version) this.validateServerVersion(data.version);
                 if (data && data.status === 'success' && typeof data.valid === 'boolean') {
@@ -174,16 +185,22 @@ const StudentAPI = {
                     try { sessionStorage.setItem('gas_resolve_' + pin, JSON.stringify(info)); } catch (e) { /* storage full/private mode */ }
                     return Object.assign({ ok: true, valid: true }, info);
                 }
-                // Server answered but has no resolve_student (pre-V6.3 GAS)
+                // Server answered but has no resolve_student (pre-V6.3 GAS):
+                // stop probing for 30 minutes.
+                try { sessionStorage.setItem('gas_resolve_skip_until', String(Date.now() + 30 * 60 * 1000)); } catch (e) { /* ignore */ }
                 return { ok: false, reason: 'unsupported' };
             } catch (e) {
                 lastError = e;
-                if (attempt < 3) {
-                    await new Promise(r => setTimeout(r, 600 * attempt));
+                if (attempt < 2) {
+                    await new Promise(r => setTimeout(r, 400));
                 }
+            } finally {
+                if (timer) clearTimeout(timer);
             }
         }
         console.warn('resolve_student unreachable after retries (offline?):', lastError);
+        // Hard-timeout/network failures: stop probing for 10 minutes.
+        try { sessionStorage.setItem('gas_resolve_skip_until', String(Date.now() + 10 * 60 * 1000)); } catch (e) { /* ignore */ }
         return { ok: false, reason: 'network' };
     },
 
