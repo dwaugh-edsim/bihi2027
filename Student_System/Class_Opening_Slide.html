@@ -77,7 +77,7 @@ body[data-theme="CIT9"] .hero {
     background: var(--theme-hero-bg);
     color: var(--theme-hero-fg);
     border-radius: 12px;
-    padding: 20px 32px 18px;
+    padding: 10px 28px;
     border: none;
     box-shadow: 0 4px 24px rgba(127,29,29,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     position: relative;
@@ -122,7 +122,7 @@ body[data-theme="HL9"] .hero {
     background: var(--theme-hero-bg);
     color: var(--theme-hero-fg);
     border-radius: 12px;
-    padding: 20px 32px 18px;
+    padding: 10px 28px;
     border: none;
     box-shadow: 0 4px 24px rgba(6,78,59,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     position: relative;
@@ -167,7 +167,7 @@ body[data-theme="HE8"] .hero {
     background: var(--theme-hero-bg);
     color: var(--theme-hero-fg);
     border-radius: 12px;
-    padding: 20px 32px 18px;
+    padding: 10px 28px;
     border: none;
     box-shadow: 0 4px 24px rgba(30,64,175,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     position: relative;
@@ -256,33 +256,32 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
 /* ---------- hero ---------- */
 .hero {
-    margin-top: 26px; padding: 12px 0 16px;
-    border-bottom: 2px solid var(--border-subtle);
-    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
-    transition: background 0.4s, box-shadow 0.4s, border-radius 0.4s, padding 0.4s;
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
 }
+.hero-right { text-align: right; }
 .hero .course-icon {
-    font-size: 2.8rem;
-    margin-right: 14px;
+    font-size: 2rem;
+    margin-right: 12px;
     line-height: 1;
     vertical-align: middle;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 .hero .course {
-    font-family: var(--font-heading); font-weight: 700; font-size: 3.2rem;
+    font-family: var(--font-heading); font-weight: 700; font-size: 2.1rem;
     line-height: 1.05; text-shadow: 0.04em 0.06em 0 rgba(0,0,0,0.08);
     transition: color 0.3s;
 }
 .hero .school-line {
-    font-family: var(--font-body); font-size: 1.05rem; font-weight: 600;
+    font-family: var(--font-body); font-size: 0.92rem; font-weight: 600;
     letter-spacing: 0.8px; text-transform: uppercase;
     color: var(--text-dim);
-    margin-top: 4px;
     transition: color 0.3s;
 }
-.hero .meta { margin-top: 8px; font-size: 1.25rem; color: var(--text-muted); font-weight: 600;
+.hero .meta { margin-top: 2px; font-size: 1.08rem; color: var(--text-muted); font-weight: 600;
     transition: color 0.3s; }
-.hero .meta .mono { font-size: 1.15rem; }
+.hero .meta .mono { font-size: 1rem; }
 
 /* ---------- content ---------- */
 .content { flex: 1; display: flex; gap: 20px; margin-top: 20px; min-height: 0; }
@@ -538,6 +537,18 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     text-overflow: ellipsis;
     vertical-align: middle;
 }
+.prog-task-select {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue);
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    padding: 4px 8px;
+    border-radius: 4px;
+    max-width: 440px;
+    cursor: pointer;
+}
 .prog-stats-strip {
     display: flex;
     gap: 8px;
@@ -752,8 +763,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
 <div class="hero">
     <div class="course" id="courseLine">…</div>
-    <div class="school-line">Bicentennial Junior High</div>
-    <div class="meta" id="metaLine">…</div>
+    <div class="hero-right">
+        <div class="school-line">Bicentennial Junior High</div>
+        <div class="meta" id="metaLine">…</div>
+    </div>
 </div>
 
 <div class="content">
@@ -771,7 +784,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <div class="prog-head-row">
                 <h2>Task Progress</h2>
                 <div style="display:flex;align-items:center;gap:6px;">
-                    <span class="prog-task-badge" id="progTaskBadge">Loading…</span>
+                    <select id="progTaskSelect" class="prog-task-select" title="Choose which assignment to report"></select>
                     <button class="tool-btn" id="progExpandBtn" style="padding:2px 8px;font-size:0.75rem;" title="Expand full roster matrix (p)">⛶</button>
                 </div>
             </div>
@@ -1424,6 +1437,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
     // ---------- task progress breakdown ----------
     const classProgressCache = {};
+    const rawStudentsByHr = {}; // hr → unfiltered GAS ledger rows, for re-parsing on task switch
     let activeProgressData = null;
 
     function homeroomOf(sec) {
@@ -1439,18 +1453,30 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         CIT9: 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay'
     };
 
+    // Course keyword fingerprints — used to tell which ledger students belong to
+    // which course (one homeroom's ledger rows mix e.g. 902-CIT and 902-HL kids).
+    const COURSE_TASK_RE = {
+        CIT9: /cit|citizenship|rent|where/i,
+        HL9: /hl|addictive|sleep|dimension/i,
+        HL8: /hl|addictive|sleep|dimension/i
+    };
+    function courseAligned(text, course) {
+        const re = COURSE_TASK_RE[course] || /cit|citizenship|rent|where|hl|addictive|sleep|dimension/i;
+        return re.test(text);
+    }
+    function storedTaskFor(course) {
+        try { return localStorage.getItem('room8_prog_task_' + course); } catch (e) { return null; }
+    }
+
     // Pinned-task view: cohort = ledger students of this course (spotted by their
     // citizenship-task footprints); students without the pinned task show as
     // "Not started", so a fresh assignment renders correctly at 0.
-    function parsePinnedTaskProgress(students, taskName) {
-        const hasTask = s => s.task === taskName ||
-            (s.assignments && Object.prototype.hasOwnProperty.call(s.assignments, taskName)) ||
-            (s.savedData && s.savedData._tasks && Object.prototype.hasOwnProperty.call(s.savedData._tasks, taskName));
+    function parsePinnedTaskProgress(students, taskName, course) {
         const inCourse = s => {
             const names = [s.task];
             if (s.assignments) names.push(...Object.keys(s.assignments));
             if (s.savedData && s.savedData._tasks) names.push(...Object.keys(s.savedData._tasks));
-            return names.some(t => t && /cit|citizenship|rent|where/i.test(t));
+            return names.some(t => t && courseAligned(t, course));
         };
         const records = [];
         students.forEach(s => {
@@ -1490,9 +1516,17 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         };
     }
 
-    function parseProgressData(students, course) {
+    function parseProgressFor(sec, students) {
+        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
+        const sel = storedTaskFor(course);
+        if (sel === 'auto') return parseAutoProgress(students, course);
+        if (sel) return parsePinnedTaskProgress(students, sel, course);
+        if (CURRENT_TASK[course]) return parsePinnedTaskProgress(students, CURRENT_TASK[course], course);
+        return parseAutoProgress(students, course);
+    }
+
+    function parseAutoProgress(students, course) {
         if (!students || !students.length) return null;
-        if (CURRENT_TASK[course]) return parsePinnedTaskProgress(students, CURRENT_TASK[course]);
         const taskCounts = {};
         students.forEach(s => {
             const candidates = new Set();
@@ -1596,7 +1630,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (window.StudentAPI && StudentAPI.getClassProgress) {
                 const data = await StudentAPI.getClassProgress(hr, course);
                 if (data && data.status === 'success' && Array.isArray(data.students)) {
-                    classProgressCache[hr] = parseProgressData(data.students, course);
+                    rawStudentsByHr[hr] = data.students;
+                    classProgressCache[hr] = parseProgressFor(sec, data.students);
                     return classProgressCache[hr];
                 }
             }
@@ -1604,6 +1639,48 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             console.warn('Progress load failed:', e);
         }
         return null;
+    }
+
+    // Assignment picker: lists the course's current task + every task found in the
+    // ledger for this course, plus 'auto' (old busiest-task behaviour). The choice
+    // is remembered per course.
+    function populateTaskSelect(sec) {
+        const sel = document.getElementById('progTaskSelect');
+        if (!sel) return;
+        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
+        const stored = storedTaskFor(course);
+        const opts = taskOptionsFor(homeroomOf(sec), course);
+        let current = stored !== null ? stored : (CURRENT_TASK[course] || 'auto');
+        if (current !== 'auto' && opts.indexOf(current) === -1) {
+            // stored task no longer exists in the ledger — fall back and forget it
+            try { localStorage.removeItem('room8_prog_task_' + course); } catch (e) { /* private mode */ }
+            current = CURRENT_TASK[course] || 'auto';
+        }
+        if (opts.indexOf('auto') === -1) opts.push('auto');
+        sel.innerHTML = opts.map(t => {
+            const label = t === 'auto' ? 'Auto (busiest ledger task)' : ((CURRENT_TASK[course] === t ? '★ ' : '') + t);
+            return '<option value="' + escapeHtml(t) + '">' + escapeHtml(label) + '</option>';
+        }).join('');
+        sel.value = current;
+        sel.title = current === 'auto' ? 'Auto: whichever ledger task has the most activity' : current;
+    }
+    function taskOptionsFor(hr, course) {
+        const opts = [];
+        const seen = new Set();
+        const add = t => {
+            if (!t) return;
+            t = t.trim();
+            if (!t || seen.has(t) || !courseAligned(t, course)) return;
+            seen.add(t);
+            opts.push(t);
+        };
+        if (CURRENT_TASK[course]) add(CURRENT_TASK[course]);
+        (rawStudentsByHr[hr] || []).forEach(s => {
+            if (s.task) add(s.task);
+            if (s.assignments) Object.keys(s.assignments).forEach(add);
+            if (s.savedData && s.savedData._tasks) Object.keys(s.savedData._tasks).forEach(add);
+        });
+        return opts;
     }
 
     async function renderProgress(sec) {
@@ -1620,9 +1697,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
         panel.style.display = 'flex';
         contentEl.classList.add('has-progress');
-        const cleanName = prog.taskName.replace(/^(HL[89]|CIT9)\s*/, '');
-        document.getElementById('progTaskBadge').textContent = cleanName;
-        document.getElementById('progTaskBadge').title = prog.taskName;
+        populateTaskSelect(sec);
 
         document.getElementById('progStatsStrip').innerHTML =
             `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Active'}</span>` +
@@ -1711,6 +1786,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     }
 
     document.getElementById('progBtn').addEventListener('click', () => toggleProgress(true));
+    document.getElementById('progTaskSelect').addEventListener('change', ev => {
+        const course = (MEET[current] && MEET[current].course) || 'HL9';
+        try { localStorage.setItem('room8_prog_task_' + course, ev.target.value); } catch (e) { /* private mode */ }
+        const hr = homeroomOf(current);
+        if (rawStudentsByHr[hr]) classProgressCache[hr] = parseProgressFor(current, rawStudentsByHr[hr]);
+        renderProgress(current);
+        if (document.getElementById('progOverlay').classList.contains('open')) renderProgressModal();
+    });
     document.getElementById('progExpandBtn').addEventListener('click', () => toggleProgress(true));
     document.getElementById('progClose').addEventListener('click', () => toggleProgress(false));
     document.getElementById('progOverlay').addEventListener('click', ev => {
