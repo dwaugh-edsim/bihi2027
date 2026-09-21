@@ -147,9 +147,121 @@ const StudentAPI = {
         return { student: null, pin: enteredPin, name: enteredName };
     },
 
-    validateStudent(className, firstName, pin) {
+    // ==========================================
+    // SERVER-SIDE PIN RESOLUTION (privacy: the private PIN roster lives in
+    // the GAS 'Roster_Private' tab, never in this public site's files)
+    // ==========================================
+    async resolveStudentRemote(pin, courseKey) {
         pin = (pin || '').trim().toUpperCase();
-        let enteredName = (firstName || '').trim();
+        if (!pin) return { ok: false, reason: 'empty' };
+        const url = this.getScriptUrl(courseKey);
+        let lastError = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const getUrl = `${url}?action=resolve_student&pin=${encodeURIComponent(pin)}`;
+                const res = await fetch(getUrl);
+                const data = await res.json();
+                if (data && data.version) this.validateServerVersion(data.version);
+                if (data && data.status === 'success' && typeof data.valid === 'boolean') {
+                    if (!data.valid) return { ok: true, valid: false };
+                    const info = {
+                        className: String(data.className || 'General'),
+                        firstName: String(data.firstName || ''),
+                        lastInitial: String(data.lastInitial || ''),
+                        demo: !!data.demo,
+                        at: Date.now()
+                    };
+                    try { sessionStorage.setItem('gas_resolve_' + pin, JSON.stringify(info)); } catch (e) { /* storage full/private mode */ }
+                    return Object.assign({ ok: true, valid: true }, info);
+                }
+                // Server answered but has no resolve_student (pre-V6.3 GAS)
+                return { ok: false, reason: 'unsupported' };
+            } catch (e) {
+                lastError = e;
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 600 * attempt));
+                }
+            }
+        }
+        console.warn('resolve_student unreachable after retries (offline?):', lastError);
+        return { ok: false, reason: 'network' };
+    },
+
+    getCachedResolve(pin) {
+        try {
+            const raw = sessionStorage.getItem('gas_resolve_' + String(pin || '').trim().toUpperCase());
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    // Server-first PIN validation. Falls back to the legacy client-side roster
+    // check whenever the GAS is unreachable or predates resolve_student, so
+    // this rollout is safe on both old and new deployments.
+    async validateStudent(className, firstName, pin) {
+        pin = (pin || '').trim().toUpperCase();
+        const enteredName = (firstName || '').trim();
+
+        // 1. PIN is strictly mandatory
+        if (!pin) {
+            return {
+                valid: false,
+                message: "❌ Access Denied: Please enter your 3-letter student PIN."
+            };
+        }
+
+        // 2. Teacher & testing demo overrides (stay client-side for offline use)
+        if (pin === 'TST' || pin === 'WAU' || pin === 'DEV' || pin === 'MRW') {
+            return {
+                valid: true,
+                isTeacher: true,
+                name: enteredName || 'Teacher Demo',
+                pin: pin,
+                className: className || 'Teacher'
+            };
+        }
+
+        // 3. Ensure PIN format is exactly 3 letters
+        if (pin.length !== 3) {
+            return {
+                valid: false,
+                message: `❌ Invalid PIN: "${pin}". Student PINs must be exactly 3 uppercase letters.`
+            };
+        }
+
+        // 4. Server-first: validate against the GAS private roster
+        const remote = await this.resolveStudentRemote(pin);
+        if (remote.ok && remote.valid) {
+            const student = {
+                homeroom: remote.className,
+                first_name: remote.firstName || enteredName,
+                last_name: remote.lastInitial ? remote.lastInitial + '.' : '',
+                pin: pin,
+                verified_server: true
+            };
+            return {
+                valid: true,
+                student: student,
+                name: student.first_name,
+                pin: pin,
+                className: remote.className
+            };
+        }
+        if (remote.ok && !remote.valid) {
+            return {
+                valid: false,
+                message: `❌ Access Denied: PIN "${pin}" is not registered on the official class list.\n\nPlease check your 3-letter PIN slip or see Mr. Waugh.`
+            };
+        }
+
+        // 5. Fallback: old GAS or offline — legacy roster check
+        return this._validateStudentRoster(className, enteredName, pin);
+    },
+
+    // Legacy client-side roster validation (kept as the offline / old-GAS path)
+    _validateStudentRoster(className, enteredName, pin) {
+        enteredName = (enteredName || '').trim();
 
         // 1. PIN is strictly mandatory
         if (!pin) {
@@ -262,8 +374,8 @@ const StudentAPI = {
         pin = (pin || '').trim().toUpperCase();
         firstName = (firstName || '').trim();
 
-        // Enforce Authorized Roster Verification
-        const auth = this.validateStudent(className, firstName, pin);
+        // Enforce Authorized Roster Verification (server-first, roster fallback)
+        const auth = await this.validateStudent(className, firstName, pin);
         if (!auth.valid) {
             return { status: 'error', message: auth.message };
         }
@@ -865,6 +977,10 @@ const StudentAPI = {
         }
     }
 };
+
+// Pages that guard with `if (window.StudentAPI)` need this: a top-level `const`
+// never becomes a window property on its own.
+if (typeof window !== 'undefined') window.StudentAPI = StudentAPI;
 
 // Session storage helper with email and pronouns
 const Session = {
