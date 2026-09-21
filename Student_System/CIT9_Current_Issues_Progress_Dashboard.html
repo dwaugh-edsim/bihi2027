@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -28,6 +28,12 @@
             --text-muted: #475569;
             --text-dim: #64748b;
 
+                        --coral: #ed786a;
+            --coral-hover: #fd887a;
+            --coral-dark: #d65b4c;
+            --coral-bg: #fff1f0;
+            --coral-border: #fecdd3;
+            --border-card: #d5dbe3;
             --cyan: #0284c7;
             --blue: #2563eb;
             --indigo: #4f46e5;
@@ -36,9 +42,10 @@
             --rose: #e11d48;
             --purple: #9333ea;
 
-            --font-display: 'Outfit', sans-serif;
-            --font-body: 'Plus Jakarta Sans', sans-serif;
-            --font-slab: 'Roboto Slab', Georgia, serif;
+            --font-display: 'Arvo', Georgia, serif;
+            --font-heading: 'Arvo', Georgia, serif;
+            --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-slab: 'Arvo', Georgia, serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
@@ -73,7 +80,8 @@
             flex-wrap: wrap;
             gap: 16px;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 2px solid var(--border-subtle);
+            box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
             margin-bottom: 24px;
         }
 
@@ -84,14 +92,15 @@
         }
 
         .badge-room {
-            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            background: var(--coral);
             color: #ffffff;
-            font-family: var(--font-display);
-            font-weight: 800;
+            font-family: var(--font-heading);
+            font-weight: 700;
             font-size: 1.15em;
-            padding: 8px 16px;
-            border-radius: 10px;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+            padding: 6px 14px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
         }
 
         h1 {
@@ -181,10 +190,10 @@
         }
 
         .tab-btn.active {
-            background: #2563eb;
-            border-color: #3b82f6;
+            background: var(--coral);
+            border-color: var(--coral);
             color: #ffffff;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
         }
 
         .tab-badge {
@@ -1144,7 +1153,7 @@
             });
         }
 
-        // Live Cloud Sync with Concurrent Batching
+        // Live Cloud Sync with High-Speed Bulk Query & Fallback
         async function syncLiveCloudSubmissions(isBackground = false) {
             const btn = document.getElementById('btnSyncCloud');
             if (!isBackground && btn) {
@@ -1156,49 +1165,93 @@
             }
 
             const gr9 = (window.MASTER_ROSTER_DATA || []).filter(s => ['901', '902', '903'].includes(String(s.homeroom || '').trim()));
-            let newSynced = 0;
-            const BATCH_SIZE = 8;
+            let bulkSucceeded = false;
 
-            for (let i = 0; i < gr9.length; i += BATCH_SIZE) {
-                const batch = gr9.slice(i, i + BATCH_SIZE);
-                if (!isBackground && btn) {
-                    btn.innerHTML = `<span>⏳</span> Syncing (${Math.min(i + batch.length, gr9.length)}/${gr9.length})...`;
-                }
+            // STRATEGY 1: High-Speed Single Bulk Query
+            try {
+                const targetCls = (currentCohort === 'ALL') ? 'ALL' : currentCohort;
+                const bulkRes = await StudentAPI.getClassProgress(targetCls, 'CIT9');
+                if (bulkRes && bulkRes.status === 'success' && Array.isArray(bulkRes.students)) {
+                    bulkSucceeded = true;
+                    bulkRes.students.forEach(row => {
+                        const pin = (row.pin || '').toUpperCase();
+                        const task = String(row.task || '');
+                        const d = row.savedData ? (row.savedData.data || row.savedData) : {};
+                        const assign = row.assignments || {};
 
-                await Promise.all(batch.map(async s => {
-                    const cls = String(s.homeroom || '').trim();
-                    const pin = (s.pin || '').toUpperCase();
-                    const name = s.first_name;
-
-                    try {
-                        const res = await StudentAPI.login(cls, name, pin, 'CIT9');
-                        if (res && (res.savedData || res.task)) {
-                            const task = res.task || '';
-                            const d = res.savedData ? (res.savedData.data || res.savedData) : {};
-                            
-                            // 1. Diagnostic update
-                            if (task.includes('Current Issues') || d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue) {
-                                d.task = task;
-                                d.homeroom = cls;
-                                d.student_name = `${s.first_name} ${s.last_name}`;
-                                cachedSubmissions[pin] = d;
-                                newSynced++;
-                            }
-
-                            // 2. WHERE project update
-                            if (task.includes('WHERE') || d.p1 || d.where_personal || d.cat1_personal) {
-                                window.ROOM8_WHERE_INITIAL_DATA = window.ROOM8_WHERE_INITIAL_DATA || {};
-                                window.ROOM8_WHERE_INITIAL_DATA[pin] = d;
-                            }
+                        // 1. Diagnostic check (task name, payload, or visual gradebook column)
+                        let isCit = task.includes('Current Issues') || task.includes('CIT9') || !!(d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue);
+                        for (let k in assign) {
+                            if ((k.includes('Issues') || k.includes('Diagnostic')) && String(assign[k]).includes('✅')) isCit = true;
                         }
-                    } catch(e) {
-                        console.warn(`Sync failed for ${s.first_name} (${pin}):`, e);
-                    }
-                }));
 
-                // Live update UI as batches complete
-                updateMetrics();
-                renderStudentCards();
+                        if (isCit) {
+                            d.task = task;
+                            d.homeroom = row.className;
+                            d.student_name = row.name;
+                            cachedSubmissions[pin] = d;
+                        }
+
+                        // 2. WHERE project check (task name, payload, or visual gradebook column)
+                        let isWhere = task.includes('WHERE') || !!(d.p1 || d.where_personal || d.cat1_personal);
+                        for (let k in assign) {
+                            if (k.includes('WHERE') && String(assign[k]).includes('✅')) isWhere = true;
+                        }
+
+                        if (isWhere) {
+                            window.ROOM8_WHERE_INITIAL_DATA = window.ROOM8_WHERE_INITIAL_DATA || {};
+                            window.ROOM8_WHERE_INITIAL_DATA[pin] = d;
+                        }
+                    });
+                    updateMetrics();
+                    renderStudentCards();
+                }
+            } catch (err) {
+                console.warn("Bulk progress query error, falling back to batching:", err);
+            }
+
+            // STRATEGY 2: Fallback Batching if bulk query fails
+            if (!bulkSucceeded) {
+                const BATCH_SIZE = 8;
+                for (let i = 0; i < gr9.length; i += BATCH_SIZE) {
+                    const batch = gr9.slice(i, i + BATCH_SIZE);
+                    if (!isBackground && btn) {
+                        btn.innerHTML = `<span>⏳</span> Syncing (${Math.min(i + batch.length, gr9.length)}/${gr9.length})...`;
+                    }
+
+                    await Promise.all(batch.map(async s => {
+                        const cls = String(s.homeroom || '').trim();
+                        const pin = (s.pin || '').toUpperCase();
+                        const name = s.first_name;
+
+                        try {
+                            const res = await StudentAPI.login(cls, name, pin, 'CIT9');
+                            if (res && (res.savedData || res.task)) {
+                                const task = res.task || '';
+                                const d = res.savedData ? (res.savedData.data || res.savedData) : {};
+                                
+                                // 1. Diagnostic update
+                                if (task.includes('Current Issues') || d.issues || d.news_sources || d.primary_news || d.top_debate || d.personal_issue) {
+                                    d.task = task;
+                                    d.homeroom = cls;
+                                    d.student_name = `${s.first_name} ${s.last_name}`;
+                                    cachedSubmissions[pin] = d;
+                                }
+
+                                // 2. WHERE project update
+                                if (task.includes('WHERE') || d.p1 || d.where_personal || d.cat1_personal) {
+                                    window.ROOM8_WHERE_INITIAL_DATA = window.ROOM8_WHERE_INITIAL_DATA || {};
+                                    window.ROOM8_WHERE_INITIAL_DATA[pin] = d;
+                                }
+                            }
+                        } catch(e) {
+                            console.warn(`Sync failed for ${s.first_name} (${pin}):`, e);
+                        }
+                    }));
+
+                    updateMetrics();
+                    renderStudentCards();
+                }
             }
 
             try {

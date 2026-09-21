@@ -949,21 +949,39 @@ const ASSIGNMENT = {
         }
 
         function lookupStudentPin() {
-            const first = document.getElementById('claimFirstName').value.trim().toLowerCase();
-            const last = document.getElementById('claimLastName').value.trim().toLowerCase();
+            const rawFirst = document.getElementById('claimFirstName').value.trim();
+            const rawLast = document.getElementById('claimLastName').value.trim();
             const cls = document.getElementById('claimClassSelect').value;
 
-            if (!first) {
-                showToast('Please enter at least your first name.', true);
+            if (!rawFirst && !rawLast) {
+                showToast('Please enter at least your first or last name.', true);
                 return;
             }
+
+            const cleanStr = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+            const first = cleanStr(rawFirst);
+            const last = cleanStr(rawLast);
+
             const roster = window.MASTER_ROSTER_DATA || [];
             let matches = roster.filter(s => {
-                const sFirst = (s.first_name || '').toLowerCase();
-                const sLast = (s.last_name || '').toLowerCase();
-                if (last) return sFirst.includes(first) && sLast.includes(last);
-                return sFirst === first || sFirst.startsWith(first);
+                const sFirst = cleanStr(s.first_name);
+                const sFullFirst = cleanStr(s.full_first_name);
+                const sLast = cleanStr(s.last_name);
+
+                if (last) {
+                    const fnOk = sFirst.includes(first) || first.includes(sFirst) || sFullFirst.includes(first) || sFirst.startsWith(first) || first.startsWith(sFirst);
+                    const lnOk = sLast.includes(last) || last.includes(sLast) || sLast.split(' ').some(part => last.includes(part));
+                    return fnOk && lnOk;
+                }
+                if (first.includes(' ')) {
+                    const parts = first.split(' ');
+                    const fnOk = sFirst.startsWith(parts[0]) || parts[0].startsWith(sFirst);
+                    const lnOk = parts.slice(1).every(p => sLast.includes(p));
+                    return fnOk && lnOk;
+                }
+                return sFirst === first || sFirst.startsWith(first) || sFullFirst.startsWith(first) || sLast.includes(first);
             });
+
             if (matches.length > 1) {
                 const classMatches = matches.filter(s => String(s.homeroom || '') === cls);
                 if (classMatches.length > 0) matches = classMatches;

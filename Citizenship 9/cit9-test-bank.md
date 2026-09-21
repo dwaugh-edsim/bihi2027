@@ -5,17 +5,20 @@
 > **How to use:** Open this file in any markdown viewer. MCQ items are ready to copy into Google Forms (use the Form Builder add-on, same workflow as MM Studies). Short answer and long answer items are ready to print for handwritten in-class assessment. Answer keys appear at the bottom of each unit.
 >
 > **Coverage:**
-> - **Unit 1 Test** — Engaged Citizenship / Service Learning (lighter, supplementary)
-> - **Unit 2 Test** — Who Am I as a Citizen? (Indigenous Citizenship, Treaties, Reconciliation) — *MM Studies material simplified for Grade 9*
-> - **Unit 3 Test** — Financial Citizenship
-> - **Unit 4 Test** — Digital Citizenship
-> - **Unit 5 Test** — Governance (Indigenous + non-Indigenous, advocacy, protest) — *MM Studies material simplified for Grade 9*
-> - **Unit 6 Test** — Global Citizenship
-> - **Cumulative Term-End Exam** — All 5 content units (U1 excluded — assessed via project)
+> - **🗄️ Unit 1 Test** — Engaged Citizenship / Service Learning — **ARCHIVED** (v2 realignment: U1 = WHERE Project, portfolio-assessed; items recycled only)
+> - **Unit 2 Test** — Who Am I as a Citizen? (Indigenous Citizenship, Treaties, Reconciliation) — *administered Class 24 (Nov 18), 10%* — *MM Studies material simplified for Grade 9*
+> - **Unit 3 Test** — Financial Citizenship — *administered Class 37, 10%*
+> - **Unit 4 Test** — Digital Citizenship — *administered Class 48, 10%* (the Spot the Bias Media Project, Class 46, is the unit's other 10% summative)
+> - **Unit 5 Test** — Governance (Indigenous + non-Indigenous, advocacy, protest) — *administered Class 69, 10%* — *MM Studies material simplified for Grade 9*
+> - **Unit 6 Test** — Global Citizenship — **kept as an item bank only; there is no graded U6 test in the v2 plan** (capstone + Action Plan are the U6 summatives)
+> - **🗄️ Cumulative Term-End Exam** — **ARCHIVED** — there is no final exam; kept for item recycling
 
 ---
 
-## UNIT 1 TEST — Engaged Citizenship / Service Learning Project
+## 🗄️ ARCHIVED — UNIT 1 TEST (retired in the v2 realignment, Sept 2026)
+> Unit 1 is now **"Who Am I as a Citizen?"** and is assessed through the **WHERE Project Portfolio (10%)** and the Civic Foundations portfolio — **there is no U1 unit test.** The Service Learning material below was the v1 Unit 1; keep it for item recycling into SL formative work (proposal workshops, check-ins) and alternate demonstrations. **Do not administer as-is.**
+
+**Original header — UNIT 1 TEST — Engaged Citizenship / Service Learning Project**
 
 **Length:** ~30–40 minutes (supplementary test; project itself is the main assessment)
 **Format:** 10 MCQ + 4 short answer + 1 long answer
@@ -903,7 +906,7 @@ Counter-position: A critic might argue that school discipline and legal action w
 - C) The Indian Act
 - D) Provincial legislation
 
-**6. Section 2(b) of the Charter of Rights and Freedoms guarantees:**
+**6. Section 2(c) of the Charter of Rights and Freedoms guarantees:**
 - A) The right to vote
 - B) Freedom of peaceful assembly
 - C) The right to own property
@@ -1351,7 +1354,10 @@ UDHR connection: This connects to **Article 3** (right to life, liberty, and sec
 
 ---
 
-# CUMULATIVE TERM-END EXAM
+# 🗄️ ARCHIVED — CUMULATIVE TERM-END EXAM (retired in the v2 realignment, Sept 2026)
+> **Decision: there is no final exam in Citizenship 9.** Unit 6's summatives are the Global Citizen Action Plan and the Country Profile Capstone (Classes 85–88), per the published syllabus and `cit9-assessment-plan.md`. This complete exam is kept **for item recycling only** (formative retrieval banks, review games, alternate demonstrations). **Do not administer as-is.** *(This banner resolves the earlier contradiction: the end note claimed the exam was removed while a full exam remained in the bank.)*
+
+**Original header — CUMULATIVE TERM-END EXAM**
 
 **Length:** 75–90 minutes (one class + half of next, or one extended block)
 **Format:** 38 MCQ + 6 short answer + 2 long answer (students choose 2 of 3 prompts)
@@ -1509,7 +1515,7 @@ UDHR connection: This connects to **Article 3** (right to life, liberty, and sec
 - C) Power is held only by the provinces
 - D) Power is held only by Indigenous governments
 
-**24. Section 2(b) of the Charter guarantees:**
+**24. Section 2(c) of the Charter guarantees:**
 - A) The right to vote
 - B) Freedom of peaceful assembly
 - C) The right to own property
@@ -1668,7 +1674,7 @@ In your response:
 
 ---
 
-# CUMULATIVE TERM-END EXAM — ANSWER KEY
+# CUMULATIVE TERM-END EXAM — ANSWER KEY (ARCHIVED — item recycling only)
 
 ## Section 1: Multiple Choice
 
@@ -1821,7 +1827,8 @@ This section contains the **five unit quizzes** (10 questions each, worth 2% eac
 **Modelled on:** `mm-test-proposal.md` — same MCQ + Short Answer + Long Answer structure, same A/B/C/D format, same answer key convention.
 
 **Notes for Dave:**
-- Cumulative term-end exam and reflection journals have been completely removed.
+- The **cumulative term-end exam and the Unit 1 (Service Learning) test are RETIRED** in the v2 realignment — both remain below in archived form for item recycling only. **There is no final exam**; Unit 6's summatives are the Global Citizen Action Plan and the Country Profile Capstone.
+- Per-unit weight is now **10% each** for the four administered tests (U2 Class 24, U3 Class 37, U4 Class 48, U5 Class 69) per `cit9-assessment-plan.md` — the old 6% figures are obsolete. The five vocabulary quizzes are formative retrieval checks (Classes 23, 36, 47, 68, 80).
 - Five vocabulary-matching unit quizzes have been added to serve as low-stakes formative retrieval checks before tests.
 - Indigenous content (Shubenacadie, treaties, Donald Marshall Jr., Gladue, Idle No More, Sipekne'katik, Ipperwash) has been simplified and focused strictly around the Grade 9 Citizenship curriculum.
 - Sentencing circle scenario in outline Class 63 is aligned to **Liam's story** ("Two Paths: Liam's Journey" graphic novel script).

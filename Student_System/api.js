@@ -37,12 +37,23 @@ const StudentAPI = {
         }
 
         const clean = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+        const cleanClass = className ? String(className).trim().replace(/[^0-9]/g, '') : '';
 
-        // 1. If enteredPin is provided, strictly search by PIN
+        // Homeroom 801 alias: Samuel Hendricks Apud (initials S-H-A, assigned PIN SAH)
+        if (cleanClass === '801' && enteredPin === 'SHA') {
+            enteredPin = 'SAH';
+        }
+
+        // 1. If enteredPin is provided, search by PIN (prioritizing selected class)
         if (enteredPin) {
-            const pinMatch = roster.find(s => (s.pin || '').toUpperCase() === enteredPin);
+            let pinMatch = null;
+            if (cleanClass) {
+                pinMatch = roster.find(s => String(s.homeroom || '').trim() === cleanClass && (s.pin || '').toUpperCase() === enteredPin);
+            }
             if (!pinMatch) {
-                // Wrong or unregistered PIN — never fall back to loose name matching
+                pinMatch = roster.find(s => (s.pin || '').toUpperCase() === enteredPin);
+            }
+            if (!pinMatch) {
                 return { student: null, pin: enteredPin, name: enteredName, error: 'PIN not recognized' };
             }
 
@@ -52,9 +63,12 @@ const StudentAPI = {
                 const fn = clean(pinMatch.first_name);
                 const ffn = clean(pinMatch.full_first_name);
                 const ln = clean(pinMatch.last_name);
-                const nameMatches = fn.includes(term) || term.includes(fn) ||
-                                    ffn.includes(term) || term.includes(ffn) ||
-                                    ln.includes(term) || term.includes(ln);
+                const tokens = term.split(/\s+/).filter(Boolean);
+
+                const fnMatches = tokens.some(t => fn === t || ffn === t || fn.startsWith(t) || t.startsWith(fn) || ffn.startsWith(t) || t.startsWith(ffn));
+                const lnMatches = tokens.some(t => ln.includes(t) || t.includes(ln));
+                const nameMatches = fnMatches || lnMatches || fn.includes(term) || term.includes(fn) || ln.includes(term);
+
                 if (!nameMatches) {
                     return { student: null, pin: enteredPin, name: enteredName, error: 'Name and PIN mismatch' };
                 }
@@ -70,13 +84,12 @@ const StudentAPI = {
         }
 
         let classStudents = roster;
-        if (className) {
-            const clsStr = String(className).trim().toLowerCase().replace('cit', '').replace('hl', '').trim();
-            const matchedClass = roster.filter(s => String(s.homeroom || '').trim().toLowerCase() === clsStr);
+        if (cleanClass) {
+            const matchedClass = roster.filter(s => String(s.homeroom || '').trim() === cleanClass);
             if (matchedClass.length > 0) classStudents = matchedClass;
         }
 
-        // Direct match: First + Last or Last + First or Full First + Last
+        // Direct full name match
         let match = classStudents.find(s => {
             const full1 = clean(`${s.first_name} ${s.last_name}`);
             const full2 = clean(`${s.last_name} ${s.first_name}`);
@@ -84,7 +97,27 @@ const StudentAPI = {
             return full1 === term || full2 === term || full3 === term;
         });
 
-        // Substring / word match
+        // Tokenized match (e.g. "Sam Hendricks", "Sam Hendricks-Apud", "Hendricks Apud")
+        if (!match) {
+            const tokens = term.split(/\s+/).filter(Boolean);
+            const candidates = classStudents.filter(s => {
+                const fn = clean(s.first_name);
+                const ffn = clean(s.full_first_name);
+                const ln = clean(s.last_name);
+                const t0 = tokens[0];
+                const fnMatch = t0 === fn || t0 === ffn || fn.startsWith(t0) || t0.startsWith(fn) || ffn.startsWith(t0) || t0.startsWith(ffn);
+                if (fnMatch) {
+                    if (tokens.length === 1) return true;
+                    return tokens.slice(1).every(t => ln.includes(t));
+                }
+                return tokens.every(t => ln.includes(t));
+            });
+            if (candidates.length === 1) {
+                match = candidates[0];
+            }
+        }
+
+        // Substring / word match fallback
         if (!match) {
             match = classStudents.find(s => {
                 const fn = clean(s.first_name);
@@ -153,8 +186,35 @@ const StudentAPI = {
             };
         }
 
-        // 5. Look up PIN in official roster
-        const student = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
+        const cleanClass = className ? String(className).trim().replace(/[^0-9]/g, '') : '';
+
+        // Homeroom 801 alias: Samuel Hendricks Apud (initials S-H-A, assigned PIN SAH)
+        // Auto-resolve SHA -> SAH when in class 801
+        if (cleanClass === '801' && pin === 'SHA') {
+            pin = 'SAH';
+        }
+
+        // 5. Look up PIN in official roster, prioritizing selected class
+        let student = null;
+        if (cleanClass) {
+            student = roster.find(s => String(s.homeroom || '').trim() === cleanClass && (s.pin || '').trim().toUpperCase() === pin);
+        }
+
+        if (!student) {
+            // Check global roster
+            const globalMatch = roster.find(s => (s.pin || '').trim().toUpperCase() === pin);
+            if (globalMatch) {
+                // If the student is in a different homeroom, block cross-class confusion with a clear explanation
+                if (cleanClass && String(globalMatch.homeroom || '').trim() !== cleanClass) {
+                    return {
+                        valid: false,
+                        message: `❌ Class Mismatch: PIN "${pin}" belongs to ${globalMatch.first_name} ${globalMatch.last_name.charAt(0)}. in Class ${globalMatch.homeroom}, not Class ${cleanClass}.\n\nPlease check your 3-letter PIN slip for Class ${cleanClass}.`
+                    };
+                }
+                student = globalMatch;
+            }
+        }
+
         if (!student) {
             return { 
                 valid: false, 
@@ -164,25 +224,27 @@ const StudentAPI = {
 
         // 6. If Name was also entered, verify it matches the registered student for this PIN
         if (enteredName) {
-            const clean = str => (str || '').toLowerCase().replace(/[^a-z]/g, '');
+            const clean = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
             const inputClean = clean(enteredName);
             const fnClean = clean(student.first_name);
             const ffnClean = clean(student.full_first_name);
             const lnClean = clean(student.last_name);
-            const fullClean = fnClean + lnClean;
-            const fullFirstLast = ffnClean + lnClean;
-            const tBase = inputClean.replace(/[yi]$/, '');
+            const fullClean = `${fnClean} ${lnClean}`.replace(/\s+/g, '');
+            const fullFirstLast = `${ffnClean} ${lnClean}`.replace(/\s+/g, '');
+            const inputNoSpaces = inputClean.replace(/\s+/g, '');
+            const tokens = inputClean.split(/\s+/).filter(Boolean);
 
-            const nameMatches = inputClean === fnClean ||
-                                inputClean === ffnClean ||
-                                inputClean === lnClean ||
-                                inputClean === fullClean ||
-                                inputClean === fullFirstLast ||
+            const fnMatches = tokens.some(t => fnClean === t || ffnClean === t || fnClean.startsWith(t) || t.startsWith(fnClean) || ffnClean.startsWith(t) || t.startsWith(ffnClean));
+            const lnMatches = tokens.some(t => lnClean.includes(t) || t.includes(lnClean));
+
+            const nameMatches = fnMatches ||
+                                lnMatches ||
+                                inputNoSpaces === fullClean ||
+                                inputNoSpaces === fullFirstLast ||
                                 fnClean.startsWith(inputClean) ||
                                 inputClean.startsWith(fnClean) ||
                                 ffnClean.startsWith(inputClean) ||
-                                inputClean.startsWith(ffnClean) ||
-                                (tBase.length >= 3 && ffnClean.includes(tBase));
+                                inputClean.startsWith(ffnClean);
 
             if (!nameMatches) {
                 return { 

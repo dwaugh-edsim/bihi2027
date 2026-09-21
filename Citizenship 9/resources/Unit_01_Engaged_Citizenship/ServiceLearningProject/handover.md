@@ -65,24 +65,17 @@ graph TD
 ### LocalStorage Schema
 | Storage Key | Scope | Purpose |
 | :--- | :--- | :--- |
-| `sl_friday_user` | All | Stores the logged-in student name (e.g. `Abdul`, `Farhan`). |
+| `sl_friday_user` | All | Stores the logged-in student name (first name only). |
 | `sl_v2_missionSelect` | All | Stores the active mission code (e.g. `CIT-001`, `CIT-002`). |
 | `sl_local_{studentName}` | Student | Local backup JSON containing all current input field text. Used to prevent data loss. |
 | `sl_teacher_ai_key` | Teacher | Saves the teacher's Qwen API key (keeps key out of source control/public Apps Script URL). |
 | `diversionLab` | Student | Logs battery data objects `[{name, type, qty, taped, time}]` for the battery lab. |
 
 ### Roster & PIN Mapping
-Offline verification PINs reside in `Menu.html` and `File.html`:
+Offline verification PINs reside in `Menu.html` and `File.html`.
+> **PRIVACY SCRUB (Sept 2026):** last year's real student names + PINs were removed from this document and from the HTML files. Restore the current-year roster from the secure roster sheet at setup time — never commit real student names or PINs to the repo.
 ```json
-{
-  "Farhan": "HRNH", "Abdul": "ALZZ", "Joshua A": "RUXG", "Clark": "9F3K",
-  "Madhavan": "R4MT", "Remy": "YMRP", "Yunho": "T4N5", "Lachlan McM": "FFAN",
-  "Lachlan Mac": "25VT", "Nolan": "KFK6", "Laila": "V4BC", "Josie": "MVQW",
-  "Huda": "6SUB", "Brody": "JY2P", "Leo": "RKKJ", "Elizabeth": "FNG3",
-  "Fatima": "T6U2", "Alia": "LJFM", "Rifa": "57G5", "Sarah": "96EU",
-  "Jessa": "HSZU", "Delisha": "Q2YA", "Kendra": "MTGG", "Zankia": "CA3J",
-  "Evie": "R7SX", "Jana": "TT8D", "Ali": "D2ZD", "Kai": "VFW8", "Natalia": "RING"
-}
+{ "Demo Student": "DEMO" }
 ```
 
 ### The 7 Missions
@@ -157,15 +150,15 @@ Today, we are executing a final cleanup and stabilization sweep focused on custo
   * **Parser Stabilization**: Discovered a critical crash in the original PowerShell parsing logic: when parsing raw `ReflectionJSON` strings, the script attempted to dynamically assign values on the `PSCustomObject` returned by `ConvertFrom-Json` (e.g. `$parsed.topic = ...`). This throws a runtime exception in Windows PowerShell 5.1 and silently skipped the student's records in the `catch {}` block (causing them to show as empty/missing). 
   * Fixed this in `analyze_new_csv.ps1` by performing all data accumulation and key normalization (`topic` vs `missionSelect`, `studentId` vs `studentName`) safely inside a standard PowerShell hashtable (`$merged`) rather than mutating the parsed object.
   * Rebuilt the summary using `build_summary.ps1` to correctly reflect all students' latest records.
-* **Significant Student Progress**:
-  * **10 Students** are now fully complete with Step 1, Step 2, and Step 3 Setup Plans and ready for home logs (Alia, Delisha, Elizabeth, Farhan, Jessa, Joshua A, Kai, Lachlan Mac, Lachlan McM, Nolan).
-  * **7 Students** completed Step 1 & 2 but only need to write their Step 3 Setup Plan (Kendra, Natalia, Remy, Rifa, Sarah, Yunho, Madhavan). 
-  * Sarah, Natalia, Kendra, and Remy have successfully transitioned from blank pages to complete research and plans.
-  * Only **3 students** remain completely idle (Brody, Fatima, Jana).
+* **Significant Student Progress** *(names removed — privacy scrub, Sept 2026)*:
+  * **10 Students** are now fully complete with Step 1, Step 2, and Step 3 Setup Plans and ready for home logs.
+  * **7 Students** completed Step 1 & 2 but only need to write their Step 3 Setup Plan.
+  * Four students successfully transitioned from blank pages to complete research and plans.
+  * Only **3 students** remain completely idle.
 * **New Lapses Identified**:
-  * **Keyboard Mashes**: Abdul entered `"lkfi3hfiphq2i;fphjfope2hfop2qhfoph"` for his final reflection text. Leo entered `"eeeeeeeeeeee"` for Clue 2.
-  * **AI & Gibberish Citations**: Abdul used Google Gemini and ChatGPT as primary sources; Nolan used `"uih9 8 88"` and `"r3w r 3w"`; Joshua A used `"none other used"`.
-  * **Incomplete Setup Template**: Josie wrote the headers `"-parent script: ... -target areas: ... -safety & materials: ..."` in Step 3 but left the actual content blank.
+  * **Keyboard Mashes**: one student entered a keyboard-mash string for their final reflection; another entered a single repeated letter for Clue 2.
+  * **AI & Gibberish Citations**: one student listed Google Gemini and ChatGPT as primary sources; two others entered gibberish citations.
+  * **Incomplete Setup Template**: one student wrote the Step 3 headers but left the actual content blank.
 * **Deliverable**: Generated the updated [research_audit_report.md](file:///C:/Users/dave/.gemini/antigravity-ide/brain/9961cb78-808e-4f29-8fef-5b9d88215c49/research_audit_report.md) featuring the new status board, custom walkthrough scripts, and details of these new lapses.
 
 ### 8. Project Due Date Countdown Timer (2026-05-26)
@@ -183,7 +176,7 @@ Today, we are executing a final cleanup and stabilization sweep focused on custo
 The next developer should perform these critical validation checks to verify the changes:
 
 ### 1. Chromebook / Shared Device Testing
-* Log in as a test student (e.g., `Evie` with PIN `R7SX`) on a Chromebook or an incognito tab.
+* Log in as a test student (e.g., `Demo Student` with PIN `DEMO`) on a Chromebook or an incognito tab.
 * Progress through Step 1 (Plan). Check that:
   1. The progress bar updates.
   2. The next tab (Research) unlocks.

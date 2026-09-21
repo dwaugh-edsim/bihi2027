@@ -1,38 +1,38 @@
 # Citizenship 9 — Real-Calendar Overlay 2026–27 (90 Classes)
-**Status:** Companion to `cit9-outline.md`. The 90-class plan's **content, sequence, and assessments are unchanged** — this file re-anchors every class to the verified 2026–27 NSRCE calendar and Waugh's timetable (Cit9 runs exactly 5 classes/section/cycle: 901 = 94 slots, 902 = 90, 903 = 91). `cit9-outline.md` untouched.
+**Status:** Companion to `cit9-outline.md` (v2 realignment, Sept 2026). The 90 verified class slots and the date appendix below are **unchanged** — Cit9 runs exactly 5 classes/section/cycle (901 = 94 slots, 902 = 90, 903 = 91). This file re-anchors the **v2 content sequence** (WHERE-first Unit 1, Service Learning relaunched post-October) to the verified calendar. Class 1 = **Thursday Sept 3 for all three sections.**
 
-**Section drift is small** (901/902/903 stay within ~3 school days of each other until April, then diverge slightly). Class 1 = **Thursday Sept 3 for all three sections.**
+**Section drift is small** (901/902/903 stay within ~3 school days of each other until April). The three drift points that matter are flagged below.
 
 ---
 
-## Unit spans on the real calendar
+## Unit spans on the real calendar (v2 content sequence)
 
-| Unit | Classes | Dates (range across sections) | Notes |
+| Unit | Classes | Dates (range across sections) | Summative anchors |
 |---|---|---|---|
-| **U1 — Engaged Citizenship (SL Launch)** | 1–8 | **Sep 3 – Oct 1** | SL Proposal summative (Class 7) = **Sep 23, all sections**. Implementation launches Class 8 (Sep 24–Oct 1). |
-| **U2 — Who Am I as a Citizen?** | 9–22 | **Sep 28 – Nov 18** | See "Fall anchors" below — this block lands on Treaty Day and TRC week naturally. |
-| Check-ins + U2 wrap | 23–31 | Nov 18 – Dec 16 | Quiz 1 (Cl. 28) = Nov 25–Dec 7; **U2 Test (Cl. 30) = Dec 2–10** — lands cleanly before the break. |
-| **U3 — Financial Citizenship** | 32–42 | Dec 9 – Jan 21 | U3 Test (Cl. 42) = Jan 20–27. Budget sim spans the report-card window — see weights doc. |
-| **U4 — Digital Citizenship** | 43–52 | Jan 27 – Mar 4 | Quiz 4 (Cl. 51) = Feb 24–Mar 4; U4 Test (Cl. 52) = Feb 25–Mar 4 = **T2 report anchor**. |
-| **U5 — Governance + Mock Election** | 53–71 | Mar 15 – May 10 | **Mock Election (Cl. 56–59) = Mar 15–Apr 7** — rebrand the kit to *Bicentennial 2027* before running. U5 Test (Cl. 71) = Apr 22–May 5. |
-| **U6 — Global Citizenship** | 72–82 | May 5 – Jun 10 | U6 Test (Cl. 82) = **May 26–Jun 7** — last testable summative, inside the June-10 rule. |
-| **SL Showcase + Capstone** | 83–90 | **Jun 2 – Jun 30** | Showcase (85–86) + Country Profile capstone presentations (87–90) — the June project window, as designed. |
+| **U1 — Who Am I as a Citizen? (WHERE + Government Foundations)** | 1–8 | **Sep 3 – Sep 28** | WHERE Portfolio (10%) submits Cl. 3–4, locks Cl. 8 (Sep 24–28) |
+| **U2 — Rights, Treaties & Truth and Reconciliation** | 9–25 | **Sep 28 – Nov 23** | **U2 Test (Cl. 24) = Nov 18, ALL sections — inside Term 1.** Elder visit (Cl. 21) = Nov 5–9 window |
+| **U3 — Economic Citizenship (+ SL relaunch)** | 26–37 | **Nov 23 – Jan 13** | SL Proposal (10%) = Cl. 30 (Dec 3–10); U3 Test (Cl. 37) = Jan 6–13 |
+| **U4 — Digital Citizenship** | 38–49 | **Jan 11 – Feb 18** | Unit 4 block (10%): Media Project 5% = Cl. 46 (Feb 1–8); U4 Test 5% (Cl. 48) = Feb 4–12 |
+| **U5 — Governance & Service (+ SL execution)** | 50–70 | **Feb 17 – May 3** | Unit 5 block (10%): Mock Election 6% (Cl. 53–56) = Mar 1–22; U5 Test 4% (Cl. 69) = Apr 15–29 |
+| **U6 — Global Citizenship + Showcase + Capstone** | 71–90 | **Apr 21 – Jun 30** | Showcase + Log (Cl. 83–84) = May 27–Jun 18; Country Profile Capstone (Cl. 85–88) = Jun 3–24 |
 
-**Capacity bonus:** 901 has **4 spare slots** (classes 91–94, Jun 21–30) — use for showcase buffer, presentation catch-ups, or course close. 903 has 1 spare. 902 has none — protect 902's June dates first.
+**Capacity bonus:** 901 has **4 spare slots** (classes 91–94, Jun 21–30) — showcase buffer, catch-ups, or course close. 903 has 1 spare. 902 has none — protect 902's June dates first.
 
-## Fall anchors (U1/U2 land on the real observances — free relevance)
-- **Sept 28–29 (Classes 9):** TRC / Orange Shirt content fits here — Sept 30 is a no-school day, so teach it the class before. U2's worldview/reconciliation opening is perfectly positioned.
-- **Oct 1 — Treaty Day, schools OPEN:** Classes 9–10 fall on it (902 Cl. 9, 901/903 Cl. 10). Name it explicitly; the Peace & Friendship treaty framing starts here even if the deep dive is Classes 20–22.
-- **Nov 4 — Take Our Kids to Work Day (grade 9s absent):** Class 19 (902), Class 20 (901), and 903's Class 19 lands Nov 4 too. **Swap the lightest U2 class here** (a work/check-in or the Marshall timeline analysis), not a new sensitive-content delivery.
-- **Knowledge Keeper / Elder visit (Class 21):** lands **Nov 5–12**. The outline requires 6+ weeks' coordination → **booking outreach must happen by late September.** This is the most time-critical external dependency in the course.
+## Fall anchors (v2 sequence lands on the real observances — free relevance)
+- **Sept 28–29 (Class 9):** U2 launches with **Netukulimk + the 7 Districts** the class before Orange Shirt Day (Sept 30, no school) — the TRC framing is set up, not crammed.
+- **Oct 1 — Treaty Day, schools OPEN:** Class 10 IS the treaty class (1752/1760–61 + truckhouse clause, `Leo-1752-Treaty-Sim`). ⚠️ **902's Class 9 falls on Oct 1 — flip the order for 902 only:** treaty class first (Oct 1), Netukulimk launch second (Oct 5). 901/903 run 9→10 in order.
+- **Nov 4 — Take Our Kids to Work Day (grade 9s absent):** hits **902/903 Class 19 and 901 Class 20.** Both classes are built absence-tolerant (pair work sessions: Scoop-to-today jigsaw; Marshall timeline analysis) — no new sensitive-content delivery on these days.
+- **Knowledge Keeper / Elder visit (Class 21):** lands **Nov 5–9.** Requires 6+ weeks coordination → **outreach must go out the first week of September.** This is the most time-critical external dependency in the course. (`Elder_Visit_Outreach_Pack.md` has the draft email + protocol checklist.)
+- **March Break (Mar 15–19):** hits 901 at Classes 54–55 (campaign week + debate) — the Mock Election campaign stretches across the break for 901/903; vote day is Class 56 for everyone.
 
 ## Three reporting terms
-- **T1 (ends Nov 20):** Classes 1–24/25 → contains **SL Proposal (5%)** + all U2 content work but **no unit test** (U2 Test = Dec 2–10). See the three-term weights doc for how to make the Nov 23–30 report card meaningful (recommended: pull Quiz 1 forward to ~Class 22–23, Nov 9–18).
-- **T2 (ends Mar 4):** through Class ~54 → Quiz 1, U2 Test, U3 Test + budget reflection, U4 Quiz + U4 Test.
-- **T3:** Mock election cycle, U5 Test, U6 cycle + test, SL Showcase + Log, Country Profile capstone.
+- **T1 (ends Nov 20): Classes 1–25.** Graded: **WHERE Portfolio (10%) + U2 Test (10%, Nov 18)** + the Term-1 share of the 20% formative (civic foundations portfolio). The v1 problem — a November report resting on formative alone — is gone: the realignment puts a real summative INSIDE Term 1.
+- **T2 (Nov 23 – Mar 5): Classes 26–56.** Graded: **SL Proposal (10%, Cl. 30) + U3 Test (Cl. 37) + Media Project (Cl. 46) + U4 Test (Cl. 48)** + formative.
+- **T3 (Mar 8 – Jun 30): Classes 57–90.** Graded: **Election Simulation (10%, Cl. 53–56) + U5 Test (Cl. 69) + SL Showcase & Log (Cl. 83–84) + Country Profile Capstone (Cl. 85–88)** + formative.
+- The five vocabulary quizzes (Classes 23, 36, 47, 68, 80) are **formative retrieval checks** in every term.
 
 ## June thin-out compliance
-Classes 83–90 (Jun 2–30) are exactly the plan's Showcase + Capstone block; the last new-content summative (U6 Test) lands May 26–Jun 7. **Compliant as designed — protect these dates from re-planning.**
+The last testable summative is the **U5 Test (Cl. 69, by Apr 29)**. June carries only presentations and portfolio artifacts (Showcase, Capstone) — **compliant as designed; protect Classes 83–88 from re-planning.**
 
 ---
 
@@ -77,7 +77,7 @@ Classes 83–90 (Jun 2–30) are exactly the plan's Showcase + Capstone block; t
 | 35 | Dec 17 | Jan 07 | Jan 05 | | 80 | May 19 | Jun 02 | May 27 |
 | 36 | Jan 04 | Jan 11 | Jan 07 | | 81 | May 20 | Jun 04 | Jun 02 |
 | 37 | Jan 06 | Jan 13 | Jan 13 | | 82 | May 26 | Jun 07 | Jun 04 |
-| 38 | Jan 07 | Jan 15 | Jan 15 | | 83 | May 27 | Jun 10 | Jun 07 |
+| 38 | Jan 21 | Jan 29 | Jan 29 | | 83 | May 27 | Jun 10 | Jun 07 |
 | 39 | Jan 13 | Jan 18 | Jan 18 | | 84 | Jun 02 | Jun 14 | Jun 08 |
 | 40 | Jan 14 | Jan 21 | Jan 19 | | 85 | Jun 03 | Jun 16 | Jun 10 |
 | 41 | Jan 18 | Jan 25 | Jan 21 | | 86 | Jun 07 | Jun 18 | Jun 16 |
