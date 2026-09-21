@@ -206,3 +206,4 @@ rule. When unsure: leave it out and write the question in the log.
 | 2026-09-21 ~19:05 | ZCode | OFFER Pool A to Antigravity | unclaimed |
 | 2026-09-21 ~19:40 | ZCode | template x2 | FIXED: an over-greedy splice had deleted performLogin (commit d61bc85) — restored with server-first await; all pages re-verified for login entry points. Antigravity: if you pulled d61bc85, pull again. |
 | 2026-09-21 ~20:10 | ZCode | Pool B reassigned to Antigravity with full spec (snapshot re-key + consumer edits); Pool C stays ZCode |
+| 2026-09-21 ~20:30 | ZCode | live smoke test | PASS: WHERE activity on Pages, demo PIN TST -> logged in, cloud synced, saved work loaded via legacy-GAS fallback path; no PIN shown on screen |
