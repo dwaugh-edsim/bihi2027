@@ -53,16 +53,28 @@ to the login-resolved homeroom, and `restoreFormData` no longer overwrites it
 from stale saved `data.section`. Verified in captured POST: 803 login →
 `"className":"803"`.
 
-### F3 — OPEN: accepted saves not visible in `get_class_progress` reads (yet)
-Manual Cloud Submit returned `{"status":"submitted_successfully", "hash":
-"c7c34…", "byteLength": 14794, "version": "V6.2.1-…"}` at 19:19:26Z, but the
-`get_class_progress&className=801|803` reads 0–8 minutes later still showed
-the pre-save row. Hypotheses: (a) GAS-side CacheService on progress reads
-(the pii-harden log added `skip-cache` to `resolve_student` "for stale
-validation", implying other reads ARE cached), (b) write/read tab routing
-mismatch, (c) Sheets propagation delay. Under investigation with unique
-markers + timed re-reads. Note: this same lag would explain Chelsea's
-"stale" row on the opening slide earlier today.
+### F3 — ROOT-CAUSED: `get_class_progress` serves a cached read (minutes behind)
+
+Probe (save marker `F3PROBE-1790019476842` at 19:38Z, then timed reads):
+
+| read path | +0s | +3 min | +8 min |
+|---|---|---|---|
+| `action=login` (per-student load) | **HAS marker** | (transient GAS error page) | **HAS marker** |
+| `action=get_class_progress&className=803` | no | no | **still no** |
+
+Conclusion: **writes land instantly and are immediately readable via the
+per-student `login` action** — the write path is healthy. The class-level
+`get_class_progress` aggregate is served from a cache that runs minutes
+behind (TTL unknown, ≥8 min observed). This is the root cause of tonight's
+"Chelsea shows not-started" report and the opening slide's stale numbers.
+(the +3 min transient error page is the usual Apps Script flake — retries cover it.)
+
+**GAS-side fix (for the teacher, next time in the Apps Script editor):** in
+the `get_class_progress` branch of `doGet`, find the CacheService use (the
+pii-harden log added `skip-cache` to `resolve_student` for exactly this
+reason) and honour the same bypass — e.g. `if (e.parameter.cache === '0')`
+skip the cache lookup — then the opening slide can request fresh reads when
+the teacher hits 🔄. Alternatively shorten that cache TTL to 30–60 s.
 
 ### F4 — resilience note (per teacher reminder)
 Chromebooks keep `localStorage` drafts (`gas_draft_<slug>_<pin>`) — the page
