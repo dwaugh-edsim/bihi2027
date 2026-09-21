@@ -41,6 +41,13 @@ the hidden `DEMO` tab regardless of the posted class — so
 teacher-demo save landed, read `className=DEMO`. This was once misread as
 "get_class_progress is cached" (F3, Sept 21) — it isn't; class-tab reads are live.
 
+**Diagnosis norm:** when a live system contradicts the repo model, suspect a
+hidden branch first (demo-pin routing, exemplar guardrails, fail-closed gates,
+demo early-returns) — NOT that the human pasted or deployed wrong. Sept 21's F3
+misdiagnosis stacked an invented "the teacher's redeploy didn't take" story on
+top of a probe that was measuring the wrong tab; the redeploy had been fine all
+along. Humans break things less often than models miss hidden branches.
+
 ## Seating plans
 
 `seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in
