@@ -556,57 +556,10 @@
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <span>Forgot your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline;">Look up your assigned PIN &rarr;</a></span>
                     <span style="font-size: 0.78em;">Grade 9 Citizenship Roster</span>
                 </div>
             </div>
 
-            <div class="modal-backdrop" id="claimPinModal" onclick="handleClaimBackdrop(event)">
-                <div class="modal-box" onclick="event.stopPropagation()">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <div style="font-family: 'Roboto Slab', Georgia, serif; font-size: 1.25em; font-weight: 700; color: var(--text-heading);">
-                            Find Your 3-Letter PIN
-                        </div>
-                        <button type="button" onclick="closeClaimPinModal()" style="background: none; border: none; font-size: 1.4em; cursor: pointer; color: var(--text-muted); line-height: 1;">&times;</button>
-                    </div>
-                    <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px;">
-                        Enter your name below to retrieve your assigned PIN from the Grade 9 roster.
-                    </p>
-
-                    <div class="field-group" style="margin-bottom: 12px;">
-                        <label>Confirm Section</label>
-                        <select id="claimClassSelect">
-                            <option value="901" selected>CIT 901 (Grade 9)</option>
-                            <option value="902">CIT 902 (Grade 9)</option>
-                            <option value="903">CIT 903 (Grade 9)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-                        <div class="field-group">
-                            <label>First Name</label>
-                            <input type="text" id="claimFirstName" placeholder="e.g., Alex">
-                        </div>
-                        <div class="field-group">
-                            <label>Last Name</label>
-                            <input type="text" id="claimLastName" placeholder="e.g., Smith">
-                        </div>
-                    </div>
-
-                    <button class="btn" type="button" onclick="lookupOrCreatePin()" style="width: 100%; padding: 10px; margin-bottom: 14px; font-size: 0.85em;">
-                        Look Up My PIN
-                    </button>
-
-                    <div id="claimResultArea" style="display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 6px; padding: 14px; text-align: center; margin-bottom: 14px;">
-                        <div id="claimResultBadge" style="font-size: 0.8em; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 4px;">PIN Found</div>
-                        <div id="claimResultMsg" style="font-size: 0.85em; color: #14532d; margin-bottom: 10px;">Here is your personal PIN:</div>
-                        <div id="claimResultPin" style="font-family: monospace; font-size: 2.6em; font-weight: 900; color: #15803d; letter-spacing: 0.15em; margin-bottom: 12px; line-height: 1;">---</div>
-                        <button class="btn" id="btnApplyClaimed" type="button" onclick="applyClaimedPin()" style="width: 100%; background: #16a34a; border-color: #16a34a;">
-                            Use This PIN & Log In &rarr;
-                        </button>
-                    </div>
-                </div>
-            </div>
 
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('tab-matrix')">1. Current Events & Civic Dilemmas</button>
@@ -983,7 +936,7 @@
             const res = await StudentAPI.login(cls, name, pin, 'CIT9');
 
             if (res.status === 'success') {
-                document.getElementById('badgeStudent').innerHTML = `Logged in: <strong>${res.name || name}</strong> (${pin})`;
+                document.getElementById('badgeStudent').innerHTML = `Logged in: <strong>${res.name || name}</strong>`;
                 document.getElementById('syncBadge').style.display = 'inline-block';
                 document.getElementById('authLogoutBtn').style.display = 'inline-block';
                 document.getElementById('topLogoutBtn').style.display = 'inline-block';
@@ -1108,109 +1061,12 @@
 
         /* --- PIN Lookup Helpers --- */
         let cachedRoster = null;
-        let lastClaimedPin = '';
-        let lastClaimedName = '';
-        let lastClaimedClass = '';
 
-        async function getFullRoster() {
-            if (!cachedRoster) {
-                if (window.MASTER_ROSTER_DATA && window.MASTER_ROSTER_DATA.length > 0) {
-                    cachedRoster = window.MASTER_ROSTER_DATA;
-                } else {
-                    try {
-                        const res = await fetch('students_roster.json');
-                        cachedRoster = await res.json();
-                    } catch(e) {
-                        cachedRoster = [];
-                    }
-                }
-            }
-            return cachedRoster;
-        }
 
-        function openClaimPinModal() {
-            const currentClass = document.getElementById('classSelect').value;
-            document.getElementById('claimClassSelect').value = currentClass;
-            document.getElementById('claimFirstName').value = document.getElementById('firstNameInput').value.trim();
-            document.getElementById('claimLastName').value = '';
-            document.getElementById('claimResultArea').style.display = 'none';
-            document.getElementById('claimPinModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('claimFirstName').focus(), 50);
-        }
 
-        function closeClaimPinModal() {
-            document.getElementById('claimPinModal').style.display = 'none';
-        }
 
-        function handleClaimBackdrop(e) {
-            if (e.target.id === 'claimPinModal') {
-                closeClaimPinModal();
-            }
-        }
 
-        async function lookupOrCreatePin() {
-            const first = document.getElementById('claimFirstName').value.trim();
-            const last = document.getElementById('claimLastName').value.trim();
-            const cls = document.getElementById('claimClassSelect').value;
 
-            if (!first) {
-                alert("Please enter at least your First Name.");
-                return;
-            }
-
-            const roster = await getFullRoster();
-            const firstLower = first.toLowerCase();
-            const lastLower = last.toLowerCase();
-
-            const match = roster.find(s => {
-                const sFirst = (s.first_name || '').toLowerCase();
-                const sLast = (s.last_name || '').toLowerCase();
-                if (lastLower) {
-                    return sFirst.startsWith(firstLower) && sLast.includes(lastLower);
-                }
-                return sFirst === firstLower;
-            });
-
-            const resultArea = document.getElementById('claimResultArea');
-            const badge = document.getElementById('claimResultBadge');
-            const msg = document.getElementById('claimResultMsg');
-            const pinDisplay = document.getElementById('claimResultPin');
-            const btnApply = document.getElementById('btnApplyClaimed');
-
-            if (match && match.pin) {
-                badge.innerText = "PIN Found in Grade 9 Roster";
-                badge.style.color = "#166534";
-                resultArea.style.background = "#f0fdf4";
-                resultArea.style.borderColor = "#86efac";
-                msg.innerText = `Welcome, ${match.first_name}! Here is your assigned PIN:`;
-                pinDisplay.innerText = match.pin;
-                lastClaimedPin = match.pin;
-                lastClaimedName = match.first_name;
-                lastClaimedClass = match.homeroom || cls;
-                if (btnApply) btnApply.style.display = 'block';
-            } else {
-                badge.innerText = "Name Not Found";
-                badge.style.color = "#991b1b";
-                resultArea.style.background = "#fef2f2";
-                resultArea.style.borderColor = "#fca5a5";
-                msg.innerText = `"${first} ${last}".trim() is not found on the official Class ${cls} roster. Please check spelling, or ask Mr. Waugh.`;
-                pinDisplay.innerText = "---";
-                lastClaimedPin = "";
-                if (btnApply) btnApply.style.display = 'none';
-            }
-
-            resultArea.style.display = 'block';
-        }
-
-        function applyClaimedPin() {
-            if (!lastClaimedPin) return;
-            document.getElementById('firstNameInput').value = lastClaimedName;
-            document.getElementById('pinInput').value = lastClaimedPin;
-            document.getElementById('classSelect').value = lastClaimedClass;
-            onClassChange();
-            closeClaimPinModal();
-            loginAndRestore();
-        }
 
         function initMatrixRadioClick() {
             document.querySelectorAll('.matrix-table td.col-radio').forEach(td => {

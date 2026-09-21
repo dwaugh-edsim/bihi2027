@@ -711,7 +711,7 @@
     <div class="top-toolbar">
         <div class="toolbar-left">
             <span class="auth-user-pill">👤 <span id="authStudentName">Not Logged In</span> <span class="auth-pin-badge"
-                    id="authStudentPin">---</span> <span id="authStudentClass"></span></span>
+                    id="authStudentPin" style="display:none;" title="session PIN (hidden)">---</span> <span id="authStudentClass"></span></span>
             <span class="sync-pill locked" id="cloudSyncStatus"><span id="syncDot">🔒</span> <span id="saveText">Not Logged In — Not Saving</span></span>
             <span class="outbox-badge" id="outboxBadge" style="display:none;" title="Unsynced edits pending network retry">0 Pending</span>
             <span class="progress-container">Progress: <span class="progress-bar-wrap"><span class="progress-bar-fill"
@@ -763,7 +763,7 @@
                 🔑 Log In to Begin
             </button>
             <div style="font-size:0.75rem; color:#64748b; margin-top:8px;">
-                Teacher testing: PIN <code>TST</code> • Forgot your PIN? Click Login and choose "Forgot PIN"
+                Teacher testing: PIN <code>TST</code> • Forgot your PIN? Ask Mr. Waugh
             </div>
         </div>
 
@@ -823,54 +823,14 @@
                         style="font-family:'JetBrains Mono',monospace; font-weight:800; text-transform:uppercase; letter-spacing:0.1em;">
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                    <a href="javascript:void(0)" onclick="closeLoginModal(); openClaimModal();"
-                        style="font-size:0.75rem; color:var(--accent); font-weight:700;">Forgot PIN? Look Up Name
-                        &rarr;</a>
+                    <span style="font-size:0.75rem; color:var(--text-dim, #64748b); font-weight:600;">Forgot your
+                        PIN? Ask Mr. Waugh</span>
                     <button class="btn btn-primary" onclick="performLogin()">Login &amp; Load Work</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PIN LOOKUP MODAL -->
-    <div id="claimModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-head">
-                <div>
-                    <div class="modal-kicker" style="color:var(--amber);">PIN Lookup Tool</div>
-                    <h2>Find Your Official Room 8 PIN</h2>
-                </div>
-                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;"
-                    onclick="closeClaimModal()">✕</button>
-            </div>
-            <div class="modal-row" style="margin-top:0;">
-                <div>
-                    <label class="modal-label">CLASS</label>
-                    <select id="claimClassSelect" class="modal-input"></select>
-                </div>
-                <div>
-                    <label class="modal-label">YOUR FIRST NAME</label>
-                    <input type="text" id="claimFirstName" class="modal-input" placeholder="e.g. Alex">
-                </div>
-                <div>
-                    <label class="modal-label">YOUR LAST NAME (OPTIONAL)</label>
-                    <input type="text" id="claimLastName" class="modal-input" placeholder="e.g. Smith">
-                </div>
-                <button class="btn" style="justify-content:center;" onclick="lookupStudentPin()">Find My PIN</button>
-                <div id="claimResultArea"
-                    style="display:none; border-radius:8px; padding:12px; border:1.5px solid #cbd5e1; text-align:center;">
-                    <div id="claimResultMsg" style="font-size:0.84rem; font-weight:600; margin-bottom:6px;"></div>
-                    <div id="claimResultPin"
-                        style="font-family:'JetBrains Mono',monospace; font-size:1.8rem; font-weight:900; letter-spacing:0.1em; color:var(--accent);">
-                    </div>
-                    <button class="btn btn-success" id="btnApplyClaimed" style="margin-top:8px; display:none;"
-                        onclick="applyClaimedPin()">Log In With This PIN &rarr;</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CLOUD SAVE VERIFICATION CERTIFICATE MODAL -->
     <div id="verifyModal" class="modal-overlay">
         <div class="modal-box" style="border: 2.5px solid #10b981;">
             <div class="modal-head">
@@ -966,7 +926,6 @@
         let autoSaveTimer = null;
         let lastCloudSaveTime = null;
         let lastCloudPayload = null;
-        let pendingClaimedStudent = null;
         let outboxPendingCount = 0;
 
         // ── One-time render of page chrome from config ──────────
@@ -1307,125 +1266,10 @@
             setTimeout(() => document.getElementById('loginNameInput')?.focus(), 50);
         }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-        function openClaimModal() {
-            document.getElementById('claimModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('claimFirstName')?.focus(), 50);
-        }
-        function closeClaimModal() { document.getElementById('claimModal').style.display = 'none'; }
-
-        async function performLogin() {
-            const name = document.getElementById('loginNameInput').value.trim();
-            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
-            const cls = document.getElementById('loginClassSelect').value;
-
-            const auth = StudentAPI.validateStudent(cls, name, pin);
-            if (!auth.valid) {
-                showToast(auth.message, true);
-                return;
-            }
-            const student = auth.student || { first_name: auth.name, pin: auth.pin, homeroom: cls };
-
-            // ATOMIC IDENTITY CHANGE: flush outgoing student work -> clear form -> adopt new student
-            if (isIdentityChange(student)) {
-                const curData = collectData();
-                if (countCompleted(curData) > 0) {
-                    await submitWork(false);
-                }
-                clearFormData();
-            }
-
-            setAuthState(student);
-            closeLoginModal();
-            loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
-        }
-
-        function lookupStudentPin() {
-            const rawFirst = document.getElementById('claimFirstName').value.trim();
-            const rawLast = document.getElementById('claimLastName').value.trim();
-            const cls = document.getElementById('claimClassSelect').value;
-
-            if (!rawFirst && !rawLast) {
-                showToast('Please enter at least your first or last name.', true);
-                return;
-            }
-
-            const cleanStr = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-            const first = cleanStr(rawFirst);
-            const last = cleanStr(rawLast);
-
-            const roster = window.MASTER_ROSTER_DATA || [];
-            let matches = roster.filter(s => {
-                const sFirst = cleanStr(s.first_name);
-                const sFullFirst = cleanStr(s.full_first_name);
-                const sLast = cleanStr(s.last_name);
-
-                if (last) {
-                    const fnOk = sFirst.includes(first) || first.includes(sFirst) || sFullFirst.includes(first) || sFirst.startsWith(first) || first.startsWith(sFirst);
-                    const lnOk = sLast.includes(last) || last.includes(sLast) || sLast.split(' ').some(part => last.includes(part));
-                    return fnOk && lnOk;
-                }
-                if (first.includes(' ')) {
-                    const parts = first.split(' ');
-                    const fnOk = sFirst.startsWith(parts[0]) || parts[0].startsWith(sFirst);
-                    const lnOk = parts.slice(1).every(p => sLast.includes(p));
-                    return fnOk && lnOk;
-                }
-                return sFirst === first || sFirst.startsWith(first) || sFullFirst.startsWith(first) || sLast.includes(first);
-            });
-
-            if (matches.length > 1) {
-                const classMatches = matches.filter(s => String(s.homeroom || '') === cls);
-                if (classMatches.length > 0) matches = classMatches;
-            }
-
-            const resArea = document.getElementById('claimResultArea');
-            const resMsg = document.getElementById('claimResultMsg');
-            const resPin = document.getElementById('claimResultPin');
-            const btnApply = document.getElementById('btnApplyClaimed');
-            resArea.style.display = 'block';
-
-            if (matches.length === 1) {
-                const s = matches[0];
-                pendingClaimedStudent = s;
-                resMsg.innerText = `Matched: ${s.first_name} ${s.last_name} (Class ${s.homeroom})`;
-                resPin.innerText = s.pin;
-                resArea.style.background = '#f0fdf4';
-                resArea.style.borderColor = '#86efac';
-                btnApply.style.display = 'inline-block';
-            } else if (matches.length > 1) {
-                resMsg.innerText = `More than one student matches "${first}". Add your last name.`;
-                resPin.innerText = '???';
-                resArea.style.background = '#fef3c7';
-                resArea.style.borderColor = '#fde68a';
-                btnApply.style.display = 'none';
-            } else {
-                resMsg.innerText = `"${first}" was not found on the roster. Please see Mr. Waugh.`;
-                resPin.innerText = '---';
-                resArea.style.background = '#fef2f2';
-                resArea.style.borderColor = '#fca5a5';
-                btnApply.style.display = 'none';
-            }
-        }
-
-        async function applyClaimedPin() {
-            if (pendingClaimedStudent) {
-                const student = pendingClaimedStudent;
-                if (isIdentityChange(student)) {
-                    const curData = collectData();
-                    if (countCompleted(curData) > 0) {
-                        await submitWork(false);
-                    }
-                    clearFormData();
-                }
-                setAuthState(student);
-                closeClaimModal();
-                loadCloudWorkForStudent(student.homeroom, student.pin, student.first_name);
-            }
-        }
 
         // ── Cloud sync ───────────────────────────────────────────
         async function loadCloudWorkForStudent(cls, pin, name) {
-            showToast(`Loading saved work for ${name} (${pin})...`);
+            showToast(`Loading saved work for ${name}...`);
             updateSyncPill('saving', 'Loading');
 
             const key = draftKey(pin);
@@ -1562,7 +1406,6 @@
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 14px; margin-bottom:12px;">
                     <strong style="color:#166534;">YOUR WORK WAS SAVED TO THE CLOUD!</strong><br>
                     <strong>Name:</strong> ${payload.auditors || payload.name || 'Student'} &bull;
-                    <strong>PIN:</strong> ${payload.pin || '---'} &bull;
                     <strong>Class:</strong> ${payload.section || payload.className}<br>
                     <strong>Assignment:</strong> ${ASSIGNMENT.taskName}
                 </div>
@@ -1608,7 +1451,6 @@
             md += `**Lead Auditor:** ${data.auditors || 'Not entered'}  \n`;
             if (data.partner) md += `**Partner:** ${data.partner}  \n`;
             md += `**Class:** ${data.section || ''}  \n`;
-            md += `**PIN:** ${data.pin || 'Unassigned'}  \n`;
             md += `**Date:** ${data.date || new Date().toLocaleDateString()}  \n\n`;
 
             for (const sec of ASSIGNMENT.sections) {
@@ -1637,7 +1479,12 @@
                 if (pin && pin !== 'draft') {
                     const roster = window.MASTER_ROSTER_DATA || [];
                     const s = roster.find(st => (st.pin || '').toUpperCase() === pin.toUpperCase());
-                    if (s) setAuthState(s);
+                    if (s) {
+                        setAuthState(s);
+                    } else {
+                        const cached = StudentAPI.getCachedResolve(pin);
+                        if (cached) setAuthState({ pin: pin, homeroom: cached.className || '', first_name: cached.firstName || 'Student' });
+                    }
                 }
                 showToast('Draft restored! Saving to Google Sheets...');
                 dismissRecoveryBanner();
@@ -1698,8 +1545,11 @@
                 foundDrafts.sort((a, b) => b.savedAt - a.savedAt);
                 const latest = foundDrafts[0];
                 const roster = window.MASTER_ROSTER_DATA || [];
+                const cached = StudentAPI.getCachedResolve(latest.pin);
                 const s = roster.find(st => (st.pin || '').toUpperCase() === latest.pin.toUpperCase());
-                const sName = s ? `${s.first_name} ${s.last_name || ''} (${latest.pin} • Class ${s.homeroom || ''})` : `PIN ${latest.pin}`;
+                const who = s ? `${s.first_name} ${s.last_name || ''}` : (cached && cached.firstName ? cached.firstName : '');
+                const whoCls = s ? (s.homeroom || '') : ((cached && cached.className) || '');
+                const sName = who ? `${who}${whoCls ? ' • Class ' + whoCls : ''}` : 'your saved draft';
                 const timeNote = latest.savedAt ? ` (saved ${new Date(latest.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})` : '';
                 const banner = document.getElementById('recoveryBanner');
                 const text = document.getElementById('recoveryBannerText');
@@ -1717,9 +1567,13 @@
             if (savedPin && savedPin !== '---') {
                 const roster = window.MASTER_ROSTER_DATA || [];
                 const s = roster.find(st => (st.pin || '').toUpperCase() === savedPin.toUpperCase());
+                const cachedS = StudentAPI.getCachedResolve(savedPin);
                 if (s) {
                     setAuthState(s);
                     loadCloudWorkForStudent(savedClass, savedPin, s.first_name);
+                } else if (cachedS) {
+                    setAuthState({ pin: savedPin, homeroom: cachedS.className || savedClass, first_name: cachedS.firstName || 'Student' });
+                    loadCloudWorkForStudent(cachedS.className || savedClass, savedPin, cachedS.firstName || 'Student');
                 } else {
                     setAuthState({ pin: savedPin, homeroom: savedClass, first_name: 'Student' });
                     const key = draftKey(savedPin);

@@ -930,8 +930,6 @@
                     style="margin-top: 10px; font-size: 0.82em; color: var(--text-muted); display: flex; justify-content: space-between;">
                     <span>Tip: Enter your <strong>3-letter PIN</strong> to automatically load your identity and
                         section!</span>
-                    <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()"
-                            style="color: var(--primary); font-weight: 700;">Look up your assigned PIN &rarr;</a></span>
                 </div>
             </div>
 
@@ -1430,43 +1428,6 @@
         </div>
     </div>
 
-    <!-- PIN Claim Modal -->
-    <div class="modal-overlay" id="claimPinModal">
-        <div
-            style="background: #ffffff; border-radius: 8px; max-width: 440px; width: 100%; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-            <h3 style="margin-bottom: 6px;">Find Your 3-Letter PIN</h3>
-            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 14px;">Select your class and name to
-                look up your personal PIN:</p>
-            <div class="field-group" style="margin-bottom: 12px;">
-                <label>Class</label>
-                <select id="modalClassSelect" onchange="populateModalNames()">
-                    <option value="901">CIT 901 (Grade 9)</option>
-                    <option value="902">CIT 902 (Grade 9)</option>
-                    <option value="903" selected>CIT 903 (Grade 9)</option>
-                </select>
-            </div>
-            <div class="field-group" style="margin-bottom: 16px;">
-                <label>Your Name</label>
-                <select id="modalNameSelect" onchange="onModalStudentChosen()">
-                    <option value="">-- Choose your name --</option>
-                </select>
-            </div>
-            <div id="modalPinDisplay"
-                style="display: none; background: #f8fafc; border: 1px solid var(--border-dark); border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 16px;">
-                <div style="font-size: 0.8em; color: var(--text-muted); text-transform: uppercase;">Your 3-Letter PIN:
-                </div>
-                <div id="modalPinText"
-                    style="font-size: 2.2em; font-weight: 800; font-family: monospace; color: var(--primary); letter-spacing: 0.1em;">
-                    ---</div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button class="btn btn-secondary" type="button" onclick="closeClaimPinModal()">Cancel</button>
-                <button class="btn btn-primary" type="button" id="btnUseClaimedPin" style="display: none;"
-                    onclick="useClaimedPin()">Use This PIN</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Toast Notification -->
     <div id="toast"></div>
 
@@ -1807,7 +1768,7 @@
 
             // Update Header Banner
             document.getElementById('pf-student-heading').innerText = `${studentName}'s Places of Significance`;
-            document.getElementById('pf-meta-info').innerText = `Citizenship 9 &bull; Class ${cls} &bull; PIN: ${pin} &bull; Room 8 Bicentennial Junior High`;
+            document.getElementById('pf-meta-info').innerText = `Citizenship 9 &bull; Class ${cls} &bull; Room 8 Bicentennial Junior High`;
 
             // Update 4 Cards
             const cardKeys = [
@@ -2104,7 +2065,7 @@
             const badge = document.getElementById('badgeStudent');
             if (badge) {
                 if (student) {
-                    badge.innerText = `👤 ${student.first_name} ${student.last_name || ''} (${student.pin}) • Class ${student.homeroom || '902'}`;
+                    badge.innerText = `👤 ${student.first_name} ${student.last_name || ''} • Class ${student.homeroom || '902'}`;
                 } else {
                     badge.innerText = "Enter PIN below to load profile";
                 }
@@ -2145,8 +2106,14 @@
                     loadWaughExemplar();
                     return;
                 }
-                const roster = window.MASTER_ROSTER_DATA || [];
-                const matched = roster.find(s => (s.pin || '').toUpperCase() === rawPin);
+                const serverRes = (window.StudentAPI) ? await StudentAPI.resolveStudentRemote(rawPin) : { ok: false };
+                let matched = null;
+                if (serverRes.ok && serverRes.valid) {
+                    matched = { first_name: serverRes.firstName || '', homeroom: serverRes.className || '902', pin: rawPin };
+                } else if (!serverRes.ok) {
+                    const roster = window.MASTER_ROSTER_DATA || [];
+                    matched = roster.find(s => (s.pin || '').toUpperCase() === rawPin);
+                }
                 if (matched) {
                     if (isIdentityChange(rawPin)) {
                         if (countCompletedFields() > 0) {
@@ -2180,7 +2147,7 @@
                 return;
             }
 
-            const auth = StudentAPI.validateStudent(cls, firstName, pin);
+            const auth = await StudentAPI.validateStudent(cls, firstName, pin);
             if (!auth.valid) {
                 showToast(auth.message, true);
                 setAuthState(null);
@@ -2646,7 +2613,7 @@
                     <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px; margin-bottom: 14px;">
                         <strong style="color: #15803d; font-size: 1rem;">✅ LIVE CLOUD RECORD CONFIRMED</strong>
                         <div style="font-size: 0.8rem; color: #166534; margin-top: 3px;">
-                            Student: <strong>${studentName}</strong> (PIN: ${pin}) &bull; Section: <strong>${cls}</strong> &bull; Status: <strong>HTTP 200 Cloud Verified</strong>
+                            Student: <strong>${studentName}</strong> &bull; Section: <strong>${cls}</strong> &bull; Status: <strong>HTTP 200 Cloud Verified</strong>
                         </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -2678,7 +2645,7 @@
                 body.innerHTML = `
                     <div style="background: #fee2e2; border: 1.5px solid #f87171; border-radius: 8px; padding: 14px; color: #991b1b;">
                         <strong>⚠️ CLOUD VERIFICATION PENDING</strong>
-                        <p style="margin-top: 4px; font-size: 0.82rem;">The server did not return a confirmed record for PIN ${pin}. Please make sure you clicked "Save to Google Sheets" and your Chromebook is connected to Wi-Fi.</p>
+                        <p style="margin-top: 4px; font-size: 0.82rem;">The server did not return a confirmed record for your PIN. Please make sure you clicked "Save to Google Sheets" and your Chromebook is connected to Wi-Fi.</p>
                     </div>
                 `;
                 timeEl.innerText = `Check failed at ${new Date().toLocaleTimeString()}`;
@@ -2696,7 +2663,7 @@
             const name = PlacesSession.getName() || document.getElementById('firstNameInput').value.trim();
             const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
 
-            const text = `THE "WHERE" PROJECT — Places of Significance\nStudent: ${name} (${pin})\n\n1. Personal Place:\n${p1}\n\n2. Community Place:\n${p2}\n\n3. Global Heritage Place:\n${p3}\n\n4. Aspirational Place:\n${p4}\n\n5. Soundtrack Memory:\n${p5}\n`;
+            const text = `THE "WHERE" PROJECT — Places of Significance\nStudent: ${name}\n\n1. Personal Place:\n${p1}\n\n2. Community Place:\n${p2}\n\n3. Global Heritage Place:\n${p3}\n\n4. Aspirational Place:\n${p4}\n\n5. Soundtrack Memory:\n${p5}\n`;
             navigator.clipboard.writeText(text).then(() => {
                 showToast("📋 All 5 places copied to clipboard! You can paste into Google Docs as a backup.");
             }).catch(() => {
@@ -2818,63 +2785,10 @@
         }
 
         // Claim PIN Modal
-        function openClaimPinModal() {
-            populateModalNames();
-            document.getElementById('claimPinModal').style.display = 'flex';
-        }
 
-        function closeClaimPinModal() {
-            document.getElementById('claimPinModal').style.display = 'none';
-        }
 
-        function populateModalNames() {
-            const cls = document.getElementById('modalClassSelect').value;
-            const select = document.getElementById('modalNameSelect');
-            select.innerHTML = '<option value="">-- Choose your name --</option>';
 
-            const roster = window.MASTER_ROSTER_DATA || [];
-            const filtered = roster.filter(s => {
-                if (cls === '901' || cls === '902' || cls === '903') return s.homeroom === cls || (s.grade === 9 && s.homeroom === cls);
-                if (cls === '801' || cls === '802') return s.homeroom === cls || (s.grade === 8 && s.homeroom === cls);
-                return true;
-            });
 
-            filtered.sort((a, b) => (a.last_name || '').localeCompare(b.last_name || ''));
-            filtered.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.pin;
-                opt.textContent = `${s.last_name}, ${s.first_name}`;
-                select.appendChild(opt);
-            });
-
-            document.getElementById('modalPinDisplay').style.display = 'none';
-            document.getElementById('btnUseClaimedPin').style.display = 'none';
-        }
-
-        function onModalStudentChosen() {
-            const pin = document.getElementById('modalNameSelect').value;
-            if (pin) {
-                document.getElementById('modalPinText').innerText = pin;
-                document.getElementById('modalPinDisplay').style.display = 'block';
-                document.getElementById('btnUseClaimedPin').style.display = 'inline-block';
-            } else {
-                document.getElementById('modalPinDisplay').style.display = 'none';
-                document.getElementById('btnUseClaimedPin').style.display = 'none';
-            }
-        }
-
-        function useClaimedPin() {
-            const pin = document.getElementById('modalNameSelect').value;
-            const select = document.getElementById('modalNameSelect');
-            const studentText = select.options[select.selectedIndex].text;
-            const firstName = studentText.split(',')[1]?.trim() || '';
-
-            document.getElementById('pinInput').value = pin;
-            document.getElementById('firstNameInput').value = firstName;
-            document.getElementById('classSelect').value = document.getElementById('modalClassSelect').value;
-            closeClaimPinModal();
-            loginAndRestore();
-        }
 
         function restoreAndSaveDraft() {
             if (!window._recoveryDraft) return;
@@ -2889,6 +2803,14 @@
                 if (s.homeroom) document.getElementById('classSelect').value = s.homeroom;
                 PlacesSession.set(s.homeroom || '902', s.first_name, pin);
                 updateAuthDisplay(s);
+            } else {
+                const cached = (window.StudentAPI) ? StudentAPI.getCachedResolve(pin) : null;
+                if (cached) {
+                    document.getElementById('firstNameInput').value = cached.firstName || '';
+                    document.getElementById('classSelect').value = cached.className || '902';
+                    PlacesSession.set(cached.className || '902', cached.firstName || '', pin);
+                    updateAuthDisplay({ pin: pin, homeroom: cached.className || '902', first_name: cached.firstName || 'Student', last_name: '' });
+                }
             }
             applyDraftData(draft.data);
             showToast("Draft restored! Now saving to Google Sheets...");
@@ -2953,7 +2875,10 @@
                 const latestDraft = foundDrafts[0];
                 const roster = window.MASTER_ROSTER_DATA || [];
                 const s = roster.find(st => (st.pin || '').toUpperCase() === latestDraft.pin);
-                const sName = s ? `${s.first_name} ${s.last_name || ''} (${latestDraft.pin} • Class ${s.homeroom || '902'})` : `PIN ${latestDraft.pin}`;
+                const cached = (window.StudentAPI) ? StudentAPI.getCachedResolve(latestDraft.pin) : null;
+                const who = s ? `${s.first_name} ${s.last_name || ''}` : (cached && cached.firstName ? cached.firstName : '');
+                const whoCls = s ? (s.homeroom || '902') : ((cached && cached.className) || '902');
+                const sName = who ? `${who} • Class ${whoCls}` : 'your saved draft';
 
                 const recBanner = document.getElementById('chromebookRecoveryBanner');
                 const recText = document.getElementById('recoveryBannerText');

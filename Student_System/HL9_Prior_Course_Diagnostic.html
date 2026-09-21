@@ -569,57 +569,9 @@
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: gap: 8px;">
                     <span>Tip: You can log in with your <strong>3-letter PIN</strong> or your <strong>full name</strong>!</span>
-                    <span>Don't know your PIN? <a href="javascript:void(0)" onclick="openClaimPinModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline;">Look up your assigned PIN &rarr;</a></span>
                 </div>
             </div>
 
-            <!-- Modal for Claiming / Generating PIN -->
-            <div class="modal-backdrop" id="claimPinModal" onclick="handleClaimBackdrop(event)">
-                <div class="modal-box" onclick="event.stopPropagation()">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <div style="font-family: 'Roboto Slab', Georgia, serif; font-size: 1.25em; font-weight: 700; color: var(--text-heading);">
-                            🔑 Find or Claim Your 3-Letter PIN
-                        </div>
-                        <button type="button" onclick="closeClaimPinModal()" style="background: none; border: none; font-size: 1.4em; cursor: pointer; color: var(--text-muted); line-height: 1;">&times;</button>
-                    </div>
-                    <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px;">
-                        Enter your name below. We'll search the Grade 9 roster for your PIN or generate a new one if you're unlisted.
-                    </p>
-
-                    <div class="field-group" style="margin-bottom: 12px;">
-                        <label>Confirm Your Section</label>
-                        <select id="claimClassSelect">
-                            <option value="901">CIT / HL 901 (Grade 9)</option>
-                            <option value="902">CIT / HL 902 (Grade 9)</option>
-                            <option value="903" selected>CIT / HL 903 (Grade 9)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-                        <div class="field-group">
-                            <label>First Name</label>
-                            <input type="text" id="claimFirstName" placeholder="e.g., Alex">
-                        </div>
-                        <div class="field-group">
-                            <label>Last Name</label>
-                            <input type="text" id="claimLastName" placeholder="e.g., Smith">
-                        </div>
-                    </div>
-
-                    <button class="btn" type="button" onclick="lookupOrCreatePin()" style="width: 100%; padding: 10px; margin-bottom: 14px; font-size: 0.85em;">
-                        🔍 Look Up My PIN
-                    </button>
-
-                    <div id="claimResultArea" style="display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 6px; padding: 14px; text-align: center; margin-bottom: 14px;">
-                        <div id="claimResultBadge" style="font-size: 0.8em; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 4px;">PIN Found</div>
-                        <div id="claimResultMsg" style="font-size: 0.85em; color: #14532d; margin-bottom: 10px;">Here is your personal PIN:</div>
-                        <div id="claimResultPin" style="font-family: monospace; font-size: 2.8em; font-weight: 900; color: #15803d; letter-spacing: 0.15em; margin-bottom: 12px; line-height: 1;">---</div>
-                        <button class="btn" id="btnApplyClaimed" type="button" onclick="applyClaimedPin()" style="width: 100%; background: #16a34a; border-color: #16a34a;">
-                            Use This PIN & Log In &rarr;
-                        </button>
-                    </div>
-                </div>
-            </div>
 
             <!-- LOGIN GATE BANNER (A1): shown while locked; button focuses the inline login fields above -->
             <div class="login-gate-banner" id="loginGateBanner" style="display:none;">
@@ -951,7 +903,7 @@
                 if (fieldset) fieldset.disabled = false;
                 if (gate) gate.style.display = 'none';
                 if (badgeStudent) {
-                    badgeStudent.innerHTML = `Logged in: <strong>${student.name}</strong> (${student.pin})`;
+                    badgeStudent.innerHTML = `Logged in: <strong>${student.name}</strong>`;
                     badgeStudent.style.color = '';
                 }
                 if (topLogout) topLogout.style.display = 'inline-block';
@@ -1325,7 +1277,7 @@
             let pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
             // --- AUTHORIZED ROSTER GATE WITH AUTO-RESOLUTION ---
-            const auth = StudentAPI.validateStudent(cls, name, pin);
+            const auth = await StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
                 showToast(auth.message, true);
                 return;
@@ -1543,7 +1495,7 @@
             }
 
             // --- AUTHORIZED ROSTER GATE ---
-            const auth = StudentAPI.validateStudent(cls, name, pin);
+            const auth = await StudentAPI.validateStudent(cls, name, pin);
             if (!auth.valid) {
                 showToast(auth.message, true);
                 return;
@@ -1610,162 +1562,18 @@
 
         /* --- CLAIM & GENERATE PIN HELPERS --- */
         let cachedRoster = null;
-        let lastClaimedPin = '';
-        let lastClaimedName = '';
-        let lastClaimedClass = '';
 
         const EXCLUDED_CHARS = new Set(["O", "I", "L", "F"]);
         const BLOCKED_WORDS = new Set(["ASS", "SEX", "WTF", "CUM", "DIE", "FAG", "GAY", "BRA", "TIT", "POO", "PEE", "DAM", "GOD", "GUN"]);
         const ALLOWED_CHARS = "ABCDEGHJKMNPQRSTUVWXYZ".split('').filter(c => !EXCLUDED_CHARS.has(c));
 
-        async function getFullRoster() {
-            if (!cachedRoster) {
-                if (window.MASTER_ROSTER_DATA && window.MASTER_ROSTER_DATA.length > 0) {
-                    cachedRoster = window.MASTER_ROSTER_DATA;
-                } else {
-                    try {
-                        const res = await fetch('students_roster.json');
-                        cachedRoster = await res.json();
-                    } catch(e) {
-                        cachedRoster = [];
-                    }
-                }
-            }
-            return cachedRoster;
-        }
 
-        function isCleanPin(pin, usedSet) {
-            if (!pin || pin.length !== 3) return false;
-            pin = pin.toUpperCase();
-            for (let char of pin) {
-                if (EXCLUDED_CHARS.has(char) || !ALLOWED_CHARS.includes(char)) return false;
-            }
-            if (BLOCKED_WORDS.has(pin)) return false;
-            if (usedSet.has(pin)) return false;
-            return true;
-        }
 
-        function generateCleanPin(first, last, usedSet) {
-            const cleanFirst = (first || '').toUpperCase().split('').filter(c => !EXCLUDED_CHARS.has(c) && ALLOWED_CHARS.includes(c)).join('');
-            const cleanLast = (last || '').toUpperCase().split('').filter(c => !EXCLUDED_CHARS.has(c) && ALLOWED_CHARS.includes(c)).join('');
 
-            if (cleanFirst.length >= 2 && cleanLast.length >= 1) {
-                let p = cleanFirst.substring(0, 2) + cleanLast[0];
-                if (isCleanPin(p, usedSet)) return p;
-            }
-            if (cleanFirst.length >= 1 && cleanLast.length >= 2) {
-                let p = cleanFirst[0] + cleanLast.substring(0, 2);
-                if (isCleanPin(p, usedSet)) return p;
-            }
-            if (cleanFirst.length >= 3) {
-                let p = cleanFirst.substring(0, 3);
-                if (isCleanPin(p, usedSet)) return p;
-            }
-            if (cleanLast.length >= 3) {
-                let p = cleanLast.substring(0, 3);
-                if (isCleanPin(p, usedSet)) return p;
-            }
-            const pool = cleanFirst + cleanLast;
-            for (let i = 0; i < pool.length; i++) {
-                for (let j = i + 1; j < pool.length; j++) {
-                    for (let k = j + 1; k < pool.length; k++) {
-                        let p = pool[i] + pool[j] + pool[k];
-                        if (isCleanPin(p, usedSet)) return p;
-                    }
-                }
-            }
-            for (let attempts = 0; attempts < 100; attempts++) {
-                let p = ALLOWED_CHARS[Math.floor(Math.random() * ALLOWED_CHARS.length)] +
-                        ALLOWED_CHARS[Math.floor(Math.random() * ALLOWED_CHARS.length)] +
-                        ALLOWED_CHARS[Math.floor(Math.random() * ALLOWED_CHARS.length)];
-                if (isCleanPin(p, usedSet)) return p;
-            }
-            return "ABC";
-        }
 
-        function openClaimPinModal() {
-            const currentClass = document.getElementById('classSelect').value;
-            document.getElementById('claimClassSelect').value = currentClass;
-            document.getElementById('claimFirstName').value = document.getElementById('firstNameInput').value.trim();
-            document.getElementById('claimLastName').value = '';
-            document.getElementById('claimResultArea').style.display = 'none';
-            document.getElementById('claimPinModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('claimFirstName').focus(), 50);
-        }
 
-        function closeClaimPinModal() {
-            document.getElementById('claimPinModal').style.display = 'none';
-        }
 
-        function handleClaimBackdrop(e) {
-            if (e.target.id === 'claimPinModal') {
-                closeClaimPinModal();
-            }
-        }
 
-        async function lookupOrCreatePin() {
-            const first = document.getElementById('claimFirstName').value.trim();
-            const last = document.getElementById('claimLastName').value.trim();
-            const cls = document.getElementById('claimClassSelect').value;
-
-            if (!first) {
-                alert("Please enter at least your First Name.");
-                return;
-            }
-
-            const roster = await getFullRoster();
-            const firstLower = first.toLowerCase();
-            const lastLower = last.toLowerCase();
-
-            const match = roster.find(s => {
-                const sFirst = (s.first_name || '').toLowerCase();
-                const sLast = (s.last_name || '').toLowerCase();
-                if (lastLower) {
-                    return sFirst.startsWith(firstLower) && sLast.includes(lastLower);
-                }
-                return sFirst === firstLower;
-            });
-
-            const resultArea = document.getElementById('claimResultArea');
-            const badge = document.getElementById('claimResultBadge');
-            const msg = document.getElementById('claimResultMsg');
-            const pinDisplay = document.getElementById('claimResultPin');
-            const btnApply = document.getElementById('btnApplyClaimed');
-
-            if (match && match.pin) {
-                badge.innerText = "PIN Found in Grade 9 Roster";
-                badge.style.color = "#166534";
-                resultArea.style.background = "#f0fdf4";
-                resultArea.style.borderColor = "#86efac";
-                msg.innerText = `Welcome, ${match.first_name}! Here is your assigned PIN:`;
-                pinDisplay.innerText = match.pin;
-                lastClaimedPin = match.pin;
-                lastClaimedName = match.first_name;
-                lastClaimedClass = match.homeroom || cls;
-                if (btnApply) btnApply.style.display = 'block';
-            } else {
-                badge.innerText = "Name Not Found";
-                badge.style.color = "#991b1b";
-                resultArea.style.background = "#fef2f2";
-                resultArea.style.borderColor = "#fca5a5";
-                msg.innerText = `"${first} ${last}".trim() is not found on the official Class ${cls} roster. Please check spelling, or see Mr. Waugh if you recently joined the class.`;
-                pinDisplay.innerText = "---";
-                lastClaimedPin = "";
-                if (btnApply) btnApply.style.display = 'none';
-            }
-
-            resultArea.style.display = 'block';
-        }
-
-        function applyClaimedPin() {
-            if (!lastClaimedPin) return;
-            document.getElementById('firstNameInput').value = lastClaimedName;
-            document.getElementById('pinInput').value = lastClaimedPin;
-            document.getElementById('classSelect').value = lastClaimedClass;
-            onClassChange();
-            closeClaimPinModal();
-            loginAndRestore();
-        }
 
         function initMatrixRadioClick() {
             document.querySelectorAll('#matrixTable td.col-radio').forEach(td => {
