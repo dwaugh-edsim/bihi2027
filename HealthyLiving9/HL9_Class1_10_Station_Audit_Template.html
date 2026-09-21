@@ -1401,15 +1401,8 @@
             if (!data) return;
             if (data.auditors && document.getElementById('metaAuditors')) document.getElementById('metaAuditors').value = data.auditors;
             if (data.partner && document.getElementById('metaPartner')) document.getElementById('metaPartner').value = data.partner;
-            if (data.section || data.className) {
-                const clsVal = String(data.section || data.className).replace('HL', '').replace('CIT', '').trim();
-                const sel = document.getElementById('metaSection');
-                if (sel) {
-                    for (let opt of sel.options) {
-                        if (opt.value === clsVal) { sel.value = clsVal; break; }
-                    }
-                }
-            }
+            // NOTE: the class (metaSection) is owned by the login — the server
+            // roster resolves it from the PIN — so restored data never changes it.
             if (data.date && document.getElementById('metaDate')) document.getElementById('metaDate').value = data.date;
 
             if (data.stations) {
@@ -1556,6 +1549,7 @@
 
         function openLoginModal() {
             document.getElementById('loginModal').style.display = 'flex';
+            updateLoginClassRow();
             setTimeout(() => document.getElementById('loginNameInput')?.focus(), 50);
         }
 
@@ -1590,10 +1584,19 @@
             document.getElementById('verifyModal').style.display = 'none';
         }
 
+        // The class dropdown is for TEACHER DEMO PINS only. Real students are
+        // resolved by their PIN alone — the server roster knows their homeroom.
+        const DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
+        function updateLoginClassRow() {
+            const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
+            document.getElementById('loginClassRow').style.display =
+                DEMO_PINS.includes(pin) ? '' : 'none';
+        }
+
         async function performLogin() {
             const name = document.getElementById('loginNameInput').value.trim();
             const pin = document.getElementById('loginPinInput').value.trim().toUpperCase();
-            const cls = document.getElementById('loginClassSelect').value;
+            const cls = DEMO_PINS.includes(pin) ? document.getElementById('loginClassSelect').value : '';
 
             // Strict Roster Authentication
             const auth = await StudentAPI.validateStudent(cls, name, pin);
@@ -1614,6 +1617,14 @@
             }
 
             setAuthState(student);
+            // Sync the top-form class to the login-resolved homeroom so saves
+            // always file under the student's real class (demo pins: picked class).
+            const home = String(student.homeroom || student.className || '');
+            const metaSel = document.getElementById('metaSection');
+            if (home && metaSel && Array.from(metaSel.options).some(o => o.value === home)) {
+                metaSel.value = home;
+                onClassChange();
+            }
             closeLoginModal();
             loadCloudWorkForStudent(student.homeroom || cls, student.pin, student.first_name);
         }
@@ -2036,8 +2047,8 @@
                 <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="closeLoginModal()">✕</button>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div>
-                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">CLASS SECTION</label>
+                <div id="loginClassRow" style="display:none;">
+                    <label style="font-size: 0.76rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">CLASS SECTION (TEACHER DEMO ONLY)</label>
                     <select id="loginClassSelect" style="width: 100%; border: 1.5px solid #000000; border-radius: 4px; padding: 6px 10px; font-family: inherit; font-size: 0.85rem;">
                         <option value="902">HL 902 (Homeroom / Healthy Living 9)</option>
                         <option value="901">HL 901 (Healthy Living 9)</option>
@@ -2050,7 +2061,7 @@
                 </div>
                 <div>
                     <label style="font-size: 0.76rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">3-LETTER PIN</label>
-                    <input type="text" id="loginPinInput" maxlength="3" placeholder="e.g. ABC" style="width: 100%; border: 1.5px solid #000000; border-radius: 4px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.95rem;">
+                    <input type="text" id="loginPinInput" maxlength="3" placeholder="e.g. ABC" style="width: 100%; border: 1.5px solid #000000; border-radius: 4px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.95rem;" oninput="updateLoginClassRow()">
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                     <span style="font-size: 0.75rem; color: var(--text-dim, #64748b); font-weight: 600;">Forgot your PIN? Ask Mr. Waugh</span>
