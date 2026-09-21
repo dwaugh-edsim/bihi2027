@@ -237,3 +237,44 @@ Verdict: **all 8 swept files ready for class** on the page side. Server-side
 caveats from Addendum 1 still stand (redeploy didn't take; ROSTER_PRIVATE not
 loaded).
 
+---
+
+## Addendum 3 (Sept 21, very late — F3 CLOSED: the "stale cache" never existed)
+
+**Correction to the original F3 section and to Addenda 1–2. The teacher's
+V6.3.0 upload was live all along, and `get_class_progress` was never cached.
+No 6.3.1 is needed.**
+
+The real mechanism: **demo pins never write to class tabs.** `Code.gs` doPost
+routes TST/WAU/DEV/MRW to the hidden `DEMO` tab regardless of the posted
+className ("Demo PIN routing", ~line 925) — by design, so teacher test rows
+can't pollute class ledgers. Every F3 probe used pin TST, so:
+
+- `action=login` (same demo routing → DEMO tab) showed the marker instantly ✓
+- `get_class_progress&className=803` reads tab `803` only → marker was
+  *impossible* to see at any freshness ✗
+
+Proof: `get_class_progress&className=DEMO` returns every probe marker
+(`F3RETEST…`, `F3NEWURL…`, `SMK-ADD…`, `SMK-LO…`) the moment it is requested —
+the read path is live. Corroboration: `get_health` on both deployment URLs
+reports `version` AND `deployedAt` matching the repo's own constants
+(`V6.3.0-2026-09-21` / `2026-09-21T18:30:00Z`) exactly. Both URLs serve the
+repo's `Code.gs`.
+
+What actually bit "Chelsea shows not-started": **F2** — the old class
+dropdown left `metaSection` on its default, filing her work under the wrong
+class tab while the slide read her real one. Fixed everywhere now (dropdown
+removed for kids; login-resolved homeroom forces the save class; restore can't
+overwrite it). Remaining lag sources are client-side only: the opening slide
+re-reads every 3 min and on 🔄.
+
+Teacher sanity check from the console: demo saves are visible via
+`get_class_progress&className=DEMO`. Real student saves merge into their class
+tab instantly — no redeploy or TTL work remains. Left-for-future item 2 is
+closed (was never broken).
+
+Standing server item (unchanged): `get_roster_meta` → `loaded:false`. Push
+`ROSTER_PRIVATE` via the gated `set_roster` from the private-data machine;
+until then pages validate kid PINs via the public-roster fallback (which
+still carries PINs).
+

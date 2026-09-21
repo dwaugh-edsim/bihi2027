@@ -35,6 +35,12 @@ curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
   "<SCRIPT_URL>"
 ```
 
+**Assignment-probe gotcha:** demo PINs (`TST`/`WAU`/`DEV`/`MRW`) always write to
+the hidden `DEMO` tab regardless of the posted class — so
+`action=get_class_progress&className=803` will NEVER show them. To check a
+teacher-demo save landed, read `className=DEMO`. This was once misread as
+"get_class_progress is cached" (F3, Sept 21) — it isn't; class-tab reads are live.
+
 ## Seating plans
 
 `seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in
