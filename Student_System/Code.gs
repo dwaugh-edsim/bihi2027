@@ -29,8 +29,8 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.3.1-2026-09-22';
-var CONFIG_DEPLOY_DATE = '2026-09-22T14:45:00Z';
+var CONFIG_VERSION = 'V6.3.2-2026-09-22';
+var CONFIG_DEPLOY_DATE = '2026-09-22T17:35:00Z';
 // PRIVACY: the student PIN -> homeroom map no longer lives in this file (this
 // repo is public). The authoritative roster is pushed into the hidden
 // 'Roster_Private' tab by the teacher-gated `set_roster` action, sourced from
@@ -1761,8 +1761,15 @@ function countCompletedWorkFields(data) {
   // Answer-based or generic field assignments
   if (data.answers && typeof data.answers === 'object') {
     for (var aKey in data.answers) {
-      if (data.answers[aKey] !== '' && data.answers[aKey] !== null && data.answers[aKey] !== undefined) {
-        count++;
+      var aVal = data.answers[aKey];
+      if (aVal !== null && aVal !== undefined) {
+        if (Array.isArray(aVal)) {
+          if (aVal.length > 0) count++;
+        } else if (typeof aVal === 'string') {
+          if (aVal.trim() !== '') count++;
+        } else if (aVal) {
+          count++;
+        }
       }
     }
     if (count > 0) return count;
@@ -1776,13 +1783,23 @@ function countCompletedWorkFields(data) {
     if (count > 0) return count;
   }
 
-  // Generic key inspection (excluding metadata & telemetry)
-  var skipKeys = ['pin', 'name', 'className', 'class', 'section', 'date', 'email', 'pronouns', 'updated_at', '_telemetry', '_requestId', '_v'];
+  // Generic key inspection (excluding metadata, telemetry, and pairing info)
+  var skipKeys = [
+    'pin', 'name', 'className', 'class', 'section', 'date', 'email', 'pronouns',
+    'updated_at', '_telemetry', '_requestId', '_v', 'role', 'teamWith', 'partner',
+    'auditors', 'forceOverwrite'
+  ];
   for (var k in data) {
     if (data.hasOwnProperty(k) && skipKeys.indexOf(k) === -1) {
       var val = data[k];
-      if (val !== '' && val !== null && val !== undefined && !(Array.isArray(val) && val.length === 0)) {
-        count++;
+      if (val !== '' && val !== null && val !== undefined) {
+        if (Array.isArray(val)) {
+          if (val.length > 0) count++;
+        } else if (typeof val === 'string') {
+          if (val.trim() !== '') count++;
+        } else {
+          count++;
+        }
       }
     }
   }

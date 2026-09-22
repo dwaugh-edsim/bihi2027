@@ -1640,9 +1640,9 @@
             const data = collectData();
             const done = countCompleted(data);
 
-            // Guard against blank overwrite if cloud fetch failed
-            if (!isManualClick && cloudFetchFailed && done === 0) {
-                console.warn('[submitWork] Autosave skipped: cloud fetch failed previously and form is blank.');
+            // Guard against blank overwrite: never autosave a 0-field blank form
+            if (!isManualClick && done === 0) {
+                console.warn('[submitWork] Autosave skipped: form has 0 completed fields.');
                 return;
             }
 
@@ -1803,6 +1803,7 @@
             if (!pin || pin === '---') return;
             const data = collectData();
             const done = countCompleted(data);
+            if (done === 0) return; // NEVER flush an empty beacon
             const summary = `${ASSIGNMENT.taskName} | Lead: ${data.auditors || data.name} | Class: ${data.section} | Completed: ${done}/${TOTAL_FIELDS}`;
             StudentAPI.sendEmergencyBeacon(ASSIGNMENT.taskName, data, summary, ASSIGNMENT.course);
         }
@@ -1883,6 +1884,7 @@
                     if (localDraft) {
                         try { restoreFormData(JSON.parse(localDraft)); } catch (e) {}
                     }
+                    loadCloudWorkForStudent(savedClass, savedPin, 'Student');
                 }
             } else {
                 // Unauthenticated start: lock the form and display the login gate
