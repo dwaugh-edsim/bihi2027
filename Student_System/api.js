@@ -306,7 +306,24 @@ const StudentAPI = {
             };
         }
 
-        // 5. Fallback: old GAS or offline — legacy roster check
+        // 5. Check if student was previously verified in this browser session
+        const cached = this.getCachedResolve(pin);
+        if (cached && cached.valid) {
+            return {
+                valid: true,
+                student: {
+                    homeroom: cached.className || className,
+                    first_name: cached.firstName || enteredName || 'Student',
+                    pin: pin,
+                    cached: true
+                },
+                name: cached.firstName || enteredName || 'Student',
+                pin: pin,
+                className: cached.className || className
+            };
+        }
+
+        // 6. Fallback: old GAS or offline — legacy roster check
         return this._validateStudentRoster(className, enteredName, pin);
     },
 
@@ -360,13 +377,33 @@ const StudentAPI = {
 
         // 5. Look up PIN in official roster, prioritizing selected class.
         // If the deployed roster is names-only (pins stripped after the GAS
-        // took over validation), the client can't verify — say so plainly
-        // instead of reporting the PIN as unregistered.
+        // took over validation), try matching by enteredName + class offline!
         if (!roster.some(s => s.pin)) {
+            if (enteredName) {
+                const clean = str => (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+                const inputClean = clean(enteredName);
+                const candidates = roster.filter(s => {
+                    if (cleanClass && String(s.homeroom || '').trim() !== cleanClass) return false;
+                    const fn = clean(s.first_name);
+                    const ln = clean(s.last_name);
+                    return fn === inputClean || `${fn} ${ln}` === inputClean || fn.startsWith(inputClean) || inputClean.startsWith(fn);
+                });
+                if (candidates.length === 1) {
+                    const st = candidates[0];
+                    return {
+                        valid: true,
+                        offline: true,
+                        student: { homeroom: st.homeroom, first_name: st.first_name, last_name: st.last_name, pin: pin },
+                        name: st.first_name,
+                        pin: pin,
+                        className: st.homeroom
+                    };
+                }
+            }
             return {
                 valid: false,
                 offline: true,
-                message: "🌐 Can't reach the login server right now. Check the Wi-Fi connection and try again — your work saves automatically once you're connected."
+                message: "🌐 The login server is busy right now. Please wait 5 seconds and click Log In again, or enter your First Name and Homeroom to proceed offline."
             };
         }
         let student = null;
@@ -435,21 +472,38 @@ const StudentAPI = {
         pin = (pin || '').trim().toUpperCase();
         firstName = (firstName || '').trim();
 
-        // Enforce Authorized Roster Verification (server-first, roster fallback)
-        const auth = await this.validateStudent(className, firstName, pin);
-        if (!auth.valid) {
-            return { status: 'error', message: auth.message };
+        if (!pin || pin.length !== 3) {
+            return { status: 'error', message: '⚠️ Please enter your valid 3-letter student PIN (e.g. ABC).' };
         }
 
-        // Always prioritize the official homeroom from roster
-        const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
+        // Teacher & testing demo overrides
+        if (DEMO_PINS.includes(pin)) {
+            const demoName = firstName || 'Teacher Demo';
+            const demoClass = className || 'DEMO';
+            Session.set(demoClass, demoName, pin);
+            return {
+                status: 'success',
+                name: demoName,
+                className: demoClass,
+                pin: pin,
+                isNew: false,
+                savedData: {}
+            };
+        }
+
+        // Fast lookup from session resolve cache if available
+        const cached = this.getCachedResolve(pin);
+        const effectiveClass = (cached && cached.className) ? cached.className : (className || '');
+        const effectiveName = (cached && cached.firstName) ? cached.firstName : (firstName || '');
 
         const url = this.getScriptUrl(courseKey);
         let lastError = null;
         for (let attempt = 1; attempt <= 3; attempt++) {
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 15000) : null;
             try {
-                const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}&cb=${Date.now()}`;
-                const res = await fetch(getUrl);
+                const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(effectiveName)}&cb=${Date.now()}`;
+                const res = await fetch(getUrl, ctrl ? { signal: ctrl.signal } : undefined);
                 const text = await res.text();
                 let data = null;
                 try {
@@ -458,9 +512,23 @@ const StudentAPI = {
                     console.warn(`[login] Non-JSON response on attempt ${attempt}:`, text.slice(0, 100));
                     throw new Error('Non-JSON response from server');
                 }
-                if (data && data.status === 'success') {
+                if (data && (data.status === 'success' || data.name || data.savedData)) {
                     if (data.version) this.validateServerVersion(data.version);
-                    Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
+                    const finalName = data.name || effectiveName || firstName;
+                    const finalClass = data.className || effectiveClass || className;
+
+                    // Cache the successful resolution in sessionStorage so subsequent checks are instant
+                    try {
+                        sessionStorage.setItem('gas_resolve_' + pin, JSON.stringify({
+                            className: finalClass,
+                            firstName: finalName,
+                            valid: true,
+                            at: Date.now()
+                        }));
+                    } catch (e) {}
+
+                    Session.set(finalClass, finalName, pin, data.email || '', data.pronouns || '');
+                    data.status = 'success';
                     return data;
                 } else if (data && data.status === 'error') {
                     return data;
@@ -470,17 +538,19 @@ const StudentAPI = {
                 if (attempt < 3) {
                     await new Promise(r => setTimeout(r, 600 * attempt));
                 }
+            } finally {
+                if (timer) clearTimeout(timer);
             }
         }
 
         console.warn("GAS Cloud Fetch failed after retries (Offline / network issue):", lastError);
-        Session.set(effectiveClass, auth.name || firstName, pin);
+        Session.set(effectiveClass || className, effectiveName || firstName, pin);
         return { 
             status: 'offline', 
             isOffline: true, 
             error: true,
-            name: auth.name || firstName, 
-            className: effectiveClass, 
+            name: effectiveName || firstName, 
+            className: effectiveClass || className, 
             message: 'Could not connect to Google Sheets. Server busy or network hiccup.',
             savedData: null 
         };

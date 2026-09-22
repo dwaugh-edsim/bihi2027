@@ -573,8 +573,8 @@
     <!-- ═══════════════ STUDENT SYSTEM DEPENDENCIES ═══════════════
          Loaded exactly ONCE — api.js uses top-level const declarations
          (StudentAPI, Session) that fatally collide on a second load.        -->
-    <script src="../Student_System/students_roster_data.js"></script>
-    <script src="../Student_System/api.js"></script>
+    <script src="../Student_System/students_roster_data.js?v=6.3.2"></script>
+    <script src="../Student_System/api.js?v=6.3.2"></script>
 
     <script>
         // ═══════════════════════════════════════════════════════════
@@ -1448,26 +1448,22 @@ const ASSIGNMENT = {
             // Restore active session (same Chromebook, still logged in)
             const savedPin = sessionStorage.getItem(`gas_${SLUG}_pin`) || Session.getPin();
             const savedClass = sessionStorage.getItem(`gas_${SLUG}_class`) || Session.getClass() || String(ASSIGNMENT.defaultClass);
+            const savedName = sessionStorage.getItem(`gas_${SLUG}_name`) || Session.getName() || '';
 
             if (savedPin && savedPin !== '---') {
                 const roster = window.MASTER_ROSTER_DATA || [];
                 const s = roster.find(st => (st.pin || '').toUpperCase() === savedPin.toUpperCase());
                 const cachedS = (window.StudentAPI) ? StudentAPI.getCachedResolve(savedPin) : null;
-                if (s) {
-                    setAuthState(s);
-                    loadCloudWorkForStudent(savedClass, savedPin, s.first_name);
-                } else if (cachedS) {
-                    setAuthState({ pin: savedPin, homeroom: cachedS.className || savedClass, first_name: cachedS.firstName || 'Student' });
-                    loadCloudWorkForStudent(cachedS.className || savedClass, savedPin, cachedS.firstName || 'Student');
-                } else {
-                    setAuthState({ pin: savedPin, homeroom: savedClass, first_name: 'Student' });
-                    const key = draftKey(savedPin);
-                    const localDraft = key ? localStorage.getItem(key) : null;
-                    if (localDraft) {
-                        try { restoreFormData(JSON.parse(localDraft)); } catch (e) {}
-                    }
-                    loadCloudWorkForStudent(savedClass, savedPin, 'Student');
+                const effectiveName = s ? s.first_name : (cachedS && cachedS.firstName ? cachedS.firstName : (savedName && savedName !== 'Student' ? savedName : ''));
+                const effectiveClass = s ? s.homeroom : ((cachedS && cachedS.className) || savedClass);
+
+                setAuthState({ pin: savedPin, homeroom: effectiveClass, first_name: effectiveName || 'Student' });
+                const key = draftKey(savedPin);
+                const localDraft = key ? localStorage.getItem(key) : null;
+                if (localDraft) {
+                    try { restoreFormData(JSON.parse(localDraft)); } catch (e) {}
                 }
+                loadCloudWorkForStudent(effectiveClass, savedPin, effectiveName || 'Student');
             } else {
                 // Unauthenticated start: lock the form and display the login gate
                 setAuthState(null);

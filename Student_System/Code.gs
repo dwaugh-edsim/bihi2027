@@ -260,6 +260,46 @@ function findStudentAcrossSheets(ss, pin) {
   return bestMatch;
 }
 
+// Slim per-student record for get_class_progress?slim=1. Keeps everything
+// the opening slide's progress panel reads (pin/name/task/summary/partner/
+// assignments/lastUpdated + per-task written flags) and drops the heavy
+// savedData payloads. Full payload still returned when slim is absent.
+function slimStudents(students) {
+  return students.map(function (s) {
+    var saved = s.savedData || {};
+    var legacy = saved._tasks || {};
+    var out = {
+      pin: s.pin,
+      name: s.name,
+      className: s.className,
+      task: s.task,
+      summary: s.summary,
+      partner: saved.partner || '',
+      lastUpdated: s.lastUpdated,
+      assignments: s.assignments || {},
+      tasks: {}
+    };
+    Object.keys(legacy).forEach(function (k) {
+      var e = legacy[k] || {};
+      var d = e.data || {};
+      var written = String(e.summary || '').trim() !== '' ||
+        String(d.summary || '').trim() !== '';
+      if (!written) {
+        written = Object.keys(d).some(function (k2) {
+          var v = d[k2];
+          if (typeof v === 'string') return v.trim() !== '';
+          if (v && typeof v === 'object') {
+            return Object.keys(v).some(function (k3) { return String(v[k3]).trim() !== ''; });
+          }
+          return false;
+        });
+      }
+      out.tasks[k] = { summary: String(e.summary || ''), written: written };
+    });
+    return out;
+  });
+}
+
 function doGet(e) {
   try {
     const params = e.parameter || {};
@@ -372,6 +412,14 @@ function doGet(e) {
     // ==========================================
     if (action === 'get_class_progress' || action === 'get_all_progress' || action === 'GET_ALL_PROGRESS') {
       const className = String(params.className || 'ALL').trim();
+      const isSlim = params.slim === '1';
+      const cache = CacheService.getScriptCache();
+      const ck = 'prog_' + className + (isSlim ? '_slim' : '');
+      if (isSlim && params.cache !== '0') {
+        const hit = cache.get(ck);
+        if (hit) return ContentService.createTextOutput(hit).setMimeType(ContentService.MimeType.JSON);
+      }
+
       const classesToScan = (className === 'ALL') ? ALL_CLASSES : [className];
       const studentsByPin = {};
       
@@ -450,8 +498,15 @@ function doGet(e) {
         }
       }
       
-      const results = Object.keys(studentsByPin).map(function(k) { return studentsByPin[k]; });
-      return successJSON({ status: 'success', students: results, timestamp: new Date() });
+      let results = Object.keys(studentsByPin).map(function(k) { return studentsByPin[k]; });
+      if (isSlim) {
+        results = slimStudents(results);
+      }
+      const out = { status: 'success', students: results, timestamp: new Date(), version: CONFIG_VERSION };
+      if (isSlim) {
+        try { cache.put(ck, JSON.stringify(out), 60); } catch(ignore) { /* >100KB */ }
+      }
+      return successJSON(out);
     }
 
     // ==========================================
