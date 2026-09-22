@@ -1,5 +1,5 @@
 // class_log_seed_data.js — offline seed for Class_Log_Tracker.html and
-// Class_Opening_Slide.html. Live sync (GET ?action=get_class_log) replaces it the
+// Class_Startup.html. Live sync (GET ?action=get_class_log) replaces it the
 // moment the Apps Script answers; this snapshot only covers an offline morning.
 // Regenerate after a batch of logging (see CLASS_LOG_README.md) — any LLM can do it.
 

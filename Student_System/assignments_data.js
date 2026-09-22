@@ -1,5 +1,5 @@
 // assignments_data.js — per-course assignment registry + ASSIGNMENT → OUTCOME map.
-// Used by Class_Opening_Slide.html: the Task Progress picker lists these (so the
+// Used by Class_Startup.html: the Task Progress picker lists these (so the
 // teacher chooses what the live view shows), and the LEARNING OUTCOME strip at the
 // bottom shows the outcome matched to whichever assignment is on screen.
 //

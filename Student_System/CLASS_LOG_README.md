@@ -1,7 +1,7 @@
 # Class Log — "What did we do last class?" Tracker
 
 **Page:** `Student_System/Class_Log_Tracker.html` (on the hub: `…/Student_System/Class_Log_Tracker.html`)
-**Opening slide:** `Student_System/Class_Opening_Slide.html` — the projector "do-now" for when students enter
+**Class Startup (the opening slide):** `Student_System/Class_Startup.html` — the projector "do-now" for when students enter
 **Data:** `Class_Log`, `Class_Plan`, and `Class_Slide` tabs in the **Room 8 Master Google Sheet** (same spreadsheet as the student system)
 **Backend:** the existing Student Webhook Apps Script (actions `get_class_log`, `submit_class_log`, `set_class_plan`, `set_class_slide`, `delete_class_log`)
 
@@ -12,9 +12,9 @@ which class is in session from the clock (bell schedule + rotation), then shows 
 + date, today's agenda (from that section's plan — so "what's next" in the tracker *is* the
 slide), announcements, and a course outcome strip at the bottom for administrators.
 
-## The opening slide (projector)
+## Class Startup (the projector opening slide)
 
-- **Zero setup per class**: open `Class_Opening_Slide.html` on the projector — it picks the
+- **Zero setup per class**: open `Class_Startup.html` on the projector — it picks the
   right class from the time of day. Wrong pick? Click a chip or press ← / →. `F` = fullscreen.
 - **Agenda**: comes from the section's plan in the tracker. In the plan, one line = one
   agenda item on the slide. If there's no plan, it falls back to the suggested next lesson.
@@ -189,7 +189,7 @@ Copy the row into the Sheet (or into the quick-log panel). Done.
 | File | Role |
 |---|---|
 | `Class_Log_Tracker.html` | the dashboard + quick-log panel (teacher-only) |
-| `Class_Opening_Slide.html` | projector do-now slide: auto class detect, agenda, announcements, outcome strip |
+| `Class_Startup.html` | projector do-now slide (née Class_Opening_Slide.html; old URL 301s via stub): auto class detect, agenda, announcements, outcome strip |
 | `class_log_meetings_data.js` | generated: all 10 sections' meeting dates/periods, 2026–27 |
 | `class_log_lesson_maps.js` | class # → lesson titles + per-unit course outcomes (outcome fallback) |
 | `assignments_data.js` | curated assignment registry: ledger TASK_NAME → projector label + matched outcome; `active` per course |

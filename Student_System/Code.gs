@@ -840,7 +840,7 @@ function doPost(e) {
     }
 
     // ==========================================
-    // ACTION: SET CLASS SLIDE (Class_Opening_Slide.html — projector do-now slide)
+    // ACTION: SET CLASS SLIDE (Class_Startup.html — projector do-now slide)
     // payload: { section, title, announcements, outcome } — all blank clears.
     // ==========================================
     if (action === 'set_class_slide') {
@@ -1308,7 +1308,7 @@ function clearClassPlan(ss, section) {
 
 /**
  * Class_Slide tab — per-section extras for the projector opening slide
- * (Class_Opening_Slide.html). Agenda itself comes from Class_Plan.
+ * (Class_Startup.html). Agenda itself comes from Class_Plan.
  * A Section | B Title | C Announcements | D Outcome | E Updated
  */
 function getClassSlideSheet(ss) {

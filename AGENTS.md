@@ -48,8 +48,9 @@ misdiagnosis stacked an invented "the teacher's redeploy didn't take" story on
 top of a probe that was measuring the wrong tab; the redeploy had been fine all
 along. Humans break things less often than models miss hidden branches.
 
-**Opening slide daily system:** `Student_System/Class_Opening_Slide.html` is the
-projector do-now. Its Task Progress picker and LEARNING OUTCOME strip are driven by
+**Class Startup daily system (the projector opening slide):**
+`Student_System/Class_Startup.html` is the projector do-now. Its Task Progress picker
+and LEARNING OUTCOME strip are driven by
 `Student_System/assignments_data.js` — the curated registry mapping each course's
 ledger `TASK_NAME`s to a short label + best-fit outcome, with `active` per course.
 When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from the

@@ -1,6 +1,6 @@
 // class_log_lesson_maps.js — per-course lesson maps + OUTCOME statements
 // Used by Class_Log_Tracker.html (suggested-next hint) and
-// Class_Opening_Slide.html (agenda titles + the outcome strip administrators see).
+// Class_Startup.html (agenda titles + the outcome strip administrators see).
 //
 // MAINTENANCE (LLM-friendly):
 //  - classes:  { "classNumber": "Short title" }       — exact lesson names

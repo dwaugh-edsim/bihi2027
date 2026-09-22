@@ -1,5 +1,5 @@
 // class_seating_data.js — room layout + seat-assignment snapshots for
-// Class_Opening_Slide.html's seating popup (matching seating-plan-v2.html).
+// Class_Startup.html's seating popup (matching seating-plan-v2.html).
 //
 // SOURCE ORDER on the slide (best first):
 //   1. seating-plan-v2.html browser storage ("sp2_<homeroom>") — live edits in browser

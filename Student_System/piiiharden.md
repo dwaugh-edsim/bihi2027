@@ -58,7 +58,7 @@ flows, no pin displays): `_TEMPLATE_GAS_Assignment.html` ×2, Cit9 dossier ×2,
 Places Studio ×2, station audits ×3, HL8 5-Dimensions, HL9 Operation Addictive,
 WHERE ×2, HL9 Human Skills Advisor, 5 diagnostics, 3× `902_Friday_Master_Slide_Deck.html`,
 3× `HL8_Class801_Audit_Display.html` + `hl8_801_dashboard_data.js` ×3,
-`Class_Opening_Slide.html` (progress pin chip removed),
+`Class_Startup.html` (progress pin chip removed),
 `students_roster_data.js` (student_id/username/full_first_name stripped),
 `generate_roster.py` (untracked → `Private_Student_Data/`), `AGENTS.md`,
 `.gitignore`.
