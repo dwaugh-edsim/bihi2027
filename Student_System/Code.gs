@@ -29,8 +29,8 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.3.0-2026-09-21';
-var CONFIG_DEPLOY_DATE = '2026-09-21T18:30:00Z';
+var CONFIG_VERSION = 'V6.3.1-2026-09-22';
+var CONFIG_DEPLOY_DATE = '2026-09-22T14:45:00Z';
 // PRIVACY: the student PIN -> homeroom map no longer lives in this file (this
 // repo is public). The authoritative roster is pushed into the hidden
 // 'Roster_Private' tab by the teacher-gated `set_roster` action, sourced from
@@ -1183,6 +1183,30 @@ function doPost(e) {
       if (email) mergedData.email = email;
       if (pronouns) mergedData.pronouns = pronouns;
 
+      // ANTI-WIPE GUARD: Never let an empty/blank payload overwrite rich existing work
+      // Detects when client race conditions (lid close / blank switch) send a 0-field payload
+      // while the server already has rich completed data for this assignment.
+      if (!mergedData._tasks) mergedData._tasks = {};
+      var prevTaskEntry = mergedData._tasks[taskName];
+      var prevTaskData = prevTaskEntry ? (prevTaskEntry.data || prevTaskEntry) : null;
+      var prevCount = countCompletedWorkFields(prevTaskData);
+      var incomingCount = countCompletedWorkFields(rawPayloadData);
+
+      if (prevCount > 0 && incomingCount === 0 && !payload.forceOverwrite) {
+        Logger.log('[ANTI-WIPE BLOCKED] PIN ' + pin + ' on ' + taskName + ': incoming payload is 0 fields vs ' + prevCount + ' existing fields. Preserving existing work.');
+        // Update metadata/telemetry only, but do NOT wipe the assignment work
+        if (rawPayloadData._telemetry) {
+          prevTaskData._telemetry = rawPayloadData._telemetry;
+        }
+        return successJSON({
+          status: 'submitted_successfully',
+          task: taskName,
+          preserved: true,
+          message: 'Previous completed work was preserved (incoming submission had 0 completed fields).',
+          version: CONFIG_VERSION
+        });
+      }
+
       // Copy all fields from rawPayloadData into mergedData (skip _tasks to avoid double nesting)
       for (let k in rawPayloadData) {
         if (rawPayloadData.hasOwnProperty(k) && k !== '_tasks') {
@@ -1191,7 +1215,6 @@ function doPost(e) {
       }
 
       // CRITICAL TASK ISOLATION: Store complete task payload in dedicated namespace
-      if (!mergedData._tasks) mergedData._tasks = {};
       mergedData._tasks[taskName] = {
         updated: now,
         summary: summary,
@@ -1711,4 +1734,58 @@ function cleanMismatchedClassEntries(ss) {
     log: log,
     timestamp: new Date()
   };
+}
+
+/**
+ * Counts non-empty student response fields across diverse assignment schemas
+ * (e.g. stations, answers, issues, dilemmas, questions, matrices).
+ * Used by the server-side anti-wipe guard to prevent blank forms from wiping completed work.
+ */
+function countCompletedWorkFields(data) {
+  if (!data || typeof data !== 'object') return 0;
+  var count = 0;
+
+  // Station-based assignments (e.g. HL9 Sleep Clinic)
+  if (data.stations && typeof data.stations === 'object') {
+    for (var sKey in data.stations) {
+      var station = data.stations[sKey];
+      if (station && typeof station === 'object') {
+        if (station.hrs || station.debt || station.risk || station.order || station.notes) {
+          count++;
+        }
+      }
+    }
+    if (count > 0) return count;
+  }
+
+  // Answer-based or generic field assignments
+  if (data.answers && typeof data.answers === 'object') {
+    for (var aKey in data.answers) {
+      if (data.answers[aKey] !== '' && data.answers[aKey] !== null && data.answers[aKey] !== undefined) {
+        count++;
+      }
+    }
+    if (count > 0) return count;
+  }
+
+  // Issues diagnostic
+  if (data.issues && typeof data.issues === 'object') {
+    for (var iKey in data.issues) {
+      if (data.issues[iKey]) count++;
+    }
+    if (count > 0) return count;
+  }
+
+  // Generic key inspection (excluding metadata & telemetry)
+  var skipKeys = ['pin', 'name', 'className', 'class', 'section', 'date', 'email', 'pronouns', 'updated_at', '_telemetry', '_requestId', '_v'];
+  for (var k in data) {
+    if (data.hasOwnProperty(k) && skipKeys.indexOf(k) === -1) {
+      var val = data[k];
+      if (val !== '' && val !== null && val !== undefined && !(Array.isArray(val) && val.length === 0)) {
+        count++;
+      }
+    }
+  }
+
+  return count;
 }
