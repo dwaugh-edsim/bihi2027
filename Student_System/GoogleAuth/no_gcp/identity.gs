@@ -64,20 +64,36 @@ function jsonOut_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ---- STEP 1: the probe. Open the /exec URL, read the JSON. ------------------
+// ---- HTTP entry ------------------------------------------------------------
+// ?action=probe (or get_health) -> the identity JSON (the Step-1 test).
+// anything else                 -> serves assignment.html (the student page).
 function doGet(e) {
-  var email = callerEmail_();
-  var effective = '';
-  try { effective = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (err) {}
-  return jsonOut_({
-    status: email ? 'identified' : 'no_identity',
-    email: email,
-    effectiveUser: effective,
-    allowedDomain: ALLOWED_DOMAIN,
-    note: email
-      ? 'SUCCESS — this is the Google-authenticated caller identity.'
-      : 'No identity returned. Confirm "Execute as: User accessing the web app" and sign in with a same-domain account.'
-  });
+  var p = (e && e.parameter) || {};
+  if (p.action === 'probe' || p.action === 'get_health') {
+    var email = callerEmail_();
+    var effective = '';
+    try { effective = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (err) {}
+    return jsonOut_({
+      status: email ? 'identified' : 'no_identity',
+      email: email,
+      effectiveUser: effective,
+      allowedDomain: ALLOWED_DOMAIN,
+      note: email
+        ? 'SUCCESS — this is the Google-authenticated caller identity.'
+        : 'No identity returned. Confirm "Execute as: User accessing the web app" and sign in with a same-domain account.'
+    });
+  }
+  try {
+    return HtmlService.createHtmlOutputFromFile('assignment')
+      .setTitle('Room 8 — New Assignment')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  } catch (err) {
+    return jsonOut_({
+      status: 'page_missing',
+      message: 'Add a file named "assignment.html" to this project (File > New > HTML file), paste the page, then Deploy > Manage deployments > New version.',
+      probe: 'This deployment still answers ?action=probe.'
+    });
+  }
 }
 
 // ---- Used by the assignment page (hosted by THIS app) -----------------------

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root { --ink:#0f172a; --muted:#475569; --line:#e2e8f0; --ok:#15803d; --bad:#b91c1c; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: var(--ink);
+           max-width: 720px; margin: 24px auto; padding: 0 18px; line-height: 1.5; }
+    h1 { font-size: 1.35rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    #gate { color: var(--muted); }
+    header.who { font-size: .9rem; color: var(--muted); border-bottom: 1px solid var(--line);
+                 padding-bottom: 10px; margin-bottom: 16px; }
+    header.who b { color: var(--ink); }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea, input, select { font: inherit; width: 100%; padding: 8px 10px; border: 1px solid var(--line);
+                              border-radius: 6px; }
+    textarea { min-height: 120px; resize: vertical; }
+    button { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 8px; border: 0;
+             background: #1e293b; color: #fff; cursor: pointer; margin-top: 14px; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    #status { margin-top: 12px; font-weight: 600; }
+    #status.ok { color: var(--ok); } #status.bad { color: var(--bad); }
+    .hint { color: var(--muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div id="gate">Checking your school account…</div>
+
+  <div id="app" hidden>
+    <h1 id="title">New Assignment</h1>
+    <p class="sub">Your identity comes from your signed-in <code>@gnspes.ca</code> Google account — nothing to type.</p>
+    <header class="who">Signed in as <b id="who">…</b></header>
+
+    <fieldset id="work">
+      <!-- ==== ASSIGNMENT FIELDS GO HERE ==== -->
+      <label for="answer">Your response</label>
+      <textarea id="answer" placeholder="Type here…"></textarea>
+      <!-- =================================== -->
+    </fieldset>
+
+    <button id="saveBtn" onclick="save()">Save</button>
+    <div id="status" class="hint">Not saved yet.</div>
+  </div>
+
+  <script>
+    // ==== CONFIG: change per assignment ====
+    const TASK_NAME = 'New Assignment (Google-auth pilot)';
+    const SECTIONS  = ['901-CIT', '902-CIT', '903-CIT'];   // or leave [] to hide the picker
+
+    let identity = null;
+
+    // 1) Ask the server (running as the student) who they are.
+    google.script.run
+      .withSuccessHandler(onIdentity)
+      .withFailureHandler(function (err) { fail('Server error: ' + err); })
+      .getIdentitySigned();
+
+    function onIdentity(r) {
+      if (!r || !r.ok) { fail('Could not verify your school account (' + ((r && r.reason) || 'unknown') + ').'); return; }
+      identity = r;
+      document.getElementById('who').textContent = r.email;
+      document.getElementById('gate').hidden = true;
+      document.getElementById('app').hidden = false;
+      if (SECTIONS.length) {
+        const sel = document.createElement('select');
+        sel.id = 'section';
+        sel.innerHTML = '<option value="">Select your section…</option>' +
+          SECTIONS.map(s => '<option>' + s + '</option>').join('');
+        const w = document.getElementById('work');
+        w.insertBefore(sel, w.firstChild);
+        w.insertBefore(Object.assign(document.createElement('label'), { htmlFor: 'section', textContent: 'Section' }), sel);
+      }
+    }
+
+    function save() {
+      const btn = document.getElementById('saveBtn');
+      const sectionEl = document.getElementById('section');
+      const data = { answer: document.getElementById('answer').value };
+      const summary = 'answer: ' + (data.answer || '').slice(0, 80);
+      btn.disabled = true;
+      setStatus('Saving…', '');
+      google.script.run
+        .withSuccessHandler(onSaved)
+        .withFailureHandler(function (err) { btn.disabled = false; setStatus('Save failed: ' + err, 'bad'); })
+        .saveSubmission({
+          task: TASK_NAME,
+          section: sectionEl ? sectionEl.value : '',
+          summary: summary,
+          data: data,
+          requestId: 'r-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
+        });
+    }
+
+    function onSaved(r) {
+      const btn = document.getElementById('saveBtn');
+      if (r && r.status === 'submitted_successfully') {
+        setStatus('Saved ✓' + (r.deduplicated ? ' (already recorded)' : ''), 'ok');
+      } else {
+        setStatus('Not saved: ' + ((r && (r.reason || r.message)) || 'unknown'), 'bad');
+      }
+      btn.disabled = false;
+    }
+
+    function setStatus(msg, kind) { const el = document.getElementById('status'); el.textContent = msg; el.className = kind || 'hint'; }
+    function fail(msg) { const g = document.getElementById('gate'); g.textContent = '⚠ ' + msg; g.style.color = '#b91c1c'; }
+  </script>
+</body>
+</html>

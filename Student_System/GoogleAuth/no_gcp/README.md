@@ -10,6 +10,13 @@ email via `Session.getActiveUser().getEmail()`. **Test that first (Step 1).** If
 returns an empty email, this whole path is out and we go to board IT for an Internal
 OAuth app instead.
 
+> **STATUS — Step 1 PASSED (2026-09-22).** Probe returned
+> `{"status":"identified","email":"dwaugh@gnspes.ca"}`. The org lets Apps Script
+> authenticate the caller. **Remaining unknown:** a real *student* account (they see
+> the same "Room 8 Identity (Unverified)" consent screen the owner saw — the only
+> question is whether board policy lets a student click through it). Test one student
+> login before rolling anything out.
+
 ---
 
 ## Step 1 — The make-or-break probe (2 minutes)
@@ -49,20 +56,30 @@ trusts an identity whose HMAC signature it can verify.
    **Execute as: Me**, **Who has access: Anyone**. Copy the `/exec` URL.
 5. Back in the **Identity** project, set Script Property `R8_VAULT_URL` = that URL.
 
-## Step 3 — The assignment page (next build)
+## Step 3 — The assignment page (built: `assignment.html`)
 
-The cleanest, most robust hosting for the page is **inside the Identity app itself**
-(`HtmlService`): the page is served from `script.google.com`, so identity is first-party
-— no cross-origin cookies, no redirects, no CORS. The flow:
+The page is hosted **inside the Identity app** (`HtmlService`), so identity is
+first-party — no cross-origin cookies, no redirects. The flow:
 
 - Page loads → `google.script.run.getIdentitySigned()` → `{email, ts, sig}`.
 - Student works → on save, `google.script.run.saveSubmission(payload)` → the Identity
   app (as the student) forwards the signed payload to the Vault (as you) → row written.
 - No PIN, no self-reported email, nothing for the student to type.
 
+To deploy it:
+
+1. In the **Identity** project: **File → New → HTML file**, name it exactly
+   **`assignment`** (Apps Script adds `.html`), and paste `assignment.html`.
+2. Edit the `TASK_NAME` and `SECTIONS` constants at the top of the page's script.
+3. Put the Vault's `/exec` URL into the Identity project's `R8_VAULT_URL` Script Property
+   (from Step 2).
+4. **Deploy → Manage deployments → pencil → Version: New version → Deploy.**
+5. Open the `/exec` URL → the page signs you in and shows your `@gnspes.ca` address.
+   (`?action=probe` still returns the raw identity JSON.)
+
 > A Pages-hosted page is possible via a redirect round-trip, but modern browsers block
 > the third-party cookies it depends on, so hosting the page in Apps Script is the
-> reliable choice. We'll confirm this when we build the page.
+> reliable choice.
 
 ## What is deliberately NOT built yet
 
