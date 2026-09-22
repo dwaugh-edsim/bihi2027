@@ -1498,16 +1498,11 @@
             cloudFetchFailed = false;
 
             const key = draftKey(pin);
-            
-            // SMART LOCAL DRAFT RECOVERY:
-            // Check student PIN draft, anonymous draft from Thursday (gas_draft_..._draft), and any local match
-            const candidateKeys = [key, `gas_draft_${SLUG}_draft`];
-            for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                if (k && k.startsWith(`gas_draft_${SLUG}_`) && !candidateKeys.includes(k)) {
-                    candidateKeys.push(k);
-                }
-            }
+
+            // LOCAL DRAFT: the logging-in student's OWN draft only. Scanning
+            // other pins' drafts restored classmates' work onto this student
+            // on shared Chromebooks — never scan across PINs.
+            const candidateKeys = [key];
 
             let localObj = null;
             let bestLocalCount = -1;
@@ -1777,8 +1772,17 @@
         // ── Chromebook draft recovery ────────────────────────────
         function restoreChromebookDraft() {
             if (window._pendingRecoveryDraft) {
+                // Ownership check: restoring someone else's draft wrote their
+                // answers under the next person who logged in on this device.
+                const draftPin = String(window._pendingRecoveryDraft.pin || '').trim().toUpperCase();
+                const entered = prompt('This draft is protected. Type its 3-letter PIN to restore it (or Cancel):');
+                if (!entered || entered.trim().toUpperCase() !== draftPin) {
+                    showToast('PIN did not match — draft not restored.', true);
+                    dismissRecoveryBanner();
+                    return;
+                }
                 restoreFormData(window._pendingRecoveryDraft.data);
-                const pin = window._pendingRecoveryDraft.pin;
+                const pin = draftPin;
                 if (pin && pin !== 'draft') {
                     const roster = window.MASTER_ROSTER_DATA || [];
                     const s = roster.find(st => (st.pin || '').toUpperCase() === pin.toUpperCase());
