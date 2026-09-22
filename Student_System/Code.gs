@@ -29,7 +29,7 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.3.2-2026-09-22';
+var CONFIG_VERSION = 'V6.3.3-2026-09-22';
 var CONFIG_DEPLOY_DATE = '2026-09-22T17:35:00Z';
 // PRIVACY: the student PIN -> homeroom map no longer lives in this file (this
 // repo is public). The authoritative roster is pushed into the hidden
@@ -853,6 +853,134 @@ function doPost(e) {
         status: 'rows_deleted',
         removed: removed,
         count: removed.length,
+        version: CONFIG_VERSION
+      });
+    }
+
+    // ==========================================
+    // ACTION: BUILD ASSIGNMENT TABS (teacher-gated, READ-ONLY over student rows)
+    // Body: { action:'build_assignment_tabs', teacherPin, className:'802' }
+    // Writes one snapshot tab per task found in the class rows:
+    //   "<section> · <task>" with PIN / Name / Partner / Fields done / Summary / Updated.
+    // Never modifies student rows — pure read-side breakout.
+    // ==========================================
+    if (action === 'build_assignment_tabs') {
+      const expectedTabPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (!expectedTabPin) {
+        throw new Error('BUILD REFUSED: set the CLASS_LOG_PIN Script Property first (fail-closed).');
+      }
+      if (String(payload.teacherPin || '').trim() !== String(expectedTabPin)) {
+        throw new Error('Teacher PIN required for build_assignment_tabs.');
+      }
+      const bCls = String(payload.className || '').trim();
+      if (!bCls) throw new Error('build_assignment_tabs requires className.');
+      const bSheet = getSheetForClass(ss, bCls);
+      const bLast = bSheet.getLastRow();
+      const perTask = {};
+      if (bLast > 1) {
+        const bData = bSheet.getRange(2, 1, bLast - 1, Math.max(bSheet.getLastColumn(), 7)).getValues();
+        bData.forEach(function (row) {
+          const rowPin = String(row[0] || '').trim().toUpperCase();
+          const rowName = String(row[1] || '');
+          let saved = {};
+          try { saved = JSON.parse(String(row[6] || '{}')) || {}; } catch (e) { saved = {}; }
+          const tasks = saved._tasks || {};
+          Object.keys(tasks).forEach(function (taskName) {
+            const entry = tasks[taskName] || {};
+            const d = (entry.data && typeof entry.data === 'object') ? entry.data : {};
+            if (!perTask[taskName]) perTask[taskName] = [];
+            perTask[taskName].push([
+              rowPin, rowName,
+              String(d.partner || d.teamWith || ''),
+              countCompletedWorkFields(d),
+              String(entry.summary || ''),
+              String(entry.updated || '')
+            ]);
+          });
+        });
+      }
+      const createdTabs = [];
+      Object.keys(perTask).forEach(function (taskName) {
+        const tabName = (bCls + ' · ' + taskName).replace(/[\/?*\[\]:\\]/g, '-').substr(0, 98);
+        let tSheet = ss.getSheetByName(tabName);
+        if (!tSheet) tSheet = ss.insertSheet(tabName);
+        tSheet.clear();
+        tSheet.getRange(1, 1, 1, 6).setValues([['PIN', 'Name', 'Partner', 'Fields done', 'Summary', 'Updated']]).setFontWeight('bold');
+        if (perTask[taskName].length) {
+          tSheet.getRange(2, 1, perTask[taskName].length, 6).setValues(perTask[taskName]);
+        }
+        tSheet.setFrozenRows(1);
+        createdTabs.push(tabName + ' (' + perTask[taskName].length + ' rows)');
+      });
+      return successJSON({ status: 'tabs_built', className: bCls, tabs: createdTabs, version: CONFIG_VERSION });
+    }
+
+    // ==========================================
+    // ACTION: BACKFILL LEGACY TASK (teacher-gated; COPY-only)
+    // Body: { action:'backfill_legacy_tasks', teacherPin, className:'802',
+    //         taskName:'Healthy Living 8: Grade 7 Learning Audit', dryRun:true }
+    // Wraps September-era top-level audit fields into _tasks[taskName] for
+    // rows missing the task. COPY-only: top-level fields are never removed.
+    // dryRun defaults to true — reports without writing.
+    // ==========================================
+    if (action === 'backfill_legacy_tasks') {
+      const expectedBfPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (!expectedBfPin) {
+        throw new Error('BACKFILL REFUSED: set the CLASS_LOG_PIN Script Property first (fail-closed).');
+      }
+      if (String(payload.teacherPin || '').trim() !== String(expectedBfPin)) {
+        throw new Error('Teacher PIN required for backfill_legacy_tasks.');
+      }
+      const bfTask = String(payload.taskName || '').trim();
+      const bfCls = String(payload.className || '').trim();
+      const dryRun = payload.dryRun !== false;
+      if (!bfTask || !bfCls) throw new Error('backfill_legacy_tasks requires taskName and className.');
+      const BF_KEYS = ['email', 'pronouns', 'phonetic', 'transit', 'curious', 'overdone', 'real_questions',
+        'where_personal', 'where_community', 'where_global', 'where_aspirational', 'teacher_note',
+        'matrix', 'matrix_comments', 'formats', 'knowledge_check'];
+      const bfSheet = getSheetForClass(ss, bfCls);
+      const bfLast = bfSheet.getLastRow();
+      const bfReport = [];
+      let wouldBackfill = 0;
+      if (bfLast > 1) {
+        const bfData = bfSheet.getRange(1, 1, bfLast, Math.max(bfSheet.getLastColumn(), 7)).getValues();
+        for (let bi = 1; bi < bfData.length; bi++) {
+          const rowPin = String(bfData[bi][0] || '').trim().toUpperCase();
+          if (!rowPin) continue;
+          let saved = {};
+          try { saved = JSON.parse(String(bfData[bi][6] || '{}')) || {}; } catch (e) { saved = {}; }
+          if (!saved._tasks) saved._tasks = {};
+          if (saved._tasks[bfTask]) continue; // already wrapped — nothing to do
+          const legacy = {};
+          let filled = 0;
+          BF_KEYS.forEach(function (k) {
+            if (saved[k] === undefined) return;
+            legacy[k] = saved[k];
+            const v = saved[k];
+            if (typeof v === 'string' ? v.trim() : (v && Object.keys(v).length)) filled++;
+          });
+          if (!filled) { bfReport.push({ pin: rowPin, action: 'skip-empty' }); continue; }
+          legacy.name = String(bfData[bi][1] || '');
+          legacy.pin = rowPin;
+          legacy.className = bfCls;
+          bfReport.push({ pin: rowPin, name: legacy.name, fields: filled, action: dryRun ? 'would-backfill' : 'backfilled' });
+          if (!dryRun) {
+            saved._tasks[bfTask] = {
+              updated: new Date(),
+              summary: bfTask + ' | backfilled from legacy row (' + filled + ' fields)',
+              data: legacy
+            };
+            bfSheet.getRange(bi + 1, 7).setValue(JSON.stringify(saved));
+          }
+          wouldBackfill++;
+        }
+      }
+      return successJSON({
+        status: 'backfill_' + (dryRun ? 'dry_run' : 'done'),
+        className: bfCls,
+        taskName: bfTask,
+        wouldBackfill: wouldBackfill,
+        report: bfReport,
         version: CONFIG_VERSION
       });
     }
