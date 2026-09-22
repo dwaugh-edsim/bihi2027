@@ -1559,7 +1559,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 const meta = asgForTask(taskName, course) || {};
                 if (meta.totalFields) {
                     const legacyTask = s.savedData && s.savedData._tasks && s.savedData._tasks[taskName];
-                    const taskData = legacyTask ? (legacyTask.data || null) : null;
+                    let taskData = legacyTask ? (legacyTask.data || null) : null;
+                    // September-era storage kept audit answers at savedData top
+                    // level, before per-task wrapping existed.
+                    if (!taskData && s.savedData && (s.savedData.matrix || s.savedData.overdone || s.savedData.real_questions)) {
+                        taskData = s.savedData;
+                    }
                     if (taskData) {
                         done = Math.min(countSubmittedFields(taskData), meta.totalFields);
                         total = meta.totalFields;
