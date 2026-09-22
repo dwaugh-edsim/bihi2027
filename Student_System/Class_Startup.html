@@ -1530,7 +1530,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // Pinned-task view: cohort = ledger students of this course (spotted by their
     // citizenship-task footprints); students without the pinned task show as
     // "Not started", so a fresh assignment renders correctly at 0.
-    function parsePinnedTaskProgress(students, taskName, course) {
+    function parsePinnedTaskProgress(students, taskName, course, hr) {
         const inCourse = s => {
             const names = [s.task];
             if (s.assignments) names.push(...Object.keys(s.assignments));
@@ -1538,8 +1538,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             return names.some(t => t && courseAligned(t, course));
         };
         const records = [];
+        const seenPins = new Set();
         students.forEach(s => {
             if (!inCourse(s)) return;
+            const pin = String(s.pin || '').trim().toUpperCase();
+            if (pin) {
+                if (seenPins.has(pin)) return;
+                seenPins.add(pin);
+            }
             let text = '';
             if (s.task === taskName) text = s.summary || '';
             if (!text && s.assignments && s.assignments[taskName]) text = s.assignments[taskName];
@@ -1551,10 +1557,31 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
             records.push({
                 name: displayName,
+                pin: pin,
                 partner: s.partner || '',
                 done: done, total: total,
                 pct: total > 0 ? Math.round((done / total) * 100) : 0,
                 started: hasWritten(s, taskName)
+            });
+        });
+        // Roster completion: kids with no ledger row at all still show, as 0 /
+        // Not Started, so the whole class stays visible on the projector.
+        const roster = window.MASTER_ROSTER_DATA || [];
+        roster.forEach(r => {
+            const pin = String(r.pin || '').trim().toUpperCase();
+            if (pin && seenPins.has(pin)) return;
+            if (String(r.homeroom || '').trim() !== String(hr || '').trim()) return;
+            if (pin) seenPins.add(pin);
+            let first = r.first_name || '';
+            if (r.pin === 'BEU' || first === 'Blessing') first = 'Kossy';
+            const last = (r.last_name || '').trim();
+            records.push({
+                name: first + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''),
+                pin: pin,
+                partner: '',
+                done: 0, total: 0,
+                pct: 0,
+                started: false
             });
         });
         records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
@@ -1583,11 +1610,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
     function parseProgressFor(sec, students) {
         const course = (MEET[sec] && MEET[sec].course) || 'HL9';
+        const hr = homeroomOf(sec);
         const sel = storedTaskFor(course);
         if (sel === 'auto') return parseAutoProgress(students, course);
-        if (sel) return parsePinnedTaskProgress(students, sel, course);
+        if (sel) return parsePinnedTaskProgress(students, sel, course, hr);
         const act = activeAsg(course);
-        if (act) return parsePinnedTaskProgress(students, act.taskName, course);
+        if (act) return parsePinnedTaskProgress(students, act.taskName, course, hr);
         return parseAutoProgress(students, course);
     }
 
