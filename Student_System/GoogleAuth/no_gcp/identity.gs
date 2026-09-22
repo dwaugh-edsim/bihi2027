@@ -34,7 +34,7 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.1.0';
+var IDENTITY_VERSION = 'R8-ID-0.2.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 
 function identityKey_() {
