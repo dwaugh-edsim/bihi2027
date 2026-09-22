@@ -100,8 +100,11 @@ function doGet(e) {
     var who = callerEmail_();
     // One-click account switcher that returns to this same handoff. Needed because
     // a browser signed into a personal account will otherwise dead-end here.
-    var switchUrl = 'https://accounts.google.com/AccountChooser?continue=' +
-      encodeURIComponent(ScriptApp.getService().getUrl() + '?return=' + encodeURIComponent(ret));
+    var execUrl = ScriptApp.getService().getUrl();
+    var switchUrl = execUrl
+      ? 'https://accounts.google.com/AccountChooser?continue=' +
+        encodeURIComponent(execUrl + '?return=' + encodeURIComponent(ret))
+      : '';
     if (!who) {
       return noticeHtml_('Sign in required',
         'No Google account is currently signed in. Sign in with your <b>@' + ALLOWED_DOMAIN +
