@@ -4273,6 +4273,9 @@
 
         function restoreChromebookDraft() {
             if (window._pendingRecoveryDraft) {
+                const __dp = String((window._pendingRecoveryDraft || {}).pin || '').trim().toUpperCase();
+                const __en = prompt('This draft is protected. Type its 3-letter PIN to restore it (or Cancel):');
+                if (!__en || __en.trim().toUpperCase() !== __dp) { alert('PIN did not match — draft not restored.'); return; }
                 applyPayloadToForm(window._pendingRecoveryDraft.data);
                 const pin = window._pendingRecoveryDraft.pin;
                 if (pin && pin !== '---') {
