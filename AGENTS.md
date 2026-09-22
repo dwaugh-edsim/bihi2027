@@ -1,5 +1,25 @@
 # AGENTS.md — Room 8 repo notes for LLM/agent sessions
 
+## Two-machine reality (home ↔ school harnesses)
+
+Sessions run on BOTH Mr. Waugh's home computer and a school machine — **the git repo is
+the only channel between them.** Anything that matters (edits, decisions, queued work,
+diagnoses) must land in tracked files and be **pushed before the session ends**; a fact
+that lives only in one session's conversation does not exist for the next harness.
+Start of session: `git pull` / check `git status` — the other machine may have moved
+since you last looked.
+
+What does and doesn't travel:
+
+- **Travels:** tracked files + push (GitHub Pages deploys `main` in ~1–2 min), and the
+  **Room 8 Master Google Sheet** — the class-log webhook + teacher PIN works from any
+  machine, so log writes and slide extras can be done from home; verify with a GET.
+- **Does NOT travel (machine-local):** the projector browser's localStorage — the
+  per-course Task Progress pick (`room8_prog_task_<course>`), the cached teacher PIN
+  (`room8_class_log_pin`), and seating-doc storage (`sp_*` / `sp2_*`). To change
+  defaults from home, edit tracked files (e.g. `assignments_data.js` `active`) and
+  push; the projector picks it up on reload.
+
 ## Class Log live API (the teacher's "what did we do last class" tracker)
 
 The teacher's per-section class log lives in the **Room 8 Master Google Sheet**
@@ -70,6 +90,18 @@ yesterday's stragglers → set today's plans/agenda → set/clear slide extras �
 confirm `assignments_data.js` `active` per course → refresh the seed → print a
 per-section verification line. Ask for `CLASS_LOG_PIN` up front if writes are
 needed; read-only steps need no PIN.
+
+> **PENDING SCREEN ITEMS — from the principal's Monday Memo (Sept 21), awaiting Mr.
+> Waugh's go + PIN. Push via `set_class_slide`, then DELETE this block.**
+> 1. Every section meeting Sept 22–24: append "PD Day Friday (Sept 25) — no classes."
+>    Clear after Sept 25.
+> 2. Every section meeting Sept 22–24: append "Hold & Secure drill this week — we'll
+>    review expectations first." Clear once the drill has happened.
+> 3. Sections meeting Sept 28–29 (P1 HL9 · P4 CIT9 · P5 HL8 on the 29th): set on or
+>    after Sept 28 — "Orange Shirt Day Tuesday (Sept 29) — wear orange." Clear after
+>    Sept 29.
+> Mechanics: `set_class_slide` overwrites the whole announcements field — read current
+> slides with `get_class_log` first and merge (they were all empty as of Sept 21).
 
 ## Seating plans
 
