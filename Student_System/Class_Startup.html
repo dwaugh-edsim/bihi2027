@@ -1565,7 +1565,15 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             });
         });
         // Roster completion: kids with no ledger row at all still show, as 0 /
-        // Not Started, so the whole class stays visible on the projector.
+        // Not Started, so the whole class stays visible on the projector. A kid
+        // named as a partner on someone else's submission shows as "Partnered"
+        // instead — they're covered by that doc, not missing.
+        const partnerTokens = new Set();
+        records.forEach(r => {
+            String(r.partner || '').toLowerCase().split(/[^a-z]+/).forEach(t => {
+                if (t.length >= 3) partnerTokens.add(t);
+            });
+        });
         const roster = window.MASTER_ROSTER_DATA || [];
         roster.forEach(r => {
             const pin = String(r.pin || '').trim().toUpperCase();
@@ -1575,13 +1583,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             let first = r.first_name || '';
             if (r.pin === 'BEU' || first === 'Blessing') first = 'Kossy';
             const last = (r.last_name || '').trim();
+            const fl = first.toLowerCase();
+            const partnered = fl.length >= 3 && [...partnerTokens].some(t => t === fl || fl.startsWith(t) || t.startsWith(fl));
             records.push({
                 name: first + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''),
                 pin: pin,
                 partner: '',
                 done: 0, total: 0,
                 pct: 0,
-                started: false
+                started: false,
+                partnered: partnered
             });
         });
         records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
@@ -1893,7 +1904,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                             <div class="prog-mini-bar">
                                 <div class="prog-mini-fill" style="width:${r.pct}%;background:${r.pct === 100 ? 'var(--emerald)' : 'var(--blue)'};"></div>
                             </div>`
-                        : `<span class="prog-row-ns">${r.started ? 'In progress…' : 'Not started'}</span>`}
+                        : `<span class="prog-row-ns">${r.partnered ? 'Partnered' : (r.started ? 'In progress…' : 'Not started')}</span>`}
                 </div>
             </div>
         `).join('');
