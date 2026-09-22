@@ -980,11 +980,11 @@
             };
         }
 
-        function countCompleted(data) {
+        function countCompleted(data, fields) {
             if (!data) return 0;
             let done = 0;
             const answers = data.answers || data;
-            for (const f of ALL_FIELDS) {
+            for (const f of (fields || ALL_FIELDS)) {
                 const v = answers ? answers[f.id] : null;
                 if (Array.isArray(v)) { if (v.length > 0) done++; }
                 else if (v && String(v).trim() !== '') { done++; }
@@ -1198,11 +1198,15 @@
         }
 
         function updateProgress(data) {
-            const done = countCompleted(data);
-            const activeTarget = (currentRoleMode === 'all') ? TOTAL_FIELDS : ALL_FIELDS.filter(f => {
+            // Done and target must count the SAME field set — in a partner
+            // role mode the denominator is the role's subset, so counting
+            // all 24 fields for `done` could read "14 / 11".
+            const activeFields = (currentRoleMode === 'all') ? ALL_FIELDS : ALL_FIELDS.filter(f => {
                 const parentSec = ASSIGNMENT.sections.find(s => s.fields.some(sf => sf.id === f.id));
                 return parentSec && ROLE_SECTIONS[currentRoleMode].includes(parentSec.id);
-            }).length;
+            });
+            const done = countCompleted(data, activeFields);
+            const activeTarget = activeFields.length;
 
             const pct = activeTarget ? Math.min(100, Math.round((done / activeTarget) * 100)) : 0;
             const bar = document.getElementById('progressBar');
