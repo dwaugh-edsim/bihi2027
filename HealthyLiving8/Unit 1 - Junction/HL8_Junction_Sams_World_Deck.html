@@ -638,6 +638,19 @@
             pointer-events: none;
         }
 
+        /* Presenter-remote blank screen (B = black, W = white) */
+        .blank-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000000;
+            z-index: 99999;
+            cursor: none;
+        }
+
+        .blank-screen.white { background: #ffffff; }
+        .blank-screen.on { display: block; }
+
         .column-title {
             font-family: var(--font-display);
             font-size: 1.45rem;
@@ -1579,13 +1592,16 @@
 
     <!-- Bottom Nav (TXT Style) -->
     <footer class="bottom-nav">
-        <button class="nav-btn" onclick="prevSlide()">&larr; Previous [Left]</button>
+        <button class="nav-btn" onclick="prevSlide()">&larr; Prev [← / PgUp / P]</button>
         <div class="nav-center">
             <div class="dots" id="dotsContainer"></div>
             <span class="slide-counter" id="slideCounter">SLIDE 1 / 9</span>
         </div>
-        <button class="nav-btn" onclick="nextSlide()">Next Slide [Right] &rarr;</button>
+        <button class="nav-btn" onclick="advanceOrReveal()">Next [→ / Space / PgDn / Clicker] &rarr;</button>
     </footer>
+
+    <!-- Presenter-remote blank screen (B = black, W = white, press again to restore) -->
+    <div class="blank-screen" id="blankScreen"></div>
 
     <script>
         const slides = document.querySelectorAll('.slide');
@@ -1650,21 +1666,55 @@
             }
         }
 
+        /* ── PRESENTER REMOTE SUPPORT ──
+           Clickers send PageDown/PageUp, Space, Enter, arrows, and N/P.
+           Slide 6 is two-step: the first "next" reveals the Strategist
+           column, the next one advances. B/W blank the screen like PowerPoint. */
+        function revealPending() {
+            const col = document.getElementById('strategistCol');
+            return !!(col && col.classList.contains('masked'));
+        }
+
+        function advanceOrReveal() {
+            if (currentIdx === 5 && revealPending()) {
+                revealStrategist();
+                return;
+            }
+            nextSlide();
+        }
+
+        function toggleBlank(white) {
+            const el = document.getElementById('blankScreen');
+            if (!el) return;
+            const wantWhite = !!white;
+            const isOn = el.classList.contains('on');
+            const isWhite = el.classList.contains('white');
+            if (isOn && isWhite === wantWhite) {
+                el.classList.remove('on', 'white');
+            } else {
+                el.classList.toggle('white', wantWhite);
+                el.classList.add('on');
+            }
+        }
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
+            const k = e.key;
+            if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Enter' || k === 'n' || k === 'N') {
                 e.preventDefault();
-                nextSlide();
-            } else if (e.key === 'ArrowLeft') {
+                advanceOrReveal();
+            } else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace' || k === 'p' || k === 'P') {
                 e.preventDefault();
                 prevSlide();
-            } else if (e.key === 'f' || e.key === 'F') {
+            } else if (k === 'f' || k === 'F') {
                 toggleFullscreen();
-            } else if (e.key === 's' || e.key === 'S') {
+            } else if (k === 's' || k === 'S') {
                 // Dynamically trigger reveal if current slide contains strategistCol (Slide 6)
                 const activeSlide = slides[currentIdx];
                 if ((activeSlide && activeSlide.querySelector('#strategistCol')) || currentIdx === 5) {
                     revealStrategist();
                 }
+            } else if (k === 'b' || k === 'B' || k === 'w' || k === 'W' || k === '.') {
+                toggleBlank(k === 'w' || k === 'W');
             }
         });
 
