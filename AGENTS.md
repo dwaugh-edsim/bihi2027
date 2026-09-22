@@ -48,6 +48,28 @@ misdiagnosis stacked an invented "the teacher's redeploy didn't take" story on
 top of a probe that was measuring the wrong tab; the redeploy had been fine all
 along. Humans break things less often than models miss hidden branches.
 
+**Opening slide daily system:** `Student_System/Class_Opening_Slide.html` is the
+projector do-now. Its Task Progress picker and LEARNING OUTCOME strip are driven by
+`Student_System/assignments_data.js` — the curated registry mapping each course's
+ledger `TASK_NAME`s to a short label + best-fit outcome, with `active` per course.
+When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from the
+assignment page, and the outcome **chosen by digging into `2026-27outcomes.md` (repo
+root)** — the compiled verbatim outcome pool for CIT9/HL9/HL8 with codes, match tags,
+and the choosing steps; cite the code in the item's `ref` and add the pick to the
+doc's mapping table. Outcome resolution on the slide: ⚙ override → matched assignment
+→ lesson-map unit by next class # → course default. The "Last class (date · #n)" line
+is the section's newest Class_Log entry; it only appears once the course has been
+logged at least once. `class_log_seed_data.js` is the offline snapshot
+(entries+plans+slides) — regenerate it from `get_class_log` after a batch of logging.
+
+**Morning preset:** when Mr. Waugh says *"get today's screens ready"*, *"bang the
+day's screen into shape"*, or pastes a raw day note, follow the **Morning preset
+runbook** in `Student_System/CLASS_LOG_README.md`: orient (read-only) → log
+yesterday's stragglers → set today's plans/agenda → set/clear slide extras →
+confirm `assignments_data.js` `active` per course → refresh the seed → print a
+per-section verification line. Ask for `CLASS_LOG_PIN` up front if writes are
+needed; read-only steps need no PIN.
+
 ## Seating plans
 
 `seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in

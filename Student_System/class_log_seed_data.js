@@ -1,45 +1,71 @@
-// class_log_seed_data.js — offline seed for Class_Log_Tracker.html.
-// The tracker overwrites this with a live GET (?action=get_class_log) as soon as
-// the Apps Script backend answers, so these samples only show until then.
-// Regenerate after a batch of logging: open <script-url>?action=get_class_log
-// in a browser and paste the entries + plans here (any LLM can do it — see
-// CLASS_LOG_README.md). The entries below are SAMPLES — delete once live.
+// class_log_seed_data.js — offline seed for Class_Log_Tracker.html and
+// Class_Opening_Slide.html. Live sync (GET ?action=get_class_log) replaces it the
+// moment the Apps Script answers; this snapshot only covers an offline morning.
+// Regenerate after a batch of logging (see CLASS_LOG_README.md) — any LLM can do it.
+
 window.CLASS_LOG_SEED = {
-    generated: "2026-09-16",
-    note: "Snapshot of the Class_Log + Class_Plan tabs. Live sync replaces it at view time.",
-    entries: [
+    "generated": "2026-09-21",
+    "note": "Snapshot of the Class_Log + Class_Plan + Class_Slide tabs. Live sync replaces it at view time.",
+    "entries": [
         {
-            date: "2026-09-14",
-            section: "902-CIT",
-            course: "CIT9",
-            classNo: "4",
-            did: "Introduced three levels of government; started the levels organizer.",
-            next: "Finish organizer for Thu — bring to next class.",
-            timestamp: "2026-09-14T15:10:00Z"
+            "date": "2026-09-17",
+            "section": "901-CIT",
+            "course": "CIT9",
+            "classNo": "6",
+            "did": "Finished the Three Levels sheet (needs correcting); did the maps; started the cost-of-living / Numbeo research (first part done).",
+            "next": "Correct the Three Levels sheet, then continue the cost-of-living / Numbeo assignment.",
+            "timestamp": "2026-09-17T18:56:41.714Z"
         },
         {
-            date: "2026-09-15",
-            section: "902-HL",
-            course: "HL9",
-            classNo: "2",
-            did: "Hook Machine deck — phones by design discussion; handed out Quiz 1 study sheet.",
-            next: "Quiz 1 next class — study sheet due.",
-            timestamp: "2026-09-15T15:05:00Z"
+            "date": "2026-09-17",
+            "section": "902-CIT",
+            "course": "CIT9",
+            "classNo": "5",
+            "did": "Three Levels sheet done and corrected; did the maps (NS & Canada).",
+            "next": "Start the cost-of-living / Numbeo assignment.",
+            "timestamp": "2026-09-17T18:56:45.230Z"
+        },
+        {
+            "date": "2026-09-17",
+            "section": "903-CIT",
+            "course": "CIT9",
+            "classNo": "6",
+            "did": "Three Levels sheet done and corrected; did the maps (NS & Canada).",
+            "next": "Start the cost-of-living / Numbeo assignment.",
+            "timestamp": "2026-09-17T18:56:47.220Z"
         }
     ],
-    plans: {
+    "plans": {
         "902-CIT": {
-            note: "Review: three levels of government organizer\nSL proposal work period\nExit ticket — which level handles transit?",
-            classNo: "5",
-            updated: "2026-09-17T08:00:00Z"
+            "note": "Start the cost-of-living / Numbeo assignment.\nShort quiz — 3 levels of government + maps & capitals (NS / Canada)",
+            "classNo": "6",
+            "updated": "2026-09-21T15:02:53.601Z"
+        },
+        "901-CIT": {
+            "note": "Correct the Three Levels sheet, then continue the cost-of-living / Numbeo assignment.",
+            "classNo": "7",
+            "updated": "2026-09-17T18:56:42.434Z"
+        },
+        "903-CIT": {
+            "note": "Start the cost-of-living / Numbeo assignment.",
+            "classNo": "7",
+            "updated": "2026-09-17T18:56:48.223Z"
+        },
+        "901-HL": {
+            "note": "Finish the Sleep Clinic 10-Station Audit input\nAddictive phone apps assignment",
+            "classNo": "",
+            "updated": "2026-09-21T15:55:21.564Z"
+        },
+        "903-HL": {
+            "note": "Addictive phone apps assignment",
+            "classNo": "",
+            "updated": "2026-09-17T11:42:01.697Z"
+        },
+        "902-HL": {
+            "note": "Addictive phone apps assignment",
+            "classNo": "",
+            "updated": "2026-09-17T11:42:09.342Z"
         }
     },
-    slides: {
-        "902-CIT": {
-            title: "",
-            announcements: "Picture day Thursday\nTerry Fox forms due Friday",
-            outcome: "",
-            updated: "2026-09-17T08:00:00Z"
-        }
-    }
+    "slides": {}
 };

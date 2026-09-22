@@ -7,9 +7,20 @@
 <!--
   Class_Opening_Slide.html — the "do-now" slide on the LCD projector as students enter.
   Auto-detects the current class from the clock + the verified 10-day rotation, pulls the
-  agenda from the section's plan (Class_Plan tab) and shows a course outcome strip that
+  agenda from the section's plan (Class_Plan tab) and shows a learning-outcome strip that
   stays visible for administrators. Announcements / outcome / title are editable on the
   page itself (⚙ or "e") and saved to the Class_Slide tab via the Apps Script webhook.
+
+  Daily system:
+  - "Last class (date · #n)" comes from the section's newest Class_Log entry — log the
+    class (tracker, Sheet app, or curl) and tomorrow's slide shows it automatically.
+  - The Task Progress picker (dropdown in the progress panel) selects which recent
+    assignment the live view reports. Choices come from assignments_data.js (curated
+    registry) plus anything found in the ledger; the pick is remembered per course in
+    this browser (localStorage room8_prog_task_<course>).
+  - The outcome strip follows the assignment on screen: matched from the registry's
+    curated assignment → outcome pairs, falling back to the lesson-map unit outcome.
+
   Keyboard: ← / → switch class · e edit · s seating · p progress · Esc close · F fullscreen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -548,14 +559,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .prog-task-select {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: var(--blue);
     background: var(--blue-bg);
     border: 1px solid var(--blue-border);
-    padding: 4px 8px;
+    padding: 5px 10px;
     border-radius: 4px;
-    max-width: 440px;
+    max-width: 480px;
     cursor: pointer;
 }
 .prog-stats-strip {
@@ -818,7 +829,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 </div>
 
 <div class="outcomebar">
-    <span class="o-label">COURSE OUTCOME</span>
+    <span class="o-label">LEARNING OUTCOME</span>
     <span class="o-text" id="outcomeText">…</span>
 </div>
 
@@ -968,7 +979,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <div class="overlay" id="overlay">
     <div class="editor">
         <h3>Slide setup — <span id="edSection" class="mono"></span></h3>
-        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here).</div>
+        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). Which assignment the live view reports is picked with the dropdown in the Task Progress panel.</div>
         <label>Class</label>
         <div class="section-pick" id="sectionPick"></div>
         <label>Title (optional)</label>
@@ -977,7 +988,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         <textarea id="edAnnounce" rows="3" placeholder="Picture day Thursday&#10;Permission forms due Friday"></textarea>
         <label>Outcome override (optional)</label>
         <textarea id="edOutcome" rows="2" placeholder="Leave blank to use the course outcome for today's lesson"></textarea>
-        <div class="hint">Outcome auto-fills from today's lesson; override only for special days.</div>
+        <div class="hint">Outcome auto-matches the assignment on screen (assignments_data.js); override only for special days.</div>
         <div class="btns">
             <button class="save" id="edSave">Save slide</button>
             <button class="clear" id="edClear">Clear extras</button>
@@ -989,6 +1000,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
 <script src="class_log_meetings_data.js"></script>
 <script src="class_log_lesson_maps.js"></script>
+<script src="assignments_data.js"></script>
 <script src="class_seating_data.js"></script>
 <script src="students_roster_data.js"></script>
 <script src="class_log_seed_data.js"></script>
@@ -998,6 +1010,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     'use strict';
     const MEET = window.CLASS_LOG_MEETINGS.sections;
     const MAPS = window.CLASS_LOG_LESSON_MAPS || {};
+    const ASSIGN = window.COURSE_ASSIGNMENTS || {};
+    function courseAsgList(course) { return (ASSIGN[course] && ASSIGN[course].items) || []; }
+    function activeAsg(course) {
+        const list = courseAsgList(course);
+        const id = ASSIGN[course] && ASSIGN[course].active;
+        return list.find(a => a.id === id) || list[0] || null;
+    }
+    function asgForTask(taskName, course) {
+        if (!taskName) return null;
+        const list = courseAsgList(course);
+        return list.find(a => a.taskName === taskName) ||
+               list.find(a => a.match && a.match.test(taskName)) || null;
+    }
     const ORDER = ["902-CIT", "902-HL", "901-CIT", "901-HL", "903-CIT", "903-HL",
                    "801-HE", "802-HE", "803-HE", "804-HE"];
     // Bell schedule (America/Halifax school clock)
@@ -1096,18 +1121,30 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     function outcomeFor(sec) {
         const slide = slides[sec];
         if (slide && slide.outcome && slide.outcome.trim()) return slide.outcome.trim();
-        const map = MAPS[MEET[sec] ? MEET[sec].course : ''];
-        if (!map) return '';
-        const last = lastEntry(sec);
-        const plan = plans[sec];
-        let n = null;
-        if (plan && /^\d+$/.test(String(plan.classNo || ''))) n = parseInt(plan.classNo, 10);
-        else if (last && /^\d+$/.test(String(last.classNo || ''))) n = parseInt(last.classNo, 10) + 1;
-        if (n !== null) {
-            const o = unitField(map, n, 'outcome');
-            if (o) return o;
+        const course = MEET[sec] ? MEET[sec].course : '';
+        const map = MAPS[course];
+        // 1. The assignment on screen carries its curated outcome: whichever task
+        //    the progress panel is reporting (or the teacher's pinned pick, or the
+        //    course's active assignment), matched through assignments_data.js.
+        const prog = classProgressCache[homeroomOf(sec)];
+        const sel = storedTaskFor(course);
+        const shownTask = (prog && prog.taskName) || (sel && sel !== 'auto' ? sel : null);
+        const asg = asgForTask(shownTask, course) || activeAsg(course);
+        if (asg && asg.outcome) return asg.outcome;
+        // 2. Lesson-map unit outcome for the upcoming class number.
+        if (map) {
+            const last = lastEntry(sec);
+            const plan = plans[sec];
+            let n = null;
+            if (plan && /^\d+$/.test(String(plan.classNo || ''))) n = parseInt(plan.classNo, 10);
+            else if (last && /^\d+$/.test(String(last.classNo || ''))) n = parseInt(last.classNo, 10) + 1;
+            if (n !== null) {
+                const o = unitField(map, n, 'outcome');
+                if (o) return o;
+            }
+            return map.defaultOutcome || '';
         }
-        return map.defaultOutcome || '';
+        return '';
     }
     function agendaItemsFor(sec) {
         const plan = plans[sec];
@@ -1186,8 +1223,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const lastDateTxt = last ? new Date(last.date + 'T12:00:00')
             .toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
         document.getElementById('lastLine').innerHTML = last
-            ? '<b>Last class (' + lastDateTxt + '):</b> ' + escapeHtml(last.did || '—')
-            : '';
+            ? '<b>Last class (' + lastDateTxt + (last.classNo ? ' · #' + escapeHtml(String(last.classNo)) : '') + '):</b> ' + escapeHtml(last.did || '—')
+            : '<span class="empty-note" style="font-size:0.9rem;">No log yet — quick-log this course in the Class Log tracker and “Last class” will show here.</span>';
         const items = agendaItemsFor(sec);
         document.getElementById('todayHeading').textContent =
             (slides[sec] && slides[sec].title) ? slides[sec].title : 'Today';
@@ -1239,6 +1276,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         current = sec;
         if (opts && opts.manual) manualPick = true;
         localStorage.setItem('room8_slide_section', sec);
+        // clear the previous section's progress panel right away so a cross-course
+        // roster never lingers while the new section's ledger fetch is in flight
+        document.getElementById('progressPanel').style.display = 'none';
+        document.querySelector('.content').classList.remove('has-progress');
         render();
     }
 
@@ -1465,13 +1506,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return (seating.homeroomOf || {})[sec] || sec.replace(/-(CIT|HL|HE)$/, '');
     }
 
-    // The assignment each course is working on right now. When set, the progress
-    // panel always reports THIS task — even before anyone has saved — instead of
-    // whichever old task has the most ledger data. Must match the TASK_NAME the
-    // assignment page writes to the GAS ledger.
-    const CURRENT_TASK = {
-        CIT9: 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay'
-    };
+    // The assignment each course is working on right now comes from the curated
+    // registry in assignments_data.js (activeAsg): the progress panel reports that
+    // task — even before anyone has saved — instead of whichever old task has the
+    // most ledger data. taskName there must match the TASK_NAME the assignment page
+    // writes to the GAS ledger.
 
     // Course keyword fingerprints — used to tell which ledger students belong to
     // which course (one homeroom's ledger rows mix e.g. 902-CIT and 902-HL kids).
@@ -1538,7 +1577,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const sel = storedTaskFor(course);
         if (sel === 'auto') return parseAutoProgress(students, course);
         if (sel) return parsePinnedTaskProgress(students, sel, course);
-        if (CURRENT_TASK[course]) return parsePinnedTaskProgress(students, CURRENT_TASK[course], course);
+        const act = activeAsg(course);
+        if (act) return parsePinnedTaskProgress(students, act.taskName, course);
         return parseAutoProgress(students, course);
     }
 
@@ -1720,44 +1760,55 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return null;
     }
 
-    // Assignment picker: lists the course's current task + every task found in the
-    // ledger for this course, plus 'auto' (old busiest-task behaviour). The choice
-    // is remembered per course.
+    // Assignment picker: lists the course's curated assignments (assignments_data.js)
+    // plus every course-aligned task found in the ledger, plus 'auto' (old
+    // busiest-task behaviour). The choice is remembered per course in this browser,
+    // so it survives refreshes and day-to-day use on the projector.
     function populateTaskSelect(sec) {
         const sel = document.getElementById('progTaskSelect');
         if (!sel) return;
         const course = (MEET[sec] && MEET[sec].course) || 'HL9';
         const stored = storedTaskFor(course);
+        const act = activeAsg(course);
         const opts = taskOptionsFor(homeroomOf(sec), course);
-        let current = stored !== null ? stored : (CURRENT_TASK[course] || 'auto');
+        let current = stored !== null ? stored : (act ? act.taskName : 'auto');
         if (current !== 'auto' && opts.indexOf(current) === -1) {
-            // stored task no longer exists in the ledger — fall back and forget it
+            // stored task is neither in the registry nor the ledger any more —
+            // fall back to the course's active assignment and forget the pick
             try { localStorage.removeItem('room8_prog_task_' + course); } catch (e) { /* private mode */ }
-            current = CURRENT_TASK[course] || 'auto';
+            current = act ? act.taskName : 'auto';
         }
         if (opts.indexOf('auto') === -1) opts.push('auto');
         sel.innerHTML = opts.map(t => {
-            const label = t === 'auto' ? 'Auto (busiest ledger task)' : ((CURRENT_TASK[course] === t ? '★ ' : '') + t);
-            return '<option value="' + escapeHtml(t) + '">' + escapeHtml(label) + '</option>';
+            if (t === 'auto') return '<option value="auto">Auto (busiest ledger task)</option>';
+            const a = asgForTask(t, course);
+            const label = (a && a.short) ? a.short : t;
+            return '<option value="' + escapeHtml(t) + '">' +
+                escapeHtml((act && act.taskName === t ? '★ ' : '') + label) + '</option>';
         }).join('');
         sel.value = current;
-        sel.title = current === 'auto' ? 'Auto: whichever ledger task has the most activity' : current;
+        const cur = asgForTask(current, course);
+        sel.title = current === 'auto' ? 'Auto: whichever ledger task has the most activity'
+                                       : (cur ? cur.taskName : current);
     }
     function taskOptionsFor(hr, course) {
         const opts = [];
         const seen = new Set();
-        const add = t => {
+        const add = (t, vetted) => {
             if (!t) return;
             t = t.trim();
-            if (!t || seen.has(t) || !courseAligned(t, course)) return;
+            if (!t || seen.has(t)) return;
+            // registry items are pre-vetted; ledger discoveries must look like
+            // this course's tasks before they're offered
+            if (!vetted && !courseAligned(t, course)) return;
             seen.add(t);
             opts.push(t);
         };
-        if (CURRENT_TASK[course]) add(CURRENT_TASK[course]);
+        courseAsgList(course).forEach(a => add(a.taskName, true));
         (rawStudentsByHr[hr] || []).forEach(s => {
             if (s.task) add(s.task);
-            if (s.assignments) Object.keys(s.assignments).forEach(add);
-            if (s._t) Object.keys(s._t).forEach(add);
+            if (s.assignments) Object.keys(s.assignments).forEach(t => add(t));
+            if (s._t) Object.keys(s._t).forEach(t => add(t));
         });
         return opts;
     }
@@ -1806,6 +1857,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         contentEl.classList.add('has-progress');
         populateTaskSelect(sec);
         updateFreshMarker();
+        // The outcome strip follows the assignment now on screen — re-resolve it
+        // once the ledger tells us which task is actually being reported.
+        if (sec === current) {
+            document.getElementById('outcomeText').textContent = outcomeFor(sec) || '—';
+        }
 
         document.getElementById('progStatsStrip').innerHTML =
             `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Active'}</span>` +

@@ -18,17 +18,72 @@ slide), announcements, and a course outcome strip at the bottom for administrato
   right class from the time of day. Wrong pick? Click a chip or press ← / →. `F` = fullscreen.
 - **Agenda**: comes from the section's plan in the tracker. In the plan, one line = one
   agenda item on the slide. If there's no plan, it falls back to the suggested next lesson.
-  "Last class" shows above it as continuing context.
+  "Last class (date · #n)" shows above it as continuing context — it is the section's
+  newest Class_Log entry, so logging a class (tracker, Sheet app, or curl) is what keeps
+  it current. A course with no entries shows a quiet "No log yet" nudge instead.
+- **Which assignment the live view shows**: the Task Progress panel has a dropdown
+  listing the course's curated assignments (`assignments_data.js`) plus anything found
+  in the ledger. Pick one and it sticks (per course, in that browser) — including a
+  brand-new assignment before anyone has saved (it renders at 0 / "Not started").
 - **Announcements / title / outcome**: press `⚙` (or `e`) on the slide, type, Save — stored
-  per section in the `Class_Slide` tab via the webhook. Leave the outcome blank to use the
-  course outcome for today's lesson (from `class_log_lesson_maps.js`).
-- The outcome strip stays on screen for the whole period — that's the administrator view.
+  per section in the `Class_Slide` tab via the webhook.
+- **Learning outcome strip** (the administrator view — always on screen), resolved in
+  this order:
+  1. the ⚙ outcome override, when the teacher typed one;
+  2. the outcome curated for the assignment on screen (`assignments_data.js` matches
+     the ledger task name → the verbatim curriculum statement chosen from
+     `../2026-27outcomes.md`, the compiled outcome pool an agent digs into whenever a
+     new assignment launches);
+  3. the lesson-map unit outcome for the next class # (`class_log_lesson_maps.js`);
+  4. the course's default outcome.
 - **🪑 Seats popup** (`s` key): the Room 8 desk chart (11 · 11 · 7) for the class on screen.
   Names come from, best first: the seating doc's own browser storage (`sp_<homeroom>` —
   your live edits in `seating-plan.html` when both pages run in the same browser),
   a synced snapshot in `class_seating_data.js`, then the alphabetical roster.
   Ask ZCode to "sync 902's seating snapshot" after reshuffling in the seating doc.
 
+
+---
+
+## Morning preset — "bang today's screen into shape" (agent runbook)
+
+The slide doesn't need to be fully automated — Mr. Waugh is fine with an agent session
+(ZCode, Antigravity, anything that reads this repo) presetting the day. Trigger phrases:
+*"get today's screens ready"*, *"bang the day's screen into shape"*, *"set up today's
+slide"* — even a raw brain-dump like *"902s finished the Numbeo research, quiz Thursday,
+announce Terry Fox forms"* is enough; the agent formats and files it.
+
+**First: ask for `CLASS_LOG_PIN` if anything will be written. It is never stored in the
+repo.** Reads are open. POST bodies are the ones in the class-log section of AGENTS.md /
+section C above. Live changes land on the projector within ~3 minutes (the slide
+re-pulls the log on its own); a registry flip needs an F5 on the projector tab.
+
+1. **Orient (no PIN).** `curl "?action=get_class_log"` + `class_log_meetings_data.js`
+   → which sections meet today, which of yesterday's classes went un-logged, what the
+   plans/slides currently say.
+2. **Log yesterday's stragglers.** Ask for a one-line "what we did / what's next" per
+   missing section, then `submit_class_log`. Re-logging a date+section overwrites, so
+   mistakes are safe to fix.
+3. **Set today's agenda** per section with `set_class_plan` (one line = one agenda item
+   on the slide). Empty note clears.
+4. **Announcements / title** with `set_class_slide`. ⚠ All-blank **clears** the
+   section's extras — deliberately clear stale ones (announcements persist forever
+   otherwise). Leave the outcome override alone except special days: the strip
+   auto-matches the assignment.
+5. **Assignment pick.** Check `assignments_data.js` — each course's `active` id must be
+   what today's classes are working on. If the course moved on, flip `active` (and the
+   item's `taskName` must equal the assignment page's `TASK_NAME` exactly), then
+   commit + push; the projector picks it up on next page load. Manual per-browser
+   overrides (the dropdown) beat `active`, so tell Mr. Waugh if a projector was
+   re-pinned by hand.
+6. **Refresh the offline seed.** Re-bake `class_log_seed_data.js` from the GET
+   (entries + plans + slides) so a dead-network morning still shows last class.
+7. **Verify and print.** Re-read the GET and print one line per today's section:
+   *last class → agenda → announcements → assignment ★ → outcome*. That printout is
+   the day's screen, confirmed. Missing logs or stale announcements are called out
+   right there.
+
+Steps 1, 6, 7 are read-only — safe to run any time, PIN or not.
 
 ---
 
@@ -122,6 +177,11 @@ Copy the row into the Sheet (or into the quick-log panel). Done.
   `<script-url>?action=get_class_log` in a browser, copy the JSON `entries` array into
   `class_log_seed_data.js`. Any LLM can format that for you.
 - **Lesson hint titles:** edit `class_log_lesson_maps.js` (`classes: { n: "title" }`).
+- **New assignment launched:** add it to `assignments_data.js` — `taskName` must equal
+  the page's `TASK_NAME` exactly (grep the assignment page), then choose the outcome by
+  digging into `../2026-27outcomes.md` (verbatim pool, codes, match tags, choosing
+  steps) and set `active` to its id. That alone wires up the progress picker, the
+  0%-until-first-save view, and the outcome strip.
 - The tracker page never needs editing for day-to-day use.
 
 ## Files
@@ -131,8 +191,9 @@ Copy the row into the Sheet (or into the quick-log panel). Done.
 | `Class_Log_Tracker.html` | the dashboard + quick-log panel (teacher-only) |
 | `Class_Opening_Slide.html` | projector do-now slide: auto class detect, agenda, announcements, outcome strip |
 | `class_log_meetings_data.js` | generated: all 10 sections' meeting dates/periods, 2026–27 |
-| `class_log_lesson_maps.js` | class # → lesson titles + per-unit course outcomes (slide outcome bar) |
-| `class_log_seed_data.js` | offline snapshot (entries + plans; regenerated from the GET endpoint) |
+| `class_log_lesson_maps.js` | class # → lesson titles + per-unit course outcomes (outcome fallback) |
+| `assignments_data.js` | curated assignment registry: ledger TASK_NAME → projector label + matched outcome; `active` per course |
+| `class_log_seed_data.js` | offline snapshot (entries + plans + slides; regenerated from the GET endpoint) |
 | `../tools/build_class_log_meetings.py` | schedule engine generator + fixture verification |
 | `Code.gs` | `get_class_log` / `submit_class_log` / `set_class_plan` / `delete_class_log` + sheet helpers |
 | `api.js` | `StudentAPI.getClassLog` / `submitClassLog` / `setClassPlan` / `deleteClassLog` |
