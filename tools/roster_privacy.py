@@ -40,7 +40,27 @@ def load_roster():
     idx = src.find(prefix)
     if idx == -1:
         sys.exit("unexpected roster JS header: %r" % src[:60])
-    return json.loads(src[idx + len(prefix):].strip().rstrip(";").strip())
+    records = json.loads(src[idx + len(prefix):].strip().rstrip(";").strip())
+
+    # The public JS is names-only (pins stripped). Re-attach private fields
+    # (pin, student_id, username, full_first_name) from the private snapshot
+    # so --emit always produces a PINNED roster_full.json and GAS payload.
+    if os.path.exists(FULL_JSON):
+        with io.open(FULL_JSON, encoding="utf-8") as f:
+            full = json.load(f)
+        by_key = {}
+        for r in full:
+            by_key[(str(r.get("homeroom")), r.get("first_name"),
+                    r.get("last_name"))] = r
+        for rec in records:
+            k = (str(rec.get("homeroom")), rec.get("first_name"),
+                 rec.get("last_name"))
+            priv = by_key.get(k)
+            if priv:
+                for key in PRIVATE_FIELDS + ["pin"]:
+                    if priv.get(key):
+                        rec[key] = priv[key]
+    return records
 
 
 def public_record(rec, drop_pin):
