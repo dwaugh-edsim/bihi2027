@@ -1,5 +1,11 @@
 # Google Sign-in — one-time setup (Room 8, NEW assignments)
 
+> **BLOCKED (2026-09-22):** `console.cloud.google.com` is disabled for `@gnspes.ca`
+> accounts (org policy) — you cannot create the OAuth Client ID below with your school
+> account. This OAuth/GIS path is superseded by the no-Google-Cloud approach in
+> [`no_gcp/README.md`](no_gcp/README.md) (Apps Script's own sign-in). Kept for reference
+> in case the board ever grants Google Cloud access or issues an Internal OAuth app.
+
 **Goal of the simple test:** prove that a real `@gnspes.ca` account can sign in with
 Google on a page served from GitHub Pages, and that a brand-new Apps Script verifies
 the token. **Nothing here touches the live student system or the Master Sheet.**
