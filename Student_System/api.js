@@ -833,7 +833,23 @@ const StudentAPI = {
             const verifyKey = localKey;
             const verifyHash = currentHash;
             const verifySaveKey = saveKey;
+            const verifySavedAt = new Date().toISOString();
             setTimeout(async function() {
+                const dispatchVerify = (confirmed, detailKind) => {
+                    try {
+                        window.dispatchEvent(new CustomEvent('studentapi:verify-result', {
+                            detail: {
+                                taskName: taskName,
+                                confirmed: !!confirmed,
+                                detail: detailKind,
+                                className: verifyClass,
+                                pin: verifyPin,
+                                courseKey: verifyCourse,
+                                savedAt: verifySavedAt
+                            }
+                        }));
+                    } catch (evtErr) { /* ignore — page may be unloading */ }
+                };
                 try {
                     const check = await StudentAPI.verifyCloudSave(verifyClass, verifyPin, verifyCourse);
                     if (check && check.savedData && check.savedData._tasks && check.savedData._tasks[taskName]) {
@@ -845,11 +861,14 @@ const StudentAPI = {
                             stored.syncStatus = 'confirmed';
                             localStorage.setItem(verifyKey, JSON.stringify(stored));
                         } catch(se) { /* ok */ }
+                        dispatchVerify(true, 'confirmed');
                     } else {
                         console.warn('[api.js] no-cors save NOT YET confirmed — next autosave will retry');
+                        dispatchVerify(false, 'not_yet_visible');
                     }
                 } catch (verifyErr) {
                     console.warn('[api.js] Verify check failed (network still down?):', verifyErr);
+                    dispatchVerify(false, 'error');
                 }
             }, 3000);
 

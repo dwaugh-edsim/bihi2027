@@ -927,6 +927,7 @@
         let lastCloudSaveTime = null;
         let lastCloudPayload = null;
         let outboxPendingCount = 0;
+        let verifyListenerWired = false;
 
         // ── One-time render of page chrome from config ──────────
         function renderPage() {
@@ -1422,14 +1423,24 @@
                         localStorage.setItem(key, JSON.stringify({ ...data, savedAt: lastCloudSaveTime.toISOString() }));
                     }
                     updateOutbox(0); // clear outbox pending
-                    const timeStr = lastCloudSaveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    updateSyncPill('synced', timeStr);
-                    const btn = document.getElementById('btnVerifyCert');
-                    if (btn) btn.style.display = 'inline-flex';
+                    if (res.isNoCorsFallback) {
+                        // Honest: the no-cors beacon can't read its own response.
+                        // Stay amber until api.js's 3-second verify confirms GAS got it.
+                        updateSyncPill('saving', 'Verifying cloud save…');
+                        _wireVerifyListener();
+                        if (isManualClick) {
+                            showToast('📡 Sent to cloud — verifying…', false);
+                        }
+                    } else {
+                        const timeStr = lastCloudSaveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        updateSyncPill('synced', timeStr);
+                        const btn = document.getElementById('btnVerifyCert');
+                        if (btn) btn.style.display = 'inline-flex';
 
-                    if (isManualClick) {
-                        openVerifyModal();
-                        showToast('✅ Your work was saved to Google Sheets!');
+                        if (isManualClick) {
+                            openVerifyModal();
+                            showToast('✅ Your work was saved to Google Sheets!');
+                        }
                     }
                 } else {
                     updateOutbox(1);
@@ -1442,6 +1453,29 @@
                 updateSyncPill('error');
                 if (isManualClick) showToast('Saved locally. Cloud will retry when reconnected.', true);
             }
+        }
+
+        // ── Verify-confirm listener (no-cors honesty) ─────────────
+        function _wireVerifyListener() {
+            if (verifyListenerWired) return;
+            verifyListenerWired = true;
+            window.addEventListener('studentapi:verify-result', function(e) {
+                const d = e && e.detail;
+                if (!d || d.taskName !== ASSIGNMENT.taskName) return;
+                // Ignore stale events from a prior student identity on this tab
+                const curPin = (document.getElementById('authStudentPin')?.innerText || '').trim().toUpperCase();
+                if (curPin && d.pin && curPin !== d.pin) return;
+                if (d.confirmed) {
+                    const ts = d.savedAt ? new Date(d.savedAt) : new Date();
+                    const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    updateSyncPill('synced', timeStr);
+                    const btn = document.getElementById('btnVerifyCert');
+                    if (btn) btn.style.display = 'inline-flex';
+                } else {
+                    // verify didn't see the write (or errored) — honest amber until next autosave retries
+                    updateSyncPill('error');
+                }
+            });
         }
 
         // ── Certificate modal ────────────────────────────────────

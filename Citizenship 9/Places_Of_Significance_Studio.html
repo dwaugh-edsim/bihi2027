@@ -2439,16 +2439,28 @@
                 const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', payload, summaryText, courseKey);
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
                     cloudFetchFailed = false;
-                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    if (statusPill) {
-                        statusPill.style.background = '#ecfdf5';
-                        statusPill.style.borderColor = '#10b981';
-                        statusPill.style.color = '#047857';
-                        statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                    if (res.isNoCorsFallback) {
+                        // Honest: no-cors beacon can't read its own response — wait for verify
+                        if (statusPill) {
+                            statusPill.style.background = '#fffbeb';
+                            statusPill.style.borderColor = '#f59e0b';
+                            statusPill.style.color = '#92400e';
+                            statusPill.innerHTML = `🟡 Verifying cloud save…`;
+                        }
+                        if (syncEl) syncEl.innerText = `• Verifying cloud save…`;
+                        _wirePlacesVerifyListener('The WHERE Project — Places Portfolio');
+                    } else {
+                        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        if (statusPill) {
+                            statusPill.style.background = '#ecfdf5';
+                            statusPill.style.borderColor = '#10b981';
+                            statusPill.style.color = '#047857';
+                            statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                        }
+                        if (syncEl) syncEl.innerText = `• Saved to Cloud ${timeStr}`;
+                        const verifyBtn = document.getElementById('btnVerifyCloud');
+                        if (verifyBtn) verifyBtn.style.display = 'inline-flex';
                     }
-                    if (syncEl) syncEl.innerText = `• Saved to Cloud ${timeStr}`;
-                    const verifyBtn = document.getElementById('btnVerifyCloud');
-                    if (verifyBtn) verifyBtn.style.display = 'inline-flex';
                 }
             } catch (e) {
                 console.warn("Cloud sync error:", e);
@@ -2544,16 +2556,28 @@
                 const res = await StudentAPI.submitProfile('The WHERE Project — Places Portfolio', portfolioPayload, summaryText, courseKey, { force: true });
                 if (res && (res.status === 'success' || res.status === 'submitted_successfully')) {
                     cloudFetchFailed = false;
-                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    if (statusPill) {
-                        statusPill.style.background = '#ecfdf5';
-                        statusPill.style.borderColor = '#10b981';
-                        statusPill.style.color = '#047857';
-                        statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                    if (res.isNoCorsFallback) {
+                        // Honest: no-cors beacon can't read its own response — wait for verify
+                        if (statusPill) {
+                            statusPill.style.background = '#fffbeb';
+                            statusPill.style.borderColor = '#f59e0b';
+                            statusPill.style.color = '#92400e';
+                            statusPill.innerHTML = `🟡 Verifying cloud save…`;
+                        }
+                        _wirePlacesVerifyListener('The WHERE Project — Places Portfolio');
+                        showToast(`📡 Sent to cloud — verifying…`);
+                    } else {
+                        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        if (statusPill) {
+                            statusPill.style.background = '#ecfdf5';
+                            statusPill.style.borderColor = '#10b981';
+                            statusPill.style.color = '#047857';
+                            statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                        }
+                        const verifyBtn = document.getElementById('btnVerifyCloud');
+                        if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+                        showToast(`✅ Confirmed: Saved and synced to Mr. Waugh's Google Sheet (Class ${cls})!`);
                     }
-                    const verifyBtn = document.getElementById('btnVerifyCloud');
-                    if (verifyBtn) verifyBtn.style.display = 'inline-flex';
-                    showToast(`✅ Confirmed: Saved and synced to Mr. Waugh's Google Sheet (Class ${cls})!`);
                 } else {
                     if (statusPill) {
                         statusPill.style.background = '#fee2e2';
@@ -2583,6 +2607,38 @@
         }
 
         // Live Cloud Verification Modal
+        // ── Verify-confirm listener (no-cors honesty) ─────────────
+        let _placesVerifyWired = false;
+        function _wirePlacesVerifyListener(taskName) {
+            if (_placesVerifyWired) return;
+            _placesVerifyWired = true;
+            window.addEventListener('studentapi:verify-result', function(e) {
+                const d = e && e.detail;
+                if (!d || d.taskName !== taskName) return;
+                const curPin = (Session.getPin() || '').trim().toUpperCase();
+                if (curPin && d.pin && curPin !== d.pin) return;
+                const statusPill = document.getElementById('statusPill') || document.querySelector('.status-pill');
+                if (!statusPill) return;
+                if (d.confirmed) {
+                    const ts = d.savedAt ? new Date(d.savedAt) : new Date();
+                    const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    statusPill.style.background = '#ecfdf5';
+                    statusPill.style.borderColor = '#10b981';
+                    statusPill.style.color = '#047857';
+                    statusPill.innerHTML = `🟢 Cloud Synced (${timeStr})`;
+                    const verifyBtn = document.getElementById('btnVerifyCloud');
+                    if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+                    const syncEl = document.getElementById('syncStatus');
+                    if (syncEl) syncEl.innerText = `• Saved to Cloud ${timeStr}`;
+                } else {
+                    statusPill.style.background = '#fffbeb';
+                    statusPill.style.borderColor = '#f59e0b';
+                    statusPill.style.color = '#92400e';
+                    statusPill.innerHTML = `🟡 Cloud sync not confirmed — stay on this page`;
+                }
+            });
+        }
+
         async function verifyAndInspectCloudSave() {
             const pin = PlacesSession.getPin() || document.getElementById('pinInput').value.trim().toUpperCase();
             const cls = document.getElementById('classSelect').value;
