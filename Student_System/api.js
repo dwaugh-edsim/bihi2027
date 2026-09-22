@@ -182,24 +182,35 @@ const StudentAPI = {
     async resolveStudentRemote(pin, courseKey) {
         pin = (pin || '').trim().toUpperCase();
         if (!pin) return { ok: false, reason: 'empty' };
-        // Skip-cache: once we learn the deployed GAS predates resolve_student
-        // (or is unreachable), stop probing for a while so kid logins stay
-        // instant via the roster fallback.
-        try {
-            const skipUntil = Number(sessionStorage.getItem('gas_resolve_skip_until') || 0);
-            if (Date.now() < skipUntil) return { ok: false, reason: 'unsupported' };
-        } catch (e) { /* storage unavailable */ }
+
+        // Clear any poisoned skip-caches from previous sessions
+        try { sessionStorage.removeItem('gas_resolve_skip_until'); } catch (e) { }
+
+        // Check in-session cache first (instant login if resolved in this tab)
+        const cached = this.getCachedResolve(pin);
+        if (cached && typeof cached.valid === 'boolean') {
+            return Object.assign({ ok: true }, cached);
+        }
+
         const url = this.getScriptUrl(courseKey);
         let lastError = null;
-        for (let attempt = 1; attempt <= 2; attempt++) {
+        for (let attempt = 1; attempt <= 3; attempt++) {
             const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-            const timer = ctrl ? setTimeout(() => ctrl.abort(), 4000) : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 12000) : null;
             try {
                 const res = await fetch(
-                    `${url}?action=resolve_student&pin=${encodeURIComponent(pin)}`,
+                    `${url}?action=resolve_student&pin=${encodeURIComponent(pin)}&cb=${Date.now()}`,
                     ctrl ? { signal: ctrl.signal } : undefined
                 );
-                const data = await res.json();
+                const text = await res.text();
+                let data = null;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    console.warn(`[resolveStudentRemote] Non-JSON response on attempt ${attempt}:`, text.slice(0, 100));
+                    throw new Error('Non-JSON response from server');
+                }
+
                 if (data && data.version) this.validateServerVersion(data.version);
                 if (data && data.status === 'success' && typeof data.valid === 'boolean') {
                     if (!data.valid) return { ok: true, valid: false };
@@ -208,27 +219,22 @@ const StudentAPI = {
                         firstName: String(data.firstName || ''),
                         lastInitial: String(data.lastInitial || ''),
                         demo: !!data.demo,
+                        valid: true,
                         at: Date.now()
                     };
-                    try { sessionStorage.setItem('gas_resolve_' + pin, JSON.stringify(info)); } catch (e) { /* storage full/private mode */ }
+                    try { sessionStorage.setItem('gas_resolve_' + pin, JSON.stringify(info)); } catch (e) { }
                     return Object.assign({ ok: true, valid: true }, info);
                 }
-                // Server answered but has no resolve_student (pre-V6.3 GAS):
-                // stop probing for 30 minutes.
-                try { sessionStorage.setItem('gas_resolve_skip_until', String(Date.now() + 30 * 60 * 1000)); } catch (e) { /* ignore */ }
-                return { ok: false, reason: 'unsupported' };
             } catch (e) {
                 lastError = e;
-                if (attempt < 2) {
-                    await new Promise(r => setTimeout(r, 400));
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 600 * attempt));
                 }
             } finally {
                 if (timer) clearTimeout(timer);
             }
         }
-        console.warn('resolve_student unreachable after retries (offline?):', lastError);
-        // Hard-timeout/network failures: stop probing for 10 minutes.
-        try { sessionStorage.setItem('gas_resolve_skip_until', String(Date.now() + 10 * 60 * 1000)); } catch (e) { /* ignore */ }
+        console.warn('resolve_student unreachable after retries:', lastError);
         return { ok: false, reason: 'network' };
     },
 
@@ -442,14 +448,21 @@ const StudentAPI = {
         let lastError = null;
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-                const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}`;
+                const getUrl = `${url}?action=login&className=${encodeURIComponent(effectiveClass)}&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(auth.name || firstName)}&cb=${Date.now()}`;
                 const res = await fetch(getUrl);
-                const data = await res.json();
-                if (data.status === 'success') {
+                const text = await res.text();
+                let data = null;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    console.warn(`[login] Non-JSON response on attempt ${attempt}:`, text.slice(0, 100));
+                    throw new Error('Non-JSON response from server');
+                }
+                if (data && data.status === 'success') {
                     if (data.version) this.validateServerVersion(data.version);
                     Session.set(effectiveClass, data.name || auth.name || firstName, pin, data.email || '', data.pronouns || '');
                     return data;
-                } else if (data.status === 'error') {
+                } else if (data && data.status === 'error') {
                     return data;
                 }
             } catch (e) {
