@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 Sleep Clinic — Marking Console (901)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel2: #273449; --line: #334155;
+  --tx: #e2e8f0; --dim: #94a3b8; --coral: #ed786a; --emerald: #34d399;
+  --amber: #fbbf24; --red: #f87171; --blue: #60a5fa; --purple: #c4b5fd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--tx); font-family: 'Inter', sans-serif; font-size: 14px; padding-bottom: 40px; }
+h1 { font-family: 'Roboto Slab', serif; font-size: 1.25rem; padding: 14px 18px 4px; }
+.sub { color: var(--dim); padding: 0 18px 12px; font-size: 0.82rem; line-height: 1.5; }
+.topbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 0 18px 12px; position: sticky; top: 0; background: var(--bg); z-index: 20; border-bottom: 1px solid var(--line); }
+.pill { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); color: var(--dim); }
+.pill.ok { color: var(--emerald); border-color: var(--emerald); }
+.pill.warn { color: var(--amber); border-color: var(--amber); }
+input[type=password], input[type=text] { background: var(--panel); border: 1px solid var(--line); color: var(--tx); border-radius: 6px; padding: 5px 9px; font-size: 0.85rem; }
+button { font-family: 'Inter', sans-serif; font-weight: 700; border: 1px solid var(--line); background: var(--panel2); color: var(--tx); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; }
+button:hover { border-color: var(--blue); }
+button.primary { background: var(--blue); color: #0f172a; border-color: var(--blue); }
+button.approve { background: var(--emerald); color: #0f172a; border-color: var(--emerald); }
+button:disabled { opacity: 0.45; cursor: default; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 18px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; font-size: 0.78rem; }
+.stat b { font-family: 'JetBrains Mono', monospace; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin: 12px 18px; overflow: hidden; }
+.card-h { display: flex; gap: 10px; align-items: center; padding: 11px 14px; background: var(--panel2); flex-wrap: wrap; }
+.card-h .nm { font-family: 'Roboto Slab', serif; font-weight: 800; font-size: 1rem; }
+.card-h .pin { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--dim); }
+.card-h .meta { color: var(--dim); font-size: 0.74rem; }
+.chip { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.4px; }
+.chip.b4 { background: rgba(52,211,153,.15); color: var(--emerald); border: 1px solid var(--emerald); }
+.chip.b3 { background: rgba(251,191,36,.15); color: var(--amber); border: 1px solid var(--amber); }
+.chip.b2 { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid var(--red); }
+.chip.seed { background: rgba(196,181,253,.15); color: var(--purple); border: 1px solid var(--purple); }
+.chip.draft { background: rgba(96,165,250,.15); color: var(--blue); border: 1px solid var(--blue); }
+.chip.approved { background: rgba(52,211,153,.15); color: var(--emerald); border: 1px solid var(--emerald); }
+.card-b { padding: 12px 14px; }
+.bandrow { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+.bandrow .lbl { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); }
+.bandopt { display: flex; gap: 4px; align-items: center; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+.bandopt.on { border-color: var(--coral); background: rgba(237,120,106,.12); }
+.bandopt input { accent-color: var(--coral); }
+.scores { display: flex; gap: 6px; margin-left: auto; }
+.scbadge { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
+.flag { background: rgba(248,113,113,.12); border: 1px solid var(--red); color: var(--red); border-radius: 6px; padding: 7px 10px; font-size: 0.78rem; margin-bottom: 10px; }
+textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--tx); border-radius: 6px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.82rem; resize: vertical; }
+textarea:focus { outline: 2px solid var(--coral); border-color: var(--coral); }
+.ta-overall { min-height: 96px; margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.7px; color: var(--dim); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.st-lbl { font-weight: 800; white-space: nowrap; }
+.st-sub { color: var(--dim); font-size: 0.7rem; font-weight: 400; display: block; }
+.given { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+.given .k { color: var(--dim); }
+.keyv { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--emerald); }
+.v-right { color: var(--emerald); font-weight: 800; }
+.v-close { color: var(--amber); font-weight: 800; }
+.v-wrong { color: var(--red); font-weight: 800; }
+.v-none { color: var(--dim); }
+.verdicts { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; line-height: 1.55; white-space: pre-wrap; }
+.trap { color: var(--purple); font-size: 0.7rem; display: block; margin-top: 3px; }
+.card-f { display: flex; gap: 8px; padding: 11px 14px; background: var(--panel2); align-items: center; }
+.savemsg { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--dim); margin-left: auto; }
+.missing { margin: 12px 18px; padding: 10px 14px; background: rgba(251,191,36,.1); border: 1px solid var(--amber); border-radius: 8px; color: var(--amber); font-size: 0.8rem; }
+@media print { body { background: #fff; color: #000; } .topbar, .card-f, .stats { display: none; } .card { border-color: #999; } }
+</style>
+</head>
+<body>
+<h1>HL9 Sleep Clinic 10-Station Audit — Marking Console</h1>
+<div class="sub">
+  Class 901 · Outcome 1 · <b>human-in-the-loop</b>. Phase 1 drafts are machine-scored against
+  <code>HL9_Class1_Teacher_Facilitation_and_Answer_Key.md §4</code>. Edit anything.
+  Each station shows <b>criterion 1</b> (your number vs the key) and <b>criterion 2</b> (did they read the case).
+  Band <b>4 Stellar · 3 Satisfactory · 2 Needs work</b> — override the suggestion freely.
+  <b>Save</b> stores a draft; <b>Approve</b> locks it. Nothing reaches a student until you Approve.
+</div>
+
+<div class="topbar">
+  <span class="pill" id="netPill">connecting…</span>
+  <span class="pill" id="subPill">submissions: -</span>
+  <span class="pill" id="fbPill">saved: -</span>
+  <label style="font-size:0.74rem;color:var(--dim)">Teacher PIN
+    <input type="password" id="teacherPin" style="width:90px" autocomplete="off"
+      oninput="if((this.value||'').trim()){sessionStorage.setItem('r8_fb_tpin',this.value.trim());}">
+  </label>
+  <button onclick="loadAll()">↻ Reload</button>
+  <button onclick="exportCSV()">⤓ CSV</button>
+  <button onclick="window.print()">⎙ Print</button>
+</div>
+
+<div class="stats" id="stats"></div>
+<div id="cards"></div>
+
+<script src="students_roster_data.js"></script>
+<script src="api.js"></script>
+<script src="hl9_sleep_feedback_drafts.js"></script>
+<script>
+const TASK = 'HL9 Sleep Clinic 10-Station Audit';
+const URL = StudentAPI.getScriptUrl('HL9');
+
+// ---- answer key (mirror of tools/mark_sleep_clinic.py) ----
+const RISK_WORD = { G: 'STABLE (GREEN)', M: 'MODERATE (AMBER)', R: 'CRITICAL (RED)' };
+const KEY = {
+  1:  { s: 'C., Devon',  h: 6.0, d: 15.0, r: 'R', codes: 'DEBT, SJ',        trap: 'Catch-up sleep does not erase debt, and his 10:30 AM weekend wakes re-shift the clock.' },
+  2:  { s: 'S., Priya',  h: 9.0, d: 0.0,  r: 'G', codes: 'none',            trap: 'She is HEALTHY. Correct order = maintain and protect. Inventing a problem IS the error.' },
+  3:  { s: 'O., Marcus', h: 8.0, d: 5.0,  r: 'M', codes: 'SJ, INERTIA',     trap: 'Hours are FINE - the clock is broken (+4.25 h). His Monday is biologically 3:00 AM.' },
+  4:  { s: 'R., Jenna',  h: 6.0, d: 15.0, r: 'R', codes: 'MEL, STIM, DEBT', trap: 'Time-in-bed is NOT time-asleep (TIB != TST). 9 h in bed, ~6 h asleep.' },
+  5:  { s: 'T., Isaiah', h: 6.0, d: 15.0, r: 'R', codes: 'SWS, RT300, DEBT',trap: 'Athletes need the TOP of the range (9-10 h) for HGH / muscle repair.' },
+  6:  { s: 'N., Lily',   h: 6.5, d: 12.5, r: 'R', codes: 'CPD, INERTIA, DEBT', trap: 'REFLEX-BREAKER. Hygiene already clean - "get off your phone" is malpractice. Cause is the 5:45 bus.' },
+  7:  { s: 'K., Tyrell', h: 6.0, d: 15.0, r: 'R', codes: 'DEBT, HYG, INERTIA', trap: 'The caffeine loop. Order must break it at a NAMED HOUR (no caffeine after noon).' },
+  8:  { s: 'W., Grace',  h: 7.5, d: 7.5,  r: 'M', codes: '5D, DEBT',        trap: 'ZERO hygiene violations. Rumination is the driver - wind-down / talk to someone, NOT more rules.' },
+  9:  { s: 'D., Owen',   h: 8.0, d: 5.0,  r: 'M', codes: 'SJ, REM, DEBT',   trap: 'Biggest shift in the clinic (+5.5 h). Order must KEEP his weekend.' },
+  10: { s: 'P., Amara',  h: 7.2, d: 9.0,  r: 'M', codes: 'DEBT, 5D, RT300', trap: 'EQUITY case. Family obligation, not a choice. Phone orders are irrelevant and insulting.' }
+};
+const LABELS = {
+  1: '01 Devon — debt & catch-up myth', 2: '02 Priya — healthy baseline',
+  3: '03 Marcus — weekend freefall',    4: '04 Jenna — in-bed vs asleep',
+  5: '05 Isaiah — athlete / HGH',       6: '06 Lily — 5:45 commuter',
+  7: '07 Tyrell — caffeine loop',       8: '08 Grace — 4 AM rumination',
+  9: '09 Owen — Fri/Sat gamer',        10: '10 Amara — family obligation'
+};
+const BAND_NAME = { 4: 'Stellar', 3: 'Satisfactory', 2: 'Needs work' };
+
+let SUBS = [];      // live submissions for this task
+let FEEDBACK = {};  // saved cloud feedback '<PIN>' -> row
+let DRAFTS = {};    // merged editable state '<PIN>' -> {band,overall,questions,status}
+
+async function apiGet(action) {
+  const res = await fetch(`${URL}?action=${action}`);
+  return res.json();
+}
+async function apiPost(payloadObj) {
+  const body = JSON.stringify(payloadObj);
+  try {
+    const res = await fetch(URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body, keepalive: true });
+    return await res.json();
+  } catch (e) {
+    try {
+      navigator.sendBeacon(URL, new Blob([body], { type: 'text/plain;charset=utf-8' }));
+      return { status: 'submitted_no_cors' };
+    } catch (e2) { return { status: 'error', message: String(e2) }; }
+  }
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function numStr(v) { return (v == null || String(v).trim() === '') ? '—' : esc(v); }
+
+function parseBand(txt) {
+  const m = /^BAND:(\d)\|/m.exec(txt || '');
+  return m ? parseInt(m[1], 10) : null;
+}
+function stripBand(txt) {
+  return String(txt || '').replace(/^BAND:\d\|[^\n]*\n?/, '');
+}
+
+function mergeState(pin) {
+  if (DRAFTS[pin]) return DRAFTS[pin];
+  const saved = FEEDBACK[pin];
+  const seed = (window.HL9_SLEEP_FEEDBACK_DRAFTS || {})[pin] || {};
+  const m = {
+    band: seed.band || 3,
+    acc: seed.acc != null ? seed.acc : null,
+    story: seed.story != null ? seed.story : null,
+    stationsDone: seed.stationsDone || 0,
+    flags: seed.flags || [],
+    overall: stripBand(seed.overall || ''),
+    questions: Object.assign({}, seed.questions || {}),
+    status: 'seed'
+  };
+  if (saved) {
+    const f = saved.feedback || {};
+    if (f.band) m.band = f.band;
+    else if (parseBand(f.overall)) m.band = parseBand(f.overall);
+    m.overall = (f.overall != null ? stripBand(f.overall) : m.overall);
+    m.questions = Object.assign(m.questions, f.questions || {});
+    m.status = saved.status || m.status;
+    if (f.acc != null) m.acc = f.acc;
+    if (f.story != null) m.story = f.story;
+  }
+  DRAFTS[pin] = m;
+  return m;
+}
+
+function chipFor(status) {
+  if (status === 'approved') return '<span class="chip approved">APPROVED</span>';
+  if (status === 'draft') return '<span class="chip draft">DRAFT SAVED</span>';
+  return '<span class="chip seed">MACHINE DRAFT — needs your OK</span>';
+}
+function bandChip(b) {
+  return `<span class="chip b${b}">${b} ${BAND_NAME[b] || ''}</span>`;
+}
+function subOf(pin) { return SUBS.find(s => String(s.pin || '').toUpperCase() === pin) || null; }
+
+function stationRows(sub, st) {
+  const tk = sub && sub.savedData && sub.savedData._tasks;
+  const slice = tk && tk[TASK];
+  const stations = (slice && slice.data && slice.data.stations) || {};
+  let rows = '';
+  for (let i = 1; i <= 10; i++) {
+    const sid = String(i);
+    const k = KEY[i];
+    const g = stations[sid] || {};
+    const label = LABELS[i];
+    const comment = (st.questions && st.questions[label] && st.questions[label].text) || '';
+    const touched = ['hrs', 'debt', 'risk', 'order', 'notes'].some(f => String(g[f] || '').trim());
+    rows += `<tr>
+      <td class="st-lbl">${esc(label.split(' — ')[0])}<span class="st-sub">${esc(k.s)}</span></td>
+      <td class="given">
+        <span class="k">hrs</span> ${numStr(g.hrs)}<br>
+        <span class="k">debt</span> ${numStr(g.debt)}<br>
+        <span class="k">risk</span> ${numStr(g.risk)}
+        ${g.order ? `<br><span class="k">order</span> ${esc(g.order)}` : ''}
+        ${g.notes ? `<br><span class="k">notes</span> ${esc(g.notes)}` : ''}
+      </td>
+      <td class="keyv">${k.h} h · ${k.d} h/wk<br>${RISK_WORD[k.r]}<br>${esc(k.codes)}</td>
+      <td style="width:44%">
+        ${touched ? '' : '<span class="v-none">not audited</span>'}
+        <div class="verdicts">${esc(comment)}</div>
+        <span class="trap">trap: ${esc(k.trap)}</span>
+        <textarea id="c_${esc(sub.pin || '')}_${i}" rows="2" placeholder="your comment / correction…">${esc(comment)}</textarea>
+      </td>
+    </tr>`;
+  }
+  return rows;
+}
+
+function renderCard(s) {
+  const pin = String(s.pin || '').toUpperCase();
+  const st = mergeState(pin);
+  const slice = (s.savedData && s.savedData._tasks && s.savedData._tasks[TASK]) || {};
+  const updated = String(slice.updated || '').slice(0, 16).replace('T', ' ');
+  const flags = (st.flags || []).map(f => `<div class="flag">⚠ ${esc(f)}</div>`).join('');
+  const bandOpts = [4, 3, 2].map(b => `
+    <label class="bandopt ${st.band === b ? 'on' : ''}" id="bo_${pin}_${b}">
+      <input type="radio" name="band_${pin}" value="${b}" ${st.band === b ? 'checked' : ''}
+        onchange="setBand('${pin}',${b})"> ${b} ${BAND_NAME[b]}
+    </label>`).join('');
+  const scores = (st.acc != null && st.story != null)
+    ? `<div class="scores">
+         <span class="scbadge">c1 accuracy ${st.acc}%</span>
+         <span class="scbadge">c2 story ${st.story}%</span>
+         <span class="scbadge">${st.stationsDone}/10</span>
+       </div>` : '';
+
+  return `<div class="card" id="card_${pin}">
+    <div class="card-h">
+      <span class="nm">${esc(s.name || pin)}</span>
+      <span class="pin">${pin}</span>
+      <span class="meta">lead ${esc((slice.data && slice.data.auditors) || s.name || '—')}</span>
+      <span class="meta">partner ${esc((slice.data && slice.data.partner) || '—')}</span>
+      <span class="meta">${esc(updated)}</span>
+      ${bandChip(st.band)}
+      ${chipFor(st.status)}
+    </div>
+    <div class="card-b">
+      ${flags}
+      <div class="bandrow">
+        <span class="lbl">Band</span>
+        ${bandOpts}
+        ${scores}
+      </div>
+      <textarea class="ta-overall" id="o_${pin}" placeholder="overall comment for this student…">${esc(st.overall)}</textarea>
+      <table>
+        <tr><th>Station</th><th>They wrote</th><th>Answer key</th><th>Justification (editable)</th></tr>
+        ${stationRows(s, st)}
+      </table>
+    </div>
+    <div class="card-f">
+      <button onclick="saveStudent('${pin}','draft')">Save draft</button>
+      <button class="approve" onclick="saveStudent('${pin}','approved')">Approve</button>
+      <span class="savemsg" id="msg_${pin}"></span>
+    </div>
+  </div>`;
+}
+
+function setBand(pin, b) {
+  const st = mergeState(pin);
+  st.band = b;
+  for (let i = 2; i <= 4; i++) {
+    const el = document.getElementById(`bo_${pin}_${i}`);
+    if (el) el.classList.toggle('on', i === b);
+  }
+  const card = document.getElementById(`card_${pin}`);
+  if (card) {
+    const chips = card.querySelectorAll('.card-h .chip');
+    if (chips[0]) chips[0].outerHTML = bandChip(b);
+  }
+  renderStats();
+}
+
+function collectStudent(pin) {
+  const st = mergeState(pin);
+  const questions = {};
+  for (let i = 1; i <= 10; i++) {
+    const el = document.getElementById(`c_${pin}_${i}`);
+    const label = LABELS[i];
+    const prev = (st.questions[label] && st.questions[label].text) || '';
+    const val = el ? el.value.trim() : prev;
+    if (val) questions[label] = { text: val, status: 'draft' };
+  }
+  const oel = document.getElementById(`o_${pin}`);
+  const overall = oel ? oel.value.trim() : (st.overall || '');
+  return {
+    band: st.band,
+    bandName: BAND_NAME[st.band] || '',
+    acc: st.acc, story: st.story, stationsDone: st.stationsDone,
+    overall: `BAND:${st.band}|${BAND_NAME[st.band] || ''}\n${overall}`,
+    questions
+  };
+}
+
+async function saveStudent(pin, status) {
+  const msg = document.getElementById(`msg_${pin}`);
+  const sub = subOf(pin) || {};
+  const payload = collectStudent(pin);
+  if (msg) msg.textContent = 'saving…';
+  const res = await apiPost({
+    action: 'save_feedback', pin, name: sub.name || '',
+    section: String(sub.className || '901'), task: TASK, status,
+    teacherPin: (document.getElementById('teacherPin').value || '').trim(),
+    feedback: payload
+  });
+  if (res && (res.status === 'feedback_saved' || res.status === 'submitted_no_cors')) {
+    const st = mergeState(pin);
+    st.status = status === 'approved' ? 'approved' : 'draft';
+    st.overall = stripBand(payload.overall);
+    st.questions = payload.questions;
+    FEEDBACK[pin] = { status: st.status, feedback: payload };
+    if (msg) msg.textContent = status === 'approved' ? '✓ approved & saved' : '✓ draft saved';
+    const card = document.getElementById(`card_${pin}`);
+    if (card) {
+      const chips = card.querySelectorAll('.card-h .chip');
+      if (chips[1]) chips[1].outerHTML = chipFor(st.status);
+    }
+    renderStats();
+  } else if (res && /PIN/i.test(res.message || '')) {
+    const entered = prompt('Teacher PIN:');
+    if (entered == null) { if (msg) msg.textContent = 'cancelled'; return; }
+    document.getElementById('teacherPin').value = entered;
+    sessionStorage.setItem('r8_fb_tpin', entered);
+    await saveStudent(pin, status);
+  } else if (res && /action|Unknown/i.test(res.message || '')) {
+    if (msg) msg.textContent = '⚠ backend action missing — redeploy Code.gs';
+  } else {
+    if (msg) msg.textContent = '⚠ ' + (res && res.message ? res.message : 'save failed');
+  }
+}
+
+function missingRoster() {
+  const names = [];
+  const roster = window.MASTER_ROSTER_DATA || [];
+  const submitted = new Set(SUBS.map(s => String(s.pin || '').toUpperCase()));
+  roster.forEach(r => {
+    const hr = String(r.homeroom || '').trim().toLowerCase().replace('cit', '').replace('hl', '').trim();
+    if (hr === '901' && !submitted.has(String(r.pin || '').toUpperCase())) {
+      names.push(`${r.first_name || ''} ${r.last_name || ''}`.trim());
+    }
+  });
+  return names;
+}
+
+function renderStats() {
+  const list = Object.values(DRAFTS);
+  const approved = list.filter(d => d.status === 'approved').length;
+  const b4 = list.filter(d => d.band === 4).length;
+  const b3 = list.filter(d => d.band === 3).length;
+  const b2 = list.filter(d => d.band === 2).length;
+  const flagged = list.filter(d => (d.flags || []).length).length;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat">in: <b>${SUBS.length}</b></div>` +
+    `<div class="stat">approved: <b>${approved}</b></div>` +
+    `<div class="stat">4 Stellar: <b>${b4}</b></div>` +
+    `<div class="stat">3 Satisfactory: <b>${b3}</b></div>` +
+    `<div class="stat">2 Needs work: <b>${b2}</b></div>` +
+    (flagged ? `<div class="stat">row-shift flags: <b>${flagged}</b></div>` : '');
+}
+
+function render() {
+  const bySec = {};
+  document.getElementById('cards').innerHTML = SUBS.map(renderCard).join('') ||
+    '<div class="missing">No submissions for this task yet.</div>';
+  const missing = missingRoster();
+  if (missing.length) {
+    document.getElementById('cards').insertAdjacentHTML('afterbegin',
+      `<div class="missing"><b>Not submitted (${missing.length}):</b> ${esc(missing.join(', '))} — no mark until they submit.</div>`);
+  }
+  renderStats();
+}
+
+function exportCSV() {
+  const rows = [['PIN', 'Name', 'Partner', 'Band', 'Band name', 'Accuracy %', 'Story %', 'Stations', 'Status', 'Overall']];
+  SUBS.forEach(s => {
+    const pin = String(s.pin || '').toUpperCase();
+    const st = mergeState(pin);
+    const slice = (s.savedData && s.savedData._tasks && s.savedData._tasks[TASK]) || {};
+    rows.push([pin, s.name || '', (slice.data && slice.data.partner) || '',
+      st.band, BAND_NAME[st.band] || '', st.acc, st.story, st.stationsDone,
+      st.status, (st.overall || '').replace(/\n/g, ' | ')]);
+  });
+  const csv = rows.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'HL9_SleepClinic_901_marks.csv';
+  a.click();
+}
+
+async function loadAll() {
+  const tp = sessionStorage.getItem('r8_fb_tpin');
+  if (tp) document.getElementById('teacherPin').value = tp;
+  document.getElementById('netPill').textContent = 'connecting…';
+  try {
+    const fb = await apiGet('get_feedback&taskName=' + encodeURIComponent(TASK));
+    if (fb && fb.feedback) FEEDBACK = fb.feedback;
+    document.getElementById('fbPill').textContent = 'saved: ' + Object.keys(FEEDBACK).length;
+    document.getElementById('netPill').textContent = 'LIVE ✓';
+    document.getElementById('netPill').classList.add('ok');
+  } catch (e) {
+    FEEDBACK = {};
+    document.getElementById('netPill').textContent = 'offline — machine drafts only';
+    document.getElementById('netPill').classList.add('warn');
+  }
+  try {
+    const p = await apiGet('get_class_progress&className=901&slim=1');
+    const students = (p && p.students) || p || [];
+    SUBS = students.filter(s => {
+      const tk = s.savedData && s.savedData._tasks;
+      return (s.task || '').indexOf('Sleep Clinic') !== -1 || (tk && Object.keys(tk).some(k => k.indexOf('Sleep Clinic') !== -1));
+    });
+  } catch (e) { SUBS = []; }
+  document.getElementById('subPill').textContent = 'submissions: ' + SUBS.length;
+  DRAFTS = {};
+  render();
+}
+loadAll();
+</script>
+</body>
+</html>

@@ -819,6 +819,16 @@
             </div>
         </div>
 
+        <!-- TEACHER FEEDBACK (read-only). Built from HL9_SleepClinic_901_Marks.md
+             via tools/marks_md.py --sync -> ../Student_System/hl9_sleep_feedback.js -->
+        <div id="teacherFeedback" style="display:none; background:#eff6ff; border:1.5px solid #2563eb; border-radius:10px; padding:14px 18px; margin:0 0 18px 0;">
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:#1e40af;">Teacher feedback</span>
+                <span id="tfBand" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:20px; background:#1e40af; color:#ffffff;"></span>
+            </div>
+            <div id="tfBody" style="font-size:0.95rem; line-height:1.55; color:#1e293b; white-space:pre-wrap;"></div>
+        </div>
+
         <!-- REAL FIELDSET: Disables all inputs/chips when not logged in -->
         <fieldset id="workFieldset" disabled>
 
@@ -1263,6 +1273,9 @@
          SyntaxError when the file is loaded a second time. -->
     <script src="../Student_System/students_roster_data.js"></script>
     <script src="../Student_System/api.js"></script>
+    <!-- Teacher feedback store, generated from HL9_SleepClinic_901_Marks.md
+         by tools/marks_md.py --sync -->
+    <script src="../Student_System/hl9_sleep_feedback.js"></script>
 
     <script>
         const STORAGE_KEY = "HL9_Clinic_10_Station_Audit_Data_v1";
@@ -1330,6 +1343,25 @@
         }
 
         const TASK_NAME = "HL9 Sleep Clinic 10-Station Audit";
+
+        // ---- Teacher feedback (read-only) ---------------------------------
+        // Populated from hl9_sleep_feedback.js, which tools/marks_md.py --sync
+        // generates from the teacher-edited HL9_SleepClinic_901_Marks.md.
+        // Band: 4 Stellar | 3 Satisfactory | 2 Needs work.
+        function renderTeacherFeedback(pin) {
+            const box = document.getElementById('teacherFeedback');
+            if (!box) return;
+            const store = window.HL9_SLEEP_FEEDBACK || {};
+            const row = pin ? store[String(pin).trim().toUpperCase()] : null;
+            if (!row || (!row.comment && !row.band)) { box.style.display = 'none'; return; }
+            const bandEl = document.getElementById('tfBand');
+            if (bandEl) bandEl.textContent = row.band ? (row.band + ' ' + (row.bandName || '')) : '';
+            const bodyEl = document.getElementById('tfBody');
+            if (bodyEl) bodyEl.textContent = row.comment || '';
+            box.style.display = 'block';
+        }
+        // -------------------------------------------------------------------
+
         let currentUser = null;
         let autoSaveTimer = null;
         let lastCloudSaveTime = null;
@@ -1513,6 +1545,8 @@
 
             const gateBanner = document.getElementById('loginGateBanner');
             if (gateBanner) gateBanner.style.display = student ? 'none' : 'block';
+
+            renderTeacherFeedback(student ? sPin : null);
 
             const btnLogout = document.getElementById('btnLogout');
             if (btnLogout) btnLogout.style.display = student ? 'inline-flex' : 'none';
