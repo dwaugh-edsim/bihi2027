@@ -29,8 +29,8 @@
  */
 
 // ===== VERSION & CONSTANTS (bump VERSION on every edit, then redeploy) =====
-var CONFIG_VERSION = 'V6.3.3-2026-09-22';
-var CONFIG_DEPLOY_DATE = '2026-09-22T17:35:00Z';
+var CONFIG_VERSION = 'V6.3.4-2026-09-22';
+var CONFIG_DEPLOY_DATE = '2026-09-23T03:20:00Z';
 // PRIVACY: the student PIN -> homeroom map no longer lives in this file (this
 // repo is public). The authoritative roster is pushed into the hidden
 // 'Roster_Private' tab by the teacher-gated `set_roster` action, sourced from
@@ -40,6 +40,21 @@ var MASTER_PIN_HOMEROOM_MAP = {};
 var DEMO_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
 var EXEMPLAR_SIGNATURES = ['Smith Point Road, Gull Lake', 'k7n7dESM4Hg', 'Gwangju, South Korea', 'Republic of Mauritius', 'Yeah Yeah No No'];
 var ALL_CLASSES = ['901', '902', '903', '801', '802', '803', '804'];
+
+// ── LOGIN THROTTLE (anti-enumeration) ──
+// Global minute-window counter on the auth endpoints (login / resolve_student).
+// A class bursting logins stays far below the ceiling; scripted PIN
+// enumeration crawls once past it. CacheService handles expiry; the throttle
+// fails open if the cache is unavailable — never lock out a real class.
+function throttleAuth_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const winKey = 'auth_throttle_' + Math.floor(Date.now() / 60000);
+    const n = Number(cache.get(winKey) || 0) + 1;
+    cache.put(winKey, String(n), 300);
+    if (n > 120) Utilities.sleep(Math.min((n - 120) * 150, 6000));
+  } catch (e) { /* throttling must never block a real login */ }
+}
 
 // ===== PRIVATE ROSTER (hidden 'Roster_Private' tab — never exposed to clients) =====
 // Tab layout: A1 banner, A2 updated ISO, A3 aliases JSON, row 5 headers,
@@ -582,6 +597,7 @@ function doGet(e) {
     // Returns ONLY the matched student's display info — never roster lists.
     // ==========================================
     if (action === 'resolve_student') {
+      throttleAuth_();
       const rPin = String(params.pin || '').trim().toUpperCase();
       if (!rPin) throw new Error('3-Letter PIN is required.');
       if (DEMO_PINS.indexOf(rPin) !== -1) {
@@ -630,6 +646,7 @@ function doGet(e) {
     // ==========================================
     // ACTION: SINGLE STUDENT LOGIN / SYNC (GET)
     // ==========================================
+    throttleAuth_();
     const pin = String(params.pin || '').trim().toUpperCase();
     let className = String(params.className || 'General').trim();
     if (!pin) throw new Error("3-Letter PIN is required.");
@@ -1142,6 +1159,7 @@ function doPost(e) {
     // ==========================================
     // DEFAULT STUDENT WORKFLOW ACTIONS
     // ==========================================
+    throttleAuth_();
     const pin = String(payload.pin || '').trim().toUpperCase();
     let className = String(payload.className || 'General').trim();
     
