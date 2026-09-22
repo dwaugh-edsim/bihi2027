@@ -1553,6 +1553,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             let done = 0, total = 0;
             const m = text.match(/(\d+)\s*\/\s*(\d+)/);
             if (m) { done = parseInt(m[1], 10); total = parseInt(m[2], 10); }
+            // Tasks whose summaries never carry an x/y score (diagnostics) fall
+            // back to counting completed fields against the assignment's total.
+            if (!m) {
+                const meta = asgForTask(taskName, course) || {};
+                if (meta.totalFields) {
+                    const legacyTask = s.savedData && s.savedData._tasks && s.savedData._tasks[taskName];
+                    const taskData = legacyTask ? (legacyTask.data || null) : null;
+                    if (taskData) {
+                        done = Math.min(countSubmittedFields(taskData), meta.totalFields);
+                        total = meta.totalFields;
+                    }
+                }
+            }
             let displayName = s.name || '';
             if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
             records.push({
@@ -1624,9 +1637,30 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         };
     }
 
+    // Completed-field counter mirroring the diagnostic pages' own countCompleted
+    // (scalars + self-assessment matrix rows + formats + knowledge-check answers).
+    function countSubmittedFields(data) {
+        if (!data || typeof data !== 'object') return 0;
+        let done = 0;
+        ['email', 'pronouns', 'phonetic', 'transit', 'curious', 'overdone', 'real_questions',
+         'where_personal', 'where_community', 'where_global', 'where_aspirational', 'teacher_note'].forEach(k => {
+            if (data[k] && String(data[k]).trim() !== '') done++;
+        });
+        if (data.matrix && typeof data.matrix === 'object') {
+            Object.keys(data.matrix).forEach(k => { const v = data.matrix[k]; if (v && v !== 'Not Specified') done++; });
+        }
+        if (data.formats) {
+            const arr = Array.isArray(data.formats) ? data.formats : String(data.formats).split(',');
+            if (arr.filter(f => String(f).trim()).length > 0) done++;
+        }
+        if (data.knowledge_check && typeof data.knowledge_check === 'object') {
+            Object.keys(data.knowledge_check).forEach(k => { const v = data.knowledge_check[k]; if (v && v !== 'Not Answered') done++; });
+        }
+        return done;
+    }
+
     // True when the ledger student has written content for the given task.
-    function hasWritten(s, taskName) {
-        if (s.task === taskName && (s.summary || '').trim()) return true;
+    function hasWritten(s, taskName) {        if (s.task === taskName && (s.summary || '').trim()) return true;
         const a = (s.assignments || {})[taskName];
         if (a && String(a).trim()) return true;
         const t = (s._t || {})[taskName];

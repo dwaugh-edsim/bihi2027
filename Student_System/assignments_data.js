@@ -113,6 +113,7 @@ window.COURSE_ASSIGNMENTS = {
                 taskName: "Healthy Living 8: Grade 7 Learning Audit",
                 short: "Grade 7 Learning Audit",
                 match: /grade.?7|learning.?audit/i,
+                totalFields: 24,
                 outcome: "Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health",
                 ref: "HL8 CO2 — diagnostic reviewing prior health-behaviour learning"
             }
