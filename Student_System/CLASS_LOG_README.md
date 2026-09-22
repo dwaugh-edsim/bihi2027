@@ -51,7 +51,7 @@ The slide doesn't need to be fully automated — Mr. Waugh is fine with an agent
 (ZCode, Antigravity, anything that reads this repo) presetting the day. Trigger phrases:
 *"get today's screens ready"*, *"bang the day's screen into shape"*, *"set up today's
 slide"* — even a raw brain-dump like *"902s finished the Numbeo research, quiz Thursday,
-announce Terry Fox forms"* is enough; the agent formats and files it.
+announce picture retakes Oct 7"* is enough; the agent formats and files it.
 
 **First: ask for `CLASS_LOG_PIN` if anything will be written. It is never stored in the
 repo.** Reads are open. POST bodies are the ones in the class-log section of AGENTS.md /
