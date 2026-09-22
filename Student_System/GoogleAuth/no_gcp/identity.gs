@@ -34,8 +34,11 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.2.0';
+var IDENTITY_VERSION = 'R8-ID-0.3.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
+
+// Path-B handoff: only bounce back to these origins (open-redirect guard).
+var RETURN_ALLOWLIST = ['https://dwaugh-edsim.github.io'];
 
 function identityKey_() {
   return PropertiesService.getScriptProperties().getProperty('R8_IDENTITY_KEY') || '';
@@ -65,10 +68,15 @@ function jsonOut_(obj) {
 }
 
 // ---- HTTP entry ------------------------------------------------------------
-// ?action=probe (or get_health) -> the identity JSON (the Step-1 test).
-// anything else                 -> serves assignment.html (the student page).
+// ?action=probe (or get_health) -> identity JSON (the Step-1 test).
+// ?return=<page-url>            -> sign in, then bounce BACK to that page with a
+//                                  signed identity in the URL fragment (#r8id=).
+//                                  This is the Path-B handoff: the page itself
+//                                  stays hosted on GitHub Pages.
+// anything else                 -> JSON help.
 function doGet(e) {
   var p = (e && e.parameter) || {};
+
   if (p.action === 'probe' || p.action === 'get_health') {
     var email = callerEmail_();
     var effective = '';
@@ -83,17 +91,58 @@ function doGet(e) {
         : 'No identity returned. Confirm "Execute as: User accessing the web app" and sign in with a same-domain account.'
     });
   }
-  try {
-    return HtmlService.createHtmlOutputFromFile('assignment')
-      .setTitle('Room 8 — New Assignment')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-  } catch (err) {
-    return jsonOut_({
-      status: 'page_missing',
-      message: 'Add a file named "assignment.html" to this project (File > New > HTML file), paste the page, then Deploy > Manage deployments > New version.',
-      probe: 'This deployment still answers ?action=probe.'
-    });
+
+  var ret = p['return'] || '';
+  if (ret) {
+    if (!isAllowedReturn_(ret)) {
+      return jsonOut_({ status: 'bad_return', message: 'return URL is not allowlisted', allowed: RETURN_ALLOWLIST });
+    }
+    var who = callerEmail_();
+    if (!who) {
+      return htmlOut_('<p style="font-family:system-ui,sans-serif;max-width:520px;margin:40px auto">'
+        + 'Could not detect a Google identity. Make sure you are signed in with your school account, then try again.</p>');
+    }
+    if (ALLOWED_DOMAIN && who.indexOf('@' + ALLOWED_DOMAIN) === -1) {
+      return htmlOut_('<p style="font-family:system-ui,sans-serif;max-width:520px;margin:40px auto">'
+        + 'Please sign in with your <b>@' + ALLOWED_DOMAIN + '</b> school account, not a personal one.</p>');
+    }
+    var ts = Date.now();
+    var sig = signIdentity_(who, ts);
+    var blob = Utilities.base64EncodeWebSafe(JSON.stringify({ email: who, ts: ts, sig: sig }));
+    return bounceOut_(ret + '#r8id=' + blob);
   }
+
+  return jsonOut_({
+    status: 'ok',
+    service: 'Room 8 Identity',
+    hint: 'Add ?return=<your-page-url> to sign in, or ?action=probe to test identity.'
+  });
+}
+
+function htmlOut_(html) {
+  return ContentService.createTextOutput(html).setMimeType(ContentService.MimeType.HTML);
+}
+
+// Top-level HTML bounce. Uses ContentService (NOT HtmlService) so the redirect is
+// NOT trapped inside a sandboxed iframe. Three fallbacks in case any is stripped:
+// JS redirect, meta refresh, and a manual link.
+function bounceOut_(target) {
+  var esc = target.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+    + '<meta http-equiv="refresh" content="0;url=' + esc + '">'
+    + '<title>Signing you in…</title></head>'
+    + '<body style="font-family:system-ui,sans-serif;padding:40px">'
+    + '<p>Signing you in…</p><p><a href="' + esc + '">Continue</a></p>'
+    + '<script>location.replace(' + JSON.stringify(target) + ');</script>'
+    + '</body></html>';
+  return htmlOut_(html);
+}
+
+function isAllowedReturn_(url) {
+  for (var i = 0; i < RETURN_ALLOWLIST.length; i++) {
+    if (url.indexOf(RETURN_ALLOWLIST[i]) === 0) return true;
+  }
+  return false;
 }
 
 // ---- Used by the assignment page (hosted by THIS app) -----------------------

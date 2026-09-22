@@ -19,6 +19,52 @@ OAuth app instead.
 
 ---
 
+## Path B (CHOSEN) — the page stays on GitHub Pages
+
+The teacher links assignments from Google Classroom, so a `script.google.com` URL is
+unacceptable. In Path B the **page is authored and served on GitHub Pages** (clean URL),
+and Apps Script only performs an **identity handoff**.
+
+**How it works for a student:** open the Pages URL → click *"Sign in with your school
+account"* → briefly handed to the Identity app (Google confirms who they are, consenting
+the first time) → bounced **back to the Pages URL** with a signed identity in the URL
+fragment → they work and Save; saving goes straight from the page to the Vault.
+
+**Deploy (updates the two apps; nothing new to paste per assignment):**
+
+1. **Identity project** → re-paste the latest `identity.gs` (**R8-ID-0.3.0**) → **Deploy
+   → Manage deployments → New version → Deploy**. (You can delete the `assignment.html`
+   file from this project — Path B doesn't use it.)
+2. **Vault project** → re-paste the latest `vault.gs` (**R8-VAULT-0.2.0**) → **New
+   version → Deploy**. (Adds the `verify` endpoint + a 4-hour window so a session
+   outlasts a class.)
+3. **GitHub Pages** → put `assignment_pages.html` at whatever clean path you want
+   students to bookmark; it's served like any other page. Set `IDENTITY_URL` and
+   `VAULT_URL` at the top (already pre-filled for the live apps), plus `TASK_NAME` and
+   `SECTIONS`.
+4. **Google Classroom** → link that Pages URL.
+
+**Anti-fragility built in:**
+- Save tries a normal CORS `POST` (reads JSON) → falls back to `no-cors` + `sendBeacon`
+  → then confirms via `?action=verify&requestId=…` (mirrors your live `api.js`).
+- The handoff bounce is served by `ContentService` (not `HtmlService`) with **three**
+  redirect fallbacks (JS, meta-refresh, manual link), so no sandbox can trap it.
+- The identity fragment is stripped from the URL immediately after it's read.
+- The return URL is allowlisted (`RETURN_ALLOWLIST`) against open-redirect abuse.
+- Unsaved work is backed up to `localStorage` and offered for restore.
+- An expired signature is caught and offers a one-click re-sign-in.
+
+**Known edges:** identity only works when the page is opened over HTTPS from the
+allowlisted origin (`github.io`) — a local `file://` preview renders but won't sign in.
+And the 4-hour identity window is a deliberate classroom trade (longer-lived than the
+10-minute default, to avoid mid-class expiry).
+
+---
+
+## Path A (built earlier, now optional) — Apps Script hosts the page
+
+---
+
 ## Step 1 — The make-or-break probe (2 minutes)
 
 You only need `identity.gs` for this; ignore the Vault for now.

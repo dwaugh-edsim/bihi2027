@@ -24,9 +24,11 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.1.0';
+var VAULT_VERSION   = 'R8-VAULT-0.2.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
-var FRESH_MS         = 10 * 60 * 1000;   // signatures valid for 10 minutes
+// Path B mints the identity at the page's sign-in handoff and keeps it for the
+// session, so the window must outlast a class period (not 10 minutes).
+var FRESH_MS         = 4 * 60 * 60 * 1000;   // signatures valid for 4 hours
 var SUBMISSIONS_TAB  = 'Submissions';
 
 function identityKey_() {
@@ -97,6 +99,19 @@ function doGet(e) {
       allowedDomain: ALLOWED_DOMAIN,
       submissionRows: sh ? Math.max(0, sh.getLastRow() - 1) : 0
     });
+  }
+  // Confirmation for the page's no-cors fallback: did this requestId land?
+  if (action === 'verify') {
+    var rid = (e.parameter.requestId || '');
+    var found = false;
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
+    if (rid && sheet && sheet.getLastRow() > 1) {
+      var col = sheet.getRange(2, 7, sheet.getLastRow() - 1, 1).getValues();
+      for (var i = 0; i < col.length; i++) {
+        if (String(col[i][0]) === rid) { found = true; break; }
+      }
+    }
+    return jsonOut_({ status: 'ok', found: found, requestId: rid });
   }
   return jsonOut_({ status: 'ok', message: 'Room 8 Vault', hint: 'POST submit_assignment or GET ?action=get_health' });
 }
