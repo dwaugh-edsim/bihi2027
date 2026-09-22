@@ -267,6 +267,7 @@ assignment launches.
 | Dartmouth High Human Skills Blueprint | HL9 CO9 | Human skills for the high-school transition = navigating change. |
 | Healthy Living 9: Grade 8 Learning Audit | HL9 CO1 | Diagnostic reviewing prior health-behaviour learning (no single official outcome). |
 | HL8 5-Dimension Systems Audit | HL8 CO2 | Sleep/screens/activity/eating dimensions vs health. |
+| HL8 Junction Exhibit 1: Smoke Detector vs Strategist | HL8 CO1 | Doc tags CO1 "junction": life-skills decision-making + coping (grounding pause, boundary text, trusted adult) inside the Sam's World peer-conflict story. CO3 (brain function/stress) is the close alternate for the amygdala science. |
 | Healthy Living 8: Grade 7 Learning Audit | HL8 CO2 | Diagnostic reviewing prior health-behaviour learning (no single official outcome). |
 
 ## Provenance

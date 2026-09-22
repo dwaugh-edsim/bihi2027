@@ -90,8 +90,16 @@ window.COURSE_ASSIGNMENTS = {
     },
     HL8: {
         label: "Healthy Living 8",
-        active: "hl8-5dimension-audit",
+        active: "hl8-junction-smoke-detector",
         items: [
+            {
+                id: "hl8-junction-smoke-detector",
+                taskName: "HL8 Junction Exhibit 1: Smoke Detector vs Strategist",
+                short: "Smoke Detector vs. Strategist · Junction",
+                match: /junction|smoke.?detector|strategist|amygdala|sam.?s.?world/i,
+                outcome: "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
+                ref: "HL8 CO1 — outcomes doc tags CO1 'junction': life-skills decision-making + coping (grounding pause, boundary text, trusted adult) inside the Sam's World peer-conflict story. CO3 (brain function/stress) is the close alternate for the amygdala science."
+            },
             {
                 id: "hl8-5dimension-audit",
                 taskName: "HL8 5-Dimension Systems Audit",

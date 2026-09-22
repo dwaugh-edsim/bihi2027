@@ -823,7 +823,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <div class="prog-class-bar-wrap">
                 <div class="prog-class-bar-fill" id="progClassBarFill" style="width:0%;"></div>
             </div>
-            <div class="prog-missing" id="progMissing" style="display:none;"></div>
             <div class="prog-list-wrap" id="progListWrap"></div>
         </section>
     </div>
@@ -1573,6 +1572,15 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         };
     }
 
+    // True when the ledger student has written content for the given task.
+    function hasWritten(s, taskName) {
+        if (s.task === taskName && (s.summary || '').trim()) return true;
+        const a = (s.assignments || {})[taskName];
+        if (a && String(a).trim()) return true;
+        const t = (s._t || {})[taskName];
+        return !!(t && (t.written || t.summary.trim()));
+    }
+
     function parseProgressFor(sec, students) {
         const course = (MEET[sec] && MEET[sec].course) || 'HL9';
         const sel = storedTaskFor(course);
@@ -1814,33 +1822,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return opts;
     }
 
-    // Roster-vs-ledger diff: names-only roster (matched by PIN) against the
-    // selected task — anyone assigned-worthy of the class with no written
-    // content for it gets called out on the slide.
-    function hasWritten(s, taskName) {
-        if (s.task === taskName && (s.summary || '').trim()) return true;
-        const a = (s.assignments || {})[taskName];
-        if (a && String(a).trim()) return true;
-        const t = (s._t || {})[taskName];
-        return !!(t && (t.written || t.summary.trim()));
-    }
-    function missingWritersFor(sec, taskName) {
-        const roster = window.MASTER_ROSTER_DATA;
-        if (!roster || !taskName) return [];
-        const hr = homeroomOf(sec);
-        const students = rawStudentsByHr[hr] || [];
-        const byPin = {};
-        students.forEach(s => { byPin[String(s.pin || '').trim().toUpperCase()] = s; });
-        const out = [];
-        roster.forEach(r => {
-            if (String(r.homeroom) !== hr) return;
-            const x = byPin[String(r.pin || '').trim().toUpperCase()];
-            if (x && hasWritten(x, taskName)) return;
-            const last = (r.last_name || '').trim();
-            out.push(r.first_name + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''));
-        });
-        return out;
-    }
+    // Roster-vs-ledger helpers retained for future diagnostics.
 
     async function renderProgress(sec) {
         const panel = document.getElementById('progressPanel');
@@ -1870,19 +1852,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             `<span class="prog-stat-chip"><b>${prog.finishedCount}/${prog.totalActive}</b> Done</span>`;
 
         document.getElementById('progClassBarFill').style.width = prog.classAvg + '%';
-
-        const miss = missingWritersFor(sec, prog.taskName);
-        const missEl = document.getElementById('progMissing');
-        if (missEl) {
-            if (miss.length) {
-                missEl.style.display = '';
-                missEl.innerHTML = 'Hey <b>' + miss.map(escapeHtml).join(', ') + '</b> — is it working for you?';
-                missEl.title = 'No saves yet for: ' + prog.taskName;
-            } else {
-                missEl.style.display = 'none';
-                missEl.innerHTML = '';
-            }
-        }
 
         document.getElementById('progListWrap').innerHTML = prog.records.map(r => `
             <div class="prog-row${r.started ? '' : ' ns'}">
