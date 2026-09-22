@@ -67,12 +67,12 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-09-17T11:42:09.342Z"
         },
         "802-HE": {
-            "note": "Finish the sleep assignment\nStart the new one — Junction (Exhibit 1: The Group Chat Fire)",
+            "note": "Start the new one — Junction (Exhibit 1: The Group Chat Fire)\nFinish the sleep assignment",
             "classNo": "3",
             "updated": "2026-09-22T11:20:00.000Z"
         },
         "803-HE": {
-            "note": "Finish the sleep assignment\nStart the new one — Junction (Exhibit 1: The Group Chat Fire)",
+            "note": "Start the new one — Junction (Exhibit 1: The Group Chat Fire)\nFinish the sleep assignment",
             "classNo": "3",
             "updated": "2026-09-22T11:20:00.000Z"
         }
@@ -80,13 +80,13 @@ window.CLASS_LOG_SEED = {
     "slides": {
         "802-HE": {
             "title": "Junction Launch — Sam's World",
-            "announcements": "Exhibit 1 reading pack on your desk — pencil ready.",
+            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.",
             "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
             "updated": "2026-09-22T11:20:00.000Z"
         },
         "803-HE": {
             "title": "Junction Launch — Sam's World",
-            "announcements": "Exhibit 1 reading pack on your desk — pencil ready.",
+            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.",
             "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
             "updated": "2026-09-22T11:20:00.000Z"
         }
