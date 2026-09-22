@@ -1595,6 +1595,17 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 partnered: partnered
             });
         });
+        // Partner pass: any not-started record whose name shows up in a
+        // partner string is covered by a classmate's doc — "Partnered", not
+        // "Not started".
+        records.forEach(r => {
+            if (r.started || r.partnered) return;
+            const parts = String(r.name || '').toLowerCase().split(/[^a-z]+/).filter(t => t.length >= 3);
+            if (parts.some(p => partnerTokens.has(p) ||
+                [...partnerTokens].some(t => t.startsWith(p) || p.startsWith(t)))) {
+                r.partnered = true;
+            }
+        });
         records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
             (b.done - a.done) || a.name.localeCompare(b.name));
         return {
