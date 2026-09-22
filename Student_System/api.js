@@ -16,6 +16,34 @@ const CONFIG = {
     }
 };
 
+// ==========================================
+// EFFORT TELEMETRY (counts only — never content)
+// Keystroke/paste counters + time-on-page, stamped into every submitProfile
+// payload as data._telemetry so effort can be compared against output later.
+// No keystroke text is ever recorded — just counts. Resets on page reload.
+// (Pattern borrowed from the MM Studies Justice prototype, spring 2026.)
+// ==========================================
+const EffortTelemetry = {
+    start: Date.now(),
+    keystrokes: 0,
+    pastes: 0,
+    wired: false,
+    wire() {
+        if (this.wired || typeof document === 'undefined') return;
+        this.wired = true;
+        document.addEventListener('keydown', () => { this.keystrokes++; });
+        document.addEventListener('paste', () => { this.pastes++; });
+    },
+    snapshot() {
+        this.wire();
+        return {
+            keystrokes: this.keystrokes,
+            pastes: this.pastes,
+            duration_sec: Math.round((Date.now() - this.start) / 1000)
+        };
+    }
+};
+
 const StudentAPI = {
     getScriptUrl(courseKey) {
         return CONFIG.COURSES[courseKey] || CONFIG.DEFAULT_SCRIPT_URL;
@@ -589,6 +617,11 @@ const StudentAPI = {
         // Always prioritize the official homeroom from roster
         const effectiveClass = (auth.student && auth.student.homeroom) ? String(auth.student.homeroom).trim() : className;
 
+        // Effort telemetry (counts only) rides every save. It is part of the payload
+        // hash: counters only advance with real activity and autosaves only fire on
+        // activity, so the unchanged-skip keeps its meaning.
+        profileData._telemetry = EffortTelemetry.snapshot();
+
         const saveKey = `${pin}_${taskName}`;
         const currentHash = this._hashPayload(profileData);
 
@@ -747,6 +780,9 @@ const StudentAPI = {
     sendEmergencyBeacon(taskName, profileData, summaryText, courseKey = 'CIT9') {
         const pin = (profileData.pin || Session.getPin() || '').trim().toUpperCase();
         if (!pin || pin.length < 3 || pin === '---' || pin === 'WAU' || pin === 'MRW') return false;
+
+        // Effort telemetry rides emergency saves too (stamped before hashing)
+        profileData._telemetry = EffortTelemetry.snapshot();
 
         const saveKey = `${pin}_${taskName}`;
         const currentHash = this._hashPayload(profileData);
@@ -1001,7 +1037,14 @@ const StudentAPI = {
 
 // Pages that guard with `if (window.StudentAPI)` need this: a top-level `const`
 // never becomes a window property on its own.
-if (typeof window !== 'undefined') window.StudentAPI = StudentAPI;
+if (typeof window !== 'undefined') {
+    window.StudentAPI = StudentAPI;
+    // Exposed for pages with custom dispatchers (e.g. the CIT9 dossier) to stamp
+    // EffortTelemetry.snapshot() into their own payloads, and for debugging.
+    if (!window.EffortTelemetry) window.EffortTelemetry = EffortTelemetry;
+    // Count from page load — lazy wiring would miss the first burst of typing.
+    EffortTelemetry.wire();
+}
 
 // Session storage helper with email and pronouns
 const Session = {

@@ -3805,6 +3805,9 @@
 
             const summary = `Dossier: ${payload.name} (${payload.className}) • Pos: ${payload.dilemma?.position || 'None'} • Wage: $${payload.rent_math?.wage_needed || '0'} • Exit: ${payload.exit_slip?.q1 ? 'Done' : 'Incomplete'}`;
 
+            // Effort telemetry (counts only — api.js counter) rides every save
+            if (window.EffortTelemetry) payload._telemetry = EffortTelemetry.snapshot();
+
             const bodyObj = {
                 action: 'submit_profile',
                 taskName: TASK_NAME,
@@ -3893,6 +3896,8 @@
             const currentHash = JSON.stringify(payload);
             if (_lastBeaconHash === currentHash) return; // Skip duplicate / unchanged beacon dispatch
             _lastBeaconHash = currentHash;
+            // Stamped after the unchanged-check so idle page-hides still skip
+            if (window.EffortTelemetry) payload._telemetry = EffortTelemetry.snapshot();
 
             const summary = `Emergency Beacon: ${payload.name} (${payload.className})`;
             const bodyStr = JSON.stringify({
