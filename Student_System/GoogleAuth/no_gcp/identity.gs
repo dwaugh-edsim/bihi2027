@@ -34,7 +34,7 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.3.0';
+var IDENTITY_VERSION = 'R8-ID-0.3.1';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 
 // Path-B handoff: only bounce back to these origins (open-redirect guard).
@@ -98,13 +98,19 @@ function doGet(e) {
       return jsonOut_({ status: 'bad_return', message: 'return URL is not allowlisted', allowed: RETURN_ALLOWLIST });
     }
     var who = callerEmail_();
+    // One-click account switcher that returns to this same handoff. Needed because
+    // a browser signed into a personal account will otherwise dead-end here.
+    var switchUrl = 'https://accounts.google.com/AccountChooser?continue=' +
+      encodeURIComponent(ScriptApp.getService().getUrl() + '?return=' + encodeURIComponent(ret));
     if (!who) {
-      return htmlOut_('<p style="font-family:system-ui,sans-serif;max-width:520px;margin:40px auto">'
-        + 'Could not detect a Google identity. Make sure you are signed in with your school account, then try again.</p>');
+      return noticeHtml_('Sign in required',
+        'No Google account is currently signed in. Sign in with your <b>@' + ALLOWED_DOMAIN +
+        '</b> school account, then try again.', switchUrl);
     }
     if (ALLOWED_DOMAIN && who.indexOf('@' + ALLOWED_DOMAIN) === -1) {
-      return htmlOut_('<p style="font-family:system-ui,sans-serif;max-width:520px;margin:40px auto">'
-        + 'Please sign in with your <b>@' + ALLOWED_DOMAIN + '</b> school account, not a personal one.</p>');
+      return noticeHtml_('Wrong account',
+        'You are signed in as <b>' + escapeHtml_(who) + '</b>, which is not a <b>@' + ALLOWED_DOMAIN +
+        '</b> account. This assignment needs your school account.', switchUrl);
     }
     var ts = Date.now();
     var sig = signIdentity_(who, ts);
@@ -121,6 +127,23 @@ function doGet(e) {
 
 function htmlOut_(html) {
   return ContentService.createTextOutput(html).setMimeType(ContentService.MimeType.HTML);
+}
+
+function escapeHtml_(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Friendly in-app message (instead of Google's opaque "unable to open the file").
+function noticeHtml_(title, body, switchUrl) {
+  var link = switchUrl
+    ? '<p style="margin-top:18px"><a href="' + switchUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;') +
+      '" style="display:inline-block;padding:10px 18px;background:#1e293b;color:#fff;border-radius:8px;text-decoration:none">Switch account</a></p>'
+    : '';
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml_(title) + '</title></head>'
+    + '<body style="font-family:system-ui,sans-serif;max-width:520px;margin:60px auto;padding:0 20px;color:#0f172a">'
+    + '<h1 style="font-size:1.2rem">' + escapeHtml_(title) + '</h1>'
+    + '<p style="line-height:1.5">' + body + '</p>' + link + '</body></html>';
+  return htmlOut_(html);
 }
 
 // Top-level HTML bounce. Uses ContentService (NOT HtmlService) so the redirect is

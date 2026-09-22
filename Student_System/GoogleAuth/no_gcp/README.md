@@ -32,9 +32,12 @@ fragment → they work and Save; saving goes straight from the page to the Vault
 
 **Deploy (updates the two apps; nothing new to paste per assignment):**
 
-1. **Identity project** → re-paste the latest `identity.gs` (**R8-ID-0.3.0**) → **Deploy
-   → Manage deployments → New version → Deploy**. (You can delete the `assignment.html`
-   file from this project — Path B doesn't use it.)
+1. **Identity project** → re-paste the latest `identity.gs` (**R8-ID-0.3.1**) → **Deploy
+   → Manage deployments → New version → Deploy**. Set **Who has access: `Anyone`** (not
+   "Anyone within gnspes.ca") — the code enforces the school domain itself, and "Anyone"
+   is what lets a browser signed into a personal account be offered an account switch
+   instead of Google's opaque *"unable to open the file"* dead end. (You can delete the
+   `assignment.html` file from this project — Path B doesn't use it.)
 2. **Vault project** → re-paste the latest `vault.gs` (**R8-VAULT-0.2.0**) → **New
    version → Deploy**. (Adds the `verify` endpoint + a 4-hour window so a session
    outlasts a class.)
@@ -53,6 +56,9 @@ fragment → they work and Save; saving goes straight from the page to the Vault
 - The return URL is allowlisted (`RETURN_ALLOWLIST`) against open-redirect abuse.
 - Unsaved work is backed up to `localStorage` and offered for restore.
 - An expired signature is caught and offers a one-click re-sign-in.
+- **Wrong account is handled in-app:** a personal (non-`gnspes.ca`) Google account gets a
+  clear "Wrong account" page with a **Switch account** button (Google's account chooser,
+  returning to the same handoff) — not Google's "unable to open the file" error.
 
 **Known edges:** identity only works when the page is opened over HTTPS from the
 allowlisted origin (`github.io`) — a local `file://` preview renders but won't sign in.
