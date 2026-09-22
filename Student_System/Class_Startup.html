@@ -1008,6 +1008,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     const MEET = window.CLASS_LOG_MEETINGS.sections;
     const MAPS = window.CLASS_LOG_LESSON_MAPS || {};
     const ASSIGN = window.COURSE_ASSIGNMENTS || {};
+    // Teacher/demo test pins never belong on a class progress board.
+    const TEST_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
     function courseAsgList(course) { return (ASSIGN[course] && ASSIGN[course].items) || []; }
     function activeAsg(course) {
         const list = courseAsgList(course);
@@ -1541,6 +1543,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             const pin = String(s.pin || '').trim().toUpperCase();
             if (pin) {
                 if (seenPins.has(pin)) return;
+                if (TEST_PINS.indexOf(pin) !== -1) return; // demo/test rows stay off the board
                 seenPins.add(pin);
             }
             let text = '';

@@ -760,6 +760,49 @@ function doPost(e) {
     }
 
     // ==========================================
+    // ACTION: DELETE STUDENT ROWS (teacher cleanup of test/junk logins)
+    // Body: { action:'delete_student_rows', teacherPin, className:'901',
+    //         pins:['XYZ','TST'] }
+    // Fail-closed on CLASS_LOG_PIN. Deletes class-tab rows whose PIN column
+    // matches and reports exactly what was removed.
+    // ==========================================
+    if (action === 'delete_student_rows') {
+      const expectedDelPin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
+      if (!expectedDelPin) {
+        throw new Error('DELETE REFUSED: set the CLASS_LOG_PIN Script Property first (fail-closed).');
+      }
+      if (String(payload.teacherPin || '').trim() !== String(expectedDelPin)) {
+        throw new Error('Teacher PIN required for delete_student_rows.');
+      }
+      const delClass = String(payload.className || '').trim();
+      const delPins = (payload.pins || [])
+        .map(function (p) { return String(p || '').trim().toUpperCase(); })
+        .filter(function (p) { return p; });
+      if (!delClass || !delPins.length) {
+        throw new Error('delete_student_rows requires className and pins[].');
+      }
+      const delSheet = getSheetForClass(ss, delClass);
+      const removed = [];
+      const lastRowDel = delSheet.getLastRow();
+      if (lastRowDel > 1) {
+        const delData = delSheet.getRange(1, 1, lastRowDel, Math.max(delSheet.getLastColumn(), 4)).getValues();
+        for (let dr = delData.length - 1; dr >= 1; dr--) {
+          const rowPin = String(delData[dr][0] || '').trim().toUpperCase();
+          if (delPins.indexOf(rowPin) !== -1) {
+            removed.push({ pin: rowPin, name: String(delData[dr][1] || '') });
+            delSheet.deleteRow(dr + 1);
+          }
+        }
+      }
+      return successJSON({
+        status: 'rows_deleted',
+        removed: removed,
+        count: removed.length,
+        version: CONFIG_VERSION
+      });
+    }
+
+    // ==========================================
     // ACTION: SUBMIT CLASS LOG (Class_Log_Tracker quick-log panel)
     // Upsert keyed on (date + section): logging the same class twice fixes it.
     // Optional gate: set Script Property CLASS_LOG_PIN to require teacherPin.
