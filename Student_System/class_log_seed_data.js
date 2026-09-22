@@ -1,11 +1,6 @@
-// class_log_seed_data.js — offline seed for Class_Log_Tracker.html and
-// Class_Startup.html. Live sync (GET ?action=get_class_log) replaces it the
-// moment the Apps Script answers; this snapshot only covers an offline morning.
-// Regenerate after a batch of logging (see CLASS_LOG_README.md) — any LLM can do it.
-
+// class_log_seed_data.js — offline seed generated 2026-09-22
 window.CLASS_LOG_SEED = {
-    "generated": "2026-09-21",
-    "note": "Snapshot of the Class_Log + Class_Plan + Class_Slide tabs. Live sync replaces it at view time.",
+    "status": "success",
     "entries": [
         {
             "date": "2026-09-17",
@@ -37,7 +32,7 @@ window.CLASS_LOG_SEED = {
     ],
     "plans": {
         "902-CIT": {
-            "note": "Start the cost-of-living / Numbeo assignment.\nShort quiz — 3 levels of government + maps & capitals (NS / Canada)",
+            "note": "Start the cost-of-living / Numbeo assignment.\nShort quiz \u2014 3 levels of government + maps & capitals (NS / Canada)",
             "classNo": "6",
             "updated": "2026-09-21T15:02:53.601Z"
         },
