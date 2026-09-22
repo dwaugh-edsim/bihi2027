@@ -895,13 +895,23 @@ const StudentAPI = {
 
     async getClassLog(courseKey = 'HL9') {
         const url = this.getScriptUrl(courseKey);
-        try {
-            const res = await fetch(`${url}?action=get_class_log`);
-            const data = await res.json();
-            return data;
-        } catch (err) {
-            console.warn("Class log fetch failed:", err);
-            return { status: 'error', error: err.toString() };
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const res = await fetch(`${url}?action=get_class_log`, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                if (!text || text.trim().startsWith('<')) {
+                    throw new Error('Google returned HTML instead of JSON');
+                }
+                return JSON.parse(text);
+            } catch (err) {
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 1200 * attempt));
+                } else {
+                    console.warn("Class log fetch failed:", err);
+                    return { status: 'error', error: err.toString() };
+                }
+            }
         }
     },
 
@@ -993,25 +1003,33 @@ const StudentAPI = {
             const timer = setTimeout(() => controller.abort(), 25000);
             try {
                 const res = await fetch(getUrl, { signal: controller.signal, cache: 'no-store' });
-                return await res.json();
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                if (!text || text.trim().startsWith('<')) {
+                    throw new Error('Google returned HTML instead of JSON');
+                }
+                return JSON.parse(text);
             } finally {
                 clearTimeout(timer);
             }
         };
 
-        try {
-            return await fetchOnce();
-        } catch (err) {
-            if (err && err.name === 'AbortError') {
-                try {
-                    return await fetchOnce(); // one retry for the cold-start case
-                } catch (e2) {
-                    console.warn('Bulk class progress fetch timed out twice:', e2);
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                return await fetchOnce();
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    if (attempt < 3) continue;
+                    console.warn('Bulk class progress fetch timed out:', err);
                     return { status: 'error', error: 'timeout' };
                 }
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 1200 * attempt));
+                } else {
+                    console.warn('Bulk class progress fetch failed:', err);
+                    return { status: 'error', error: err.toString() };
+                }
             }
-            console.warn('Bulk class progress fetch failed:', err);
-            return { status: 'error', error: err.toString() };
         }
     },
 
