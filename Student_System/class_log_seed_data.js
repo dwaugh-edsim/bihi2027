@@ -65,7 +65,30 @@ window.CLASS_LOG_SEED = {
             "note": "Addictive phone apps assignment",
             "classNo": "",
             "updated": "2026-09-17T11:42:09.342Z"
+        },
+        "802-HE": {
+            "note": "Finish the sleep assignment\nStart the new one — Junction (Exhibit 1: The Group Chat Fire)",
+            "classNo": "3",
+            "updated": "2026-09-22T11:20:00.000Z"
+        },
+        "803-HE": {
+            "note": "Finish the sleep assignment\nStart the new one — Junction (Exhibit 1: The Group Chat Fire)",
+            "classNo": "3",
+            "updated": "2026-09-22T11:20:00.000Z"
         }
     },
-    "slides": {}
+    "slides": {
+        "802-HE": {
+            "title": "Junction Launch — Sam's World",
+            "announcements": "Exhibit 1 reading pack on your desk — pencil ready.",
+            "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
+            "updated": "2026-09-22T11:20:00.000Z"
+        },
+        "803-HE": {
+            "title": "Junction Launch — Sam's World",
+            "announcements": "Exhibit 1 reading pack on your desk — pencil ready.",
+            "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
+            "updated": "2026-09-22T11:20:00.000Z"
+        }
+    }
 };
