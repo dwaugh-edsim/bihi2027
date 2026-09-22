@@ -352,7 +352,17 @@ const StudentAPI = {
             pin = 'SAH';
         }
 
-        // 5. Look up PIN in official roster, prioritizing selected class
+        // 5. Look up PIN in official roster, prioritizing selected class.
+        // If the deployed roster is names-only (pins stripped after the GAS
+        // took over validation), the client can't verify — say so plainly
+        // instead of reporting the PIN as unregistered.
+        if (!roster.some(s => s.pin)) {
+            return {
+                valid: false,
+                offline: true,
+                message: "🌐 Can't reach the login server right now. Check the Wi-Fi connection and try again — your work saves automatically once you're connected."
+            };
+        }
         let student = null;
         if (cleanClass) {
             student = roster.find(s => String(s.homeroom || '').trim() === cleanClass && (s.pin || '').trim().toUpperCase() === pin);

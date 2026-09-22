@@ -1574,16 +1574,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 if (t.length >= 3) partnerTokens.add(t);
             });
         });
+        // Roster kids are matched to ledger rows by first name (the public
+        // roster no longer carries PINs, so pin-matching is unavailable).
+        const seenFirst = new Set(records.map(r => String(r.name || '').toLowerCase().split(/[^a-z]+/)[0]));
         const roster = window.MASTER_ROSTER_DATA || [];
         roster.forEach(r => {
             const pin = String(r.pin || '').trim().toUpperCase();
-            if (pin && seenPins.has(pin)) return;
-            if (String(r.homeroom || '').trim() !== String(hr || '').trim()) return;
-            if (pin) seenPins.add(pin);
             let first = r.first_name || '';
             if (r.pin === 'BEU' || first === 'Blessing') first = 'Kossy';
-            const last = (r.last_name || '').trim();
             const fl = first.toLowerCase();
+            if (fl && (seenFirst.has(fl) || [...seenFirst].some(n => fl.startsWith(n) || n.startsWith(fl)))) return;
+            if (String(r.homeroom || '').trim() !== String(hr || '').trim()) return;
+            if (fl) seenFirst.add(fl);
+            const last = (r.last_name || '').trim();
             const partnered = fl.length >= 3 && [...partnerTokens].some(t => t === fl || fl.startsWith(t) || t.startsWith(fl));
             records.push({
                 name: first + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''),
