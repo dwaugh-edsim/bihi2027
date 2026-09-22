@@ -107,7 +107,9 @@ SECTIONS = {
     "802-HE":  {"label": "Healthy Living 8", "section": "802", "course": "HL8",
                 "grade": 8, "room": "Rm 8", "slots": {3: "P2", 7: "P4", 8: "P3"}},
     "803-HE":  {"label": "Healthy Living 8", "section": "803", "course": "HL8",
-                "grade": 8, "room": "Rm 8", "slots": {1: "P1", 2: "P5", 7: "P1", 8: "P2"}},
+                "grade": 8, "room": "Rm 8", "slots": {1: "P1", 2: "P5", 8: "P2"}},
+    # ^ Day 7 P1 is ILT 803 (independent learning time), not an HL8 class —
+    #   slot removed 2026-09-22 per teacher; course calendar never listed it.
     "804-HE":  {"label": "Healthy Living 8", "section": "804", "course": "HL8",
                 "grade": 8, "room": "Rm 8", "slots": {3: "P1", 9: "P2", 10: "P1"}},
 }
@@ -221,7 +223,8 @@ def main():
     # schedule (missing = real error: wrong slot/period/anchor). Extras are fine
     # and expected: CIT9 spare slots (901: classes 91-94, Jun 21-30), HL/HE June
     # buffer periods after the curriculum plan ends, and slots the curriculum
-    # appendices predate (802-HE Wed-W2-P3 key correction; 803-HE D7-P1).
+    # appendices predate (802-HE Wed-W2-P3 key correction). 803-HE D7-P1 was
+    # removed 2026-09-22: that slot is ILT 803, not an HL8 class.
     FIXTURE_GROUPS = [
         (CIT9_FIXTURES, "-CIT"),
         (HL9_FIXTURES, "-HL"),
