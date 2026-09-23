@@ -73,7 +73,10 @@ window.Room8 = (function () {
     if (!e.data || e.data.type !== 'r8id' || !e.data.id || !e.data.id.sig || !e.data.id.email) return;
     identity = e.data.id;
     try { sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (_) {}
-    try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (_) {}
+    if (popupRef) {
+      try { popupRef.close(); } catch (_) {}
+      popupRef = null;
+    }
     // ALWAYS notify — even when the backend is unreachable — so the page can react
     // (previously a failed resolve() silently swallowed the identity).
     resolve().then(function (who) { notify(who); }, function () { notify(null); });

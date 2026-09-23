@@ -156,10 +156,10 @@
 </div>
 
 <script>
-  // ================= PIPE CONFIG (same two apps as the pilot page) =================
+  // ================= PIPE CONFIG =================
   const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
-  const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbzhCVthh1eWPNo2apOZPTJPhMDVcyL7Q7PrSxIlhiEbauTbXnEJBJcUCSAnPg2X4cZi/exec';
-  // ===============================================================================
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+  // ===============================================
   const TASK_NAME = 'HL8 Junction Exhibit 1 — Strategy Matrix (Google-auth test)';
   const SECTIONS  = ['801-HE', '802-HE', '803-HE', '804-HE'];
   const ID_KEY    = 'r8id';        // sessionStorage holds ONLY the sign-in token, never work
@@ -182,7 +182,10 @@
     identity = e.data.id;
     try { sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (_) {}
     showApp();
-    try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (_) {}
+    if (popupRef) {
+      try { popupRef.close(); } catch (_) {}
+      popupRef = null;
+    }
   });
 
   function showApp() {
@@ -190,7 +193,23 @@
     document.getElementById('app').hidden = false;
     document.getElementById('who').textContent = identity.email;
     const sel = document.getElementById('section');
-    sel.innerHTML = '<option value="">—</option>' + SECTIONS.map(s => '<option>' + s + '</option>').join('');
+    sel.innerHTML = '<option value="">—</option>' + SECTIONS.map(s => '<option value="' + s + '">' + s + '</option>').join('');
+
+    // Auto-resolve student section & name from v2 backend roster
+    post(BACKEND_URL, { action: 'resolve_student', email: identity.email, ts: identity.ts, sig: identity.sig })
+      .then(res => {
+        if (res && res.known && res.section) {
+          let target = res.section;
+          if (target && target.indexOf('-') === -1) target = target + '-HE';
+          if (SECTIONS.indexOf(target) !== -1) {
+            sel.value = target;
+          }
+          if (res.name) {
+            document.getElementById('who').textContent = identity.email + ' · ' + res.name;
+          }
+        }
+      }).catch(() => {});
+
     const app = document.getElementById('app');
     app.addEventListener('input', onChange);
     app.addEventListener('change', onChange);
@@ -201,11 +220,16 @@
 
   function restore() {
     setStatus('Loading your saved work…', '');
-    post(VAULT_URL, { action: 'load_assignment', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
+    post(BACKEND_URL, { action: 'load_assignment', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
       .then(j => {
         if (j && j.status === 'ok' && j.found) {
           populate(j.data || {});
-          if (j.section) { const s = document.getElementById('section'); if (s) s.value = j.section; }
+          if (j.section) {
+            const s = document.getElementById('section');
+            let sec = j.section;
+            if (sec && sec.indexOf('-') === -1) sec = sec + '-HE';
+            if (s && SECTIONS.indexOf(sec) !== -1) s.value = sec;
+          }
           document.getElementById('restored').style.display = 'block';
           lastSavedHash = hash();
           setStatus('Restored your last save' + (j.savedAt ? ' (' + new Date(j.savedAt).toLocaleString() + ')' : '') + '.', 'ok');
@@ -255,21 +279,21 @@
                       task: TASK_NAME, section: val('section'), summary, data: f, requestId };
     const btn = document.getElementById('saveBtn'); btn.disabled = true;
     setStatus('Saving…', '');
-    post(VAULT_URL, payload).then(j => {
+    post(BACKEND_URL, payload).then(j => {
       btn.disabled = false;
-      if (j && j.status === 'submitted_successfully') { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); }
+      if (j && (j.status === 'submitted_successfully' || j.deduplicated || j.unchanged)) { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); }
       else if (j && j.status === 'auth_failed') { onAuthFailed(j.reason); }
       else { setStatus('Not saved: ' + ((j && (j.reason || j.message)) || 'unknown'), 'bad'); }
     }).catch(() => {
       btn.disabled = false;
-      try { fetch(VAULT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), keepalive: true }); } catch (e) {}
-      try { if (navigator.sendBeacon) navigator.sendBeacon(VAULT_URL, new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' })); } catch (e) {}
+      try { fetch(BACKEND_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), keepalive: true }); } catch (e) {}
+      try { if (navigator.sendBeacon) navigator.sendBeacon(BACKEND_URL, new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' })); } catch (e) {}
       setStatus('Saved — verifying…', 'warn');
       setTimeout(() => verify(requestId), 2500);
     });
   }
   function verify(requestId) {
-    fetch(VAULT_URL + '?action=verify&requestId=' + encodeURIComponent(requestId) + '&t=' + Date.now())
+    fetch(BACKEND_URL + '?action=verify&requestId=' + encodeURIComponent(requestId) + '&t=' + Date.now())
       .then(r => r.json())
       .then(j => { if (j && j.found) { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); } else setStatus('Not confirmed yet — it will retry.', 'warn'); })
       .catch(() => setStatus('Could not confirm — it will retry.', 'warn'));
