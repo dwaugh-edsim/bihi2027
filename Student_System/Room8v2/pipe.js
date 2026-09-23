@@ -44,17 +44,23 @@ window.Room8 = (function () {
     return identity;
   }
 
+  function notify(who) {
+    listeners.forEach(function (fn) { try { fn(identity, who); } catch (_) {} });
+  }
+
   function onMessage(e) {
     if (!e.data || e.data.type !== 'r8id' || !e.data.id || !e.data.id.sig || !e.data.id.email) return;
     identity = e.data.id;
     try { sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (_) {}
     try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (_) {}
-    resolve().then(function (who) { listeners.forEach(function (fn) { try { fn(identity, who); } catch (_) {} }); });
+    // ALWAYS notify — even when the backend is unreachable — so the page can react
+    // (previously a failed resolve() silently swallowed the identity).
+    resolve().then(function (who) { notify(who); }, function () { notify(null); });
   }
 
   function onIdentity(fn) {
     listeners.push(fn);
-    if (identity) resolve().then(function (who) { try { fn(identity, who); } catch (_) {} });
+    if (identity) resolve().then(function (who) { notify(who); }, function () { notify(null); });
   }
 
   function signIn() {
