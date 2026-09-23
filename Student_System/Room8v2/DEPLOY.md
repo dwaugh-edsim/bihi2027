@@ -14,6 +14,9 @@ Master Sheet — v2 is a parallel system.
     in the Identity project, or every request fails with `bad_sig`.
   - `CLASS_LOG_PIN` — the teacher PIN. Gates every teacher write/read (fail-closed: if the
     property is unset, teacher actions refuse to run).
+  - `LEGACY_SHEET_ID` — *(optional, for migration)* the old Master Sheet's spreadsheet ID
+    (the long string in its URL between `/d/` and `/edit`). Required only for
+    `bootstrap_roster_from_legacy` / `migrate_legacy_submissions`.
 - Run **`setup()`** once from the editor (creates the six tabs).
 - **Deploy → New deployment → Web app**:
   - **Execute as: Me**
@@ -50,6 +53,32 @@ The tell: every response carries a `version` string. Probe
 | `bad_sig` on save | `R8_IDENTITY_KEY` differs between Identity and Backend (or is unset in one) | Make both properties identical |
 | `missing_vault_url` | (pilot only) Identity app's `R8_VAULT_URL` unset | Set it to the Vault `/exec` URL |
 | Bounce page shows as raw text | Old build served HTML through `ContentService` (no HTML mime type) | Redeploy `identity.gs` ≥ R8-ID-0.4.0 |
+
+## Migrating from the old system (teacher data + prior work)
+
+Both actions are teacher-PIN-gated and **dry-run by default** — nothing writes until you
+post the same call with `dryRun:false`.
+
+```bash
+# 1. Seed the Roster (email -> name/homeroom/grade) from the old class tabs.
+#    Review the preview + the studentsWithoutEmail list before committing.
+curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
+  -d '{"action":"bootstrap_roster_from_legacy","teacherPin":"<PIN>","dryRun":true}' \
+  "<BACKEND_URL>"
+
+# 2. Copy prior work for specific assignments (HMAC shapes are converted automatically;
+#    students without an email on file are reported, never guessed).
+curl -sL -X POST -H "Content-Type: text/plain;charset=utf-8" \
+  -d '{"action":"migrate_legacy_submissions","teacherPin":"<PIN>","dryRun":true,
+       "tasks":[{"name":"HL9 Operation Addictive by Design (Class 2)","course":"HL9"},
+                {"name":"Citizenship 9 — Real Issues Case File #1: The Rent We Pay","course":"CIT9"}]}' \
+  "<BACKEND_URL>"
+```
+
+Matching rule: the old system keys students by **PIN**, v2 by **verified email**; the
+bridge is the email column of the old class tabs (~80% coverage). Rows without an email
+are **reported, never guessed** — when that student eventually signs in with Google, add
+them to the roster and re-run the migration for their task.
 
 ## Deleting dead deployments
 

@@ -25,7 +25,7 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.2.0-2026-09-23';
+var CONFIG_VERSION = 'R8-BE-0.3.0-2026-09-23';
 var CONFIG_DEPLOYED = '2026-09-23T00:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
@@ -312,6 +312,8 @@ function doPost(e) {
     if (action === 'set_class_plan')    { requireTeacher_(payload); return setClassPlan_(ss, payload); }
     if (action === 'set_class_slide')   { requireTeacher_(payload); return setClassSlide_(ss, payload); }
     if (action === 'delete_class_log')  { requireTeacher_(payload); return deleteClassLog_(ss, payload); }
+    if (action === 'bootstrap_roster_from_legacy') { requireTeacher_(payload); return bootstrapRoster_(ss, payload); }
+    if (action === 'migrate_legacy_submissions')  { requireTeacher_(payload); return migrateLegacySubmissions_(ss, payload); }
     if (action === 'get_class_log')     { requireTeacher_(payload); return jsonOut_(readClassLog_(ss)); }
     if (action === 'selftest')          { requireTeacher_(payload); return selftest_(ss); }
 
@@ -671,4 +673,149 @@ function logHasRequest_(log, requestId) {
   var col = log.getRange(start, 8, last - start + 1, 1).getValues();
   for (var i = col.length - 1; i >= 0; i--) if (String(col[i][0]) === requestId) return true;
   return false;
+}
+
+// ============================================================================
+// LEGACY MIGRATION (old V6.x Master Sheet -> v2)
+// Matching rule: the old system keys students by PIN; v2 keys by verified email.
+// The bridge is the EMAIL COLUMN of the old class tabs (~80% coverage). Students
+// without an email are reported, not guessed — when they later sign in with Google
+// their verified email enters the roster and the teacher can attach their old row.
+// Both actions are DRY-RUN BY DEFAULT: nothing writes until dryRun:false.
+// Requires Script Property LEGACY_SHEET_ID = the old Master Sheet's spreadsheet ID.
+// ============================================================================
+function legacySheet_() {
+  var id = PropertiesService.getScriptProperties().getProperty('LEGACY_SHEET_ID');
+  if (!id) throw new Error('Set the LEGACY_SHEET_ID Script Property (the old Master Sheet spreadsheet ID, from its URL).');
+  return SpreadsheetApp.openById(id);
+}
+var LEGACY_CLASS_TABS = ['901', '902', '903', '801', '802', '803', '804'];
+
+function homeroomGrade_(hr) { return String(hr).charAt(0) === '8' ? 8 : 9; }
+function sectionForCourse_(hr, course) {
+  var suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[String(course || '')] || String(course || '');
+  return String(hr) + '-' + suffix;
+}
+
+// Seed the Roster tab from the old class tabs: email -> name/homeroom/grade/courses.
+function bootstrapRoster_(ss, payload) {
+  var dry = payload.dryRun !== false;
+  var legacy = legacySheet_();
+  var rows = [], noEmail = [], seen = {};
+  LEGACY_CLASS_TABS.forEach(function (hr) {
+    var sh = legacy.getSheetByName(hr);
+    if (!sh || sh.getLastRow() < 2) return;
+    var grade = homeroomGrade_(hr);
+    var courses = (grade === 9) ? 'CIT 9, HL 9' : 'HL 8';
+    var data = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues();
+    data.forEach(function (r) {
+      var pin = String(r[0] || '').trim(), name = String(r[1] || '').trim();
+      var email = String(r[3] || '').trim().toLowerCase();
+      if (!pin || !name) return;
+      var parts = name.split(' ').filter(function (x) { return x; });
+      var first = parts.shift() || name, last = parts.join(' ');
+      if (!email) { noEmail.push({ name: name, homeroom: hr }); return; }
+      if (seen[email]) return; seen[email] = 1;
+      rows.push([email, first, last, hr, grade, courses, new Date()]);
+    });
+  });
+  if (!dry) {
+    var lock = LockService.getScriptLock(); lock.waitLock(30000);
+    try {
+      var sh = ss.getSheetByName(TAB_ROSTER);
+      if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 7).clearContent();
+      if (rows.length) sh.getRange(2, 1, rows.length, 7).setValues(rows);
+    } finally { lock.releaseLock(); }
+  }
+  return jsonOut_({ status: 'ok', dryRun: dry, rosterCount: rows.length,
+                    studentsWithoutEmail: noEmail.length, missingEmail: noEmail,
+                    preview: dry ? rows.slice(0, 10) : undefined });
+}
+
+// Copy a student's old task payloads into v2, transforming to the pipe page shapes.
+function transformLegacyData_(taskName, data) {
+  if (String(taskName).indexOf('Addictive') !== -1) {
+    // HL9 old shape already saves { answers: {fieldId: value} } — pass through.
+    return { answers: data.answers || {}, _v: 2, _pipe: true, name: data.name || '', auditors: data.auditors || '' };
+  }
+  if (data.rent_math) {
+    // CIT9 old shape is nested; flatten to the pipe page's field ids.
+    var rm = data.rent_math || {}, ev = data.evidence || {}, di = data.dilemma || {};
+    var p = data.ppp || {}, pm = data.power_map || {}, dp = data.deputation || {};
+    var ff = data.fast_finisher || {};
+    var pos = String(di.position || '').charAt(0).toUpperCase();
+    var posMap = { A: 'A — Build everywhere', B: 'B — Protect & plan', C: 'C — Public land, non-market', U: 'Still undecided' };
+    var topicMap = { phone: 'Phone bans in schools (2.71/4)', treaty: 'Mi\'kmaw treaty rights (2.71/4)',
+                     power: 'Power rates & offshore wind (2.43/4)', ai: 'AI & future jobs (2.29/4)' };
+    var topic = topicMap[String(ff.topic || '').toLowerCase()] || ff.topic || '';
+    var lvl = String(pm.target_level || '');
+    var lvlMap = { C: 'City / HRM Council', P: 'Province', F: 'Federal' };
+    var lvlSel = lvlMap[lvl.charAt(0).toUpperCase()] || pm.target_level || '';
+    return { answers: {
+      math_hours_rent: rm.hours_for_rent || '', math_pct_rent: rm.pct_of_pay || '',
+      math_wage_needed: rm.wage_needed || '', math_gap_hourly: rm.gap_hourly || '',
+      math_gap_compromises: rm.gap_compromises || '', math_gap_structural: rm.gap_structural || '',
+      evidence_most_shocking: ev.most_shocking || '', evidence_system_link: ev.system_link || '',
+      dilemma_position: posMap[pos] || di.position || '',
+      dilemma_justification: di.justification || '', dilemma_counter_tradeoff: di.counter_tradeoff || '',
+      ppp_career_name: p.career || '', ppp_hfx_annual_salary: p.annual_salary || '',
+      ppp_hfx_hours: p.hfx_hours || '', ppp_delhi_hours: p.delhi_hours || '',
+      ppp_analysis_reflection: p.analysis || '',
+      power_city_ask: pm.city_ask || '', power_prov_ask: pm.prov_ask || '', power_fed_ask: pm.fed_ask || '',
+      power_target_level: lvlSel, power_one_question: pm.one_question || '',
+      dep_starter_1: dp.starter_1 || '', dep_starter_2: dp.starter_2 || '', dep_starter_3: dp.starter_3 || '',
+      dep_starter_4: dp.starter_4 || '', dep_starter_5: dp.starter_5 || '',
+      ff_selected_topic: topic, ff_response: ff.response || '',
+      docSignature: data.signature || ''
+    }, global_numbeo: data.global_numbeo || [], _v: 2, _pipe: true, name: data.name || '' };
+  }
+  return data;   // unknown shape: copy as-is rather than lose it
+}
+
+// Copy old submissions for the given tasks into v2 (one-time; dry-run first).
+// payload.tasks = [{ name: '<exact TASK_NAME>', course: 'HL9'|'CIT9'|'HL8' }]
+function migrateLegacySubmissions_(ss, payload) {
+  var tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+  if (!tasks.length) throw new Error('tasks: [{name, course}] is required.');
+  var dry = payload.dryRun !== false;
+  var legacy = legacySheet_();
+  var perTask = {}, studentsMigrated = 0, noEmailRows = 0;
+  var migratedEmails = {};
+
+  tasks.forEach(function (t) {
+    var taskName = String(t.name || '').trim();
+    var per = { migrated: 0, noEmail: 0, notFound: 0 };
+    if (!taskName) return;
+    LEGACY_CLASS_TABS.forEach(function (hr) {
+      var sh = legacy.getSheetByName(hr);
+      if (!sh || sh.getLastRow() < 2) return;
+      var section = sectionForCourse_(hr, t.course);
+      var grade = homeroomGrade_(hr);
+      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
+      rows.forEach(function (r) {
+        var ledger = null;
+        try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
+        var tsk = ledger && ledger._tasks && ledger._tasks[taskName];
+        if (!tsk || !tsk.data) return;
+        var email = String(r[3] || '').trim().toLowerCase();
+        var name = String(r[1] || '').trim();
+        if (!email) { per.noEmail++; noEmailRows++; return; }
+        per.migrated++;
+        migratedEmails[email] = 1;
+        if (dry) return;
+        var data = transformLegacyData_(taskName, tsk.data);
+        var lock = LockService.getScriptLock(); lock.waitLock(30000);
+        try {
+          mergeTaskIntoStudent_(ss, email, { name: name, section: section, grade: grade,
+                                             task: taskName, summary: tsk.summary || '', data: data });
+        } finally { lock.releaseLock(); }
+      });
+    });
+    perTask[taskName] = per;
+  });
+
+  studentsMigrated = Object.keys(migratedEmails).length;
+  return jsonOut_({ status: 'ok', dryRun: dry, perTask: perTask,
+                    studentsMigrated: studentsMigrated, noEmailRows: noEmailRows,
+                    next: dry ? 'Review, then POST the same action with dryRun:false.' : 'Done. Students will see this work on sign-in.' });
 }
