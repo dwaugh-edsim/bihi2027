@@ -105,7 +105,7 @@ window.Room8 = (function () {
     return p;
   }
 
-  function resolve() { return post(cfg.backendUrl, authed('resolve_student', {})); }
+  function resolve(extra) { return post(cfg.backendUrl, authed('resolve_student', extra || {})); }
   function load(task) { return post(cfg.backendUrl, authed('load_assignment', { task: task })); }
   function myTasks() { return post(cfg.backendUrl, authed('get_my_tasks', {})); }
   function teacher(action, payload, teacherPin) {

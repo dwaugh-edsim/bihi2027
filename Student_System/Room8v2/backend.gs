@@ -330,8 +330,12 @@ function studentResolve_(ss, payload) {
   var id = verifyIdentity_(payload.email, payload.ts, payload.sig);
   if (!id.ok) return authFailed_(id);
   var r = rosterFor_(ss, id.email);
+  var sec = r.section;
+  if (r.known && sec && payload.course) {
+    sec = sectionForCourse_(sec, payload.course);
+  }
   return jsonOut_({ status: 'ok', known: r.known, email: id.email, first: r.first, last: r.last,
-                    name: r.name, section: r.section, grade: r.grade, courses: r.courses });
+                    name: r.name, homeroom: r.section, section: sec, grade: r.grade, courses: r.courses });
 }
 
 function studentSubmit_(ss, payload) {
@@ -353,7 +357,10 @@ function studentSubmit_(ss, payload) {
   }
 
   var who = rosterFor_(ss, id.email);
-  var section = who.known ? who.section : String(payload.section || '');
+  var section = String(payload.section || '');
+  if (!section && who.known && who.section) {
+    section = sectionForCourse_(who.section, payload.course || task);
+  }
   var name = who.known ? who.name : String(payload.name || '');
   var data = payload.data || {};
   if (requestId) data._requestId = requestId;
@@ -693,8 +700,16 @@ var LEGACY_CLASS_TABS = ['901', '902', '903', '801', '802', '803', '804'];
 
 function homeroomGrade_(hr) { return String(hr).charAt(0) === '8' ? 8 : 9; }
 function sectionForCourse_(hr, course) {
-  var suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[String(course || '')] || String(course || '');
-  return String(hr) + '-' + suffix;
+  if (!hr) return '';
+  var s = String(hr).trim();
+  if (s.indexOf('-') !== -1) return s;
+  var c = String(course || '').toUpperCase();
+  var suffix = '';
+  if (c.indexOf('CIT') !== -1) suffix = 'CIT';
+  else if (c.indexOf('HL9') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '9')) suffix = 'HL';
+  else if (c.indexOf('HL8') !== -1 || c.indexOf('HE') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '8')) suffix = 'HE';
+  else suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[c] || c;
+  return suffix ? (s + '-' + suffix) : s;
 }
 
 // Seed the Roster tab from the old class tabs: email -> name/homeroom/grade/courses.

@@ -277,14 +277,31 @@ window.R8Assignment = (function () {
     function showApp() {
       gate.hidden = true; app.hidden = false;
     }
-    var resolvedSection = '';
-    var ctl = null;
+    function resolveSectionKey(raw, course, classList) {
+      if (!raw) return '';
+      var s = String(raw).trim();
+      if (s.indexOf('-') !== -1) return s;
+      var c = String(course || '').toUpperCase();
+      var suffix = '';
+      if (c.indexOf('CIT') !== -1) suffix = 'CIT';
+      else if (c.indexOf('HL9') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '9')) suffix = 'HL';
+      else if (c.indexOf('HL8') !== -1 || c.indexOf('HE') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '8')) suffix = 'HE';
+      else suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[c] || '';
+      var candidate = suffix ? (s + '-' + suffix) : s;
+      if (Array.isArray(classList) && classList.length) {
+        for (var i = 0; i < classList.length; i++) {
+          if (classList[i] === candidate || classList[i].indexOf(s + '-') === 0) return classList[i];
+        }
+      }
+      return candidate;
+    }
+
     pipe.onIdentity(function (id, who) {
       showApp();
       idEmail = id.email;
       var known = !!(who && who.known);
       var name = (who && who.name) || '';
-      resolvedSection = (who && who.section) || '';
+      resolvedSection = resolveSectionKey((who && who.section) || '', cfg.course, cfg.classList);
       whoEl.textContent = '';
       whoEl.appendChild(document.createTextNode('Signed in as '));
       whoEl.appendChild(h('b', '', id.email));
