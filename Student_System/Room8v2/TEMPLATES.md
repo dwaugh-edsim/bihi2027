@@ -38,6 +38,13 @@ const ASSIGNMENT = {
 Field types: `text` · `textarea` (rows) · `number` (step) · `select` (options) ·
 `radios` (options) · `checks` (options → saves an array) · `static` (html, read-only).
 
+The engine ships the classroom-safety layer automatically — you don't wire any of it:
+effort telemetry (counts only), server autosave with an outbox badge and
+offline/reconnect states, in-tab crash recovery, restore-on-load, and emergency
+exports (**Copy for Google Docs** / **Download JSON**) for network outages at the bell.
+Optional page hooks: `custom.collect` / `custom.populate` (for custom blocks like the
+Numbeo matrix) and `custom.exportExtra(answers)` (extra Markdown in the export).
+
 ## Payload conventions
 
 - Student answers save under `answers: { <field id>: value|string[] }`, plus

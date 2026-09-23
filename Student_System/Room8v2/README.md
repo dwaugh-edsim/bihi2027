@@ -5,7 +5,9 @@ Google-auth pipe: **a verified `@gnspes.ca` email is the student's identity** �
 nothing typed, nothing stored on the device.
 
 **Status:** phase 1 proven end-to-end on the teacher account. Parallel to the live V6.x
-system — nothing here touches the old Master Sheet.
+system — nothing here touches the old Master Sheet. **Hardened per
+`audit/Room8v2eval.md`** (effort telemetry, outbox/offline states, in-tab crash recovery,
+emergency exports).
 
 ## Start here
 
@@ -30,7 +32,11 @@ system — nothing here touches the old Master Sheet.
    teacher*) verifies the HMAC before trusting the email, so identity can't be forged.
 4. Work **autosaves to the server** (~2.5s after typing stops) and **restores from the
    server** on load. **No `localStorage`** — Chromebooks wipe on close, so nothing durable
-   lives on the device.
+   lives on the device. An in-tab `sessionStorage` draft covers the gap between a
+   keystroke and the autosave (accidental refresh protection), and **emergency exports**
+   (Copy for Google Docs / Download JSON) exist for total outages.
+5. Effort telemetry (keystroke/paste **counts** and duration — never content) rides in
+   every save, exactly like the old system.
 5. Everything lands in the teacher's private **"Room 8 v2 — Master"** sheet.
 
 ## Script properties (the only secrets)

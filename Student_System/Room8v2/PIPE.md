@@ -89,6 +89,7 @@ A cross-site `fetch` from `github.io` to `script.google.com` carries no Google s
 | Storage | Contents | Why it's OK |
 |---|---|---|
 | `sessionStorage['r8id']` | the signed identity token | transient, per-tab, cleared when the Chromebook closes; re-obtainable by signing in again |
+| `sessionStorage['r8_tab_draft_<task>']` | the current tab's unsaved answers (crash recovery) | same lifetime as the tab — wiped on close/logout, so nothing durable on the device; superseded by the server the moment a save confirms |
 | *nothing else* | — | **no `localStorage` anywhere** — work is on the server |
 
 ## Security model, summarised
@@ -100,6 +101,18 @@ A cross-site `fetch` from `github.io` to `script.google.com` carries no Google s
 | Personal (non-school) account | Identity app refuses to mint (domain check) and shows a switch-account page |
 | Stranger calls the Backend | Student actions need a signature; teacher actions need `CLASS_LOG_PIN` |
 | Open-redirect through the handoff | `RETURN_ALLOWLIST` locks the return origin to the Pages site |
+| Effort/telemetry privacy | Telemetry is **counts and duration only** (keystrokes, pastes, seconds) — never content |
+
+## Operational gate: the consent screen
+
+A signed-in `gnspes` owner sails through; a **student** account will hit Google's
+*"Google hasn't verified this app"* screen and must choose **Advanced → Go to Room 8
+Identity (unsafe)**. Test one real student account before any live use. If the domain
+blocks unverified apps for under-18s, the fix is administrative: have the Google
+Workspace admin add the Identity project's **script ID** to the domain's trusted apps
+(Admin console → Security → Access and data control → API controls). Alternatively — and
+cleaner long-term — have the admin publish the Identity app as **Internal** under the
+domain, which removes the warning entirely.
 
 ## Known open item
 
