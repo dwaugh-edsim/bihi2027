@@ -32,19 +32,19 @@ window.CLASS_LOG_SEED = {
     ],
     "plans": {
         "902-CIT": {
-            "note": "Start the cost-of-living / Numbeo assignment.\nShort quiz \u2014 3 levels of government + maps & capitals (NS / Canada)",
+            "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
             "classNo": "6",
-            "updated": "2026-09-21T15:02:53.601Z"
+            "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-CIT": {
-            "note": "Correct the Three Levels sheet, then continue the cost-of-living / Numbeo assignment.",
+            "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
             "classNo": "7",
-            "updated": "2026-09-17T18:56:42.434Z"
+            "updated": "2026-09-23T08:30:00.000Z"
         },
         "903-CIT": {
-            "note": "Start the cost-of-living / Numbeo assignment.",
+            "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
             "classNo": "7",
-            "updated": "2026-09-17T18:56:48.223Z"
+            "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-HL": {
             "note": "Finish the Sleep Clinic 10-Station Audit input\nAddictive phone apps assignment",
@@ -73,15 +73,33 @@ window.CLASS_LOG_SEED = {
         }
     },
     "slides": {
+        "903-CIT": {
+            "title": "Citizenship Checkpoint Day — Review & Quiz #1",
+            "announcements": "PD Day Friday (Sept 25) — no classes.\nHold & Secure drill this week — we'll review expectations first.",
+            "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
+            "updated": "2026-09-23T08:30:00.000Z"
+        },
+        "901-CIT": {
+            "title": "Citizenship Checkpoint Day — Review & Quiz #1",
+            "announcements": "PD Day Friday (Sept 25) — no classes.\nHold & Secure drill this week — we'll review expectations first.",
+            "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
+            "updated": "2026-09-23T08:30:00.000Z"
+        },
+        "902-CIT": {
+            "title": "Citizenship Checkpoint Day — Review & Quiz #1",
+            "announcements": "PD Day Friday (Sept 25) — no classes.\nHold & Secure drill this week — we'll review expectations first.",
+            "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
+            "updated": "2026-09-23T08:30:00.000Z"
+        },
         "802-HE": {
             "title": "Junction Launch — Sam's World",
-            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.",
+            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.\nPD Day Friday (Sept 25) — no classes.",
             "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
             "updated": "2026-09-22T11:20:00.000Z"
         },
         "803-HE": {
             "title": "Junction Launch — Sam's World",
-            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.",
+            "announcements": "Exhibit 1 reading pack comes right after the slideshow — pencil ready.\nPD Day Friday (Sept 25) — no classes.",
             "outcome": "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
             "updated": "2026-09-22T11:20:00.000Z"
         }

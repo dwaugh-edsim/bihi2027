@@ -259,6 +259,7 @@ assignment launches.
 
 | Assignment (ledger task) | Code | Why |
 |---|---|---|
+| Citizenship 9 — Checkpoint Quiz #1: Geography & Government | CIT9 U5B | Three levels of government, municipal delegation, and Canadian/NS geography knowledge. |
 | Citizenship 9 — Real Issues Case File #1: The Rent We Pay | CIT9 U5C | Teacher's facilitation key: engaged citizenship via the citizen loop (evidence → position → power → speech, ending in deputation). U3A (housing economics) is the close alternate when the work period is data-heavy. |
 | The WHERE Project — Places Portfolio | CIT9 U6A | Personal/community/global/aspirational places → global citizenship lens. |
 | Citizenship 9 Current Issues Diagnostic | CIT9 U4A | Perceptions of current issues; diagnostic that seeded the Real Issues slate. |

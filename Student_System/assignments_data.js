@@ -22,8 +22,16 @@
 window.COURSE_ASSIGNMENTS = {
     CIT9: {
         label: "Citizenship 9",
-        active: "cit9-rent-case-file",
+        active: "cit9-checkpoint-quiz",
         items: [
+            {
+                id: "cit9-checkpoint-quiz",
+                taskName: "Citizenship 9 — Checkpoint Quiz #1: Geography & Government",
+                short: "Quiz #1 · Geography & 3 Levels of Government",
+                match: /quiz|checkpoint|geography|three.?levels/i,
+                outcome: "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
+                ref: "CIT9 U5B — three levels of government, municipal delegation, and Canadian/NS geography"
+            },
             {
                 id: "cit9-rent-case-file",
                 taskName: "Citizenship 9 — Real Issues Case File #1: The Rent We Pay",
