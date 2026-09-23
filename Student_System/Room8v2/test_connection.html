@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room 8 v2 — connection test</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 680px;
+         margin: 40px auto; padding: 0 18px; line-height: 1.5; color: #0f172a; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  .sub { color: #475569; margin: 0 0 20px; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+  #gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+  button { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 0; background: #1e293b; color: #fff; cursor: pointer; }
+  .warn { color: #b45309; } .ok { color: #15803d; } .bad { color: #b91c1c; }
+  .row { border-bottom: 1px solid #e2e8f0; padding: 8px 0; font-size: .92rem; color: #475569; }
+  .row b { color: #0f172a; }
+  textarea { font: inherit; width: 100%; min-height: 110px; padding: 9px 11px; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 14px; }
+  #status { margin-top: 10px; font-weight: 700; }
+</style>
+</head>
+<body>
+  <h1>Room 8 v2 — connection test</h1>
+  <p class="sub">Thin harness: proves identity → resolve (auto-section) → autosave → restore against the new backend. No PIN, no device storage.</p>
+
+  <div id="gate">
+    <p class="sub" style="margin-bottom:14px">Sign in with your school account.</p>
+    <button type="button" onclick="doSignIn()">Sign in with your school account</button>
+    <div id="gateMsg" class="sub" style="margin-top:10px"></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="row">Signed in as <b id="who">…</b> <button type="button" onclick="Room8.switchAccount()" style="padding:2px 10px;font-size:.78rem;background:#e2e8f0;color:#0f172a">switch</button></div>
+    <div class="row">Name <b id="rName">—</b></div>
+    <div class="row">Section <b id="rSection">—</b> <span id="rKnown" class="sub"></span></div>
+    <div class="row">Roster on file? <b id="rKnownB">—</b></div>
+
+    <label for="answer" style="display:block;font-weight:700;margin-top:18px">Type something — it autosaves to the backend in ~2.5s</label>
+    <textarea id="answer" placeholder="Your text…"></textarea>
+    <div>
+      <button type="button" onclick="saveNow()" style="margin-top:12px">Save now</button>
+      <span id="status" class="sub" style="margin-left:10px">Not saved yet.</span>
+    </div>
+  </div>
+
+<script src="pipe.js"></script>
+<script>
+  // ================= CONFIG =================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'PASTE_THE_NEW_V2_BACKEND_EXEC_URL_HERE';   // <-- the new "Room 8 v2 Backend" app
+  // =========================================
+  const TASK = 'Room 8 v2 — connection test';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+
+  let autosave = null;
+
+  function doSignIn() {
+    if (!Room8.signIn()) document.getElementById('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
+  }
+
+  Room8.onIdentity(function (id, who) {
+    document.getElementById('gate').hidden = true;
+    document.getElementById('app').hidden = false;
+    document.getElementById('who').textContent = id.email;
+    if (who && who.status === 'ok') {
+      document.getElementById('rName').textContent = who.name || '(none on file)';
+      document.getElementById('rSection').textContent = who.section || '(none)';
+      document.getElementById('rKnownB').textContent = who.known ? 'yes' : 'no';
+      document.getElementById('rKnownB').className = who.known ? 'ok' : 'warn';
+      document.getElementById('rKnown').textContent = who.known ? '· auto-assigned from the roster' : '· not in the roster — a real page would ask the student';
+    } else {
+      document.getElementById('rName').textContent = 'resolve failed: ' + ((who && (who.reason || who.message)) || '?');
+    }
+    // restore previous work from the server
+    Room8.load(TASK).then(function (j) {
+      if (j && j.status === 'ok' && j.found) {
+        document.getElementById('answer').value = (j.data && j.data.answer) || '';
+        setStatus('Restored your last save' + (j.savedAt ? ' (' + new Date(j.savedAt).toLocaleString() + ')' : '') + '.', 'ok');
+      } else if (j && j.status === 'auth_failed') {
+        setStatus('Sign-in rejected: ' + j.reason, 'bad');
+      } else {
+        setStatus('Nothing saved yet — type and it will autosave.', '');
+      }
+      autosave = Room8.autosave(function () { return { answer: document.getElementById('answer').value }; },
+        { task: TASK, el: document.getElementById('app'),
+          onSaved: function () { setStatus('Saved ✓', 'ok'); },
+          onAuthFailed: function (r) { setStatus('Sign-in expired — switch and sign in again (' + r + ')', 'bad'); } });
+      autosave.markClean();
+    }).catch(function (e) { setStatus('Backend unreachable: ' + e, 'bad'); });
+  });
+
+  function saveNow() { if (autosave) autosave.saveNow(); }
+  function setStatus(msg, kind) { const el = document.getElementById('status'); el.textContent = msg; el.className = 'sub ' + (kind || ''); }
+</script>
+</body>
+</html>
