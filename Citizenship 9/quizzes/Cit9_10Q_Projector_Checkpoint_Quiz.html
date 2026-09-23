@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9: 10-Question Projector Checkpoint Quiz | Room 8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --stage-bg: #1e293b;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --card-active-border: #38bdf8;
+            --text-heading: #f8fafc;
+            --text-body: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-gold: #fbbf24;
+            --ans-bg: #064e3b;
+            --ans-border: #10b981;
+            --ans-text: #a7f3d0;
+            --badge-bg: #334155;
+            --badge-text: #f1f5f9;
+        }
+
+        /* Light / Projector High-Contrast Mode (Room 8 Default) */
+        body.light-mode {
+            --bg: #f1f5f9;
+            --stage-bg: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --card-active-border: #1d4ed8;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --accent: #1d4ed8;
+            --accent-gold: #b45309;
+            --ans-bg: #ecfdf5;
+            --ans-border: #059669;
+            --ans-text: #065f46;
+            --badge-bg: #e2e8f0;
+            --badge-text: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 28px 14px;
+            overflow: hidden;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        /* Top Header Bar */
+        header.quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            flex: none;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            background: var(--accent);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 5px;
+            letter-spacing: 0.05em;
+        }
+
+        .title-block h1 {
+            font-family: 'Roboto Slab', 'Arvo', serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-block p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid var(--accent-gold);
+            padding: 5px 12px;
+            border-radius: 6px;
+        }
+
+        body.light-mode .status-badge {
+            background: #fffbeb;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .ctrl-btn {
+            background: var(--card-bg);
+            color: var(--text-heading);
+            border: 1.5px solid var(--card-border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ctrl-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* 10-Question 2-Column Grid (Fits Exactly on LCD Screen) */
+        .quiz-stage {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 10px 18px;
+            flex-grow: 1;
+            min-height: 0; /* Prevents overflow */
+        }
+
+        .q-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        /* Hidden Question State */
+        .q-card.hidden-q {
+            opacity: 0.12;
+            filter: grayscale(1);
+            border-style: dashed;
+        }
+
+        /* Visible Question State */
+        .q-card.revealed-q {
+            opacity: 1;
+            filter: none;
+            border-color: var(--card-border);
+        }
+
+        /* Active / Newly Revealed Question */
+        .q-card.current-active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+
+        body.light-mode .q-card.current-active {
+            box-shadow: 0 0 12px rgba(29, 78, 216, 0.25);
+        }
+
+        .q-top-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .q-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--badge-text);
+            background: var(--badge-bg);
+            border-radius: 5px;
+            padding: 2px 7px;
+            flex-shrink: 0;
+            line-height: 1.3;
+        }
+
+        .q-text {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            line-height: 1.35;
+            flex-grow: 1;
+        }
+
+        .q-topic {
+            font-size: 0.65rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+
+        /* 1-3 Word Answer Box */
+        .ans-strip {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px dashed var(--card-border);
+            min-height: 28px;
+            transition: all 0.2s ease;
+        }
+
+        body.light-mode .ans-strip {
+            background: #f8fafc;
+        }
+
+        .ans-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+        }
+
+        .ans-word {
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--ans-text);
+            display: none;
+            letter-spacing: 0.01em;
+        }
+
+        /* When Answer is Revealed */
+        .q-card.revealed-ans .ans-strip {
+            background: var(--ans-bg);
+            border: 1.5px solid var(--ans-border);
+        }
+
+        .q-card.revealed-ans .ans-word {
+            display: inline-block;
+            animation: popIn 0.2s ease-out forwards;
+        }
+
+        .q-card.revealed-ans .ans-label {
+            color: var(--ans-border);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Remote Helper Footer */
+        footer.deck-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            flex: none;
+            padding-top: 6px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .remote-tips {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .key-tag {
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Print Override */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 10mm !important;
+            }
+            .header-controls, footer.deck-footer {
+                display: none !important;
+            }
+            .q-card {
+                border-color: #333 !important;
+                opacity: 1 !important;
+                page-break-inside: avoid;
+            }
+            .ans-word {
+                display: inline-block !important;
+                color: #000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+
+    <!-- Top Header Bar -->
+    <header class="quiz-header">
+        <div class="header-left">
+            <span class="brand-badge">CITIZENSHIP 9</span>
+            <div class="title-block">
+                <h1>Room 8 Checkpoint Quiz <span>• 10 Questions</span></h1>
+                <p>Places in NS &bull; Canada Geography &bull; 3 Levels of Government &bull; Key Positions</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <div class="status-badge" id="stepCounter">Click Remote: Q1</div>
+            <button class="ctrl-btn" onclick="toggleAnswersOnly()" title="Toggle showing/hiding all answers">👁️ Answers</button>
+            <button class="ctrl-btn" onclick="revealAllQuestions()" title="Show all 10 questions at once">📜 Reveal All Qs</button>
+            <button class="ctrl-btn" onclick="resetQuiz()" title="Reset back to start">↺ Reset</button>
+            <button class="ctrl-btn" onclick="toggleTheme()" title="Toggle High-Contrast / Dark Mode">🌓 Theme</button>
+        </div>
+    </header>
+
+    <!-- 10-Question Stage (2 Columns x 5 Rows) -->
+    <main class="quiz-stage" id="quizGrid">
+
+        <!-- Q1: NS Places (Annapolis Valley) -->
+        <div class="q-card hidden-q" id="card-1" onclick="toggleSingleAnswer(1)">
+            <div>
+                <div class="q-topic">Nova Scotia Places &bull; Agriculture</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q1</span>
+                    <div class="q-text">Which rich agricultural valley along the Bay of Fundy is famous for Honeycrisp apples and orchards?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Annapolis Valley</span>
+            </div>
+        </div>
+
+        <!-- Q6: 3 Levels (Provincial Powers) -->
+        <div class="q-card hidden-q" id="card-6" onclick="toggleSingleAnswer(6)">
+            <div>
+                <div class="q-topic">3 Levels of Government &bull; Powers</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q6</span>
+                    <div class="q-text">Which level of government is responsible for funding and running public hospitals, healthcare, and schools?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Provincial government</span>
+            </div>
+        </div>
+
+        <!-- Q2: Canadian Geography (Alberta Capital Trap) -->
+        <div class="q-card hidden-q" id="card-2" onclick="toggleSingleAnswer(2)">
+            <div>
+                <div class="q-topic">Canadian Capitals &bull; Western Canada</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q2</span>
+                    <div class="q-text">What is the capital city of Alberta? <em>(Watch out for the Calgary trap!)</em></div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Edmonton</span>
+            </div>
+        </div>
+
+        <!-- Q7: Key Position (Premier of NS) -->
+        <div class="q-card hidden-q" id="card-7" onclick="toggleSingleAnswer(7)">
+            <div>
+                <div class="q-topic">Key Positions &bull; Nova Scotia Leader</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q7</span>
+                    <div class="q-text">Who is the current Premier of Nova Scotia, leading the provincial government in Halifax?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Tim Houston</span>
+            </div>
+        </div>
+
+        <!-- Q3: NS Places (The Hub) -->
+        <div class="q-card hidden-q" id="card-3" onclick="toggleSingleAnswer(3)">
+            <div>
+                <div class="q-topic">Nova Scotia Places &bull; Transportation Hub</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q3</span>
+                    <div class="q-text">Which central Nova Scotia town is known as "The Hub" where Highway 102, 104, and rail lines cross?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Truro</span>
+            </div>
+        </div>
+
+        <!-- Q8: Key Position (Prime Minister) -->
+        <div class="q-card hidden-q" id="card-8" onclick="toggleSingleAnswer(8)">
+            <div>
+                <div class="q-topic">Key Positions &bull; National Leader</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q8</span>
+                    <div class="q-text">Who is the current Prime Minister of Canada, leading the federal government in Ottawa?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Mark Carney</span>
+            </div>
+        </div>
+
+        <!-- Q4: Canadian Geography (Bilingual Province) -->
+        <div class="q-card hidden-q" id="card-4" onclick="toggleSingleAnswer(4)">
+            <div>
+                <div class="q-topic">Canadian Provinces &bull; Official Languages</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q4</span>
+                    <div class="q-text">Which province is Canada's only officially bilingual province?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">New Brunswick</span>
+            </div>
+        </div>
+
+        <!-- Q9: 3 Levels (Local Bylaw) -->
+        <div class="q-card hidden-q" id="card-9" onclick="toggleSingleAnswer(9)">
+            <div>
+                <div class="q-topic">3 Levels of Government &bull; Municipal Law</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q9</span>
+                    <div class="q-text">What do we call a local rule passed by HRM City Council (such as a nighttime noise curfew or parking ban)?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Bylaw</span>
+            </div>
+        </div>
+
+        <!-- Q5: NS Places (Cape Breton) -->
+        <div class="q-card hidden-q" id="card-5" onclick="toggleSingleAnswer(5)">
+            <div>
+                <div class="q-topic">Nova Scotia Places &bull; Island Heritage</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q5</span>
+                    <div class="q-text">What historic island in Nova Scotia is famous for Gaelic culture, coal/steel heritage, and the Cabot Trail?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Cape Breton</span>
+            </div>
+        </div>
+
+        <!-- Q10: Key Position (Mayor of HRM) -->
+        <div class="q-card hidden-q" id="card-10" onclick="toggleSingleAnswer(10)">
+            <div>
+                <div class="q-topic">Key Positions &bull; Municipal Leader</div>
+                <div class="q-top-row">
+                    <span class="q-num">Q10</span>
+                    <div class="q-text">Who is the current Mayor of Halifax Regional Municipality (HRM)?</div>
+                </div>
+            </div>
+            <div class="ans-strip">
+                <span class="ans-label">Answer:</span>
+                <span class="ans-word">Andy Fillmore</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Remote Control Helper Strip -->
+    <footer class="deck-footer">
+        <div class="remote-tips">
+            <span>🎮 <strong>Remote / Clicker:</strong> <span class="key-tag">Next Slide / Click</span> reveals next item &bull; <span class="key-tag">Prev Slide</span> goes back</span>
+            <span>⌨️ <strong>Keys:</strong> <span class="key-tag">Space</span> or <span class="key-tag">&rarr;</span> Next &bull; <span class="key-tag">&larr;</span> Back &bull; <span class="key-tag">A</span> Answers &bull; <span class="key-tag">R</span> Reset</span>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted);">
+            Room 8 &bull; Mr. Waugh &bull; Dartmouth
+        </div>
+    </footer>
+
+    <!-- Interactive Reveal & Remote Control Script -->
+    <script>
+        // Total steps:
+        // Steps 1 to 10: Reveal Questions 1 to 10
+        // Steps 11 to 20: Reveal Answers 1 to 10
+        let currentStep = 0;
+        const totalQuestions = 10;
+        const totalSteps = totalQuestions * 2;
+
+        const order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+        function updateDisplay() {
+            // Questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const card = document.getElementById(`card-${i}`);
+                if (!card) continue;
+
+                // Question visibility
+                if (currentStep >= i) {
+                    card.classList.remove('hidden-q');
+                    card.classList.add('revealed-q');
+                } else {
+                    card.classList.add('hidden-q');
+                    card.classList.remove('revealed-q');
+                }
+
+                // Active question highlight
+                if (currentStep === i) {
+                    card.classList.add('current-active');
+                } else {
+                    card.classList.remove('current-active');
+                }
+
+                // Answer visibility (steps 11..20)
+                const ansStep = totalQuestions + i;
+                if (currentStep >= ansStep) {
+                    card.classList.add('revealed-ans');
+                } else {
+                    card.classList.remove('revealed-ans');
+                }
+            }
+
+            // Update status badge
+            const badge = document.getElementById('stepCounter');
+            if (currentStep === 0) {
+                badge.textContent = "Click Remote: Start (Q1)";
+            } else if (currentStep <= totalQuestions) {
+                badge.textContent = `Question ${currentStep} of 10`;
+            } else if (currentStep < totalSteps) {
+                const ansNum = currentStep - totalQuestions;
+                badge.textContent = `Answers Revealed: ${ansNum} / 10`;
+            } else {
+                badge.textContent = "All 10 Revealed ✓";
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateDisplay();
+            }
+        }
+
+        function resetQuiz() {
+            currentStep = 0;
+            updateDisplay();
+        }
+
+        function revealAllQuestions() {
+            currentStep = totalQuestions; // Shows all 10 questions, answers hidden
+            updateDisplay();
+        }
+
+        function toggleAnswersOnly() {
+            if (currentStep >= totalSteps) {
+                // If all answers shown, hide answers but keep questions
+                currentStep = totalQuestions;
+            } else {
+                // Show all questions and answers
+                currentStep = totalSteps;
+            }
+            updateDisplay();
+        }
+
+        function toggleSingleAnswer(qNum) {
+            const card = document.getElementById(`card-${qNum}`);
+            if (card) {
+                card.classList.remove('hidden-q');
+                card.classList.add('revealed-q');
+                card.classList.toggle('revealed-ans');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // Remote / Keyboard Event Listeners
+        window.addEventListener('keydown', (e) => {
+            // Next: Space, ArrowRight, ArrowDown, PageDown, Enter
+            if (['Space', 'ArrowRight', 'ArrowDown', 'PageDown', 'Enter'].includes(e.code)) {
+                e.preventDefault();
+                nextStep();
+            }
+            // Prev: ArrowLeft, ArrowUp, PageUp, Backspace
+            else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.code)) {
+                e.preventDefault();
+                prevStep();
+            }
+            // R: Reset
+            else if (e.key === 'r' || e.key === 'R') {
+                resetQuiz();
+            }
+            // A: Toggle Answers
+            else if (e.key === 'a' || e.key === 'A') {
+                toggleAnswersOnly();
+            }
+            // Q: Show All Questions
+            else if (e.key === 'q' || e.key === 'Q') {
+                revealAllQuestions();
+            }
+            // T: Toggle Theme
+            else if (e.key === 't' || e.key === 'T') {
+                toggleTheme();
+            }
+        });
+
+        // Click anywhere on screen (excluding buttons) advances remote step
+        window.addEventListener('click', (e) => {
+            if (e.target.closest('.header-controls') || e.target.closest('.q-card')) {
+                return; // Let specific buttons / cards handle their own clicks
+            }
+            nextStep();
+        });
+
+        // Initial render
+        updateDisplay();
+    </script>
+</body>
+</html>
