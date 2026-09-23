@@ -794,20 +794,21 @@ function migrateLegacySubmissions_(ss, payload) {
       var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
       rows.forEach(function (r) {
         var ledger = null;
-        try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
-        var tsk = ledger && ledger._tasks && ledger._tasks[taskName];
-        if (!tsk || !tsk.data) return;
+        try { ledger = JSON.parse(String(r[6] || r[5] || '{}')); } catch (e) { return; }
+        var tsk = (ledger && ledger._tasks && ledger._tasks[taskName]) || (ledger && ledger.rent_math ? { data: ledger, summary: '' } : null);
+        var tskData = tsk && (tsk.data || tsk.answers);
+        if (!tskData) return;
         var email = String(r[3] || '').trim().toLowerCase();
         var name = String(r[1] || '').trim();
         if (!email) { per.noEmail++; noEmailRows++; return; }
         per.migrated++;
         migratedEmails[email] = 1;
         if (dry) return;
-        var data = transformLegacyData_(taskName, tsk.data);
+        var data = transformLegacyData_(taskName, tskData);
         var lock = LockService.getScriptLock(); lock.waitLock(30000);
         try {
           mergeTaskIntoStudent_(ss, email, { name: name, section: section, grade: grade,
-                                             task: taskName, summary: tsk.summary || '', data: data });
+                                             task: taskName, summary: (tsk && tsk.summary) || '', data: data });
         } finally { lock.releaseLock(); }
       });
     });
