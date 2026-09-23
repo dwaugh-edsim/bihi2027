@@ -108,8 +108,8 @@ Canada is a federal system. Government is divided into **three levels** so that 
 ### 1. Federal Government (National)
 * **Where It Meets:** Parliament Buildings in **Ottawa** (House of Commons & Senate).
 * **Constitutional Basis:** **Section 91** of the *Constitution Act, 1867* (enumerated powers for the whole country).
-* **Leader:** **Prime Minister** (Head of Government; leader of the party holding the most seats in Parliament).
-* **Elected Representative:** **Member of Parliament (MP)** (represents a federal riding, e.g., *Dartmouth—Cole Harbour*).
+* **Leader:** **Prime Minister** — **Mark Carney** (Head of Government; leader of the party holding the most seats in Parliament).
+* **Elected Representative:** **Member of Parliament (MP)** — **Darren Fisher** (represents the federal riding of *Dartmouth—Cole Harbour*).
 * **Law Made:** **Statutes / Acts** (e.g., *Criminal Code of Canada*, *Youth Criminal Justice Act*).
 * **Key Responsibilities:**
   * National Defence & the Canadian Armed Forces (Army, Navy, Air Force)
@@ -123,8 +123,8 @@ Canada is a federal system. Government is divided into **three levels** so that 
 ### 2. Provincial Government (Province-Wide)
 * **Where It Meets:** Province House in **Halifax** (Nova Scotia House of Assembly).
 * **Constitutional Basis:** **Section 92** of the *Constitution Act, 1867* (powers of a provincial or local nature).
-* **Leader:** **Premier** (Leader of the provincial government and cabinet in Nova Scotia).
-* **Elected Representative:** **Member of the Legislative Assembly (MLA)** (represents a provincial district, e.g., *Dartmouth South*, *Dartmouth North*).
+* **Leader:** **Premier** — **Tim Houston** (Leader of the provincial government and cabinet in Nova Scotia).
+* **Elected Representative:** **Member of the Legislative Assembly (MLA)** (represents a provincial electoral district, e.g., **Claudia Chender** in *Dartmouth South*, **Tim Halman** in *Dartmouth East*, **Brad McGowan** in *Cole Harbour-Dartmouth*).
 * **Law Made:** **Provincial Statutes & Ministerial Directives** (e.g., the NS public school student cellphone directive).
 * **Key Responsibilities:**
   * Healthcare & Hospitals (Emergency rooms, clinics, doctors, Nova Scotia Health)
@@ -137,8 +137,8 @@ Canada is a federal system. Government is divided into **three levels** so that 
 ### 3. Municipal Government (Local / City)
 * **Where It Meets:** City Hall (Halifax Regional Municipality / HRM).
 * **Constitutional Basis:** **Delegated Powers** — Municipalities are **not** in the Constitution. They exist only because the provincial government creates them under the *Municipal Government Act*. The province gives them power; a city cannot invent powers the province hasn't delegated!
-* **Leader:** **Mayor** (Elected across the whole municipality to lead Regional Council).
-* **Elected Representative:** **City Councillor** (represents a local city district, e.g., *District 5: Dartmouth Centre*).
+* **Leader:** **Mayor** — **Andy Fillmore** (Elected across the whole municipality to lead Regional Council).
+* **Elected Representative:** **City Councillor** (represents a local municipal district, e.g., **Sam Austin** in *District 5: Dartmouth Centre*, **Tony Mancini** in *District 6: Dartmouth East/Burnside*, **Becky Kent** in *District 3: Dartmouth South/Woodside/Eastern Passage*).
 * **Law Made:** **Bylaws** (local rules passed by City Council that only apply within municipal boundaries).
 * **Key Responsibilities:**
   * Public Transit (Halifax Transit buses and Alderney/Woodside ferries)
@@ -155,16 +155,19 @@ Canada is a federal system. Government is divided into **three levels** so that 
 
 A major skill of an active citizen is knowing **who has the power to solve your problem**. When citizens complain to the wrong person, nothing gets fixed.
 
-### 🏛️ Leadership & Representative Matrix
+### 🏛️ Leadership & Representative Matrix (Updated for Dartmouth, NS • Sept 2026)
 
-| Position | Level | Building / Chamber | How They Are Chosen | Who They Represent | What They Handle |
-|:---|:---:|:---|:---|:---|:---|
-| **Prime Minister** | **Federal** | House of Commons, Ottawa | Leader of the political party winning the most seats in Parliament | All of Canada | National government direction, federal cabinet, national defence, national laws. |
-| **Premier** | **Provincial** | Province House, Halifax | Leader of the political party winning the most seats in the provincial election | The Province of Nova Scotia | Provincial government direction, healthcare system, public education, provincial budget. |
-| **Mayor** | **Municipal** | HRM City Hall, Halifax | Elected by a majority vote of all residents across the entire municipality | Halifax Regional Municipality | Leads Regional Council, chairs council debates, acts as the public face of the city. |
-| **Member of Parliament (MP)** | **Federal** | Parliament Hill, Ottawa | Elected by voters in one federal **riding / constituency** | Local riding residents (~90,000 citizens) | Passports, federal taxes, immigration/visas, Canadian military issues, federal laws. |
-| **Member of Legislative Assembly (MLA)** | **Provincial** | Nova Scotia Legislature, Halifax | Elected by voters in one provincial **electoral district** | Local district residents (~15,000–20,000 citizens) | Hospital and ER wait times, school resources, provincial roads/highways, driver licensing. |
-| **City Councillor** | **Municipal** | HRM Council Chambers, City Hall | Elected by voters in one municipal **district** | Local neighbourhood residents | Transit routes/schedules, street snow plowing, neighbourhood potholes, parks, city bylaws. |
+| Position | Level & Seat | Current Office Holder (Sept 2026) | Role Description |
+|:---|:---|:---|:---|
+| **Prime Minister** | **Federal**<br>• *House of Commons (Ottawa)* | **Mark Carney** | Head of national government and federal cabinet; leads policy for Canada. |
+| **Premier** | **Provincial**<br>• *Province House (Halifax)* | **Tim Houston** | Head of provincial government and cabinet; directs healthcare, schools, and provincial budget. |
+| **Mayor** | **Municipal**<br>• *HRM City Hall* | **Andy Fillmore** | Elected by entire municipality; leads Regional Council and speaks for the city. |
+| **Member of Parliament (MP)** | **Federal**<br>• *Parliament Hill (Ottawa)* | **Darren Fisher**<br>*(Dartmouth—Cole Harbour)* | Represents a federal riding; handles passports, taxes, military, and federal laws. |
+| **Member of Legislative Assembly (MLA)** | **Provincial**<br>• *Nova Scotia Legislature (Halifax)* | • **Claudia Chender** *(Dartmouth South)*<br>• **Tim Halman** *(Dartmouth East)*<br>• **Brad McGowan** *(Cole Harbour-Dartmouth)* | Represents a provincial electoral district; handles hospitals, schools, roads, and provincial laws. |
+| **City Councillor** | **Municipal**<br>• *Halifax Regional Council* | • **Sam Austin** *(District 5 - Dartmouth Centre)*<br>• **Tony Mancini** *(District 6 - Dartmouth East/Burnside)*<br>• **Becky Kent** *(District 3 - Dartmouth South/Woodside/Eastern Passage)* | Represents local municipal districts on the Halifax Regional Council; handles local services, transit, parks, and planning. |
+
+### 💡 Notes for Students on Local Representation
+* **MLA & Councillor Breakdown:** Because Dartmouth is subdivided into multiple ridings and municipal districts, your specific **MLA** and **City Councillor** will depend on where you live within Dartmouth (e.g., Downtown/Dartmouth South vs. Dartmouth East/Burnside vs. Eastern Passage/Cole Harbour).
 
 ### 👑 The Crown in Canada (Constitutional Monarchy)
 * **Head of State:** **King Charles III** is Canada’s constitutional monarch. He reigns but does not rule; elected officials run the day-to-day government.
@@ -209,13 +212,14 @@ Test yourself before the quiz. Cover the right-hand column with a sheet of paper
 | **11** | Which level of government is responsible for national defence and currency? | **Federal Government** (*Constitution Act, 1867*, Section 91). |
 | **12** | Which level of government runs hospitals, healthcare, and public schools? | **Provincial Government** (*Constitution Act, 1867*, Section 92). |
 | **13** | Which level of government runs Halifax Transit buses and snow plowing? | **Municipal Government** (HRM). |
-| **14** | What is the title of the political leader of the Federal government? | **Prime Minister**. |
-| **15** | What is the title of the political leader of the Province of Nova Scotia? | **Premier** (Premier Tim Houston). |
-| **16** | What do we call an elected representative who serves in the federal House of Commons? | **Member of Parliament (MP)**. |
-| **17** | What do we call an elected representative who serves in the Nova Scotia House of Assembly? | **Member of the Legislative Assembly (MLA)**. |
-| **18** | Why are municipal powers called "delegated" powers? | Because municipalities have no constitutional status—the province delegates specific powers to them. |
-| **19** | What do we call a local rule passed by City Council (like a noise ban or parking curfew)? | A **Bylaw**. |
-| **20** | If you need to renew your Canadian passport, which elected representative should your family contact? | Your **Member of Parliament (MP)**. |
+| **14** | Who is the Prime Minister of Canada, and what level do they lead? | **Mark Carney** &bull; Federal Government (Ottawa). |
+| **15** | Who is the Premier of Nova Scotia, and what level do they lead? | **Tim Houston** &bull; Provincial Government (Halifax). |
+| **16** | Who is the Mayor of HRM, and what level do they lead? | **Andy Fillmore** &bull; Municipal Government (Halifax Regional Municipality). |
+| **17** | Who is Dartmouth's federal representative in the House of Commons? | **Darren Fisher** (Member of Parliament / MP for *Dartmouth—Cole Harbour*). |
+| **18** | Name Dartmouth MLAs who serve in the Nova Scotia House of Assembly. | **Claudia Chender** (*Dartmouth South*), **Tim Halman** (*Dartmouth East*), **Brad McGowan** (*Cole Harbour-Dartmouth*). |
+| **19** | Why are municipal powers called "delegated" powers? | Because municipalities have no constitutional status—the province delegates specific powers to them. |
+| **20** | What do we call a local rule passed by City Council (like a noise ban or parking curfew)? | A **Bylaw**. |
+| **21** | If you need to renew your Canadian passport, which elected representative should your family contact? | Your **Member of Parliament (MP)** (Darren Fisher in Dartmouth). |
 
 ---
 
