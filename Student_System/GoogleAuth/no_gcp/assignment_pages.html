@@ -186,7 +186,23 @@
     }
   }
 
-  function signIn() { location.href = IDENTITY_URL + '?return=' + encodeURIComponent(location.href.split('#')[0]); }
+  function signIn() {
+    // Open the Identity app in a POPUP; it postMessages the signed identity back to
+    // this page and closes itself, so this page never leaves its own origin.
+    const url = IDENTITY_URL + '?return=' + encodeURIComponent(location.origin);
+    const w = window.open(url, 'r8signin', 'width=520,height=700');
+    if (!w) document.getElementById('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
+  }
+
+  // The Identity popup posts the signed identity here (and closes itself).
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'r8id' || !e.data.id) return;
+    const id = e.data.id;
+    if (!id.email || !id.sig) return;
+    identity = id;
+    try { sessionStorage.setItem(ID_KEY, JSON.stringify(id)); } catch (_) {}
+    showApp();
+  });
   function switchAccount() { try { sessionStorage.removeItem(ID_KEY); } catch (e) {} identity = null; location.reload(); }
 
   // POST helper: text/plain avoids a CORS preflight; resolves with the parsed JSON.

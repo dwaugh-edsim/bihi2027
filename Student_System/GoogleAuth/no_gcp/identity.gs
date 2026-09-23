@@ -34,7 +34,7 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.3.3';
+var IDENTITY_VERSION = 'R8-ID-0.4.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 
 // Path-B handoff: only bounce back to these origins (open-redirect guard).
@@ -117,8 +117,7 @@ function doGet(e) {
     }
     var ts = Date.now();
     var sig = signIdentity_(who, ts);
-    var blob = Utilities.base64EncodeWebSafe(JSON.stringify({ email: who, ts: ts, sig: sig }));
-    return bounceOut_(ret + '#r8id=' + blob);
+    return popupReturn_(ret, { email: who, ts: ts, sig: sig });
   }
 
   return jsonOut_({
@@ -152,22 +151,28 @@ function noticeHtml_(title, body, switchUrl) {
   return htmlOut_(html);
 }
 
-// Bounce back to the calling page. HtmlService runs inside Google's SANDBOXED frame
-// on a googleusercontent.com origin, so it is CROSS-ORIGIN to the top window and
-// JavaScript cannot navigate the top (window.top.location throws). Only a real
-// navigation — a link with target="_top" — can move the top window, and the sandbox
-// allows that on a user gesture. So: a prominent link, plus a best-effort auto-click.
-function bounceOut_(target) {
-  var esc = target.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+// Hand the identity back to the calling page. The assignment page opens this app in
+// a POPUP; that popup is a top-level window, and from inside Google's sandboxed frame
+// `window.top.opener` IS reachable cross-origin (browsers allow the `opener` property,
+// unlike `window.top.location`). So we postMessage the signed identity to the opener
+// and close the popup — the page never leaves its own origin. If there's no opener
+// (app opened directly), fall back to navigating this frame to the page with the
+// identity in the fragment.
+function popupReturn_(target, idObj) {
+  var origin = '';
+  try { origin = target.split('/').slice(0, 3).join('/'); } catch (e) { origin = ''; }
+  var idJson = JSON.stringify(idObj);
+  var fragUrl = target + '#r8id=' + Utilities.base64EncodeWebSafe(idJson);
   var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Signing you in…</title></head>'
-    + '<body style="font-family:system-ui,sans-serif;padding:40px;text-align:center;color:#0f172a">'
+    + '<body style="font-family:system-ui,sans-serif;padding:34px;text-align:center;color:#0f172a">'
     + '<p>Signing you in…</p>'
-    + '<p><a id="go" href="' + esc + '" target="_top" style="display:inline-block;padding:12px 22px;'
-    + 'background:#1e293b;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">'
-    + 'Continue to your assignment</a></p>'
-    + '<p style="color:#64748b;font-size:.85rem">If it does not continue on its own, tap the button.</p>'
-    + '<script>setTimeout(function(){try{document.getElementById("go").click();}catch(e){}},200);</script>'
-    + '</body></html>';
+    + '<p id="fb" style="display:none;color:#475569">If nothing happens, close this window and start again from the assignment page.</p>'
+    + '<script>(function(){'
+    + 'var id=' + idJson + ';var origin=' + JSON.stringify(origin) + ';'
+    + 'try{ if(window.top && window.top.opener){ window.top.opener.postMessage({type:"r8id", id:id}, origin); window.top.close(); return; } }catch(e){}'
+    + 'try{ if(window.top === window){ location.href=' + JSON.stringify(fragUrl) + '; return; } }catch(e){}'
+    + 'var fb=document.getElementById("fb"); if(fb) fb.style.display="block";'
+    + '})();</script></body></html>';
   return htmlOut_(html);
 }
 

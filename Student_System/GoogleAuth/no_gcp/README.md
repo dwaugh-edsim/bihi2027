@@ -26,9 +26,16 @@ unacceptable. In Path B the **page is authored and served on GitHub Pages** (cle
 and Apps Script only performs an **identity handoff**.
 
 **How it works for a student:** open the Pages URL → click *"Sign in with your school
-account"* → briefly handed to the Identity app (Google confirms who they are, consenting
-the first time) → bounced **back to the Pages URL** with a signed identity in the URL
-fragment → they work and Save; saving goes straight from the page to the Vault.
+account"* → the Identity app opens in a **popup** (Google confirms who they are,
+consenting the first time) → the popup **postMessages** the signed identity back to the
+page and closes → the page shows the assignment. Saving/loading go straight from the page
+to the Vault. The page never leaves `github.io`.
+
+> **Why a popup, not a redirect:** an Apps Script web app renders its HTML *inside a
+> sandboxed iframe* on a `googleusercontent.com` origin, cross-origin to the top window —
+> so JS can't move the top (`window.top.location` throws) and even a `target="_top"` link
+> is blocked by the sandbox. A popup is a *top-level* window, and `window.top.opener` **is**
+> reachable cross-origin (browsers allow the `opener` property), so `postMessage` works.
 
 **Deploy (updates the two apps; nothing new to paste per assignment):**
 
