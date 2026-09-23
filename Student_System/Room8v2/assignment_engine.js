@@ -137,8 +137,8 @@ window.R8Assignment = (function () {
     app.appendChild(h('div', 'r8-kicker', cfg.kicker || ''));
     app.appendChild(h('h1', '', cfg.title || ''));
     if (cfg.badge) app.appendChild(h('div', 'r8-badge', cfg.badge));
-    var who = h('div', 'r8-who');
-    app.appendChild(who);
+    var whoEl = h('div', 'r8-who');
+    app.appendChild(whoEl);
     if (cfg.introHtml) app.appendChild(h('div', 'r8-intro', cfg.introHtml));
 
     var restored = h('div', 'r8-restored', 'Restored your last saved work.');
@@ -285,10 +285,10 @@ window.R8Assignment = (function () {
       var known = !!(who && who.known);
       var name = (who && who.name) || '';
       resolvedSection = (who && who.section) || '';
-      who.textContent = '';
-      who.appendChild(document.createTextNode('Signed in as '));
-      who.appendChild(h('b', '', id.email));
-      who.appendChild(document.createTextNode(known ? ' · ' + name + ' · ' + resolvedSection : ' · not on the roster yet — a real page would ask'));
+      whoEl.textContent = '';
+      whoEl.appendChild(document.createTextNode('Signed in as '));
+      whoEl.appendChild(h('b', '', id.email));
+      whoEl.appendChild(document.createTextNode(known ? ' · ' + name + ' · ' + resolvedSection : ' · not on the roster yet — choose below:'));
       if (!known && (cfg.classList || []).length) {
         sectionWrap.textContent = 'Section (not on the roster — choose): ';
         var sel = h('select'); sel.id = 'r8section';
