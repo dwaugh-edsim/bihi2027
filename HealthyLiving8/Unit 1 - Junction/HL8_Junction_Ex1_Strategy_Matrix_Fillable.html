@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HL8 · Junction · Exhibit 1 — Strategy Matrix (Google-auth test)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#111; --muted:#52525b; --line:#000; --soft:#e4e4e7; --ok:#15803d; --bad:#b91c1c; --warn:#b45309; }
+  * { box-sizing: border-box; }
+  body { font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:#52525b;
+         margin:0; padding:22px 12px 60px; }
+  .paper { width:100%; max-width:900px; margin:0 auto; background:#fff; border-radius:6px;
+           box-shadow:0 6px 24px rgba(0,0,0,.35); padding:26px 30px 34px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:700;
+            text-transform:uppercase; letter-spacing:.14em; color:var(--muted); }
+  h1 { font-family:'Roboto Slab',serif; font-size:1.7rem; font-weight:900; margin:4px 0 2px; }
+  .sub { color:var(--muted); font-size:.9rem; margin:0 0 18px; }
+  .statusline { font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:700;
+                text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border-bottom:1.5px solid var(--line);
+                padding-bottom:8px; margin-bottom:16px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .statusline b { color:var(--ink); }
+  h2 { font-family:'Roboto Slab',serif; font-size:1.15rem; font-weight:900; margin:22px 0 6px; }
+  h2 .n { font-family:'JetBrains Mono',monospace; font-size:.8rem; background:#000; color:#fff;
+          padding:2px 7px; border-radius:3px; margin-right:8px; vertical-align:middle; }
+  .hint { font-size:.82rem; color:var(--muted); margin:0 0 8px; }
+  textarea, input[type=text], select { font:inherit; width:100%; padding:8px 10px; border:1.4px solid var(--line);
+                                       border-radius:4px; background:#fff; }
+  textarea { min-height:52px; resize:vertical; line-height:1.5; }
+  .lines textarea { min-height:70px; }
+  .three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .three .cell label { display:block; font-family:'JetBrains Mono',monospace; font-size:.66rem; font-weight:700;
+                       text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:4px; }
+  table.sorter { width:100%; border-collapse:collapse; margin-top:6px; }
+  table.sorter td { border:1.4px solid var(--line); padding:9px 10px; vertical-align:top; }
+  table.sorter td.pick { width:96px; text-align:center; background:#f4f4f5; }
+  table.sorter td.why { width:38%; }
+  .strategy { font-weight:800; font-size:.94rem; }
+  .strategy .d { display:block; font-weight:400; font-size:.82rem; color:var(--muted); line-height:1.35; margin-top:2px; }
+  .bf { display:inline-flex; gap:10px; }
+  .bf label { display:flex; flex-direction:column; align-items:center; gap:3px; font-family:'JetBrains Mono',monospace;
+              font-size:.68rem; font-weight:800; cursor:pointer; }
+  .bf input { transform:scale(1.35); cursor:pointer; }
+  .why input { margin-top:2px; }
+  .exit { border:2.2px solid var(--line); border-radius:5px; padding:14px 16px 16px; margin-top:22px; }
+  .exit .lbl { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:800; text-transform:uppercase;
+               letter-spacing:.1em; margin-bottom:6px; }
+  .outcome { font-family:'JetBrains Mono',monospace; font-size:.62rem; font-weight:600; color:var(--muted);
+             text-transform:uppercase; letter-spacing:.07em; border-top:1px solid var(--soft); padding-top:10px; margin-top:22px; }
+  button { font:inherit; font-weight:700; padding:9px 18px; border-radius:6px; border:0; background:#18181b;
+           color:#fff; cursor:pointer; }
+  #gate { border:1.4px solid var(--line); border-radius:6px; padding:22px; background:#f8fafc; }
+  #status { margin-top:14px; font-weight:700; } #status.ok{color:var(--ok);} #status.bad{color:var(--bad);} #status.warn{color:var(--warn);}
+  #restored { display:none; margin:14px 0 0; padding:9px 12px; border:1px solid #bbf7d0; background:#f0fdf4;
+              border-radius:6px; font-size:.86rem; }
+  .bar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .hintline { color:var(--muted); font-size:.82rem; }
+</style>
+</head>
+<body>
+<div class="paper">
+
+  <div id="gate">
+    <div class="kicker">HL8 · Unit 1 · Junction</div>
+    <h1>Exhibit 1 — Strategy Matrix</h1>
+    <p class="hint" style="margin-bottom:14px">Sign in with your school Google account to open this worksheet. Nothing to type — no PIN.</p>
+    <button type="button" onclick="signIn()">Sign in with your school account</button>
+    <div id="gateMsg" class="hint" style="margin-top:10px"></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="kicker">HL8 · Unit 1 · Junction · Exhibit 1 of 4</div>
+    <h1>Exhibit 1 — The Strategy Matrix</h1>
+    <p class="sub">Sam's group chat fire, 10:38 PM. Trace the triggers, the chain, and the tactical moves.</p>
+
+    <div class="statusline">
+      <span>Signed in as <b id="who">…</b></span>
+      <span id="sectionWrap">Section <select id="section" style="width:auto;display:inline-block;padding:3px 8px"></select></span>
+      <button type="button" onclick="switchAccount()" style="padding:3px 12px;font-size:.78rem;background:#e2e8f0;color:#111">switch</button>
+    </div>
+    <div id="restored">Restored your last saved work for this worksheet.</div>
+
+    <h2><span class="n">1</span>Alarm Watch</h2>
+    <p class="hint">From Side A — the moments Sam's <strong>smoke detector</strong> fired. Write them in order.</p>
+    <div class="lines"><textarea id="alarm" placeholder="1. …&#10;2. …"></textarea></div>
+
+    <h2><span class="n">2</span>The Chain</h2>
+    <p class="hint">Sam posts the clapback at 10:47 PM. Trace three dominoes that fall.</p>
+    <div class="three">
+      <div class="cell"><label>Domino 1</label><input type="text" id="chain1"></div>
+      <div class="cell"><label>Domino 2</label><input type="text" id="chain2"></div>
+      <div class="cell"><label>Domino 3</label><input type="text" id="chain3"></div>
+    </div>
+
+    <h2><span class="n">3</span>The Sorter</h2>
+    <p class="hint">Mark each card <strong>B</strong> = breaks the chain, <strong>F</strong> = feeds the fire. Then say why.</p>
+    <table class="sorter">
+      <tr data-sort="grounding">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_grounding" value="B">B</label><label><input type="radio" name="sort_grounding" value="F">F</label></span></td>
+        <td class="strategy">THE GROUNDING PAUSE<span class="d">Phone face-down, feet flat, sixty seconds. Count 5-4-3-2-1. Then decide.</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+      <tr data-sort="boundary">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_boundary" value="B">B</label><label><input type="radio" name="sort_boundary" value="F">F</label></span></td>
+        <td class="strategy">THE BOUNDARY TEXT<span class="d">"Not doing this tonight. See you at practice." Then exit the chat.</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+      <tr data-sort="kitchen">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_kitchen" value="B">B</label><label><input type="radio" name="sort_kitchen" value="F">F</label></span></td>
+        <td class="strategy">PHONE IN THE KITCHEN<span class="d">The physical circuit breaker. Charger stays downstairs tonight.</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+      <tr data-sort="clapback">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_clapback" value="B">B</label><label><input type="radio" name="sort_clapback" value="F">F</label></span></td>
+        <td class="strategy">THE CLAPBACK<span class="d">Post publicly at 10:47 PM. Defend yourself in front of all 40.</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+      <tr data-sort="scroll">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_scroll" value="B">B</label><label><input type="radio" name="sort_scroll" value="F">F</label></span></td>
+        <td class="strategy">SCROLL TO CALM DOWN<span class="d">Keep reading the chat. "Just to see what they say next."</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+      <tr data-sort="adult">
+        <td class="pick"><span class="bf"><label><input type="radio" name="sort_adult" value="B">B</label><label><input type="radio" name="sort_adult" value="F">F</label></span></td>
+        <td class="strategy">TRUSTED ADULT, FIRST LIGHT<span class="d">Tell Coach — or Mom — the real story before school.</span></td>
+        <td class="why"><input type="text" class="why" placeholder="Why:"></td>
+      </tr>
+    </table>
+
+    <div class="exit">
+      <div class="lbl">4 · Your Call — the exit ticket</div>
+      <p class="hint">Sam should <em>(name one card)</em> — two sentences, using the word <strong>alarm</strong> or <strong>strategist</strong>.</p>
+      <textarea id="call" placeholder="Sam should …"></textarea>
+      <p class="hint" style="margin-top:12px">Then, privately: circle the ONE strategy you would actually try this week.<br>
+        <span style="color:var(--warn)">(On paper this was anonymous. Here it's attached to your school account — leave it blank if you'd rather not.)</span></p>
+      <select id="personal" style="max-width:420px">
+        <option value="">— skip —</option>
+        <option>The Grounding Pause</option>
+        <option>The Boundary Text</option>
+        <option>Phone in the Kitchen</option>
+        <option>The Clapback</option>
+        <option>Scroll to Calm Down</option>
+        <option>Trusted Adult, First Light</option>
+      </select>
+    </div>
+
+    <div class="bar">
+      <button id="saveBtn" type="button" onclick="saveNow()">Save</button>
+      <span id="status" class="hintline">Not saved yet.</span>
+    </div>
+    <div class="outcome">HL8 OUTCOME 1 — Analyse how life skills influence physical, mental, emotional, social &amp; spiritual health · healthy decision-making · healthy ways of coping</div>
+  </div>
+
+</div>
+
+<script>
+  // ================= PIPE CONFIG (same two apps as the pilot page) =================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbzhCVthh1eWPNo2apOZPTJPhMDVcyL7Q7PrSxIlhiEbauTbXnEJBJcUCSAnPg2X4cZi/exec';
+  // ===============================================================================
+  const TASK_NAME = 'HL8 Junction Exhibit 1 — Strategy Matrix (Google-auth test)';
+  const SECTIONS  = ['801-HE', '802-HE', '803-HE', '804-HE'];
+  const ID_KEY    = 'r8id';        // sessionStorage holds ONLY the sign-in token, never work
+  const AUTOSAVE_MS = 2500;
+
+  let identity = null, lastSavedHash = null, timer = null, popupRef = null;
+
+  (function boot() {
+    const m = (location.hash || '').match(/[#&]r8id=([^&]+)/);
+    if (m) {
+      try { identity = JSON.parse(atobUrl(m[1])); sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (e) {}
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    if (!identity) { try { const s = sessionStorage.getItem(ID_KEY); if (s) identity = JSON.parse(s); } catch (e) {} }
+    if (identity && identity.email && identity.sig) showApp(); else document.getElementById('gate').hidden = false;
+  })();
+
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'r8id' || !e.data.id || !e.data.id.sig) return;
+    identity = e.data.id;
+    try { sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (_) {}
+    showApp();
+    try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (_) {}
+  });
+
+  function showApp() {
+    document.getElementById('gate').hidden = true;
+    document.getElementById('app').hidden = false;
+    document.getElementById('who').textContent = identity.email;
+    const sel = document.getElementById('section');
+    sel.innerHTML = '<option value="">—</option>' + SECTIONS.map(s => '<option>' + s + '</option>').join('');
+    const app = document.getElementById('app');
+    app.addEventListener('input', onChange);
+    app.addEventListener('change', onChange);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
+    window.addEventListener('pagehide', flush);
+    restore();
+  }
+
+  function restore() {
+    setStatus('Loading your saved work…', '');
+    post(VAULT_URL, { action: 'load_assignment', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
+      .then(j => {
+        if (j && j.status === 'ok' && j.found) {
+          populate(j.data || {});
+          document.getElementById('restored').style.display = 'block';
+          lastSavedHash = hash();
+          setStatus('Restored your last save' + (j.savedAt ? ' (' + new Date(j.savedAt).toLocaleString() + ')' : '') + '.', 'ok');
+        } else if (j && j.status === 'auth_failed') { onAuthFailed(j.reason); }
+        else { setStatus('Not saved yet.', ''); }
+      })
+      .catch(() => setStatus('Could not load previous work (network). You can still type and Save.', 'warn'));
+  }
+
+  function onChange() { clearTimeout(timer); setStatus('Editing… (autosaves)', ''); timer = setTimeout(save, AUTOSAVE_MS); }
+  function flush() { clearTimeout(timer); if (isDirty()) save(); }
+  function saveNow() { clearTimeout(timer); save(); }
+
+  // ---- field model ----
+  function fields() {
+    const out = { alarm: val('alarm'), chain: [val('chain1'), val('chain2'), val('chain3')], sorter: {}, call: val('call'), personal: val('personal') };
+    document.querySelectorAll('[data-sort]').forEach(row => {
+      const key = row.getAttribute('data-sort');
+      const pick = row.querySelector('input[type=radio]:checked');
+      const why = row.querySelector('input.why');
+      out.sorter[key] = { pick: pick ? pick.value : '', why: why ? why.value : '' };
+    });
+    return out;
+  }
+  function populate(d) {
+    if (!d) return;
+    set('alarm', d.alarm); set('call', d.call); set('personal', d.personal);
+    if (Array.isArray(d.chain)) ['chain1','chain2','chain3'].forEach((id, i) => set(id, d.chain[i]));
+    if (d.sorter) document.querySelectorAll('[data-sort]').forEach(row => {
+      const s = d.sorter[row.getAttribute('data-sort')] || {};
+      if (s.pick) { const r = row.querySelector('input[type=radio][value="' + s.pick + '"]'); if (r) r.checked = true; }
+      const why = row.querySelector('input.why'); if (why) why.value = s.why || '';
+    });
+  }
+  function val(id) { const e = document.getElementById(id); return e ? e.value : ''; }
+  function set(id, v) { const e = document.getElementById(id); if (e && typeof v === 'string') e.value = v; }
+  function hash() { return JSON.stringify(fields()); }
+  function isDirty() { return hash() !== lastSavedHash; }
+
+  function save() {
+    if (!identity) return;
+    if (!isDirty()) return;
+    const f = fields();
+    const requestId = 'r-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    const summary = 'sorter picks: ' + Object.keys(f.sorter).map(k => k + '=' + (f.sorter[k].pick || '?')).join(' ');
+    const payload = { action: 'submit_assignment', email: identity.email, ts: identity.ts, sig: identity.sig,
+                      task: TASK_NAME, section: val('section'), summary, data: f, requestId };
+    const btn = document.getElementById('saveBtn'); btn.disabled = true;
+    setStatus('Saving…', '');
+    post(VAULT_URL, payload).then(j => {
+      btn.disabled = false;
+      if (j && j.status === 'submitted_successfully') { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); }
+      else if (j && j.status === 'auth_failed') { onAuthFailed(j.reason); }
+      else { setStatus('Not saved: ' + ((j && (j.reason || j.message)) || 'unknown'), 'bad'); }
+    }).catch(() => {
+      btn.disabled = false;
+      try { fetch(VAULT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), keepalive: true }); } catch (e) {}
+      try { if (navigator.sendBeacon) navigator.sendBeacon(VAULT_URL, new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' })); } catch (e) {}
+      setStatus('Saved — verifying…', 'warn');
+      setTimeout(() => verify(requestId), 2500);
+    });
+  }
+  function verify(requestId) {
+    fetch(VAULT_URL + '?action=verify&requestId=' + encodeURIComponent(requestId) + '&t=' + Date.now())
+      .then(r => r.json())
+      .then(j => { if (j && j.found) { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); } else setStatus('Not confirmed yet — it will retry.', 'warn'); })
+      .catch(() => setStatus('Could not confirm — it will retry.', 'warn'));
+  }
+  function onAuthFailed(reason) {
+    if (reason === 'stale_or_future' || reason === 'bad_sig' || reason === 'missing') {
+      try { sessionStorage.removeItem(ID_KEY); } catch (e) {}
+      identity = null;
+      const el = document.getElementById('status'); el.className = 'warn';
+      el.innerHTML = 'Your sign-in expired — work is kept on the server. <button type="button" onclick="signIn()" style="padding:3px 10px;font-size:.8rem">Sign in again</button>';
+    } else { setStatus('Not saved: ' + reason, 'bad'); }
+  }
+  function signIn() {
+    popupRef = window.open(IDENTITY_URL + '?return=' + encodeURIComponent(location.origin), 'r8signin', 'width=520,height=700');
+    if (!popupRef) document.getElementById('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
+  }
+  function switchAccount() { try { sessionStorage.removeItem(ID_KEY); } catch (e) {} identity = null; location.reload(); }
+  function post(url, obj) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(obj), keepalive: true }).then(r => r.json());
+  }
+  function setStatus(msg, kind) { const el = document.getElementById('status'); el.textContent = msg; el.className = 'hintline ' + (kind || ''); }
+  function atobUrl(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return atob(s); }
+</script>
+</body>
+</html>
