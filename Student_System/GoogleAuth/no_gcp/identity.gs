@@ -34,7 +34,7 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.3.1';
+var IDENTITY_VERSION = 'R8-ID-0.3.2';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 
 // Path-B handoff: only bounce back to these origins (open-redirect guard).
@@ -128,8 +128,11 @@ function doGet(e) {
   });
 }
 
+// HtmlService (NOT ContentService): ContentService has no HTML mime type, so its
+// output is served as plain text and the browser shows raw markup instead of
+// rendering it (and the redirect never runs).
 function htmlOut_(html) {
-  return ContentService.createTextOutput(html).setMimeType(ContentService.MimeType.HTML);
+  return HtmlService.createHtmlOutput(html).setTitle('Room 8');
 }
 
 function escapeHtml_(s) {
@@ -149,9 +152,9 @@ function noticeHtml_(title, body, switchUrl) {
   return htmlOut_(html);
 }
 
-// Top-level HTML bounce. Uses ContentService (NOT HtmlService) so the redirect is
-// NOT trapped inside a sandboxed iframe. Three fallbacks in case any is stripped:
-// JS redirect, meta refresh, and a manual link.
+// Bounce back to the calling page. HtmlService renders as real HTML; the redirect
+// uses window.top (the app runs in a sandboxed iframe) with a self fallback, plus a
+// meta-refresh and a manual link if scripts are blocked.
 function bounceOut_(target) {
   var esc = target.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   var html = '<!DOCTYPE html><html><head><meta charset="utf-8">'
@@ -159,7 +162,7 @@ function bounceOut_(target) {
     + '<title>Signing you in…</title></head>'
     + '<body style="font-family:system-ui,sans-serif;padding:40px">'
     + '<p>Signing you in…</p><p><a href="' + esc + '">Continue</a></p>'
-    + '<script>location.replace(' + JSON.stringify(target) + ');</script>'
+    + '<script>(function(){var u=' + JSON.stringify(target) + ';try{window.top.location.replace(u);}catch(e){try{window.location.replace(u);}catch(e2){}}})();</script>'
     + '</body></html>';
   return htmlOut_(html);
 }

@@ -50,8 +50,8 @@ fragment → they work and Save; saving goes straight from the page to the Vault
 **Anti-fragility built in:**
 - Save tries a normal CORS `POST` (reads JSON) → falls back to `no-cors` + `sendBeacon`
   → then confirms via `?action=verify&requestId=…` (mirrors your live `api.js`).
-- The handoff bounce is served by `ContentService` (not `HtmlService`) with **three**
-  redirect fallbacks (JS, meta-refresh, manual link), so no sandbox can trap it.
+- The handoff bounce is served by `HtmlService` (ContentService can't serve HTML) with
+  a `window.top` redirect plus meta-refresh and manual-link fallbacks.
 - The identity fragment is stripped from the URL immediately after it's read.
 - The return URL is allowlisted (`RETURN_ALLOWLIST`) against open-redirect abuse.
 - Unsaved work is backed up to `localStorage` and offered for restore.
