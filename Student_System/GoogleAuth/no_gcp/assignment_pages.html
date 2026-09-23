@@ -20,19 +20,18 @@
   label { display: block; font-weight: 600; margin: 10px 0 4px; }
   textarea, input, select { font: inherit; width: 100%; padding: 8px 10px; border: 1px solid var(--line);
                             border-radius: 6px; }
-  textarea { min-height: 120px; resize: vertical; }
+  textarea { min-height: 140px; resize: vertical; }
   button { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 8px; border: 0;
            background: #1e293b; color: #fff; cursor: pointer; margin-top: 14px; }
   button:disabled { opacity: .5; cursor: not-allowed; }
   #status { margin-top: 12px; font-weight: 600; }
   #status.ok { color: var(--ok); } #status.bad { color: var(--bad); } #status.warn { color: var(--warn); }
   .hint { color: var(--muted); font-size: .85rem; font-weight: 400; }
-  #draftBar { display:none; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #fde68a;
-              background: #fffbeb; border-radius: 8px; font-size: .9rem; }
+  #restored { display:none; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #bbf7d0;
+              background: #f0fdf4; border-radius: 8px; font-size: .9rem; }
 </style>
 </head>
 <body>
-  <!-- Signed-out gate -->
   <div id="gate">
     <h2>Sign in to start</h2>
     <p class="hint">Use your school Google account — no PIN, nothing to type.</p>
@@ -40,15 +39,14 @@
     <div id="gateMsg" class="hint" style="margin-top:10px"></div>
   </div>
 
-  <!-- Signed-in assignment -->
   <div id="app" hidden>
     <h1 id="title">New Assignment</h1>
     <p class="sub">Your identity comes from your signed-in <code>@gnspes.ca</code> Google account.</p>
     <header class="who">Signed in as <b id="who">…</b>
-      <button type="button" onclick="signOut()" style="margin:0 0 0 10px;padding:2px 10px;background:#e2e8f0;color:#0f172a;font-size:.8rem">switch</button>
+      <button type="button" onclick="switchAccount()" style="margin:0 0 0 10px;padding:2px 10px;background:#e2e8f0;color:#0f172a;font-size:.8rem">switch</button>
     </header>
 
-    <div id="draftBar">We found unsaved work on this device. <button type="button" onclick="restoreDraft()" style="margin:0;padding:4px 10px;font-size:.8rem">Restore</button></div>
+    <div id="restored">Restored your last saved work for this assignment.</div>
 
     <fieldset id="work">
       <!-- ==== ASSIGNMENT FIELDS GO HERE ==== -->
@@ -57,7 +55,7 @@
       <!-- =================================== -->
     </fieldset>
 
-    <button id="saveBtn" type="button" onclick="save()">Save</button>
+    <button id="saveBtn" type="button" onclick="saveNow()">Save</button>
     <div id="status" class="hint">Not saved yet.</div>
   </div>
 
@@ -68,29 +66,26 @@
   // ==========================================================================
   const TASK_NAME = 'New Assignment (Google-auth pilot)';
   const SECTIONS  = ['901-CIT', '902-CIT', '903-CIT'];   // [] hides the picker
-  const ID_KEY    = 'r8id';   // sessionStorage key
+  const ID_KEY    = 'r8id';          // sessionStorage ONLY holds the sign-in token, never work
+  const AUTOSAVE_MS = 2500;
 
   let identity = null;
+  let lastSavedHash = null;
+  let timer = null;
 
-  // ---- boot: read a handoff fragment, else a stored session, else the gate ----
   (function boot() {
     const m = (location.hash || '').match(/[#&]r8id=([^&]+)/);
     if (m) {
       try { identity = JSON.parse(atobUrl(m[1])); sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); }
-      catch (e) { /* malformed — fall through to gate */ }
-      // strip the fragment so the raw identity isn't left in the URL bar / history
+      catch (e) {}
       history.replaceState(null, '', location.pathname + location.search);
     }
-    if (!identity) {
-      try { const s = sessionStorage.getItem(ID_KEY); if (s) identity = JSON.parse(s); } catch (e) {}
-    }
+    if (!identity) { try { const s = sessionStorage.getItem(ID_KEY); if (s) identity = JSON.parse(s); } catch (e) {} }
     if (identity && identity.email && identity.sig) showApp(); else showGate();
   })();
 
-  function showGate() {
-    document.getElementById('app').hidden = true;
-    document.getElementById('gate').hidden = false;
-  }
+  function showGate() { document.getElementById('app').hidden = true; document.getElementById('gate').hidden = false; }
+
   function showApp() {
     document.getElementById('gate').hidden = true;
     document.getElementById('app').hidden = false;
@@ -101,92 +96,104 @@
       const sel = document.createElement('select'); sel.id = 'section';
       sel.innerHTML = '<option value="">Select your section…</option>' + SECTIONS.map(s => '<option>' + s + '</option>').join('');
       w.insertBefore(sel, w.firstChild); w.insertBefore(lbl, sel);
+      sel.addEventListener('change', onChange);
     }
-    if (localStorage.getItem(draftKey())) document.getElementById('draftBar').style.display = 'block';
+    document.getElementById('answer').addEventListener('input', onChange);
+    // Flush a pending save if the tab is hidden/closed (best effort; autosave is the real safety net)
+    document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
+    window.addEventListener('pagehide', flush);
+    restore();
   }
 
-  // ---- identity handoff: bounce through the Identity app and back here ----
-  function signIn() {
-    const back = location.href.split('#')[0];
-    location.href = IDENTITY_URL + '?return=' + encodeURIComponent(back);
+  // ---- restore from the SERVER (no on-device storage) ----
+  function restore() {
+    setStatus('Loading your saved work…', '');
+    post(VAULT_URL, { action: 'load_assignment', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
+      .then(j => {
+        if (j && j.status === 'ok' && j.found) {
+          if (j.data && typeof j.data.answer === 'string') document.getElementById('answer').value = j.data.answer;
+          if (j.section) { const s = document.getElementById('section'); if (s) s.value = j.section; }
+          document.getElementById('restored').style.display = 'block';
+          lastSavedHash = hash();
+          setStatus('Restored your last save' + (j.savedAt ? ' (' + new Date(j.savedAt).toLocaleString() + ')' : '') + '.', 'ok');
+        } else if (j && j.status === 'auth_failed') {
+          onAuthFailed(j.reason);
+        } else {
+          setStatus('Not saved yet.', '');
+        }
+      })
+      .catch(() => setStatus('Could not load previous work (network). You can still type and Save.', 'warn'));
   }
-  function signOut() { sessionStorage.removeItem(ID_KEY); identity = null; location.reload(); }
 
-  // ---- save: CORS POST first (reads JSON), no-cors + beacon fallback, verify ----
-  async function save() {
+  // ---- typing -> debounced server autosave ----
+  function onChange() {
+    clearTimeout(timer);
+    setStatus('Editing… (autosaves)', '');
+    timer = setTimeout(save, AUTOSAVE_MS);
+  }
+  function flush() { clearTimeout(timer); if (isDirty()) save(); }
+  function saveNow() { clearTimeout(timer); save(); }
+
+  function currentFields() {
+    return { answer: document.getElementById('answer').value, section: (document.getElementById('section') || {}).value || '' };
+  }
+  function hash() { return JSON.stringify(currentFields()); }
+  function isDirty() { return hash() !== lastSavedHash; }
+
+  function save() {
     if (!identity) { showGate(); return; }
-    const btn = document.getElementById('saveBtn');
-    const sectionEl = document.getElementById('section');
-    const data = { answer: document.getElementById('answer').value };
+    if (!isDirty()) { return; }
+    const fields = currentFields();
     const requestId = 'r-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-    const summary = 'answer: ' + (data.answer || '').slice(0, 80);
-    const payload = JSON.stringify({
-      action: 'submit_assignment',
-      email: identity.email, ts: identity.ts, sig: identity.sig,
-      task: TASK_NAME, section: sectionEl ? sectionEl.value : '',
-      summary: summary, data: data, requestId: requestId
-    });
-
-    // local backup first — nothing is lost even if the network fails
-    try { localStorage.setItem(draftKey(), JSON.stringify({ data: data, section: sectionEl ? sectionEl.value : '', at: Date.now() })); } catch (e) {}
-
-    btn.disabled = true; setStatus('Saving…', '');
-    try {
-      const res = await fetch(VAULT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: payload, keepalive: true
+    const summary = 'answer: ' + (fields.answer || '').slice(0, 80);
+    const payload = { action: 'submit_assignment', email: identity.email, ts: identity.ts, sig: identity.sig,
+                      task: TASK_NAME, section: fields.section, summary, data: fields, requestId };
+    const btn = document.getElementById('saveBtn'); btn.disabled = true;
+    setStatus('Saving…', '');
+    post(VAULT_URL, payload)
+      .then(j => {
+        btn.disabled = false;
+        if (j && j.status === 'submitted_successfully') { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); }
+        else if (j && j.status === 'auth_failed') { onAuthFailed(j.reason); }
+        else { setStatus('Not saved: ' + ((j && (j.reason || j.message)) || 'unknown'), 'bad'); }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        // CORS-blocked / network: best-effort no-cors dispatch + beacon, then confirm.
+        try { fetch(VAULT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), keepalive: true }); } catch (e) {}
+        try { if (navigator.sendBeacon) navigator.sendBeacon(VAULT_URL, new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' })); } catch (e) {}
+        setStatus('Saved — verifying…', 'warn');
+        setTimeout(() => verify(requestId), 2500);
       });
-      const j = await res.json();
-      btn.disabled = false;
-      if (j.status === 'submitted_successfully') { onSaved(); return; }
-      if (j.status === 'auth_failed') { onAuthFailed(j.reason); return; }
-      setStatus('Not saved: ' + (j.reason || j.message || 'unknown'), 'bad');
-    } catch (e) {
-      // CORS blocked / network hiccup: dispatch no-cors + beacon, then verify
-      try { fetch(VAULT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload, keepalive: true }); } catch (e2) {}
-      try { if (navigator.sendBeacon) navigator.sendBeacon(VAULT_URL, new Blob([payload], { type: 'text/plain;charset=utf-8' })); } catch (e3) {}
-      setStatus('Saved — verifying…', 'warn'); btn.disabled = false;
-      setTimeout(() => verify(requestId), 2500);
-    }
   }
 
-  async function verify(requestId) {
-    try {
-      const r = await fetch(VAULT_URL + '?action=verify&requestId=' + encodeURIComponent(requestId) + '&t=' + Date.now());
-      const j = await r.json();
-      if (j.found) onSaved(); else setStatus('Not confirmed yet — press Save again.', 'bad');
-    } catch (e) { setStatus('Could not confirm — press Save again.', 'bad'); }
+  function verify(requestId) {
+    fetch(VAULT_URL + '?action=verify&requestId=' + encodeURIComponent(requestId) + '&t=' + Date.now())
+      .then(r => r.json())
+      .then(j => { if (j && j.found) { lastSavedHash = hash(); setStatus('Saved ✓', 'ok'); } else setStatus('Not confirmed yet — keep working; it will retry.', 'warn'); })
+      .catch(() => setStatus('Could not confirm — keep working; it will retry.', 'warn'));
   }
 
-  function onSaved() {
-    setStatus('Saved ✓', 'ok');
-    try { localStorage.removeItem(draftKey()); } catch (e) {}
-    document.getElementById('draftBar').style.display = 'none';
-  }
   function onAuthFailed(reason) {
     if (reason === 'stale_or_future' || reason === 'bad_sig' || reason === 'missing') {
-      setStatus('Your sign-in expired — click “Sign in” again.', 'warn');
       try { sessionStorage.removeItem(ID_KEY); } catch (e) {}
       identity = null;
       const el = document.getElementById('status');
-      el.innerHTML = 'Your sign-in expired. <button type="button" onclick="signIn()" style="margin:0;padding:4px 10px;font-size:.85rem">Sign in again</button>';
+      el.className = 'warn';
+      el.innerHTML = 'Your sign-in expired — work is kept on the server. <button type="button" onclick="signIn()" style="margin:0;padding:4px 10px;font-size:.85rem">Sign in again</button>';
     } else {
       setStatus('Not saved: ' + reason, 'bad');
     }
   }
 
-  function restoreDraft() {
-    try {
-      const d = JSON.parse(localStorage.getItem(draftKey()) || '{}');
-      if (d.data && typeof d.data.answer === 'string') document.getElementById('answer').value = d.data.answer;
-      if (d.section) { const s = document.getElementById('section'); if (s) s.value = d.section; }
-      document.getElementById('draftBar').style.display = 'none';
-      setStatus('Restored your unsaved work.', 'warn');
-    } catch (e) {}
-  }
+  function signIn() { location.href = IDENTITY_URL + '?return=' + encodeURIComponent(location.href.split('#')[0]); }
+  function switchAccount() { try { sessionStorage.removeItem(ID_KEY); } catch (e) {} identity = null; location.reload(); }
 
-  const draftKey = () => 'r8draft::' + (identity ? identity.email : 'anon') + '::' + TASK_NAME;
+  // POST helper: text/plain avoids a CORS preflight; resolves with the parsed JSON.
+  function post(url, obj) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(obj), keepalive: true })
+      .then(r => r.json());
+  }
   function setStatus(msg, kind) { const el = document.getElementById('status'); el.textContent = msg; el.className = kind || 'hint'; }
   function atobUrl(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return atob(s); }
 </script>

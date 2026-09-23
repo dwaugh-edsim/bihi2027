@@ -56,7 +56,11 @@ fragment → they work and Save; saving goes straight from the page to the Vault
   student taps the button once.
 - The identity fragment is stripped from the URL immediately after it's read.
 - The return URL is allowlisted (`RETURN_ALLOWLIST`) against open-redirect abuse.
-- Unsaved work is backed up to `localStorage` and offered for restore.
+- Work is **autosaved to the server** (~2.5s after typing stops, plus on tab hide/close)
+  and **restored from the server** on load, keyed by verified email + task. **No
+  `localStorage` anywhere** — Chromebooks wipe on close, so nothing durable lives on the
+  device (only the transient sign-in token in `sessionStorage`, never work). The Vault's
+  `load_assignment` action serves the restore.
 - An expired signature is caught and offers a one-click re-sign-in.
 - **Wrong account is handled in-app:** a personal (non-`gnspes.ca`) Google account gets a
   clear "Wrong account" page with a **Switch account** button (Google's account chooser,

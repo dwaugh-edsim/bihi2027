@@ -24,7 +24,7 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.2.0';
+var VAULT_VERSION   = 'R8-VAULT-0.3.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 // Path B mints the identity at the page's sign-in handoff and keeps it for the
 // session, so the window must outlast a class period (not 10 minutes).
@@ -155,6 +155,37 @@ function doPost(e) {
     } finally {
       lock.releaseLock();
     }
+  }
+
+  // ---- Restore: return the caller's most recent save for a task (server-side,
+  //      keyed by verified email; no on-device storage anywhere in this system).
+  if (action === 'load_assignment') {
+    var v3 = verifyIdentity_(payload.email, payload.ts, payload.sig);
+    if (!v3.ok) return jsonOut_({ status: 'auth_failed', reason: v3.reason });
+    var task = String(payload.task || '');
+    var sh3 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
+    if (!sh3 || sh3.getLastRow() < 2) return jsonOut_({ status: 'ok', found: false });
+
+    var lock3 = LockService.getScriptLock();
+    lock3.waitLock(30000);
+    var rows;
+    try {
+      rows = sh3.getRange(2, 1, sh3.getLastRow() - 1, 7).getValues();
+    } finally {
+      lock3.releaseLock();
+    }
+    for (var r = rows.length - 1; r >= 0; r--) {
+      if (String(rows[r][1]).toLowerCase() === v3.email && String(rows[r][3]) === task) {
+        var data = {};
+        try { data = JSON.parse(rows[r][5] || '{}'); } catch (e) { data = {}; }
+        return jsonOut_({
+          status: 'ok', found: true,
+          data: data, summary: String(rows[r][4] || ''),
+          section: String(rows[r][2] || ''), savedAt: rows[r][0]
+        });
+      }
+    }
+    return jsonOut_({ status: 'ok', found: false });
   }
 
   if (action === 'get_submissions') {
