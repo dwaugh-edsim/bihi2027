@@ -72,6 +72,7 @@
   let identity = null;
   let lastSavedHash = null;
   let timer = null;
+  let popupRef = null;
 
   (function boot() {
     const m = (location.hash || '').match(/[#&]r8id=([^&]+)/);
@@ -188,10 +189,10 @@
 
   function signIn() {
     // Open the Identity app in a POPUP; it postMessages the signed identity back to
-    // this page and closes itself, so this page never leaves its own origin.
+    // this page, so this page never leaves its own origin.
     const url = IDENTITY_URL + '?return=' + encodeURIComponent(location.origin);
-    const w = window.open(url, 'r8signin', 'width=520,height=700');
-    if (!w) document.getElementById('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
+    popupRef = window.open(url, 'r8signin', 'width=520,height=700');
+    if (!popupRef) document.getElementById('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
   }
 
   // The Identity popup posts the signed identity here (and closes itself).
@@ -202,6 +203,9 @@
     identity = id;
     try { sessionStorage.setItem(ID_KEY, JSON.stringify(id)); } catch (_) {}
     showApp();
+    // Close the popup from the opener: the app can't always close itself, because
+    // Google's sign-in redirects push the popup's history past where close() works.
+    try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (_) {}
   });
   function switchAccount() { try { sessionStorage.removeItem(ID_KEY); } catch (e) {} identity = null; location.reload(); }
 
