@@ -50,8 +50,10 @@ fragment → they work and Save; saving goes straight from the page to the Vault
 **Anti-fragility built in:**
 - Save tries a normal CORS `POST` (reads JSON) → falls back to `no-cors` + `sendBeacon`
   → then confirms via `?action=verify&requestId=…` (mirrors your live `api.js`).
-- The handoff bounce is served by `HtmlService` (ContentService can't serve HTML) with
-  a `window.top` redirect plus meta-refresh and manual-link fallbacks.
+- The handoff bounce returns via `HtmlService` (ContentService can't serve HTML) as a
+  link with `target="_top"` — the only thing that can navigate the top window out of
+  Google's sandboxed frame. It auto-clicks; if the sandbox requires a gesture, the
+  student taps the button once.
 - The identity fragment is stripped from the URL immediately after it's read.
 - The return URL is allowlisted (`RETURN_ALLOWLIST`) against open-redirect abuse.
 - Unsaved work is backed up to `localStorage` and offered for restore.

@@ -34,7 +34,7 @@
  * ============================================================================
  */
 
-var IDENTITY_VERSION = 'R8-ID-0.3.2';
+var IDENTITY_VERSION = 'R8-ID-0.3.3';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 
 // Path-B handoff: only bounce back to these origins (open-redirect guard).
@@ -152,17 +152,21 @@ function noticeHtml_(title, body, switchUrl) {
   return htmlOut_(html);
 }
 
-// Bounce back to the calling page. HtmlService renders as real HTML; the redirect
-// uses window.top (the app runs in a sandboxed iframe) with a self fallback, plus a
-// meta-refresh and a manual link if scripts are blocked.
+// Bounce back to the calling page. HtmlService runs inside Google's SANDBOXED frame
+// on a googleusercontent.com origin, so it is CROSS-ORIGIN to the top window and
+// JavaScript cannot navigate the top (window.top.location throws). Only a real
+// navigation — a link with target="_top" — can move the top window, and the sandbox
+// allows that on a user gesture. So: a prominent link, plus a best-effort auto-click.
 function bounceOut_(target) {
   var esc = target.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-  var html = '<!DOCTYPE html><html><head><meta charset="utf-8">'
-    + '<meta http-equiv="refresh" content="0;url=' + esc + '">'
-    + '<title>Signing you in…</title></head>'
-    + '<body style="font-family:system-ui,sans-serif;padding:40px">'
-    + '<p>Signing you in…</p><p><a href="' + esc + '">Continue</a></p>'
-    + '<script>(function(){var u=' + JSON.stringify(target) + ';try{window.top.location.replace(u);}catch(e){try{window.location.replace(u);}catch(e2){}}})();</script>'
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Signing you in…</title></head>'
+    + '<body style="font-family:system-ui,sans-serif;padding:40px;text-align:center;color:#0f172a">'
+    + '<p>Signing you in…</p>'
+    + '<p><a id="go" href="' + esc + '" target="_top" style="display:inline-block;padding:12px 22px;'
+    + 'background:#1e293b;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">'
+    + 'Continue to your assignment</a></p>'
+    + '<p style="color:#64748b;font-size:.85rem">If it does not continue on its own, tap the button.</p>'
+    + '<script>setTimeout(function(){try{document.getElementById("go").click();}catch(e){}},200);</script>'
     + '</body></html>';
   return htmlOut_(html);
 }
