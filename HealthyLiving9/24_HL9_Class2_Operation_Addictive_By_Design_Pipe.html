@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HL9 · Operation: Addictive by Design</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 820px;
+         margin: 30px auto; padding: 0 18px; line-height: 1.55; color: #0f172a; }
+  h1 { font-size: 1.45rem; margin: 0 0 2px; }
+  .r8-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; font-weight: 700;
+               text-transform: uppercase; letter-spacing: .12em; color: #64748b; }
+  .r8-badge { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .7rem; font-weight: 700;
+              background: #0f172a; color: #fff; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .r8-sub { color: #475569; }
+  .r8-who { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 12px 0; color: #475569; font-size: .92rem; }
+  .r8-who b { color: #0f172a; }
+  .r8-intro { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin: 10px 0 16px; font-size: .95rem; }
+  .r8-intro b { color: #0f172a; }
+  h2 { font-size: 1.08rem; margin: 26px 0 6px; }
+  .r8-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; background: #0f172a; color: #fff;
+            padding: 2px 7px; border-radius: 4px; margin-right: 6px; }
+  .r8-hint { color: #64748b; font-size: .85rem; margin: 0 0 6px; }
+  .r8-label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  .r8-label .r8-hint { font-weight: 400; }
+  textarea, input[type=text], input[type=number], select { font: inherit; width: 100%; padding: 8px 10px;
+    border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+  textarea { resize: vertical; }
+  .r8-checks, .r8-radios { display: flex; flex-wrap: wrap; gap: 8px; }
+  .r8-chip { border: 1px solid #cbd5e1; border-radius: 999px; padding: 4px 12px; font-size: .88rem; cursor: pointer;
+             display: inline-flex; align-items: center; gap: 6px; }
+  .r8-chip input { margin: 0; }
+  .r8-chip:has(input:checked) { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .r8-restored { display: none; margin: 12px 0; padding: 9px 12px; border: 1px solid #bbf7d0; background: #f0fdf4;
+                 border-radius: 6px; font-size: .88rem; }
+  .r8-bar { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
+  button { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 0; background: #1e293b; color: #fff; cursor: pointer; }
+  .r8-status { color: #475569; font-weight: 600; } .r8-status.ok { color: #15803d; } .r8-status.bad { color: #b91c1c; } .r8-status.warn { color: #b45309; }
+  .r8-static { margin: 6px 0; }
+  .r8-gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+  .r8-brief { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; margin: 8px 0; font-size: .92rem; }
+  .r8-brief h3 { margin: 8px 0 2px; font-size: .98rem; }
+  .r8-brief p { margin: 0 0 6px; color: #334155; }
+</style>
+</head>
+<body>
+
+<div id="r8"></div>
+
+<script src="../Student_System/Room8v2/pipe.js"></script>
+<script src="../Student_System/Room8v2/assignment_engine.js"></script>
+<script>
+  // ================= ASSIGNMENT CONFIG =================
+  const ASSIGNMENT = {
+    taskName: 'HL9 Operation Addictive by Design (Class 2)',
+    course: 'HL9',
+    title: 'Operation: Addictive by Design — The Dark UX Challenge',
+    kicker: 'HL9 · UNIT 1 · JUNCTION · CLASS 2',
+    badge: 'HL9 • CLASS 2 • 30 MARKS',
+    classList: ['902-HL', '901-HL', '903-HL'],
+    introHtml:
+      '<p><b>Your role:</b> Behavioural Design Consultant. <b>Your mission:</b> take a boring app and make it ' +
+      'irresistible — then ethically dissect exactly how you did it.</p>' +
+      '<p><b>Marking:</b> Application of Engagement Tactics <b>/12</b> · Creativity &amp; Design Execution <b>/10</b> · ' +
+      'Critical Reflection <b>/8</b>. Step 4 (the reflection) is mandatory.</p>' +
+      '<div class="r8-brief"><h3>📖 THE BRIEFING — five things that make apps sticky</h3>' +
+      '<h3>1 · 🎰 The Slot Machine Effect</h3><p>Variable rewards &amp; dopamine: unpredictable payoffs keep the brain pulling.</p>' +
+      '<h3>2 · ♾️ Eliminating Stopping Cues</h3><p>Infinite scroll, autoplay, zero friction — nothing tells the brain to stop.</p>' +
+      '<h3>3 · 👥 Social Validation &amp; FOMO</h3><p>Likes, streaks, read receipts: the fear of missing the group.</p>' +
+      '<h3>4 · 🔴 Dark Patterns &amp; Strategic Notifications</h3><p>Red badges, phantom notifications, guilt-trip copy.</p>' +
+      '<h3>5 · 🛡️ How to Reclaim Control</h3><p>Grayscale, hidden icons, hard stops — the Wellness Mode.</p>' +
+      '<p><b>Requirement matrix:</b> your design must use at least one feature from <b>each</b> of: Reward System · ' +
+      'Friction Reduction · Social Pressure · Visual/Notification Hacks.</p></div>',
+    sections: [
+      { num: 1, title: 'Choose Your "Boring" App Victim', hint: 'The harder the app is to make addictive, the better the design.', fields: [
+        { id: 's1_base', type: 'select', label: 'Which boring app are you rebuilding?', options: [
+          'Puddle Watch','FlashCard Hero','Chore Tracker','Water Reminder','Dentist Brush Timer',
+          'Locker Combo Diary','Bus Schedule Checker','Basic Calculator','My Own Invention — described below' ] },
+        { id: 's1_name', type: 'text', label: 'Your app\'s official name (keep it, or rebrand it):' },
+        { id: 's1_baseline', type: 'textarea', label: 'What does the app do RIGHT NOW (before your dark makeover)?', rows: 3 },
+      ] },
+      { num: '2A', title: 'Addiction Engine 1 — Reward System 🎰', hint: 'Variable rewards & dopamine.', fields: [
+        { id: 's2a_tricks', type: 'checks', label: 'Tricks used:', options: ['Variable Rewards (Slot Machine)','Mystery Drop','Loot Box','Random Points','Surprise Unlock','Daily Bonus Roulette'] },
+        { id: 's2a_feature', type: 'text', label: 'Feature name:' },
+        { id: 's2a_design', type: 'textarea', label: 'How does it work on screen? (What does the user see, tap, and feel?)', rows: 3 },
+      ] },
+      { num: '2B', title: 'Addiction Engine 2 — Friction Reduction ♾️', hint: 'Eliminate every stopping cue.', fields: [
+        { id: 's2b_tricks', type: 'checks', label: 'Tricks used:', options: ['Infinite Scroll','Autoplay Next','Auto-Advancing Tasks','Instant Loading','One-Tap Repeat','No Natural End Point'] },
+        { id: 's2b_feature', type: 'text', label: 'Feature name:' },
+        { id: 's2b_design', type: 'textarea', label: 'How does it work on screen?', rows: 3 },
+      ] },
+      { num: '2C', title: 'Addiction Engine 3 — Social Pressure 👥', hint: 'FOMO is the engine.', fields: [
+        { id: 's2c_tricks', type: 'checks', label: 'Tricks used:', options: ['Streaks','Public Leaderboard','Likes / Upvotes','Read Receipts','Friend Comparison','Rank Loss Alerts'] },
+        { id: 's2c_feature', type: 'text', label: 'Feature name:' },
+        { id: 's2c_design', type: 'textarea', label: 'How does it work on screen?', rows: 3 },
+      ] },
+      { num: '2D', title: 'Addiction Engine 4 — Visual & Notification Hacks 🔴', hint: 'The attention hijacks.', fields: [
+        { id: 's2d_tricks', type: 'checks', label: 'Tricks used:', options: ['Red Notification Badges','Phantom Notifications','Loss-Aversion Alert','Flashing Animations','Urgency Countdown','Guilt-Trip Messaging'] },
+        { id: 's2d_feature', type: 'text', label: 'Feature name:' },
+        { id: 's2d_design', type: 'textarea', label: 'How does it work on screen?', rows: 3 },
+      ] },
+      { num: 3, title: 'The Investor Pitch', hint: 'Sell it like you mean it.', fields: [
+        { id: 's3_format', type: 'select', label: 'Pitch format:', options: ['Option A — Visual Pitch Deck (3–5 slides)','Option B — App Walkthrough Video (~2 min)','Option C — Interactive Wireframe'] },
+        { id: 's3_link', type: 'text', label: 'Share link (Google Slides / Canva / Figma / Drive video):' },
+        { id: 's3_pitch', type: 'textarea', label: 'Your 60-second elevator pitch to the investors:', rows: 4 },
+        { id: 's3_weapon', type: 'text', label: 'Your secret weapon — the ONE feature that makes your app unstoppable:' },
+      ] },
+      { num: 4, title: 'The Ethical Reflection (Mandatory)', hint: 'A full paragraph each — worth 8 of your 30 marks.', fields: [
+        { id: 's4_trap', type: 'textarea', label: '1 · The Trap — which feature YOU designed would steal the most user time? Why?', rows: 4 },
+        { id: 's4_real', type: 'textarea', label: '2 · The Real World — name one app on YOUR OWN phone that uses a similar feature. How does it affect your screen time?', rows: 4 },
+        { id: 's4_fix', type: 'textarea', label: '3 · The Fix — redesign that feature so it respects the user\'s time while staying helpful.', rows: 4 },
+      ] },
+      { num: 'B', title: 'Bonus — Wellness Mode 🛡️', hint: 'Optional. The reclaim-control section, applied to your own app.', fields: [
+        { id: 's5_defenses', type: 'checks', label: 'Defences built in:', options: ['Grayscale Mode','Hidden Icons / Deep Folders','Hard Stop Timers','Phone in Another Room Nudges','Batched Notifications','No Streak Guilt'] },
+        { id: 's5_mode', type: 'textarea', label: 'Describe your app\'s Wellness Mode — what exactly changes when the user switches it on?', rows: 3 },
+      ] },
+    ],
+  };
+  // =======================================================================================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+</script>
+</body>
+</html>

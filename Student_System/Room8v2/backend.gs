@@ -25,7 +25,7 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.1.0-2026-09-23';
+var CONFIG_VERSION = 'R8-BE-0.2.0-2026-09-23';
 var CONFIG_DEPLOYED = '2026-09-23T00:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
@@ -185,6 +185,19 @@ function getOrCreateTaskColumn_(sheet, task) {
   return col;
 }
 
+function taskDataUnchanged_(ss, email, task, incoming) {
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var row = findStudentRow_(sheet, email);
+  if (row === -1) return false;
+  var raw = String(sheet.getRange(row, S_LEDGER).getValue() || '');
+  if (!raw.trim()) return false;
+  var ledger = null; try { ledger = JSON.parse(raw); } catch (e) { return false; }
+  var t = ledger && ledger._tasks && ledger._tasks[task];
+  if (!t || !t.data) return false;
+  function strip(o) { var c = JSON.parse(JSON.stringify(o || {})); delete c._requestId; delete c._telemetry; return c; }
+  return md5_(JSON.stringify(strip(t.data))) === md5_(JSON.stringify(strip(incoming)));
+}
+
 function mergeTaskIntoStudent_(ss, email, p) {
   var sheet = ss.getSheetByName(TAB_STUDENTS);
   var row = findStudentRow_(sheet, email);
@@ -242,6 +255,10 @@ function requireTeacher_(payload) {
 // ============================================================================
 // doGet
 // ============================================================================
+function doOptions(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok' })).setMimeType(ContentService.MimeType.JSON);
+}
+
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var action = p.action || '';
@@ -289,6 +306,7 @@ function doPost(e) {
     if (action === 'set_roster')        { requireTeacher_(payload); return setRoster_(ss, payload); }
     if (action === 'get_roster_meta')   { requireTeacher_(payload); return getRosterMeta_(ss); }
     if (action === 'get_class_progress'){ requireTeacher_(payload); return getClassProgress_(ss, payload); }
+    if (action === 'get_task_progress') { requireTeacher_(payload); return getTaskProgress_(ss, payload); }
     if (action === 'get_student_history'){ requireTeacher_(payload); return getStudentHistory_(ss, payload); }
     if (action === 'submit_class_log')  { requireTeacher_(payload); return submitClassLog_(ss, payload); }
     if (action === 'set_class_plan')    { requireTeacher_(payload); return setClassPlan_(ss, payload); }
@@ -324,6 +342,12 @@ function studentSubmit_(ss, payload) {
   var log = ss.getSheetByName(TAB_LOG);
   if (requestId && logHasRequest_(log, requestId)) {
     return jsonOut_({ status: 'submitted_successfully', deduplicated: true, task: task, email: id.email });
+  }
+
+  // Autosave spam guard: if the incoming data is identical to what's already stored
+  // for this (email, task), skip the log append and ledger merge entirely.
+  if (taskDataUnchanged_(ss, id.email, task, payload.data || {})) {
+    return jsonOut_({ status: 'submitted_successfully', unchanged: true, task: task, email: id.email });
   }
 
   var who = rosterFor_(ss, id.email);
@@ -409,6 +433,7 @@ function studentTasks_(ss, payload) {
 // ============================================================================
 function setRoster_(ss, payload) {
   var roster = payload.roster || {};
+  var mode = String(payload.mode || 'replace');   // 'replace' clears the tab; 'merge' upserts and never deletes
   var students = Array.isArray(roster.students) ? roster.students : [];
   var seen = {}, rows = [], dupes = 0;
   students.forEach(function (s) {
@@ -419,11 +444,29 @@ function setRoster_(ss, payload) {
   });
   var sh = ss.getSheetByName(TAB_ROSTER);
   var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  var count = rows.length;
   try {
-    if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 7).clearContent();
-    if (rows.length) sh.getRange(2, 1, rows.length, 7).setValues(rows);
+    if (mode === 'merge') {
+      var last = sh.getLastRow();
+      var existing = last > 1 ? sh.getRange(2, 1, last - 1, 7).getValues() : [];
+      var byEmail = {};
+      rows.forEach(function (r) { byEmail[r[0]] = r; });
+      var out = [];
+      existing.forEach(function (er) {
+        var em = String(er[0] || '').trim().toLowerCase();
+        if (!em) return;
+        if (byEmail[em]) { out.push(byEmail[em]); delete byEmail[em]; } else { out.push(er); }
+      });
+      Object.keys(byEmail).forEach(function (em) { out.push(byEmail[em]); });
+      if (last > 1) sh.getRange(2, 1, last - 1, 7).clearContent();
+      if (out.length) sh.getRange(2, 1, out.length, 7).setValues(out);
+      count = out.length;
+    } else {
+      if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 7).clearContent();
+      if (rows.length) sh.getRange(2, 1, rows.length, 7).setValues(rows);
+    }
   } finally { lock.releaseLock(); }
-  return jsonOut_({ status: 'roster_saved', count: rows.length, duplicatesSkipped: dupes, updated: roster.updated || '' });
+  return jsonOut_({ status: 'roster_saved', mode: mode, count: count, duplicatesSkipped: dupes, updated: roster.updated || '' });
 }
 
 function getRosterMeta_(ss) {
@@ -455,6 +498,30 @@ function getClassProgress_(ss, payload) {
     out.push(rec);
   });
   return jsonOut_({ status: 'ok', count: out.length, students: out });
+}
+
+// Marking view for ONE task: who has submitted, who started, with their answers.
+function getTaskProgress_(ss, payload) {
+  var task = String(payload.task || '');
+  if (!task) throw new Error('task is required.');
+  var wantSection = String(payload.section || '').trim();
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues() : [];
+  var students = [], submitted = 0, started = 0;
+  rows.forEach(function (r) {
+    if (!String(r[0] || '').trim()) return;
+    if (wantSection && String(r[2] || '') !== wantSection) return;
+    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
+    var t = ledger && ledger._tasks && ledger._tasks[task];
+    if (!t) return;
+    var written = countCompleted_(t.data) > 0 || !!t._archived;
+    if (written) submitted++; else started++;
+    students.push({ email: String(r[0]), name: String(r[1]), section: String(r[2] || ''),
+                    updated: t.updated || null, summary: t.summary || '', written: written,
+                    data: payload.includeData ? t.data : undefined });
+  });
+  return jsonOut_({ status: 'ok', task: task, section: wantSection,
+                    submitted: submitted, started: started, count: students.length, students: students });
 }
 
 function getStudentHistory_(ss, payload) {

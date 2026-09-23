@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room 8 v2 — assignment template</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 780px;
+         margin: 30px auto; padding: 0 18px; line-height: 1.55; color: #0f172a; }
+  h1 { font-size: 1.4rem; margin: 0 0 2px; }
+  .r8-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; font-weight: 700;
+               text-transform: uppercase; letter-spacing: .12em; color: #64748b; }
+  .r8-badge { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .7rem; font-weight: 700;
+              background: #0f172a; color: #fff; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .r8-sub { color: #475569; }
+  .r8-who { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 12px 0; color: #475569; font-size: .92rem; }
+  .r8-who b { color: #0f172a; }
+  .r8-intro { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin: 10px 0 16px; }
+  h2 { font-size: 1.08rem; margin: 24px 0 6px; }
+  .r8-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; background: #0f172a; color: #fff;
+            padding: 2px 7px; border-radius: 4px; margin-right: 6px; }
+  .r8-hint { color: #64748b; font-size: .85rem; margin: 0 0 6px; }
+  .r8-label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  .r8-label .r8-hint { font-weight: 400; }
+  textarea, input[type=text], input[type=number], select { font: inherit; width: 100%; padding: 8px 10px;
+    border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+  textarea { resize: vertical; }
+  .r8-checks, .r8-radios { display: flex; flex-wrap: wrap; gap: 8px; }
+  .r8-chip { border: 1px solid #cbd5e1; border-radius: 999px; padding: 4px 12px; font-size: .88rem; cursor: pointer;
+             display: inline-flex; align-items: center; gap: 6px; }
+  .r8-chip input { margin: 0; }
+  .r8-chip:has(input:checked) { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .r8-restored { display: none; margin: 12px 0; padding: 9px 12px; border: 1px solid #bbf7d0; background: #f0fdf4;
+                 border-radius: 6px; font-size: .88rem; }
+  .r8-bar { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
+  button { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 0; background: #1e293b; color: #fff; cursor: pointer; }
+  .r8-status { color: #475569; font-weight: 600; } .r8-status.ok { color: #15803d; } .r8-status.bad { color: #b91c1c; } .r8-status.warn { color: #b45309; }
+  .r8-static { margin: 6px 0; }
+  .r8-gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+</style>
+</head>
+<body>
+
+<div id="r8"></div>
+
+<!-- The pipe + engine: adjust the relative path to where this page lives -->
+<script src="../Student_System/Room8v2/pipe.js"></script>
+<script src="../Student_System/Room8v2/assignment_engine.js"></script>
+<script>
+  // ================= ASSIGNMENT CONFIG — this is the only block you edit =================
+  const ASSIGNMENT = {
+    taskName: 'TEMPLATE — Rename Me (Room 8 v2)',
+    course: 'HL9',
+    title: 'Assignment Title Goes Here',
+    kicker: 'COURSE · UNIT · ASSIGNMENT',
+    badge: 'POINTS • CLASS',
+    classList: ['902-CIT', '901-CIT', '903-CIT'],   // fallback picker until the roster knows the student
+    introHtml: '<p>What students read before they start: the scenario, the outcomes, the marking breakdown.</p>',
+    sections: [
+      { title: 'Part One — The Scenario',
+        hint: 'Say what this part is asking for.',
+        fields: [
+          { id: 'p1_notes', type: 'textarea', label: 'First prompt', hint: 'say what a good answer does', rows: 4 },
+          { id: 'p1_choice', type: 'select', label: 'Pick one', options: ['Option A', 'Option B', 'Option C'] },
+        ] },
+      { title: 'Part Two — The Analysis',
+        hint: 'Chips (multi-select) save as a list.',
+        fields: [
+          { id: 'p2_moves', type: 'checks', label: 'Select all that apply', options: ['Move One', 'Move Two', 'Move Three'] },
+          { id: 'p2_why', type: 'text', label: 'Why:' },
+        ] },
+    ],
+  };
+  // =======================================================================================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+# Deploying Room 8 v2
+
+## One-time setup
+
+### 1. The sheet
+Create a new Google Sheet named **"Room 8 v2 — Master"**. Keep it separate from the old
+Master Sheet — v2 is a parallel system.
+
+### 2. The backend
+- In the sheet: **Extensions → Apps Script**.
+- Paste `backend.gs` over the default `Code.gs`.
+- **Project Settings → Script Properties**, add:
+  - `R8_IDENTITY_KEY` — a long random string. **Must be identical** to the same property
+    in the Identity project, or every request fails with `bad_sig`.
+  - `CLASS_LOG_PIN` — the teacher PIN. Gates every teacher write/read (fail-closed: if the
+    property is unset, teacher actions refuse to run).
+- Run **`setup()`** once from the editor (creates the six tabs).
+- **Deploy → New deployment → Web app**:
+  - **Execute as: Me**
+  - **Who has access: Anyone**
+- Copy the `/exec` URL.
+
+### 3. The Identity app
+Already deployed (see `../GoogleAuth/no_gcp/`). v2 reuses it unchanged.
+
+### 4. Pages
+Assignment pages live on GitHub Pages like every other page. Each one sets two constants
+at the top: `IDENTITY_URL` and `BACKEND_URL`.
+
+## The deploy-drift rule
+
+**Saving a file changes nothing.** The `/exec` URL serves the *version* it was deployed
+with. After every edit:
+
+> **Deploy → Manage deployments → pencil → Version: New version → Deploy** (same URL).
+
+The tell: every response carries a `version` string. Probe
+`<backend>/?action=get_health` in an **incognito** window and read it.
+
+## Troubleshooting — every Google error we've hit
+
+| What you see | What it means | Fix |
+|---|---|---|
+| `{"version":"GA-0.1.0"}` / "Room 8 New Assignments backend" | You're talking to the **obsolete OAuth** app (`../GoogleAuth/_obsolete_oauth/`) — wrong file pasted, or wrong URL | Re-paste `backend.gs` / use the v2 `/exec` URL |
+| **404 "Page Not Found — file does not exist"** | The **deployment ID itself is dead or unpublished** — or access is still *Only myself*, which Google hides behind this same page | **Deploy → New deployment** (don't edit), *Me* + *Anyone*, then copy the **Active** row's URL |
+| **403 "Access Denied — You need access"** | The app exists but **Who has access** excludes the caller | Manage deployments → edit → *Anyone* → **Deploy** |
+| Redirect to `gnspes.ca` ServiceLogin | The app is **domain-restricted** (*Anyone within GNSPES/SEPNE*) | For the Backend and Identity, use *Anyone* — the code enforces the domain and gives a friendlier switch-account page |
+| Healthy JSON signed-in, 404 incognito | Access change was made in the dialog but **Deploy was never clicked** | Finish the deploy (new version) |
+| `405` / placeholder URL in console errors | The **browser cached an old page** | Hard-refresh (Ctrl+Shift+R) |
+| `bad_sig` on save | `R8_IDENTITY_KEY` differs between Identity and Backend (or is unset in one) | Make both properties identical |
+| `missing_vault_url` | (pilot only) Identity app's `R8_VAULT_URL` unset | Set it to the Vault `/exec` URL |
+| Bounce page shows as raw text | Old build served HTML through `ContentService` (no HTML mime type) | Redeploy `identity.gs` ≥ R8-ID-0.4.0 |
+
+## Deleting dead deployments
+
+**Manage deployments** can hold several rows; only the **Active** one answers, and the
+others keep URLs that 404. Archive/delete anything that isn't Active — stale URLs have
+cost more debugging time than any code bug in this project.
+
+## The two URL families (don't mix them up)
+
+| URL | App |
+|---|---|
+| `…/macros/s/<deploymentId>/exec` | A **web app** — this is what pages call |
+| `…/a/macros/<domain>/s/<deploymentId>/exec` | Same, as seen for domain-restricted deployments |
+| `…/macros/library/d/<scriptId>/<ver>` | The **library page** — never a web app URL |
+| `…/macros/d/<scriptId>/edit` | The **editor** |
+
+The `version` field in any JSON response is the only reliable tell of *which* code you're
+talking to. Learn it, use it.
