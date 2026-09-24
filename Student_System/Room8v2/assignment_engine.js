@@ -47,7 +47,9 @@ window.R8Assignment = (function () {
       }
       case 'select': {
         var s = h('select'); s.id = id;
-        s.appendChild(h('option', '', f.placeholder || '— choose —'));
+        var defOpt = h('option', '', f.placeholder || '— choose —');
+        defOpt.value = '';
+        s.appendChild(defOpt);
         (f.options || []).forEach(function (o) {
           var opt = h('option', '', o); opt.value = o; s.appendChild(opt);
         });
@@ -270,9 +272,13 @@ window.R8Assignment = (function () {
     function countAnswers(a) {
       if (!a) return 0; var n = 0;
       Object.keys(a).forEach(function (k) {
+        if (k.charAt(0) === '_') return;
         var v = a[k];
         if (Array.isArray(v)) { if (v.length) n++; }
-        else if (typeof v === 'string') { if (v.trim()) n++; }
+        else if (typeof v === 'string') {
+          var t = v.trim();
+          if (t && t.charAt(0) !== '—' && t.indexOf('— choose') === -1) n++;
+        }
         else if (v) n++;
       });
       return n;
