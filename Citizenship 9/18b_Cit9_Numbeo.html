@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CIT9 · Part 2: Numbeo — Halifax vs the World</title>
 
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 <!-- Striped Design Typography (HTML5 UP Striped) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -575,7 +576,10 @@
     if (statusEl) statusEl.textContent = 'Checking for previously completed dossier answers…';
 
     fetch(LEGACY_GAS_URL + '?action=get_class_progress&className=ALL&cache=0')
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res.ok) return null;
+        return res.json().catch(function () { return null; });
+      })
       .then(function (data) {
         if (!data || data.status !== 'success' || !Array.isArray(data.students)) return;
         const normEmail = idEmail.trim().toLowerCase();
@@ -617,8 +621,8 @@
           targetData.global_numbeo.forEach(function (r) {
             const n = r.row;
             if (!n) return;
-            const hfx = document.querySelector('.nb_hfx[data-n="' + n + '"]');
-            const comp = document.querySelector('.nb_comp[data-n="' + n + '"]');
+            const hfx = document.getElementById('nb_hfx_' + n);
+            const comp = document.getElementById('nb_comp_' + n);
             const hVal = r.halifax_price !== undefined ? r.halifax_price : r.halifax;
             const cVal = r.city_price !== undefined ? r.city_price : r.price;
             if (hfx && !hfx.value && hVal !== '' && hVal !== undefined) {
@@ -628,8 +632,8 @@
               comp.value = cVal; restoredCount++;
             }
             calcRow(n);
-            const item = document.querySelector('.nb_item[data-n="' + n + '"]');
-            const city = document.querySelector('.nb_city[data-n="' + n + '"]');
+            const item = document.getElementById('nb_item_' + n);
+            const city = document.getElementById('nb_city_' + n);
             if (item && !item.value && r.item) { item.value = r.item; }
             if (city && !city.value && r.city) { city.value = r.city; }
           });
@@ -657,12 +661,13 @@
               if (api.verify) api.verify(false);
             });
           }
-        } else {
-          if (statusEl && statusEl.textContent.indexOf('Checking') !== -1) statusEl.textContent = '';
         }
       })
-      .catch(function (err) {
-        console.warn('Could not check legacy Numbeo data:', err);
+      .catch(function () {
+        // Silently skip if old legacy GAS is unreachable or returns HTML
+      })
+      .finally(function () {
+        if (statusEl && statusEl.textContent.indexOf('Checking') !== -1) statusEl.textContent = '';
       });
   }
 
