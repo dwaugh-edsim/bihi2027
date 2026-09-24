@@ -1,82 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+ ROOM 8 v2 ASSIGNMENT TEMPLATE — Bicentennial Junior High
+ Mr. Waugh • 2026–27 Academic Year
+═══════════════════════════════════════════════════════════════════════════════
+
+ CORE SYSTEM ARCHITECTURE & MECHANICS:
+
+ 1. AUTHENTICATION & IDENTITY (GOOGLE SSO — ZERO PINs):
+    • Students sign in with their official @gnspes.ca Google account.
+    • No 3-letter PINs, no typing passwords, no roster lookup passwords.
+    • Identity popup/redirect is managed by Room8.pipe (pipe.js).
+    • Official roster mapping automatically resolves the student's name,
+      homeroom, and course section (e.g. 902-CIT, 804-HE).
+    • Off-roster / teacher accounts get a section dropdown (#r8section) that
+      automatically persists and restores across reloads.
+
+ 2. PERSISTENCE & THE SERVER (SAY "SERVER", NEVER "GAS"):
+    • Live cloud storage in the Room 8 Master Google Sheet via unified BACKEND_URL.
+    • Client-facing badges, buttons, tooltips, and confirmation dialogs MUST
+      ALWAYS say "Server" (e.g. "☁️ Server: Verified save", "⚡ Verify Server Write").
+    • Never display "GAS" or "Google Apps Script" to students.
+    • In-tab crash recovery via sessionStorage (r8_tab_draft_*) protects
+      unsaved typing between keystrokes and the 2.5s debounced server autosave.
+    • Offline event listeners queue saves and warn students if Chromebook wifi drops.
+
+ 3. INLINE SVG FAVICON:
+    • Always include the inline data URI SVG favicon to avoid 404 network console
+      errors on GitHub Pages.
+
+ 4. COMPLEX MATRICES & CUSTOM TABLES (STATIC RENDERING PATTERN):
+    • Pre-render complex HTML tables (Numbeo grids, audit matrices, comparison tables)
+      directly into sections[].fields[] as { type: 'static', html: generateTableHtml() }.
+    • NEVER rely on delayed dynamic DOM injection after engine mount; pre-rendering
+      guarantees the table is ready immediately and eliminates blank-table bugs.
+    • Wire custom inputs into the persistence pipeline using the custom hooks:
+      custom: {
+        collect: function (answers) { answers.my_table = ...; },
+        populate: function (data) { ...restore into table inputs... }
+      }
+
+ 5. INTERACTIVE CALCULATORS & SENTENCE GENERATION:
+    • Percentage / formula differences must generate full, human-readable sentences
+      (e.g. "Halifax price is 233% higher" or "Halifax price is 25% lower")
+      matching the styled worked example row, rather than truncated codes (-25% (Hali).
+    • Allot sufficient width (28%–32%) to the % difference column so sentences fit.
+    • Provide dual triggers: auto-calculate live on input/blur, AND support the manual
+      [Calc %] button with clear visual feedback:
+        - When clicked, button flashes "✓ Done" with green background (#15803d) for 900ms.
+        - Result box briefly highlights to confirm calculation.
+        - If inputs are empty/invalid, highlight the missing input with a red outline
+          so the student immediately sees what needs to be filled in.
+
+ HOW TO CREATE A NEW ASSIGNMENT:
+   1. Copy this file into your course folder (e.g., "Citizenship 9/" or "HealthyLiving8/").
+   2. Ensure script tags point to pipe.js and assignment_engine.js:
+        src="../Student_System/Room8v2/pipe.js"
+        src="../Student_System/Room8v2/assignment_engine.js"
+   3. Update ASSIGNMENT config (taskName, course, title, sections, fields).
+═══════════════════════════════════════════════════════════════════════════════
+-->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Room 8 v2 — assignment template</title>
+<title>Room 8 v2 Assignment Template</title>
+
+<!-- Inline SVG Favicon (prevents 404 console errors) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+<!-- Modern Typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&family=Open+Sans+Condensed:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 780px;
-         margin: 30px auto; padding: 0 18px; line-height: 1.55; color: #0f172a; }
-  h1 { font-size: 1.4rem; margin: 0 0 2px; }
-  .r8-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; font-weight: 700;
-               text-transform: uppercase; letter-spacing: .12em; color: #64748b; }
-  .r8-badge { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .7rem; font-weight: 700;
-              background: #0f172a; color: #fff; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
-  .r8-sub { color: #475569; }
-  .r8-who { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 12px 0; color: #475569; font-size: .92rem; }
-  .r8-who b { color: #0f172a; }
-  .r8-intro { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin: 10px 0 16px; }
-  h2 { font-size: 1.08rem; margin: 24px 0 6px; }
-  .r8-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; background: #0f172a; color: #fff;
-            padding: 2px 7px; border-radius: 4px; margin-right: 6px; }
-  .r8-hint { color: #64748b; font-size: .85rem; margin: 0 0 6px; }
-  .r8-label { display: block; font-weight: 600; margin: 12px 0 4px; }
-  .r8-label .r8-hint { font-weight: 400; }
-  textarea, input[type=text], input[type=number], select { font: inherit; width: 100%; padding: 8px 10px;
-    border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
-  textarea { resize: vertical; }
-  .r8-checks, .r8-radios { display: flex; flex-wrap: wrap; gap: 8px; }
-  .r8-chip { border: 1px solid #cbd5e1; border-radius: 999px; padding: 4px 12px; font-size: .88rem; cursor: pointer;
-             display: inline-flex; align-items: center; gap: 6px; }
-  .r8-chip input { margin: 0; }
-  .r8-chip:has(input:checked) { background: #0f172a; color: #fff; border-color: #0f172a; }
-  .r8-restored { display: none; margin: 12px 0; padding: 9px 12px; border: 1px solid #bbf7d0; background: #f0fdf4;
-                 border-radius: 6px; font-size: .88rem; }
-  .r8-bar { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
-  button { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 0; background: #1e293b; color: #fff; cursor: pointer; }
-  .r8-status { color: #475569; font-weight: 600; } .r8-status.ok { color: #15803d; } .r8-status.bad { color: #b91c1c; } .r8-status.warn { color: #b45309; }
-  .r8-static { margin: 6px 0; }
-  .r8-gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+  :root {
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --brand-primary: #c94663;
+    --brand-hover: #d85773;
+    --accent-blue: #2563eb;
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --border-accent: #f0ccd4;
+  }
+
+  body {
+    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    line-height: 1.55;
+  }
+
+  #r8 {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 80px 20px;
+  }
+
+  /* Kicker & Typography */
+  .r8-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+  }
+  .r8-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: #1e293b;
+    color: #ffffff;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .r8-who {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin: 12px 0 16px 0;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+  }
+  .r8-who b { color: var(--text-main); }
+  .r8-intro {
+    background: #fdfafb;
+    border: 1px solid var(--border-accent);
+    border-left: 4px solid var(--brand-primary);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0 24px 0;
+    font-size: 0.96rem;
+  }
+  .r8-intro p { margin: 0 0 8px 0; }
+  .r8-intro p:last-child { margin-bottom: 0; }
+
+  /* Sections */
+  h2 {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    color: #1e293b;
+    border-bottom: solid 1px var(--border-color);
+    padding-bottom: 6px;
+    margin: 34px 0 10px 0;
+  }
+  .r8-num {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: var(--brand-primary);
+    color: #ffffff;
+    padding: 2px 9px;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+  .r8-hint { color: #64748b; font-size: 0.88rem; margin: 0 0 8px 0; }
+  .r8-label {
+    display: block;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    color: #1e293b;
+    margin: 16px 0 5px 0;
+  }
+  .r8-label .r8-hint { font-family: 'Source Sans Pro', sans-serif; font-weight: 400; font-size: 0.85rem; color: #64748b; }
+
+  /* Form Controls */
+  textarea, input[type=text], input[type=number], select {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    padding: 9px 12px;
+    border: solid 1px #cbd5e1;
+    border-radius: 5px;
+    background: #ffffff;
+    color: var(--text-main);
+    box-sizing: border-box;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input[type=number] { max-width: 240px; }
+  textarea { resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(201, 70, 99, 0.18);
+    outline: none;
+    background: #ffffff;
+  }
+
+  /* Chips & Radios */
+  .r8-checks, .r8-radios { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .r8-chip {
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    transition: all .15s ease;
+  }
+  .r8-chip:hover { background: #fdf2f4; border-color: var(--border-accent); }
+  .r8-chip:has(input:checked) { background: #1e293b; color: #ffffff; border-color: #1e293b; }
+
+  /* Bottom Actions Bar */
+  .r8-bar {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  button {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.96rem;
+    padding: 9px 22px;
+    border-radius: 5px;
+    border: none;
+    background: var(--brand-primary);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color .2s;
+  }
+  button:hover { background-color: var(--brand-hover); }
+  button.mini { padding: 4px 10px; font-size: 0.8rem; background: var(--accent-blue); }
+  button.mini:hover { background: #1d4ed8; }
+
+  /* Interactive Matrix Table */
+  table.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  table.matrix th {
+    background: #1e293b;
+    color: #ffffff;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  table.matrix td { border: 1px solid #e2e8f0; padding: 6px 10px; vertical-align: middle; }
+  table.matrix tbody tr:nth-child(even) { background: #f8fafc; }
+  table.matrix tbody tr:hover { background: #fdf2f4; }
+  table.matrix input { padding: 6px 8px; font-size: 0.88rem; }
+  table.matrix input.nb_diff {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #be185d;
+    background: #ffffff;
+  }
+
+  /* Gate Box */
+  .r8-gate {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--brand-primary);
+    border-radius: 8px;
+    padding: 32px 28px;
+    margin-top: 40px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  }
+  .r8-gate h1 { font-size: 1.7rem; margin-bottom: 8px; }
+  .r8-gate .r8-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 20px; }
 </style>
 </head>
 <body>
 
 <div id="r8"></div>
 
-<!-- The pipe + engine: adjust the relative path to where this page lives -->
+<!-- Pipeline dependencies: adjust relative path based on file location -->
 <script src="../Student_System/Room8v2/pipe.js"></script>
 <script src="../Student_System/Room8v2/assignment_engine.js"></script>
+
 <script>
-  // ================= ASSIGNMENT CONFIG — this is the only block you edit =================
+  // ================= CALCULATION HELPER WITH INTERACTIVE FEEDBACK =================
+  // Implements live calculation, sentence formatting, and tactile button confirmation.
+  window.calcRow = function (n, isManual) {
+    const hfxEl  = document.getElementById('calc_a_' + n);
+    const compEl = document.getElementById('calc_b_' + n);
+    const out    = document.getElementById('calc_diff_' + n);
+    const btn    = document.getElementById('calc_btn_' + n);
+    if (!out) return;
+
+    const valA = parseFloat((hfxEl || {}).value);
+    const valB = parseFloat((compEl || {}).value);
+
+    // Empty/invalid input handling: outline missing field if user clicked [Calc %]
+    if (isNaN(valA) || isNaN(valB) || valB <= 0) {
+      if (isManual) {
+        if (isNaN(valA) && hfxEl) {
+          hfxEl.focus();
+          hfxEl.style.outline = '2px solid var(--brand-primary)';
+          setTimeout(() => hfxEl.style.outline = '', 1200);
+        } else if ((isNaN(valB) || valB <= 0) && compEl) {
+          compEl.focus();
+          compEl.style.outline = '2px solid var(--brand-primary)';
+          setTimeout(() => compEl.style.outline = '', 1200);
+        }
+      }
+      return;
+    }
+
+    const pct = ((valA - valB) / valB) * 100;
+    const rounded = Math.round(Math.abs(pct));
+    let sentence = '';
+
+    if (rounded === 0 || pct === 0) {
+      sentence = 'Same price in Halifax (0% diff)';
+    } else if (pct > 0) {
+      sentence = 'Halifax price is ' + rounded + '% higher';
+    } else {
+      sentence = 'Halifax price is ' + rounded + '% lower';
+    }
+
+    out.value = sentence;
+    out.title = sentence;
+
+    // Tactile button feedback when explicitly clicked
+    if (isManual && btn) {
+      const origText = btn.textContent;
+      btn.textContent = '✓ Done';
+      btn.style.background = '#15803d';
+      out.style.background = '#fce7f3';
+      setTimeout(() => {
+        btn.textContent = origText;
+        btn.style.background = '';
+        out.style.background = '';
+      }, 900);
+    }
+
+    if (window.Room8 && Room8.touch) Room8.touch();
+  };
+
+  // Helper to generate pre-rendered static HTML matrix
+  function generateInteractiveTableHtml() {
+    let rows = '';
+
+    // Worked Example Row (styled pink)
+    rows += '<tr style="background: #fdf2f8;">' +
+      '<td style="color: #be185d; font-weight: 700;">Sample Item (Worked Example)</td>' +
+      '<td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td style="font-size: 0.8rem; color: #be185d; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
+      '</tr>';
+
+    // Interactive Student Rows
+    const SAMPLE_ITEMS = [
+      { num: 1, label: '1. Meal, Inexpensive Restaurant', city: 'Delhi, India' },
+      { num: 2, label: '2. 1.5L Bottle of Water', city: 'Madrid, Spain' }
+    ];
+
+    SAMPLE_ITEMS.forEach(item => {
+      const n = item.num;
+      rows += '<tr>' +
+        '<td><b>' + item.label + '</b></td>' +
+        '<td><input type="number" step="0.01" id="calc_a_' + n + '" placeholder="$ CAD" oninput="calcRow(' + n + ', false)" onblur="calcRow(' + n + ', false)"></td>' +
+        '<td><input type="text" id="calc_city_' + n + '" value="' + item.city + '" readonly style="background:#f1f5f9; font-weight:600;"></td>' +
+        '<td><input type="number" step="0.01" id="calc_b_' + n + '" placeholder="$ CAD" oninput="calcRow(' + n + ', false)" onblur="calcRow(' + n + ', false)"></td>' +
+        '<td>' +
+          '<div style="display:flex; gap:6px; align-items:center;">' +
+            '<input type="text" class="nb_diff" id="calc_diff_' + n + '" placeholder="% Difference" style="flex:1; min-width:130px;">' +
+            '<button type="button" class="mini" id="calc_btn_' + n + '" onclick="calcRow(' + n + ', true)" style="white-space:nowrap;">Calc %</button>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+    });
+
+    return '<div style="overflow-x:auto;">' +
+      '<table class="matrix"><thead><tr>' +
+        '<th style="width:24%;">ITEM</th>' +
+        '<th style="width:14%;">HALIFAX PRICE (CAD)</th>' +
+        '<th style="width:18%;">COMPARISON CITY</th>' +
+        '<th style="width:14%;">CITY PRICE (CAD)</th>' +
+        '<th style="width:30%;">% DIFFERENCE</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>' +
+      '</div>';
+  }
+
+  // ================= ASSIGNMENT CONFIG =================
   const ASSIGNMENT = {
     taskName: 'TEMPLATE — Rename Me (Room 8 v2)',
-    course: 'HL9',
+    course: 'CIT9',                                     // CIT9, HL9, or HL8
     title: 'Assignment Title Goes Here',
     kicker: 'COURSE · UNIT · ASSIGNMENT',
     badge: 'POINTS • CLASS',
-    classList: ['902-CIT', '901-CIT', '903-CIT'],   // fallback picker until the roster knows the student
-    introHtml: '<p>What students read before they start: the scenario, the outcomes, the marking breakdown.</p>',
+    classList: ['901-CIT', '902-CIT', '903-CIT'],      // Fallback sections for off-roster accounts
+    introHtml:
+      '<p>What students read before they start: the scenario, the outcomes, and guidelines.</p>' +
+      '<p><b>New this round:</b> sign in with your <code>@gnspes.ca</code> account — no PINs needed. Work autosaves live to the server.</p>',
     sections: [
-      { title: 'Part One — The Scenario',
-        hint: 'Say what this part is asking for.',
+      {
+        num: '1',
+        title: 'Section One — Questions & Prompts',
+        hint: 'Standard form inputs automatically serialize and restore.',
         fields: [
-          { id: 'p1_notes', type: 'textarea', label: 'First prompt', hint: 'say what a good answer does', rows: 4 },
-          { id: 'p1_choice', type: 'select', label: 'Pick one', options: ['Option A', 'Option B', 'Option C'] },
-        ] },
-      { title: 'Part Two — The Analysis',
-        hint: 'Chips (multi-select) save as a list.',
+          { id: 'p1_notes', type: 'textarea', label: '1 · Written Analysis:', hint: 'Explain your reasoning with evidence', rows: 4 },
+          { id: 'p1_choice', type: 'select', label: '2 · Policy Selection:', options: ['Option A: Expand Transit', 'Option B: Rent Stabilization', 'Option C: Incentive Grants'] },
+          { id: 'p1_checks', type: 'checks', label: '3 · Key Factors Identified:', options: ['Affordability', 'Supply Chain', 'Zoning Laws', 'Inflation'] }
+        ]
+      },
+      {
+        num: '2',
+        title: 'Section Two — Interactive Matrix & Calculations',
+        hint: 'Demonstrates pre-rendered static table with custom collect/populate hooks.',
         fields: [
-          { id: 'p2_moves', type: 'checks', label: 'Select all that apply', options: ['Move One', 'Move Two', 'Move Three'] },
-          { id: 'p2_why', type: 'text', label: 'Why:' },
-        ] },
-    ],
+          { id: 'interactiveTableWrap', type: 'static', html: generateInteractiveTableHtml() }
+        ]
+      }
+    ]
   };
-  // =======================================================================================
+
+  // ================= SERVER ENDPOINTS & INITIALIZATION =================
+  // Official deployed Google Apps Script webhooks (Room 8 Master backend)
   const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
   const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
 
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
-  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+
+  // Mount with custom serialization hooks for custom static tables
+  R8Assignment.mount({
+    mount: document.getElementById('r8'),
+    pipe: Room8,
+    assignment: ASSIGNMENT,
+    custom: {
+      collect: function (answers) {
+        // Collect custom table rows
+        answers.custom_matrix = [1, 2].map(function (n) {
+          const a = document.getElementById('calc_a_' + n);
+          const b = document.getElementById('calc_b_' + n);
+          const diff = document.getElementById('calc_diff_' + n);
+          return {
+            row: n,
+            val_a: a ? a.value : '',
+            val_b: b ? b.value : '',
+            difference: diff ? diff.value : ''
+          };
+        });
+      },
+      populate: function (data) {
+        // Restore custom table rows
+        (data.custom_matrix || []).forEach(function (r) {
+          const n = r.row;
+          const a = document.getElementById('calc_a_' + n);
+          const b = document.getElementById('calc_b_' + n);
+          const diff = document.getElementById('calc_diff_' + n);
+          if (a && r.val_a) a.value = r.val_a;
+          if (b && r.val_b) b.value = r.val_b;
+          if (diff && r.difference) diff.value = r.difference;
+          if (r.val_a && r.val_b) calcRow(n, false);
+        });
+      }
+    }
+  });
 </script>
 </body>
 </html>
