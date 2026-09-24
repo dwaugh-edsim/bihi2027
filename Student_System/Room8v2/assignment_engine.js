@@ -124,6 +124,23 @@ window.R8Assignment = (function () {
     var custom = opts.custom || {};
     var task = cfg.taskName;
 
+    // ---- config-export mode (used by the GAS Station's mark-sheet view) ----
+    // Loaded in a hidden same-origin iframe with ?r8config=1, the page answers
+    // one question — "what is your assignment config?" — and boots nothing else.
+    // No sign-in UI, no popup, no autosave. Keeps mark sheets drift-free:
+    // the live page IS the source of truth for its own layout.
+    if (typeof location !== 'undefined' && /[?&]r8config=1/.test(location.search)) {
+      try {
+        window.addEventListener('message', function (e) {
+          if (e.data && e.data.type === 'r8configRequest') {
+            parent.postMessage({ type: 'r8config', taskName: task, assignment: cfg }, location.origin);
+          }
+        });
+        parent.postMessage({ type: 'r8config', taskName: task, assignment: cfg }, location.origin);
+      } catch (e) {}
+      return;
+    }
+
     // ---- inject styles ----
     (function injectStyles() {
       if (typeof document === 'undefined' || document.getElementById('r8-engine-styles')) return;

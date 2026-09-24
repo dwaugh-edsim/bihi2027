@@ -68,6 +68,18 @@ Numbeo matrix) and `custom.exportExtra(answers)` (extra Markdown in the export).
   from the opener (Google's sign-in redirects can push the popup's history past its own
   `close()`).
 
+## Mark-sheet registration (one line)
+
+The GAS Station renders mark sheets by loading the live page in a hidden iframe and asking
+the engine for its config (`?r8config=1`). For a NEW assignment to get the original-layout
+mark sheet, add one line to `PAGES` in `gas_station.html`:
+
+```js
+'Exact taskName from the ASSIGNMENT config': '../../<Folder>/<page>.html',
+```
+
+Miss it and nothing breaks — the Station falls back to a plain answers list.
+
 ## Checklist before you link it from Google Classroom
 
 - [ ] `taskName` is unique and exact (it's the ledger key — renaming it orphans data)

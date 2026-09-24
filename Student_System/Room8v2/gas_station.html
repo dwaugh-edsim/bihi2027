@@ -44,13 +44,32 @@
   .pill.none { background: #f1f5f9; color: var(--muted); }
   .pill.fb   { background: #ede9fe; color: #6d28d9; }
   .count { color: var(--muted); font-size: .8rem; margin-left: 6px; }
-  /* detail drawer */
+  /* detail drawer / mark sheet */
   #detail { display: none; }
-  #detail .answers { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
-                     max-height: 300px; overflow: auto; margin: 8px 0 14px; }
+  #detail .answers { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
+                     max-height: 60vh; overflow: auto; margin: 8px 0 14px; }
   #detail .answers dt { font-weight: 700; font-size: .78rem; color: var(--muted); margin-top: 8px; }
   #detail .answers dd { margin: 1px 0 0 0; white-space: pre-wrap; font-size: .9rem; }
   #detail .answers dd.empty { color: var(--muted); font-style: italic; }
+  .mk-title { font-weight: 800; font-size: 1.05rem; }
+  .mk-badge { display: inline-block; font-size: .7rem; font-weight: 700; background: #f1f5f9;
+              border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--muted); margin: 4px 0 10px; }
+  .mk-sec { font-size: .95rem; margin: 16px 0 2px; }
+  .mk-num { display: inline-block; background: #232323; color: #fff; border-radius: 6px;
+            font-size: .75rem; padding: 1px 7px; margin-right: 6px; }
+  .mk-hint { color: var(--muted); font-size: .8rem; margin: 0 0 6px; font-weight: 400; }
+  .mk-static { color: var(--muted); font-size: .78rem; border-left: 3px solid var(--line); padding: 2px 8px; margin: 6px 0; }
+  .mk-field { margin: 10px 0; }
+  .mk-label { font-weight: 700; font-size: .85rem; }
+  .mk-val { white-space: pre-wrap; background: var(--panel); border: 1px solid var(--line);
+            border-radius: 6px; padding: 6px 10px; margin-top: 3px; font-size: .9rem; }
+  .mk-val.empty { color: var(--muted); font-style: italic; }
+  .mk-chips { margin-top: 3px; }
+  .mk-chip { display: inline-block; font-size: .8rem; border: 1px solid var(--line); border-radius: 999px;
+             padding: 2px 9px; margin: 2px 3px; color: var(--muted); }
+  .mk-chip.on { background: #dcfce7; border-color: #86efac; color: #166534; font-weight: 600; }
+  .mk-json { font-size: .72rem; background: #0f172a; color: #e2e8f0; border-radius: 6px;
+             padding: 8px; overflow: auto; max-height: 220px; margin: 3px 0 0; }
   .meta { font-size: .8rem; color: var(--muted); }
   .hidden { display: none; }
   footer { margin-top: 26px; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
@@ -117,7 +136,7 @@
       <b id="dName"></b>
       <span class="meta" id="dMeta"></span>
     </div>
-    <dl class="answers" id="dAnswers"></dl>
+    <div class="answers" id="dAnswers"></div>
     <label for="dFb">Teacher feedback <span class="meta">(visible to the student on their next load of the assignment)</span></label>
     <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
     <div class="row" style="margin-top:10px">
@@ -329,14 +348,128 @@ function render() {
 }
 
 // =========================================================================
-//  Detail drawer: answers + feedback editor
+//  Mark sheet: render the student's answers in the ORIGINAL assignment layout
 // =========================================================================
-function flatAnswers(s) {
+// taskName -> the live assignment page (relative to this station file).
+// Matching normalizes dashes/whitespace, so em/en/hyphen all line up.
+// paths are relative to THIS file (Student_System/Room8v2/) — repo root is ../../
+const PAGES = {
+  'HL9 Operation Addictive by Design (Class 2)'       : '../../HealthyLiving9/24_HL9_Class2_Operation_Addictive_By_Design_Pipe.html',
+  'HL9 Sleep Clinic 10-Station Audit'                 : '../../HealthyLiving9/HL9_Class1_10_Station_Audit_Template_Pipe.html',
+  'HL8 5-Dimension Systems Audit'                     : '../../HealthyLiving8/HL8_5_Dimensions_System_Audit_Interactive.html',
+  'Citizenship 9 — Part 2: Numbeo — Halifax vs the World' : '../../Citizenship%209/18b_Cit9_Numbeo.html',
+  'Citizenship 9 — Real Issues Case File #1: The Rent We Pay' : '../../Citizenship%209/18_Cit9_Real_Issues_Dossier_Pipe.html'
+};
+function norm(s) { return String(s || '').toLowerCase().replace(/[\u2012\u2013\u2014\u2015]/g, '-').replace(/\s+/g, ' ').trim(); }
+const CONFIGS = {};       // taskName -> assignment config (from the live page itself)
+const CONFIG_MISS = {};
+
+function findPage(task) {
+  const want = norm(task);
+  const keys = Object.keys(PAGES);
+  for (let i = 0; i < keys.length; i++) if (norm(keys[i]) === want) return PAGES[keys[i]];
+  return null;
+}
+
+// Ask the live assignment page for its own config, in a hidden same-origin
+// iframe (?r8config=1 mode in the engine). Source of truth = the page, so a
+// relabeled question shows up relabeled here the moment the page ships.
+function fetchConfig(task) {
+  return new Promise(function (resolve) {
+    if (CONFIGS[task]) { resolve(CONFIGS[task]); return; }
+    const url = findPage(task);
+    if (!url || CONFIG_MISS[task]) { resolve(null); return; }
+    let done = false;
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.setAttribute('aria-hidden', 'true');
+    function cleanup() {
+      window.removeEventListener('message', onMsg);
+      setTimeout(function () { try { iframe.remove(); } catch (e) {} }, 100);
+    }
+    function onMsg(e) {
+      if (done || e.origin !== location.origin) return;
+      const d = e.data;
+      if (d && d.type === 'r8config' && norm(d.taskName) === norm(task)) {
+        done = true; cleanup();
+        CONFIGS[task] = d.assignment;
+        resolve(d.assignment);
+      }
+    }
+    window.addEventListener('message', onMsg);
+    iframe.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'r8config=1';
+    iframe.onload = function () {
+      try { iframe.contentWindow.postMessage({ type: 'r8configRequest' }, location.origin); } catch (e) {}
+    };
+    setTimeout(function () {
+      if (!done) { done = true; CONFIG_MISS[task] = 1; cleanup(); resolve(null); }
+    }, 6000);
+    document.body.appendChild(iframe);
+  });
+}
+
+function renderAnswerVal(f, v) {
+  const empty = v === '' || v == null || (Array.isArray(v) && v.length === 0);
+  if ((f.type === 'radios' || f.type === 'select') && (f.options || []).length) {
+    return '<div class="mk-chips">' + f.options.map(function (o) {
+      const on = String(o) === String(v);
+      return '<span class="mk-chip' + (on ? ' on' : '') + '">' + (on ? '● ' : '○ ') + escapeHtml(o) + '</span>';
+    }).join('') + '</div>';
+  }
+  if (f.type === 'checks') {
+    const chosen = Array.isArray(v) ? v : (v ? [v] : []);
+    const known = (f.options || []).map(function (o) {
+      const on = chosen.indexOf(o) !== -1;
+      return '<span class="mk-chip' + (on ? ' on' : '') + '">' + (on ? '☑ ' : '☐ ') + escapeHtml(o) + '</span>';
+    }).join('');
+    const extraChosen = chosen.filter(function (c) { return (f.options || []).indexOf(c) === -1; })
+      .map(function (c) { return '<span class="mk-chip on">☑ ' + escapeHtml(c) + '</span>'; }).join('');
+    return '<div class="mk-chips">' + known + extraChosen + '</div>';
+  }
+  if (empty) return '<div class="mk-val empty">— not answered —</div>';
+  return '<div class="mk-val">' + escapeHtml(Array.isArray(v) ? v.join(' · ') : v) + '</div>';
+}
+
+function markSheet(s, cfg) {
+  const d = s.data || {};
+  const ans = d.answers || d;
+  const used = {};
+  let html = '<div class="mk-title">' + escapeHtml(cfg.title || current.task) + '</div>';
+  if (cfg.badge) html += '<div class="mk-badge">' + escapeHtml(cfg.badge) + '</div>';
+  let n = 0;
+  (cfg.sections || []).forEach(function (sec) {
+    n++;
+    html += '<h3 class="mk-sec"><span class="mk-num">' + escapeHtml(sec.num || n) + '</span> ' + escapeHtml(sec.title || '') + '</h3>';
+    if (sec.hint) html += '<p class="mk-hint">' + escapeHtml(sec.hint) + '</p>';
+    (sec.fields || []).forEach(function (f) {
+      if (f.type === 'static') { html += '<div class="mk-static">' + (f.html || '') + '</div>'; return; }  // repo-authored, trusted like the live page
+      used[f.id] = 1;
+      html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label || f.id) +
+              (f.hint ? ' <span class="mk-hint">— ' + escapeHtml(f.hint) + '</span>' : '') + '</div>' +
+              renderAnswerVal(f, ans[f.id]) + '</div>';
+    });
+  });
+  // Anything the student saved that the config doesn't describe (custom blocks
+  // like the Numbeo matrix, renamed fields) — shown as JSON, never dropped.
+  const extra = {};
+  Object.keys(ans).forEach(function (k) {
+    if (used[k] || k.charAt(0) === '_' || k === 'name' || k === 'section') return;
+    if (ans[k] === '' || ans[k] == null) return;
+    extra[k] = ans[k];
+  });
+  if (Object.keys(extra).length) {
+    html += '<div class="mk-field"><div class="mk-label">Extra data (custom blocks)</div><pre class="mk-json">' +
+            escapeHtml(JSON.stringify(extra, null, 1).slice(0, 4000)) + '</pre></div>';
+  }
+  return html;
+}
+
+function flatAnswers(s) {   // fallback when the page can't supply its layout
   const d = s.data || {};
   const ans = d.answers || d;
   const out = [];
   Object.keys(ans).forEach(function (k) {
-    if (k.charAt(0) === '_' || k === 'name' || k === 'section') return;   // strip _telemetry, _v, _pipe, _requestId
+    if (k.charAt(0) === '_' || k === 'name' || k === 'section') return;
     const v = ans[k];
     if (v == null || v === '') return;
     out.push({ k: k, v: Array.isArray(v) ? v.join(' · ') : String(v) });
@@ -349,14 +482,22 @@ function openDetail(s) {
   selectedEmail = s.email;
   $('detail').style.display = 'block';
   $('dName').textContent = (s.name || '(no name)') + '  ·  ' + s.email;
-  $('dMeta').textContent = (s.section || '') + '  ·  ' + (s.written ? 'submitted' : 'started only') +
+  $('dMeta').textContent = (s.section || '') + '  ·  ' + (s.written ? 'submitted' : s.notStarted ? 'not started' : 'started only') +
                            '  ·  last save ' + (fmtWhen(s.updated) || '—');
-  const list = flatAnswers(s);
-  $('dAnswers').innerHTML = list.length
-    ? list.map(function (a) { return '<dt>' + escapeHtml(a.k) + '</dt><dd>' + escapeHtml(a.v) + '</dd>'; }).join('')
-    : '<dd class="empty">No saved answers yet.</dd>';
+  $('dAnswers').innerHTML = '<span class="meta">Loading the assignment layout…</span>';
   $('dFb').value = s.feedback || '';
   $('dStatus').textContent = '';
+  fetchConfig(current.task).then(function (cfg) {
+    if (cfg) {
+      $('dAnswers').innerHTML = markSheet(s, cfg);
+    } else {
+      const list = flatAnswers(s);
+      $('dAnswers').innerHTML = (list.length
+        ? list.map(function (a) { return '<dt>' + escapeHtml(a.k) + '</dt><dd>' + escapeHtml(a.v) + '</dd>'; }).join('')
+        : '<span class="meta">No saved answers yet.</span>') +
+        '<div class="meta" style="margin-top:8px">(plain list — this page hasn’t registered its layout with the Station)</div>';
+    }
+  });
   $('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function closeDetail() { $('detail').style.display = 'none'; selectedEmail = null; }
