@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIT9 · Part 2 — Numbeo: Halifax vs the World</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 860px;
+         margin: 30px auto; padding: 0 18px; line-height: 1.55; color: #0f172a; }
+  h1 { font-size: 1.45rem; margin: 0 0 2px; }
+  .r8-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; font-weight: 700;
+               text-transform: uppercase; letter-spacing: .12em; color: #64748b; }
+  .r8-badge { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .7rem; font-weight: 700;
+              background: #0f172a; color: #fff; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .r8-sub { color: #475569; }
+  .r8-who { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 12px 0; color: #475569; font-size: .92rem; }
+  .r8-who b { color: #0f172a; }
+  .r8-intro { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin: 10px 0 16px; font-size: .95rem; }
+  .r8-intro b { color: #0f172a; }
+  h2 { font-size: 1.08rem; margin: 26px 0 6px; }
+  .r8-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; background: #0f172a; color: #fff;
+            padding: 2px 7px; border-radius: 4px; margin-right: 6px; }
+  .r8-hint { color: #64748b; font-size: .85rem; margin: 0 0 6px; }
+  .r8-label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  .r8-label .r8-hint { font-weight: 400; }
+  textarea, input[type=text], input[type=number], select { font: inherit; width: 100%; padding: 8px 10px;
+    border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+  input[type=number] { max-width: 220px; }
+  textarea { resize: vertical; }
+  .r8-radios { display: flex; flex-wrap: wrap; gap: 10px; }
+  .r8-radios label { font-weight: 700; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+  .r8-restored { display: none; margin: 12px 0; padding: 9px 12px; border: 1px solid #bbf7d0; background: #f0fdf4;
+                 border-radius: 6px; font-size: .88rem; }
+  .r8-bar { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
+  button { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 0; background: #1e293b; color: #fff; cursor: pointer; }
+  button.mini { padding: 4px 10px; font-size: .8rem; background: #2563eb; }
+  .r8-status { color: #475569; font-weight: 600; } .r8-status.ok { color: #15803d; } .r8-status.bad { color: #b91c1c; } .r8-status.warn { color: #b45309; }
+  .r8-static { margin: 6px 0; }
+  .r8-gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+  /* Numbeo matrix */
+  table.matrix { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 6px; }
+  table.matrix th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; font-size: .78rem; }
+  table.matrix td { border: 1px solid #cbd5e1; padding: 5px 8px; vertical-align: top; }
+  table.matrix input { padding: 5px 8px; }
+  table.matrix .pct { font-weight: 700; white-space: nowrap; }
+  table.matrix td.item-cell b { font-size: .92rem; }
+  table.matrix td.item-cell .src { color: #64748b; font-size: .78rem; margin-top: 2px; }
+  .nb-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+             padding: 14px 16px; margin: 14px 0; }
+  .nb-card h3 { font-size: 1.05rem; margin: 0 0 6px; }
+  .nb-source { display: inline-block; background: #1e3a8a; color: #fff; font-size: .72rem;
+               font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+               text-transform: uppercase; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+
+<div id="r8"></div>
+
+<script src="../Student_System/Room8v2/pipe.js"></script>
+<script src="../Student_System/Room8v2/assignment_engine.js"></script>
+<script>
+  // ================= ASSIGNMENT CONFIG — only block you edit for content =================
+  const ASSIGNMENT = {
+    taskName: 'Citizenship 9 — Part 2: Numbeo — Halifax vs the World',
+    course: 'CIT9',
+    title: 'Part 2: Numbeo — Halifax vs the World',
+    kicker: 'CIT9 · REAL ISSUES · CASE FILE 1 · PART 2',
+    badge: 'CIT9 • PART 2 • NUMBEO + PPP',
+    classList: ['901-CIT', '902-CIT', '903-CIT'],
+    introHtml:
+      '<p>You\'ve done the housing math in <b>Part 1: The Rent We Pay</b>. In Part 2 we zoom out — ' +
+      'how does Halifax actually compare to other cities around the world when you look at the ' +
+      '<b>cost of living</b> and <b>purchasing power</b>?</p>' +
+      '<p>You\'ll use <b>Numbeo.com/cost-of-living</b> (set the currency to CAD) to fill in 11 ' +
+      'items, then run the <b>PPP analysis</b> to see why raw price comparisons can be deceptive.</p>' +
+      '<p><b>New this round:</b> sign-in uses your <code>@gnspes.ca</code> Google account — ' +
+      'no PIN, nothing to type. Your work autosaves to the server.</p>',
+    sections: [
+      { num: '2A', title: 'The Global Halifax Cost-of-Living Challenge',
+        hint: 'Use numbeo.com/cost-of-living · set the currency to CAD. Fill Halifax and the comparison city for each item, then the % difference is calculated for you. Worked example: a 330ml Coke — Halifax $3.00 vs Bangkok $0.90 → "Halifax price is 233% higher."',
+        fields: [ { id: 'numbeoMount', type: 'static', html: '<div id="numbeoMount"></div>' } ]
+      },
+      { num: '2B', title: 'Purchasing Power Parity (PPP)',
+        hint: 'Assume ~2,000 hours of work per year. "Why is it a mistake for a Canadian to assume life in Delhi is cheap?"',
+        fields: [
+          { id: 'ppp_career_name', type: 'text', label: '1 · Pick a future career:' },
+          { id: 'ppp_hfx_annual_salary', type: 'number', label: 'Halifax annual NET salary for that career ($):' },
+          { id: 'ppp_hfx_hours', type: 'number', step: '0.01', label: 'Hours a Halifax worker works to buy ONE restaurant meal:' },
+          { id: 'ppp_delhi_hours', type: 'number', step: '0.01', label: 'Hours a New Delhi worker works to buy the same meal:' },
+          { id: 'ppp_analysis_reflection', type: 'textarea', label: 'Economic Inquiry (Purchasing Power Parity) — your reflection.', rows: 3 }
+        ]
+      }
+    ]
+  };
+  // =======================================================================================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+
+  // ---- the Numbeo matrix: a custom block the generic engine doesn't know about ----
+  const NUMBEO_ROWS = [
+    { item: 'Meal, Inexpensive Restaurant',            city: 'Delhi, India' },
+    { item: '1.5L Bottle of Water (Supermarket)',       city: 'Delhi, India' },
+    { item: '10GB Cellphone Plan (Monthly)',            city: 'Miami, US' },
+    { item: 'Rent (1-Bed Apartment, Downtown)',         city: 'Toronto, Canada' },
+    { item: 'Basic Utilities (Apartment, Monthly)',     city: 'Toronto, Canada' },
+    { item: 'Buy Apartment Outside City (per m²)',      city: 'Geneva, Switzerland' },
+    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Delhi, India' },
+    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Miami, US' },
+    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Toronto, Canada' },
+    { item: '',                                          city: '' },   // surprise row 10
+    { item: '',                                          city: '' }    // surprise row 11
+  ];
+
+  function buildNumbeo() {
+    const mount = document.getElementById('numbeoMount');
+    if (!mount || mount.dataset.built) return;
+    mount.dataset.built = '1';
+    let rows = '';
+    NUMBEO_ROWS.forEach((r, i) => {
+      const n = i + 1;
+      const isPreset = !!r.item;
+      rows += '<tr>' +
+        '<td class="item-cell">' +
+          (isPreset
+            ? '<b>' + n + '.</b> ' + r.item + '<div class="src">' + r.city + '</div>'
+            : '<input type="text" class="nb_item" data-n="' + n + '" placeholder="Surprise item ' + n + '">' +
+              '<input type="text" class="nb_city" data-n="' + n + '" placeholder="Comparison city" style="margin-top:4px">') +
+        '</td>' +
+        '<td><input type="number" step="0.01" class="nb_hfx" data-n="' + n + '" placeholder="CAD"></td>' +
+        '<td><input type="number" step="0.01" class="nb_comp" data-n="' + n + '" placeholder="CAD"></td>' +
+        '<td class="pct" id="nbpct_' + n + '">—</td></tr>';
+    });
+    mount.innerHTML =
+      '<table class="matrix"><tr><th>Item</th><th style="width:120px">Halifax (CAD)</th>' +
+      '<th style="width:120px">City (CAD)</th><th style="width:170px">% difference</th></tr>' + rows + '</table>' +
+      '<p class="hint">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more.</p>';
+    mount.addEventListener('input', function (ev) {
+      if (!ev.target.classList.contains('nb_hfx') && !ev.target.classList.contains('nb_comp')) return;
+      calcRow(ev.target.dataset.n);
+      updatePPPButton();
+    });
+  }
+  function numbeoRow(n) {
+    const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
+    const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
+    const item = (document.querySelector('.nb_item[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].item;
+    const city = (document.querySelector('.nb_city[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].city;
+    const pct  = document.getElementById('nbpct_' + n).textContent;
+    return { row: Number(n), item: item, city: city,
+             halifax_price: isNaN(hfx) ? '' : hfx,
+             city_price:    isNaN(comp) ? '' : comp,
+             pct_difference: pct };
+  }
+  function calcRow(n) {
+    const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
+    const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
+    const out  = document.getElementById('nbpct_' + n);
+    if (isNaN(hfx) || isNaN(comp) || comp === 0) { out.textContent = '—'; return; }
+    const pct = ((hfx - comp) / comp) * 100;
+    out.textContent = pct > 0 ? 'Halifax is ' + pct.toFixed(0) + '% higher'
+                    : pct < 0 ? 'Halifax is ' + Math.abs(pct).toFixed(0) + '% lower'
+                              : 'Same price (0% diff)';
+  }
+  function computePPP() {
+    const meal         = parseFloat((document.querySelector('.nb_hfx[data-n="1"]')  || {}).value);
+    const salary       = parseFloat(document.getElementById('r8f_ppp_hfx_annual_salary').value);
+    const delhiMonthly = parseFloat((document.querySelector('.nb_comp[data-n="7"]') || {}).value);
+    if (isNaN(meal) || isNaN(salary) || isNaN(delhiMonthly) || meal <= 0 || salary <= 0 || delhiMonthly <= 0) return;
+    document.getElementById('r8f_ppp_hfx_hours').value   = (meal / (salary / 2000)).toFixed(2);
+    document.getElementById('r8f_ppp_delhi_hours').value = (meal / ((delhiMonthly * 12) / 2000)).toFixed(2);
+  }
+  function updatePPPButton() {
+    const btn = document.getElementById('pppComputeBtn');
+    if (!btn) return;
+    const meal  = parseFloat((document.querySelector('.nb_hfx[data-n="1"]')  || {}).value);
+    const salary = parseFloat(document.getElementById('r8f_ppp_hfx_annual_salary').value);
+    const delhi = parseFloat((document.querySelector('.nb_comp[data-n="7"]') || {}).value);
+    btn.disabled = !(meal > 0 && salary > 0 && delhi > 0);
+    btn.title = btn.disabled ? 'Fill in row 1 (meal prices) and your salary first' : 'Compute PPP hours from the table';
+  }
+
+  // patch the engine: Numbeo build/collect hooks + PPP compute button
+  const _mount = R8Assignment.mount;
+  R8Assignment.mount = function (opts) {
+    opts.custom = {
+      collect: function (answers) {
+        answers.global_numbeo = NUMBEO_ROWS.map(function (_, i) { return numbeoRow(i + 1); });
+      },
+      populate: function (data) {
+        buildNumbeo();
+        (data.global_numbeo || []).forEach(function (r) {
+          const n = r.row;
+          if (!n) return;
+          const hfx  = document.querySelector('.nb_hfx[data-n="'  + n + '"]');
+          const comp = document.querySelector('.nb_comp[data-n="' + n + '"]');
+          if (hfx  && r.halifax_price !== '' && r.halifax_price !== undefined) hfx.value  = r.halifax_price;
+          if (comp && r.city_price    !== '' && r.city_price    !== undefined) comp.value = r.city_price;
+          calcRow(n);
+          const item = document.querySelector('.nb_item[data-n="' + n + '"]');
+          const city = document.querySelector('.nb_city[data-n="' + n + '"]');
+          if (item && r.item) item.value = r.item;
+          if (city && r.city) city.value = r.city;
+        });
+      }
+    };
+    const api = _mount(opts);
+    buildNumbeo();
+    // PPP compute button under the salary field — disabled until the meal row
+    // and salary have real prices, so nobody "computes" without researching.
+    const sal = document.getElementById('r8f_ppp_hfx_annual_salary');
+    if (sal) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'mini'; btn.id = 'pppComputeBtn';
+      btn.textContent = '⚡ Compute PPP hours from the table';
+      btn.style.marginTop = '6px';
+      btn.disabled = true;
+      btn.title = 'Fill in row 1 (meal prices) and your salary first';
+      btn.onclick = computePPP;
+      sal.addEventListener('input', updatePPPButton);
+      sal.parentNode.insertBefore(btn, sal.nextSibling);
+      updatePPPButton();
+    }
+    return api;
+  };
+  // =======================================================================================
+  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+</script>
+</body>
+</html>
