@@ -107,7 +107,7 @@ window.CLASS_SEATING = {
                 "13": "Charlotte M.", "14": "Theo D.", "15": "Ronn M.", "16": "Cameron M.",
                 "17": "Artem P.", "18": "Jack A.", "19": "Jeremiah S.", "20": "Hasan S.",
                 "21": "Khovin Y.", "22": "Oritshetimehin A.", "23": "Habib B.", "24": "Demetrius S.",
-                "25": "Taneil T.", "26": "Oceanne O.", "27": "Sophie R."
+                "25": "Taneil T.", "26": "Ezra O.", "27": "Sophie R."
             }
         },
         "7 ILT": {
