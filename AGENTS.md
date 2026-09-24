@@ -199,6 +199,19 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   `python ../bihipri-27/tools-priv/build_class_log_meetings.py` to rewrite
   `Student_System/class_log_meetings_data.js` here; it verifies against 586 hand-checked
   class dates before writing.
+- **Room 8 v2 Assignment Conventions:**
+  - **Course-Level Naming Only:** Never hardcode class/homeroom numbers in filenames
+    or queries (e.g. `HL8_5_Dimensions_System_Audit.html`, NEVER `HL8_Class804_...`).
+    Course assignments serve the whole course (`HL8` serves 801/802/803/804; `CIT9` & `HL9`
+    serve 901/902/903). Section mapping is resolved automatically per student via Google SSO.
+  - **No Ad-Hoc Legacy Fetches:** Never inject manual `fetch()` calls to defunct script URLs.
+    Loading and saving is handled exclusively by the Room 8 v2 engine via `pipe.load(task)`
+    and `pipe.autosave()` against `BACKEND_URL`.
+  - **Chromebook Reality — Zero Client `localStorage` for Students:** Chromebooks wipe local
+    browser storage on session close. All student state must be saved to the server. Off-roster
+    section choices are bundled directly into the cloud payload (`payload.section`).
+  - **Wording Standard:** Always say **"Server"**, never "GAS" in student-facing labels,
+    badges, alerts, or buttons.
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 

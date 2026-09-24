@@ -54,6 +54,29 @@
         - If inputs are empty/invalid, highlight the missing input with a red outline
           so the student immediately sees what needs to be filled in.
 
+ 6. COURSE-LEVEL NAMING & SCOPE (NEVER HARDCODE CLASS NUMBERS IN FILENAMES):
+    • Assignments serve the entire course, NOT an individual homeroom section.
+    • Filenames MUST be course-scoped (e.g. "HL8_5_Dimensions_System_Audit.html",
+      NEVER "HL8_Class804_...").
+    • CIT9 serves: 901-CIT, 902-CIT, 903-CIT.
+    • HL9 serves:  901-HL, 902-HL, 903-HL.
+    • HL8 serves:  801-HE, 802-HE, 803-HE, 804-HE.
+    • Roster section mapping is resolved automatically per student via Google SSO.
+    • Never create per-class forks or hardcode class numbers in filenames or queries.
+
+ 7. NO AD-HOC OR DEFUNCT LEGACY API FETCHES:
+    • Never inject manual fetch() calls to old, dead script URLs (e.g. &className=804).
+      They cause CORS and 404 network errors in the console.
+    • All loading and saving is handled exclusively by the Room 8 v2 engine via
+      pipe.load(task) and pipe.autosave() against the unified BACKEND_URL.
+
+ 8. CHROMEBOOK REALITY (ZERO RELIANCE ON BROWSER LOCALSTORAGE):
+    • Student Chromebooks wipe browser storage on logout/sign-in.
+    • NEVER rely on localStorage for student state, answers, or progress.
+    • All persistence is strictly server-first. Off-roster section choices are bundled
+      into the cloud payload (payload.section) so they travel with the student across
+      any device or Chromebook session.
+
  HOW TO CREATE A NEW ASSIGNMENT:
    1. Copy this file into your course folder (e.g., "Citizenship 9/" or "HealthyLiving8/").
    2. Ensure script tags point to pipe.js and assignment_engine.js:
