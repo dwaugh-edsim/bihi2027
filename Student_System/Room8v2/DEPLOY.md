@@ -12,8 +12,12 @@ Master Sheet — v2 is a parallel system.
 - **Project Settings → Script Properties**, add:
   - `R8_IDENTITY_KEY` — a long random string. **Must be identical** to the same property
     in the Identity project, or every request fails with `bad_sig`.
-  - `CLASS_LOG_PIN` — the teacher PIN. Gates every teacher write/read (fail-closed: if the
-    property is unset, teacher actions refuse to run).
+  - `CLASS_LOG_PIN` — the teacher PIN fallback. Gates teacher actions when no staff sign-in is
+    offered. (Fail-closed: if neither `TEACHER_EMAILS` nor this is set, teacher actions refuse to run.)
+  - `TEACHER_EMAILS` — **preferred gate**: comma/space-separated staff addresses, e.g.
+    `dwaugh@gnspes.ca`. The GAS Station signs in through the Identity app (same popup students
+    get); the backend HMAC-verifies the email and checks this list — no shared secret crosses
+    the wire. The Station's PIN row stays as a fallback for personal accounts.
   - `LEGACY_SHEET_ID` — *(optional, for migration)* the old Master Sheet's spreadsheet ID
     (the long string in its URL between `/d/` and `/edit`). Required only for
     `bootstrap_roster_from_legacy` / `migrate_legacy_submissions`.
@@ -92,10 +96,12 @@ engine can show it.
 edit → New version → Deploy** (same URL). The Feedback tab is created automatically on the
 first call — no manual `setup()` needed.
 
-**The Station:** open `gas_station.html` (or its Pages URL) → enter the teacher PIN → pick
-class + assignment → click a student → read their saved answers → write feedback → **Save**.
-The student sees the feedback card the next time they load that assignment. The PIN lives in
-the tab's sessionStorage only — never in the file, never in git.
+**The Station:** open `gas_station.html` (or its Pages URL) → **Sign in with your school
+account** (popup; staff-list checked server-side) → pick class + assignment → click a student
+→ read their saved answers → write feedback → **Save**. The student sees the feedback card the
+next time they load that assignment. The PIN fallback lives in the tab's sessionStorage only —
+never in the file, never in git. The sign-in token is the same 4-hour HMAC identity students
+use; nothing secret is stored or typed on a shared Chromebook.
 
 ## Deleting dead deployments
 

@@ -62,16 +62,24 @@
 <h1>🔫 Room 8 — GAS Station <span class="ver" id="ver"></span></h1>
 <p class="sub">What's on the Google Sheet, by class and assignment — and a place to write feedback back.</p>
 
-<!-- ===== PIN gate ===== -->
+<!-- ===== staff gate: Google sign-in (preferred) or PIN (fallback) ===== -->
 <div class="card" id="gate">
   <div class="row">
-    <label for="pin">Teacher PIN</label>
-    <input type="password" id="pin" autocomplete="off" style="width:160px"
-           onkeydown="if(event.key==='Enter')connect()">
-    <button class="primary" onclick="connect()">Connect</button>
-    <span id="gateMsg" class="meta"></span>
+    <button class="primary" id="signInBtn" onclick="signIn()">🔑 Sign in with your school account</button>
+    <span class="meta">Recommended — no PIN on a shared Chromebook.</span>
   </div>
-  <div class="meta" style="margin-top:8px">Never saved to this page's code — kept in this browser tab only (sessionStorage).</div>
+  <div class="row" id="pinRow" style="margin-top:10px; display:none">
+    <label for="pin">PIN fallback</label>
+    <input type="password" id="pin" autocomplete="off" style="width:160px"
+           onkeydown="if(event.key==='Enter')connectWithPin()">
+    <button onclick="connectWithPin()">Connect</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <span id="gateMsg" class="meta"></span>
+    <span style="flex:1"></span>
+    <a href="#" class="meta" onclick="showPin();return false">Signing in from a personal account? Use PIN instead…</a>
+  </div>
+  <div class="meta" style="margin-top:6px">Your sign-in token is HMAC-verified by the backend and must match the staff list — this page holds no secrets in its code.</div>
 </div>
 
 <!-- ===== main ===== -->
@@ -86,6 +94,7 @@
       <button class="small" onclick="refresh()">↻ Refresh</button>
       <span id="status"></span>
       <span style="flex:1"></span>
+      <span class="meta" id="whoAmI"></span>
       <button class="small" onclick="lock()">🔒 Lock</button>
     </div>
   </div>
@@ -121,15 +130,17 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.1.0 · Reads/writes go straight to the v2 backend (no data stored here).
+  Room 8 v2 — GAS Station · R8-STATION-0.2.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Backends: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>.
 </footer>
 
+<script src="pipe.js"></script>
 <script>
 // =========================================================================
 //  CONFIG — change only if you redeploy the Apps Script backend
 // =========================================================================
-const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
 
 // =========================================================================
 //  Plumbing
@@ -145,7 +156,9 @@ function $(id) { return document.getElementById(id); }
 function setStatus(msg, kind) { const el = $('status'); el.textContent = msg || ''; el.className = kind || ''; }
 
 function teacherCall(action, payload) {
-  const body = Object.assign({ action: action, teacherPin: PIN }, payload || {});
+  const body = Object.assign({ action: action }, payload || {});
+  if (ID) { body.email = ID.email; body.ts = ID.ts; body.sig = ID.sig; }
+  else    { body.teacherPin = PIN; }
   return fetch(BACKEND_URL, { method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), keepalive: true })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
@@ -167,28 +180,64 @@ function fmtWhen(v) {
 }
 
 // =========================================================================
-//  Gate
+//  Gate — staff Google sign-in (preferred) with PIN fallback
 // =========================================================================
-function connect() {
+function enterMain(j) {
+  OVERVIEW = j;
+  $('ver').textContent = j.version || '';
+  $('gate').classList.add('hidden');
+  $('main').classList.remove('hidden');
+  $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
+  fillPickers();
+  refresh();
+}
+
+function tryIdentity(id) {
+  ID = id; PIN = '';
+  $('gateMsg').textContent = 'Verifying staff access…';
+  teacherCall('get_overview', {}).then(function (j) {
+    if (j.status === 'ok') { enterMain(j); return; }
+    ID = null;
+    $('gateMsg').textContent = (j.message || 'Access denied') + ' — that account is not on the staff list. Use the PIN fallback if you must.';
+  }).catch(function (e) { ID = null; $('gateMsg').textContent = 'Backend unreachable: ' + e.message; });
+}
+
+function signIn() {
+  if (!window.Room8) { $('gateMsg').textContent = 'pipe.js failed to load.'; return; }
+  if (!Room8.identity()) {
+    if (!Room8.signIn()) $('gateMsg').textContent = 'Pop-up blocked — allow pop-ups for this site, then try again.';
+    return;
+  }
+  tryIdentity(Room8.identity());
+}
+
+function showPin() { $('pinRow').style.display = 'flex'; $('pin').focus(); }
+
+function connectWithPin() {
   const v = ($('pin').value || '').trim();
   if (!v) { $('gateMsg').textContent = 'Enter the PIN.'; return; }
-  PIN = v;
+  ID = null; PIN = v;
   $('gateMsg').textContent = 'Connecting…';
   teacherCall('get_overview', {}).then(function (j) {
     if (j.status !== 'ok') { $('gateMsg').textContent = 'PIN rejected (' + (j.message || j.status) + ')'; PIN = ''; return; }
     sessionStorage.setItem(PIN_KEY, PIN);
-    OVERVIEW = j;
-    $('ver').textContent = j.version || '';
-    $('gate').classList.add('hidden');
-    $('main').classList.remove('hidden');
-    fillPickers();
-    refresh();
+    enterMain(j);
   }).catch(function (e) { $('gateMsg').textContent = 'Backend unreachable: ' + e.message; PIN = ''; });
 }
+
 function lock() {
-  sessionStorage.removeItem(PIN_KEY); PIN = '';
+  sessionStorage.removeItem(PIN_KEY); PIN = ''; ID = null;
+  try { sessionStorage.removeItem('r8id'); } catch (e) {}
   $('main').classList.add('hidden'); $('gate').classList.remove('hidden');
   $('pin').value = ''; $('gateMsg').textContent = 'Locked.';
+}
+
+// boot: an identity returned by the popup (or a fragment from the handoff) comes live here
+if (window.Room8) {
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+  Room8.onIdentity(function (id) { if (id && $('main').classList.contains('hidden')) tryIdentity(id); });
+  var savedPin = sessionStorage.getItem(PIN_KEY);
+  if (savedPin && !Room8.identity()) { PIN = savedPin; $('pin').value = savedPin; connectWithPin(); }
 }
 
 // =========================================================================

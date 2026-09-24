@@ -14,7 +14,8 @@
  *   2. Paste this file over Code.gs.
  *   3. Project Settings -> Script Properties:
  *        R8_IDENTITY_KEY = <the SAME value as the Identity project>   (HMAC secret)
- *        CLASS_LOG_PIN   = <teacher PIN>                              (teacher writes)
+ *        TEACHER_EMAILS  = <staff addresses, e.g. dwaugh@gnspes.ca>   (teacher sign-in)
+ *        CLASS_LOG_PIN   = <teacher PIN>                              (fallback only)
  *   4. Run setup() once (creates the tabs). Authorize when prompted.
  *   5. Deploy -> New deployment -> Web app:
  *        Execute as: Me        Who has access: Anyone
@@ -25,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.5.0-2026-09-24';
-var CONFIG_DEPLOYED = '2026-09-24T18:00:00Z';
+var CONFIG_VERSION = 'R8-BE-0.6.0-2026-09-24';
+var CONFIG_DEPLOYED = '2026-09-24T18:35:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -247,12 +248,30 @@ function mergeTaskIntoStudent_(ss, email, p) {
 }
 
 // ============================================================================
-// Teacher gate
+// Teacher gate — two accepted proofs, in order:
+//   1. VERIFIED identity: an HMAC-signed @gnspes.ca email (from the Identity
+//      app, same token students get) whose address is listed in the
+//      TEACHER_EMAILS Script Property. No secret travels through the URL.
+//   2. LEGACY PIN (fallback, e.g. a personal account that can't sign in):
+//      teacherPin must match CLASS_LOG_PIN. Fail-closed: if neither the
+//      allowlist nor the PIN is configured, teacher actions refuse to run.
 // ============================================================================
+function teacherIdentityOk_(payload) {
+  var v = verifyIdentity_(payload.email, payload.ts, payload.sig);
+  if (!v.ok) return false;
+  var allow = String(PropertiesService.getScriptProperties().getProperty('TEACHER_EMAILS') || '')
+    .toLowerCase().split(/[\s,;]+/).filter(function (x) { return !!x; });
+  return allow.indexOf(v.email) !== -1;
+}
 function requireTeacher_(payload) {
+  if (payload.email && payload.ts && payload.sig) {
+    if (teacherIdentityOk_(payload)) return;                       // signed staff identity
+    // identity present but not on staff list — fall through to the PIN check,
+    // so a teacher on the wrong account still gets an explicit gate, never access.
+  }
   var pin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
-  if (!pin) throw new Error('Teacher writes disabled: set the CLASS_LOG_PIN Script Property (fail-closed).');
-  if (String(payload.teacherPin || '') !== String(pin)) throw new Error('Teacher PIN required.');
+  if (!pin) throw new Error('Teacher access disabled: set TEACHER_EMAILS (preferred) or CLASS_LOG_PIN (fail-closed).');
+  if (String(payload.teacherPin || '') !== String(pin)) throw new Error('Teacher sign-in or PIN required.');
 }
 
 // ============================================================================
@@ -281,8 +300,11 @@ function health_() {
   [TAB_ROSTER, TAB_STUDENTS, TAB_LOG, TAB_CLASSLOG, TAB_PLAN, TAB_SLIDE, TAB_FEEDBACK].forEach(function (t) {
     var sh = ss.getSheetByName(t); counts[t] = sh ? Math.max(0, sh.getLastRow() - 1) : 0;
   });
+  var props = PropertiesService.getScriptProperties();
+  var staffList = String(props.getProperty('TEACHER_EMAILS') || '').split(/[\s,;]+/).filter(function (x) { return !!x; });
   return { status: 'healthy', service: 'Room 8 v2 backend', allowedDomain: ALLOWED_DOMAIN,
-           keyConfigured: !!identityKey_(), teacherGateConfigured: !!PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN'),
+           keyConfigured: !!identityKey_(), teacherGateConfigured: !!(props.getProperty('CLASS_LOG_PIN') || staffList.length),
+           teacherSignInReady: staffList.length > 0, staffCount: staffList.length,
            tabs: counts, deployedAt: CONFIG_DEPLOYED };
 }
 
