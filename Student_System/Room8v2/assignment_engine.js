@@ -438,7 +438,13 @@ window.R8Assignment = (function () {
       pipe.load(task).then(function (j) {
         var found = j && j.status === 'ok' && j.found;
         if (found) {
-          populate(j.data || {});
+          var payload = j.data || {};
+          populate(payload);
+          var r8sec = document.getElementById('r8section');
+          var savedSec = payload.section || j.section || (payload.answers && payload.answers._section);
+          if (r8sec && savedSec) {
+            r8sec.value = savedSec;
+          }
           restored.style.display = 'block';
           var tStr = j.savedAt ? new Date(j.savedAt).toLocaleTimeString() : '';
           setStatus('Restored your last save' + (tStr ? ' (' + tStr + ')' : '') + '.', 'ok');
@@ -473,10 +479,15 @@ window.R8Assignment = (function () {
     // ---- autosave ----
     var ctl = pipe.autosave(function () {
       var s = collect();
-      return { answers: s, _v: 2, _pipe: true };
+      var r8sec = document.getElementById('r8section');
+      var chosenSec = (r8sec && r8sec.value && r8sec.value !== '—') ? r8sec.value : resolvedSection;
+      return { answers: s, section: chosenSec, _v: 2, _pipe: true };
     }, {
       task: task,
-      get section() { var s = document.getElementById('r8section'); return s ? s.value : resolvedSection; },
+      get section() {
+        var s = document.getElementById('r8section');
+        return (s && s.value && s.value !== '—') ? s.value : resolvedSection;
+      },
       summary: cfg.badge || '',
       ms: 2500,
       el: app,
