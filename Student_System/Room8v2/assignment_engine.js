@@ -154,11 +154,11 @@ window.R8Assignment = (function () {
     var topUser = h('div', 'r8-top-user');
     topUser.innerHTML = '👤 <span>Not signed in yet</span>';
     var topSync = h('div', 'r8-top-sync');
-    var topSyncBadge = h('span', 'r8-sync-badge', '☁️ GAS: Waiting for sign-in');
-    var topVerifyBtn = h('button', 'mini-top mini-verify', '⚡ Verify GAS Write');
+    var topSyncBadge = h('span', 'r8-sync-badge', '☁️ Server: Waiting for sign-in');
+    var topVerifyBtn = h('button', 'mini-top mini-verify', '⚡ Verify Server Write');
     topVerifyBtn.type = 'button';
     topVerifyBtn.style.display = 'none';
-    topVerifyBtn.title = 'Check Google Apps Script to confirm your data is saved in the Google Sheet';
+    topVerifyBtn.title = 'Check server to confirm your data is saved';
     topSync.appendChild(topSyncBadge);
     topSync.appendChild(topVerifyBtn);
     topBar.appendChild(topUser);
@@ -353,9 +353,9 @@ window.R8Assignment = (function () {
         if (isManual) alert('Please sign in first before checking server writes.');
         return Promise.resolve(false);
       }
-      topSyncBadge.textContent = '⏳ Checking GAS record…';
+      topSyncBadge.textContent = '⏳ Checking server record…';
       topSyncBadge.className = 'r8-sync-badge warn';
-      if (isManual) setStatus('Querying Google Apps Script backend to verify saved data…', 'warn');
+      if (isManual) setStatus('Querying server to verify saved data…', 'warn');
 
       return pipe.load(task).then(function (res) {
         if (res && res.status === 'ok' && res.found) {
@@ -367,12 +367,12 @@ window.R8Assignment = (function () {
             ? data.global_numbeo.filter(function (r) { return r.halifax_price || r.city_price || r.halifax || r.price; }).length
             : 0;
           var extra = numbeoCount ? (' + ' + numbeoCount + ' Numbeo items') : '';
-          var summaryMsg = '✓ GAS Confirmed: ' + ansCount + ' answers' + extra + ' saved (' + tStr + ')';
+          var summaryMsg = '✓ Server Confirmed: ' + ansCount + ' answers' + extra + ' saved (' + tStr + ')';
           topSyncBadge.textContent = '☁️ ' + summaryMsg;
           topSyncBadge.className = 'r8-sync-badge ok';
           setStatus(summaryMsg, 'ok');
           if (isManual) {
-            alert('✅ Google Apps Script Write Confirmed!\n\nYour work is sitting safely on the server in the Room 8 Google Sheet.\n\n• Task: ' + task + '\n• Student: ' + idEmail + '\n• Server Time: ' + tStr + '\n• Verified answers: ' + ansCount + ' fields' + extra);
+            alert('✅ Server Write Confirmed!\n\nYour work is sitting safely on the server.\n\n• Task: ' + task + '\n• Student: ' + idEmail + '\n• Server Time: ' + tStr + '\n• Verified answers: ' + ansCount + ' fields' + extra);
           }
           return true;
         } else if (res && res.status === 'auth_failed') {
@@ -381,16 +381,16 @@ window.R8Assignment = (function () {
           setStatus('Sign-in expired: ' + res.reason, 'bad');
           return false;
         } else {
-          topSyncBadge.textContent = '⚠️ Not in GAS yet — saving now…';
+          topSyncBadge.textContent = '⚠️ Not on server yet — saving now…';
           topSyncBadge.className = 'r8-sync-badge warn';
-          setStatus('No record found in GAS yet — saving now…', 'warn');
+          setStatus('No record found on server yet — saving now…', 'warn');
           if (ctl) ctl.saveNow();
           return false;
         }
       }).catch(function () {
-        topSyncBadge.textContent = '⚠️ GAS connection error';
+        topSyncBadge.textContent = '⚠️ Server connection error';
         topSyncBadge.className = 'r8-sync-badge bad';
-        setStatus('Could not reach GAS backend to verify.', 'bad');
+        setStatus('Could not reach server to verify.', 'bad');
         return false;
       });
     }
@@ -415,7 +415,7 @@ window.R8Assignment = (function () {
       barVerifyBtn.style.display = 'inline-block';
       barVerifyBtn.onclick = function () { verifyServerWrite(true); };
 
-      topSyncBadge.textContent = '☁️ GAS: Connected';
+      topSyncBadge.textContent = '☁️ Server: Connected';
       topSyncBadge.className = 'r8-sync-badge ok';
 
       whoEl.textContent = '';
@@ -448,7 +448,7 @@ window.R8Assignment = (function () {
           restored.style.display = 'block';
           var tStr = j.savedAt ? new Date(j.savedAt).toLocaleTimeString() : '';
           setStatus('Restored your last save' + (tStr ? ' (' + tStr + ')' : '') + '.', 'ok');
-          topSyncBadge.textContent = '☁️ GAS: Verified save (' + (tStr || 'on server') + ') ✓';
+          topSyncBadge.textContent = '☁️ Server: Verified save (' + (tStr || 'on server') + ') ✓';
           topSyncBadge.className = 'r8-sync-badge ok';
         } else if (j && j.status === 'auth_failed') {
           setStatus('Sign-in rejected: ' + j.reason, 'bad');
@@ -456,7 +456,7 @@ window.R8Assignment = (function () {
           topSyncBadge.className = 'r8-sync-badge bad';
         } else {
           setStatus('Fresh start — autosaves as you type.', '');
-          topSyncBadge.textContent = '☁️ GAS: Ready (autosaves as you type)';
+          topSyncBadge.textContent = '☁️ Server: Ready (autosaves as you type)';
           topSyncBadge.className = 'r8-sync-badge';
         }
         var draft = getTabDraft();
@@ -470,8 +470,8 @@ window.R8Assignment = (function () {
         }
         if (ctl) ctl.markClean();
       }).catch(function () {
-        setStatus('Backend unreachable — you can still type; use Copy/Download to keep your work.', 'bad');
-        topSyncBadge.textContent = '⚠️ GAS: Offline';
+        setStatus('Server unreachable — you can still type; use Copy/Download to keep your work.', 'bad');
+        topSyncBadge.textContent = '⚠️ Server: Offline';
         topSyncBadge.className = 'r8-sync-badge bad';
       });
     });
@@ -497,7 +497,7 @@ window.R8Assignment = (function () {
         clearTabDraft();
         var t = new Date().toLocaleTimeString();
         setStatus('Saved ✓ ' + t, 'ok');
-        topSyncBadge.textContent = '☁️ GAS: Write Confirmed (' + t + ') ✓';
+        topSyncBadge.textContent = '☁️ Server: Write Confirmed (' + t + ') ✓';
         topSyncBadge.className = 'r8-sync-badge ok';
       },
       onAuthFailed: function (reason) {
@@ -517,7 +517,7 @@ window.R8Assignment = (function () {
     });
     window.addEventListener('online', function () {
       setStatus('Back online — saving…', '');
-      topSyncBadge.textContent = '☁️ Reconnecting to GAS…';
+      topSyncBadge.textContent = '☁️ Reconnecting to server…';
       topSyncBadge.className = 'r8-sync-badge warn';
     });
     return { collect: collect, populate: populate, autosave: function () { return ctl; }, verify: verifyServerWrite };
