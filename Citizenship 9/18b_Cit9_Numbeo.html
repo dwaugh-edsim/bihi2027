@@ -366,6 +366,69 @@
 <script src="../Student_System/Room8v2/pipe.js"></script>
 <script src="../Student_System/Room8v2/assignment_engine.js"></script>
 <script>
+  // ---- the Numbeo matrix data & generator ----
+  const NUMBEO_ROWS = [
+    { num: 1, item: '1. Meal, Inexpensive Restaurant', city: 'Delhi, India', isPreset: true },
+    { num: 2, item: '2. 1.5L Bottle of Water (Supermarket)', city: 'Delhi, India', isPreset: true },
+    { num: 3, item: '3. 10GB Cellphone Plan (Monthly)', city: 'Miami, US', isPreset: true },
+    { num: 4, item: '4. Rent (1-Bed Apt Downtown)', city: 'Toronto, Canada', isPreset: true },
+    { num: 5, item: '5. Basic Utilities (Apt Monthly)', city: 'Toronto, Canada', isPreset: true },
+    { num: 6, item: '6. Buy Apt Outside City (per m²)', city: 'Geneva, Switzerland', isPreset: true },
+    { num: 7, item: '7. Avg Monthly Net Salary (After Tax)', city: 'Delhi, India', isPreset: true },
+    { num: 8, item: '8. Avg Monthly Net Salary (After Tax)', city: 'Miami, US', isPreset: true },
+    { num: 9, item: '9. Avg Monthly Net Salary (After Tax)', city: 'Toronto, Canada', isPreset: true },
+    { num: 10, item: '10. Surprise Item 1...', city: 'Choose City...', isPreset: false },
+    { num: 11, item: '11. Surprise Item 2...', city: 'Choose City...', isPreset: false }
+  ];
+
+  function generateNumbeoTableHtml() {
+    let rows = '';
+
+    // Pink Worked Example Row
+    rows += '<tr style="background: #fdf2f8;">' +
+      '<td class="item-cell" style="color: #be185d; font-weight: 700;">330ml can of Coke (Example)</td>' +
+      '<td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td style="font-size: 0.78rem; color: #be185d; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
+      '</tr>';
+
+    NUMBEO_ROWS.forEach(r => {
+      const n = r.num;
+      rows += '<tr>' +
+        '<td class="item-cell">' +
+          (r.isPreset
+            ? '<b>' + r.item + '</b>'
+            : '<input type="text" class="nb_item" id="nb_item_' + n + '" data-n="' + n + '" placeholder="' + r.item + '">') +
+        '</td>' +
+        '<td><input type="number" step="0.01" class="nb_hfx" id="nb_hfx_' + n + '" data-n="' + n + '" placeholder="$ CAD" onblur="calcRow(' + n + ')"></td>' +
+        '<td>' +
+          (r.isPreset
+            ? '<input type="text" class="nb_city" id="nb_city_' + n + '" data-n="' + n + '" value="' + r.city + '" readonly style="background:#f1f5f9; font-weight:600;">'
+            : '<input type="text" class="nb_city" id="nb_city_' + n + '" data-n="' + n + '" placeholder="' + r.city + '">') +
+        '</td>' +
+        '<td><input type="number" step="0.01" class="nb_comp" id="nb_comp_' + n + '" data-n="' + n + '" placeholder="$ CAD" onblur="calcRow(' + n + ')"></td>' +
+        '<td>' +
+          '<div style="display:flex; gap:6px; align-items:center;">' +
+            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:90px; font-weight:600;">' +
+            '<button type="button" class="mini calc-btn" onclick="calcRow(' + n + ')" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;">Calc %</button>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+    });
+
+    return '<div style="overflow-x:auto;">' +
+      '<table class="matrix" id="numbeoTable"><thead><tr>' +
+        '<th style="width:26%;">ITEM</th>' +
+        '<th style="width:17%;">HALIFAX PRICE (CAD)</th>' +
+        '<th style="width:20%;">COMPARISON CITY</th>' +
+        '<th style="width:17%;">CITY PRICE (CAD)</th>' +
+        '<th style="width:20%;">% DIFFERENCE</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>' +
+      '</div>' +
+      '<p class="hint" style="margin-top:6px; font-size:0.84rem;">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more. Click <b>Calc %</b> or enter your calculation.</p>';
+  }
+
   // ================= ASSIGNMENT CONFIG =================
   const ASSIGNMENT = {
     taskName: 'Citizenship 9 — Part 2: Numbeo — Halifax vs the World',
@@ -383,114 +446,50 @@
     sections: [
       { num: '2A', title: 'The Global Halifax Cost-of-Living Challenge',
         hint: 'Use numbeo.com/cost-of-living · set the currency to CAD. Fill Halifax and the comparison city for each item, then the % difference is calculated for you. Worked example: a 330ml Coke — Halifax $3.00 vs Bangkok $0.90 → "Halifax price is 233% higher."',
-        fields: [ { id: 'numbeoMount', type: 'static', html: '<div id="numbeoMount"></div>' } ]
+        fields: [
+          { id: 'numbeoTableWrap', type: 'static', html: generateNumbeoTableHtml() }
+        ]
       },
       { num: '2B', title: 'Purchasing Power Parity (PPP)',
         hint: 'Assume ~2,000 hours of work per year. "Why is it a mistake for a Canadian to assume life in Delhi is cheap?"',
         fields: [
-          { id: 'ppp_career_name', type: 'text', label: '1 · Pick a future career:' },
-          { id: 'ppp_hfx_annual_salary', type: 'number', label: 'Halifax annual NET salary for that career ($):' },
-          { id: 'ppp_hfx_hours', type: 'number', step: '0.01', label: 'Hours a Halifax worker works to buy ONE restaurant meal:' },
-          { id: 'ppp_delhi_hours', type: 'number', step: '0.01', label: 'Hours a New Delhi worker works to buy the same meal:' },
-          { id: 'ppp_analysis_reflection', type: 'textarea', label: 'Economic Inquiry (Purchasing Power Parity) — your reflection.', rows: 3 }
+          { id: 'ppp_career_name', type: 'text', label: '1 · Select a Future Career:', hint: 'Identify a career you are interested in (e.g. Nurse, Electrician, Social Worker, Software Developer).' },
+          { id: 'ppp_hfx_annual_salary', type: 'number', label: 'Halifax Annual NET Salary for that career ($):', hint: 'Research or estimate a realistic annual salary in Halifax (e.g. 54000)' },
+          { id: 'ppp_hfx_hours', type: 'number', step: '0.01', label: 'Hours a Halifax worker works to buy ONE restaurant meal (Item 1):', hint: 'Divide annual salary by 2,000 hrs/yr for hourly wage, then divide meal price by hourly wage.' },
+          { id: 'ppp_delhi_hours', type: 'number', step: '0.01', label: 'Hours a New Delhi worker works to buy the same meal (Item 1):', hint: 'Use monthly salary from Row 7 (× 12 ÷ 2,000 hrs) to find hourly wage, then divide meal price by hourly wage.' },
+          { id: 'ppp_analysis_reflection', type: 'textarea', label: 'Economic Inquiry (Purchasing Power Parity) — your reflection:', hint: 'A meal in Delhi costs only ~$4.50 CAD, compared to $25 CAD in Halifax. Why is it a mistake for a Canadian to assume that life in Delhi is "cheap"? Use your calculated PPP work hours to explain how Purchasing Power Parity exposes the true cost of living for local families.', rows: 4 }
         ]
       }
     ]
   };
+
   // =======================================================================================
   const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
   const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
 
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
 
-  // ---- the Numbeo matrix: a custom block the generic engine doesn't know about ----
-  const NUMBEO_ROWS = [
-    { item: 'Meal, Inexpensive Restaurant',            city: 'Delhi, India' },
-    { item: '1.5L Bottle of Water (Supermarket)',       city: 'Delhi, India' },
-    { item: '10GB Cellphone Plan (Monthly)',            city: 'Miami, US' },
-    { item: 'Rent (1-Bed Apartment, Downtown)',         city: 'Toronto, Canada' },
-    { item: 'Basic Utilities (Apartment, Monthly)',     city: 'Toronto, Canada' },
-    { item: 'Buy Apartment Outside City (per m²)',      city: 'Geneva, Switzerland' },
-    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Delhi, India' },
-    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Miami, US' },
-    { item: 'Avg Monthly Net Salary (After Tax)',       city: 'Toronto, Canada' },
-    { item: '',                                          city: '' },   // surprise row 10
-    { item: '',                                          city: '' }    // surprise row 11
-  ];
-
-  function buildNumbeo() {
-    const mount = document.getElementById('numbeoMount');
-    if (!mount || mount.dataset.built) return;
-    mount.dataset.built = '1';
-    let rows = '';
-
-    // Example Row (Pink Worked Model)
-    rows += '<tr style="background: #fdf2f8;">' +
-      '<td class="item-cell" style="color: #be185d; font-weight: 700;">330ml can of Coke (Example)</td>' +
-      '<td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>' +
-      '<td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>' +
-      '<td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>' +
-      '<td style="font-size: 0.78rem; color: #be185d; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
-      '</tr>';
-
-    NUMBEO_ROWS.forEach((r, i) => {
-      const n = i + 1;
-      const isPreset = !!r.item;
-      rows += '<tr>' +
-        '<td class="item-cell">' +
-          (isPreset
-            ? '<b>' + n + '.</b> ' + r.item
-            : '<input type="text" class="nb_item" data-n="' + n + '" placeholder="' + n + '. Surprise Item...">') +
-        '</td>' +
-        '<td><input type="number" step="0.01" class="nb_hfx" data-n="' + n + '" placeholder="$ CAD"></td>' +
-        '<td>' +
-          (isPreset
-            ? '<input type="text" class="nb_city" data-n="' + n + '" value="' + r.city + '" readonly style="background:#f1f5f9;">'
-            : '<input type="text" class="nb_city" data-n="' + n + '" placeholder="Choose City...">') +
-        '</td>' +
-        '<td><input type="number" step="0.01" class="nb_comp" data-n="' + n + '" placeholder="$ CAD"></td>' +
-        '<td>' +
-          '<div style="display:flex; gap:6px; align-items:center;">' +
-            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:90px; font-weight:600;">' +
-            '<button type="button" class="mini calc-btn" data-n="' + n + '" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;">Calc %</button>' +
-          '</div>' +
-        '</td>' +
-      '</tr>';
-    });
-
-    mount.innerHTML =
-      '<div style="overflow-x:auto;">' +
-      '<table class="matrix"><thead><tr>' +
-        '<th style="width:26%;">ITEM</th>' +
-        '<th style="width:17%;">HALIFAX PRICE (CAD)</th>' +
-        '<th style="width:20%;">COMPARISON CITY</th>' +
-        '<th style="width:17%;">CITY PRICE (CAD)</th>' +
-        '<th style="width:20%;">% DIFFERENCE</th>' +
-      '</tr></thead><tbody>' + rows + '</tbody></table>' +
-      '</div>' +
-      '<p class="hint" style="margin-top:6px; font-size:0.84rem;">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more. Click <b>Calc %</b> or enter your calculation.</p>';
-
-    mount.addEventListener('input', function (ev) {
-      if (ev.target.classList.contains('nb_hfx') || ev.target.classList.contains('nb_comp')) {
-        calcRow(ev.target.dataset.n);
-        updatePPPButton();
-      }
-    });
-
-    mount.addEventListener('click', function (ev) {
-      if (ev.target.classList.contains('calc-btn')) {
-        calcRow(ev.target.dataset.n);
-        updatePPPButton();
-      }
-    });
-  }
+  window.calcRow = function (n) {
+    const hfx  = parseFloat((document.getElementById('nb_hfx_' + n) || {}).value);
+    const comp = parseFloat((document.getElementById('nb_comp_' + n) || {}).value);
+    const out  = document.getElementById('nb_diff_' + n);
+    if (!out) return;
+    if (isNaN(hfx) || isNaN(comp) || comp === 0) return;
+    const pct = ((hfx - comp) / comp) * 100;
+    out.value = pct > 0 ? '+' + pct.toFixed(0) + '% (Halifax higher)'
+              : pct < 0 ? pct.toFixed(0) + '% (Halifax lower)'
+                        : 'Same price (0%)';
+    updatePPPButton();
+  };
 
   function numbeoRow(n) {
-    const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
-    const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
-    const item = (document.querySelector('.nb_item[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].item;
-    const city = (document.querySelector('.nb_city[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].city;
+    const hfx  = parseFloat((document.getElementById('nb_hfx_' + n) || {}).value);
+    const comp = parseFloat((document.getElementById('nb_comp_' + n) || {}).value);
+    const itemEl = document.getElementById('nb_item_' + n);
+    const cityEl = document.getElementById('nb_city_' + n);
     const diffEl = document.getElementById('nb_diff_' + n);
+    const item = itemEl ? itemEl.value : NUMBEO_ROWS[n-1].item;
+    const city = cityEl ? cityEl.value : NUMBEO_ROWS[n-1].city;
     const diff = diffEl ? diffEl.value : '';
     return { row: Number(n), item: item, city: city,
              halifax_price: isNaN(hfx) ? '' : hfx,
@@ -498,31 +497,21 @@
              pct_difference: diff };
   }
 
-  function calcRow(n) {
-    const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
-    const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
-    const out  = document.getElementById('nb_diff_' + n);
-    if (!out) return;
-    if (isNaN(hfx) || isNaN(comp) || comp === 0) { return; }
-    const pct = ((hfx - comp) / comp) * 100;
-    out.value = pct > 0 ? '+' + pct.toFixed(0) + '% (Halifax higher)'
-              : pct < 0 ? pct.toFixed(0) + '% (Halifax lower)'
-                        : 'Same price (0%)';
-  }
   function computePPP() {
-    const meal         = parseFloat((document.querySelector('.nb_hfx[data-n="1"]')  || {}).value);
+    const meal         = parseFloat((document.getElementById('nb_hfx_1') || {}).value);
     const salary       = parseFloat(document.getElementById('r8f_ppp_hfx_annual_salary').value);
-    const delhiMonthly = parseFloat((document.querySelector('.nb_comp[data-n="7"]') || {}).value);
+    const delhiMonthly = parseFloat((document.getElementById('nb_comp_7') || {}).value);
     if (isNaN(meal) || isNaN(salary) || isNaN(delhiMonthly) || meal <= 0 || salary <= 0 || delhiMonthly <= 0) return;
     document.getElementById('r8f_ppp_hfx_hours').value   = (meal / (salary / 2000)).toFixed(2);
     document.getElementById('r8f_ppp_delhi_hours').value = (meal / ((delhiMonthly * 12) / 2000)).toFixed(2);
   }
+
   function updatePPPButton() {
     const btn = document.getElementById('pppComputeBtn');
     if (!btn) return;
-    const meal  = parseFloat((document.querySelector('.nb_hfx[data-n="1"]')  || {}).value);
+    const meal  = parseFloat((document.getElementById('nb_hfx_1') || {}).value);
     const salary = parseFloat(document.getElementById('r8f_ppp_hfx_annual_salary').value);
-    const delhi = parseFloat((document.querySelector('.nb_comp[data-n="7"]') || {}).value);
+    const delhi = parseFloat((document.getElementById('nb_comp_7') || {}).value);
     btn.disabled = !(meal > 0 && salary > 0 && delhi > 0);
     btn.title = btn.disabled ? 'Fill in row 1 (meal prices) and your salary first' : 'Compute PPP hours from the table';
   }
@@ -533,31 +522,31 @@
     opts.custom = {
       collect: function (answers) {
         answers.global_numbeo = NUMBEO_ROWS.map(function (_, i) { return numbeoRow(i + 1); });
-        const sel = document.getElementById('r8f_ff_selected_topic');
-        answers.ff_topic_label = sel ? sel.value : '';
       },
       populate: function (data) {
-        buildNumbeo();
         (data.global_numbeo || []).forEach(function (r) {
           const n = r.row;
           if (!n) return;
-          const hfx  = document.querySelector('.nb_hfx[data-n="'  + n + '"]');
-          const comp = document.querySelector('.nb_comp[data-n="' + n + '"]');
+          const hfx  = document.getElementById('nb_hfx_' + n);
+          const comp = document.getElementById('nb_comp_' + n);
           const hVal = r.halifax_price !== undefined ? r.halifax_price : r.halifax;
           const cVal = r.city_price !== undefined ? r.city_price : r.price;
           if (hfx  && hVal !== '' && hVal !== undefined) hfx.value  = hVal;
           if (comp && cVal !== '' && cVal !== undefined) comp.value = cVal;
-          calcRow(n);
-          const item = document.querySelector('.nb_item[data-n="' + n + '"]');
-          const city = document.querySelector('.nb_city[data-n="' + n + '"]');
-          if (item && r.item) item.value = r.item;
-          if (city && r.city) city.value = r.city;
+          const itemEl = document.getElementById('nb_item_' + n);
+          const cityEl = document.getElementById('nb_city_' + n);
+          const diffEl = document.getElementById('nb_diff_' + n);
+          if (itemEl && r.item) itemEl.value = r.item;
+          if (cityEl && r.city) cityEl.value = r.city;
+          const diff = r.pct_difference !== undefined ? r.pct_difference : r.diff;
+          if (diffEl && diff) diffEl.value = diff;
+          else if (hVal && cVal) calcRow(n);
         });
         updatePPPButton();
       }
     };
     const api = _mount(opts);
-    buildNumbeo();
+
     // PPP compute button under the salary field
     const sal = document.getElementById('r8f_ppp_hfx_annual_salary');
     if (sal) {
