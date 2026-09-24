@@ -25,8 +25,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.3.0-2026-09-23';
-var CONFIG_DEPLOYED = '2026-09-23T00:00:00Z';
+var CONFIG_VERSION = 'R8-BE-0.4.0-2026-09-24';
+var CONFIG_DEPLOYED = '2026-09-24T12:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -314,6 +314,7 @@ function doPost(e) {
     if (action === 'delete_class_log')  { requireTeacher_(payload); return deleteClassLog_(ss, payload); }
     if (action === 'bootstrap_roster_from_legacy') { requireTeacher_(payload); return bootstrapRoster_(ss, payload); }
     if (action === 'migrate_legacy_submissions')  { requireTeacher_(payload); return migrateLegacySubmissions_(ss, payload); }
+    if (action === 'import_submissions')          { requireTeacher_(payload); return importSubmissions_(ss, payload); }
     if (action === 'get_class_log')     { requireTeacher_(payload); return jsonOut_(readClassLog_(ss)); }
     if (action === 'selftest')          { requireTeacher_(payload); return selftest_(ss); }
 
@@ -834,4 +835,50 @@ function migrateLegacySubmissions_(ss, payload) {
   return jsonOut_({ status: 'ok', dryRun: dry, perTask: perTask,
                     studentsMigrated: studentsMigrated, noEmailRows: noEmailRows,
                     next: dry ? 'Review, then POST the same action with dryRun:false.' : 'Done. Students will see this work on sign-in.' });
+}
+
+// Direct batch import of student submissions (teacher-only).
+// Allows migration or bulk-push of student work without requiring HMAC student signatures.
+// payload.submissions = [{ email, name, section, grade, task, summary, data }, ...]
+function importSubmissions_(ss, payload) {
+  var list = Array.isArray(payload.submissions) ? payload.submissions : [];
+  if (!list.length) throw new Error('submissions: [{email, name, section, grade, task, summary, data}] is required.');
+  var imported = 0, errors = [];
+  var log = ss.getSheetByName(TAB_LOG);
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    list.forEach(function (sub) {
+      var email = String(sub.email || '').trim().toLowerCase();
+      if (!email) { errors.push('Missing email for ' + (sub.name || 'unnamed')); return; }
+      var task = String(sub.task || '').trim();
+      if (!task) { errors.push('Missing task for ' + email); return; }
+      var now = new Date();
+      var data = sub.data || {};
+      var reqId = 'import_' + Utilities.getUuid();
+      
+      // 1) Audit log entry
+      if (log) {
+        log.appendRow([now, email, sub.section || '', task, 'Imported', String(sub.summary || ''), JSON.stringify(data), reqId]);
+      }
+      
+      // 2) Merge into student ledger
+      var res = mergeTaskIntoStudent_(ss, email, {
+        name: String(sub.name || ''),
+        section: String(sub.section || ''),
+        grade: sub.grade || 8,
+        task: task,
+        summary: String(sub.summary || ''),
+        data: data
+      });
+      if (res.ok) {
+        imported++;
+      } else {
+        errors.push(email + ': ' + res.message);
+      }
+    });
+  } finally {
+    lock.releaseLock();
+  }
+  return jsonOut_({ status: 'ok', imported: imported, total: list.length, errors: errors });
 }
