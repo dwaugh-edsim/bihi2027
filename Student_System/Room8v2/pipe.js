@@ -98,7 +98,11 @@ window.Room8 = (function () {
   // ---- backend calls ----
   function post(url, obj) {
     return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(obj), keepalive: true }).then(function (r) { return r.json(); });
+                        body: JSON.stringify(obj), keepalive: true })
+      .then(function (r) {
+        if (!r.ok) return { status: 'error', reason: 'HTTP ' + r.status };
+        return r.json();
+      });
   }
   function authed(action, extra) {
     var p = { action: action, email: identity.email, ts: identity.ts, sig: identity.sig };

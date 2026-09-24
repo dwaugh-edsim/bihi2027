@@ -20,9 +20,8 @@ The pedagogical backbone of this course is the **"5 Dimensions of Health" System
 
 ### A. The 5 Dimensions Health Mapping & Audits
 * **Core Files:**
-  * `06_HL8_5_Dimensions_Health_Map.html` — Interactive radial health mapping tool where students map habits across all 5 dimensions.
-  * `HL8_Class804_5_Dimensions_System_Audit.html` — Specialized 5-dimensions audit protocol for Class 804.
-  * `HL8_Grade8_Wall_Gallery_5D_Teacher_Key.md` — Complete station gallery walk teacher answer key and room setup guide.
+  * `HL8_5_Dimensions_System_Audit.html` — Double-sided A4 docket and technical reference for Grade 8.
+  * `HL8_5_Dimensions_System_Audit_Interactive.html` — Interactive Room 8 v2 electronic audit and interception lab.
 * **Curriculum Outcome:** Healthy Living 8 Module 1 (*Holistic Health & Ecological Systems*).
 
 ### B. Live Class Diagnostic Telemetry Dashboards
