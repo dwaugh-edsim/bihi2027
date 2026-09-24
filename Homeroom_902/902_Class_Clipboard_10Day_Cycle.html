@@ -260,7 +260,7 @@
 
         .roster-table th.col-name {
             font-size: 0.82rem;
-            width: 27.5mm;
+            width: 17mm;
             text-align: left;
             padding-left: 4px;
         }
@@ -301,6 +301,30 @@
             width: 15mm;
             font-size: 0.66rem;
             line-height: 1.1;
+        }
+
+        .roster-table th.col-hr {
+            width: 8mm;
+            background-color: #f1f5f9;
+            height: 4.8mm;
+            padding: 1px 0;
+            vertical-align: middle;
+            border-right: 2px solid var(--border-black) !important;
+        }
+
+        .roster-table th.col-hr .p-num {
+            font-size: 0.63rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .roster-table td.col-hr {
+            width: 8mm;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 0;
+            border-right: 2px solid var(--border-black) !important;
         }
 
         /* Stronger divider separating AM (P1, P2, P3) from PM (P4, P5) */
@@ -813,6 +837,7 @@
                 <tr>
                     <td class="col-num ${name ? '' : 'blank-num'}">${idx + 1}</td>
                     <td class="col-name">${name}</td>
+                    <td class="col-hr"></td>
                     <td class="col-p p-am"></td>
                     <td class="col-p p-am"></td>
                     <td class="col-p p-am p-last-am"></td>
@@ -826,7 +851,7 @@
                 <div class="clipboard-page" id="page-day${dayData.dayNum}">
                     <!-- SIDE MARGIN VERTICAL TITLE (CLEAR OF CLIPBOARD CLAMP) -->
                     <div class="side-margin-label">
-                        <span class="side-margin-text">CLASS CLIPBOARD: 902 WAUGH &bull; ${dayData.cycleDay.toUpperCase()} (${dayData.dayName})</span>
+                        <span class="side-margin-text">CLASS CLIPBOARD: 902 WAUGH &bull; ${dayData.cycleDay.toUpperCase()} (${dayData.dayName}) &bull; <span id="side-date-day${dayData.dayNum}"></span></span>
                     </div>
 
                     <!-- HEADER -->
@@ -847,6 +872,7 @@
                                     <tr>
                                         <th class="col-num" rowspan="2">#</th>
                                         <th class="col-name" rowspan="2">Name</th>
+                                        <th class="col-hr" rowspan="2"><div class="p-num">902</div></th>
                                         <th class="col-group-am" colspan="3">AM Classes</th>
                                         <th class="col-group-pm" colspan="2">PM Classes</th>
                                         <th class="col-left" rowspan="2">Left<br>Class?</th>
@@ -939,6 +965,12 @@
             return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         }
 
+        function formatSideMarginDate(d) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+            return `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}`;
+        }
+
         function toInputDateValue(d) {
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -961,11 +993,13 @@
             for (let i = 1; i <= 10; i++) {
                 const dateEl = document.getElementById(`date-day${i}`);
                 const weekEl = document.getElementById(`week-day${i}`);
+                const sideDateEl = document.getElementById(`side-date-day${i}`);
                 if (!dateEl || !weekEl) continue;
 
                 if (!isAuto) {
                     dateEl.textContent = '';
                     weekEl.textContent = '';
+                    if (sideDateEl) sideDateEl.textContent = '';
                     continue;
                 }
 
@@ -977,6 +1011,7 @@
 
                 dateEl.textContent = formatDisplayDate(dayDate);
                 weekEl.textContent = (i <= 5) ? 'Week 1' : 'Week 2';
+                if (sideDateEl) sideDateEl.textContent = formatSideMarginDate(dayDate);
             }
         }
 
