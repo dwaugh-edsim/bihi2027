@@ -112,7 +112,7 @@ window.R8Assignment = (function () {
       return;
     }
     var e = root.querySelector('#' + CSS.escape(id));
-    if (e && typeof v === 'string') e.value = v;
+    if (e && (typeof v === 'string' || typeof v === 'number')) e.value = v;
   }
 
   function mount(opts) {

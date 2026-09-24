@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CIT9 · Part 2 — Numbeo: Halifax vs the World</title>
+<title>CIT9 · Real Issues Case File #1 — The Rent We Pay & The Global Numbeo Challenge</title>
 <style>
   body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 860px;
          margin: 30px auto; padding: 0 18px; line-height: 1.55; color: #0f172a; }
@@ -37,6 +37,18 @@
   .r8-status { color: #475569; font-weight: 600; } .r8-status.ok { color: #15803d; } .r8-status.bad { color: #b91c1c; } .r8-status.warn { color: #b45309; }
   .r8-static { margin: 6px 0; }
   .r8-gate { border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; background: #f8fafc; }
+
+  /* Benchmarks, Evidence Facts & Positions */
+  .bench { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+  .bench div { border: 1.4px solid #0f172a; border-radius: 6px; padding: 8px 12px; font-size: .9rem; background: #fff; }
+  .bench b { font-size: 1.1rem; display: block; color: #0f172a; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+  .fact { border: 1.4px solid #0f172a; border-radius: 6px; padding: 10px 12px; font-size: .9rem; background: #fff; }
+  .fact b { font-size: 1.15rem; display: block; color: #0f172a; }
+  .fact .src { color: #64748b; font-size: .74rem; margin-top: 4px; }
+  .pos { border: 1.4px solid #0f172a; border-radius: 6px; padding: 10px 12px; margin: 8px 0; font-size: .92rem; background: #fff; }
+  .pos b { font-size: 1rem; color: #0f172a; }
+
   /* Numbeo matrix */
   table.matrix { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 6px; }
   table.matrix th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; font-size: .78rem; }
@@ -60,23 +72,58 @@
 <script src="../Student_System/Room8v2/pipe.js"></script>
 <script src="../Student_System/Room8v2/assignment_engine.js"></script>
 <script>
-  // ================= ASSIGNMENT CONFIG — only block you edit for content =================
+  // ================= ASSIGNMENT CONFIG =================
   const ASSIGNMENT = {
-    taskName: 'Citizenship 9 — Part 2: Numbeo — Halifax vs the World',
+    taskName: 'Citizenship 9 — Real Issues Case File #1: The Rent We Pay',
     course: 'CIT9',
-    title: 'Part 2: Numbeo — Halifax vs the World',
-    kicker: 'CIT9 · REAL ISSUES · CASE FILE 1 · PART 2',
-    badge: 'CIT9 • PART 2 • NUMBEO + PPP',
+    title: 'Real Issues Case File #1 — The Rent We Pay & The Global Numbeo Challenge',
+    kicker: 'CIT9 · REAL ISSUES · CASE FILE 1 · HOUSING IN HRM & GLOBAL COST OF LIVING',
+    badge: 'CIT9 • CASE FILE #1 • NUMBEO + PPP',
     classList: ['901-CIT', '902-CIT', '903-CIT'],
     introHtml:
-      '<p>You\'ve done the housing math in <b>Part 1: The Rent We Pay</b>. In Part 2 we zoom out — ' +
-      'how does Halifax actually compare to other cities around the world when you look at the ' +
-      '<b>cost of living</b> and <b>purchasing power</b>?</p>' +
-      '<p>You\'ll use <b>Numbeo.com/cost-of-living</b> (set the currency to CAD) to fill in 11 ' +
-      'items, then run the <b>PPP analysis</b> to see why raw price comparisons can be deceptive.</p>' +
+      '<p>Our class survey ranked <b>Housing &amp; future rent in HRM as the #1 issue (3.29 / 4)</b>. ' +
+      'In this dossier you will check the evidence, run the numbers, compare Halifax against the world using Numbeo, take a stand at HRM Council, and prepare a 90-second deputation.</p>' +
       '<p><b>New this round:</b> sign-in uses your <code>@gnspes.ca</code> Google account — ' +
-      'no PIN, nothing to type. Your work autosaves to the server.</p>',
+      'no PIN, nothing to type. Your work autosaves live to the server.</p>',
     sections: [
+      { num: '1A', title: 'The Rent Math — Big Concepts & Real Numbers', hint: '"Time as currency." Show your thinking.', fields: [
+        { id: 'benchmarks', type: 'static', html:
+          '<div class="bench">' +
+          '<div><b>$1,938/mo</b> Average 1-bed rent, Halifax (CMHC, mid-2026)</div>' +
+          '<div><b>$16.75/hr</b> NS minimum wage (Apr 2026)</div>' +
+          '<div><b>≤ 30%</b> CMHC affordability standard (of gross pay)</div>' +
+          '<div><b>~$2,900/mo</b> full-time gross at minimum wage (40 hrs/wk · ~173.3 hrs/mo)</div></div>' },
+        { id: 'math_hours_rent', type: 'number', step: '0.1', label: '(a) The Labor Clock — how many hours of work per month does one month\'s rent cost at minimum wage?', hint: 'rent ÷ $16.75 — the class benchmark is ~116 hrs' },
+        { id: 'math_pct_rent', type: 'number', step: '0.1', label: '(b) The Paycheck Share — what % of that paycheck is eaten by rent alone?', hint: 'rent ÷ $2,900 × 100 — benchmark ~67%' },
+        { id: 'math_wage_needed', type: 'number', step: '0.01', label: '(c) The Target Living Wage — hourly wage needed so rent is ≤30% of gross', hint: '1938÷0.30 = $6,460/mo × 12 ÷ 2080 — benchmark ≈ $37.27/hr' },
+        { id: 'math_gap_hourly', type: 'number', step: '0.01', label: '1 · The Hourly Divide (the Wage Gap) — target wage minus minimum wage', hint: '37.27 − 16.75 = …' },
+        { id: 'math_gap_compromises', type: 'textarea', label: '2 · Personal Reality (life at 25 in HRM) — what trade-offs get you there?', hint: 'roommates · family · commutes · two jobs · sacrificing essentials', rows: 3 },
+        { id: 'math_gap_structural', type: 'textarea', label: '3 · Structural Policy vs Individual Budgeting — can budgeting alone close this gap?', rows: 3 },
+      ] },
+      { num: '1B', title: 'The Evidence Board — Four Real Facts', hint: 'Read them, then answer.', fields: [
+        { id: 'facts', type: 'static', html:
+          '<div class="facts">' +
+          '<div class="fact"><b>1,150 people</b> homeless in HRM in a single night (Oct 2025) — up from 220 in 2018. ~200 unsheltered.' +
+          '<div class="src">SOURCE: 2025 Point-in-Time Count, AHANS</div></div>' +
+          '<div class="fact"><b>2.7% vacancy</b> (2025). A healthy market needs ~3%+.' +
+          '<div class="src">SOURCE: CMHC via Halifax Partnership 2025</div></div>' +
+          '<div class="fact"><b>$1,478 → $1,680</b> turnover rent jump on the SAME 1-bed unit.' +
+          '<div class="src">SOURCE: CMHC 2025 Rental Report</div></div>' +
+          '<div class="fact"><b>4 units per lot</b> allowed without council approval since June 2024.' +
+          '<div class="src">SOURCE: HRM Zoning Amendment, Jun 13 2024</div></div></div>' },
+        { id: 'evidence_most_shocking', type: 'select', label: 'Which of these four facts is most alarming? Why?',
+          options: ['1150_homeless — 1,150 people in one night','2.7_vacancy — the 2.7% vacancy rate','turnover_gap — the $1,478 → $1,680 turnover jump','4_units_lot — 4 units per lot by right'] },
+        { id: 'evidence_system_link', type: 'textarea', label: 'Systemic Connection — how are these facts linked?', hint: 'scaffold: low vacancy → turnover spike → rent jump → priced out → homelessness', rows: 3 },
+      ] },
+      { num: '1C', title: 'The Dilemma — A Real Fight at HRM Council', hint: 'Pick a side and defend it with a real number.', fields: [
+        { id: 'positions', type: 'static', html:
+          '<div class="pos"><b>POSITION A — Build. Everywhere.</b> Up-to-8-unit buildings by right on every lot. Trade-off: parking, privacy, neighbourhood change. (Parts approved Dec 2025.)</div>' +
+          '<div class="pos"><b>POSITION B — Protect. Plan first.</b> Go slow, consult, plan. Trade-off: delay has a cost — the 1,150 pay it.</div>' +
+          '<div class="pos"><b>POSITION C — Public land. Non-market.</b> Build affordable housing on public land. Trade-off: slow, hard at scale.</div>' },
+        { id: 'dilemma_position', type: 'radios', label: 'MY POSITION — commit:', options: ['A — Build everywhere','B — Protect & plan','C — Public land, non-market','Still undecided'] },
+        { id: 'dilemma_justification', type: 'textarea', label: '1 · Stance & Evidence — cite at least one verified number.', rows: 3 },
+        { id: 'dilemma_counter_tradeoff', type: 'textarea', label: '2 · Trade-off & Counter-Argument Defense — name the cost, and defend your position anyway.', rows: 3 },
+      ] },
       { num: '2A', title: 'The Global Halifax Cost-of-Living Challenge',
         hint: 'Use numbeo.com/cost-of-living · set the currency to CAD. Fill Halifax and the comparison city for each item, then the % difference is calculated for you. Worked example: a 330ml Coke — Halifax $3.00 vs Bangkok $0.90 → "Halifax price is 233% higher."',
         fields: [ { id: 'numbeoMount', type: 'static', html: '<div id="numbeoMount"></div>' } ]
@@ -90,7 +137,29 @@
           { id: 'ppp_delhi_hours', type: 'number', step: '0.01', label: 'Hours a New Delhi worker works to buy the same meal:' },
           { id: 'ppp_analysis_reflection', type: 'textarea', label: 'Economic Inquiry (Purchasing Power Parity) — your reflection.', rows: 3 }
         ]
-      }
+      },
+      { num: '3A', title: 'The Power Map — Who Has the Power? What\'s Your Move?', hint: 'Your issue + your ask, at each level.', fields: [
+        { id: 'power_city_ask', type: 'textarea', label: 'City / HRM Council (Councillor) — zoning, permits, bylaws, city land.', rows: 2 },
+        { id: 'power_prov_ask', type: 'textarea', label: 'Province / NS Government (MLA) — housing funding, tenancy & rent caps, minimum wage.', rows: 2 },
+        { id: 'power_fed_ask', type: 'textarea', label: 'Federal / Ottawa (MP) — $79.3M Housing Accelerator Fund, CMHC, immigration, tax.', rows: 2 },
+        { id: 'power_target_level', type: 'radios', label: 'The ONE level where your position wins or loses:', options: ['City / HRM Council','Province','Federal'] },
+        { id: 'power_one_question', type: 'textarea', label: 'If you could ask one elected person ONE question about housing…', rows: 2 },
+      ] },
+      { num: '3B', title: 'The Deputation Builder — 90 Seconds at the Mic', hint: 'Five sentences. Practise with a 1:30 timer.', fields: [
+        { id: 'dep_starter_1', type: 'text', label: '1 · "Good evening, Council. I\'m a Grade 9 student from Dartmouth, and I live with…"' },
+        { id: 'dep_starter_2', type: 'text', label: '2 · "The evidence I need you to see is…" (a real number)' },
+        { id: 'dep_starter_3', type: 'text', label: '3 · "I stand with Position ___ because…"' },
+        { id: 'dep_starter_4', type: 'text', label: '4 · "I\'m asking this Council to…"' },
+        { id: 'dep_starter_5', type: 'text', label: '5 · "Thank you. I\'ll take your questions."' },
+      ] },
+      { num: '3C', title: 'Fast Finishers — from OUR class diagnostic', hint: 'One paragraph of civic thinking.', fields: [
+        { id: 'ff_selected_topic', type: 'select', label: 'Topic:', options: [
+          'Phone bans in schools (2.71/4)', 'Mi\'kmaw treaty rights (2.71/4)', 'Power rates & offshore wind (2.43/4)', 'AI & future jobs (2.29/4)' ] },
+        { id: 'ff_response', type: 'textarea', label: 'Your civic take:', rows: 3 },
+      ] },
+      { num: 4, title: 'Review & Sign Off', hint: 'Check every stage is filled, then sign.', fields: [
+        { id: 'docSignature', type: 'text', label: 'Student digital signature — type your full name:' },
+      ] }
     ]
   };
   // =======================================================================================
@@ -100,6 +169,8 @@
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
 
   // ---- the Numbeo matrix: a custom block the generic engine doesn't know about ----
+  let __lastNumbeoData = null;
+
   const NUMBEO_ROWS = [
     { item: 'Meal, Inexpensive Restaurant',            city: 'Delhi, India' },
     { item: '1.5L Bottle of Water (Supermarket)',       city: 'Delhi, India' },
@@ -188,6 +259,8 @@
     opts.custom = {
       collect: function (answers) {
         answers.global_numbeo = NUMBEO_ROWS.map(function (_, i) { return numbeoRow(i + 1); });
+        const sel = document.getElementById('r8f_ff_selected_topic');
+        answers.ff_topic_label = sel ? sel.value : '';
       },
       populate: function (data) {
         buildNumbeo();
@@ -196,14 +269,17 @@
           if (!n) return;
           const hfx  = document.querySelector('.nb_hfx[data-n="'  + n + '"]');
           const comp = document.querySelector('.nb_comp[data-n="' + n + '"]');
-          if (hfx  && r.halifax_price !== '' && r.halifax_price !== undefined) hfx.value  = r.halifax_price;
-          if (comp && r.city_price    !== '' && r.city_price    !== undefined) comp.value = r.city_price;
+          const hVal = r.halifax_price !== undefined ? r.halifax_price : r.halifax;
+          const cVal = r.city_price !== undefined ? r.city_price : r.price;
+          if (hfx  && hVal !== '' && hVal !== undefined) hfx.value  = hVal;
+          if (comp && cVal !== '' && cVal !== undefined) comp.value = cVal;
           calcRow(n);
           const item = document.querySelector('.nb_item[data-n="' + n + '"]');
           const city = document.querySelector('.nb_city[data-n="' + n + '"]');
           if (item && r.item) item.value = r.item;
           if (city && r.city) city.value = r.city;
         });
+        updatePPPButton();
       }
     };
     const api = _mount(opts);
@@ -226,7 +302,198 @@
     return api;
   };
   // =======================================================================================
-  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+  const api = R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+
+  // Auto-import legacy data from the monolithic dossier if this new doc is empty
+  const LEGACY_GAS_URL = 'https://script.google.com/macros/s/AKfycby8XaHRRj07UUQ-4NTK7AH4s2qVp3GKe6XRyMA_tGLap52ZUWYg2faJbVhIB7Ea7_VJ/exec';
+
+  function checkAndImportLegacyData(idEmail) {
+    if (!idEmail) return;
+    const statusEl = document.querySelector('.r8-status');
+    if (statusEl) statusEl.textContent = 'Checking for previously completed dossier answers…';
+
+    fetch(LEGACY_GAS_URL + '?action=get_class_progress&className=ALL&cache=0')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || data.status !== 'success' || !Array.isArray(data.students)) return;
+        const normEmail = idEmail.trim().toLowerCase();
+        const normUser = normEmail.split('@')[0];
+
+        const student = data.students.find(function (s) {
+          const sEmail = String(s.email || '').trim().toLowerCase();
+          return sEmail === normEmail || (normUser && sEmail.startsWith(normUser));
+        });
+
+        if (!student) return;
+        const saved = student.savedData || {};
+        const tasks = saved._tasks || {};
+        let targetData = null;
+        for (const k in tasks) {
+          if (k.indexOf('Rent We Pay') !== -1 && tasks[k]) {
+            targetData = tasks[k].data || tasks[k];
+          }
+        }
+        if (!targetData && String(student.task || '').indexOf('Rent We Pay') !== -1) {
+          targetData = saved;
+        }
+
+        if (!targetData) return;
+
+        let restoredCount = 0;
+
+        function setIfEmpty(id, val) {
+          if (val === undefined || val === null || val === '') return;
+          const el = document.getElementById(id);
+          if (el && !el.value) {
+            el.value = val;
+            restoredCount++;
+          }
+        }
+
+        function setRadioIfEmpty(name, val) {
+          if (!val) return;
+          const checked = document.querySelector('input[name="' + name + '"]:checked');
+          if (!checked) {
+            const r = document.querySelector('input[name="' + name + '"][value*="' + val + '"]');
+            if (r) { r.checked = true; restoredCount++; }
+          }
+        }
+
+        // 1A Rent math
+        if (targetData.rent_math) {
+          const rm = targetData.rent_math;
+          setIfEmpty('r8f_math_hours_rent', rm.hours_for_rent);
+          setIfEmpty('r8f_math_pct_rent', rm.pct_of_pay);
+          setIfEmpty('r8f_math_wage_needed', rm.wage_needed);
+          setIfEmpty('r8f_math_gap_hourly', rm.gap_hourly);
+          setIfEmpty('r8f_math_gap_compromises', rm.gap_compromises);
+          setIfEmpty('r8f_math_gap_structural', rm.gap_structural);
+        }
+
+        // 1B Evidence
+        if (targetData.evidence) {
+          const ev = targetData.evidence;
+          setIfEmpty('r8f_evidence_system_link', ev.system_link);
+          if (ev.most_shocking) {
+            const sel = document.getElementById('r8f_evidence_most_shocking');
+            if (sel && !sel.value) {
+              for (let i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value.indexOf(ev.most_shocking) !== -1 || ev.most_shocking.indexOf(sel.options[i].value) !== -1) {
+                  sel.selectedIndex = i;
+                  restoredCount++;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // 1C Dilemma
+        if (targetData.dilemma) {
+          const dil = targetData.dilemma;
+          setRadioIfEmpty('r8f_dilemma_position', dil.position);
+          setIfEmpty('r8f_dilemma_justification', dil.justification);
+          setIfEmpty('r8f_dilemma_counter_tradeoff', dil.counter_tradeoff);
+        }
+
+        // 2A Numbeo
+        if (Array.isArray(targetData.global_numbeo)) {
+          targetData.global_numbeo.forEach(function (r) {
+            const n = r.row;
+            if (!n) return;
+            const hfx = document.querySelector('.nb_hfx[data-n="' + n + '"]');
+            const comp = document.querySelector('.nb_comp[data-n="' + n + '"]');
+            const hVal = r.halifax_price !== undefined ? r.halifax_price : r.halifax;
+            const cVal = r.city_price !== undefined ? r.city_price : r.price;
+            if (hfx && !hfx.value && hVal !== '' && hVal !== undefined) {
+              hfx.value = hVal; restoredCount++;
+            }
+            if (comp && !comp.value && cVal !== '' && cVal !== undefined) {
+              comp.value = cVal; restoredCount++;
+            }
+            calcRow(n);
+            const item = document.querySelector('.nb_item[data-n="' + n + '"]');
+            const city = document.querySelector('.nb_city[data-n="' + n + '"]');
+            if (item && !item.value && r.item) { item.value = r.item; }
+            if (city && !city.value && r.city) { city.value = r.city; }
+          });
+        }
+
+        // 2B PPP
+        if (targetData.ppp) {
+          const p = targetData.ppp;
+          setIfEmpty('r8f_ppp_career_name', p.career);
+          setIfEmpty('r8f_ppp_hfx_annual_salary', p.annual_salary);
+          setIfEmpty('r8f_ppp_hfx_hours', p.hfx_hours);
+          setIfEmpty('r8f_ppp_delhi_hours', p.delhi_hours);
+          setIfEmpty('r8f_ppp_analysis_reflection', p.analysis);
+        }
+
+        // 3A Power Map
+        if (targetData.power_map) {
+          const pm = targetData.power_map;
+          setIfEmpty('r8f_power_city_ask', pm.city_ask);
+          setIfEmpty('r8f_power_prov_ask', pm.prov_ask);
+          setIfEmpty('r8f_power_fed_ask', pm.fed_ask);
+          setRadioIfEmpty('r8f_power_target_level', pm.target_level);
+          setIfEmpty('r8f_power_one_question', pm.one_question);
+        }
+
+        // 3B Deputation
+        if (targetData.deputation) {
+          const dep = targetData.deputation;
+          setIfEmpty('r8f_dep_starter_1', dep.starter_1);
+          setIfEmpty('r8f_dep_starter_2', dep.starter_2);
+          setIfEmpty('r8f_dep_starter_3', dep.starter_3);
+          setIfEmpty('r8f_dep_starter_4', dep.starter_4);
+          setIfEmpty('r8f_dep_starter_5', dep.starter_5);
+        }
+
+        // 3C Fast Finisher
+        if (targetData.fast_finisher) {
+          const ff = targetData.fast_finisher;
+          setIfEmpty('r8f_ff_response', ff.response);
+          if (ff.topic) {
+            const sel = document.getElementById('r8f_ff_selected_topic');
+            if (sel && !sel.value) {
+              for (let i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value.toLowerCase().indexOf(ff.topic.toLowerCase()) !== -1) {
+                  sel.selectedIndex = i;
+                  restoredCount++;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // 4 Signature
+        setIfEmpty('r8f_docSignature', targetData.signature);
+
+        updatePPPButton();
+
+        if (restoredCount > 0) {
+          if (statusEl) {
+            statusEl.textContent = 'Restored ' + restoredCount + ' answers from your previous dossier! Autosaving…';
+            statusEl.className = 'r8-status ok';
+          }
+          if (api && api.autosave) {
+            api.autosave().saveNow();
+          }
+        } else {
+          if (statusEl) statusEl.textContent = '';
+        }
+      })
+      .catch(function (err) {
+        console.warn('Could not check legacy Numbeo data:', err);
+      });
+  }
+
+  Room8.onIdentity(function (id) {
+    setTimeout(function () {
+      checkAndImportLegacyData(id.email);
+    }, 700);
+  });
 </script>
 </body>
 </html>
