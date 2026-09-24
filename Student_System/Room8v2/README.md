@@ -5,9 +5,9 @@ Google-auth pipe: **a verified `@gnspes.ca` email is the student's identity** �
 nothing typed, nothing stored on the device.
 
 **Status:** phase 1 proven end-to-end on the teacher account. Parallel to the live V6.x
-system — nothing here touches the old Master Sheet. **Hardened per
-`audit/Room8v2eval.md`** (effort telemetry, outbox/offline states, in-tab crash recovery,
-emergency exports).
+system — nothing here touches the old Master Sheet. **Hardened per the private audit**
+(`../bihipri-27/audit-priv/Room8v2eval.md`): effort telemetry, outbox/offline states,
+in-tab crash recovery, emergency exports.
 
 ## Start here
 
