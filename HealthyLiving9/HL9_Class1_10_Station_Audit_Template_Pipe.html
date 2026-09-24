@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HL9 Class 1: Sleep Clinic 10-Station Forensic Audit</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+
+<!-- Modern Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Open+Sans+Condensed:wght@700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --brand-primary: #1e3a8a;       /* Clinical Navy */
+    --brand-hover:   #172554;
+    --accent-blue:   #2563eb;
+    --border-accent: #93c5fd;
+    --border-color:  #cbd5e1;
+    --bg-page:       #f1f5f9;
+    --text-main:     #0f172a;
+    --text-muted:    #475569;
+    --tag-bg:        #e0f2fe;
+    --tag-text:      #0369a1;
+  }
+
+  /* Reset & Box-Sizing Standard */
+  *, *:before, *:after { box-sizing: border-box; }
+  body {
+    background-color: var(--bg-page);
+    background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
+    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    line-height: 1.6;
+    margin: 0;
+    padding: 14px 16px 60px 16px;
+  }
+
+  /* Outer container */
+  #r8 {
+    max-width: 960px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+    border-bottom: 3px solid #cbd5e1;
+    padding: 30px 36px 40px 36px;
+  }
+
+  /* Sticky Top Identity & Sync Bar */
+  .r8-top-bar {
+    position: sticky;
+    top: 8px;
+    z-index: 1000;
+    background: #0f172a;
+    color: #ffffff;
+    border-bottom: 3px solid var(--accent-blue);
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin: -16px -20px 22px -20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .r8-top-bar strong {
+    color: #38bdf8;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 700;
+  }
+  .r8-top-bar button.mini-top {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: 'Open Sans Condensed', sans-serif;
+    letter-spacing: 0.05em;
+  }
+  .r8-top-bar button.mini-signout { background: #334155; color: #f8fafc; border: 1px solid #475569; }
+  .r8-top-bar button.mini-signout:hover { background: #475569; }
+
+  /* Typography */
+  .r8-kicker {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-blue);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 700;
+    font-size: 2.05rem;
+    line-height: 1.2;
+    color: #0f172a;
+    margin: 0 0 10px 0;
+  }
+  .r8-badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: var(--brand-primary);
+    border: 1px solid var(--border-accent);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .r8-who {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+  .r8-intro {
+    background: #f8fafc;
+    border-left: 4px solid var(--accent-blue);
+    padding: 14px 18px;
+    margin-bottom: 26px;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.96rem;
+  }
+  .r8-intro p { margin: 0 0 8px 0; }
+  .r8-intro p:last-child { margin-bottom: 0; }
+
+  /* Section Styling */
+  .r8-section-line { height: 1px; background: var(--border-color); margin: 30px 0 24px 0; }
+  h2 {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 28px 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .r8-num {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.95rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  .r8-hint {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0 0 14px 0;
+  }
+
+  /* Form Elements */
+  .r8-label {
+    display: block;
+    font-weight: 600;
+    margin: 14px 0 5px 0;
+    font-size: 0.92rem;
+    color: #1e293b;
+  }
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 0.94rem;
+    color: #0f172a;
+    background: #ffffff;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+  textarea { resize: vertical; }
+
+  /* Clinical Station Cards */
+  .station-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .station-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* Briefing box */
+  .r8-brief {
+    border: 1px solid var(--border-accent);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0 20px 0;
+    font-size: .92rem;
+    background: #f0fdf4;
+    line-height: 1.5;
+  }
+  .r8-brief h3 { margin: 10px 0 3px; font-size: 0.98rem; color: #166534; }
+  .r8-brief h3:first-child { margin-top: 0; }
+  .r8-brief p { margin: 0 0 6px; color: #334155; }
+
+  /* Bottom Actions Bar */
+  .r8-bar {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  button {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.96rem;
+    padding: 9px 22px;
+    border-radius: 5px;
+    border: none;
+    background: var(--brand-primary);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color .2s;
+  }
+  button:hover { background-color: var(--brand-hover); }
+  button.mini { padding: 4px 10px; font-size: 0.8rem; background: var(--accent-blue); }
+  button.mini:hover { background: #1d4ed8; }
+
+  /* Status line */
+  .r8-status { color: #475569; font-weight: 600; }
+  .r8-status.ok   { color: #15803d; }
+  .r8-status.bad  { color: #b91c1c; }
+  .r8-status.warn { color: #b45309; }
+
+  /* Gate (sign-in) box */
+  .r8-gate {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--brand-primary);
+    border-radius: 8px;
+    padding: 32px 28px;
+    margin-top: 40px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  }
+  .r8-gate h1 { font-size: 1.7rem; margin-bottom: 8px; }
+  .r8-gate .r8-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div id="r8"></div>
+
+<script src="../Student_System/Room8v2/pipe.js"></script>
+<script src="../Student_System/Room8v2/assignment_engine.js"></script>
+<script>
+  // ================= ASSIGNMENT CONFIG =================
+  const ASSIGNMENT = {
+    taskName: 'HL9 Sleep Clinic 10-Station Audit',
+    course: 'HL9',
+    title: 'HL9 Class 1: Sleep Clinic 10-Station Forensic Audit',
+    kicker: 'HL9 · UNIT 1 · SLEEP & BIO-METRICS · CLASS 1',
+    badge: 'HL9 • CLASS 1 • 10 CLINICAL STATIONS',
+    classList: ['902-HL', '901-HL', '903-HL'],
+    introHtml:
+      '<p><b>Open Clinic Protocol:</b> Work independently or with your partner. Visit the clinical stations in any order. ' +
+      'Prioritize completing at least 6–8 forensic audits (or all 10).</p>' +
+      '<p>Sign in with your <code>@gnspes.ca</code> account — your audit progress autosaves live to the Server.</p>' +
+      '<div class="r8-brief"><h3>📋 Clinical Triage Benchmark Standards</h3>' +
+      '<p><b>⚫ CRITICAL (RED):</b> &lt;7.0 hrs / night or severe chronic sleep deficit.</p>' +
+      '<p><b>🔘 MODERATE (AMBER):</b> 7.0–8.5 hrs / night or significant weekend circadian misalignment.</p>' +
+      '<p><b>⚪ STABLE (GREEN):</b> 8.5–9.5 hrs / night with consistent wake times and healthy hygiene.</p>' +
+      '</div>',
+    sections: [
+      {
+        num: 'Setup',
+        title: 'Audit Team & Logistics',
+        hint: 'Declare your audit partner (or Independent) and date of clinical rotation.',
+        fields: [
+          { id: 'metaPartner', type: 'text', label: 'Audit Partner (type partner name, or leave as Independent):', placeholder: 'e.g. Independent or partner name' },
+          { id: 'metaDate', type: 'text', label: 'Date of Clinical Rotation:', placeholder: 'YYYY-MM-DD' }
+        ]
+      },
+
+      {
+            "num": 1,
+            "title": "Station 01: C., Devon (Age 14)",
+            "hint": "Devon gets 6h on weekdays and tries to 'catch up' by sleeping 11h on weekends.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 01 &bull; Chronic Weekday Debt & Catch-Up Myth</div>"
+                  },
+                  {
+                        "id": "s1_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s1_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s1_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s1_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s1_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 2,
+            "title": "Station 02: S., Priya (Age 14)",
+            "hint": "Priya maintains consistent sleep/wake times and prioritizes wind-down hygiene.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 02 &bull; Disciplined Routine & Healthy Baseline</div>"
+                  },
+                  {
+                        "id": "s2_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s2_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s2_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s2_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s2_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 3,
+            "title": "Station 03: O., Marcus (Age 14)",
+            "hint": "Marcus shifts his sleep schedule by 4+ hours on weekends, inducing acute social jetlag.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 03 &bull; Weekend Freefall & Circadian Misalignment</div>"
+                  },
+                  {
+                        "id": "s3_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s3_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s3_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s3_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s3_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 4,
+            "title": "Station 04: R., Jenna (Age 14)",
+            "hint": "Jenna goes to bed at 10 PM but scrolls TikTok until 1:30 AM with screen 6 inches from face.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 04 &bull; Doomscrolling & Time-in-Bed vs Time-Asleep</div>"
+                  },
+                  {
+                        "id": "s4_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s4_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s4_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s4_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s4_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 5,
+            "title": "Station 05: T., Isaiah (Age 14)",
+            "hint": "Isaiah trains 6 days/week during a growth spurt, needing deep Stage 3 NREM for tissue repair.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 05 &bull; Varsity Athlete, Growth Spurt & HGH Recovery</div>"
+                  },
+                  {
+                        "id": "s5_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s5_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s5_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s5_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s5_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 6,
+            "title": "Station 06: N., Lily (Age 14)",
+            "hint": "Lily faces a rigid, non-negotiable rural/suburban bus transit schedule requiring a 5:45 AM alarm.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 06 &bull; 5:45 AM Commuter & Structural Bus Route Constraint</div>"
+                  },
+                  {
+                        "id": "s6_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s6_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s6_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s6_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s6_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 7,
+            "title": "Station 07: K., Tyrell (Age 14)",
+            "hint": "Tyrell drinks a 160mg energy drink at 4:30 PM. Caffeine's 5-hour half-life blocks adenosine receptors.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 07 &bull; Energy Drinks, Caffeine Half-Life & Adenosine Blockade</div>"
+                  },
+                  {
+                        "id": "s7_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s7_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s7_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s7_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s7_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 8,
+            "title": "Station 08: W., Grace (Age 14)",
+            "hint": "Grace has good physical habits but suffers from catastrophic cognitive rumination when lights go out.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 08 &bull; Night Rumination, Anxiety & Clean Hygiene</div>"
+                  },
+                  {
+                        "id": "s8_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s8_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s8_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s8_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s8_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 9,
+            "title": "Station 09: D., Owen (Age 14)",
+            "hint": "Owen plays competitive online matches until 4:00 AM on weekends, completely resetting his master clock.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 09 &bull; Fri/Sat All-Nighter Gamer & +5.5h Social Jetlag</div>"
+                  },
+                  {
+                        "id": "s9_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s9_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s9_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s9_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s9_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      },
+      {
+            "num": 10,
+            "title": "Station 10: P., Amara (Age 14)",
+            "hint": "Amara works the family diner till 11 PM on weeknights. Her sleep window is squeezed by real economic duty.",
+            "fields": [
+                  {
+                        "type": "static",
+                        "html": "<div class=\"station-badge-tag\">STATION 10 &bull; Family Restaurant Closer & Non-Discretionary Labor</div>"
+                  },
+                  {
+                        "id": "s10_hrs",
+                        "type": "text",
+                        "label": "Hours / Night (from case file):",
+                        "placeholder": "e.g. 6.0 hrs"
+                  },
+                  {
+                        "id": "s10_debt",
+                        "type": "text",
+                        "label": "Weekly Sleep Debt Calculation:",
+                        "placeholder": "e.g. -14.5 hrs"
+                  },
+                  {
+                        "id": "s10_risk",
+                        "type": "select",
+                        "label": "Clinical Triage Risk Level:",
+                        "options": [
+                              "CRITICAL (RED)",
+                              "MODERATE (AMBER)",
+                              "STABLE (GREEN)"
+                        ]
+                  },
+                  {
+                        "id": "s10_order",
+                        "type": "text",
+                        "label": "First Fix / Clinical Prescription:",
+                        "placeholder": "The #1 high-leverage intervention..."
+                  },
+                  {
+                        "id": "s10_notes",
+                        "type": "textarea",
+                        "label": "Case Evidence & Physiological Rationale:",
+                        "placeholder": "What evidence from the case file supports your diagnosis?",
+                        "rows": 3
+                  }
+            ]
+      }
+
+    ]
+  };
+
+  // ================= SERVER ENDPOINTS & INITIALIZATION =================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+
+  // Mount with bidirectional adapters for both standard fields and legacy nested stations{}
+  R8Assignment.mount({
+    mount: document.getElementById('r8'),
+    pipe: Room8,
+    assignment: ASSIGNMENT,
+    custom: {
+      collect: function(answers) {
+        answers.stations = {};
+        for (var i = 1; i <= 10; i++) {
+          answers.stations[i] = {
+            hrs: answers['s' + i + '_hrs'] || '',
+            debt: answers['s' + i + '_debt'] || '',
+            risk: answers['s' + i + '_risk'] || '',
+            order: answers['s' + i + '_order'] || '',
+            notes: answers['s' + i + '_notes'] || ''
+          };
+        }
+        if (answers.metaPartner) answers.partner = answers.metaPartner;
+        if (answers.metaDate) answers.date = answers.metaDate;
+      },
+      populate: function(answers) {
+        if (!answers) return;
+        // Support nested legacy stations format
+        if (answers.stations && typeof answers.stations === 'object') {
+          for (var i = 1; i <= 10; i++) {
+            var stn = answers.stations[i] || answers.stations[String(i)];
+            if (stn && typeof stn === 'object') {
+              var fHrs = document.getElementById('r8f_s' + i + '_hrs');
+              if (fHrs && !fHrs.value && stn.hrs) fHrs.value = stn.hrs;
+              var fDebt = document.getElementById('r8f_s' + i + '_debt');
+              if (fDebt && !fDebt.value && stn.debt) fDebt.value = stn.debt;
+              var fRisk = document.getElementById('r8f_s' + i + '_risk');
+              if (fRisk && !fRisk.value && stn.risk) fRisk.value = stn.risk;
+              var fOrder = document.getElementById('r8f_s' + i + '_order');
+              if (fOrder && !fOrder.value && stn.order) fOrder.value = stn.order;
+              var fNotes = document.getElementById('r8f_s' + i + '_notes');
+              if (fNotes && !fNotes.value && stn.notes) fNotes.value = stn.notes;
+            }
+          }
+        }
+        if (answers.partner) {
+          var pEl = document.getElementById('r8f_metaPartner');
+          if (pEl && !pEl.value) pEl.value = answers.partner;
+        }
+        if (answers.date) {
+          var dEl = document.getElementById('r8f_metaDate');
+          if (dEl && !dEl.value) dEl.value = answers.date;
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
