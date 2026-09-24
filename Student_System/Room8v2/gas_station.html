@@ -4,101 +4,183 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Room 8 — GAS Station</title>
+
+<!-- Inline SVG Favicon (prevents 404 console errors on GitHub Pages) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔫</text></svg>">
+
+<!-- House typography (matches the Room 8 v2 assignment template) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&family=Open+Sans+Condensed:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-  :root { --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --ok:#15803d; --bad:#b91c1c; --warn:#b45309;
-          --accent:#c94663; --panel:#f8fafc; }
+  :root {
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --brand-primary: #c94663;
+    --brand-hover: #d85773;
+    --accent-blue: #2563eb;
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --border-accent: #f0ccd4;
+    --ok: #15803d; --bad: #b91c1c; --warn: #b45309;
+    /* legacy aliases used by JS-generated markup */
+    --ink: var(--text-main); --muted: var(--text-muted); --line: var(--border-color);
+    --accent: var(--brand-primary); --panel: var(--bg-page);
+  }
   * { box-sizing: border-box; }
-  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--ink);
-         max-width: 1080px; margin: 20px auto; padding: 0 16px; line-height: 1.45; background:#fff; }
-  h1 { font-size: 1.3rem; margin: 0 0 2px; }
-  h1 .ver { font-size: .72rem; color: var(--muted); font-weight: 400; margin-left: 8px; }
-  .sub { color: var(--muted); margin: 0 0 18px; font-size: .9rem; }
-  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); margin-bottom: 16px; }
+  body {
+    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+    background: var(--bg-page); color: var(--text-main);
+    margin: 0; padding: 0; line-height: 1.55;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 80px 20px; }
+
+  /* Header — kicker + condensed uppercase title + mono badge (template treatment) */
+  .r8-kicker {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--brand-primary); margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'Open Sans Condensed', sans-serif; font-size: 1.85rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: #1e293b; margin: 0 0 6px 0; line-height: 1.2;
+  }
+  h1 .ver {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700;
+    background: #1e293b; color: #fff; padding: 3px 10px; border-radius: 4px;
+    text-transform: none; letter-spacing: 0; vertical-align: middle; margin-left: 10px;
+  }
+  .sub { color: var(--text-muted); margin: 0 0 20px; font-size: 0.96rem; }
+
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 16px 18px; margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .card.intro { background: #fdfafb; border-color: var(--border-accent); border-left: 4px solid var(--brand-primary); }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  label { font-weight: 600; font-size: .85rem; }
-  input, select, textarea, button { font: inherit; }
-  input[type=password], input[type=text], select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
-  textarea { width: 100%; min-height: 90px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
-  button { font-weight: 600; padding: 8px 15px; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button.small { padding: 4px 9px; font-size: .8rem; }
+  label {
+    font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; font-size: 0.92rem;
+    letter-spacing: 0.03em; color: #1e293b; text-transform: uppercase;
+  }
+  input, select, textarea, button { font-family: 'Source Sans Pro', sans-serif; }
+  input[type=password], input[type=text], select, textarea {
+    font-size: 0.95rem; padding: 9px 12px; border: solid 1px #cbd5e1; border-radius: 5px;
+    background: #fff; color: var(--text-main); transition: border-color .2s, box-shadow .2s;
+  }
+  select { padding: 8px 10px; }
+  textarea { width: 100%; min-height: 96px; resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(201, 70, 99, 0.18); outline: none;
+  }
+  button {
+    font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; font-size: 0.92rem; padding: 9px 20px; border-radius: 5px; border: none;
+    background: var(--brand-primary); color: #fff; cursor: pointer; transition: background-color .2s;
+  }
+  button:hover { background-color: var(--brand-hover); }
   button:disabled { opacity: .5; cursor: not-allowed; }
+  button.primary { background: var(--brand-primary); }
+  button.small { padding: 6px 13px; font-size: 0.8rem; background: #fff; color: #1e293b;
+                 border: 1px solid #cbd5e1; }
+  button.small:hover { background: #fdf2f4; border-color: var(--border-accent); }
   #status { font-size: .85rem; font-weight: 600; }
   #status.ok { color: var(--ok); } #status.bad { color: var(--bad); } #status.warn { color: var(--warn); }
+
   /* stat chips */
-  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .stat { border: 1px solid var(--line); border-radius: 9px; padding: 8px 14px; background: var(--panel); }
-  .stat b { display: block; font-size: 1.25rem; }
-  .stat span { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .stat { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;
+          padding: 10px 16px; min-width: 92px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+  .stat b { display: block; font-family: 'Open Sans Condensed', sans-serif; font-size: 1.7rem;
+            line-height: 1; color: #1e293b; }
+  .stat span { font-family: 'JetBrains Mono', monospace; font-size: .64rem; color: var(--text-muted);
+               text-transform: uppercase; letter-spacing: .08em; }
+
   /* table */
-  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-  th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
-       border-bottom: 2px solid var(--line); padding: 6px 8px; position: sticky; top: 0; background: #fff; }
-  td { border-bottom: 1px solid var(--line); padding: 7px 8px; vertical-align: top; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; background: var(--bg-card); }
+  th { font-family: 'JetBrains Mono', monospace; text-align: left; font-size: .66rem; text-transform: uppercase;
+       letter-spacing: .08em; color: var(--text-muted); border-bottom: 2px solid var(--border-color);
+       padding: 8px; position: sticky; top: 0; background: #fff; z-index: 1; }
+  td { border-bottom: 1px solid var(--border-color); padding: 8px; vertical-align: top; }
   tr.stu { cursor: pointer; }
-  tr.stu:hover { background: #f1f5f9; }
+  tr.stu:hover { background: #fdf2f4; }
   tr.stu.sel { background: #e0f2fe; }
-  .pill { display: inline-block; font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 1px 9px; }
+  .pill { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .66rem; font-weight: 700;
+          border-radius: 999px; padding: 2px 10px; text-transform: uppercase; letter-spacing: .04em; }
   .pill.done { background: #dcfce7; color: var(--ok); }
   .pill.part { background: #fef3c7; color: var(--warn); }
   .pill.none { background: #f1f5f9; color: var(--muted); }
   .pill.fb   { background: #ede9fe; color: #6d28d9; }
   .count { color: var(--muted); font-size: .8rem; margin-left: 6px; }
+
   /* detail drawer / mark sheet */
   #detail { display: none; }
-  #detail .answers { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
-                     max-height: 60vh; overflow: auto; margin: 8px 0 14px; }
+  #detail .answers { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px 20px;
+                     max-height: 62vh; overflow: auto; margin: 10px 0 16px; }
   #detail .answers dt { font-weight: 700; font-size: .78rem; color: var(--muted); margin-top: 8px; }
   #detail .answers dd { margin: 1px 0 0 0; white-space: pre-wrap; font-size: .9rem; }
   #detail .answers dd.empty { color: var(--muted); font-style: italic; }
-  .mk-title { font-weight: 800; font-size: 1.05rem; }
-  .mk-badge { display: inline-block; font-size: .7rem; font-weight: 700; background: #f1f5f9;
-              border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--muted); margin: 4px 0 10px; }
-  .mk-sec { font-size: .95rem; margin: 16px 0 2px; }
-  .mk-num { display: inline-block; background: #232323; color: #fff; border-radius: 6px;
-            font-size: .75rem; padding: 1px 7px; margin-right: 6px; }
-  .mk-hint { color: var(--muted); font-size: .8rem; margin: 0 0 6px; font-weight: 400; }
-  .mk-static { color: var(--muted); font-size: .78rem; border-left: 3px solid var(--line); padding: 2px 8px; margin: 6px 0; }
-  .mk-field { margin: 10px 0; }
-  .mk-label { font-weight: 700; font-size: .85rem; }
-  .mk-val { white-space: pre-wrap; background: var(--panel); border: 1px solid var(--line);
-            border-radius: 6px; padding: 6px 10px; margin-top: 3px; font-size: .9rem; }
+  .mk-title { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; text-transform: uppercase;
+              letter-spacing: .03em; font-size: 1.25rem; color: #1e293b; }
+  .mk-badge { font-family: 'JetBrains Mono', monospace; display: inline-block; font-size: .66rem; font-weight: 700;
+              background: #1e293b; color: #fff; border-radius: 4px; padding: 3px 10px; margin: 6px 0 12px; }
+  .mk-sec { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .03em; font-size: 1.05rem; color: #1e293b;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 22px 0 4px; }
+  .mk-num { font-family: 'Open Sans Condensed', sans-serif; display: inline-block; background: var(--brand-primary);
+            color: #fff; border-radius: 4px; font-size: .85rem; padding: 1px 9px; margin-right: 8px; }
+  .mk-hint { color: #64748b; font-size: .85rem; margin: 0 0 8px; font-weight: 400; }
+  .mk-static { color: var(--muted); font-size: .82rem; border-left: 3px solid var(--border-accent);
+               background: #fdfafb; padding: 6px 10px; margin: 8px 0; border-radius: 0 4px 4px 0; }
+  .mk-field { margin: 12px 0; }
+  .mk-label { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; letter-spacing: .02em;
+              font-size: .98rem; color: #1e293b; }
+  .mk-val { white-space: pre-wrap; background: var(--bg-page); border: 1px solid var(--border-color);
+            border-radius: 5px; padding: 7px 11px; margin-top: 4px; font-size: .92rem; }
   .mk-val.empty { color: var(--muted); font-style: italic; }
-  .mk-chips { margin-top: 3px; }
-  .mk-chip { display: inline-block; font-size: .8rem; border: 1px solid var(--line); border-radius: 999px;
-             padding: 2px 9px; margin: 2px 3px; color: var(--muted); }
-  .mk-chip.on { background: #dcfce7; border-color: #86efac; color: #166534; font-weight: 600; }
-  .mk-json { font-size: .72rem; background: #0f172a; color: #e2e8f0; border-radius: 6px;
-             padding: 8px; overflow: auto; max-height: 220px; margin: 3px 0 0; }
-  .meta { font-size: .8rem; color: var(--muted); }
+  .mk-chips { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .mk-chip { display: inline-block; font-size: .84rem; border: 1px solid #cbd5e1; border-radius: 999px;
+             padding: 3px 12px; color: var(--muted); background: #fff; }
+  .mk-chip.on { background: #1e293b; border-color: #1e293b; color: #fff; font-weight: 600; }
+  .mk-json { font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: #0f172a; color: #e2e8f0;
+             border-radius: 6px; padding: 10px; overflow: auto; max-height: 240px; margin: 4px 0 0; }
+  .meta { font-size: .82rem; color: var(--text-muted); }
   .hidden { display: none; }
-  footer { margin-top: 26px; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
-  @media (max-width: 720px) { .hide-sm { display: none; } }
+  a.meta { color: var(--accent-blue); text-decoration: none; }
+  a.meta:hover { text-decoration: underline; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: .8em; background: #f1f5f9;
+         border: 1px solid var(--border-color); border-radius: 4px; padding: 1px 5px; }
+  footer { margin-top: 30px; font-size: .78rem; color: var(--text-muted);
+           border-top: 1px solid var(--border-color); padding-top: 12px; }
+  @media (max-width: 720px) { .hide-sm { display: none; } h1 { font-size: 1.5rem; } }
 </style>
 </head>
 <body>
+<div class="wrap">
 
+<div class="r8-kicker">Bicentennial Junior High · Mr. Waugh · 2026–27</div>
 <h1>🔫 Room 8 — GAS Station <span class="ver" id="ver"></span></h1>
-<p class="sub">What's on the Google Sheet, by class and assignment — and a place to write feedback back.</p>
+<p class="sub">What's on the server, by class and assignment — review student work in its original layout, write feedback, and export a class set.</p>
 
 <!-- ===== staff gate: Google sign-in (preferred) or PIN (fallback) ===== -->
-<div class="card" id="gate">
+<div class="card intro" id="gate">
   <div class="row">
     <button class="primary" id="signInBtn" onclick="signIn()">🔑 Sign in with your school account</button>
     <span class="meta">Recommended — no PIN on a shared Chromebook.</span>
   </div>
-  <div class="row" id="pinRow" style="margin-top:10px; display:none">
+  <div class="row" id="pinRow" style="margin-top:12px; display:none">
     <label for="pin">PIN fallback</label>
     <input type="password" id="pin" autocomplete="off" style="width:160px"
            onkeydown="if(event.key==='Enter')connectWithPin()">
     <button onclick="connectWithPin()">Connect</button>
   </div>
-  <div class="row" style="margin-top:8px">
+  <div class="row" style="margin-top:10px">
     <span id="gateMsg" class="meta"></span>
     <span style="flex:1"></span>
     <a href="#" class="meta" onclick="showPin();return false">Signing in from a personal account? Use PIN instead…</a>
   </div>
-  <div class="meta" style="margin-top:6px">Your sign-in token is HMAC-verified by the backend and must match the staff list — this page holds no secrets in its code.</div>
+  <div class="meta" style="margin-top:8px">Your sign-in token is HMAC-verified by the server and must match the staff list — this page holds no secrets in its code.</div>
 </div>
 
 <!-- ===== main ===== -->
@@ -122,7 +204,7 @@
 
   <div class="stats" id="stats"></div>
 
-  <div style="overflow:auto; max-height: 60vh; border:1px solid var(--line); border-radius:10px;">
+  <div style="overflow:auto; max-height: 60vh; border:1px solid var(--border-color); border-radius:8px; background:#fff;">
     <table>
       <thead><tr>
         <th>Student</th><th class="hide-sm">Section</th><th>Status</th>
@@ -135,25 +217,27 @@
   <!-- ===== detail / feedback drawer ===== -->
   <div class="card" id="detail" style="margin-top:16px">
     <div class="row" style="justify-content:space-between">
-      <b id="dName"></b>
+      <b id="dName" style="font-family:'Open Sans Condensed',sans-serif; font-size:1.1rem; letter-spacing:.02em;"></b>
       <span class="meta" id="dMeta"></span>
     </div>
     <div class="answers" id="dAnswers"></div>
-    <label for="dFb">Teacher feedback <span class="meta">(visible to the student on their next load of the assignment)</span></label>
+    <label for="dFb">Teacher feedback <span class="meta" style="text-transform:none; font-family:'Source Sans Pro',sans-serif; font-weight:400;">(visible to the student on their next load of the assignment)</span></label>
     <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
-    <div class="row" style="margin-top:10px">
+    <div class="row" style="margin-top:12px">
       <button class="primary" id="dSave" onclick="saveFeedback()">💾 Save feedback</button>
-      <button onclick="closeDetail()">Close</button>
-      <span id="dStatus"></span>
+      <button class="small" onclick="closeDetail()">Close</button>
+      <span id="dStatus" class="meta"></span>
     </div>
   </div>
 
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.3.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
-  Backends: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>.
+  Room 8 v2 — GAS Station · R8-STATION-0.4.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
+
+</div><!-- /.wrap -->
 
 <script src="pipe.js"></script>
 <script>
