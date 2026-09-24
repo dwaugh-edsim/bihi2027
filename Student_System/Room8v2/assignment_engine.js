@@ -3,9 +3,10 @@
  * Renders a fillable assignment from a CONFIG object, wired to the Google-auth pipe
  * (identity popup, server autosave, server restore, zero device storage).
  *
- * Hardened per audit/Room8v2eval.md: effort telemetry (via pipe), outbox badge +
- * offline/reconnect states, in-tab crash recovery (sessionStorage — never durable),
- * and emergency exports (Copy for Google Docs / Download JSON).
+ * Hardened per the private audit (../bihipri-27/audit-priv/Room8v2eval.md): effort
+ * telemetry (via pipe), outbox badge + offline/reconnect states, in-tab crash recovery
+ * (sessionStorage — never durable), and emergency exports (Copy for Google Docs /
+ * Download JSON).
  *
  * Page usage:
  *   <div id="r8"></div>

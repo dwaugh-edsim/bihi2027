@@ -20,6 +20,53 @@ What does and doesn't travel:
   defaults from home, edit tracked files (e.g. `assignments_data.js` `active`) and
   push; the projector picks it up on reload.
 
+## Two repositories (public vs private)
+
+- **`bihi2027` (this repo — public, GitHub Pages)** — student-facing only: assignments,
+  slide decks, dashboards, projector tools, and the runtime client assets they load.
+- **`bihipri-27` (private — cloned as a sibling at `../bihipri-27`)** — everything
+  non-student-facing: curriculum planning + outcome maps, teacher facilitation/answer
+  keys, test banks, system audits and hardening proposals, maintenance logs, marking and
+  data tools, private roster data. Its folders mirror this repo's structure with a
+  `-priv` suffix (`curriculum-planning-priv/`, `tools-priv/`, `audit-priv/`, …).
+
+Rules:
+
+- **Planning docs, answer keys, audits, and tooling go in the private repo** — never here.
+- Need a file that has moved (outcome maps, answer keys, `tools/*.py`, roster JSON,
+  audits)? Read it from `../bihipri-27/<dir>-priv/…`, and `git pull` there too.
+- **This repo's `.gitignore` ignores `tools/`, `inbox/`, `curriculum-planning/`,
+  `system-maintenance/`, `audit/`, and `data/sheets/`** — a file written to those paths
+  here is invisible to git. Author them in the private repo instead.
+- Both repos must be **cloned and pushed on both machines**; a fact that lives only in
+  one clone does not exist for the other harness.
+- **Coordination log:** append to `../bihipri-27/Student_System-priv/piiiharden.md`
+  (append-only, newest at the bottom) — it moved out of this repo.
+
+### The sync contract (home → school)
+
+A file is at the other machine **only if all three** hold: it lives in a repo that is
+cloned on both machines, it is **not** ignored by that repo's `.gitignore`, and it is
+**committed and pushed**. Any one failure means the file silently stays home.
+
+**Run this before ending a session:**
+
+```bash
+python scripts/sync_check.py      # from the public repo root; works from either repo
+```
+
+It reports unpushed commits, unpulled remote work, and every file that exists locally
+but would never travel — for both repos — then prints a verdict (exit 0 = everything
+will be at school).
+
+- The private repo has a **cache-only** `.gitignore` on purpose — nothing
+  content-related can be swallowed there. Don't add content patterns to it.
+- `Private_Student_Data/*` here is ignored **by design**; its traveling copy is
+  `../bihipri-27/Private_Student_Data-priv/` (tracked). The checker verifies that pairing.
+- The public repo's ignored paths (`tools/ inbox/ audit/ curriculum-planning/
+  system-maintenance/ data/sheets/`) are the **leak net**: a file dropped there is never
+  published — but it also never travels, so author those in the private repo.
+
 ## Class Log live API (the teacher's "what did we do last class" tracker)
 
 The teacher's per-section class log lives in the **Room 8 Master Google Sheet**
@@ -74,10 +121,10 @@ and LEARNING OUTCOME strip are driven by
 `Student_System/assignments_data.js` — the curated registry mapping each course's
 ledger `TASK_NAME`s to a short label + best-fit outcome, with `active` per course.
 When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from the
-assignment page, and the outcome **chosen by digging into `2026-27outcomes.md` (repo
-root)** — the compiled verbatim outcome pool for CIT9/HL9/HL8 with codes, match tags,
-and the choosing steps; cite the code in the item's `ref` and add the pick to the
-doc's mapping table. Outcome resolution on the slide: ⚙ override → matched assignment
+assignment page, and the outcome **chosen by digging into
+`../bihipri-27/curriculum-planning-priv/2026-27outcomes.md`** — the compiled verbatim
+outcome pool for CIT9/HL9/HL8 with codes, match tags, and the choosing steps; cite the
+code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → matched assignment
 → lesson-map unit by next class # → course default. The "Last class (date · #n)" line
 is the section's newest Class_Log entry; it only appears once the course has been
 logged at least once. `class_log_seed_data.js` is the offline snapshot
@@ -138,18 +185,20 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   **names + class only** (`first_name`, `last_name`, `homeroom`, `grade`, courses).
   PINs, student IDs, usernames and full legal first names must never appear in tracked
   files, in git history of current files, or rendered on any public screen. Private
-  roster data lives in `Private_Student_Data/` (gitignored: `roster_full.json`,
-  `roster_gas_payload.json`, `generate_roster.py`) and server-side in the GAS Script
+  roster data lives **in the private repo** (`../bihipri-27/Private_Student_Data-priv/`:
+  `roster_full.json`, `roster_gas_payload.json`) and server-side in the GAS Script
   Property `ROSTER_PRIVATE` (push via the gated `set_roster` action, verify with a
   follow-up GET). Public roster file: `Student_System/students_roster_data.js`
-  (names-only, generated by `python tools/roster_privacy.py --emit`; add `--drop-pin`
-  once no page needs client-side pins). Student login is validated by the GAS
-  `resolve_student` action — pages fall back to the client roster only when the GAS
-  is unreachable/old.
+  (names-only, generated by `python ../bihipri-27/tools-priv/roster_privacy.py --emit`;
+  add `--drop-pin` once no page needs client-side pins). Student login is validated by
+  the GAS `resolve_student` action — pages fall back to the client roster only when the
+  GAS is unreachable/old.
 - Never commit real student data (`students_roster.*`, pins, cache snapshots are gitignored).
-- The schedule data file is generated: edit `tools/build_class_log_meetings.py`
-  (holidays/timetable), run `python tools/build_class_log_meetings.py`; it verifies
-  against 586 hand-checked class dates before writing.
+- The schedule data file is generated: edit
+  `../bihipri-27/tools-priv/build_class_log_meetings.py` (holidays/timetable), run
+  `python ../bihipri-27/tools-priv/build_class_log_meetings.py` to rewrite
+  `Student_System/class_log_meetings_data.js` here; it verifies against 586 hand-checked
+  class dates before writing.
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 

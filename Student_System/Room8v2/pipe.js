@@ -5,8 +5,9 @@
  * the Backend. Assignment pages should use this rather than re-implementing the
  * handoff/autosave/restore dance.
  *
- * Hardened per audit/Room8v2eval.md: effort telemetry (counts only, never content),
- * outbox counter + reconnect auto-flush, and honest pending-verify states.
+ * Hardened per the private audit (../bihipri-27/audit-priv/Room8v2eval.md): effort
+ * telemetry (counts only, never content), outbox counter + reconnect auto-flush, and
+ * honest pending-verify states.
  *
  * Usage:
  *   <script src="pipe.js"></script>
