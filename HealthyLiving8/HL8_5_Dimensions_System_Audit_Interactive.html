@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+ HEALTHY LIVING 8 — 5-DIMENSION SYSTEMS AUDIT (ROOM 8 v2 ELECTRONIC DOCKET)
+ Bicentennial Junior High • Mr. Waugh
+═══════════════════════════════════════════════════════════════════════════════
+ • Built on Room 8 v2 Architecture: Google SSO (@gnspes.ca login, zero PINs).
+ • Live cloud persistence to Room 8 Master Sheet (all UI labels say "Server").
+ • Static Matrix Table rendering for the 10-Station Forensic Audit matching
+   the exact columns of the paper docket.
+ • Live Interactive SVG Telemetry Radar updating from student scores.
+ • Full crash recovery via sessionStorage draft + offline safety net.
+═══════════════════════════════════════════════════════════════════════════════
+-->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HL8 · 5-Dimension Systems Audit & Domino Interception Lab</title>
 
-<!-- Typography: Inter + Roboto Slab + JetBrains Mono -->
+<!-- Inline SVG Favicon (prevents 404 console errors) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+
+<!-- Modern Typography: Inter + Roboto Slab + JetBrains Mono -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
 
 <style>
   *, *:before, *:after { box-sizing: border-box; }
@@ -25,7 +41,7 @@
 
   /* Main Container Box */
   #r8 {
-    max-width: 960px;
+    max-width: 980px;
     margin: 20px auto;
     background: #ffffff;
     border-radius: 10px;
@@ -46,7 +62,7 @@
     line-height: 1.2;
   }
   .r8-kicker {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -54,7 +70,7 @@
     color: #2563eb;
   }
   .r8-badge {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -249,49 +265,86 @@
     font-size: 0.78rem;
   }
 
-  /* Station Cards */
-  .station-card {
-    background: #fafbfc;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 14px 16px;
+  /* 10-Station Forensic Audit Table */
+  table.audit-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
     margin: 12px 0;
+    border: 1.5px solid #0f172a;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
   }
-  .station-card.model {
-    background: #eff6ff;
-    border-color: #93c5fd;
-    border-left: 5px solid #2563eb;
-  }
-  .station-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 6px;
-  }
-  .station-title {
-    font-weight: 800;
-    font-size: 0.98rem;
-    color: #0f172a;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .station-tag {
+  table.audit-matrix th {
+    background: #1e293b;
+    color: #ffffff;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.76rem;
     font-weight: 700;
-    background: #e2e8f0;
-    color: #475569;
-    padding: 2px 7px;
-    border-radius: 4px;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 9px 10px;
+    text-align: left;
+    border: 1px solid #334155;
   }
-  .station-card.model .station-tag {
+  table.audit-matrix td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    vertical-align: top;
+  }
+  table.audit-matrix tbody tr:nth-child(even) { background: #f8fafc; }
+  table.audit-matrix tbody tr:hover { background: #f1f5f9; }
+  table.audit-matrix tr.exemplar-row {
+    background: #eff6ff !important;
+    border-left: 4px solid #2563eb;
+  }
+  table.audit-matrix .station-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    text-align: center;
+    color: #1e3a8a;
+    font-size: 0.95rem;
+  }
+  table.audit-matrix .patient-title {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 0.90rem;
+    margin-bottom: 2px;
+  }
+  table.audit-matrix .patient-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.70rem;
+    font-weight: 700;
+    color: #64748b;
+  }
+  table.audit-matrix select {
+    font-size: 0.82rem;
+    padding: 6px 8px;
+    background: #ffffff;
+  }
+  table.audit-matrix input[type=text] {
+    font-size: 0.82rem;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    background: #ffffff;
+  }
+  table.audit-matrix textarea {
+    font-size: 0.82rem;
+    padding: 6px 8px;
+    min-height: 52px;
+    background: #ffffff;
+  }
+  table.audit-matrix .model-badge {
+    display: inline-block;
     background: #2563eb;
     color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-top: 3px;
   }
 
   /* Gate Box */
@@ -306,7 +359,7 @@
   .r8-gate button { font-size: 1.05rem; padding: 12px 28px; margin-top: 12px; background: #2563eb; }
   .r8-gate button:hover { background: #1d4ed8; }
 
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     #r8 { padding: 18px 16px; }
     .radar-grid { grid-template-columns: 1fr; }
   }
@@ -320,13 +373,30 @@
 <script src="../Student_System/Room8v2/assignment_engine.js"></script>
 <script>
   // ================= ASSIGNMENT CONFIG =================
-  const SCALE5 = ['1 (Running on empty)', '2 (Low fuel / struggling)', '3 (Fair / functional)', '4 (Good / solid balance)', '5 (Fully charged / thriving)'];
+  const SCALE5 = [
+    '1 (Running on empty / critical debt)',
+    '2 (Low fuel / struggling)',
+    '3 (Fair / functional balance)',
+    '4 (Good / solid strength)',
+    '5 (Fully charged / thriving)'
+  ];
+
   const DIMS5 = [
     '[PHYS] Physical — sleep debt, nutrition, hydration, athletic fuel, screen fatigue',
     '[MENT] Mental/Emotional — stress load, self-talk, emotional regulation, anxiety',
     '[SOC] Social — group chat drama, peer trust, healthy boundaries, teamwork',
     '[INT] Intellectual — focus, curiosity, problem-solving stamina, memory',
     '[SPIR] Spiritual/Values — core compass, knowing who I am offline, purpose'
+  ];
+
+  const DIM_OPTIONS = [
+    '— Select Trigger Dimension —',
+    '[PHYS] Physical Disruption',
+    '[MENT] Emotional Reactivity',
+    '[SOC] Relational Friction',
+    '[INT] Cognitive Slump',
+    '[SPIR] Purpose Drift / Apathy',
+    '[CTRL] Healthy Control (No Primary Disruption)'
   ];
 
   const STATIONS = [
@@ -347,6 +417,60 @@
     { num: '10', name: 'Amara P.', tag: 'Family Shift' }
   ];
 
+  // Helper to generate the static 10-Station Forensic Audit Table
+  function generateStationsTableHtml() {
+    let rows = '';
+
+    STATIONS.forEach(st => {
+      const num = st.num;
+      const isModel = st.model;
+
+      rows += '<tr class="' + (isModel ? 'exemplar-row' : '') + '">' +
+        '<td class="station-num">' + num + '</td>' +
+        '<td>' +
+          '<div class="patient-title">' + st.name + '</div>' +
+          '<div class="patient-tag">' + st.tag + '</div>' +
+          (isModel ? '<span class="model-badge">CLASS MODEL</span>' : '') +
+          (st.hint ? '<div style="color:#b45309; font-size:0.72rem; font-weight:700; margin-top:4px;">' + st.hint + '</div>' : '') +
+        '</td>' +
+        '<td>' +
+          '<select id="s' + num + '_dim" ' + (isModel ? 'disabled style="background:#f1f5f9; font-weight:700;"' : '') + '>';
+
+      DIM_OPTIONS.forEach(opt => {
+        const sel = (isModel && opt === st.defDim) ? ' selected' : '';
+        rows += '<option value="' + opt + '"' + sel + '>' + opt + '</option>';
+      });
+
+      rows += '</select>' +
+        '</td>' +
+        '<td>' +
+          '<input type="text" id="s' + num + '_d1" placeholder="Domino 1 (Trigger habit)..." ' +
+            (isModel ? 'value="' + st.d1 + '" readonly style="background:#f1f5f9; font-weight:600;"' : '') + '>' +
+          '<input type="text" id="s' + num + '_d2" placeholder="Domino 2 (Impact on next dimension)..." ' +
+            (isModel ? 'value="' + st.d2 + '" readonly style="background:#f1f5f9; font-weight:600;"' : '') + '>' +
+          '<input type="text" id="s' + num + '_d3" placeholder="Domino 3 (Damage to performance / trust)..." ' +
+            (isModel ? 'value="' + st.d3 + '" readonly style="background:#f1f5f9; font-weight:600;"' : '') + '>' +
+        '</td>' +
+        '<td>' +
+          '<textarea id="s' + num + '_advice" placeholder="1-sentence advice / circuit breaker..." ' +
+            (isModel ? 'readonly style="background:#f1f5f9; font-weight:600; font-style:italic;"' : '') + '>' +
+            (isModel ? st.adv : '') +
+          '</textarea>' +
+        '</td>' +
+      '</tr>';
+    });
+
+    return '<div style="overflow-x:auto;">' +
+      '<table class="audit-matrix"><thead><tr>' +
+        '<th style="width:4%; text-align:center;">#</th>' +
+        '<th style="width:18%;">Subject Patient</th>' +
+        '<th style="width:18%;">Trigger Dimension</th>' +
+        '<th style="width:31%;">Domino Cascade (How It Spreads)</th>' +
+        '<th style="width:29%;">Your 1-Sentence Advice / Circuit Breaker</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>' +
+      '</div>';
+  }
+
   const ASSIGNMENT = {
     taskName: 'HL8 5-Dimension Systems Audit',
     course: 'HL8',
@@ -365,7 +489,7 @@
       {
         num: 1,
         title: 'Personal Telemetry Radar — Current Baseline Self-Check',
-        hint: 'Rate yourself honestly on all 5 dimensions right now (1 = running on empty, 5 = fully charged). Watch your radar live on the left!',
+        hint: 'Rate yourself honestly on all 5 dimensions right now (1 = running on empty, 5 = fully charged). Watch your radar update live on the left!',
         fields: [
           {
             id: 'radarBlock',
@@ -434,65 +558,10 @@
       {
         num: 2,
         title: 'Wall Gallery 10-Station Forensic Audit — Room 8 Patient Files',
-        hint: 'Audit all 10 patient cases posted around Room 8. Pick the Trigger Dimension, trace the 3-domino cascade, and give one sentence of direct advice.',
-        fields: (function () {
-          const fields = [];
-          STATIONS.forEach(st => {
-            const num = st.num;
-            const isModel = st.model;
-            fields.push({
-              id: 'st_header_' + num,
-              type: 'static',
-              html:
-                '<div class="station-card ' + (isModel ? 'model' : '') + '">' +
-                '<div class="station-head">' +
-                '<span class="station-title">Station #' + num + ' — ' + st.name + '</span>' +
-                '<span class="station-tag">' + (isModel ? 'CLASS MODEL / EXEMPLAR' : st.tag) + '</span>' +
-                '</div>' +
-                (st.hint ? '<p style="color:#b45309; font-size:0.84rem; font-weight:600; margin:0 0 8px 0;">' + st.hint + '</p>' : '') +
-                (isModel ? '<p style="color:#1d4ed8; font-size:0.84rem; margin:0 0 8px 0;">This station was modeled together in class. Pre-filled as your gold standard reference.</p>' : '') +
-                '</div>'
-            });
-            fields.push({
-              id: 's' + num + '_dim',
-              type: 'select',
-              label: 'Station ' + num + ' (' + st.name + '): Trigger Dimension',
-              options: [
-                '[PHYS] Physical Disruption',
-                '[MENT] Emotional Reactivity',
-                '[SOC] Relational Friction',
-                '[INT] Cognitive Slump',
-                '[SPIR] Purpose Drift / Apathy',
-                '[CTRL] Healthy Control (No Primary Disruption)'
-              ]
-            });
-            fields.push({
-              id: 's' + num + '_d1',
-              type: 'text',
-              label: 'Domino 1 — where the chain starts:',
-              placeholder: isModel ? st.d1 : 'The trigger, late screen, caffeine, or conflict habit...'
-            });
-            fields.push({
-              id: 's' + num + '_d2',
-              type: 'text',
-              label: 'Domino 2 — how it spreads to the next dimension:',
-              placeholder: isModel ? st.d2 : 'The biological or emotional impact next...'
-            });
-            fields.push({
-              id: 's' + num + '_d3',
-              type: 'text',
-              label: 'Domino 3 — where it lands (who or what gets hurt):',
-              placeholder: isModel ? st.d3 : 'The damage to performance, trust, or wellbeing...'
-            });
-            fields.push({
-              id: 's' + num + '_advice',
-              type: 'text',
-              label: 'Station ' + num + ': Your 1-Sentence Advice / Circuit Breaker for the kid:',
-              placeholder: isModel ? st.adv : 'One actionable sentence that cuts the wire...'
-            });
-          });
-          return fields;
-        })()
+        hint: 'Audit all 10 patient cases from the paper docket. Pick the Trigger Dimension, trace the 3-domino cascade, and give one sentence of direct advice.',
+        fields: [
+          { id: 'stationsTableWrap', type: 'static', html: generateStationsTableHtml() }
+        ]
       },
       {
         num: 3,
@@ -533,7 +602,7 @@
     ]
   };
 
-  // =======================================================================================
+  // ================= SERVER ENDPOINTS & INITIALIZATION =================
   const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
   const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
 
@@ -548,91 +617,108 @@
     const p5 = parseInt((document.getElementById('r8f_radar_spir') || {}).value) || 0;
 
     const scores = [p1, p2, p3, p5, p4]; // Top, Upper-Right, Lower-Right, Lower-Left, Upper-Left
-    const angles = [-Math.PI / 2, -18 * Math.PI / 180, 54 * Math.PI / 180, 126 * Math.PI / 180, 198 * Math.PI / 180];
-    const cx = 125, cy = 80, maxR = 55;
+    const center = { x: 125, y: 80 };
+    const maxR = 55;
 
-    const pts = scores.map((s, idx) => {
-      const val = Math.max(0, Math.min(5, s));
-      const r = (val / 5) * maxR;
-      const x = cx + r * Math.cos(angles[idx]);
-      const y = cy + r * Math.sin(angles[idx]);
-      const dot = document.getElementById('dot' + idx);
-      if (dot) {
-        dot.setAttribute('cx', x.toFixed(1));
-        dot.setAttribute('cy', y.toFixed(1));
-        dot.setAttribute('fill', val > 0 ? '#2563eb' : '#94a3b8');
-      }
-      return x.toFixed(1) + ',' + y.toFixed(1);
+    // Angles for 5 spokes starting at 12 o'clock (-pi/2)
+    const angles = [
+      -Math.PI / 2,
+      -Math.PI / 2 + 2 * Math.PI / 5,
+      -Math.PI / 2 + 4 * Math.PI / 5,
+      -Math.PI / 2 + 6 * Math.PI / 5,
+      -Math.PI / 2 + 8 * Math.PI / 5
+    ];
+
+    const pts = angles.map((ang, idx) => {
+      const score = Math.max(0, Math.min(5, scores[idx]));
+      const r = (score / 5) * maxR;
+      return {
+        x: (center.x + r * Math.cos(ang)).toFixed(1),
+        y: (center.y + r * Math.sin(ang)).toFixed(1)
+      };
     });
 
     const poly = document.getElementById('radarPoly');
-    if (poly) poly.setAttribute('points', pts.join(' '));
+    if (poly) {
+      poly.setAttribute('points', pts.map(p => p.x + ',' + p.y).join(' '));
+    }
+
+    pts.forEach((p, idx) => {
+      const dot = document.getElementById('dot' + idx);
+      if (dot) {
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', p.y);
+      }
+    });
   }
 
-  // Pre-fill model Station 01 defaults if empty
-  function ensureModelStationDefaults() {
-    const s01 = STATIONS[0];
-    const dEl = document.getElementById('r8f_s01_dim');
-    if (dEl && !dEl.value) dEl.value = '[PHYS] Physical Disruption';
-    const d1El = document.getElementById('r8f_s01_d1');
-    if (d1El && !d1El.value) d1El.value = s01.d1;
-    const d2El = document.getElementById('r8f_s01_d2');
-    if (d2El && !d2El.value) d2El.value = s01.d2;
-    const d3El = document.getElementById('r8f_s01_d3');
-    if (d3El && !d3El.value) d3El.value = s01.d3;
-    const advEl = document.getElementById('r8f_s01_advice');
-    if (advEl && !advEl.value) advEl.value = s01.adv;
-  }
-
-  // Mount assignment engine with custom hooks for the live radar
-  const _mount = R8Assignment.mount;
-  R8Assignment.mount = function (opts) {
-    opts.custom = {
+  // Mount with custom table collect and populate hooks
+  const api = R8Assignment.mount({
+    mount: document.getElementById('r8'),
+    pipe: Room8,
+    assignment: ASSIGNMENT,
+    custom: {
       collect: function (answers) {
-        // Radar scores captured automatically via field IDs
+        STATIONS.forEach(st => {
+          const num = st.num;
+          const dimEl = document.getElementById('s' + num + '_dim');
+          const d1El  = document.getElementById('s' + num + '_d1');
+          const d2El  = document.getElementById('s' + num + '_d2');
+          const d3El  = document.getElementById('s' + num + '_d3');
+          const advEl = document.getElementById('s' + num + '_advice');
+
+          answers['s' + num + '_dim']    = dimEl ? dimEl.value : '';
+          answers['s' + num + '_d1']     = d1El  ? d1El.value  : '';
+          answers['s' + num + '_d2']     = d2El  ? d2El.value  : '';
+          answers['s' + num + '_d3']     = d3El  ? d3El.value  : '';
+          answers['s' + num + '_advice'] = advEl ? advEl.value : '';
+        });
       },
       populate: function (data) {
-        setTimeout(function () {
-          updateRadar();
-          ensureModelStationDefaults();
-        }, 100);
+        const answers = (data && data.answers) ? data.answers : (data || {});
+        STATIONS.forEach(st => {
+          const num = st.num;
+          const dimEl = document.getElementById('s' + num + '_dim');
+          const d1El  = document.getElementById('s' + num + '_d1');
+          const d2El  = document.getElementById('s' + num + '_d2');
+          const d3El  = document.getElementById('s' + num + '_d3');
+          const advEl = document.getElementById('s' + num + '_advice');
+
+          if (dimEl && answers['s' + num + '_dim'])    dimEl.value = answers['s' + num + '_dim'];
+          if (d1El  && answers['s' + num + '_d1'])     d1El.value  = answers['s' + num + '_d1'];
+          if (d2El  && answers['s' + num + '_d2'])     d2El.value  = answers['s' + num + '_d2'];
+          if (d3El  && answers['s' + num + '_d3'])     d3El.value  = answers['s' + num + '_d3'];
+          if (advEl && answers['s' + num + '_advice']) advEl.value = answers['s' + num + '_advice'];
+        });
+        updateRadar();
       }
-    };
-    const api = _mount(opts);
+    }
+  });
 
-    // Wire listeners for radar score inputs
-    ['radar_phys', 'radar_ment', 'radar_soc', 'radar_int', 'radar_spir'].forEach(id => {
-      const el = document.getElementById('r8f_' + id);
-      if (el) el.addEventListener('change', updateRadar);
-    });
+  // Attach live listeners for radar inputs
+  ['radar_phys', 'radar_ment', 'radar_soc', 'radar_int', 'radar_spir'].forEach(id => {
+    const el = document.getElementById('r8f_' + id);
+    if (el) el.addEventListener('change', updateRadar);
+  });
 
-    setTimeout(function () {
-      updateRadar();
-      ensureModelStationDefaults();
-    }, 150);
-
-    return api;
-  };
-
-  const api = R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
-
-  // Auto-import legacy data from the monolithic database if new doc is blank
-  const LEGACY_GAS_URL = 'https://script.google.com/macros/s/AKfycby8XaHRRj07UUQ-4NTK7AH4s2qVp3GKe6XRyMA_tGLap52ZUWYg2faJbVhIB7Ea7_VJ/exec';
-
-  function checkAndImportLegacyData(idEmail) {
-    if (!idEmail) return;
+  // Legacy data migration for seamless student continuity
+  function checkAndImportLegacyData(email) {
+    if (!email) return;
     const statusEl = document.querySelector('.r8-status');
-    if (statusEl) statusEl.textContent = 'Checking for previously completed 5D Audit answers…';
 
-    fetch(LEGACY_GAS_URL + '?action=get_class_progress&className=ALL&cache=0')
-      .then(function (res) { return res.json(); })
-      .then(function (data) {
-        if (!data || data.status !== 'success' || !Array.isArray(data.students)) return;
-        const normEmail = idEmail.trim().toLowerCase();
+    fetch('https://script.google.com/macros/s/AKfycbzSknG_H1lA54Qz48-kLqX8S27f54c2e68/exec?action=get_class_progress&className=804')
+      .then(res => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(data => {
+        if (!data || !Array.isArray(data.students)) return;
+
+        const normEmail = email.toLowerCase().trim();
         const normUser = normEmail.split('@')[0];
 
-        const student = data.students.find(function (s) {
-          const sEmail = String(s.email || '').trim().toLowerCase();
+        const student = data.students.find(s => {
+          const sEmail = (s.email || '').toLowerCase().trim();
           return sEmail === normEmail || (normUser && sEmail.startsWith(normUser));
         });
 
@@ -641,18 +727,17 @@
         const tasks = saved._tasks || {};
         let targetData = null;
         for (const k in tasks) {
-          if ((k.indexOf('5-Dimension') !== -1 || k.indexOf('5D') !== -1) && tasks[k]) {
+          if (k.indexOf('5-Dimension') !== -1 && tasks[k]) {
             targetData = tasks[k].data || tasks[k];
           }
         }
-        if (!targetData && (String(student.task || '').indexOf('5-Dimension') !== -1 || String(student.task || '').indexOf('5D') !== -1)) {
+        if (!targetData && String(student.task || '').indexOf('5-Dimension') !== -1) {
           targetData = saved;
         }
 
         if (!targetData) return;
 
         let restoredCount = 0;
-
         function setIfEmpty(id, val) {
           if (val === undefined || val === null || val === '') return;
           const el = document.getElementById(id);
@@ -674,11 +759,11 @@
         // Stations 01 to 10
         STATIONS.forEach(st => {
           const num = st.num;
-          setIfEmpty('r8f_s' + num + '_dim',    targetData['s' + num + '_dim']);
-          setIfEmpty('r8f_s' + num + '_d1',     targetData['s' + num + '_d1']);
-          setIfEmpty('r8f_s' + num + '_d2',     targetData['s' + num + '_d2']);
-          setIfEmpty('r8f_s' + num + '_d3',     targetData['s' + num + '_d3']);
-          setIfEmpty('r8f_s' + num + '_advice', targetData['s' + num + '_advice']);
+          setIfEmpty('s' + num + '_dim',    targetData['s' + num + '_dim']);
+          setIfEmpty('s' + num + '_d1',     targetData['s' + num + '_d1']);
+          setIfEmpty('s' + num + '_d2',     targetData['s' + num + '_d2']);
+          setIfEmpty('s' + num + '_d3',     targetData['s' + num + '_d3']);
+          setIfEmpty('s' + num + '_advice', targetData['s' + num + '_advice']);
         });
 
         // Part 3 Lab
@@ -693,7 +778,7 @@
 
         if (restoredCount > 0) {
           if (statusEl) {
-            statusEl.textContent = 'Restored ' + restoredCount + ' answers from your previous 5D audit! Autosaving to new GAS…';
+            statusEl.textContent = 'Restored ' + restoredCount + ' answers from your previous 5D audit! Autosaving to server…';
             statusEl.className = 'r8-status ok';
           }
           if (api && api.autosave) {
@@ -701,12 +786,10 @@
               if (api.verify) api.verify(false);
             });
           }
-        } else {
-          if (statusEl && statusEl.textContent.indexOf('Checking') !== -1) statusEl.textContent = '';
         }
       })
-      .catch(function (err) {
-        console.warn('Could not check legacy 5D Audit data:', err);
+      .catch(function () {
+        // Silently skip if old legacy server is unreachable
       });
   }
 
