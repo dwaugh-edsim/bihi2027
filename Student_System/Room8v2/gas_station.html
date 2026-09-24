@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room 8 — GAS Station</title>
+<style>
+  :root { --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --ok:#15803d; --bad:#b91c1c; --warn:#b45309;
+          --accent:#c94663; --panel:#f8fafc; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--ink);
+         max-width: 1080px; margin: 20px auto; padding: 0 16px; line-height: 1.45; background:#fff; }
+  h1 { font-size: 1.3rem; margin: 0 0 2px; }
+  h1 .ver { font-size: .72rem; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .sub { color: var(--muted); margin: 0 0 18px; font-size: .9rem; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel); margin-bottom: 16px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  label { font-weight: 600; font-size: .85rem; }
+  input, select, textarea, button { font: inherit; }
+  input[type=password], input[type=text], select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+  textarea { width: 100%; min-height: 90px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
+  button { font-weight: 600; padding: 8px 15px; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.small { padding: 4px 9px; font-size: .8rem; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #status { font-size: .85rem; font-weight: 600; }
+  #status.ok { color: var(--ok); } #status.bad { color: var(--bad); } #status.warn { color: var(--warn); }
+  /* stat chips */
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { border: 1px solid var(--line); border-radius: 9px; padding: 8px 14px; background: var(--panel); }
+  .stat b { display: block; font-size: 1.25rem; }
+  .stat span { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  /* table */
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+       border-bottom: 2px solid var(--line); padding: 6px 8px; position: sticky; top: 0; background: #fff; }
+  td { border-bottom: 1px solid var(--line); padding: 7px 8px; vertical-align: top; }
+  tr.stu { cursor: pointer; }
+  tr.stu:hover { background: #f1f5f9; }
+  tr.stu.sel { background: #e0f2fe; }
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 1px 9px; }
+  .pill.done { background: #dcfce7; color: var(--ok); }
+  .pill.part { background: #fef3c7; color: var(--warn); }
+  .pill.none { background: #f1f5f9; color: var(--muted); }
+  .pill.fb   { background: #ede9fe; color: #6d28d9; }
+  .count { color: var(--muted); font-size: .8rem; margin-left: 6px; }
+  /* detail drawer */
+  #detail { display: none; }
+  #detail .answers { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+                     max-height: 300px; overflow: auto; margin: 8px 0 14px; }
+  #detail .answers dt { font-weight: 700; font-size: .78rem; color: var(--muted); margin-top: 8px; }
+  #detail .answers dd { margin: 1px 0 0 0; white-space: pre-wrap; font-size: .9rem; }
+  #detail .answers dd.empty { color: var(--muted); font-style: italic; }
+  .meta { font-size: .8rem; color: var(--muted); }
+  .hidden { display: none; }
+  footer { margin-top: 26px; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+  @media (max-width: 720px) { .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+
+<h1>🔫 Room 8 — GAS Station <span class="ver" id="ver"></span></h1>
+<p class="sub">What's on the Google Sheet, by class and assignment — and a place to write feedback back.</p>
+
+<!-- ===== PIN gate ===== -->
+<div class="card" id="gate">
+  <div class="row">
+    <label for="pin">Teacher PIN</label>
+    <input type="password" id="pin" autocomplete="off" style="width:160px"
+           onkeydown="if(event.key==='Enter')connect()">
+    <button class="primary" onclick="connect()">Connect</button>
+    <span id="gateMsg" class="meta"></span>
+  </div>
+  <div class="meta" style="margin-top:8px">Never saved to this page's code — kept in this browser tab only (sessionStorage).</div>
+</div>
+
+<!-- ===== main ===== -->
+<div id="main" class="hidden">
+
+  <div class="card">
+    <div class="row">
+      <label>Class</label>
+      <select id="selSection" onchange="render()"></select>
+      <label>Assignment</label>
+      <select id="selTask" onchange="render()"></select>
+      <button class="small" onclick="refresh()">↻ Refresh</button>
+      <span id="status"></span>
+      <span style="flex:1"></span>
+      <button class="small" onclick="lock()">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div style="overflow:auto; max-height: 60vh; border:1px solid var(--line); border-radius:10px;">
+    <table>
+      <thead><tr>
+        <th>Student</th><th class="hide-sm">Section</th><th>Status</th>
+        <th class="hide-sm">Last save</th><th>Summary</th><th>Feedback</th><th></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== detail / feedback drawer ===== -->
+  <div class="card" id="detail" style="margin-top:16px">
+    <div class="row" style="justify-content:space-between">
+      <b id="dName"></b>
+      <span class="meta" id="dMeta"></span>
+    </div>
+    <dl class="answers" id="dAnswers"></dl>
+    <label for="dFb">Teacher feedback <span class="meta">(visible to the student on their next load of the assignment)</span></label>
+    <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="dSave" onclick="saveFeedback()">💾 Save feedback</button>
+      <button onclick="closeDetail()">Close</button>
+      <span id="dStatus"></span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Room 8 v2 — GAS Station · R8-STATION-0.1.0 · Reads/writes go straight to the v2 backend (no data stored here).
+  Backends: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>.
+</footer>
+
+<script>
+// =========================================================================
+//  CONFIG — change only if you redeploy the Apps Script backend
+// =========================================================================
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+// =========================================================================
+//  Plumbing
+// =========================================================================
+const PIN_KEY = 'r8stati…n';
+let PIN = '';
+let OVERVIEW = null;     // get_overview result
+let STUDENTS = [];       // current get_task_progress students
+let current = null;      // {section, task}
+let selectedEmail = null;
+
+function $(id) { return document.getElementById(id); }
+function setStatus(msg, kind) { const el = $('status'); el.textContent = msg || ''; el.className = kind || ''; }
+
+function teacherCall(action, payload) {
+  const body = Object.assign({ action: action, teacherPin: PIN }, payload || {});
+  return fetch(BACKEND_URL, { method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), keepalive: true })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtWhen(v) {
+  if (!v) return '';
+  try {
+    const d = new Date(v);
+    if (isNaN(d)) return '';
+    const p = function (n) { return n < 10 ? '0' + n : n; };
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  } catch (e) { return ''; }
+}
+
+// =========================================================================
+//  Gate
+// =========================================================================
+function connect() {
+  const v = ($('pin').value || '').trim();
+  if (!v) { $('gateMsg').textContent = 'Enter the PIN.'; return; }
+  PIN = v;
+  $('gateMsg').textContent = 'Connecting…';
+  teacherCall('get_overview', {}).then(function (j) {
+    if (j.status !== 'ok') { $('gateMsg').textContent = 'PIN rejected (' + (j.message || j.status) + ')'; PIN = ''; return; }
+    sessionStorage.setItem(PIN_KEY, PIN);
+    OVERVIEW = j;
+    $('ver').textContent = j.version || '';
+    $('gate').classList.add('hidden');
+    $('main').classList.remove('hidden');
+    fillPickers();
+    refresh();
+  }).catch(function (e) { $('gateMsg').textContent = 'Backend unreachable: ' + e.message; PIN = ''; });
+}
+function lock() {
+  sessionStorage.removeItem(PIN_KEY); PIN = '';
+  $('main').classList.add('hidden'); $('gate').classList.remove('hidden');
+  $('pin').value = ''; $('gateMsg').textContent = 'Locked.';
+}
+
+// =========================================================================
+//  Pickers + data
+// =========================================================================
+function fillPickers() {
+  const secs = Object.keys(OVERVIEW.sections || {}).sort();
+  const secSel = $('selSection');
+  secSel.innerHTML = '<option value="">All classes</option>' +
+    secs.map(function (s) { return '<option>' + escapeHtml(s) + '</option>'; }).join('');
+
+  const taskSel = $('selTask');
+  const tasks = OVERVIEW.tasks || [];
+  taskSel.innerHTML = tasks.map(function (t) {
+    return '<option value="' + escapeHtml(t.name) + '">' + escapeHtml(t.name) +
+           '  (' + t.submitted + ' done / ' + t.started + ' started)</option>';
+  }).join('') || '<option value="">(no assignments yet)</option>';
+  if (tasks[0]) taskSel.value = tasks[0].name;
+}
+
+function refresh() {
+  const task = $('selTask').value;
+  if (!task) { STUDENTS = []; render(); return; }
+  setStatus('Loading…', 'warn');
+  const section = $('selSection').value;
+  const seen = {};
+  Promise.all([
+    teacherCall('get_task_progress', { task: task, section: section, includeData: true }),
+    teacherCall('get_class_progress', { slim: true })
+  ]).then(function (res) {
+    const j = res[0], cp = res[1];
+    if (j.status !== 'ok') { setStatus(j.message || 'error', 'bad'); return; }
+    current = { section: j.section, task: j.task };
+    STUDENTS = (j.students || []).slice();
+    STUDENTS.forEach(function (s) { seen[s.email] = true; s.written = !!s.written; });
+    // fold in everyone on the class roster with NO entry for this task -> "not started"
+    if (cp && cp.status === 'ok') {
+      (cp.students || []).forEach(function (r) {
+        if (seen[r.email]) return;
+        if (section && r.section !== section) return;
+        STUDENTS.push({ email: r.email, name: r.name, section: r.section || '',
+                        written: false, notStarted: true, updated: null, summary: '', feedback: '', data: null });
+      });
+    }
+    STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+    render();
+    setStatus(STUDENTS.length + ' students shown', 'ok');
+  }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); });
+}
+
+// =========================================================================
+//  Render
+// =========================================================================
+function render() {
+  // stats
+  const done = STUDENTS.filter(function (s) { return s.written; }).length;
+  const started = STUDENTS.filter(function (s) { return !s.written && !s.notStarted; }).length;
+  const untouched = STUDENTS.filter(function (s) { return s.notStarted; }).length;
+  const withFb = STUDENTS.filter(function (s) { return s.feedback && s.feedback.trim(); }).length;
+  $('stats').innerHTML =
+    chip(done, 'submitted') + chip(started, 'started only') + chip(untouched, 'not started') +
+    chip(STUDENTS.length, 'in view') + chip(withFb, 'with feedback');
+  function chip(n, label) { return '<div class="stat"><b>' + n + '</b><span>' + escapeHtml(label) + '</span></div>'; }
+
+  const tb = $('rows');
+  tb.innerHTML = STUDENTS.map(function (s, i) {
+    const status = s.written ? '<span class="pill done">submitted</span>'
+                   : s.notStarted ? '<span class="pill none">not started</span>'
+                   : '<span class="pill part">started</span>';
+    const fb = (s.feedback && s.feedback.trim())
+      ? '<span class="pill fb">✓ written</span>' : '<span class="pill none">—</span>';
+    return '<tr class="stu" data-i="' + i + '">' +
+      '<td><b>' + escapeHtml(s.name || '(no name)') + '</b><div class="meta hide-sm">' + escapeHtml(s.email) + '</div></td>' +
+      '<td class="hide-sm">' + escapeHtml(s.section || '') + '</td>' +
+      '<td>' + status + '</td>' +
+      '<td class="hide-sm meta">' + fmtWhen(s.updated) + '</td>' +
+      '<td style="max-width:260px">' + escapeHtml((s.summary || '').slice(0, 90)) + '</td>' +
+      '<td>' + fb + '</td>' +
+      '<td><button class="small" data-open="' + i + '">open</button></td>' +
+      '</tr>';
+  }).join('') || '<tr><td colspan="7" class="meta">Nothing on the server for this class/task yet.</td></tr>';
+
+  Array.prototype.forEach.call(tb.querySelectorAll('button[data-open]'), function (b) {
+    b.addEventListener('click', function (e) { e.stopPropagation(); openDetail(STUDENTS[+b.dataset.open]); });
+  });
+  Array.prototype.forEach.call(tb.querySelectorAll('tr.stu'), function (tr) {
+    tr.addEventListener('click', function () { openDetail(STUDENTS[+tr.dataset.i]); });
+  });
+}
+
+// =========================================================================
+//  Detail drawer: answers + feedback editor
+// =========================================================================
+function flatAnswers(s) {
+  const d = s.data || {};
+  const ans = d.answers || d;
+  const out = [];
+  Object.keys(ans).forEach(function (k) {
+    if (k.charAt(0) === '_' || k === 'name' || k === 'section') return;   // strip _telemetry, _v, _pipe, _requestId
+    const v = ans[k];
+    if (v == null || v === '') return;
+    out.push({ k: k, v: Array.isArray(v) ? v.join(' · ') : String(v) });
+  });
+  return out;
+}
+
+function openDetail(s) {
+  if (!s) return;
+  selectedEmail = s.email;
+  $('detail').style.display = 'block';
+  $('dName').textContent = (s.name || '(no name)') + '  ·  ' + s.email;
+  $('dMeta').textContent = (s.section || '') + '  ·  ' + (s.written ? 'submitted' : 'started only') +
+                           '  ·  last save ' + (fmtWhen(s.updated) || '—');
+  const list = flatAnswers(s);
+  $('dAnswers').innerHTML = list.length
+    ? list.map(function (a) { return '<dt>' + escapeHtml(a.k) + '</dt><dd>' + escapeHtml(a.v) + '</dd>'; }).join('')
+    : '<dd class="empty">No saved answers yet.</dd>';
+  $('dFb').value = s.feedback || '';
+  $('dStatus').textContent = '';
+  $('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function closeDetail() { $('detail').style.display = 'none'; selectedEmail = null; }
+
+function saveFeedback() {
+  if (!selectedEmail || !current) return;
+  const stu = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
+  const btn = $('dSave'); btn.disabled = true;
+  $('dStatus').textContent = 'Saving…';
+  const payload = { email: selectedEmail, task: current.task, feedback: $('dFb').value };
+  if (stu) { payload.name = stu.name; payload.section = stu.section; }
+  teacherCall('set_feedback', payload).then(function (j) {
+    if (j.status === 'feedback_saved') {
+      if (stu) stu.feedback = payload.feedback;
+      $('dStatus').textContent = j.empty ? 'Cleared (empty feedback).' : '✓ Saved — student sees it on next load.';
+      render();
+    } else {
+      $('dStatus').textContent = 'FAILED: ' + (j.message || j.status);
+    }
+  }).catch(function (e) {
+    $('dStatus').textContent = 'FAILED: ' + e.message;
+  }).finally(function () { btn.disabled = false; });
+}
+</script>
+</body>
+</html>

@@ -146,7 +146,12 @@ window.R8Assignment = (function () {
         '  border-radius: 4px; border: 1px solid #525252; background: #262626; color: #f8fafc; cursor: pointer; }',
         '.r8-top-bar button.mini-top:hover { background: #404040; }',
         '.r8-top-bar button.mini-verify { background: #c94663; border-color: #c94663; color: #fff; }',
-        '.r8-top-bar button.mini-verify:hover { background: #d85773; }'
+        '.r8-top-bar button.mini-verify:hover { background: #d85773; }',
+        '.r8-feedback-card { border: 1px solid #bae6fd; border-left: 4px solid #0284c7; background: #f0f9ff;',
+        '  border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; }',
+        '.r8-feedback-head { font-weight: 700; color: #0c4a6e; font-size: 0.95rem; }',
+        '.r8-feedback-when { font-weight: 400; color: #64748b; font-size: 0.8rem; }',
+        '.r8-feedback-body { margin-top: 4px; color: #0f172a; white-space: pre-wrap; }'
       ].join('\n');
       document.head.appendChild(st);
     })();
@@ -188,6 +193,21 @@ window.R8Assignment = (function () {
 
     var restored = h('div', 'r8-restored', 'Restored your last saved work.');
     restored.style.display = 'none'; app.appendChild(restored);
+
+    // ---- teacher feedback card (shown when the server has feedback for this task) ----
+    var fbCard = h('div', 'r8-feedback-card'); fbCard.style.display = 'none';
+    var fbHead = h('div', 'r8-feedback-head', '📝 Teacher feedback');
+    var fbWhen = h('span', 'r8-feedback-when');
+    fbHead.appendChild(fbWhen);
+    var fbBody = h('div', 'r8-feedback-body');
+    fbCard.appendChild(fbHead); fbCard.appendChild(fbBody);
+    app.appendChild(fbCard);
+    function showFeedback(text, when) {
+      if (!text) { fbCard.style.display = 'none'; return; }
+      fbBody.textContent = String(text);
+      fbWhen.textContent = when ? (' · ' + new Date(when).toLocaleString()) : '';
+      fbCard.style.display = 'block';
+    }
 
     var sectionWrap = h('div', 'r8-section-line');
     app.appendChild(sectionWrap);
@@ -465,6 +485,7 @@ window.R8Assignment = (function () {
           topSyncBadge.textContent = '☁️ Server: Ready (autosaves as you type)';
           topSyncBadge.className = 'r8-sync-badge';
         }
+        if (j && j.feedback) showFeedback(j.feedback, j.feedbackAt);
         var draft = getTabDraft();
         if (draft && draft.answers) {
           var serverCount = countAnswers(found ? ((j.data || {}).answers) || j.data : null);

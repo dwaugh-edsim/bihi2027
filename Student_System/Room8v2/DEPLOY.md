@@ -80,6 +80,23 @@ bridge is the email column of the old class tabs (~80% coverage). Rows without a
 are **reported, never guessed** — when that student eventually signs in with Google, add
 them to the roster and re-run the migration for their task.
 
+## Teacher feedback + the GAS Station (R8-BE-0.5.0)
+
+New backend actions (all PIN-gated): `get_overview` (classes/tasks with counts), `get_feedback`
+(list, optional `section`/`task` filter), `set_feedback` (`{email, task, feedback}` — append-only
+to the **Feedback** tab; latest row per student+task wins; empty text = clear). `load_assignment`,
+`get_my_tasks` and `get_task_progress` now carry the student's latest feedback so the assignment
+engine can show it.
+
+**To deploy:** paste `backend.gs` into the v2 sheet's Apps Script → **Manage deployments →
+edit → New version → Deploy** (same URL). The Feedback tab is created automatically on the
+first call — no manual `setup()` needed.
+
+**The Station:** open `gas_station.html` (or its Pages URL) → enter the teacher PIN → pick
+class + assignment → click a student → read their saved answers → write feedback → **Save**.
+The student sees the feedback card the next time they load that assignment. The PIN lives in
+the tab's sessionStorage only — never in the file, never in git.
+
 ## Deleting dead deployments
 
 **Manage deployments** can hold several rows; only the **Active** one answers, and the

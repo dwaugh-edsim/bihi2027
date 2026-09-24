@@ -25,8 +25,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.4.0-2026-09-24';
-var CONFIG_DEPLOYED = '2026-09-24T12:00:00Z';
+var CONFIG_VERSION = 'R8-BE-0.5.0-2026-09-24';
+var CONFIG_DEPLOYED = '2026-09-24T18:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -38,6 +38,7 @@ var TAB_LOG      = 'Submissions_Log';
 var TAB_CLASSLOG     = 'Class_Log';
 var TAB_PLAN     = 'Class_Plan';
 var TAB_SLIDE    = 'Class_Slide';
+var TAB_FEEDBACK = 'Feedback';
 
 // Students tab columns
 var S_EMAIL=1, S_NAME=2, S_SECTION=3, S_GRADE=4, S_TASK=5, S_LEDGER=6, S_SUMMARY=7, S_UPDATED=8, S_FIRST_TASK_COL=9;
@@ -91,6 +92,8 @@ function ensureSheets_(ss) {
   ensureTab_(ss, TAB_CLASSLOG, ['Date', 'Section', 'Course', 'Class #', 'What We Did', 'Next Class', 'Timestamp']);
   ensureTab_(ss, TAB_PLAN, ['Section', 'Next Note', 'Next Class #', 'Updated']);
   ensureTab_(ss, TAB_SLIDE, ['Section', 'Title', 'Announcements', 'Outcome', 'Updated']);
+  var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback']);
+  fb.setColumnWidth(6, 380);
 }
 
 function ensureTab_(ss, name, headers) {
@@ -275,7 +278,7 @@ function health_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ensureSheets_(ss);
   var counts = {};
-  [TAB_ROSTER, TAB_STUDENTS, TAB_LOG, TAB_CLASSLOG, TAB_PLAN, TAB_SLIDE].forEach(function (t) {
+  [TAB_ROSTER, TAB_STUDENTS, TAB_LOG, TAB_CLASSLOG, TAB_PLAN, TAB_SLIDE, TAB_FEEDBACK].forEach(function (t) {
     var sh = ss.getSheetByName(t); counts[t] = sh ? Math.max(0, sh.getLastRow() - 1) : 0;
   });
   return { status: 'healthy', service: 'Room 8 v2 backend', allowedDomain: ALLOWED_DOMAIN,
@@ -317,6 +320,9 @@ function doPost(e) {
     if (action === 'import_submissions')          { requireTeacher_(payload); return importSubmissions_(ss, payload); }
     if (action === 'get_class_log')     { requireTeacher_(payload); return jsonOut_(readClassLog_(ss)); }
     if (action === 'selftest')          { requireTeacher_(payload); return selftest_(ss); }
+    if (action === 'set_feedback')      { requireTeacher_(payload); return setFeedback_(ss, payload); }
+    if (action === 'get_feedback')      { requireTeacher_(payload); return getFeedback_(ss, payload); }
+    if (action === 'get_overview')      { requireTeacher_(payload); return getOverview_(ss); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -394,8 +400,10 @@ function studentLoad_(ss, payload) {
       try { ledger = JSON.parse(raw); } catch (e) { ledger = null; }
       var t = ledger && ledger._tasks && ledger._tasks[task];
       if (t && t.data !== undefined && !t._archived) {
+        var fb = feedbackMap_(ss)[id.email + '||' + task];
         return jsonOut_({ status: 'ok', found: true, data: t.data, summary: t.summary || '',
-                          section: ledger.section || '', savedAt: t.updated || null });
+                          section: ledger.section || '', savedAt: t.updated || null,
+                          feedback: fb ? fb.text : '', feedbackAt: fb ? fb.ts : null });
       }
     }
   }
@@ -408,12 +416,15 @@ function studentLoad_(ss, payload) {
       if (String(rows[i][1]).toLowerCase() === id.email && String(rows[i][3]) === task) {
         var d = {};
         try { d = JSON.parse(rows[i][6] || '{}'); } catch (e) {}
+        var fb2 = feedbackMap_(ss)[id.email + '||' + task];
         return jsonOut_({ status: 'ok', found: true, data: d, summary: String(rows[i][5] || ''),
-                          section: String(rows[i][2] || ''), savedAt: rows[i][0] });
+                          section: String(rows[i][2] || ''), savedAt: rows[i][0],
+                          feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
       }
     }
   }
-  return jsonOut_({ status: 'ok', found: false });
+  var fb3 = feedbackMap_(ss)[id.email + '||' + task];
+  return jsonOut_({ status: 'ok', found: false, feedback: fb3 ? fb3.text : '', feedbackAt: fb3 ? fb3.ts : null });
 }
 
 function studentTasks_(ss, payload) {
@@ -427,15 +438,97 @@ function studentTasks_(ss, payload) {
     if (raw.trim()) {
       var ledger = null; try { ledger = JSON.parse(raw); } catch (e) {}
       if (ledger && ledger._tasks) {
+        var fbMap = feedbackMap_(ss);
         Object.keys(ledger._tasks).forEach(function (k) {
           var t = ledger._tasks[k];
           out[k] = { updated: t.updated || null, summary: t.summary || '', status: t.status || '',
                      written: countCompleted_(t.data) > 0 || !!t._archived };
+          var fb = fbMap[id.email + '||' + k];
+          if (fb) out[k].feedback = fb.text;
         });
       }
     }
   }
   return jsonOut_({ status: 'ok', email: id.email, tasks: out });
+}
+
+// ============================================================================
+// Teacher feedback  (Feedback tab, append-only; latest row per email+task wins)
+// ============================================================================
+/** Map of "email||task" -> { text, ts, name, section } — newest occurrence wins. */
+function feedbackMap_(ss) {
+  var sh = ss.getSheetByName(TAB_FEEDBACK);
+  var map = {};
+  if (!sh || sh.getLastRow() < 2) return map;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var email = String(rows[i][1] || '').trim().toLowerCase();
+    var task = String(rows[i][4] || '');
+    if (!email || !task) continue;
+    map[email + '||' + task] = { text: String(rows[i][5] || ''), ts: rows[i][0],
+                                  name: String(rows[i][2] || ''), section: String(rows[i][3] || '') };
+  }
+  return map;
+}
+
+function setFeedback_(ss, payload) {
+  var email = String(payload.email || '').trim().toLowerCase();
+  var task = String(payload.task || '').trim();
+  var text = String(payload.feedback || '').trim();
+  if (!email || !task) return jsonOut_({ status: 'error', message: 'email and task are required.' });
+  if (!/@gnspes\.ca$/i.test(email)) return jsonOut_({ status: 'error', message: 'email must be @gnspes.ca' });
+  var who = rosterFor_(ss, email);
+  var sh = ss.getSheetByName(TAB_FEEDBACK);
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try { sh.appendRow([new Date(), email, who.known ? who.name : String(payload.name || ''),
+                      String(payload.section || who.section || ''), task, text]); }
+  finally { lock.releaseLock(); }
+  return jsonOut_({ status: 'feedback_saved', email: email, task: task, empty: !text });
+}
+
+function getFeedback_(ss, payload) {
+  var wantSection = String(payload.section || '').trim();
+  var wantTask = String(payload.task || '').trim();
+  var map = feedbackMap_(ss), out = [];
+  Object.keys(map).forEach(function (k) {
+    var f = map[k];
+    if (wantSection && f.section !== wantSection) return;
+    if (wantTask && k.split('||').slice(1).join('||') !== wantTask) return;
+    out.push({ email: k.split('||')[0], task: k.split('||').slice(1).join('||'),
+               name: f.name, section: f.section, feedback: f.text, ts: f.ts });
+  });
+  return jsonOut_({ status: 'ok', count: out.length, feedback: out });
+}
+
+// ============================================================================
+// GAS Station overview: sections + tasks with submitted/started counts
+// ============================================================================
+function getOverview_(ss) {
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues() : [];
+  var sections = {}, tasks = {}, nStudents = 0;
+  rows.forEach(function (r) {
+    if (!String(r[0] || '').trim()) return;
+    nStudents++;
+    var section = String(r[2] || '') || '(none)';
+    sections[section] = (sections[section] || 0) + 1;
+    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) {}
+    if (!ledger || !ledger._tasks) return;
+    Object.keys(ledger._tasks).forEach(function (tName) {
+      var t = ledger._tasks[tName];
+      if (t._archived) return;
+      var written = countCompleted_(t.data) > 0;
+      if (!tasks[tName]) tasks[tName] = { name: tName, submitted: 0, started: 0, bySection: {} };
+      var bs = tasks[tName].bySection[section] || { submitted: 0, started: 0 };
+      if (written) { tasks[tName].submitted++; bs.submitted++; } else { tasks[tName].started++; bs.started++; }
+      tasks[tName].bySection[section] = bs;
+    });
+  });
+  var taskList = Object.keys(tasks).map(function (k) { return tasks[k]; })
+    .sort(function (a, b) { return b.submitted + b.started - (a.submitted + a.started); });
+  var fbCount = 0;
+  var fbMap = feedbackMap_(ss); Object.keys(fbMap).forEach(function (k) { if (fbMap[k].text) fbCount++; });
+  return jsonOut_({ status: 'ok', students: nStudents, sections: sections, tasks: taskList, feedbackGiven: fbCount });
 }
 
 // ============================================================================
@@ -518,6 +611,7 @@ function getTaskProgress_(ss, payload) {
   var sheet = ss.getSheetByName(TAB_STUDENTS);
   var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues() : [];
   var students = [], submitted = 0, started = 0;
+  var fbMap = feedbackMap_(ss);
   rows.forEach(function (r) {
     if (!String(r[0] || '').trim()) return;
     if (wantSection && String(r[2] || '') !== wantSection) return;
@@ -526,8 +620,10 @@ function getTaskProgress_(ss, payload) {
     if (!t) return;
     var written = countCompleted_(t.data) > 0 || !!t._archived;
     if (written) submitted++; else started++;
+    var fb = fbMap[String(r[0]).toLowerCase() + '||' + task];
     students.push({ email: String(r[0]), name: String(r[1]), section: String(r[2] || ''),
                     updated: t.updated || null, summary: t.summary || '', written: written,
+                    feedback: fb ? fb.text : '',
                     data: payload.includeData ? t.data : undefined });
   });
   return jsonOut_({ status: 'ok', task: task, section: wantSection,
