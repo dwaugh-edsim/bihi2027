@@ -474,14 +474,16 @@
 
         if (restoredCount > 0) {
           if (statusEl) {
-            statusEl.textContent = 'Restored ' + restoredCount + ' answers from your previous dossier! Autosaving…';
+            statusEl.textContent = 'Restored ' + restoredCount + ' answers from your previous dossier! Autosaving to GAS…';
             statusEl.className = 'r8-status ok';
           }
           if (api && api.autosave) {
-            api.autosave().saveNow();
+            api.autosave().saveNow().then(function () {
+              if (api.verify) api.verify(false);
+            });
           }
         } else {
-          if (statusEl) statusEl.textContent = '';
+          if (statusEl && statusEl.textContent.indexOf('Checking') !== -1) statusEl.textContent = '';
         }
       })
       .catch(function (err) {

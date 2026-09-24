@@ -122,6 +122,47 @@ window.R8Assignment = (function () {
     var custom = opts.custom || {};
     var task = cfg.taskName;
 
+    // ---- inject styles ----
+    (function injectStyles() {
+      if (typeof document === 'undefined' || document.getElementById('r8-engine-styles')) return;
+      var st = document.createElement('style');
+      st.id = 'r8-engine-styles';
+      st.textContent = [
+        '.r8-top-bar { position: sticky; top: 0; z-index: 999; background: #0f172a; color: #f8fafc;',
+        '  padding: 8px 14px; border-radius: 8px; margin: 0 0 16px; display: flex; justify-content: space-between;',
+        '  align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.86rem; box-shadow: 0 4px 14px rgba(15,23,42,0.18); }',
+        '.r8-top-bar strong { color: #38bdf8; font-family: ui-monospace, monospace; }',
+        '.r8-top-bar .r8-top-meta { color: #94a3b8; font-size: 0.8rem; }',
+        '.r8-top-bar .r8-top-sync { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }',
+        '.r8-sync-badge { background: #1e293b; border: 1px solid #334155; padding: 3px 9px; border-radius: 6px;',
+        '  font-size: 0.78rem; font-weight: 600; color: #cbd5e1; display: inline-flex; align-items: center; gap: 5px; }',
+        '.r8-sync-badge.ok { border-color: #15803d; color: #4ade80; background: #052e16; }',
+        '.r8-sync-badge.warn { border-color: #b45309; color: #fde047; background: #451a03; }',
+        '.r8-sync-badge.bad { border-color: #b91c1c; color: #fca5a5; background: #450a0a; }',
+        '.r8-top-bar button.mini-top { font: inherit; font-size: 0.75rem; font-weight: 700; padding: 3px 8px;',
+        '  border-radius: 5px; border: 1px solid #475569; background: #1e293b; color: #f8fafc; cursor: pointer; }',
+        '.r8-top-bar button.mini-top:hover { background: #334155; }',
+        '.r8-top-bar button.mini-verify { background: #2563eb; border-color: #3b82f6; color: #fff; }',
+        '.r8-top-bar button.mini-verify:hover { background: #1d4ed8; }'
+      ].join('\n');
+      document.head.appendChild(st);
+    })();
+
+    // ---- top identity & sync bar ----
+    var topBar = h('div', 'r8-top-bar');
+    var topUser = h('div', 'r8-top-user');
+    topUser.innerHTML = '👤 <span>Not signed in yet</span>';
+    var topSync = h('div', 'r8-top-sync');
+    var topSyncBadge = h('span', 'r8-sync-badge', '☁️ GAS: Waiting for sign-in');
+    var topVerifyBtn = h('button', 'mini-top mini-verify', '⚡ Verify GAS Write');
+    topVerifyBtn.type = 'button';
+    topVerifyBtn.style.display = 'none';
+    topVerifyBtn.title = 'Check Google Apps Script to confirm your data is saved in the Google Sheet';
+    topSync.appendChild(topSyncBadge);
+    topSync.appendChild(topVerifyBtn);
+    topBar.appendChild(topUser);
+    topBar.appendChild(topSync);
+
     // ---- chrome ----
     var gate = h('div', 'r8-gate');
     gate.appendChild(h('p', 'r8-kicker', cfg.kicker || ''));
@@ -166,6 +207,9 @@ window.R8Assignment = (function () {
     var bar = h('div', 'r8-bar');
     var saveBtn = h('button', '', 'Save'); saveBtn.type = 'button';
     bar.appendChild(saveBtn);
+    var barVerifyBtn = h('button', 'mini-top mini-verify', '⚡ Verify Write with Server');
+    barVerifyBtn.type = 'button';
+    bar.appendChild(barVerifyBtn);
     var status = h('span', 'r8-status', 'Not saved yet.');
     bar.appendChild(status);
     var outboxBadge = h('span', 'r8-outbox', ''); outboxBadge.style.display = 'none';
@@ -181,6 +225,7 @@ window.R8Assignment = (function () {
     bar.appendChild(dlBtn);
     app.appendChild(bar);
 
+    mountEl.appendChild(topBar);
     mountEl.appendChild(gate);
     mountEl.appendChild(app);
 
@@ -297,12 +342,80 @@ window.R8Assignment = (function () {
       return candidate;
     }
 
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function verifyServerWrite(isManual) {
+      if (!idEmail) {
+        if (isManual) alert('Please sign in first before checking server writes.');
+        return Promise.resolve(false);
+      }
+      topSyncBadge.textContent = '⏳ Checking GAS record…';
+      topSyncBadge.className = 'r8-sync-badge warn';
+      if (isManual) setStatus('Querying Google Apps Script backend to verify saved data…', 'warn');
+
+      return pipe.load(task).then(function (res) {
+        if (res && res.status === 'ok' && res.found) {
+          var tStr = res.savedAt ? new Date(res.savedAt).toLocaleTimeString() : new Date().toLocaleTimeString();
+          var data = res.data || {};
+          var ans = data.answers || data;
+          var ansCount = countAnswers(ans);
+          var numbeoCount = Array.isArray(data.global_numbeo)
+            ? data.global_numbeo.filter(function (r) { return r.halifax_price || r.city_price || r.halifax || r.price; }).length
+            : 0;
+          var extra = numbeoCount ? (' + ' + numbeoCount + ' Numbeo items') : '';
+          var summaryMsg = '✓ GAS Confirmed: ' + ansCount + ' answers' + extra + ' saved (' + tStr + ')';
+          topSyncBadge.textContent = '☁️ ' + summaryMsg;
+          topSyncBadge.className = 'r8-sync-badge ok';
+          setStatus(summaryMsg, 'ok');
+          if (isManual) {
+            alert('✅ Google Apps Script Write Confirmed!\n\nYour work is sitting safely on the server in the Room 8 Google Sheet.\n\n• Task: ' + task + '\n• Student: ' + idEmail + '\n• Server Time: ' + tStr + '\n• Verified answers: ' + ansCount + ' fields' + extra);
+          }
+          return true;
+        } else if (res && res.status === 'auth_failed') {
+          topSyncBadge.textContent = '⚠️ Auth expired (' + res.reason + ')';
+          topSyncBadge.className = 'r8-sync-badge bad';
+          setStatus('Sign-in expired: ' + res.reason, 'bad');
+          return false;
+        } else {
+          topSyncBadge.textContent = '⚠️ Not in GAS yet — saving now…';
+          topSyncBadge.className = 'r8-sync-badge warn';
+          setStatus('No record found in GAS yet — saving now…', 'warn');
+          if (ctl) ctl.saveNow();
+          return false;
+        }
+      }).catch(function () {
+        topSyncBadge.textContent = '⚠️ GAS connection error';
+        topSyncBadge.className = 'r8-sync-badge bad';
+        setStatus('Could not reach GAS backend to verify.', 'bad');
+        return false;
+      });
+    }
+
     pipe.onIdentity(function (id, who) {
       showApp();
       idEmail = id.email;
       var known = !!(who && who.known);
       var name = (who && who.name) || '';
       resolvedSection = resolveSectionKey((who && who.section) || '', cfg.course, cfg.classList);
+
+      // Top bar identity update
+      topUser.innerHTML = '👤 Signed in as: <strong>' + escapeHtml(id.email) + '</strong>' +
+        '<span class="r8-top-meta">' + (known ? ' · ' + escapeHtml(name) + ' · ' + escapeHtml(resolvedSection) : ' · not on roster') + '</span> ';
+      var switchBtn = h('button', 'mini-top', 'Switch');
+      switchBtn.type = 'button';
+      switchBtn.onclick = function () { pipe.switchAccount(); };
+      topUser.appendChild(switchBtn);
+
+      topVerifyBtn.style.display = 'inline-block';
+      topVerifyBtn.onclick = function () { verifyServerWrite(true); };
+      barVerifyBtn.style.display = 'inline-block';
+      barVerifyBtn.onclick = function () { verifyServerWrite(true); };
+
+      topSyncBadge.textContent = '☁️ GAS: Connected';
+      topSyncBadge.className = 'r8-sync-badge ok';
+
       whoEl.textContent = '';
       whoEl.appendChild(document.createTextNode('Signed in as '));
       whoEl.appendChild(h('b', '', id.email));
@@ -319,16 +432,24 @@ window.R8Assignment = (function () {
       }
       // ---- restore: server first, then a newer in-tab draft if one survived (crash recovery) ----
       setStatus('Loading your saved work…', '');
+      topSyncBadge.textContent = '⏳ Loading saved work…';
       pipe.load(task).then(function (j) {
         var found = j && j.status === 'ok' && j.found;
         if (found) {
           populate(j.data || {});
           restored.style.display = 'block';
-          setStatus('Restored your last save' + (j.savedAt ? ' (' + new Date(j.savedAt).toLocaleString() + ')' : '') + '.', 'ok');
+          var tStr = j.savedAt ? new Date(j.savedAt).toLocaleTimeString() : '';
+          setStatus('Restored your last save' + (tStr ? ' (' + tStr + ')' : '') + '.', 'ok');
+          topSyncBadge.textContent = '☁️ GAS: Verified save (' + (tStr || 'on server') + ') ✓';
+          topSyncBadge.className = 'r8-sync-badge ok';
         } else if (j && j.status === 'auth_failed') {
           setStatus('Sign-in rejected: ' + j.reason, 'bad');
+          topSyncBadge.textContent = '⚠️ Sign-in rejected: ' + j.reason;
+          topSyncBadge.className = 'r8-sync-badge bad';
         } else {
           setStatus('Fresh start — autosaves as you type.', '');
+          topSyncBadge.textContent = '☁️ GAS: Ready (autosaves as you type)';
+          topSyncBadge.className = 'r8-sync-badge';
         }
         var draft = getTabDraft();
         if (draft && draft.answers) {
@@ -342,6 +463,8 @@ window.R8Assignment = (function () {
         if (ctl) ctl.markClean();
       }).catch(function () {
         setStatus('Backend unreachable — you can still type; use Copy/Download to keep your work.', 'bad');
+        topSyncBadge.textContent = '⚠️ GAS: Offline';
+        topSyncBadge.className = 'r8-sync-badge bad';
       });
     });
 
@@ -359,20 +482,32 @@ window.R8Assignment = (function () {
       onSaved: function (res) {
         if (res && res.status === 'auth_failed') return;
         clearTabDraft();
-        setStatus('Saved ✓ ' + new Date().toLocaleTimeString(), 'ok');
+        var t = new Date().toLocaleTimeString();
+        setStatus('Saved ✓ ' + t, 'ok');
+        topSyncBadge.textContent = '☁️ GAS: Write Confirmed (' + t + ') ✓';
+        topSyncBadge.className = 'r8-sync-badge ok';
       },
       onAuthFailed: function (reason) {
         setStatus('Sign-in expired — save again after re-signing in (' + reason + ')', 'warn');
+        topSyncBadge.textContent = '⚠️ Auth expired (' + reason + ')';
+        topSyncBadge.className = 'r8-sync-badge bad';
       }
     });
     saveBtn.onclick = function () { ctl.saveNow(); };
+    barVerifyBtn.onclick = function () { verifyServerWrite(true); };
     app.addEventListener('input', saveTabDraft);
     app.addEventListener('change', saveTabDraft);
     window.addEventListener('offline', function () {
       setStatus('OFFLINE — keep typing, but do not close your Chromebook. Work saves when the network returns.', 'warn');
+      topSyncBadge.textContent = '⚠️ Network offline';
+      topSyncBadge.className = 'r8-sync-badge warn';
     });
-    window.addEventListener('online', function () { setStatus('Back online — saving…', ''); });
-    return { collect: collect, populate: populate, autosave: function () { return ctl; } };
+    window.addEventListener('online', function () {
+      setStatus('Back online — saving…', '');
+      topSyncBadge.textContent = '☁️ Reconnecting to GAS…';
+      topSyncBadge.className = 'r8-sync-badge warn';
+    });
+    return { collect: collect, populate: populate, autosave: function () { return ctl; }, verify: verifyServerWrite };
   }
 
   return { mount: mount };
