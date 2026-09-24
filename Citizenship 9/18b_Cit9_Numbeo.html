@@ -402,17 +402,17 @@
             ? '<b>' + r.item + '</b>'
             : '<input type="text" class="nb_item" id="nb_item_' + n + '" data-n="' + n + '" placeholder="' + r.item + '">') +
         '</td>' +
-        '<td><input type="number" step="0.01" class="nb_hfx" id="nb_hfx_' + n + '" data-n="' + n + '" placeholder="$ CAD" onblur="calcRow(' + n + ')"></td>' +
+        '<td><input type="number" step="0.01" class="nb_hfx" id="nb_hfx_' + n + '" data-n="' + n + '" placeholder="$ CAD" oninput="calcRow(' + n + ', false)" onblur="calcRow(' + n + ', false)"></td>' +
         '<td>' +
           (r.isPreset
             ? '<input type="text" class="nb_city" id="nb_city_' + n + '" data-n="' + n + '" value="' + r.city + '" readonly style="background:#f1f5f9; font-weight:600;">'
             : '<input type="text" class="nb_city" id="nb_city_' + n + '" data-n="' + n + '" placeholder="' + r.city + '">') +
         '</td>' +
-        '<td><input type="number" step="0.01" class="nb_comp" id="nb_comp_' + n + '" data-n="' + n + '" placeholder="$ CAD" onblur="calcRow(' + n + ')"></td>' +
+        '<td><input type="number" step="0.01" class="nb_comp" id="nb_comp_' + n + '" data-n="' + n + '" placeholder="$ CAD" oninput="calcRow(' + n + ', false)" onblur="calcRow(' + n + ', false)"></td>' +
         '<td>' +
           '<div style="display:flex; gap:6px; align-items:center;">' +
-            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:90px; font-weight:600;">' +
-            '<button type="button" class="mini calc-btn" onclick="calcRow(' + n + ')" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;">Calc %</button>' +
+            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:130px; font-size:0.82rem; font-weight:700; color:#be185d; padding:6px 8px;">' +
+            '<button type="button" class="mini calc-btn" id="nb_btn_' + n + '" onclick="calcRow(' + n + ', true)" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;" title="Calculate % difference">Calc %</button>' +
           '</div>' +
         '</td>' +
       '</tr>';
@@ -420,11 +420,11 @@
 
     return '<div style="overflow-x:auto;">' +
       '<table class="matrix" id="numbeoTable"><thead><tr>' +
-        '<th style="width:26%;">ITEM</th>' +
-        '<th style="width:17%;">HALIFAX PRICE (CAD)</th>' +
-        '<th style="width:20%;">COMPARISON CITY</th>' +
-        '<th style="width:17%;">CITY PRICE (CAD)</th>' +
-        '<th style="width:20%;">% DIFFERENCE</th>' +
+        '<th style="width:23%;">ITEM</th>' +
+        '<th style="width:14%;">HALIFAX PRICE (CAD)</th>' +
+        '<th style="width:18%;">COMPARISON CITY</th>' +
+        '<th style="width:14%;">CITY PRICE (CAD)</th>' +
+        '<th style="width:31%;">% DIFFERENCE</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table>' +
       '</div>' +
       '<p class="hint" style="margin-top:6px; font-size:0.84rem;">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more. Click <b>Calc %</b> or enter your calculation.</p>';
@@ -470,17 +470,59 @@
 
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
 
-  window.calcRow = function (n) {
-    const hfx  = parseFloat((document.getElementById('nb_hfx_' + n) || {}).value);
-    const comp = parseFloat((document.getElementById('nb_comp_' + n) || {}).value);
-    const out  = document.getElementById('nb_diff_' + n);
+  window.calcRow = function (n, isManual) {
+    const hfxEl  = document.getElementById('nb_hfx_' + n);
+    const compEl = document.getElementById('nb_comp_' + n);
+    const out    = document.getElementById('nb_diff_' + n);
+    const btn    = document.getElementById('nb_btn_' + n);
     if (!out) return;
-    if (isNaN(hfx) || isNaN(comp) || comp === 0) return;
+    const hfx  = parseFloat((hfxEl || {}).value);
+    const comp = parseFloat((compEl || {}).value);
+
+    if (isNaN(hfx) || isNaN(comp) || comp <= 0) {
+      if (isManual) {
+        if (isNaN(hfx) && hfxEl) {
+          hfxEl.focus();
+          hfxEl.style.outline = '2px solid #c94663';
+          setTimeout(function () { hfxEl.style.outline = ''; }, 1200);
+        } else if ((isNaN(comp) || comp <= 0) && compEl) {
+          compEl.focus();
+          compEl.style.outline = '2px solid #c94663';
+          setTimeout(function () { compEl.style.outline = ''; }, 1200);
+        }
+      }
+      return;
+    }
+
     const pct = ((hfx - comp) / comp) * 100;
-    out.value = pct > 0 ? '+' + pct.toFixed(0) + '% (Halifax higher)'
-              : pct < 0 ? pct.toFixed(0) + '% (Halifax lower)'
-                        : 'Same price (0%)';
+    const rounded = Math.round(Math.abs(pct));
+    let sentence = '';
+    if (rounded === 0 || pct === 0) {
+      sentence = 'Same price in Halifax (0% diff)';
+    } else if (pct > 0) {
+      sentence = 'Halifax price is ' + rounded + '% higher';
+    } else {
+      sentence = 'Halifax price is ' + rounded + '% lower';
+    }
+
+    out.value = sentence;
+    out.title = sentence;
+
+    // Visual feedback when clicking Calc %
+    if (isManual && btn) {
+      const origText = btn.textContent;
+      btn.textContent = '✓ Done';
+      btn.style.background = '#15803d';
+      out.style.background = '#fce7f3';
+      setTimeout(function () {
+        btn.textContent = origText;
+        btn.style.background = '';
+        out.style.background = '';
+      }, 900);
+    }
+
     updatePPPButton();
+    if (window.Room8 && Room8.touch) Room8.touch();
   };
 
   function numbeoRow(n) {
@@ -541,7 +583,7 @@
           if (cityEl && r.city) cityEl.value = r.city;
           const diff = r.pct_difference !== undefined ? r.pct_difference : r.diff;
           if (diffEl && diff) diffEl.value = diff;
-          else if (hVal && cVal) calcRow(n);
+          if (hVal && cVal) calcRow(n, false);
         });
         updatePPPButton();
       }
@@ -653,7 +695,7 @@
 
         if (restoredCount > 0) {
           if (statusEl) {
-            statusEl.textContent = 'Restored ' + restoredCount + ' Numbeo/PPP entries from your previous dossier! Autosaving to GAS…';
+            statusEl.textContent = 'Restored ' + restoredCount + ' Numbeo/PPP entries from your previous dossier! Autosaving to server…';
             statusEl.className = 'r8-status ok';
           }
           if (api && api.autosave) {
@@ -664,7 +706,7 @@
         }
       })
       .catch(function () {
-        // Silently skip if old legacy GAS is unreachable or returns HTML
+        // Silently skip if old legacy server is unreachable or returns HTML
       })
       .finally(function () {
         if (statusEl && statusEl.textContent.indexOf('Checking') !== -1) statusEl.textContent = '';
