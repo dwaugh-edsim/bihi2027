@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.6.0-2026-09-24';
-var CONFIG_DEPLOYED = '2026-09-24T18:35:00Z';
+var CONFIG_VERSION = 'R8-BE-0.7.0-2026-09-24';
+var CONFIG_DEPLOYED = '2026-09-24T19:45:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -345,6 +345,7 @@ function doPost(e) {
     if (action === 'set_feedback')      { requireTeacher_(payload); return setFeedback_(ss, payload); }
     if (action === 'get_feedback')      { requireTeacher_(payload); return getFeedback_(ss, payload); }
     if (action === 'get_overview')      { requireTeacher_(payload); return getOverview_(ss); }
+    if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -551,6 +552,99 @@ function getOverview_(ss) {
   var fbCount = 0;
   var fbMap = feedbackMap_(ss); Object.keys(fbMap).forEach(function (k) { if (fbMap[k].text) fbCount++; });
   return jsonOut_({ status: 'ok', students: nStudents, sections: sections, tasks: taskList, feedbackGiven: fbCount });
+}
+
+// ============================================================================
+// Class-set export (teacher): a self-contained .json of a whole class.
+// Log-backed recovery: the Students ledger caps full data at MAX_FULL_TASKS and
+// stubs older tasks (_archived). The Submissions_Log is the durable stream, so we
+// rebuild any archived task's answers from its newest log row — exports stay
+// complete all year regardless of the archival cap.
+// ============================================================================
+function logIndexForRecovery_(ss) {
+  // email||task -> newest { data, summary, ts, section } from the append-only log
+  var log = ss.getSheetByName(TAB_LOG);
+  var idx = {};
+  if (!log || log.getLastRow() < 2) return idx;
+  var rows = log.getRange(2, 1, log.getLastRow() - 1, 8).getValues();
+  for (var i = 0; i < rows.length; i++) {          // ascending; later rows overwrite -> newest wins
+    var email = String(rows[i][1] || '').toLowerCase();
+    var task = String(rows[i][3] || '');
+    if (!email || !task) continue;
+    var data = null;
+    try { data = JSON.parse(String(rows[i][6] || '') || 'null'); } catch (e) { data = null; }
+    if (!data) continue;                            // skip empty/corrupt log cells
+    idx[email + '||' + task] = { data: data, summary: String(rows[i][5] || ''),
+                                  ts: rows[i][0], section: String(rows[i][2] || '') };
+  }
+  return idx;
+}
+
+function exportClass_(ss, payload) {
+  var wantSection = String(payload.section || '').trim();
+  var wantTask = String(payload.task || '').trim();       // '' = every task for the class
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues() : [];
+  var fbMap = feedbackMap_(ss);
+  var logIdx = logIndexForRecovery_(ss);
+
+  var students = [], recovered = 0, taskSet = {};
+  rows.forEach(function (r) {
+    var email = String(r[0] || '').trim().toLowerCase();
+    if (!email) return;
+    var section = String(r[2] || '');
+    if (wantSection && section !== wantSection) return;
+    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { ledger = null; }
+
+    var tasksOut = {};
+    var seenTasks = {};
+    if (ledger && ledger._tasks) {
+      Object.keys(ledger._tasks).forEach(function (tName) {
+        if (wantTask && tName !== wantTask) return;
+        var t = ledger._tasks[tName] || {};
+        var data = t.data;
+        var status = t._archived ? 'archived' : (countCompleted_(data) > 0 ? 'submitted' : 'started');
+        // recover archived (or empty-but-logged) answers from the durable log
+        if ((t._archived || !data || !Object.keys(data).length)) {
+          var rec = logIdx[email + '||' + tName];
+          if (rec && countCompleted_(rec.data) > 0) { data = rec.data; status = 'submitted'; recovered++; }
+        }
+        var fb = fbMap[email + '||' + tName];
+        tasksOut[tName] = {
+          status: status, updated: t.updated || null, summary: t.summary || '',
+          answers: data || {}, telemetry: (data && data._telemetry) || null,
+          feedback: fb ? fb.text : '', feedbackAt: fb ? fb.ts : null
+        };
+        seenTasks[tName] = 1; taskSet[tName] = 1;
+      });
+    }
+    // a task present ONLY in the log (never merged, or merged then archived away) —
+    // include it so the export is a true superset when no task filter is set.
+    if (!wantTask) {
+      Object.keys(logIdx).forEach(function (key) {
+        var parts = key.split('||');
+        if (parts[0] !== email || seenTasks[parts[1]]) return;
+        var rec = logIdx[key];
+        if (countCompleted_(rec.data) === 0) return;
+        var fb2 = fbMap[key];
+        tasksOut[parts[1]] = { status: 'submitted', updated: rec.ts, summary: rec.summary,
+                                answers: rec.data, telemetry: (rec.data && rec.data._telemetry) || null,
+                                feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null, fromLog: true };
+        taskSet[parts[1]] = 1; recovered++;
+      });
+    }
+
+    students.push({ email: email, name: String(r[1] || ''), section: section, grade: r[3],
+                    lastUpdated: r[7] || null, tasks: tasksOut });
+  });
+
+  students.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+  return jsonOut_({
+    status: 'ok', exportedAt: new Date(), backendVersion: CONFIG_VERSION,
+    class: wantSection || '(all classes)', task: wantTask || '(all tasks)',
+    studentCount: students.length, recoveredFromLog: recovered,
+    tasks: Object.keys(taskSet).sort(), students: students
+  });
 }
 
 // ============================================================================

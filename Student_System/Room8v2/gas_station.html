@@ -111,6 +111,8 @@
       <label>Assignment</label>
       <select id="selTask" onchange="render()"></select>
       <button class="small" onclick="refresh()">↻ Refresh</button>
+      <button class="small" onclick="exportJSON(false)">⬇ Export view</button>
+      <button class="small" onclick="exportJSON(true)" title="Whole class, every assignment">⬇ Export class (all tasks)</button>
       <span id="status"></span>
       <span style="flex:1"></span>
       <span class="meta" id="whoAmI"></span>
@@ -149,7 +151,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.2.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.3.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Backends: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>.
 </footer>
 
@@ -520,6 +522,30 @@ function saveFeedback() {
   }).catch(function (e) {
     $('dStatus').textContent = 'FAILED: ' + e.message;
   }).finally(function () { btn.disabled = false; });
+}
+
+// =========================================================================
+//  Export a class set as .json (downloaded locally — no data leaves the tab)
+// =========================================================================
+function exportJSON(wholeClass) {
+  const section = $('selSection').value;
+  const task = wholeClass ? '' : $('selTask').value;
+  if (!wholeClass && !task) { setStatus('Pick an assignment first (or use “all tasks”).', 'warn'); return; }
+  setStatus('Building export…', 'warn');
+  teacherCall('export_class', { section: section, task: task }).then(function (j) {
+    if (j.status !== 'ok') { setStatus('Export failed: ' + (j.message || j.status), 'bad'); return; }
+    const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    const slug = (section || 'all-classes').replace(/[^a-z0-9]+/gi, '-') +
+                 (task ? '__' + task.replace(/[^a-z0-9]+/gi, '-').slice(0, 40) : '__all-tasks');
+    const blob = new Blob([JSON.stringify(j, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'room8_' + slug + '_' + stamp + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    const rec = j.recoveredFromLog ? (' · ' + j.recoveredFromLog + ' recovered from log') : '';
+    setStatus('✓ Exported ' + j.studentCount + ' students (' + (j.tasks || []).length + ' tasks)' + rec, 'ok');
+  }).catch(function (e) { setStatus('Export failed: ' + e.message, 'bad'); });
 }
 </script>
 </body>

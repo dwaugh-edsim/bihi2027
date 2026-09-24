@@ -92,6 +92,21 @@ to the **Feedback** tab; latest row per student+task wins; empty text = clear). 
 `get_my_tasks` and `get_task_progress` now carry the student's latest feedback so the assignment
 engine can show it.
 
+**Class-set export** (`export_class`, teacher-gated): `{section, task}` → a self-contained `.json`
+of a whole class. `task` empty = every assignment for that class. The Station's **⬇ Export view**
+(current class+task) and **⬇ Export class (all tasks)** buttons download it locally — nothing
+leaves the browser. Exports are **log-backed**: the Students ledger caps full data at
+`MAX_FULL_TASKS` (5) and stubs older ones, so the export rebuilds any archived task's answers
+from the newest `Submissions_Log` row. The export is therefore a complete, durable snapshot
+regardless of the archival cap. Shape:
+
+```
+{ exportedAt, backendVersion, class, task, studentCount, recoveredFromLog, tasks:[...],
+  students:[ { email, name, section, grade, lastUpdated,
+               tasks:{ "<taskName>": { status, updated, summary, answers, telemetry,
+                                       feedback, feedbackAt, fromLog? } } } ] }
+```
+
 **To deploy:** paste `backend.gs` into the v2 sheet's Apps Script → **Manage deployments →
 edit → New version → Deploy** (same URL). The Feedback tab is created automatically on the
 first call — no manual `setup()` needed.
