@@ -43,6 +43,30 @@ Rules:
 - **Coordination log:** append to `../bihipri-27/Student_System-priv/piiiharden.md`
   (append-only, newest at the bottom) — it moved out of this repo.
 
+### The sync contract (home → school)
+
+A file is at the other machine **only if all three** hold: it lives in a repo that is
+cloned on both machines, it is **not** ignored by that repo's `.gitignore`, and it is
+**committed and pushed**. Any one failure means the file silently stays home.
+
+**Run this before ending a session:**
+
+```bash
+python scripts/sync_check.py      # from the public repo root; works from either repo
+```
+
+It reports unpushed commits, unpulled remote work, and every file that exists locally
+but would never travel — for both repos — then prints a verdict (exit 0 = everything
+will be at school).
+
+- The private repo has a **cache-only** `.gitignore` on purpose — nothing
+  content-related can be swallowed there. Don't add content patterns to it.
+- `Private_Student_Data/*` here is ignored **by design**; its traveling copy is
+  `../bihipri-27/Private_Student_Data-priv/` (tracked). The checker verifies that pairing.
+- The public repo's ignored paths (`tools/ inbox/ audit/ curriculum-planning/
+  system-maintenance/ data/sheets/`) are the **leak net**: a file dropped there is never
+  published — but it also never travels, so author those in the private repo.
+
 ## Class Log live API (the teacher's "what did we do last class" tracker)
 
 The teacher's per-section class log lives in the **Room 8 Master Google Sheet**
