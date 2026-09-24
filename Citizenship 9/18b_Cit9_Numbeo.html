@@ -423,50 +423,91 @@
     if (!mount || mount.dataset.built) return;
     mount.dataset.built = '1';
     let rows = '';
+
+    // Example Row (Pink Worked Model)
+    rows += '<tr style="background: #fdf2f8;">' +
+      '<td class="item-cell" style="color: #be185d; font-weight: 700;">330ml can of Coke (Example)</td>' +
+      '<td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>' +
+      '<td style="font-size: 0.78rem; color: #be185d; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
+      '</tr>';
+
     NUMBEO_ROWS.forEach((r, i) => {
       const n = i + 1;
       const isPreset = !!r.item;
       rows += '<tr>' +
         '<td class="item-cell">' +
           (isPreset
-            ? '<b>' + n + '.</b> ' + r.item + '<div class="src">' + r.city + '</div>'
-            : '<input type="text" class="nb_item" data-n="' + n + '" placeholder="Surprise item ' + n + '">' +
-              '<input type="text" class="nb_city" data-n="' + n + '" placeholder="Comparison city" style="margin-top:4px">') +
+            ? '<b>' + n + '.</b> ' + r.item
+            : '<input type="text" class="nb_item" data-n="' + n + '" placeholder="' + n + '. Surprise Item...">') +
         '</td>' +
-        '<td><input type="number" step="0.01" class="nb_hfx" data-n="' + n + '" placeholder="CAD"></td>' +
-        '<td><input type="number" step="0.01" class="nb_comp" data-n="' + n + '" placeholder="CAD"></td>' +
-        '<td class="pct" id="nbpct_' + n + '">—</td></tr>';
+        '<td><input type="number" step="0.01" class="nb_hfx" data-n="' + n + '" placeholder="$ CAD"></td>' +
+        '<td>' +
+          (isPreset
+            ? '<input type="text" class="nb_city" data-n="' + n + '" value="' + r.city + '" readonly style="background:#f1f5f9;">'
+            : '<input type="text" class="nb_city" data-n="' + n + '" placeholder="Choose City...">') +
+        '</td>' +
+        '<td><input type="number" step="0.01" class="nb_comp" data-n="' + n + '" placeholder="$ CAD"></td>' +
+        '<td>' +
+          '<div style="display:flex; gap:6px; align-items:center;">' +
+            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:90px; font-weight:600;">' +
+            '<button type="button" class="mini calc-btn" data-n="' + n + '" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;">Calc %</button>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
     });
+
     mount.innerHTML =
-      '<table class="matrix"><tr><th>Item</th><th style="width:130px">Halifax (CAD)</th>' +
-      '<th style="width:130px">City (CAD)</th><th style="width:180px">% difference</th></tr>' + rows + '</table>' +
-      '<p class="hint" style="margin-top:6px; font-size:0.84rem;">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more.</p>';
+      '<div style="overflow-x:auto;">' +
+      '<table class="matrix"><thead><tr>' +
+        '<th style="width:26%;">ITEM</th>' +
+        '<th style="width:17%;">HALIFAX PRICE (CAD)</th>' +
+        '<th style="width:20%;">COMPARISON CITY</th>' +
+        '<th style="width:17%;">CITY PRICE (CAD)</th>' +
+        '<th style="width:20%;">% DIFFERENCE</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>' +
+      '</div>' +
+      '<p class="hint" style="margin-top:6px; font-size:0.84rem;">% difference = (Halifax − City) ÷ City × 100. Positive = Halifax costs more. Click <b>Calc %</b> or enter your calculation.</p>';
+
     mount.addEventListener('input', function (ev) {
-      if (!ev.target.classList.contains('nb_hfx') && !ev.target.classList.contains('nb_comp')) return;
-      calcRow(ev.target.dataset.n);
-      updatePPPButton();
+      if (ev.target.classList.contains('nb_hfx') || ev.target.classList.contains('nb_comp')) {
+        calcRow(ev.target.dataset.n);
+        updatePPPButton();
+      }
+    });
+
+    mount.addEventListener('click', function (ev) {
+      if (ev.target.classList.contains('calc-btn')) {
+        calcRow(ev.target.dataset.n);
+        updatePPPButton();
+      }
     });
   }
+
   function numbeoRow(n) {
     const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
     const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
     const item = (document.querySelector('.nb_item[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].item;
     const city = (document.querySelector('.nb_city[data-n="' + n + '"]') || {}).value || NUMBEO_ROWS[n-1].city;
-    const pct  = document.getElementById('nbpct_' + n).textContent;
+    const diffEl = document.getElementById('nb_diff_' + n);
+    const diff = diffEl ? diffEl.value : '';
     return { row: Number(n), item: item, city: city,
              halifax_price: isNaN(hfx) ? '' : hfx,
              city_price:    isNaN(comp) ? '' : comp,
-             pct_difference: pct };
+             pct_difference: diff };
   }
+
   function calcRow(n) {
     const hfx  = parseFloat((document.querySelector('.nb_hfx[data-n="'  + n + '"]') || {}).value);
     const comp = parseFloat((document.querySelector('.nb_comp[data-n="' + n + '"]') || {}).value);
-    const out  = document.getElementById('nbpct_' + n);
-    if (isNaN(hfx) || isNaN(comp) || comp === 0) { out.textContent = '—'; return; }
+    const out  = document.getElementById('nb_diff_' + n);
+    if (!out) return;
+    if (isNaN(hfx) || isNaN(comp) || comp === 0) { return; }
     const pct = ((hfx - comp) / comp) * 100;
-    out.textContent = pct > 0 ? 'Halifax is ' + pct.toFixed(0) + '% higher'
-                    : pct < 0 ? 'Halifax is ' + Math.abs(pct).toFixed(0) + '% lower'
-                              : 'Same price (0% diff)';
+    out.value = pct > 0 ? '+' + pct.toFixed(0) + '% (Halifax higher)'
+              : pct < 0 ? pct.toFixed(0) + '% (Halifax lower)'
+                        : 'Same price (0%)';
   }
   function computePPP() {
     const meal         = parseFloat((document.querySelector('.nb_hfx[data-n="1"]')  || {}).value);

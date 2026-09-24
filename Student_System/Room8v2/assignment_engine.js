@@ -256,6 +256,7 @@ window.R8Assignment = (function () {
     function setStatus(msg, kind) { status.textContent = msg; status.className = 'r8-status ' + (kind || ''); }
 
     var idEmail = '';
+    var resolvedSection = '';
     // In-tab crash recovery: sessionStorage (per-tab, wiped on close — never durable,
     // never localStorage). Covers the gap between a keystroke and the 2.5s autosave.
     var DRAFT_PREFIX = 'r8_tab_draft_';
