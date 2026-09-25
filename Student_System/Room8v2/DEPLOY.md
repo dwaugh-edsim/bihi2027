@@ -84,6 +84,22 @@ bridge is the email column of the old class tabs (~80% coverage). Rows without a
 are **reported, never guessed** — when that student eventually signs in with Google, add
 them to the roster and re-run the migration for their task.
 
+## Section data cleaner (`clean_sections`)
+
+Teacher action, **dry-run first**. Recomputes every Students row's `Section` + `Grade` from the
+**Roster** (the class lists — source of truth) and the course implied by each task's name
+(`courseForTask_` → `TASK_COURSE_MAP` + name heuristics). Each ledger task also gets a per-task
+`section` field; `get_task_progress` and `get_overview` now prefer it over the row value.
+
+Fixes the two import bugs: sections inherited from a previous task's suffix (HL suffixes on a
+CIT task) and the duplicate-legacy-tab row (`801-CIT`). Students not in the Roster are reported
+and never guessed. No log rows are touched.
+
+```
+POST { action:'clean_sections', teacherPin|identity..., dryRun:true }   -> plan + counts
+POST { ... dryRun:false }                                              -> apply
+```
+
 ## Recovery path (why archived work still loads)
 
 `MAX_FULL_TASKS` (5) stubs the *oldest* tasks in each student's `Students` ledger to

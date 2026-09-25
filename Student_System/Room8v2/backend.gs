@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.8.0-2026-09-25';
-var CONFIG_DEPLOYED = '2026-09-25T06:25:00Z';
+var CONFIG_VERSION = 'R8-BE-0.9.0-2026-09-25';
+var CONFIG_DEPLOYED = '2026-09-25T08:55:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -223,9 +223,11 @@ function mergeTaskIntoStudent_(ss, email, p) {
 
   var prev = ledger._tasks[p.task];
   if (prev && prev.data && countCompleted_(prev.data) > 0 && countCompleted_(p.data) === 0 && !p.data._forceOverwrite) {
-    ledger._tasks[p.task] = { updated: now, summary: p.summary || prev.summary || '', status: 'preserved', data: prev.data };
+    ledger._tasks[p.task] = { updated: now, summary: p.summary || prev.summary || '', status: 'preserved',
+                              data: prev.data, section: p.section || prev.section || '' };
   } else {
-    ledger._tasks[p.task] = { updated: now, summary: p.summary, status: 'submitted', data: p.data };
+    ledger._tasks[p.task] = { updated: now, summary: p.summary, status: 'submitted',
+                              data: p.data, section: p.section || '' };
   }
   applyArchivalCap_(ledger);
 
@@ -346,6 +348,7 @@ function doPost(e) {
     if (action === 'get_feedback')      { requireTeacher_(payload); return getFeedback_(ss, payload); }
     if (action === 'get_overview')      { requireTeacher_(payload); return getOverview_(ss); }
     if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
+    if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -566,9 +569,10 @@ function getOverview_(ss) {
       if (t._archived) return;
       var written = countCompleted_(t.data) > 0;
       if (!tasks[tName]) tasks[tName] = { name: tName, submitted: 0, started: 0, bySection: {} };
-      var bs = tasks[tName].bySection[section] || { submitted: 0, started: 0 };
+      var sec = String(t.section || section || '');       // per-task section wins
+      var bs = tasks[tName].bySection[sec] || { submitted: 0, started: 0 };
       if (written) { tasks[tName].submitted++; bs.submitted++; } else { tasks[tName].started++; bs.started++; }
-      tasks[tName].bySection[section] = bs;
+      tasks[tName].bySection[sec] = bs;
     });
   });
   var taskList = Object.keys(tasks).map(function (k) { return tasks[k]; })
@@ -754,14 +758,16 @@ function getTaskProgress_(ss, payload) {
   var fbMap = feedbackMap_(ss);
   rows.forEach(function (r) {
     if (!String(r[0] || '').trim()) return;
-    if (wantSection && String(r[2] || '') !== wantSection) return;
     var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
     var t = ledger && ledger._tasks && ledger._tasks[task];
     if (!t) return;
+    // prefer the per-task section (clean_sections writes it); fall back to row
+    var sec = String(t.section || r[2] || '');
+    if (wantSection && sec !== wantSection) return;
     var written = countCompleted_(t.data) > 0 || !!t._archived;
     if (written) submitted++; else started++;
     var fb = fbMap[String(r[0]).toLowerCase() + '||' + task];
-    students.push({ email: String(r[0]), name: String(r[1]), section: String(r[2] || ''),
+    students.push({ email: String(r[0]), name: String(r[1]), section: sec,
                     updated: t.updated || null, summary: t.summary || '', written: written,
                     feedback: fb ? fb.text : '',
                     data: payload.includeData ? t.data : undefined });
@@ -936,6 +942,33 @@ function legacySheet_() {
 var LEGACY_CLASS_TABS = ['901', '902', '903', '801', '802', '803', '804'];
 
 function homeroomGrade_(hr) { return String(hr).charAt(0) === '8' ? 8 : 9; }
+
+// Course implied by a task's NAME — used by clean_sections and any read that
+// needs the right section suffix for a (student, task) pair. Explicit map first,
+// then name heuristics. '' = unknown course (leave section alone).
+var TASK_COURSE_MAP = {
+  'Citizenship 9 Current Issues Diagnostic': 'CIT9',
+  'The WHERE Project — Places Portfolio': 'CIT9',
+  'Citizenship 9 — Real Issues Case File #1: The Rent We Pay': 'CIT9',
+  'Citizenship 9 — Part 2: Numbeo — Halifax vs the World': 'CIT9',
+  'HL8 5-Dimension Systems Audit': 'HL8',
+  'Healthy Living 8: Grade 7 Learning Audit': 'HL8',
+  'HL9 Sleep Clinic 10-Station Audit': 'HL9',
+  'HL9 Operation Addictive by Design (Class 2)': 'HL9',
+  'Healthy Living 9: Grade 8 Learning Audit': 'HL9'
+};
+function courseForTask_(task) {
+  var t = String(task || '');
+  if (TASK_COURSE_MAP[t]) return TASK_COURSE_MAP[t];
+  var u = t.toUpperCase();
+  if (u.indexOf('CITIZENSHIP 9') !== -1 || u.indexOf('CIT9') !== -1) return 'CIT9';
+  if (u.indexOf('WHERE') !== -1) return 'CIT9';
+  if (u.indexOf('CURRENT ISSUES') !== -1) return 'CIT9';
+  if (u.indexOf('HL8') !== -1 || u.indexOf('HEALTHY LIVING 8') !== -1 || u.indexOf('GRADE 7 LEARNING') !== -1) return 'HL8';
+  if (u.indexOf('HL9') !== -1 || u.indexOf('HEALTHY LIVING 9') !== -1 || u.indexOf('GRADE 8 LEARNING') !== -1) return 'HL9';
+  if (u.indexOf('SLEEP CLINIC') !== -1 || u.indexOf('ADDICTIVE') !== -1) return 'HL9';
+  return '';
+}
 function sectionForCourse_(hr, course) {
   if (!hr) return '';
   var s = String(hr).trim();
@@ -1022,6 +1055,119 @@ function transformLegacyData_(taskName, data) {
     }, global_numbeo: data.global_numbeo || [], _v: 2, _pipe: true, name: data.name || '' };
   }
   return data;   // unknown shape: copy as-is rather than lose it
+}
+
+// ============================================================================
+// Data cleaner (teacher): recompute every student's Section + Grade from the
+// ROSTER (source of truth: Dave's class lists) and the task's implied course.
+// Fixes imported rows whose section was inherited from a previous task's
+// suffix (the 901-HL-on-a-CIT-task / 801-CIT bugs).
+//
+//   action: 'clean_sections'   dryRun: true (default) | false
+//   plan:  for every Students row —
+//            homeroom  = roster section (bare, e.g. '901')
+//            row Grade = homeroomGrade_(homeroom)
+//            row Section = sectionForCourse_(homeroom, course of the
+//                          student's most recently updated task)
+//            each ledger task also gets t.section = correct suffix for IT
+//          Students not in the roster are reported, never guessed.
+//   Reads: Roster + Students. Writes (only when dryRun:false): Students cols
+//   D/F and the ledger JSON (section per task). No log rows are touched.
+// ============================================================================
+function cleanSections_(ss, payload) {
+  var dry = payload.dryRun !== false;
+  var roster = readRoster_(ss);
+  var byEmail = {};
+  roster.forEach(function (r) { byEmail[r.email] = r; });
+
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var last = sheet.getLastRow();
+  var rows = last > 1 ? sheet.getRange(2, 1, last - 1, 8).getValues() : [];
+
+  var plan = [], skipped = [], noCourse = [];
+  rows.forEach(function (r, i) {
+    var email = String(r[0] || '').trim().toLowerCase();
+    if (!email) return;
+    var rowNo = i + 2;
+    var rosterRec = byEmail[email];
+    if (!rosterRec || !rosterRec.section) {
+      skipped.push({ row: rowNo, email: email, name: String(r[1] || ''), why: 'not in roster' });
+      return;
+    }
+    var homeroom = String(rosterRec.section).trim();
+    if (homeroom.indexOf('-') !== -1) homeroom = homeroom.split('-')[0];   // tolerate already-suffixed roster entries
+
+    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) {}
+    var tasks = (ledger && ledger._tasks) || {};
+
+    // per-task correct sections
+    var perTask = [], newest = null;
+    Object.keys(tasks).forEach(function (tk) {
+      var t = tasks[tk] || {};
+      var course = courseForTask_(tk);
+      if (!course) { noCourse.push(tk); return; }
+      var want = sectionForCourse_(homeroom, course);
+      if (String(t.section || '') !== want) {
+        perTask.push({ task: tk, from: String(t.section || '(none)'), to: want });
+      }
+      if (!newest || String(t.updated || '') > String(newest.updated || '')) newest = { task: tk, updated: t.updated };
+    });
+
+    // row-level: section follows the course of the newest task; grade follows homeroom
+    var wantRowSection = String(r[2] || '') || homeroom;   // no tasks: leave row section alone
+    var wantGrade = homeroomGrade_(homeroom);
+    if (newest) {
+      var nc = courseForTask_(newest.task);
+      if (nc) wantRowSection = sectionForCourse_(homeroom, nc);
+    }
+    var rowChanged = (String(r[2] || '') !== wantRowSection) || (String(r[3] || '') !== wantGrade);
+
+    if (rowChanged || perTask.length) {
+      plan.push({ row: rowNo, email: email, name: String(r[1] || ''),
+                  homeroom: homeroom,
+                  section: { from: String(r[2] || ''), to: wantRowSection, changed: String(r[2] || '') !== wantRowSection },
+                  grade: { from: r[3], to: wantGrade, changed: String(r[3] || '') !== wantGrade },
+                  tasks: perTask,
+                  writeback: rowChanged || perTask.length });
+    }
+  });
+
+  // ---- apply ----
+  var applied = 0;
+  if (!dry) {
+    var lock = LockService.getScriptLock(); lock.waitLock(30000);
+    try {
+      plan.forEach(function (p) {
+        if (!p.writeback) return;
+        var rowNo = p.row;
+        var raw = String(sheet.getRange(rowNo, S_LEDGER).getValue() || '');
+        var ledger = null; try { ledger = JSON.parse(raw); } catch (e) { ledger = null; }
+        if (ledger && ledger._tasks) {
+          p.tasks.forEach(function (pt) {
+            if (ledger._tasks[pt.task]) ledger._tasks[pt.task].section = pt.to;
+          });
+          sheet.getRange(rowNo, S_LEDGER).setValue(JSON.stringify(ledger));
+        }
+        sheet.getRange(rowNo, S_SECTION).setValue(p.section.to);
+        sheet.getRange(rowNo, S_GRADE).setValue(p.grade.to);
+        applied++;
+      });
+    } finally { lock.releaseLock(); }
+  }
+
+  var changedSections = plan.filter(function (p) { return p.section.changed; }).length;
+  var changedGrades = plan.filter(function (p) { return p.grade.changed; }).length;
+  var changedTasks = plan.reduce(function (n, p) { return n + p.tasks.length; }, 0);
+
+  return jsonOut_({
+    status: 'ok', dryRun: dry, scanned: rows.length,
+    rowsNeedingChange: plan.length, applied: applied,
+    sectionChanges: changedSections, gradeChanges: changedGrades, taskSectionChanges: changedTasks,
+    skipped: skipped.slice(0, 30), skippedCount: skipped.length,
+    unknownCourseTasks: noCourse.filter(function (v, i, a) { return a.indexOf(v) === i; }),
+    plan: dry ? plan.slice(0, 60) : undefined,   // full plan on dry-run (capped), only counts when applying
+    next: dry ? 'Review, then POST the same action with dryRun:false.' : 'Done. Reload the Station.'
+  });
 }
 
 // Copy old submissions for the given tasks into v2 (one-time; dry-run first).
