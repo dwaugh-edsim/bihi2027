@@ -239,6 +239,15 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
     section choices are bundled directly into the cloud payload (`payload.section`).
   - **Wording Standard:** Always say **"Server"**, never "GAS" in student-facing labels,
     badges, alerts, or buttons.
+  - **Healthy Living — no personal-reflection prompts (teacher directive, 2026-09-25):**
+    HL8/HL9 assignments must NOT ask students to disclose personal reflection —
+    sleep times, stress/anxiety, family situations, mood, body, substance use, or
+    "how do YOU feel/do/sleep". Frame questions around general knowledge, fictional
+    scenarios, case studies, third-person examples, or de-identified class-level
+    data instead. This is a curriculum-design rule, not a privacy-masking rule: the
+    prompt itself should never invite the sensitive answer. Applies to new
+    assignments AND revisions of existing HL tasks (e.g. the Learning Audits'
+    sleep/energy/stress sections are legacy — do not carry that pattern forward).
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 
