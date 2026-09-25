@@ -346,7 +346,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.12.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.12.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -529,12 +529,48 @@ function taskByName(name) {
   return null;
 }
 
+// Course implied by a task's name — mirrors backend courseForTask_ so the
+// dropdown groups the same way clean_sections computes sections.
+function courseFor(task) {
+  const u = String(task || '').toUpperCase();
+  if (u.indexOf('CITIZENSHIP 9') !== -1 || u.indexOf('CIT9') !== -1 ||
+      u.indexOf('WHERE') !== -1 || u.indexOf('CURRENT ISSUES') !== -1 ||
+      u.indexOf('NUMBEO') !== -1) return 'Citizenship 9';
+  if (u.indexOf('HL8') !== -1 || u.indexOf('HEALTHY LIVING 8') !== -1 ||
+      u.indexOf('GRADE 7 LEARNING') !== -1 || u.indexOf('5-DIMENSION') !== -1) return 'Healthy Living 8';
+  if (u.indexOf('HL9') !== -1 || u.indexOf('HEALTHY LIVING 9') !== -1 ||
+      u.indexOf('GRADE 8 LEARNING') !== -1 || u.indexOf('SLEEP CLINIC') !== -1 ||
+      u.indexOf('ADDICTIVE') !== -1) return 'Healthy Living 9';
+  return 'Other';
+}
+
 function fillTaskPicker() {
   const tasks = (OVERVIEW && OVERVIEW.tasks) || [];
-  $('selTask').innerHTML = tasks.map(function (t) {
-    return '<option value="' + escapeHtml(t.name) + '">' + escapeHtml(t.name) +
-           '  (' + t.submitted + ' done / ' + t.started + ' started)</option>';
-  }).join('') || '<option value="">(no assignments yet)</option>';
+  // group by course, courses in teaching order; unknown tasks last
+  const COURSE_ORDER = ['Citizenship 9', 'Healthy Living 8', 'Healthy Living 9', 'Other'];
+  const groups = {};
+  tasks.forEach(function (t) {
+    const c = courseFor(t.name);
+    (groups[c] = groups[c] || []).push(t);
+  });
+  let html = '';
+  COURSE_ORDER.forEach(function (c) {
+    const list = groups[c] || [];
+    if (!list.length) return;
+    html += '<optgroup label="' + escapeHtml(c) + '">';
+    list.forEach(function (t) {
+      // the group label already carries the course — drop the redundant prefix
+      let short = t.name;
+      ['Citizenship 9 — ', 'Citizenship 9: ', 'Healthy Living 8: ', 'Healthy Living 9: ',
+       'HL8 ', 'HL9 '].forEach(function (p) {
+        if (short.indexOf(p) === 0) short = short.slice(p.length);
+      });
+      html += '<option value="' + escapeHtml(t.name) + '">' + escapeHtml(short) +
+              '  (' + t.submitted + ' done / ' + t.started + ' started)</option>';
+    });
+    html += '</optgroup>';
+  });
+  $('selTask').innerHTML = html || '<option value="">(no assignments yet)</option>';
   if (tasks[0]) $('selTask').value = tasks[0].name;
 }
 
