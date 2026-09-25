@@ -184,6 +184,22 @@
   .mk-chip { display: inline-block; font-size: .84rem; border: 1px solid #cbd5e1; border-radius: 999px;
              padding: 3px 12px; color: var(--muted); background: #fff; }
   .mk-chip.on { background: #1e293b; border-color: #1e293b; color: #fff; font-weight: 600; }
+  /* rating track: 4-level scale, chosen level filled + colored */
+  .rate-row { margin: 12px 0; }
+  .rate-track { display: flex; gap: 4px; margin-top: 4px; }
+  .rate-seg { flex: 1; text-align: center; font-size: .72rem; font-weight: 600;
+              padding: 5px 4px; border-radius: 5px; background: #f1f5f9;
+              border: 1px solid var(--border-color); color: #94a3b8;
+              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rate-seg.on { color: #fff; border-color: transparent; }
+  .rate-seg.on.lvl0 { background: #64748b; }          /* Never      */
+  .rate-seg.on.lvl1 { background: #d97706; }          /* Brief      */
+  .rate-seg.on.lvl2 { background: #15803d; }          /* Deep       */
+  .rate-seg.on.lvl3 { background: #7c3aed; }          /* Over-Covered */
+  .rate-other { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+  .rate-cmt { font-size: .8rem; color: #475569; background: #fdfafb;
+              border-left: 3px solid var(--border-accent); padding: 3px 8px;
+              margin-top: 5px; border-radius: 0 4px 4px 0; }
   .mk-json { font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: #0f172a; color: #e2e8f0;
              border-radius: 6px; padding: 10px; overflow: auto; max-height: 240px; margin: 4px 0 0; }
   .meta { font-size: .82rem; color: var(--text-muted); }
@@ -293,7 +309,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.8.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.9.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -713,8 +729,7 @@ function auditSchema(title, outcomes, curiousLabel, withQuiz) {
     { num: 'B', title: 'Reported coverage of last year\u2019s outcomes',
       hint: 'Their own rating: Never / Brief / Deep / Over-covered',
       fields: [
-        { key: 'matrix', label: 'Outcome coverage', type: 'map', order: outcomes },
-        { key: 'matrix_comments', label: 'Their note on each outcome', type: 'map', skipEmpty: true }
+        { key: 'matrix', label: 'Outcome coverage', type: 'ratings', order: outcomes, comments: 'matrix_comments' }
       ] }
   ];
   if (withQuiz) secs.push({ num: 'C', title: 'Knowledge check',
@@ -802,6 +817,36 @@ function legacyMarkSheet(s, schema) {
           html += (chosen && txt)
             ? '<div class="mk-chips"><span class="mk-chip on">' + escapeHtml(chosen) + ' — ' + escapeHtml(txt) + '</span></div>'
             : '<div class="mk-val empty">— not answered —</div>';
+          html += '</div>';
+        });
+        return;
+      }
+
+      // ---- ratings: a 4-level scale rendered as a filled track (original was a radio row) ----
+      if (f.type === 'ratings') {
+        const LEVELS = ['Never', 'Brief', 'Deep', 'Over-Covered'];
+        const obj = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        const cmts = (f.comments && d[f.comments] && typeof d[f.comments] === 'object') ? d[f.comments] : {};
+        let keys = f.order ? f.order.slice() : Object.keys(obj);
+        Object.keys(obj).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
+        keys.forEach(function (k) {
+          const raw = String(obj[k] == null ? '' : obj[k]).trim();
+          // tolerant match: 'Over-covered' / 'Over-Covered' / 'over covered'
+          const idx = LEVELS.map(function (L) { return L.toLowerCase().replace(/[^a-z]/g, ''); })
+                            .indexOf(raw.toLowerCase().replace(/[^a-z]/g, ''));
+          const cmt = String(cmts[k] || '').trim();
+          html += '<div class="rate-row">';
+          html += '<div class="mk-label" style="font-size:.86rem;">' + escapeHtml(k) + '</div>';
+          html += '<div class="rate-track">';
+          LEVELS.forEach(function (L, i) {
+            const on = (i === idx);
+            html += '<span class="rate-seg' + (on ? ' on lvl' + i : '') + '">' +
+                    (on ? '● ' : '') + escapeHtml(L) + '</span>';
+          });
+          html += '</div>';
+          if (idx === -1 && raw) html += '<div class="rate-other">raw value: ' + escapeHtml(raw) + '</div>';
+          if (idx === -1 && !raw) html += '<div class="mk-val empty" style="margin-top:3px;">— not rated —</div>';
+          if (cmt) html += '<div class="rate-cmt">💬 ' + escapeHtml(cmt) + '</div>';
           html += '</div>';
         });
         return;
