@@ -96,13 +96,33 @@ window.Room8 = (function () {
   function switchAccount() { try { sessionStorage.removeItem(ID_KEY); } catch (_) {} identity = null; location.reload(); }
 
   // ---- backend calls ----
+  // Every POST gets its own query string. Apps Script answers a POST with a 302
+  // to script.googleusercontent.com/macros/echo?user_content_key=... and that key
+  // is single-use. Browsers cache the 302, replay the spent key, and the echo
+  // endpoint answers 404. A unique URL per request sidesteps the cached redirect;
+  // one retry covers a 404 that slips through anyway.
   function post(url, obj) {
-    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    function attempt() {
+      var u = url + (url.indexOf('?') === -1 ? '?' : '&') +
+              '_=' + Date.now() + Math.random().toString(36).slice(2, 8);
+      return fetch(u, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(obj), keepalive: true })
-      .then(function (r) {
-        if (!r.ok) return { status: 'error', reason: 'HTTP ' + r.status };
-        return r.json();
+        .then(function (r) {
+          if (!r.ok) return { status: 'error', reason: 'HTTP ' + r.status, retryable: true };
+          return r.json().catch(function () {
+            return { status: 'error', reason: 'bad_json', retryable: true };
+          });
+        })
+        .catch(function () { return { status: 'error', reason: 'network', retryable: true }; });
+    }
+    return attempt().then(function (res) {
+      if (!res || !res.retryable) return res;
+      delete res.retryable;
+      return attempt().then(function (again) {
+        if (again && again.retryable) { delete again.retryable; }
+        return again;
       });
+    });
   }
   function authed(action, extra) {
     var p = { action: action, email: identity.email, ts: identity.ts, sig: identity.sig };

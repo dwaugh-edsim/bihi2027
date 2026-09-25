@@ -280,7 +280,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.5.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.5.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -307,13 +307,25 @@ let selectedEmail = null;
 function $(id) { return document.getElementById(id); }
 function setStatus(msg, kind) { const el = $('status'); el.textContent = msg || ''; el.className = kind || ''; }
 
-function teacherCall(action, payload) {
+// Every POST gets its own query string — Apps Script's 302 echo URL carries a
+// single-use user_content_key, and a browser-cached 302 replays a spent key and
+// 404s. Unique URL per call; one retry in case a 404 slips through anyway.
+function teacherCall(action, payload, isRetry) {
   const body = Object.assign({ action: action }, payload || {});
   if (ID) { body.email = ID.email; body.ts = ID.ts; body.sig = ID.sig; }
   else    { body.teacherPin = PIN; }
-  return fetch(BACKEND_URL, { method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), keepalive: true })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  const url = BACKEND_URL + '?_=' + Date.now() + Math.random().toString(36).slice(2, 8);
+  return fetch(url, { method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .catch(function (e) {
+      if (isRetry) throw e;
+      return new Promise(function (res) { setTimeout(res, 400); })
+        .then(function () { return teacherCall(action, payload, true); });
+    });
 }
 
 function escapeHtml(s) {
