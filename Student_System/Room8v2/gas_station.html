@@ -226,10 +226,10 @@
 
   <div class="card">
     <div class="row">
-      <label>Class</label>
-      <select id="selSection" onchange="render()"></select>
       <label>Assignment</label>
-      <select id="selTask" onchange="render()"></select>
+      <select id="selTask" onchange="onTaskChange()"></select>
+      <label>Class</label>
+      <select id="selSection" onchange="refresh()"></select>
       <button class="small" onclick="refresh()">↻ Refresh</button>
       <button class="small" onclick="exportJSON(false)">⬇ Export view</button>
       <button class="small" onclick="exportJSON(true)" title="Whole class, every assignment">⬇ Export class (all tasks)</button>
@@ -280,7 +280,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.6.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.7.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -352,7 +352,8 @@ function enterMain(j) {
   $('gate').classList.add('hidden');
   $('main').classList.remove('hidden');
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
-  fillPickers();
+  fillTaskPicker();
+  fillSectionPicker(false);
   closeDetail();
   refresh();
 }
@@ -408,19 +409,50 @@ if (window.Room8) {
 // =========================================================================
 //  Pickers + data
 // =========================================================================
-function fillPickers() {
-  const secs = Object.keys(OVERVIEW.sections || {}).sort();
-  const secSel = $('selSection');
-  secSel.innerHTML = '<option value="">All classes</option>' +
-    secs.map(function (s) { return '<option>' + escapeHtml(s) + '</option>'; }).join('');
+function taskByName(name) {
+  const tasks = (OVERVIEW && OVERVIEW.tasks) || [];
+  const want = norm(name);
+  for (let i = 0; i < tasks.length; i++) if (norm(tasks[i].name) === want) return tasks[i];
+  return null;
+}
 
-  const taskSel = $('selTask');
-  const tasks = OVERVIEW.tasks || [];
-  taskSel.innerHTML = tasks.map(function (t) {
+function fillTaskPicker() {
+  const tasks = (OVERVIEW && OVERVIEW.tasks) || [];
+  $('selTask').innerHTML = tasks.map(function (t) {
     return '<option value="' + escapeHtml(t.name) + '">' + escapeHtml(t.name) +
            '  (' + t.submitted + ' done / ' + t.started + ' started)</option>';
   }).join('') || '<option value="">(no assignments yet)</option>';
-  if (tasks[0]) taskSel.value = tasks[0].name;
+  if (tasks[0]) $('selTask').value = tasks[0].name;
+}
+
+// The class list is derived from the chosen assignment: only sections that
+// actually have work for it appear, so a Grade 8 audit never offers 90x-HL.
+function fillSectionPicker(keepValue) {
+  const t = taskByName($('selTask').value);
+  const secs = [];
+  if (t && t.bySection) Object.keys(t.bySection).forEach(function (s) { if (s) secs.push(s); });
+  secs.sort();
+
+  const sel = $('selSection');
+  const prev = keepValue ? sel.value : '';
+  let html = '<option value="">All classes</option>';
+  secs.forEach(function (s) {
+    const c = (t.bySection && t.bySection[s]) || { submitted: 0, started: 0 };
+    html += '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) +
+            '  (' + (c.submitted + c.started) + ')</option>';
+  });
+  sel.innerHTML = html;
+
+  if (prev && secs.indexOf(prev) !== -1) sel.value = prev;
+  else if (secs.length === 1) sel.value = secs[0];   // only one class: preselect, no needless click
+  else sel.value = '';
+}
+
+// Assignment changed -> rebuild the class list, then load. No Refresh click needed.
+function onTaskChange() {
+  fillSectionPicker(false);
+  closeDetail();
+  refresh();
 }
 
 function refresh() {
@@ -493,7 +525,9 @@ function render() {
              '<span style="display:flex; align-items:center; gap:4px; flex:none;">' + tick +
                '<span class="rail-dot ' + cls + '"></span></span>' +
            '</div>';
-  }).join('') || '<div class="meta" style="padding:10px">No matches.</div>';
+  }).join('') || ('<div class="meta" style="padding:10px">' +
+    (STUDENTS.length ? 'No students match that filter.'
+                     : 'Nothing on the server for this assignment + class yet.') + '</div>');
 
   Array.prototype.forEach.call($('list').querySelectorAll('.rail-item'), function (el) {
     el.addEventListener('click', function () { openDetail(STUDENTS[+el.dataset.i]); });
