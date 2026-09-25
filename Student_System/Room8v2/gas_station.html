@@ -346,7 +346,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.11.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.12.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -884,7 +884,95 @@ function auditSchema(title, outcomes, curiousLabel, withQuiz) {
            hide: ['pin', 'className', 'email', 'name', 'class', 'updated_at', 'peers'] };
 }
 
-const HIDE_ALWAYS = ['pin', 'className', 'email', 'name', 'class', 'updated_at', 'peers', '_requestId', '_telemetry', '_v', '_pipe'];
+const HIDE_ALWAYS = ['pin', 'className', 'email', 'name', 'class', 'updated_at', 'peers',
+                     'section', 'grade', '_requestId', '_telemetry', '_v', '_pipe'];
+
+// ---- Citizenship 9 Current Issues Diagnostic (legacy, labels mined from
+// Student_System/CIT9_Current_Issues_Diagnostic.html). The WHERE Project
+// payload is a subset of the same shape, so both task names share this schema.
+const C9_ISSUE_LABELS = {
+  trade_war: 'The Canada–U.S. Trade War & Tariff Retaliation (2026)',
+  port_halifax: 'Port of Halifax, Supply Chains & Local Economic Security',
+  ai_employment: 'Generative AI, Automation & Your Future Job Prospects',
+  social_media_bans: 'Social Media Algorithmic Bans & Age Limits for Minors',
+  housing_youth: 'Housing Crisis, Rent Inflation & Homelessness Encampments in HRM',
+  education_vs_jobs: 'Cost of Higher Education vs. Immediate Workforce / Trades Entry',
+  ycja_reform: 'Youth Criminal Justice Act (YCJA) & Age of Responsibility',
+  climate_energy: "Climate Change, Power Rates & Nova Scotia's Energy Transition",
+  indigenous_treaties: 'Indigenous Treaty Rights, Resource Governance & Consultation in NS',
+  healthcare_politics: 'Healthcare Crisis & Federal vs. Provincial Responsibility'
+};
+const C9_VALUES = Object.assign({}, C9_ISSUE_LABELS, {
+  tiktok_reels: 'TikTok / Reels', friends_family: 'Friends / family',
+  phone_notifications: 'Phone notifications', group_chats_discord: 'Group chats / Discord',
+  tv_news: 'TV news', radio_car: 'Radio (in the car)', news_websites: 'News websites',
+  youtube_podcasts: 'YouTube / podcasts', newspapers: 'Newspapers', none_accidental: 'None / accidental',
+  daily_multiple: 'Several times a day', daily_once: 'Once a day', weekly_few: 'A few times a week',
+  only_major: 'Only major news', rarely_never: 'Rarely / never',
+  check_multiple: 'Check multiple sources', check_comments: 'Check comments / replies',
+  assume_true: "Assume it's true", scroll_past: 'Scroll past', distrust_all: 'Distrust everything',
+  protect_freedoms: 'Protect individual freedoms', protect_safety: 'Protect public safety',
+  depends_neutral: 'It depends / neither', rehabilitation_first: 'Rehabilitation first',
+  adult_penalties: 'Adult penalties', prioritize_environment: 'Environment first',
+  prioritize_jobs: 'Jobs first', protect_free_speech: 'Protect free speech',
+  regulate_disinfo: 'Regulate online disinformation'
+});
+const C9_SCHEMA = {
+  title: 'Citizenship 9 — Current Issues Diagnostic',
+  badge: 'Recovered from the old system',
+  valueLabels: C9_VALUES,
+  sections: [
+    { num: 'A', title: 'News habits', fields: [
+      { key: 'news_sources', label: 'Where they get news', type: 'chips' },
+      { key: 'primary_news', label: 'Main news source' },
+      { key: 'news_frequency', label: 'How often they follow news' },
+      { key: 'verification_habit', label: 'How they check what they read' }
+    ] },
+    { num: 'B', title: 'Issue familiarity (1–4)', hint: '1 Never heard → 4 Follows closely', fields: [
+      { key: 'issues', type: 'ratings', order: Object.keys(C9_ISSUE_LABELS),
+        levels: ['Never heard', 'Headlines only', 'Familiar', 'Follows closely'],
+        rowLabels: C9_ISSUE_LABELS }
+    ] },
+    { num: 'C', title: 'People — how well they know them (1–4)', fields: [
+      { key: 'people', type: 'ratings', levels: ['Unsure', 'Somewhat', 'Clearly', 'Very familiar'],
+        rowLabels: { anne_murray: 'Anne Murray', tim_houston: 'Tim Houston', mark_carney: 'Mark Carney',
+          charles_mountbatten_windsor: 'Charles Mountbatten-Windsor', pierre_poilievre: 'Pierre Poilievre',
+          doug_ford: 'Doug Ford', wab_kinew: 'Wab Kinew', andy_fillmore: 'Andy Fillmore', sam_austin: 'Sam Austin',
+          viola_desmond: 'Viola Desmond', donald_marshall_jr: 'Donald Marshall Jr.', barack_obama: 'Barack Obama',
+          gavin_newsom: 'Gavin Newsom', mitch_mcconnell: 'Mitch McConnell', elon_musk: 'Elon Musk',
+          jeff_bezos: 'Jeff Bezos', jd_vance: 'JD Vance', gord_downie: 'Gord Downie' } }
+    ] },
+    { num: 'D', title: 'Government mechanics — how well they understand (1–4)', fields: [
+      { key: 'mechanics', type: 'ratings', levels: ['Unsure', 'Somewhat', 'Clearly', 'Very familiar'],
+        rowLabels: { gov_levels: 'Federal vs. Provincial vs. Municipal Powers',
+          elections_leaders: 'How Elections & Leaders Work in Canada',
+          charter_rights: 'Canadian Charter of Rights and Freedoms',
+          law_types: 'Criminal Law vs. Civil Law & The Courts' } }
+    ] },
+    { num: 'E', title: 'Where they land on the dilemmas', fields: [
+      { key: 'dilemmas', type: 'map',
+        rowLabels: { rights_vs_safety: 'Individual Freedom vs. Public Safety Mandates',
+          ycja_adult_penalties: 'Youth Justice: Rehabilitation vs. Adult Accountability',
+          jobs_vs_environment: 'Economic Jobs vs. Environmental Protection in NS',
+          online_censorship: 'Free Expression vs. Regulating Online Disinformation' },
+        valueLabels: C9_VALUES }
+    ] },
+    { num: 'F', title: 'Their words', fields: [
+      { key: 'top_debate', label: 'Most-debated issue they picked' },
+      { key: 'personal_issue', label: 'A current issue that touches their life' },
+      { key: 'unlisted_issue', label: 'An issue not on the list' },
+      { key: 'formats', label: 'Formats they want', type: 'chips' },
+      { key: 'teacher_note', label: 'Private note to the teacher' }
+    ] },
+    { num: 'G', title: 'Place cards', fields: [
+      { key: 'p1', label: 'Place 1', type: 'place' },
+      { key: 'p2', label: 'Place 2', type: 'place' },
+      { key: 'p3', label: 'Place 3', type: 'place' },
+      { key: 'p4', label: 'Place 4', type: 'place' },
+      { key: 'p5', label: 'Place 5', type: 'place' }
+    ] }
+  ]
+};
 
 const LEGACY = {
   'Healthy Living 8: Grade 7 Learning Audit': auditSchema(
@@ -905,8 +993,14 @@ const LEGACY = {
      'Contraception, STBBIs & Sexual Health (HL8 Outcome 4)',
      'Relationship Boundaries, Coercion & Rights (HL8 Outcome 5)',
      'Substance Literacy, Vaping & Harm Reduction (HL8 Outcome 6)'],
-    'One thing they\u2019re looking forward to in Grade 9 Healthy Living', false)
+    'One thing they’re looking forward to in Grade 9 Healthy Living', false)
 };
+
+// Register the Current Issues schema for both legacy task names (WHERE's
+// payload is a subset of the same shape; sections with absent keys render as
+// "not answered" rather than breaking). Must come after LEGACY is declared.
+LEGACY['Citizenship 9 Current Issues Diagnostic'] = C9_SCHEMA;
+LEGACY['The WHERE Project — Places Portfolio'] = C9_SCHEMA;
 
 function findLegacy(task) {
   const want = norm(task);
@@ -922,6 +1016,13 @@ function legacyVal(v) {
   if (Array.isArray(v)) return '<div class="mk-val">' + escapeHtml(v.join(' · ')) + '</div>';
   if (typeof v === 'object') return '<pre class="mk-json">' + escapeHtml(JSON.stringify(v, null, 1)) + '</pre>';
   return '<div class="mk-val">' + escapeHtml(String(v)) + '</div>';
+}
+
+// enum value -> readable label (schema.valueLabels); untranslated values pass through
+function translateVal(v, dict) {
+  if (!dict || v == null) return v;
+  if (Array.isArray(v)) return v.map(function (x) { return (dict[x] != null) ? dict[x] : x; });
+  return (dict[v] != null) ? dict[v] : v;
 }
 
 function legacyMarkSheet(s, schema) {
@@ -954,23 +1055,37 @@ function legacyMarkSheet(s, schema) {
         return;
       }
 
-      // ---- ratings: a 4-level scale rendered as a filled track (original was a radio row) ----
+      // ---- ratings: a multi-level scale rendered as a filled track ----
+      // field.levels: segment labels (default Never/Brief/Deep/Over-Covered)
+      // field.rowLabels: key -> friendly label. Numeric values '1'..'N' map by
+      // position; text values match labels tolerantly (case/punctuation).
       if (f.type === 'ratings') {
-        const LEVELS = ['Never', 'Brief', 'Deep', 'Over-Covered'];
+        const DEF = ['Never', 'Brief', 'Deep', 'Over-Covered'];
+        const levels = (f.levels && f.levels.length) ? f.levels : DEF;
         const obj = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
         const cmts = (f.comments && d[f.comments] && typeof d[f.comments] === 'object') ? d[f.comments] : {};
+        if (!Object.keys(obj).length) {
+          html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label || 'Ratings') +
+                  '</div><div class="mk-val empty">— not answered —</div></div>';
+          return;
+        }
         let keys = f.order ? f.order.slice() : Object.keys(obj);
         Object.keys(obj).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
         keys.forEach(function (k) {
           const raw = String(obj[k] == null ? '' : obj[k]).trim();
-          // tolerant match: 'Over-covered' / 'Over-Covered' / 'over covered'
-          const idx = LEVELS.map(function (L) { return L.toLowerCase().replace(/[^a-z]/g, ''); })
-                            .indexOf(raw.toLowerCase().replace(/[^a-z]/g, ''));
+          let idx = -1;
+          if (/^\d+$/.test(raw)) { const n = parseInt(raw, 10) - 1; if (n >= 0 && n < levels.length) idx = n; }
+          if (idx === -1) {
+            const normL = function (s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ''); };
+            const i = levels.map(normL).indexOf(normL(raw));
+            if (i !== -1) idx = i;
+          }
+          const rowLabel = (f.rowLabels && f.rowLabels[k]) || k;
           const cmt = String(cmts[k] || '').trim();
           html += '<div class="rate-row">';
-          html += '<div class="mk-label" style="font-size:.86rem;">' + escapeHtml(k) + '</div>';
+          html += '<div class="mk-label" style="font-size:.86rem;">' + escapeHtml(rowLabel) + '</div>';
           html += '<div class="rate-track">';
-          LEVELS.forEach(function (L, i) {
+          levels.forEach(function (L, i) {
             const on = (i === idx);
             html += '<span class="rate-seg' + (on ? ' on lvl' + i : '') + '">' +
                     (on ? '● ' : '') + escapeHtml(L) + '</span>';
@@ -984,7 +1099,24 @@ function legacyMarkSheet(s, schema) {
         return;
       }
 
+      // ---- place cards (p1..p5): title / description / coordinates ----
+      if (f.type === 'place') {
+        const p = (v && typeof v === 'object' && !Array.isArray(v)) ? v : null;
+        if (!p || (!p.title && !p.desc && !(Array.isArray(p.coords) && p.coords.length))) return;  // absent -> skip
+        const cArr = Array.isArray(p.coords) ? p.coords : null;
+        html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>';
+        html += '<div class="mk-val" style="font-weight:700;">' +
+                escapeHtml(String(p.title || '(no title)')) + '</div>';
+        if (p.desc) html += '<div class="mk-val" style="margin-top:4px;">' + escapeHtml(String(p.desc)) + '</div>';
+        if (cArr && cArr.length >= 2) {
+          html += '<div class="rate-other">📍 ' + Number(cArr[0]).toFixed(4) + ', ' + Number(cArr[1]).toFixed(4) + '</div>';
+        }
+        html += '</div>';
+        return;
+      }
+
       // ---- map: an object of label -> value (matrix ratings, per-outcome notes) ----
+      // f.rowLabels: key -> friendly label; f.valueLabels: value -> friendly text.
       if (f.type === 'map') {
         const obj = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
         let keys = f.order ? f.order.slice() : Object.keys(obj);
@@ -996,8 +1128,10 @@ function legacyMarkSheet(s, schema) {
           if (isEmpty && f.skipEmpty) return;
           const shown = isEmpty ? '<span class="meta">— none —</span>'
             : (typeof val === 'object' ? '<pre class="mk-json">' + escapeHtml(JSON.stringify(val, null, 1)) + '</pre>'
-                                       : '<span class="mk-chip on">' + escapeHtml(String(val)) + '</span>');
-          rows += '<div class="mk-field"><div class="mk-label" style="font-size:.88rem;">' + escapeHtml(k) + '</div>' +
+                                       : '<span class="mk-chip on">' +
+                                         escapeHtml(String((f.valueLabels && f.valueLabels[val]) || val)) + '</span>');
+          const rowLabel = (f.rowLabels && f.rowLabels[k]) || k;
+          rows += '<div class="mk-field"><div class="mk-label" style="font-size:.88rem;">' + escapeHtml(rowLabel) + '</div>' +
                   '<div class="mk-chips">' + shown + '</div></div>';
         });
         html += rows || '<div class="mk-val empty">— nothing recorded —</div>';
@@ -1015,8 +1149,9 @@ function legacyMarkSheet(s, schema) {
         return;
       }
 
-      // ---- plain text ----
-      html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>' + legacyVal(v) + '</div>';
+      // ---- plain text (with optional enum translation from schema.valueLabels) ----
+      html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>' +
+              legacyVal(translateVal(v, schema.valueLabels)) + '</div>';
     });
   });
 

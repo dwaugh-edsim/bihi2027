@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.11.0-2026-09-25';
-var CONFIG_DEPLOYED = '2026-09-25T12:30:00Z';
+var CONFIG_VERSION = 'R8-BE-0.12.0-2026-09-25';
+var CONFIG_DEPLOYED = '2026-09-25T13:45:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -789,6 +789,18 @@ function getTaskProgress_(ss, payload) {
                     feedback: fb ? fb.text : '',
                     data: payload.includeData ? t.data : undefined });
   });
+  // Archived tasks carry only a stub — rebuild answers from the durable log so
+  // the mark sheet shows real work instead of "not answered".
+  if (payload.includeData) {
+    var need = students.filter(function (s) { return s.data && countCompleted_(s.data) === 0; });
+    if (need.length) {
+      var idx = logIndexForRecovery_(ss);
+      need.forEach(function (s) {
+        var rec = idx[s.email.toLowerCase() + '||' + task];
+        if (rec && countCompleted_(rec.data) > 0) { s.data = rec.data; s.recovered = true; }
+      });
+    }
+  }
   return jsonOut_({ status: 'ok', task: task, section: wantSection,
                     submitted: submitted, started: started, count: students.length, students: students });
 }
@@ -1277,6 +1289,28 @@ function getSnapshot_(ss) {
     students.push({ email: email, name: String(r[1] || ''), section: String(r[2] || ''),
                     grade: r[3], updated: r[7] || null, tasks: mine });
   });
+
+  // Archived tasks keep only a stub in the ledger ({data:{}}); the
+  // Submissions_Log is durable. Fill any task whose answers are missing so
+  // mark sheets and exports show real work, not "not answered".
+  var toRecover = [];
+  students.forEach(function (s) {
+    Object.keys(s.tasks).forEach(function (tk) {
+      var t = s.tasks[tk];
+      if (countCompleted_(t.data) === 0) toRecover.push([s, tk, t]);
+    });
+  });
+  if (toRecover.length) {
+    var idx = logIndexForRecovery_(ss);
+    toRecover.forEach(function (pair) {
+      var rec = idx[pair[0].email + '||' + pair[1]];
+      if (rec && countCompleted_(rec.data) > 0) {
+        pair[2].data = rec.data;
+        pair[2].recovered = true;
+        pair[2].written = true;
+      }
+    });
+  }
 
   students.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
   var taskList = Object.keys(tasks).map(function (k) { return tasks[k]; })
