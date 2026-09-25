@@ -7136,17 +7136,6 @@ window.ROOM8_UNIFIED_STATUS = {
     "where_done": false,
     "where_source": ""
   },
-  "MRP": {
-    "pin": "MRP",
-    "name": "Morgan Pellerin",
-    "first_name": "Morgan",
-    "last_name": "Pellerin",
-    "class": "902",
-    "hl9_done": false,
-    "cit9_done": false,
-    "where_done": false,
-    "where_source": ""
-  },
   "SCP": {
     "pin": "SCP",
     "name": "Oscar Pinks",

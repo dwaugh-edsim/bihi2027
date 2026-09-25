@@ -46,7 +46,7 @@ window.CLASS_SEATING = {
                 "13": "Noah B.", "14": "Arlo J.", "15": "Zackory N.", "16": "Thomas O.",
                 "17": "Jordan H.", "18": "Lyla F.", "19": "Chelsea R.", "20": "Jordan S.",
                 "21": "Hannah S.", "22": "Douglas L.", "23": "Simon M.", "24": "Oscar P.",
-                "25": "Nolan C.", "26": "Mhareon O.", "27": "Morgan P."
+                "25": "Nolan C.", "26": "Mhareon O."
             }
         },
         "903": {
