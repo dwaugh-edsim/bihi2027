@@ -230,6 +230,10 @@
   .cv-comments .rate-cmt { margin-top: 4px; }
   .mk-json { font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: #0f172a; color: #e2e8f0;
              border-radius: 6px; padding: 10px; overflow: auto; max-height: 240px; margin: 4px 0 0; }
+  .mk-exemplar { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a;
+                 border-radius: 8px; padding: 8px 14px; margin: 8px 0 14px; }
+  .mk-exemplar summary { font-weight: 700; color: #14532d; font-size: .88rem; cursor: pointer; }
+  .mk-exemplar[open] summary { margin-bottom: 6px; }
   .meta { font-size: .82rem; color: var(--text-muted); }
   .hidden { display: none; }
   a.meta { color: var(--accent-blue); text-decoration: none; }
@@ -687,6 +691,13 @@ function markSheet(s, cfg) {
   const used = {};
   let html = '<div class="mk-title">' + escapeHtml(cfg.title || current.task) + '</div>';
   if (cfg.badge) html += '<div class="mk-badge">' + escapeHtml(cfg.badge) + '</div>';
+  // exemplar: the teacher-authored model — collapsible, right above the work,
+  // so marking against it is one glance away
+  if (cfg.exemplar && cfg.exemplar.html) {
+    html += '<details class="mk-exemplar"><summary>✓ ' +
+            escapeHtml(cfg.exemplar.title || 'Example of strong work') + '</summary>' +
+            cfg.exemplar.html + '</details>';
+  }
   let n = 0;
   (cfg.sections || []).forEach(function (sec) {
     n++;

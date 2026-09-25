@@ -168,7 +168,15 @@ window.R8Assignment = (function () {
         '  border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; }',
         '.r8-feedback-head { font-weight: 700; color: #0c4a6e; font-size: 0.95rem; }',
         '.r8-feedback-when { font-weight: 400; color: #64748b; font-size: 0.8rem; }',
-        '.r8-feedback-body { margin-top: 4px; color: #0f172a; white-space: pre-wrap; }'
+        '.r8-feedback-body { margin-top: 4px; color: #0f172a; white-space: pre-wrap; }',
+        '.r8-exemplar { border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; background: #f0fdf4;',
+        '  border-radius: 8px; margin: 0 0 14px; }',
+        '.r8-exemplar summary { font-weight: 700; color: #14532d; font-size: 0.95rem;',
+        '  padding: 10px 14px; cursor: pointer; }',
+        '.r8-exemplar summary:hover { background: #dcfce7; }',
+        '.r8-exemplar-body { padding: 0 14px 12px; color: #0f172a; }',
+        '.r8-exemplar-body p { margin: 6px 0; }',
+        '.r8-exemplar-body strong { color: #14532d; }'
       ].join('\n');
       document.head.appendChild(st);
     })();
@@ -228,6 +236,20 @@ window.R8Assignment = (function () {
 
     var sectionWrap = h('div', 'r8-section-line');
     app.appendChild(sectionWrap);
+
+    // ---- exemplar: teacher-authored example of strong work (collapsible) ----
+    // Written BEFORE the fields at creation time; students expand it if they
+    // want a model. Collapsed by default so it scaffolds without replacing
+    // their own thinking. cfg.exemplar = { title?: string, html: string }
+    if (cfg.exemplar && cfg.exemplar.html) {
+      var exCard = h('details', 'r8-exemplar');
+      var exSum = h('summary', '', (cfg.exemplar.title || 'Example of strong work'));
+      exCard.appendChild(exSum);
+      var exBody = h('div', 'r8-exemplar-body');
+      exBody.innerHTML = cfg.exemplar.html;   // teacher-authored config, not user input
+      exCard.appendChild(exBody);
+      app.insertBefore(exCard, sectionWrap);
+    }
 
     // ---- sections & fields ----
     var idx = 0;

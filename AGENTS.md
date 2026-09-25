@@ -237,6 +237,12 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   - **Chromebook Reality — Zero Client `localStorage` for Students:** Chromebooks wipe local
     browser storage on session close. All student state must be saved to the server. Off-roster
     section choices are bundled directly into the cloud payload (`payload.section`).
+  - **Exemplar First:** every new assignment includes an `exemplar: { title, html }` config
+    entry — one worked example of strong student work — written BEFORE the fields. It defines
+    success up front and catches rubric ambiguity cheaply. The engine shows it to students as
+    a collapsed card; the Station shows it at the top of the mark sheet for direct comparison.
+    Keep it 1–2 paragraphs, and follow the Healthy Living no-personal-reflection rule when
+    framing it.
   - **Wording Standard:** Always say **"Server"**, never "GAS" in student-facing labels,
     badges, alerts, or buttons.
   - **Healthy Living — no personal-reflection prompts (teacher directive, 2026-09-25):**

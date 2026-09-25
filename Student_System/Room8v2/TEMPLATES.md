@@ -84,6 +84,24 @@ Use `aggregateOnly:true` unless per-student detail is genuinely needed.
 written into this public repo, and an adaptation must never be printed as a label on a student's
 own screen. Adapt silently — make the page easier to use, don't announce why.
 
+## Step 0b: write the exemplar BEFORE the fields
+
+One worked example of strong student work for the main written task, added to the config:
+
+```js
+exemplar: {
+  title: 'Example of a strong response',
+  html: '<p>…your 1–2 paragraph model answer…</p>'
+}
+```
+
+Why first: it defines what "successful work" means before the fields lock it in, and it
+catches rubric ambiguity while changes are still cheap. The engine renders it collapsed for
+students (green card) and the Station shows it above the mark sheet, so you mark against it.
+
+Follow the personal-reflection rule for Healthy Living: the exemplar is a *model*, not a
+prompt — frame it third-person or scenario-based where the course demands it.
+
 ## Mark-sheet registration (one line)
 
 The GAS Station renders mark sheets by loading the live page in a hidden iframe and asking
