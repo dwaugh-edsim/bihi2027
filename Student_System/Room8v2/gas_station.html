@@ -280,7 +280,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.5.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.6.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -617,7 +617,7 @@ function markSheet(s, cfg) {
   return html;
 }
 
-function flatAnswers(s) {   // fallback when the page can't supply its layout
+function flatAnswers(s) {   // fallback when nothing else knows this payload
   const d = s.data || {};
   const ans = d.answers || d;
   const out = [];
@@ -625,9 +625,195 @@ function flatAnswers(s) {   // fallback when the page can't supply its layout
     if (k.charAt(0) === '_' || k === 'name' || k === 'section') return;
     const v = ans[k];
     if (v == null || v === '') return;
-    out.push({ k: k, v: Array.isArray(v) ? v.join(' · ') : String(v) });
+    let text;
+    if (Array.isArray(v)) text = v.join(' · ');
+    else if (typeof v === 'object') text = JSON.stringify(v, null, 1);   // never "[object Object]"
+    else text = String(v);
+    out.push({ k: k, v: text });
   });
   return out;
+}
+
+// =========================================================================
+//  LEGACY schemas — assignments written by the OLD system (pre-v2 pages).
+//  These have no Room 8 v2 page to read a layout from, so the mapping lives
+//  here: real question labels taken verbatim from the legacy pages in
+//  Student_System/ (HL8_Prior_Course_Diagnostic.html etc).
+// =========================================================================
+
+// Knowledge-check questions (HL8 Grade 7 Learning Audit). Option text verbatim
+// from the legacy page; we show the option the student chose, and do NOT claim
+// which is "correct" — the legacy page kept no answer key.
+const KC_AUDIT = [
+  { key: 'q1', prompt: 'A student has butterflies and feels nervous right before speaking in class, but feels completely calm once it is done. What is this an example of?', options: { A: 'A clinical anxiety disorder requiring immediate medication', B: 'A normal, temporary everyday stress/distress response to an immediate challenge', C: 'A sign of permanent brain damage' } },
+  { key: 'q2', prompt: 'Why does looking at phone or tablet screens in the dark right before bedtime make it harder to fall asleep?', options: { A: 'Blue-frequency light signals the brain to delay the release of melatonin (the sleep hormone)', B: 'Screen glass absorbs body heat and warms up your forehead', C: 'Phone notifications only affect your hearing, not your sleep chemistry' } },
+  { key: 'q3', prompt: 'Why does nicotine (from vapes or cigarettes) create chemical dependency much faster in a teenager\u2019s brain than in an adult\u2019s brain?', options: { A: 'The adolescent brain is actively remodeling its prefrontal cortex and dopamine reward circuits, causing addiction pathways to lock in faster', B: 'Teenagers have smaller physical lungs than adults', C: 'Nicotine has no effect on brain development' } },
+  { key: 'q4', prompt: 'Which breakfast combination will provide steady, long-lasting energy and focus for morning classes without causing a fast blood sugar crash?', options: { A: 'A high-sugar energy drink and a pastry', B: 'Complex carbohydrates paired with protein or healthy fats (e.g., oatmeal with peanut butter/milk, or whole-grain eggs)', C: 'Skipping breakfast completely and drinking only water' } },
+  { key: 'q5', prompt: 'Under Canadian law, is it legal for a person to forward or share an intimate or nude photo of another youth without their explicit permission?', options: { A: 'Yes, as long as it is only sent inside a private group chat', B: 'No; distributing or possessing non-consensual intimate images of anyone under 18 is a serious criminal offence under the Criminal Code of Canada', C: 'Yes, if the photo disappears after 24 hours' } },
+  { key: 'q6', prompt: 'When a friend or peer group pressures you into something risky or uncomfortable, what is an assertive refusal strategy?', options: { A: 'A clear, firm "I" statement paired with a direct exit (e.g., "I\u2019m not doing that; I\u2019m heading over to the gym now")', B: 'Staying silent and hoping someone else stops the situation', C: 'Yelling aggressively at everyone in the group' } }
+];
+
+// The two "Learning Audit" tasks share one schema; only the outcome labels and
+// the Grade-X wording differ.
+function auditSchema(title, outcomes, curiousLabel, withQuiz) {
+  const secs = [
+    { num: 'A', title: 'About them', fields: [
+      { key: 'pronouns', label: 'Pronouns' },
+      { key: 'phonetic', label: 'Name pronunciation helper' },
+      { key: 'transit', label: 'Classmates they work well with', alt: 'peers' },
+      { key: 'curious', label: curiousLabel }
+    ] },
+    { num: 'B', title: 'Reported coverage of last year\u2019s outcomes',
+      hint: 'Their own rating: Never / Brief / Deep / Over-covered',
+      fields: [
+        { key: 'matrix', label: 'Outcome coverage', type: 'map', order: outcomes },
+        { key: 'matrix_comments', label: 'Their note on each outcome', type: 'map', skipEmpty: true }
+      ] }
+  ];
+  if (withQuiz) secs.push({ num: 'C', title: 'Knowledge check',
+    hint: 'Multiple choice — the option they picked (no answer key was kept)', fields: [
+      { key: 'knowledge_check', label: '', type: 'quiz', questions: KC_AUDIT }
+    ] });
+  secs.push({ num: withQuiz ? 'D' : 'C', title: 'Sleep, energy, movement & stress baseline', fields: [
+    { key: 'where_personal', label: 'What time do you realistically go to bed on a school night?' },
+    { key: 'where_community', label: 'How does your energy feel when you arrive at school in the morning?' },
+    { key: 'where_global', label: 'What physical activities or sports keep your mind clear?' },
+    { key: 'where_aspirational', label: 'When school, social life or group chats get overwhelming, what is your reset?' }
+  ] });
+  secs.push({ num: withQuiz ? 'E' : 'D', title: 'Their input on the course', fields: [
+    { key: 'overdone', label: 'What felt repetitive or "over-done" last year?' },
+    { key: 'real_questions', label: 'Real-world questions they want answered this year' },
+    { key: 'formats', label: 'Formats they want', type: 'chips' },
+    { key: 'teacher_note', label: 'Private note to the teacher' }
+  ] });
+  return { title: title, badge: 'Recovered from the old system', sections: secs,
+           hide: ['pin', 'className', 'email', 'name', 'class', 'updated_at', 'peers'] };
+}
+
+const HIDE_ALWAYS = ['pin', 'className', 'email', 'name', 'class', 'updated_at', 'peers', '_requestId', '_telemetry', '_v', '_pipe'];
+
+const LEGACY = {
+  'Healthy Living 8: Grade 7 Learning Audit': auditSchema(
+    'Healthy Living 8 — Grade 7 Learning Audit',
+    ['Decision-Making, Peer Norms & Emotional Coping (HL7 Outcome 1)',
+     'Tech Habits, Sleep Quality, Nutrition & Disease Prevention (HL7 Outcome 2)',
+     'Mental Health Literacy, Brain Mechanics & Resiliency (HL7 Outcome 3)',
+     'Puberty, Body Image Pressures & Sexual/Reproductive Health (HL7 Outcome 4)',
+     'Relationships, Boundaries, Digital Laws & Exploitation Awareness (HL7 Outcome 5)',
+     'Substance Literacy, Harms, Refusal & Brain Growth (HL7 Outcome 6)'],
+    'One thing they\u2019re looking forward to (or curious about) in Grade 8 Healthy Living', true),
+
+  'Healthy Living 9: Grade 8 Learning Audit': auditSchema(
+    'Healthy Living 9 — Grade 8 Learning Audit',
+    ['Decision-Making & Emotional Regulation (HL8 Outcome 1)',
+     'Screens, Sleep Debt & Algorithmic Feeds (HL8 Outcome 2)',
+     'Mental Health Literacy, Stigma & Brain Biology (HL8 Outcome 3)',
+     'Contraception, STBBIs & Sexual Health (HL8 Outcome 4)',
+     'Relationship Boundaries, Coercion & Rights (HL8 Outcome 5)',
+     'Substance Literacy, Vaping & Harm Reduction (HL8 Outcome 6)'],
+    'One thing they\u2019re looking forward to in Grade 9 Healthy Living', false)
+};
+
+function findLegacy(task) {
+  const want = norm(task);
+  const keys = Object.keys(LEGACY);
+  for (let i = 0; i < keys.length; i++) if (norm(keys[i]) === want) return LEGACY[keys[i]];
+  return null;
+}
+
+function legacyVal(v) {
+  const empty = v === '' || v == null || (Array.isArray(v) && v.length === 0) ||
+                (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0);
+  if (empty) return '<div class="mk-val empty">— not answered —</div>';
+  if (Array.isArray(v)) return '<div class="mk-val">' + escapeHtml(v.join(' · ')) + '</div>';
+  if (typeof v === 'object') return '<pre class="mk-json">' + escapeHtml(JSON.stringify(v, null, 1)) + '</pre>';
+  return '<div class="mk-val">' + escapeHtml(String(v)) + '</div>';
+}
+
+function legacyMarkSheet(s, schema) {
+  const d = (s.data && (s.data.answers || s.data)) || {};
+  let html = '<div class="mk-title">' + escapeHtml(schema.title || current.task) + '</div>';
+  if (schema.badge) html += '<div class="mk-badge">' + escapeHtml(schema.badge) + '</div>';
+  let n = 0;
+
+  (schema.sections || []).forEach(function (sec) {
+    n++;
+    html += '<h3 class="mk-sec"><span class="mk-num">' + escapeHtml(sec.num || n) + '</span> ' + escapeHtml(sec.title || '') + '</h3>';
+    if (sec.hint) html += '<p class="mk-hint">' + escapeHtml(sec.hint) + '</p>';
+
+    (sec.fields || []).forEach(function (f) {
+      let v = d[f.key];
+      if ((v === undefined || v === '' || v == null) && f.alt) v = d[f.alt];
+
+      // ---- quiz: prompt + the option they chose ----
+      if (f.type === 'quiz') {
+        const qs = f.questions || [];
+        qs.forEach(function (q, qi) {
+          const chosen = String((v && v[q.key]) || '').trim();
+          const txt = (q.options || {})[chosen];
+          html += '<div class="mk-field"><div class="mk-label">' + (qi + 1) + '. ' + escapeHtml(q.prompt) + '</div>';
+          html += (chosen && txt)
+            ? '<div class="mk-chips"><span class="mk-chip on">' + escapeHtml(chosen) + ' — ' + escapeHtml(txt) + '</span></div>'
+            : '<div class="mk-val empty">— not answered —</div>';
+          html += '</div>';
+        });
+        return;
+      }
+
+      // ---- map: an object of label -> value (matrix ratings, per-outcome notes) ----
+      if (f.type === 'map') {
+        const obj = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        let keys = f.order ? f.order.slice() : Object.keys(obj);
+        Object.keys(obj).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
+        let rows = '';
+        keys.forEach(function (k) {
+          const val = obj[k];
+          const isEmpty = val === '' || val == null || (typeof val === 'object' && Object.keys(val).length === 0);
+          if (isEmpty && f.skipEmpty) return;
+          const shown = isEmpty ? '<span class="meta">— none —</span>'
+            : (typeof val === 'object' ? '<pre class="mk-json">' + escapeHtml(JSON.stringify(val, null, 1)) + '</pre>'
+                                       : '<span class="mk-chip on">' + escapeHtml(String(val)) + '</span>');
+          rows += '<div class="mk-field"><div class="mk-label" style="font-size:.88rem;">' + escapeHtml(k) + '</div>' +
+                  '<div class="mk-chips">' + shown + '</div></div>';
+        });
+        html += rows || '<div class="mk-val empty">— nothing recorded —</div>';
+        return;
+      }
+
+      // ---- chips: arrays of chosen formats ----
+      if (f.type === 'chips') {
+        const arr = Array.isArray(v) ? v : (v ? [v] : []);
+        html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>' +
+                (arr.length
+                  ? '<div class="mk-chips">' + arr.map(function (x) { return '<span class="mk-chip on">' + escapeHtml(x) + '</span>'; }).join('') + '</div>'
+                  : '<div class="mk-val empty">— none picked —</div>') +
+                '</div>';
+        return;
+      }
+
+      // ---- plain text ----
+      html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>' + legacyVal(v) + '</div>';
+    });
+  });
+
+  // anything the schema didn't cover — never silently dropped
+  const used = {};
+  (schema.sections || []).forEach(function (sec) {
+    (sec.fields || []).forEach(function (f) { used[f.key] = 1; if (f.alt) used[f.alt] = 1; });
+  });
+  const extra = {};
+  Object.keys(d).forEach(function (k) {
+    if (used[k] || HIDE_ALWAYS.indexOf(k) !== -1) return;
+    const v = d[k];
+    if (v === '' || v == null) return;
+    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return;
+    extra[k] = v;
+  });
+  if (Object.keys(extra).length) {
+    html += '<div class="mk-field"><div class="mk-label">Other recorded fields</div><pre class="mk-json">' +
+            escapeHtml(JSON.stringify(extra, null, 1).slice(0, 4000)) + '</pre></div>';
+  }
+  return html;
 }
 
 function markSelected(email) {
@@ -655,6 +841,15 @@ function openDetail(s) {
     return;
   }
   $('dAnswers').innerHTML = '<span class="meta">Loading the assignment layout…</span>';
+
+  // 1) legacy (pre-v2) task with a mapping registered above — no page to read
+  const legacy = findLegacy(current.task);
+  if (legacy) {
+    $('dAnswers').innerHTML = legacyMarkSheet(s, legacy);
+    return;
+  }
+
+  // 2) a live v2 page that can describe its own layout
   fetchConfig(current.task).then(function (cfg) {
     if (cfg) {
       $('dAnswers').innerHTML = markSheet(s, cfg);
