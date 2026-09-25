@@ -200,6 +200,34 @@
   .rate-cmt { font-size: .8rem; color: #475569; background: #fdfafb;
               border-left: 3px solid var(--border-accent); padding: 3px 8px;
               margin-top: 5px; border-radius: 0 4px 4px 0; }
+  /* class-level distribution view */
+  .classview { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
+               box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); padding: 14px 16px; margin-bottom: 12px; }
+  .cv-head { display: flex; justify-content: space-between; align-items: baseline;
+             gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .cv-title { font-family: 'Open Sans Condensed', sans-serif; text-transform: uppercase;
+              letter-spacing: .03em; font-size: 1.1rem; color: #1e293b; }
+  .cv-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .cv-chip { display: flex; align-items: baseline; gap: 5px; border: 1px solid var(--border-color);
+             border-radius: 999px; padding: 3px 12px; font-size: .72rem; font-weight: 700; }
+  .cv-chip .sw { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .dist-outcome { margin: 14px 0 0; }
+  .dist-label { font-size: .86rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .dist-bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden;
+              border: 1px solid var(--border-color); background: #f1f5f9; }
+  .dist-seg { display: flex; align-items: center; justify-content: center; font-size: .7rem;
+              font-weight: 700; color: #fff; min-width: 0; white-space: nowrap; overflow: hidden; }
+  .dist-seg.s0 { background: #64748b; }
+  .dist-seg.s1 { background: #d97706; }
+  .dist-seg.s2 { background: #15803d; }
+  .dist-seg.s3 { background: #7c3aed; }
+  .dist-empty { font-size: .78rem; color: var(--muted); font-style: italic;
+                padding: 5px 10px; }
+  .dist-legend { font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+                 color: var(--text-muted); margin-top: 4px; }
+  .dist-legend b { color: #1e293b; }
+  .cv-comments summary { cursor: pointer; font-size: .76rem; color: var(--accent-blue); margin-top: 4px; }
+  .cv-comments .rate-cmt { margin-top: 4px; }
   .mk-json { font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: #0f172a; color: #e2e8f0;
              border-radius: 6px; padding: 10px; overflow: auto; max-height: 240px; margin: 4px 0 0; }
   .meta { font-size: .82rem; color: var(--text-muted); }
@@ -268,6 +296,8 @@
     </div>
     <div class="row toolbar-stats">
       <div class="stats" id="stats"></div>
+      <span style="flex:1"></span>
+      <button class="small" id="cvBtn" onclick="toggleClassView()" title="Aggregate rating-scale answers for everyone in view">📊 Class distribution</button>
     </div>
   </div>
 
@@ -281,6 +311,9 @@
     </aside>
 
     <section class="pane">
+      <!-- ===== aggregate view: rating distributions for everyone in view ===== -->
+      <div id="classView" class="classview" style="display:none"></div>
+
       <!-- ===== panel 2: spec bar ===== -->
       <div class="specbar" id="detail">
         <div class="spec-id">
@@ -309,7 +342,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.9.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.10.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -510,6 +543,8 @@ function refresh() {
     }
     STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
     render();
+    // keep the class view fresh while it's open
+    if ($('classView') && $('classView').style.display === 'block') renderClassView();
     // keep your place across a refresh — re-open whoever was selected
     if (selectedEmail) {
       const again = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
@@ -984,6 +1019,138 @@ function saveFeedback() {
   }).catch(function (e) {
     $('dStatus').textContent = 'FAILED: ' + e.message;
   }).finally(function () { btn.disabled = false; });
+}
+
+// =========================================================================
+//  Class-level distribution: aggregate rating-scale answers across everyone
+//  in view. Works entirely client-side on the progress payload (includeData).
+// =========================================================================
+const RATING_LEVELS = ['Never', 'Brief', 'Deep', 'Over-Covered'];
+function normRating(v) { return String(v == null ? '' : v).toLowerCase().replace(/[^a-z]/g, ''); }
+const RATING_KEYS = RATING_LEVELS.map(normRating);
+
+// The rating-scale field for this task: from the legacy schema when known,
+// else sniff any top-level object whose values are 4-level ratings.
+function ratingFieldFor(task) {
+  const legacy = findLegacy(task);
+  if (legacy) {
+    const secs = legacy.sections || [];
+    for (let i = 0; i < secs.length; i++) {
+      const fs = secs[i].fields || [];
+      for (let j = 0; j < fs.length; j++) {
+        if (fs[j].type === 'ratings') return { key: fs[j].key, comments: fs[j].comments, order: fs[j].order };
+      }
+    }
+  }
+  return { key: 'matrix', comments: 'matrix_comments', order: null };
+}
+
+function toggleClassView() {
+  const cv = $('classView');
+  if (cv.style.display === 'none' || !cv.style.display) {
+    renderClassView();
+    cv.style.display = 'block';
+    closeDetail();
+    $('cvBtn').textContent = '✕ Close class view';
+  } else {
+    cv.style.display = 'none';
+    $('cvBtn').textContent = '📊 Class distribution';
+  }
+}
+
+function renderClassView() {
+  const cv = $('classView');
+  const f = ratingFieldFor(current ? current.task : '');
+  const students = STUDENTS.filter(function (s) { return s.data && !s.notStarted; });
+
+  if (!students.length) {
+    cv.innerHTML = '<div class="meta">No saved work in view to aggregate yet.</div>';
+    return;
+  }
+
+  // tally: outcome -> {counts:[n,n,n,n], notRated, comments:[]}
+  const tally = {};
+  const order = (f.order || []).slice();
+  let ratedAny = 0;
+  students.forEach(function (s) {
+    const d = (s.data && (s.data.answers || s.data)) || {};
+    const obj = (d[f.key] && typeof d[f.key] === 'object' && !Array.isArray(d[f.key])) ? d[f.key] : {};
+    const cmts = (f.comments && d[f.comments] && typeof d[f.comments] === 'object') ? d[f.comments] : {};
+    const seen = {};
+    Object.keys(obj).forEach(function (k) {
+      seen[k] = 1;
+      if (order.indexOf(k) === -1) order.push(k);
+      if (!tally[k]) tally[k] = { counts: [0, 0, 0, 0], notRated: 0, comments: [] };
+      const idx = RATING_KEYS.indexOf(normRating(obj[k]));
+      if (idx === -1) tally[k].notRated++;
+      else { tally[k].counts[idx]++; ratedAny++; }
+      const c = String(cmts[k] || '').trim();
+      if (c) tally[k].comments.push({ who: (s.name || '?').split(' ')[0], text: c });
+    });
+    // outcomes this student skipped entirely
+    order.forEach(function (k) {
+      if (!seen[k]) { if (!tally[k]) tally[k] = { counts: [0, 0, 0, 0], notRated: 0, comments: [] }; }
+    });
+  });
+
+  // totals across the whole view
+  const totals = [0, 0, 0, 0];
+  order.forEach(function (k) { if (tally[k]) for (let i = 0; i < 4; i++) totals[i] += tally[k].counts[i]; });
+
+  if (!order.length) {
+    cv.innerHTML = '<div class="cv-head"><div class="cv-title">📊 Class distribution — ' +
+                   escapeHtml(current ? current.task : '') + '</div></div>' +
+                   '<div class="meta">This assignment has no 4-level rating questions — distribution ' +
+                   'applies to the Learning Audits. Per-student answers are still on the left.</div>';
+    return;
+  }
+
+  let html = '<div class="cv-head"><div class="cv-title">📊 Class distribution — ' +
+             escapeHtml(current ? current.task : '') + '</div>' +
+             '<span class="meta">' + students.length + ' students in view' +
+             (current && current.section ? ' · ' + escapeHtml(current.section) : ' · all classes') + '</span></div>';
+
+  // legend / overall chips
+  html += '<div class="cv-chips">';
+  const COLORS = ['#64748b', '#d97706', '#15803d', '#7c3aed'];
+  RATING_LEVELS.forEach(function (L, i) {
+    html += '<span class="cv-chip"><span class="sw" style="background:' + COLORS[i] + '"></span>' +
+            L + ' <b>' + totals[i] + '</b></span>';
+  });
+  html += '</div>';
+
+  // per-outcome stacked bars
+  order.forEach(function (k) {
+    const t = tally[k] || { counts: [0, 0, 0, 0], notRated: 0, comments: [] };
+    const sum = t.counts.reduce(function (a, b) { return a + b; }, 0);
+    html += '<div class="dist-outcome"><div class="dist-label">' + escapeHtml(k) + '</div>';
+    if (sum === 0) {
+      html += '<div class="dist-bar"><div class="dist-empty">no ratings recorded</div></div>';
+    } else {
+      html += '<div class="dist-bar">';
+      t.counts.forEach(function (n, i) {
+        if (!n) return;
+        const pct = Math.round((n / sum) * 100);
+        html += '<div class="dist-seg s' + i + '" style="width:' + pct + '%" title="' +
+                RATING_LEVELS[i] + ': ' + n + '">' + (pct >= 9 ? n : '') + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="dist-legend">' +
+            t.counts.map(function (n, i) { return RATING_LEVELS[i] + ' <b>' + n + '</b>'; }).join(' · ') +
+            (t.notRated ? ' · not rated <b>' + t.notRated + '</b>' : '') + '</div>';
+    if (t.comments.length) {
+      html += '<details class="cv-comments"><summary>💬 ' + t.comments.length + ' comment' +
+              (t.comments.length > 1 ? 's' : '') + '</summary>';
+      t.comments.forEach(function (c) {
+        html += '<div class="rate-cmt"><b>' + escapeHtml(c.who) + ':</b> ' + escapeHtml(c.text) + '</div>';
+      });
+      html += '</details>';
+    }
+    html += '</div>';
+  });
+
+  cv.innerHTML = html;
 }
 
 // =========================================================================
