@@ -201,6 +201,13 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
 
 - Everything is standalone zero-dependency HTML/JS (GitHub Pages site). No build step.
 - Projector displays follow `.agents/rules/classroom_displays_strongly_typed.md`.
+- **Student names in anything an LLM or a screenshot sees → first name + last TWO initials**
+  (`Jordan Th.`, `Doun Kw.`). This is the agreed standard for: agent/tool output, probe
+  script printing, Station display, and anything pasted into a chat or captured in a
+  screenshot. Full names + `@gnspes.ca` emails stay server-side (auth/storage, HMAC-signed)
+  and in the private repo — they are what the backend keys on, and that never changes.
+  Convention is *presentation-layer only*: it does not alter login, dedupe, or storage.
+  Rule of thumb: real email for auth, `First Ls.` for eyes, counts/codes for written records.
 - **Student privacy split (never publish PII):** anything publicly served may carry
   **names + class only** (`first_name`, `last_name`, `homeroom`, `grade`, courses).
   PINs, student IDs, usernames and full legal first names must never appear in tracked
