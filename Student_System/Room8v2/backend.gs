@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.7.0-2026-09-24';
-var CONFIG_DEPLOYED = '2026-09-24T19:45:00Z';
+var CONFIG_VERSION = 'R8-BE-0.8.0-2026-09-25';
+var CONFIG_DEPLOYED = '2026-09-25T06:25:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -410,6 +410,37 @@ function studentSubmit_(ss, payload) {
                     known: who.known, timestamp: new Date(), hash: res.hash, byteLength: res.byteLength });
 }
 
+// Newest Submissions_Log row for (email, task) — the durable-recovery path.
+// Scans from the BOTTOM in bounded chunks: the newest match is found without
+// ever reading the whole grid, so a year-long append-only log stays cheap on
+// every student page load. Rows whose JSON is empty or unparseable are skipped
+// rather than returned as {} — a truncated/corrupt cell must never shadow an
+// older good row. A legitimately cleared submission serializes as "{}" (parses
+// fine) and is still returned, because that IS the latest state.
+function newestLogRowFor_(log, email, task) {
+  if (!log) return null;
+  var last = log.getLastRow();
+  if (last < 2) return null;
+  var CHUNK = 1000;
+  var end = last;
+  while (end > 1) {
+    var start = Math.max(2, end - CHUNK + 1);
+    var rows = log.getRange(start, 1, end - start + 1, 8).getValues();
+    for (var i = rows.length - 1; i >= 0; i--) {
+      if (String(rows[i][1]).toLowerCase() !== email) continue;
+      if (String(rows[i][3]) !== task) continue;
+      var raw = String(rows[i][6] || '');
+      if (!raw.trim()) continue;
+      var parsed = null;
+      try { parsed = JSON.parse(raw); } catch (e) { continue; }
+      return { data: parsed, summary: String(rows[i][5] || ''),
+               section: String(rows[i][2] || ''), ts: rows[i][0] };
+    }
+    end = start - 1;
+  }
+  return null;
+}
+
 function studentLoad_(ss, payload) {
   var id = verifyIdentity_(payload.email, payload.ts, payload.sig);
   if (!id.ok) return authFailed_(id);
@@ -430,24 +461,17 @@ function studentLoad_(ss, payload) {
       }
     }
   }
-  // fallback: newest log row for (email, task)
-  var log = ss.getSheetByName(TAB_LOG);
-  var last = log.getLastRow();
-  if (last > 1) {
-    var rows = log.getRange(2, 1, last - 1, 8).getValues();
-    for (var i = rows.length - 1; i >= 0; i--) {
-      if (String(rows[i][1]).toLowerCase() === id.email && String(rows[i][3]) === task) {
-        var d = {};
-        try { d = JSON.parse(rows[i][6] || '{}'); } catch (e) {}
-        var fb2 = feedbackMap_(ss)[id.email + '||' + task];
-        return jsonOut_({ status: 'ok', found: true, data: d, summary: String(rows[i][5] || ''),
-                          section: String(rows[i][2] || ''), savedAt: rows[i][0],
-                          feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
-      }
-    }
+  // fallback: newest log row for (email, task). This is what makes the
+  // MAX_FULL_TASKS archival cap safe — an archived, missing, or never-merged
+  // task still reloads from the append-only log.
+  var rec = newestLogRowFor_(ss.getSheetByName(TAB_LOG), id.email, task);
+  var fb2 = feedbackMap_(ss)[id.email + '||' + task];
+  if (rec) {
+    return jsonOut_({ status: 'ok', found: true, data: rec.data, summary: rec.summary,
+                      section: rec.section, savedAt: rec.ts, recovered: true,
+                      feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
   }
-  var fb3 = feedbackMap_(ss)[id.email + '||' + task];
-  return jsonOut_({ status: 'ok', found: false, feedback: fb3 ? fb3.text : '', feedbackAt: fb3 ? fb3.ts : null });
+  return jsonOut_({ status: 'ok', found: false, feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
 }
 
 function studentTasks_(ss, payload) {

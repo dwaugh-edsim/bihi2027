@@ -84,6 +84,19 @@ bridge is the email column of the old class tabs (~80% coverage). Rows without a
 are **reported, never guessed** — when that student eventually signs in with Google, add
 them to the roster and re-run the migration for their task.
 
+## Recovery path (why archived work still loads)
+
+`MAX_FULL_TASKS` (5) stubs the *oldest* tasks in each student's `Students` ledger to
+`{data:{}, _archived:true}` — but that is not data loss. `Submissions_Log` is append-only and never
+pruned, and `studentLoad_` falls back to it (`newestLogRowFor_`) whenever a task is archived,
+missing, or was never merged. A student re-opening their 6th-or-earlier assignment gets their work
+back, flagged `recovered: true` in the response.
+
+That scan runs **bottom-up in bounded 1000-row chunks**, so it does not read the whole grid on
+every page load, and it **skips empty/unparseable rows** so one truncated cell can never shadow an
+older good row with `{}`. A genuinely cleared submission serializes as `"{}"` (parses fine) and is
+still returned — that is the correct latest state.
+
 ## Teacher feedback + the GAS Station (R8-BE-0.5.0)
 
 New backend actions (all PIN-gated): `get_overview` (classes/tasks with counts), `get_feedback`
