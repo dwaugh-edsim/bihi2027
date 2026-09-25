@@ -346,7 +346,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.11.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.11.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -373,11 +373,24 @@ let current = null;      // {section, task}
 let selectedEmail = null;
 
 function $(id) { return document.getElementById(id); }
+// Session gone (4-hour identity window elapsed): drop back to the gate with a
+// clear reason instead of leaving a half-dead view and a bare "error".
+function expireSession_(j) {
+  SNAPSHOT = null;
+  ID = null;
+  sessionStorage.removeItem(PIN_KEY);
+  $('main').classList.add('hidden');
+  $('gate').classList.remove('hidden');
+  $('pin').value = '';
+  $('gateMsg').textContent = (j && j.message) || 'Session expired — sign in again.';
+  $('gateMsg').style.color = '#b45309';
+}
+
 function setStatus(msg, kind) { const el = $('status'); el.textContent = msg || ''; el.className = kind || ''; }
 
 // Every POST gets its own query string — Apps Script's 302 echo URL carries a
 // single-use user_content_key, and a browser-cached 302 replays a spent key and
-// 404s. Unique URL per call; one retry in case a 404 slips through anyway.
+// 404s. Unique URL per call; retries cover the (intermittent) echo hop.
 function teacherCall(action, payload, isRetry) {
   const body = Object.assign({ action: action }, payload || {});
   if (ID) { body.email = ID.email; body.ts = ID.ts; body.sig = ID.sig; }
@@ -390,9 +403,22 @@ function teacherCall(action, payload, isRetry) {
       return r.json();
     })
     .catch(function (e) {
-      if (isRetry) throw e;
+      if (isRetry) return { status: 'error', reason: String(e && e.message || e),
+                            message: 'Google did not respond (the Apps Script echo hop). Tap Refresh — data is safe.' };
       return new Promise(function (res) { setTimeout(res, 400); })
         .then(function () { return teacherCall(action, payload, true); });
+    })
+    .then(function (j) {
+      // normalize: never let a status fall through as a bare word. auth_failed
+      // carries {reason}, not {message} — map both to something a human can act on.
+      if (j && j.status === 'auth_failed' && !j.message) {
+        j.message = j.reason === 'stale_or_future'
+          ? 'Session expired (4 hours) — Lock, then sign in again.'
+          : 'Sign-in problem (' + (j.reason || 'unknown') + ') — Lock, then sign in again.';
+      } else if (j && j.status === 'error' && !j.message && j.reason) {
+        j.message = 'Request failed: ' + j.reason;
+      }
+      return j;
     });
 }
 
@@ -572,11 +598,11 @@ function refresh() {
 
   // ---- fallback: per-task calls (older backend / snapshot failed) ----
   setStatus('Loading…', 'warn');
-  const seen = {};
   Promise.all([
     teacherCall('get_task_progress', { task: task, section: section, includeData: true, includeRoster: true })
   ]).then(function (res) {
     const j = res[0];
+    if (j.status === 'auth_failed') { expireSession_(j); return; }
     if (j.status !== 'ok') { setStatus(j.message || 'error', 'bad'); return; }
     current = { section: j.section, task: j.task };
     STUDENTS = (j.students || []).slice();
@@ -591,6 +617,7 @@ function reload() {
   if (!SNAPSHOT) { refresh(); return; }
   setStatus('Refreshing snapshot…', 'warn');
   teacherCall('get_snapshot', {}).then(function (s) {
+    if (s && s.status === 'auth_failed') { expireSession_(s); return; }
     if (s && s.status === 'ok' && s.students) {
       SNAPSHOT = s;
       OVERVIEW = { version: SNAPSHOT.version || (OVERVIEW && OVERVIEW.version), tasks: s.tasks };
