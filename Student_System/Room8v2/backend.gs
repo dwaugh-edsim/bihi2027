@@ -355,6 +355,8 @@ function doPost(e) {
     if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
     if (action === 'get_adaptations')   { requireTeacher_(payload); return getAdaptations_(ss, payload); }
     if (action === 'get_snapshot')      { requireTeacher_(payload); return getSnapshot_(ss); }
+    if (action === 'list_roster')       { requireTeacher_(payload); return listRoster_(ss); }
+    if (action === 'remove_roster_student') { requireTeacher_(payload); return removeRosterStudent_(ss, payload); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -727,6 +729,59 @@ function getRosterMeta_(ss) {
   var perSection = {};
   list.forEach(function (r) { perSection[r.section || '(none)'] = (perSection[r.section || '(none)'] || 0) + 1; });
   return jsonOut_({ status: 'ok', count: list.length, perSection: perSection });
+}
+
+// Roster rows for display (teacher-gated) — find a student, then remove them.
+// readRoster_ parses the tab; here we return the raw rows so email/section/grade
+// are all visible for targeting.
+function listRoster_(ss) {
+  var sh = ss.getSheetByName(TAB_ROSTER);
+  var last = sh.getLastRow();
+  var rows = last > 1 ? sh.getRange(2, 1, last - 1, 7).getValues() : [];
+  var out = [];
+  rows.forEach(function (r, i) {
+    var email = String(r[0] || '').trim().toLowerCase();
+    if (!email) return;
+    out.push({ row: i + 2, email: email, first: String(r[1] || ''), last: String(r[2] || ''),
+               section: String(r[3] || ''), grade: r[4], courses: String(r[5] || '') });
+  });
+  return jsonOut_({ status: 'ok', count: out.length, students: out });
+}
+
+// Remove one student from the Roster by email. The Students tab row (their
+// work) is reported if one exists but NEVER deleted here — student work
+// removal is a separate, deliberate decision. Returns before/after counts.
+function removeRosterStudent_(ss, payload) {
+  var email = String(payload.email || '').trim().toLowerCase();
+  if (!email) throw new Error('email is required.');
+  var sh = ss.getSheetByName(TAB_ROSTER);
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  var before, found = null;
+  try {
+    var last = sh.getLastRow();
+    var rows = last > 1 ? sh.getRange(2, 1, last - 1, 7).getValues() : [];
+    before = rows.length;
+    for (var i = 0; i < rows.length; i++) {
+      if (String(rows[i][0] || '').trim().toLowerCase() === email) {
+        found = { name: (String(rows[i][1] || '') + ' ' + String(rows[i][2] || '')).trim(),
+                  section: String(rows[i][3] || '') };
+        sh.deleteRow(i + 2);
+        break;
+      }
+    }
+    if (found) before = before - 1;
+  } finally { lock.releaseLock(); }
+  if (!found) return jsonOut_({ status: 'error', message: 'No roster row with that email.' });
+
+  // report (don't delete) a Students-tab row if one exists
+  var stu = ss.getSheetByName(TAB_STUDENTS);
+  var srow = findStudentRow_(stu, email);
+  return jsonOut_({ status: 'roster_removed', email: email, name: found.name,
+                    section: found.section, rosterCount: before,
+                    studentsRowExists: srow !== -1,
+                    note: srow !== -1
+                      ? 'A Students-tab row with their work still exists — say the word before deleting it.'
+                      : 'No Students-tab row existed (no v2 submissions).' });
 }
 
 function getClassProgress_(ss, payload) {
