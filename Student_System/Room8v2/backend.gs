@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.10.0-2026-09-25';
-var CONFIG_DEPLOYED = '2026-09-25T09:50:00Z';
+var CONFIG_VERSION = 'R8-BE-0.11.0-2026-09-25';
+var CONFIG_DEPLOYED = '2026-09-25T12:30:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -354,6 +354,7 @@ function doPost(e) {
     if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
     if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
     if (action === 'get_adaptations')   { requireTeacher_(payload); return getAdaptations_(ss, payload); }
+    if (action === 'get_snapshot')      { requireTeacher_(payload); return getSnapshot_(ss); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -765,9 +766,20 @@ function getTaskProgress_(ss, payload) {
     if (!String(r[0] || '').trim()) return;
     var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
     var t = ledger && ledger._tasks && ledger._tasks[task];
-    if (!t) return;
+    var rowSec = String(r[2] || '');
+    if (!t) {
+      // includeRoster: one-shot mode wants everyone (matches the old
+      // get_class_progress fold-in, from data we already have in hand)
+      if (payload.includeRoster && (!wantSection || rowSec === wantSection)) {
+        var fbNs = fbMap[String(r[0]).toLowerCase() + '||' + task];
+        students.push({ email: String(r[0]), name: String(r[1]), section: rowSec,
+                        updated: null, summary: '', written: false, notStarted: true,
+                        feedback: fbNs ? fbNs.text : '', data: null });
+      }
+      return;
+    }
     // prefer the per-task section (clean_sections writes it); fall back to row
-    var sec = String(t.section || r[2] || '');
+    var sec = String(t.section || rowSec);
     if (wantSection && sec !== wantSection) return;
     var written = countCompleted_(t.data) > 0 || !!t._archived;
     if (written) submitted++; else started++;
@@ -1225,6 +1237,52 @@ function getAdaptations_(ss, payload) {
   if (!aggregateOnly) out.students = students;
   out.privacy = 'Confidential. Do not copy names/notes into the public repo. Prefer aggregateOnly:true.';
   return jsonOut_(out);
+}
+
+// ============================================================================
+// Snapshot (teacher): ONE request returning everything the Station needs —
+// all students, all tasks, per-task section/summary/data + feedback + counts.
+// The Station loads it once per session, then every class/task/student view is
+// computed client-side (0ms) until the teacher hits Refresh again. Read-only;
+// no lock; writes still go through their existing endpoints as before.
+// ============================================================================
+function getSnapshot_(ss) {
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var last = sheet.getLastRow();
+  var rows = last > 1 ? sheet.getRange(2, 1, last - 1, 8).getValues() : [];
+  var fbMap = feedbackMap_(ss);
+  var students = [], tasks = {};
+
+  rows.forEach(function (r) {
+    var email = String(r[0] || '').trim().toLowerCase();
+    if (!email) return;
+    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) {}
+    var tmap = (ledger && ledger._tasks) || {};
+    var mine = {};
+    Object.keys(tmap).forEach(function (tk) {
+      var t = tmap[tk] || {};
+      var sec = String(t.section || r[2] || '');
+      var written = countCompleted_(t.data) > 0 || !!t._archived;
+      var fb = fbMap[email + '||' + tk];
+      mine[tk] = { updated: t.updated || null, summary: t.summary || '', written: written,
+                   archived: !!t._archived, section: sec,
+                   feedback: fb ? fb.text : '', data: t.data || null };
+      if (!tasks[tk]) tasks[tk] = { name: tk, submitted: 0, started: 0, bySection: {} };
+      if (!t._archived) {
+        var bs = tasks[tk].bySection[sec] || { submitted: 0, started: 0 };
+        if (written) { tasks[tk].submitted++; bs.submitted++; } else { tasks[tk].started++; bs.started++; }
+        tasks[tk].bySection[sec] = bs;
+      }
+    });
+    students.push({ email: email, name: String(r[1] || ''), section: String(r[2] || ''),
+                    grade: r[3], updated: r[7] || null, tasks: mine });
+  });
+
+  students.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+  var taskList = Object.keys(tasks).map(function (k) { return tasks[k]; })
+    .sort(function (a, b) { return b.submitted + b.started - (a.submitted + a.started); });
+  return jsonOut_({ status: 'ok', snapshotAt: new Date(), students: students, tasks: taskList,
+                    studentCount: students.length });
 }
 
 // Copy old submissions for the given tasks into v2 (one-time; dry-run first).

@@ -290,7 +290,7 @@
       <select id="selTask" onchange="onTaskChange()"></select>
       <label>Class</label>
       <select id="selSection" onchange="refresh()"></select>
-      <button class="small" onclick="refresh()">↻ Refresh</button>
+      <button class="small" onclick="reload()">↻ Refresh</button>
       <button class="small" onclick="exportJSON(false)">⬇ Export view</button>
       <button class="small" onclick="exportJSON(true)" title="Whole class, every assignment">⬇ Export class</button>
       <span id="status"></span>
@@ -346,7 +346,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.10.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.11.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -365,6 +365,8 @@ const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLH
 // =========================================================================
 const PIN_KEY = 'r8stati…n';
 let PIN = '';
+let ID = null;                // pipe identity {email, ts, sig} once signed in
+let SNAPSHOT = null;          // one-shot full dump; null => per-task fallback
 let OVERVIEW = null;     // get_overview result
 let STUDENTS = [];       // current get_task_progress students
 let current = null;      // {section, task}
@@ -418,6 +420,25 @@ function enterMain(j) {
   $('gate').classList.add('hidden');
   $('main').classList.remove('hidden');
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
+  // Try the one-shot snapshot: if it lands, every later view is instant
+  // (client-side). If it fails (older backend, too big, transient error),
+  // SNAPSHOT stays null and refresh() falls back to the per-task calls.
+  setStatus('Loading snapshot…', 'warn');
+  teacherCall('get_snapshot', {}).then(function (s) {
+    if (s && s.status === 'ok' && s.students) {
+      SNAPSHOT = s;
+      OVERVIEW = { version: j.version || s.version, tasks: s.tasks };
+      setStatus('Snapshot loaded (' + s.studentCount + ' students) — views are instant until Refresh.', 'ok');
+    } else {
+      setStatus('Snapshot unavailable — using per-task loading.', 'warn');
+    }
+    finishEnter();
+  }).catch(function () {
+    setStatus('Snapshot unavailable — using per-task loading.', 'warn');
+    finishEnter();
+  });
+}
+function finishEnter() {
   fillTaskPicker();
   fillSectionPicker(false);
   closeDetail();
@@ -524,38 +545,76 @@ function onTaskChange() {
 function refresh() {
   const task = $('selTask').value;
   if (!task) { STUDENTS = []; render(); return; }
-  setStatus('Loading…', 'warn');
   const section = $('selSection').value;
+
+  // ---- snapshot mode: slice the in-memory dump; zero network, instant ----
+  if (SNAPSHOT) {
+    const out = [];
+    SNAPSHOT.students.forEach(function (r) {
+      const t = r.tasks[task];
+      if (t) {
+        const sec = t.section || r.section || '';
+        if (section && sec !== section) return;
+        out.push({ email: r.email, name: r.name, section: sec, updated: t.updated,
+                   summary: t.summary, written: !!t.written, archived: !!t.archived,
+                   feedback: t.feedback, data: t.data });
+      } else {
+        if (section && (r.section || '') !== section) return;
+        out.push({ email: r.email, name: r.name, section: r.section || '', written: false,
+                   notStarted: true, updated: null, summary: '', feedback: '', data: null });
+      }
+    });
+    STUDENTS = out;
+    current = { section: section, task: task };
+    finishLoad(true);
+    return;
+  }
+
+  // ---- fallback: per-task calls (older backend / snapshot failed) ----
+  setStatus('Loading…', 'warn');
   const seen = {};
   Promise.all([
-    teacherCall('get_task_progress', { task: task, section: section, includeData: true }),
-    teacherCall('get_class_progress', { slim: true })
+    teacherCall('get_task_progress', { task: task, section: section, includeData: true, includeRoster: true })
   ]).then(function (res) {
-    const j = res[0], cp = res[1];
+    const j = res[0];
     if (j.status !== 'ok') { setStatus(j.message || 'error', 'bad'); return; }
     current = { section: j.section, task: j.task };
     STUDENTS = (j.students || []).slice();
     STUDENTS.forEach(function (s) { seen[s.email] = true; s.written = !!s.written; });
-    // fold in everyone on the class roster with NO entry for this task -> "not started"
-    if (cp && cp.status === 'ok') {
-      (cp.students || []).forEach(function (r) {
-        if (seen[r.email]) return;
-        if (section && r.section !== section) return;
-        STUDENTS.push({ email: r.email, name: r.name, section: r.section || '',
-                        written: false, notStarted: true, updated: null, summary: '', feedback: '', data: null });
-      });
-    }
-    STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
-    render();
-    // keep the class view fresh while it's open
-    if ($('classView') && $('classView').style.display === 'block') renderClassView();
-    // keep your place across a refresh — re-open whoever was selected
-    if (selectedEmail) {
-      const again = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
-      if (again) openDetail(again); else closeDetail();
-    }
-    setStatus(STUDENTS.length + ' students shown', 'ok');
+    finishLoad(false);
   }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); });
+}
+
+// Refresh button: in snapshot mode re-pull the dump (fresh data); otherwise
+// plain refresh. Class/task switching never re-pulls — only this button does.
+function reload() {
+  if (!SNAPSHOT) { refresh(); return; }
+  setStatus('Refreshing snapshot…', 'warn');
+  teacherCall('get_snapshot', {}).then(function (s) {
+    if (s && s.status === 'ok' && s.students) {
+      SNAPSHOT = s;
+      OVERVIEW = { version: SNAPSHOT.version || (OVERVIEW && OVERVIEW.version), tasks: s.tasks };
+      const keep = $('selTask').value;
+      fillTaskPicker();
+      if (keep && OVERVIEW.tasks.some(function (t) { return t.name === keep; })) $('selTask').value = keep;
+      refresh();
+      setStatus('Snapshot refreshed at ' + new Date().toLocaleTimeString() + ' — views are instant.', 'ok');
+    } else {
+      setStatus('Refresh failed — keeping previous snapshot.', 'warn');
+      refresh();
+    }
+  }).catch(function () { setStatus('Refresh failed — keeping previous snapshot.', 'warn'); });
+}
+
+function finishLoad(fromSnapshot) {
+  STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+  render();
+  if ($('classView') && $('classView').style.display === 'block') renderClassView();
+  if (selectedEmail) {
+    const again = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
+    if (again) openDetail(again); else closeDetail();
+  }
+  setStatus(STUDENTS.length + ' students shown' + (fromSnapshot ? ' · instant' : ''), 'ok');
 }
 
 // =========================================================================
@@ -1022,6 +1081,11 @@ function saveFeedback() {
   teacherCall('set_feedback', payload).then(function (j) {
     if (j.status === 'feedback_saved') {
       if (stu) stu.feedback = payload.feedback;
+      // keep the in-memory snapshot in sync so it doesn't show stale feedback
+      if (SNAPSHOT) {
+        const snapStu = SNAPSHOT.students.filter(function (s) { return s.email === selectedEmail; })[0];
+        if (snapStu && snapStu.tasks[current.task]) snapStu.tasks[current.task].feedback = payload.feedback;
+      }
       $('dStatus').textContent = j.empty ? 'Cleared (empty feedback).' : '✓ Saved — student sees it on next load.';
       render();
     } else {

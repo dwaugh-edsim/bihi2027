@@ -84,6 +84,22 @@ bridge is the email column of the old class tabs (~80% coverage). Rows without a
 are **reported, never guessed** — when that student eventually signs in with Google, add
 them to the roster and re-run the migration for their task.
 
+## Snapshot mode (`get_snapshot`) — why the Station is instant
+
+```
+POST { action:'get_snapshot', teacherPin|identity }
+-> { students:[{email,name,section,grade,updated, tasks:{task:{updated,summary,written,archived,section,feedback,data}}}],
+     tasks:[{name,submitted,started,bySection}], studentCount, snapshotAt }
+```
+
+The Station loads this **once** per session; every class/task/student view afterwards is a
+client-side slice (no network). The **↻ Refresh** button re-pulls the snapshot (fresh data);
+class/task switching never does. If the snapshot call fails (older backend, size, transient
+error), the Station **silently falls back** to per-task `get_task_progress` calls — degraded
+speed, same behavior. `get_task_progress` also accepts `includeRoster:true` to fold in
+not-started students in one call. **Writes are unaffected** — feedback/autosave still POST
+their own endpoints; the Station patches its in-memory copy after a save.
+
 ## Adaptations tab (you maintain it by hand)
 
 A `Adaptations` tab is created automatically. **You type into it directly** — no import step.
