@@ -68,6 +68,22 @@ Numbeo matrix) and `custom.exportExtra(answers)` (extra Markdown in the export).
   from the opener (Google's sign-in redirects can push the popup's history past its own
   `close()`).
 
+## Before you design: pull the adaptation profile (step 0)
+
+Every new assignment starts by fetching the documented adaptations for the section(s) it serves:
+
+```
+POST <BACKEND_URL>  { "action":"get_adaptations", "teacherPin":"…", "section":"802-HE", "aggregateOnly":true }
+```
+
+Then **state in your reply** which adaptations this assignment must support and how it does so —
+writing volume, chunking, read-aloud friendliness, whether extended time changes the task shape.
+Use `aggregateOnly:true` unless per-student detail is genuinely needed.
+
+**Privacy:** adaptations are confidential student information. Names and notes must never be
+written into this public repo, and an adaptation must never be printed as a label on a student's
+own screen. Adapt silently — make the page easier to use, don't announce why.
+
 ## Mark-sheet registration (one line)
 
 The GAS Station renders mark sheets by loading the live page in a hidden iframe and asking

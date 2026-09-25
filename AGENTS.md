@@ -43,6 +43,26 @@ Rules:
 - **Coordination log:** append to `../bihipri-27/Student_System-priv/piiiharden.md`
   (append-only, newest at the bottom) — it moved out of this repo.
 
+### Student adaptations (confidential — read the profile BEFORE designing a task)
+
+`Dave` maintains an **`Adaptations`** tab in the Room 8 v2 sheet by hand (per student: email,
+codes, short note). Consult it as **step 0 of creating any assignment**:
+
+```
+POST <BACKEND_URL> { action:'get_adaptations', teacherPin|identity, section:'802-HE', aggregateOnly:true }
+-> { count, codeTotals:{code:n}, bySection:{section:{students,codes:{}}}, students?:[...] }
+```
+
+- **Bring it up unprompted.** When Dave asks for a new assignment, say what the section's
+  documented adaptations are and how the task supports them (writing volume, chunking,
+  read-aloud friendliness, whether extra time changes the shape). That is an expected part of
+  the answer, not an optional extra.
+- **`aggregateOnly:true` by default.** Names and notes are confidential: never write them into
+  this public repo, and never print an adaptation label on a student's own screen — adapt the
+  page silently, don't announce why.
+- **Adaptation vs IPP.** Adaptations keep the same outcomes with different supports (a UI/design
+  problem). Modified/IPP programs change the outcomes (a rubric problem). Don't blend them.
+
 ### The sync contract (home → school)
 
 A file is at the other machine **only if all three** hold: it lives in a repo that is

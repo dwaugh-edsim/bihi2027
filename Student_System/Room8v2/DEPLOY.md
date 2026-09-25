@@ -84,6 +84,55 @@ bridge is the email column of the old class tabs (~80% coverage). Rows without a
 are **reported, never guessed** — when that student eventually signs in with Google, add
 them to the roster and re-run the migration for their task.
 
+## Adaptations tab (you maintain it by hand)
+
+A `Adaptations` tab is created automatically. **You type into it directly** — no import step.
+
+| Email | Name | Section | Codes | Note | Updated |
+|---|---|---|---|---|---|
+| aaa111@gnspes.ca | First L. | 802-HE | `ext_time; red_writing; read_aloud` | Optional nuance | 2026-09-25 |
+
+- **Codes** — separate with `;` `,` or `|`. Any code works; *consistency* is what makes the counts meaningful.
+- **Note** — short, free text for anything a code can't carry.
+- Reads are staff-gated and never appear in the public repo.
+
+**Suggested starter codes** (agree on a set and stick to it):
+
+| Code | Meaning |
+|---|---|
+| `ext_time` | extended time |
+| `red_writing` | reduced volume of writing |
+| `red_volume` | reduced volume of work |
+| `read_aloud` | text read aloud / text-to-speech |
+| `scribe` | scribe or speech-to-text |
+| `oral_resp` | oral response accepted |
+| `chunking` | tasks chunked / segmented |
+| `graph_org` | graphic organizers provided |
+| `large_text` | enlarged text / large print |
+| `alt_format` | alternate format provided |
+| `notes_copy` | copy of notes provided |
+| `calc` | calculator permitted |
+| `spell_exempt` | spelling not penalized |
+| `tech` | assistive technology access |
+| `instr_simple` | instructions simplified / check for understanding |
+| `breaks` | frequent breaks |
+| `seat` | preferential seating |
+| `quiet` | quiet space / reduced distraction |
+| `checkins` | frequent check-ins |
+
+Higher-level codes (permission to reduce/adjust task scope, not just present it) are the ones that
+change an assignment's *design* — `red_writing`, `red_volume`, `chunking`, `oral_resp`, `ext_time`.
+
+## Adaptation-profile action (`get_adaptations`)
+
+```
+POST { action:'get_adaptations', teacherPin|identity, section?:'802-HE', aggregateOnly?:true }
+-> { count, codeTotals:{code:n}, bySection:{section:{students,codes:{}}}, students?:[...] }
+```
+`aggregateOnly:true` returns the design profile with **no names** — use it whenever the result
+might be written outside the private sheet/repo. This is the action the assignment-creation
+workflow calls in step 0 (see `TEMPLATES.md` and the template header comment).
+
 ## Section data cleaner (`clean_sections`)
 
 Teacher action, **dry-run first**. Recomputes every Students row's `Section` + `Grade` from the

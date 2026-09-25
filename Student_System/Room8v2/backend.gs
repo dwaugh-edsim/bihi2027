@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.9.0-2026-09-25';
-var CONFIG_DEPLOYED = '2026-09-25T08:55:00Z';
+var CONFIG_VERSION = 'R8-BE-0.10.0-2026-09-25';
+var CONFIG_DEPLOYED = '2026-09-25T09:50:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -40,6 +40,7 @@ var TAB_CLASSLOG     = 'Class_Log';
 var TAB_PLAN     = 'Class_Plan';
 var TAB_SLIDE    = 'Class_Slide';
 var TAB_FEEDBACK = 'Feedback';
+var TAB_ADAPT = 'Adaptations';     // confidential — teacher-entered, staff-gated reads only
 
 // Students tab columns
 var S_EMAIL=1, S_NAME=2, S_SECTION=3, S_GRADE=4, S_TASK=5, S_LEDGER=6, S_SUMMARY=7, S_UPDATED=8, S_FIRST_TASK_COL=9;
@@ -95,6 +96,9 @@ function ensureSheets_(ss) {
   ensureTab_(ss, TAB_SLIDE, ['Section', 'Title', 'Announcements', 'Outcome', 'Updated']);
   var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback']);
   fb.setColumnWidth(6, 380);
+  var ad = ensureTab_(ss, TAB_ADAPT, ['Email', 'Name', 'Section', 'Codes', 'Note', 'Updated']);
+  ad.setColumnWidth(4, 320);
+  ad.setColumnWidth(5, 320);
 }
 
 function ensureTab_(ss, name, headers) {
@@ -299,7 +303,7 @@ function health_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ensureSheets_(ss);
   var counts = {};
-  [TAB_ROSTER, TAB_STUDENTS, TAB_LOG, TAB_CLASSLOG, TAB_PLAN, TAB_SLIDE, TAB_FEEDBACK].forEach(function (t) {
+  [TAB_ROSTER, TAB_STUDENTS, TAB_LOG, TAB_CLASSLOG, TAB_PLAN, TAB_SLIDE, TAB_FEEDBACK, TAB_ADAPT].forEach(function (t) {
     var sh = ss.getSheetByName(t); counts[t] = sh ? Math.max(0, sh.getLastRow() - 1) : 0;
   });
   var props = PropertiesService.getScriptProperties();
@@ -349,6 +353,7 @@ function doPost(e) {
     if (action === 'get_overview')      { requireTeacher_(payload); return getOverview_(ss); }
     if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
     if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
+    if (action === 'get_adaptations')   { requireTeacher_(payload); return getAdaptations_(ss, payload); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -1168,6 +1173,58 @@ function cleanSections_(ss, payload) {
     plan: dry ? plan.slice(0, 60) : undefined,   // full plan on dry-run (capped), only counts when applying
     next: dry ? 'Review, then POST the same action with dryRun:false.' : 'Done. Reload the Station.'
   });
+}
+
+// ============================================================================
+// Adaptations (teacher-entered, CONFIDENTIAL)
+//
+// Dave maintains the Adaptations tab by hand. This action exists so an agent
+// (or the Station) can consult the profile while CREATING an assignment, and
+// so a class can be viewed with its documented supports in mind.
+//
+//   action: 'get_adaptations'
+//     section       : filter to one section (optional)
+//     aggregateOnly : true -> counts by section + code, NO student names.
+//                     Use this whenever the result might be written anywhere
+//                     outside the private sheet/repo.
+//
+// Privacy contract: names + notes are confidential student information. They
+// must never be copied into the PUBLIC repo (bihi2027) or any public artifact.
+// ============================================================================
+function getAdaptations_(ss, payload) {
+  var wantSection = String(payload.section || '').trim();
+  var aggregateOnly = payload.aggregateOnly === true || payload.aggregateOnly === '1';
+  var sh = ss.getSheetByName(TAB_ADAPT);
+  var rows = sh && sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
+
+  var students = [], bySection = {}, codeTotals = {}, entries = 0;
+  rows.forEach(function (r) {
+    var email = String(r[0] || '').trim().toLowerCase();
+    if (!email) return;
+    var section = String(r[2] || '').trim();
+    if (wantSection && section !== wantSection) return;
+    var codes = String(r[3] || '').split(/[;,|]/).map(function (c) { return c.trim(); })
+                  .filter(function (c) { return !!c; });
+    if (!codes.length && !String(r[4] || '').trim()) return;      // blank row
+    entries++;
+    var sec = section || '(no section)';
+    if (!bySection[sec]) bySection[sec] = { students: 0, codes: {} };
+    bySection[sec].students++;
+    codes.forEach(function (c) {
+      bySection[sec].codes[c] = (bySection[sec].codes[c] || 0) + 1;
+      codeTotals[c] = (codeTotals[c] || 0) + 1;
+    });
+    if (!aggregateOnly) {
+      students.push({ email: email, name: String(r[1] || ''), section: section,
+                      codes: codes, note: String(r[4] || ''), updated: r[5] || null });
+    }
+  });
+
+  var out = { status: 'ok', count: entries, codeTotals: codeTotals, bySection: bySection,
+              version: CONFIG_VERSION };
+  if (!aggregateOnly) out.students = students;
+  out.privacy = 'Confidential. Do not copy names/notes into the public repo. Prefer aggregateOnly:true.';
+  return jsonOut_(out);
 }
 
 // Copy old submissions for the given tasks into v2 (one-time; dry-run first).
