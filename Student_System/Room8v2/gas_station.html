@@ -114,13 +114,46 @@
   .pill.fb   { background: #ede9fe; color: #6d28d9; }
   .count { color: var(--muted); font-size: .8rem; margin-left: 6px; }
 
-  /* detail drawer / mark sheet */
-  #detail { display: none; }
-  #detail .answers { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px 20px;
-                     max-height: 62vh; overflow: auto; margin: 10px 0 16px; }
-  #detail .answers dt { font-weight: 700; font-size: .78rem; color: var(--muted); margin-top: 8px; }
-  #detail .answers dd { margin: 1px 0 0 0; white-space: pre-wrap; font-size: .9rem; }
-  #detail .answers dd.empty { color: var(--muted); font-style: italic; }
+  /* ---- 3-panel station: rail | spec bar | work ---- */
+  .station { display: flex; gap: 14px; align-items: flex-start; }
+  .rail { flex: 0 0 238px; width: 238px; display: flex; flex-direction: column; max-height: 78vh;
+          background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, .04); overflow: hidden; }
+  .rail-head { padding: 8px; border-bottom: 1px solid var(--border-color); }
+  .rail-head input { width: 100%; font-size: .85rem; padding: 6px 9px; }
+  .rail-list { overflow: auto; }
+  .rail-item { display: flex; justify-content: space-between; align-items: center; gap: 6px;
+               padding: 7px 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+  .rail-item:hover { background: #fdf2f4; }
+  .rail-item.sel { background: #e0f2fe; box-shadow: inset 3px 0 0 var(--accent-blue); }
+  .rail-name { font-weight: 600; font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rail-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .rail-dot.done { background: #22c55e; }
+  .rail-dot.part { background: #f59e0b; }
+  .rail-dot.none { background: #cbd5e1; }
+  .pane { flex: 1 1 auto; min-width: 0; }
+
+  /* spec bar (panel 2): section / status / last save / summary / feedback */
+  .specbar { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;
+             background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+             padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+  .spec-id { flex: 0 0 auto; min-width: 200px; }
+  .spec-id b { font-family: 'Open Sans Condensed', sans-serif; font-size: 1.15rem;
+               letter-spacing: .02em; display: block; }
+  .spec-sum { flex: 1 1 220px; min-width: 190px; }
+  .spec-sum-val { font-size: .85rem; max-height: 3.6em; overflow: auto; }
+  .spec-fb { flex: 1 1 280px; min-width: 240px; }
+  .spec-fb textarea { min-height: 60px; font-size: .88rem; }
+  .spec-fb .row { margin-top: 7px; gap: 8px; }
+  .spec-lbl { font-family: 'JetBrains Mono', monospace; font-size: .62rem; text-transform: uppercase;
+              letter-spacing: .08em; color: var(--text-muted); display: block; margin-bottom: 3px; }
+
+  /* work pane (panel 3) — the student's answers in the assignment's own layout */
+  #dAnswers { background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+              padding: 18px 20px; max-height: 66vh; overflow: auto; }
+  #dAnswers dt { font-weight: 700; font-size: .78rem; color: var(--muted); margin-top: 8px; }
+  #dAnswers dd { margin: 1px 0 0 0; white-space: pre-wrap; font-size: .9rem; }
+  #dAnswers dd.empty { color: var(--muted); font-style: italic; }
   .mk-title { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; text-transform: uppercase;
               letter-spacing: .03em; font-size: 1.25rem; color: #1e293b; }
   .mk-badge { font-family: 'JetBrains Mono', monospace; display: inline-block; font-size: .66rem; font-weight: 700;
@@ -153,6 +186,11 @@
          border: 1px solid var(--border-color); border-radius: 4px; padding: 1px 5px; }
   footer { margin-top: 30px; font-size: .78rem; color: var(--text-muted);
            border-top: 1px solid var(--border-color); padding-top: 12px; }
+  @media (max-width: 900px) {
+    .station { flex-direction: column; }
+    .rail { flex: 1 1 auto; width: 100%; max-height: 38vh; }
+    .pane { width: 100%; }
+  }
   @media (max-width: 720px) { .hide-sm { display: none; } h1 { font-size: 1.5rem; } }
 </style>
 </head>
@@ -204,36 +242,45 @@
 
   <div class="stats" id="stats"></div>
 
-  <div style="overflow:auto; max-height: 60vh; border:1px solid var(--border-color); border-radius:8px; background:#fff;">
-    <table>
-      <thead><tr>
-        <th>Student</th><th class="hide-sm">Section</th><th>Status</th>
-        <th class="hide-sm">Last save</th><th>Summary</th><th>Feedback</th><th></th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
+  <div class="station">
+    <!-- ===== panel 1: student rail ===== -->
+    <aside class="rail">
+      <div class="rail-head">
+        <input id="filter" type="text" placeholder="Filter students…" autocomplete="off" oninput="render()">
+      </div>
+      <div class="rail-list" id="list"></div>
+    </aside>
 
-  <!-- ===== detail / feedback drawer ===== -->
-  <div class="card" id="detail" style="margin-top:16px">
-    <div class="row" style="justify-content:space-between">
-      <b id="dName" style="font-family:'Open Sans Condensed',sans-serif; font-size:1.1rem; letter-spacing:.02em;"></b>
-      <span class="meta" id="dMeta"></span>
-    </div>
-    <div class="answers" id="dAnswers"></div>
-    <label for="dFb">Teacher feedback <span class="meta" style="text-transform:none; font-family:'Source Sans Pro',sans-serif; font-weight:400;">(visible to the student on their next load of the assignment)</span></label>
-    <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
-    <div class="row" style="margin-top:12px">
-      <button class="primary" id="dSave" onclick="saveFeedback()">💾 Save feedback</button>
-      <button class="small" onclick="closeDetail()">Close</button>
-      <span id="dStatus" class="meta"></span>
-    </div>
+    <section class="pane">
+      <!-- ===== panel 2: spec bar ===== -->
+      <div class="specbar" id="detail">
+        <div class="spec-id">
+          <b id="dName">No student selected</b>
+          <span class="meta" id="dMeta">Pick a name on the left.</span>
+        </div>
+        <div class="spec-sum">
+          <span class="spec-lbl">Summary</span>
+          <div class="spec-sum-val" id="dSummary">—</div>
+        </div>
+        <div class="spec-fb">
+          <span class="spec-lbl">Teacher feedback <span style="text-transform:none; letter-spacing:0;">(student sees it on their next load)</span></span>
+          <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
+          <div class="row">
+            <button class="primary" id="dSave" onclick="saveFeedback()">💾 Save</button>
+            <span id="dStatus" class="meta"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== panel 3: the work, in the assignment's own layout ===== -->
+      <div id="dAnswers"><span class="meta">Select a student from the list to see their saved work.</span></div>
+    </section>
   </div>
 
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.4.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.5.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
 </footer>
 
@@ -294,6 +341,7 @@ function enterMain(j) {
   $('main').classList.remove('hidden');
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
   fillPickers();
+  closeDetail();
   refresh();
 }
 
@@ -389,6 +437,11 @@ function refresh() {
     }
     STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
     render();
+    // keep your place across a refresh — re-open whoever was selected
+    if (selectedEmail) {
+      const again = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
+      if (again) openDetail(again); else closeDetail();
+    }
     setStatus(STUDENTS.length + ' students shown', 'ok');
   }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); });
 }
@@ -407,29 +460,31 @@ function render() {
     chip(STUDENTS.length, 'in view') + chip(withFb, 'with feedback');
   function chip(n, label) { return '<div class="stat"><b>' + n + '</b><span>' + escapeHtml(label) + '</span></div>'; }
 
-  const tb = $('rows');
-  tb.innerHTML = STUDENTS.map(function (s, i) {
-    const status = s.written ? '<span class="pill done">submitted</span>'
-                   : s.notStarted ? '<span class="pill none">not started</span>'
-                   : '<span class="pill part">started</span>';
-    const fb = (s.feedback && s.feedback.trim())
-      ? '<span class="pill fb">✓ written</span>' : '<span class="pill none">—</span>';
-    return '<tr class="stu" data-i="' + i + '">' +
-      '<td><b>' + escapeHtml(s.name || '(no name)') + '</b><div class="meta hide-sm">' + escapeHtml(s.email) + '</div></td>' +
-      '<td class="hide-sm">' + escapeHtml(s.section || '') + '</td>' +
-      '<td>' + status + '</td>' +
-      '<td class="hide-sm meta">' + fmtWhen(s.updated) + '</td>' +
-      '<td style="max-width:260px">' + escapeHtml((s.summary || '').slice(0, 90)) + '</td>' +
-      '<td>' + fb + '</td>' +
-      '<td><button class="small" data-open="' + i + '">open</button></td>' +
-      '</tr>';
-  }).join('') || '<tr><td colspan="7" class="meta">Nothing on the server for this class/task yet.</td></tr>';
-
-  Array.prototype.forEach.call(tb.querySelectorAll('button[data-open]'), function (b) {
-    b.addEventListener('click', function (e) { e.stopPropagation(); openDetail(STUDENTS[+b.dataset.open]); });
+  const q = ($('filter') ? $('filter').value : '').trim().toLowerCase();
+  const shown = STUDENTS.map(function (s, i) { return { s: s, i: i }; }).filter(function (o) {
+    if (!q) return true;
+    return String(o.s.name || '').toLowerCase().indexOf(q) !== -1 ||
+           String(o.s.email || '').toLowerCase().indexOf(q) !== -1;
   });
-  Array.prototype.forEach.call(tb.querySelectorAll('tr.stu'), function (tr) {
-    tr.addEventListener('click', function () { openDetail(STUDENTS[+tr.dataset.i]); });
+
+  $('list').innerHTML = shown.map(function (o) {
+    const s = o.s;
+    const cls = s.written ? 'done' : s.notStarted ? 'none' : 'part';
+    const sel = (selectedEmail && s.email === selectedEmail) ? ' sel' : '';
+    const tick = (s.feedback && s.feedback.trim()) ? '<span class="pill fb" style="font-size:.58rem; padding:0 5px;">✓</span>' : '';
+    return '<div class="rail-item' + sel + '" data-i="' + o.i + '">' +
+             '<div style="min-width:0">' +
+               '<div class="rail-name">' + escapeHtml(s.name || '(no name)') + '</div>' +
+               '<div class="meta" style="font-size:.68rem">' + escapeHtml(s.section || '') +
+                 (s.written ? ' · ' + fmtWhen(s.updated) : '') + '</div>' +
+             '</div>' +
+             '<span style="display:flex; align-items:center; gap:4px; flex:none;">' + tick +
+               '<span class="rail-dot ' + cls + '"></span></span>' +
+           '</div>';
+  }).join('') || '<div class="meta" style="padding:10px">No matches.</div>';
+
+  Array.prototype.forEach.call($('list').querySelectorAll('.rail-item'), function (el) {
+    el.addEventListener('click', function () { openDetail(STUDENTS[+el.dataset.i]); });
   });
 }
 
@@ -563,16 +618,31 @@ function flatAnswers(s) {   // fallback when the page can't supply its layout
   return out;
 }
 
+function markSelected(email) {
+  Array.prototype.forEach.call(document.querySelectorAll('.rail-item'), function (el) {
+    const s = STUDENTS[+el.dataset.i];
+    el.classList.toggle('sel', !!(s && email && s.email === email));
+  });
+}
+
 function openDetail(s) {
   if (!s) return;
   selectedEmail = s.email;
-  $('detail').style.display = 'block';
-  $('dName').textContent = (s.name || '(no name)') + '  ·  ' + s.email;
-  $('dMeta').textContent = (s.section || '') + '  ·  ' + (s.written ? 'submitted' : s.notStarted ? 'not started' : 'started only') +
-                           '  ·  last save ' + (fmtWhen(s.updated) || '—');
-  $('dAnswers').innerHTML = '<span class="meta">Loading the assignment layout…</span>';
+  $('dName').textContent = s.name || '(no name)';
+  $('dMeta').textContent = (s.section || '') + ' · ' +
+                           (s.written ? 'submitted' : s.notStarted ? 'not started' : 'started only') +
+                           ' · last save ' + (fmtWhen(s.updated) || '—') + ' · ' + s.email;
+  $('dSummary').textContent = s.summary || '—';
   $('dFb').value = s.feedback || '';
   $('dStatus').textContent = '';
+  markSelected(s.email);
+
+  if (s.notStarted) {
+    $('dAnswers').innerHTML = '<span class="meta">' +
+      escapeHtml(s.name || 'This student') + ' hasn’t opened this assignment — nothing saved on the server.</span>';
+    return;
+  }
+  $('dAnswers').innerHTML = '<span class="meta">Loading the assignment layout…</span>';
   fetchConfig(current.task).then(function (cfg) {
     if (cfg) {
       $('dAnswers').innerHTML = markSheet(s, cfg);
@@ -584,9 +654,18 @@ function openDetail(s) {
         '<div class="meta" style="margin-top:8px">(plain list — this page hasn’t registered its layout with the Station)</div>';
     }
   });
-  $('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-function closeDetail() { $('detail').style.display = 'none'; selectedEmail = null; }
+
+function closeDetail() {
+  selectedEmail = null;
+  $('dName').textContent = 'No student selected';
+  $('dMeta').textContent = 'Pick a name on the left.';
+  $('dSummary').textContent = '—';
+  $('dFb').value = '';
+  $('dStatus').textContent = '';
+  $('dAnswers').innerHTML = '<span class="meta">Select a student from the list to see their saved work.</span>';
+  markSelected(null);
+}
 
 function saveFeedback() {
   if (!selectedEmail || !current) return;
