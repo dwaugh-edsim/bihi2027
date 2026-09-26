@@ -248,6 +248,95 @@
     .pane { width: 100%; }
   }
   @media (max-width: 720px) { .hide-sm { display: none; } h1 { font-size: 1.5rem; } }
+
+  /* ============================================================
+     Decorative layer (additive) — assets/ WebP, CSS-only, no DOM.
+     Hooks: .masthead, #gate, and the two :only-child empty states.
+     Existing rules above are untouched.
+     Stacking: .wrap::before sits at z-index 0, every real child of
+     .wrap is lifted to z-index 1, so art can never cover content.
+     ============================================================ */
+
+  .wrap { position: relative; }
+  .wrap > * { position: relative; z-index: 1; }
+
+  /* hero texture behind the masthead, faded so title text stays crisp */
+  .wrap::before {
+    content: '';
+    position: absolute;
+    top: -14px; left: -20px; right: -20px; height: 116px;
+    background: url('assets/hero.webp') center top / cover no-repeat;
+    opacity: .38;
+    pointer-events: none;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+  }
+
+  /* brand mark: flex-item beside the title, no markup added */
+  .masthead::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 38px; height: 38px;
+    align-self: center;
+    background: url('assets/mark.webp') center / contain no-repeat;
+    z-index: 1;
+  }
+
+  /* gate card: quiet corner art, never in the way of the buttons */
+  #gate { position: relative; overflow: hidden; }
+  #gate::after {
+    content: '';
+    position: absolute;
+    right: -6px; bottom: -12px;
+    width: 108px; height: 108px;
+    background: url('assets/gate.webp') right bottom / contain no-repeat;
+    opacity: .34;
+    pointer-events: none;
+  }
+
+  /* rail empty state — the fallback div the JS emits when nothing matches.
+     That node carries inline padding:10px, so pad here with !important. */
+  #list > .meta:only-child {
+    min-height: 132px;
+    padding-top: 96px !important;
+    background: url('assets/empty.webp') center 12px / 72px auto no-repeat;
+    text-align: center;
+  }
+
+  /* work-pane placeholder ("Select a name on the left") */
+  #dAnswers > .meta:only-child {
+    display: block;
+    min-height: 150px;
+    padding: 108px 16px 16px;
+    background: url('assets/empty.webp') center 10px / 84px auto no-repeat;
+    text-align: center;
+  }
+
+  /* keyboard focus is visible everywhere, not just on inputs */
+  button:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible,
+  summary:focus-visible, .rail-item:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    border-radius: 5px;
+  }
+
+  /* light lift on the stat chips to match the cards */
+  .stat { transition: transform .15s ease, box-shadow .15s ease; }
+  .stat:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(15, 23, 42, .08); }
+
+  /* the rail rows get a quiet transition too */
+  .rail-item { transition: background-color .15s ease; }
+
+  /* hero band is too tight to carry art on small screens */
+  @media (max-width: 720px) {
+    .wrap::before { height: 92px; opacity: .28; }
+    .masthead::before { width: 30px; height: 30px; }
+    #gate::after { width: 76px; height: 76px; opacity: .22; }
+    #list > .meta:only-child { padding-top: 78px !important; background-size: 58px auto; }
+    #dAnswers > .meta:only-child { padding-top: 88px; background-size: 66px auto; }
+  }
 </style>
 </head>
 <body>
