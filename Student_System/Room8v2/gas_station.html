@@ -227,6 +227,28 @@
   .rate-cmt { font-size: .8rem; color: #475569; background: #fdfafb;
               border-left: 3px solid var(--border-accent); padding: 3px 8px;
               margin-top: 5px; border-radius: 0 4px 4px 0; }
+  /* LLM draft panel: the model's PRIVATE analytic note, never student-facing */
+  .aipanel { flex: 1 0 100%; background: #f8fafc; border: 1px solid #cbd5e1;
+             border-left: 4px solid #f59e0b; border-radius: 8px;
+             padding: 10px 12px; margin-bottom: 4px; }
+  .ai-head { display: flex; justify-content: space-between; align-items: baseline;
+             gap: 10px; margin-bottom: 6px; }
+  .ai-right { display: flex; align-items: center; gap: 8px; }
+  .ai-priv { text-transform: none; letter-spacing: 0; color: #92400e; font-size: 11px;
+             border: 1px solid #fcd34d; background: #fffbeb; border-radius: 999px;
+             padding: 1px 8px; margin-left: 6px; }
+  .ai-conf { font-size: 11px; border-radius: 999px; padding: 1px 8px;
+             border: 1px solid #cbd5e1; color: #475569; background: #fff; }
+  .ai-conf.c-high { color: #166534; border-color: #bbf7d0; background: #f0fdf4; }
+  .ai-conf.c-med  { color: #92400e; border-color: #fde68a; background: #fffbeb; }
+  .ai-conf.c-eyes { color: #991b1b; border-color: #fecaca; background: #fef2f2; }
+  .ai-use, .ai-close { font-size: 11px; padding: 2px 8px; border-radius: 6px;
+                       background: #fff; color: #475569; border: 1px solid #cbd5e1; cursor: pointer; }
+  .ai-use:hover, .ai-close:hover { background: #f1f5f9; }
+  .ai-proposed { font-size: 12px; color: #0369a1; margin-bottom: 6px; }
+  .ai-proposed b { color: #0f172a; }
+  .ai-note { white-space: pre-wrap; font-size: 12.5px; line-height: 1.5; color: #334155;
+             max-height: 260px; overflow: auto; }
   /* class-level distribution view */
   .classview { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); padding: 14px 16px; margin-bottom: 12px; }
@@ -436,8 +458,25 @@
       <!-- ===== aggregate view: rating distributions for everyone in view ===== -->
       <div id="classView" class="classview" style="display:none"></div>
 
-      <!-- ===== panel 2: spec bar ===== -->
+      <!-- panel 2: spec bar -->
       <div class="specbar" id="detail">
+        <!-- ===== LLM draft: PRIVATE analytic note + proposed grade =====
+             The model's words are never pushed to a student. You read the
+             note, set your own grade below, write your own comment, and
+             Approve pushes only YOUR text into Feedback. -->
+        <div class="aipanel" id="aiPanel" style="display:none">
+          <div class="ai-head">
+            <span class="spec-lbl">Draft analysis <span class="ai-priv">private — never shown to a student</span></span>
+            <span class="ai-right">
+              <span class="ai-conf" id="aiConf"></span>
+              <button type="button" class="ai-use" onclick="useProposedGrade()"
+                      title="Copy the proposed grade into the grade picker">use proposed</button>
+              <button type="button" class="ai-close" onclick="toggleAiPanel()">hide</button>
+            </span>
+          </div>
+          <div class="ai-proposed" id="aiProposed"></div>
+          <div class="ai-note" id="aiNote"></div>
+        </div>
         <div class="spec-id">
           <b id="dName">No student selected</b>
           <span class="meta" id="dMeta">Pick a name on the left.</span>
@@ -465,6 +504,8 @@
           <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
           <div class="row">
             <button class="primary" id="dSave" onclick="saveFeedback()">💾 Save</button>
+            <button class="primary" id="dApprove" onclick="approveMark()"
+                    title="Push YOUR comment and grade to Feedback, and mark the draft done">✅ Approve &amp; push</button>
             <span id="dStatus" class="meta"></span>
           </div>
         </div>
@@ -525,6 +566,8 @@ let selectedEmail = null;
 let CACHE = {};               // "section||task" -> {at, students:[...with data]}
 let INFLIGHT = {};            // "section||task" -> promise, so we never double-fetch
 let LOADED_KEY = null;        // which (section, task) STUDENTS currently holds data for
+let DRAFTS = {};              // email||task -> LLM analytic note + proposed grade
+let DRAFT_HIDDEN = false;     // teacher can collapse the draft panel
 
 
 function $(id) { return document.getElementById(id); }
@@ -613,6 +656,8 @@ function enterMain(j) {
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
   restoreCache_();
   finishEnter();
+  // Pull any LLM drafts in the background; marking never waits on them.
+  loadDrafts();
 }
 function finishEnter() {
   fillTaskPicker();
@@ -1533,9 +1578,85 @@ function syncGradePickerUI(fromCustomInput) {
   }
 }
 
+// ---------------------------------------------------------------------------
+//  LLM draft panel
+//  The model writes a PRIVATE analytic note and a proposed grade. Nothing it
+//  writes is ever pushed to a student: Approve pushes only the comment you
+//  typed and the grade you picked. Your Rulings on those proposals are what
+//  get fed back to the model to calibrate the next batch.
+// ---------------------------------------------------------------------------
+function draftKey(email, task) { return String(email || '').toLowerCase() + '||' + (task || ''); }
+
+function loadDrafts() {
+  return teacherCall('get_mark_drafts', {}).then(function (j) {
+    if (!j || j.status === 'auth_failed') { expireSession_(j); return; }
+    if (!j || j.status !== 'ok') return;
+    DRAFTS = {};
+    (j.drafts || []).forEach(function (d) { DRAFTS[draftKey(d.email, d.task)] = d; });
+    if (selectedEmail && current) showDraft({ email: selectedEmail });
+  }).catch(function () { /* drafts are optional; never block marking on them */ });
+}
+
+function showDraft(s) {
+  const p = $('aiPanel');
+  if (!p) return;
+  const d = DRAFTS[draftKey(s && s.email, current && current.task)];
+  if (!d || DRAFT_HIDDEN) { p.style.display = 'none'; return; }
+  p.style.display = 'block';
+  $('aiProposed').innerHTML = 'Model proposes <b>' +
+    escapeHtml(d.proposedGrade || '—') + '</b> · draft status ' +
+    escapeHtml(d.status || 'DRAFT');
+  const c = String(d.confidence || '').toLowerCase();
+  const cls = c.indexOf('high') === 0 ? 'c-high'
+            : (c.indexOf('eye') >= 0 || c.indexOf('low') === 0) ? 'c-eyes'
+            : (c ? 'c-med' : '');
+  $('aiConf').textContent = d.confidence || '';
+  $('aiConf').className = 'ai-conf ' + cls;
+  $('aiNote').textContent = d.note || '(no note)';
+}
+
+function toggleAiPanel() {
+  DRAFT_HIDDEN = !DRAFT_HIDDEN;
+  if (selectedEmail) showDraft({ email: selectedEmail });
+}
+
+function useProposedGrade() {
+  const d = DRAFTS[draftKey(selectedEmail, current && current.task)];
+  if (!d || !d.proposedGrade) { setStatus('No proposed grade on this draft.', 'warn'); return; }
+  setGradeVal(d.proposedGrade);
+  setStatus('Copied the proposed grade (' + d.proposedGrade + ') — change it if you disagree.', 'ok');
+}
+
+// Push YOUR comment + YOUR grade. The model's note stays behind.
+function approveMark() {
+  if (!selectedEmail || !current) return;
+  const stu = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
+  const btn = $('dApprove'); btn.disabled = true;
+  $('dStatus').textContent = 'Pushing…';
+  const payload = {
+    email: selectedEmail, studentEmail: selectedEmail, task: current.task,
+    comment: $('dFb').value, grade: currentGrade
+  };
+  if (stu) { payload.name = stu.name; payload.section = stu.section; }
+  teacherCall('approve_mark', payload).then(function (j) {
+    if (j && j.status === 'feedback_saved') {
+      $('dStatus').textContent = 'Pushed to the sheet — the student sees it on their next load.';
+      if (stu) { stu.feedback = payload.comment; stu.grade = currentGrade; }
+      const d = DRAFTS[draftKey(selectedEmail, current.task)];
+      if (d) { d.status = 'SYNCED'; d.finalComment = payload.comment; d.finalGrade = currentGrade; showDraft(stu || { email: selectedEmail }); }
+    } else {
+      $('dStatus').textContent = (j && j.message) || 'Could not push.';
+    }
+    btn.disabled = false;
+  }).catch(function (e) {
+    $('dStatus').textContent = 'Failed: ' + e.message; btn.disabled = false;
+  });
+}
+
 function openDetail(s) {
   if (!s) return;
   selectedEmail = s.email;
+  showDraft(s);
   setGradeVal(s.grade || '');
   $('dName').textContent = s.name || '(no name)';
   $('dMeta').textContent = (s.section || '') + ' · ' +

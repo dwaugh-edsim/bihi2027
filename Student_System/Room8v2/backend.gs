@@ -42,6 +42,17 @@ var TAB_SLIDE    = 'Class_Slide';
 var TAB_FEEDBACK = 'Feedback';
 var TAB_ADAPT = 'Adaptations';     // confidential — teacher-entered, staff-gated reads only
 
+// LLM-assisted marking. The draft columns hold the model's PRIVATE analytic note
+// and a proposed grade. Only the teacher-written Final columns are ever promoted
+// into Feedback, so nothing the model writes can reach a student.
+var TAB_DRAFTS = 'Mark_Drafts';
+var DRAFT_COLS = ['Drafted', 'Email', 'Name', 'Section', 'Assignment',
+                 'Analytic note (PRIVATE - never shown to a student)',
+                 'Proposed grade', 'Confidence',
+                 'Status', 'Final comment (yours)', 'Final grade (yours)',
+                 'Teacher', 'Decided'];
+var D_STATUS = 9, D_FINAL_TEXT = 10, D_FINAL_GRADE = 11;
+
 // Students tab columns
 var S_EMAIL=1, S_NAME=2, S_SECTION=3, S_GRADE=4, S_TASK=5, S_LEDGER=6, S_SUMMARY=7, S_UPDATED=8, S_FIRST_TASK_COL=9;
 
@@ -100,6 +111,10 @@ function ensureSheets_(ss) {
   var ad = ensureTab_(ss, TAB_ADAPT, ['Email', 'Name', 'Section', 'Codes', 'Note', 'Updated']);
   ad.setColumnWidth(4, 320);
   ad.setColumnWidth(5, 320);
+  var dr = ensureTab_(ss, TAB_DRAFTS, DRAFT_COLS);
+  dr.setColumnWidth(6, 520);   // the analytic note - the widest thing in here
+  dr.setColumnWidth(10, 380);  // your final comment
+  dr.setColumnWidth(2, 240);   // email
 }
 
 function ensureTab_(ss, name, headers) {
@@ -360,6 +375,10 @@ function doPost(e) {
     if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
     if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
     if (action === 'prune_task')        { requireTeacher_(payload); return pruneTask_(ss, payload); }
+    if (action === 'put_mark_drafts')   { requireTeacher_(payload); return putMarkDrafts_(ss, payload); }
+    if (action === 'get_mark_drafts')   { requireTeacher_(payload); return getMarkDrafts_(ss, payload); }
+    if (action === 'approve_mark')      { requireTeacher_(payload); return approveMark_(ss, payload); }
+    if (action === 'sync_mark_drafts')  { requireTeacher_(payload); return syncMarkDrafts_(ss, payload); }
     if (action === 'get_adaptations')   { requireTeacher_(payload); return getAdaptations_(ss, payload); }
     if (action === 'get_snapshot')      { requireTeacher_(payload); return getSnapshot_(ss); }
     if (action === 'list_roster')       { requireTeacher_(payload); return listRoster_(ss); }
@@ -709,6 +728,168 @@ function pruneTask_(ss, payload) {
 
   return jsonOut_({ status: 'ok', dryRun: false, removed: true, email: email, task: task, row: row,
                    note: 'Full payload appended to Submissions_Log as a Pruned row before deletion — recoverable from there.' });
+}
+
+// ============================================================================
+// LLM-assisted marking (teacher-gated, drafts never auto-publish).
+//
+// Flow the teacher asked for:
+//   1. the model writes an analytic note + a proposed grade into Mark_Drafts
+//   2. the teacher reads them, and either edits or approves
+//   3. approving promotes the teacher's OWN final text + grade into Feedback
+//   4. when the teacher pushes back on a grade, those rulings become the
+//      calibration the model reads before drafting anyone else
+//
+// Two invariants, deliberately:
+//   * put_mark_drafts will not overwrite a row the teacher has already decided.
+//     A late model run must never clobber a human judgement.
+//   * only D_FINAL_TEXT / D_FINAL_GRADE are ever promoted. The model's note
+//     stays in the private sheet; no path exists from it into Feedback.
+// ============================================================================
+function draftsSheet_(ss) {
+  return ensureTab_(ss, TAB_DRAFTS, DRAFT_COLS);
+}
+
+function findDraftRow_(sh, email, task) {
+  var last = sh.getLastRow();
+  if (last < 2) return -1;
+  // need columns A-E: index 1 is Email and index 4 is Assignment
+  var rows = sh.getRange(2, 1, last - 1, 5).getValues();
+  var e = String(email || '').trim().toLowerCase();
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][1] || '').trim().toLowerCase() !== e) continue;
+    if (String(rows[i][4] || '') === task) return i + 2;
+  }
+  return -1;
+}
+
+// Model -> teacher. Batch upsert of drafts.
+function putMarkDrafts_(ss, payload) {
+  var items = payload.drafts || payload.submissions || [];
+  if (!Array.isArray(items) || !items.length) throw new Error('drafts[] is required.');
+  if (items.length > 60) throw new Error('Send at most 60 drafts per call.');
+  var sh = draftsSheet_(ss);
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  var written = 0, held = [];
+  try {
+    items.forEach(function (d) {
+      var email = String(d.email || '').trim().toLowerCase();
+      var task = String(d.task || d.assignment || '').trim();
+      if (!email || !task) return;
+      if (!/@gnspes\.ca$/i.test(email)) { held.push(email + ': not a school address'); return; }
+      var row = findDraftRow_(sh, email, task);
+      if (row !== -1) {
+        // Never overwrite a row the teacher has touched.
+        var status = String(sh.getRange(row, D_STATUS).getValue() || '').trim().toUpperCase();
+        if (status && status !== 'DRAFT') { held.push(email + '/' + task + ': already ' + status); return; }
+        sh.getRange(row, 1).setValue(new Date());
+        sh.getRange(row, 3).setValue(String(d.name || ''));
+        sh.getRange(row, 4).setValue(String(d.section || ''));
+        sh.getRange(row, 6).setValue(String(d.note || d.analysis || ''));
+        sh.getRange(row, 7).setValue(String(d.grade || ''));
+        sh.getRange(row, 8).setValue(String(d.confidence || ''));
+        sh.getRange(row, D_STATUS).setValue('DRAFT');
+        written++;
+      } else {
+        sh.appendRow([new Date(), email, String(d.name || ''), String(d.section || ''), task,
+                      String(d.note || d.analysis || ''), String(d.grade || ''),
+                      String(d.confidence || ''), 'DRAFT', '', '', '', '']);
+        written++;
+      }
+    });
+  } finally { lock.releaseLock(); }
+  return jsonOut_({ status: 'ok', action: 'put_mark_drafts', written: written,
+                    held: held, draftsSheet: TAB_DRAFTS });
+}
+
+function readDraft_(row) {
+  return { email: String(row[1] || ''), name: String(row[2] || ''), section: String(row[3] || ''),
+           task: String(row[4] || ''), note: String(row[5] || ''),
+           proposedGrade: String(row[6] || ''), confidence: String(row[7] || ''),
+           status: String(row[8] || ''), finalComment: String(row[9] || ''),
+           finalGrade: String(row[10] || ''), teacher: String(row[11] || ''),
+           decided: row[12] || null };
+}
+
+function getMarkDrafts_(ss, payload) {
+  var sh = draftsSheet_(ss);
+  var last = sh.getLastRow();
+  if (last < 2) return jsonOut_({ status: 'ok', action: 'get_mark_drafts', drafts: [] });
+  var rows = sh.getRange(2, 1, last - 1, DRAFT_COLS.length).getValues();
+  var wantTask = String(payload.task || '').trim();
+  var wantEmail = String(payload.email || '').trim().toLowerCase();
+  var out = rows.map(readDraft_).filter(function (d) {
+    if (wantEmail && d.email.toLowerCase() !== wantEmail) return false;
+    if (wantTask && d.task !== wantTask) return false;
+    return true;
+  });
+  return jsonOut_({ status: 'ok', action: 'get_mark_drafts', drafts: out, count: out.length });
+}
+
+// Teacher -> live. Promotes the teacher's own final text + grade into Feedback.
+// Idempotent: a row is only promoted once, then stamped SYNCED.
+function promoteDraft_(ss, d, who) {
+  var text = String(d.finalComment || '').trim();
+  var grade = String(d.finalGrade || '').trim();
+  if (!text && !grade) return { status: 'skipped', why: 'no final comment and no final grade' };
+  if (!/@gnspes\.ca$/i.test(String(d.email || ''))) return { status: 'skipped', why: 'not a school address' };
+  var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback', 'Grade']);
+  fb.appendRow([new Date(), d.email, d.name, d.section, d.task, text, grade]);
+  return { status: 'pushed', grade: grade, chars: text.length };
+}
+
+function approveMark_(ss, payload) {
+  // Approve straight from the Station: the teacher has just typed the final
+  // comment and picked a grade, so push immediately and mark the draft SYNCED.
+  var email = String(payload.email || payload.studentEmail || '').trim().toLowerCase();
+  var task = String(payload.task || '').trim();
+  if (!email || !task) return jsonOut_({ status: 'error', message: 'email and task are required.' });
+  var text = String(payload.comment || payload.feedback || '').trim();
+  var grade = String(payload.grade || '').trim();
+  if (!text && !grade) return jsonOut_({ status: 'error', message: 'Nothing to push - add a comment or a grade.' });
+  var who = rosterFor_(ss, email);
+  var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback', 'Grade']);
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    fb.appendRow([new Date(), email, who.known ? who.name : String(payload.name || ''),
+                  String(payload.section || who.section || ''), task, text, grade]);
+    var sh = draftsSheet_(ss);
+    var row = findDraftRow_(sh, email, task);
+    if (row !== -1) {
+      sh.getRange(row, D_FINAL_TEXT).setValue(text);
+      sh.getRange(row, D_FINAL_GRADE).setValue(grade);
+      sh.getRange(row, D_STATUS).setValue('SYNCED');
+      sh.getRange(row, 12).setValue('teacher:station');
+      sh.getRange(row, 13).setValue(new Date());
+    }
+  } finally { lock.releaseLock(); }
+  return jsonOut_({ status: 'feedback_saved', action: 'approve_mark',
+                    email: email, task: task, grade: grade, empty: (!text && !grade) });
+}
+
+// Batch promote: the teacher reviewed in the sheet and set Status = APPROVED.
+function syncMarkDrafts_(ss, payload) {
+  var sh = draftsSheet_(ss);
+  var last = sh.getLastRow();
+  if (last < 2) return jsonOut_({ status: 'ok', action: 'sync_mark_drafts', pushed: 0, results: [] });
+  var rows = sh.getRange(2, 1, last - 1, DRAFT_COLS.length).getValues();
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  var pushed = 0, results = [];
+  try {
+    rows.forEach(function (r, i) {
+      var d = readDraft_(r);
+      if (String(d.status).trim().toUpperCase() !== 'APPROVED') return;
+      var res = promoteDraft_(ss, d, 'teacher:sheet');
+      results.push({ email: d.email, task: d.task, result: res });
+      if (res.status === 'pushed') {
+        pushed++;
+        sh.getRange(i + 2, D_STATUS).setValue('SYNCED');
+        sh.getRange(i + 2, 12).setValue('teacher:sheet');
+        sh.getRange(i + 2, 13).setValue(new Date());
+      }
+    });
+  } finally { lock.releaseLock(); }
+  return jsonOut_({ status: 'ok', action: 'sync_mark_drafts', pushed: pushed, results: results });
 }
 
 // ============================================================================
