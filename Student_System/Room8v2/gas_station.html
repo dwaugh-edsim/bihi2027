@@ -60,6 +60,16 @@
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
   .card.intro { background: #fdfafb; border-color: var(--border-accent); border-left: 4px solid var(--brand-primary); }
+  /* staff gate — one left-aligned column on a single 9px rhythm:
+     action → status → PIN disclosure → note. Nothing is right-aligned, so
+     no text drifts under the corner art, and the blocks read top-down. */
+  #gate { display: flex; flex-direction: column; gap: 9px; padding: 14px 16px; }
+  #gate > * { position: relative; z-index: 1; }   /* content paints above the corner art */
+  .gate-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  #gateMsg:empty { display: none; }               /* no phantom gap before sign-in */
+  #pinRow { background: #fff; border: 1px solid var(--border-accent);
+            border-radius: 6px; padding: 8px 10px; }
+  #gate .gate-note { border-top: 1px dashed var(--border-color); padding-top: 9px; }
   .toolbar { padding: 8px 12px; margin-bottom: 10px; }
   .toolbar .row { gap: 8px; }
   .toolbar select { padding: 6px 9px; font-size: .9rem; max-width: 420px; }
@@ -405,24 +415,29 @@
   <p class="sub">Review student work in its original layout, write feedback, export a class set.</p>
 </div>
 
-<!-- ===== staff gate: Google sign-in (preferred) or PIN (fallback) ===== -->
+<!-- ===== staff gate: Google sign-in (preferred) or PIN (fallback) =====
+     Top-down order: primary action → live status → PIN disclosure → note.
+     Everything stays on the left edge; #gateMsg collapses when empty. -->
 <div class="card intro" id="gate">
-  <div class="row">
+  <div class="gate-row">
     <button class="primary" id="signInBtn" onclick="signIn()">🔑 Sign in with your school account</button>
     <span class="meta">Recommended — no PIN on a shared Chromebook.</span>
   </div>
-  <div class="row" id="pinRow" style="margin-top:12px; display:none">
+
+  <span id="gateMsg" class="meta"></span>
+
+  <div class="gate-row">
+    <a href="#" class="meta" onclick="showPin();return false">Signing in from a personal account? <b>Use PIN instead…</b></a>
+  </div>
+
+  <div class="gate-row" id="pinRow" style="display:none">
     <label for="pin">PIN fallback</label>
     <input type="password" id="pin" autocomplete="off" style="width:160px"
            onkeydown="if(event.key==='Enter')connectWithPin()">
     <button onclick="connectWithPin()">Connect</button>
   </div>
-  <div class="row" style="margin-top:10px">
-    <span id="gateMsg" class="meta"></span>
-    <span style="flex:1"></span>
-    <a href="#" class="meta" onclick="showPin();return false">Signing in from a personal account? Use PIN instead…</a>
-  </div>
-  <div class="meta" style="margin-top:8px">Your sign-in token is HMAC-verified by the server and must match the staff list — this page holds no secrets in its code.</div>
+
+  <div class="gate-note meta">Your sign-in token is HMAC-verified by the server and must match the staff list — this page holds no secrets in its code.</div>
 </div>
 
 <!-- ===== main ===== -->
@@ -528,7 +543,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.17.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.17.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Answers load one class + assignment at a time (responses that big don't survive the Apps Script redirect hop);
   the class list, counts and picker come from one cheap metadata call.
 </footer>
