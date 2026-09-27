@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Room 8 — BACKEND (v2)                                        R8-BE-0.14.1
+ * Room 8 — BACKEND (v2)                                        R8-BE-0.15.0
  * ============================================================================
  * A clean rebuild of the old Student_System/Code.gs on the Google-auth pipe.
  * Identity is a VERIFIED @gnspes.ca email (HMAC-signed by the Identity app),
@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.14.1-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T17:40:00Z';
+var CONFIG_VERSION = 'R8-BE-0.15.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T17:55:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -718,7 +718,7 @@ function pruneTask_(ss, payload) {
 // rebuild any archived task's answers from its newest log row — exports stay
 // complete all year regardless of the archival cap.
 // ============================================================================
-function logIndexForRecovery_(ss) {
+function logIndexForRecovery_(ss, emailMap, wantTask) {
   // email||task -> newest { data, summary, ts, section } from the append-only log
   var log = ss.getSheetByName(TAB_LOG);
   var idx = {};
@@ -726,10 +726,14 @@ function logIndexForRecovery_(ss) {
   var rows = log.getRange(2, 1, log.getLastRow() - 1, 8).getValues();
   for (var i = 0; i < rows.length; i++) {          // ascending; later rows overwrite -> newest wins
     var email = String(rows[i][1] || '').toLowerCase();
+    if (emailMap && !emailMap[email]) continue;
     var task = String(rows[i][3] || '');
     if (!email || !task) continue;
+    if (wantTask && task !== wantTask) continue;
+    var raw = String(rows[i][6] || '');
+    if (!raw || raw === '{}' || raw === 'null') continue;
     var data = null;
-    try { data = JSON.parse(String(rows[i][6] || '') || 'null'); } catch (e) { data = null; }
+    try { data = JSON.parse(raw); } catch (e) { data = null; }
     if (!data) continue;                            // skip empty/corrupt log cells
     idx[email + '||' + task] = { data: data, summary: String(rows[i][5] || ''),
                                   ts: rows[i][0], section: String(rows[i][2] || '') };
@@ -778,6 +782,9 @@ function exportClass_(ss, payload) {
     // a task present ONLY in the log (never merged, or merged then archived away) —
     // include it so the export is a true superset when no task filter is set.
     if (!wantTask) {
+      var needEmails = {};
+      students.forEach(function (s) { needEmails[s.email.toLowerCase()] = 1; });
+      var logIdx = logIndexForRecovery_(ss, needEmails);
       Object.keys(logIdx).forEach(function (key) {
         var parts = key.split('||');
         if (parts[0] !== email || seenTasks[parts[1]]) return;
@@ -940,9 +947,17 @@ function getTaskProgress_(ss, payload) {
   var fbMap = feedbackMap_(ss);
   rows.forEach(function (r) {
     if (!String(r[0] || '').trim()) return;
-    var ledger = null; try { ledger = JSON.parse(String(r[5] || '{}')); } catch (e) { return; }
-    var t = ledger && ledger._tasks && ledger._tasks[task];
     var rowSec = String(r[2] || '');
+    var raw = String(r[5] || '');
+    if (wantSection) {
+      var rowPrefix = rowSec.split('-')[0];
+      var wantPrefix = wantSection.split('-')[0];
+      // Fast superset pre-filter: skip if numeric homeroom prefix doesn't match
+      // AND the unparsed ledger JSON doesn't contain wantSection literally.
+      if (rowPrefix !== wantPrefix && raw.indexOf(wantSection) === -1) return;
+    }
+    var ledger = null; try { ledger = JSON.parse(raw || '{}'); } catch (e) { return; }
+    var t = ledger && ledger._tasks && ledger._tasks[task];
     if (!t) {
       // includeRoster: one-shot mode wants everyone (matches the old
       // get_class_progress fold-in, from data we already have in hand)
@@ -977,7 +992,9 @@ function getTaskProgress_(ss, payload) {
   if (payload.includeData) {
     var need = students.filter(function (s) { return s.data && countCompleted_(s.data) === 0; });
     if (need.length) {
-      var idx = logIndexForRecovery_(ss);
+      var needEmails = {};
+      need.forEach(function (s) { needEmails[s.email.toLowerCase()] = 1; });
+      var idx = logIndexForRecovery_(ss, needEmails, task);
       need.forEach(function (s) {
         var rec = idx[s.email.toLowerCase() + '||' + task];
         if (!rec || countCompleted_(rec.data) === 0) return;
@@ -1491,7 +1508,9 @@ function getSnapshot_(ss) {
     });
   });
   if (toRecover.length) {
-    var idx = logIndexForRecovery_(ss);
+    var needEmails = {};
+    toRecover.forEach(function (pair) { needEmails[pair[0].email.toLowerCase()] = 1; });
+    var idx = logIndexForRecovery_(ss, needEmails);
     toRecover.forEach(function (pair) {
       var rec = idx[pair[0].email + '||' + pair[1]];
       if (rec && countCompleted_(rec.data) > 0) {

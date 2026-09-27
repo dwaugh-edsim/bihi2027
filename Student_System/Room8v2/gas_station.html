@@ -531,9 +531,7 @@ function $(id) { return document.getElementById(id); }
 // Session gone (4-hour identity window elapsed): drop back to the gate with a
 // clear reason instead of leaving a half-dead view and a bare "error".
 function expireSession_(j) {
-  CACHE = {};
-  INFLIGHT = {};
-  LOADED_KEY = null;
+  dropCache_();
   ID = null;
   sessionStorage.removeItem(PIN_KEY);
   $('main').classList.add('hidden');
@@ -613,7 +611,7 @@ function enterMain(j) {
   $('gate').classList.add('hidden');
   $('main').classList.remove('hidden');
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
-  // No mega-snapshot any more — go straight to the cheap metadata pass.
+  restoreCache_();
   finishEnter();
 }
 function finishEnter() {
@@ -657,6 +655,7 @@ function connectWithPin() {
 }
 
 function lock() {
+  dropCache_();
   sessionStorage.removeItem(PIN_KEY); PIN = ''; ID = null;
   try { sessionStorage.removeItem('r8id'); } catch (e) {}
   $('main').classList.add('hidden'); $('gate').classList.remove('hidden');
@@ -771,19 +770,68 @@ function refresh() {
   const section = $('selSection').value;
   current = { section: section, task: task };
 
-  LOADED_KEY = null;                      // metadata has no answers
-  setStatus('Loading class list…', 'warn');
+  // Already have this class+task in memory? Paint it with no network at all.
+  const key = cacheKey(section, task);
+  if (section && CACHE[key]) {
+    STUDENTS = CACHE[key].students.slice();
+    LOADED_KEY = key;
+    finishLoad(true);
+    return;
+  }
+
+  // ONE call covers both halves of what used to be two serial calls:
+  //   includeRoster -> students who never opened the assignment
+  //   includeData   -> their answers
+  // R8-STATION-0.15 sent the metadata call first and only fired the data call
+  // once it resolved, so every class switch paid two full-sheet reads back to
+  // back. getTaskProgress_ already handles both flags in one pass.
+  // "All classes" still uses metadata only - there's no single section to pull.
+  const wantData = !!section;
+  LOADED_KEY = null;
+  setStatus(wantData ? ('Loading ' + section + '…') : 'Loading class list…', 'warn');
   teacherCall('get_task_progress', { task: task, section: section,
-                                     includeData: false, includeRoster: true })
+                                     includeData: wantData, includeRoster: true })
   .then(function (j) {
     if (!j || j.status === 'auth_failed') { expireSession_(j); return; }
     if (!j || j.status !== 'ok') { setStatus((j && j.message) || 'error', 'bad'); return; }
     STUDENTS = (j.students || []).slice();
     current = { section: j.section, task: j.task };
-    finishLoad(false);
-    // If a class is selected, bring its answers in behind the rail.
-    if (current.section) loadData(current.section, current.task, false);
+    if (wantData && j.section) {
+      CACHE[cacheKey(j.section, j.task)] = { at: Date.now(), students: STUDENTS.slice() };
+      trimCache_();
+      persistCache_();
+      LOADED_KEY = cacheKey(j.section, j.task);
+    }
+    finishLoad(true);
   }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); });
+}
+
+// sessionStorage (not localStorage - Chromebooks wipe that on session close,
+// but this survives a reload, which is the common "it's slow again" case).
+// It holds real student answers, so it is cleared on lock/expiry, never on a
+// stale read, and capped so a long marking session can't grow without bound.
+const CACHE_KEY = 'r8station_answers';
+const CACHE_MAX = 6;
+function persistCache_() {
+  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(CACHE)); } catch (e) {}
+}
+function restoreCache_() {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (raw) { CACHE = JSON.parse(raw) || {}; trimCache_(); }
+  } catch (e) { CACHE = {}; }
+}
+function dropCache_() {
+  CACHE = {}; INFLIGHT = {}; LOADED_KEY = null;
+  try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
+}
+// Keep the newest CACHE_MAX classes; drop the stalest.
+function trimCache_() {
+  const keys = Object.keys(CACHE);
+  if (keys.length <= CACHE_MAX) return;
+  keys.sort(function (a, b) { return (CACHE[a].at || 0) - (CACHE[b].at || 0); })
+      .slice(0, keys.length - CACHE_MAX)
+      .forEach(function (k) { delete CACHE[k]; });
 }
 
 // Fetch answers for one class + one task, and memoise them. Cached views are
@@ -835,10 +883,12 @@ function applyData_(key, list) {
 // Refresh button: re-pull the current class + task, ignoring the cache.
 function reload() {
   const task = $('selTask').value;
-  if (!task) return refresh();
   const section = $('selSection').value;
-  if (!section) return refresh();                  // metadata only; nothing cached
-  loadData(section, task, true);
+  if (section && task) {
+    delete CACHE[cacheKey(section, task)];
+    persistCache_();
+  }
+  refresh();
 }
 
 function finishLoad(fromCache) {
