@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.16.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T19:20:00Z';
+var CONFIG_VERSION = 'R8-BE-0.17.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T20:05:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -48,10 +48,11 @@ var TAB_ADAPT = 'Adaptations';     // confidential — teacher-entered, staff-ga
 var TAB_DRAFTS = 'Mark_Drafts';
 var DRAFT_COLS = ['Drafted', 'Email', 'Name', 'Section', 'Assignment',
                  'Analytic note (PRIVATE - never shown to a student)',
+                 'Proposed comment (brief - edit or replace before pushing)',
                  'Proposed grade', 'Confidence',
                  'Status', 'Final comment (yours)', 'Final grade (yours)',
                  'Teacher', 'Decided'];
-var D_STATUS = 9, D_FINAL_TEXT = 10, D_FINAL_GRADE = 11;
+var D_STATUS = 10, D_FINAL_TEXT = 11, D_FINAL_GRADE = 12;
 
 // Students tab columns
 var S_EMAIL=1, S_NAME=2, S_SECTION=3, S_GRADE=4, S_TASK=5, S_LEDGER=6, S_SUMMARY=7, S_UPDATED=8, S_FIRST_TASK_COL=9;
@@ -112,8 +113,9 @@ function ensureSheets_(ss) {
   ad.setColumnWidth(4, 320);
   ad.setColumnWidth(5, 320);
   var dr = ensureTab_(ss, TAB_DRAFTS, DRAFT_COLS);
-  dr.setColumnWidth(6, 520);   // the analytic note - the widest thing in here
-  dr.setColumnWidth(10, 380);  // your final comment
+  dr.setColumnWidth(6, 520);   // analytic note - the widest thing in here
+  dr.setColumnWidth(7, 380);   // proposed comment
+  dr.setColumnWidth(11, 380);  // your final comment
   dr.setColumnWidth(2, 240);   // email
 }
 
@@ -786,14 +788,15 @@ function putMarkDrafts_(ss, payload) {
         sh.getRange(row, 3).setValue(String(d.name || ''));
         sh.getRange(row, 4).setValue(String(d.section || ''));
         sh.getRange(row, 6).setValue(String(d.note || d.analysis || ''));
-        sh.getRange(row, 7).setValue(String(d.grade || ''));
-        sh.getRange(row, 8).setValue(String(d.confidence || ''));
+        sh.getRange(row, 7).setValue(String(d.comment || d.proposedComment || ''));
+        sh.getRange(row, 8).setValue(String(d.grade || ''));
+        sh.getRange(row, 9).setValue(String(d.confidence || ''));
         sh.getRange(row, D_STATUS).setValue('DRAFT');
         written++;
       } else {
         sh.appendRow([new Date(), email, String(d.name || ''), String(d.section || ''), task,
-                      String(d.note || d.analysis || ''), String(d.grade || ''),
-                      String(d.confidence || ''), 'DRAFT', '', '', '', '']);
+                      String(d.note || d.analysis || ''), String(d.comment || d.proposedComment || ''),
+                      String(d.grade || ''), String(d.confidence || ''), 'DRAFT', '', '', '', '']);
         written++;
       }
     });
@@ -805,10 +808,11 @@ function putMarkDrafts_(ss, payload) {
 function readDraft_(row) {
   return { email: String(row[1] || ''), name: String(row[2] || ''), section: String(row[3] || ''),
            task: String(row[4] || ''), note: String(row[5] || ''),
-           proposedGrade: String(row[6] || ''), confidence: String(row[7] || ''),
-           status: String(row[8] || ''), finalComment: String(row[9] || ''),
-           finalGrade: String(row[10] || ''), teacher: String(row[11] || ''),
-           decided: row[12] || null };
+           proposedComment: String(row[6] || ''),
+           proposedGrade: String(row[7] || ''), confidence: String(row[8] || ''),
+           status: String(row[9] || ''), finalComment: String(row[10] || ''),
+           finalGrade: String(row[11] || ''), teacher: String(row[12] || ''),
+           decided: row[13] || null };
 }
 
 function getMarkDrafts_(ss, payload) {
@@ -859,8 +863,8 @@ function approveMark_(ss, payload) {
       sh.getRange(row, D_FINAL_TEXT).setValue(text);
       sh.getRange(row, D_FINAL_GRADE).setValue(grade);
       sh.getRange(row, D_STATUS).setValue('SYNCED');
-      sh.getRange(row, 12).setValue('teacher:station');
-      sh.getRange(row, 13).setValue(new Date());
+      sh.getRange(row, 13).setValue('teacher:station');
+      sh.getRange(row, 14).setValue(new Date());
     }
   } finally { lock.releaseLock(); }
   return jsonOut_({ status: 'feedback_saved', action: 'approve_mark',
@@ -884,8 +888,8 @@ function syncMarkDrafts_(ss, payload) {
       if (res.status === 'pushed') {
         pushed++;
         sh.getRange(i + 2, D_STATUS).setValue('SYNCED');
-        sh.getRange(i + 2, 12).setValue('teacher:sheet');
-        sh.getRange(i + 2, 13).setValue(new Date());
+        sh.getRange(i + 2, 13).setValue('teacher:sheet');
+        sh.getRange(i + 2, 14).setValue(new Date());
       }
     });
   } finally { lock.releaseLock(); }

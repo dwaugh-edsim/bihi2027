@@ -247,6 +247,10 @@
   .ai-use:hover, .ai-close:hover { background: #f1f5f9; }
   .ai-proposed { font-size: 12px; color: #0369a1; margin-bottom: 6px; }
   .ai-proposed b { color: #0f172a; }
+  .ai-suggest { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px;
+               padding: 6px 8px; background: #f0f9ff; border: 1px dashed #7dd3fc; border-radius: 6px; }
+  .ai-sug-lbl { font-size: 11px; color: #0369a1; white-space: nowrap; }
+  .ai-sug-text { flex: 1; font-size: 12.5px; color: #1e293b; font-style: italic; }
   .ai-note { white-space: pre-wrap; font-size: 12.5px; line-height: 1.5; color: #334155;
              max-height: 260px; overflow: auto; }
   /* class-level distribution view */
@@ -475,6 +479,11 @@
             </span>
           </div>
           <div class="ai-proposed" id="aiProposed"></div>
+          <div class="ai-suggest" id="aiSuggest" style="display:none">
+            <span class="ai-sug-lbl">Suggested comment</span>
+            <span class="ai-sug-text" id="aiSuggestText"></span>
+            <button type="button" class="ai-use" onclick="useProposedComment()">use this</button>
+          </div>
           <div class="ai-note" id="aiNote"></div>
         </div>
         <div class="spec-id">
@@ -519,7 +528,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.16.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.17.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Answers load one class + assignment at a time (responses that big don't survive the Apps Script redirect hop);
   the class list, counts and picker come from one cheap metadata call.
 </footer>
@@ -1612,6 +1621,9 @@ function showDraft(s) {
             : (c ? 'c-med' : '');
   $('aiConf').textContent = d.confidence || '';
   $('aiConf').className = 'ai-conf ' + cls;
+  const sug = String(d.proposedComment || '').trim();
+  $('aiSuggest').style.display = sug ? 'flex' : 'none';
+  $('aiSuggestText').textContent = sug;
   $('aiNote').textContent = d.note || '(no note)';
 }
 
@@ -1625,6 +1637,16 @@ function useProposedGrade() {
   if (!d || !d.proposedGrade) { setStatus('No proposed grade on this draft.', 'warn'); return; }
   setGradeVal(d.proposedGrade);
   setStatus('Copied the proposed grade (' + d.proposedGrade + ') — change it if you disagree.', 'ok');
+}
+
+// Drop the model's suggested comment into the box above. Edit it freely — it
+// is a starting point, and Approve sends whatever is in the box, not this.
+function useProposedComment() {
+  const d = DRAFTS[draftKey(selectedEmail, current && current.task)];
+  if (!d || !d.proposedComment) return;
+  $('dFb').value = d.proposedComment;
+  $('dFb').focus();
+  setStatus('Suggested comment copied in — edit it before you approve.', 'ok');
 }
 
 // Push YOUR comment + YOUR grade. The model's note stays behind.
