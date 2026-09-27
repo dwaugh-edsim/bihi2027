@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Room 8 — BACKEND (v2)                                        R8-BE-0.14.0
+ * Room 8 — BACKEND (v2)                                        R8-BE-0.14.1
  * ============================================================================
  * A clean rebuild of the old Student_System/Code.gs on the Google-auth pipe.
  * Identity is a VERIFIED @gnspes.ca email (HMAC-signed by the Identity app),
@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.14.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T17:30:00Z';
+var CONFIG_VERSION = 'R8-BE-0.14.1-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T17:40:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -264,14 +264,15 @@ function mergeTaskIntoStudent_(ss, email, p) {
 //      allowlist nor the PIN is configured, teacher actions refuse to run.
 // ============================================================================
 function teacherIdentityOk_(payload) {
-  var v = verifyIdentity_(payload.email, payload.ts, payload.sig);
+  var staff = String(payload.staffEmail || payload.teacherEmail || payload.identityEmail || payload.email || '').trim().toLowerCase();
+  var v = verifyIdentity_(staff, payload.ts, payload.sig);
   if (!v.ok) return false;
   var allow = String(PropertiesService.getScriptProperties().getProperty('TEACHER_EMAILS') || '')
     .toLowerCase().split(/[\s,;]+/).filter(function (x) { return !!x; });
   return allow.indexOf(v.email) !== -1;
 }
 function requireTeacher_(payload) {
-  if (payload.email && payload.ts && payload.sig) {
+  if ((payload.staffEmail || payload.teacherEmail || payload.identityEmail || payload.email) && payload.ts && payload.sig) {
     if (teacherIdentityOk_(payload)) return;                       // signed staff identity
     // identity present but not on staff list — fall through to the PIN check,
     // so a teacher on the wrong account still gets an explicit gate, never access.
@@ -279,6 +280,10 @@ function requireTeacher_(payload) {
   var pin = PropertiesService.getScriptProperties().getProperty('CLASS_LOG_PIN');
   if (!pin) throw new Error('Teacher access disabled: set TEACHER_EMAILS (preferred) or CLASS_LOG_PIN (fail-closed).');
   if (String(payload.teacherPin || '') !== String(pin)) throw new Error('Teacher sign-in or PIN required.');
+}
+
+function targetStudentEmail_(payload) {
+  return String(payload.studentEmail || (payload.staffEmail || payload.teacherEmail ? payload.email : '') || payload.email || '').trim().toLowerCase();
 }
 
 // ============================================================================
@@ -545,7 +550,7 @@ function feedbackMap_(ss) {
 }
 
 function setFeedback_(ss, payload) {
-  var email = String(payload.email || '').trim().toLowerCase();
+  var email = targetStudentEmail_(payload);
   var task = String(payload.task || '').trim();
   var text = String(payload.feedback || '').trim();
   var grade = String(payload.grade || '').trim();
@@ -634,7 +639,7 @@ function getOverview_(ss) {
 //     is the only copy of anything.
 // ============================================================================
 function pruneTask_(ss, payload) {
-  var email = String(payload.email || '').trim().toLowerCase();
+  var email = targetStudentEmail_(payload);
   var task  = String(payload.task || '').trim();
   if (!email || !task) throw new Error('email and task are required.');
   var dry    = payload.dryRun !== false;
@@ -987,7 +992,7 @@ function getTaskProgress_(ss, payload) {
 }
 
 function getStudentHistory_(ss, payload) {
-  var email = String(payload.email || '').toLowerCase();
+  var email = targetStudentEmail_(payload);
   var log = ss.getSheetByName(TAB_LOG);
   var rows = log.getLastRow() > 1 ? log.getRange(2, 1, log.getLastRow() - 1, 8).getValues() : [];
   var hist = [];

@@ -478,7 +478,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.15.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.15.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Answers load one class + assignment at a time (responses that big don't survive the Apps Script redirect hop);
   the class list, counts and picker come from one cheap metadata call.
 </footer>
@@ -550,8 +550,18 @@ function setStatus(msg, kind) { const el = $('status'); el.textContent = msg || 
 // 404s. Unique URL per call; retries cover the (intermittent) echo hop.
 function teacherCall(action, payload, isRetry) {
   const body = Object.assign({ action: action }, payload || {});
-  if (ID) { body.email = ID.email; body.ts = ID.ts; body.sig = ID.sig; }
-  else    { body.teacherPin = PIN; }
+  if (ID) {
+    body.staffEmail = ID.email;
+    body.teacherEmail = ID.email;
+    body.ts = ID.ts;
+    body.sig = ID.sig;
+    if (payload && payload.email) {
+      body.studentEmail = payload.email;
+    } else {
+      body.email = ID.email;
+    }
+  }
+  else { body.teacherPin = PIN; }
   const url = BACKEND_URL + '?_=' + Date.now() + Math.random().toString(36).slice(2, 8);
   return fetch(url, { method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
@@ -1554,6 +1564,7 @@ function saveFeedback() {
   $('dStatus').textContent = 'Saving…';
   const payload = {
     email: selectedEmail,
+    studentEmail: selectedEmail,
     task: current.task,
     feedback: $('dFb').value,
     grade: currentGrade
