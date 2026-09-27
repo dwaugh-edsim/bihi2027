@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.12.0-2026-09-25';
-var CONFIG_DEPLOYED = '2026-09-25T13:45:00Z';
+var CONFIG_VERSION = 'R8-BE-0.13.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T16:20:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -353,6 +353,7 @@ function doPost(e) {
     if (action === 'get_overview')      { requireTeacher_(payload); return getOverview_(ss); }
     if (action === 'export_class')      { requireTeacher_(payload); return exportClass_(ss, payload); }
     if (action === 'clean_sections')    { requireTeacher_(payload); return cleanSections_(ss, payload); }
+    if (action === 'prune_task')        { requireTeacher_(payload); return pruneTask_(ss, payload); }
     if (action === 'get_adaptations')   { requireTeacher_(payload); return getAdaptations_(ss, payload); }
     if (action === 'get_snapshot')      { requireTeacher_(payload); return getSnapshot_(ss); }
     if (action === 'list_roster')       { requireTeacher_(payload); return listRoster_(ss); }
@@ -419,6 +420,16 @@ function studentSubmit_(ss, payload) {
   if (!res.ok) return jsonOut_({ status: 'error', message: res.message });
   return jsonOut_({ status: 'submitted_successfully', task: task, email: id.email, section: section,
                     known: who.known, timestamp: new Date(), hash: res.hash, byteLength: res.byteLength });
+}
+
+// Normalise a sheet Date / ISO string to epoch ms. getValues() hands back Date
+// objects for the log's timestamp column while the ledger stores ISO strings, so
+// the two can't be compared as strings.
+function msOf_(v) {
+  if (v == null || v === '') return 0;
+  if (Object.prototype.toString.call(v) === '[object Date]') return v.getTime();
+  var t = Date.parse(v);
+  return isNaN(t) ? 0 : t;
 }
 
 // Newest Submissions_Log row for (email, task) — the durable-recovery path.
@@ -588,6 +599,95 @@ function getOverview_(ss) {
   var fbCount = 0;
   var fbMap = feedbackMap_(ss); Object.keys(fbMap).forEach(function (k) { if (fbMap[k].text) fbCount++; });
   return jsonOut_({ status: 'ok', students: nStudents, sections: sections, tasks: taskList, feedbackGiven: fbCount });
+}
+
+// ============================================================================
+// Prune one task entry from a student's ledger (teacher, dry-run first).
+//
+// Written for the mis-filed-task incident of 2026-09-27: several payloads were
+// stored under an assignment key they did not belong to, so opening that
+// assignment showed the wrong student's wrong work. Once the payload has been
+// re-filed under its correct task, the stale entry can be removed.
+//
+// Safety, in order:
+//   * dry-run by default; `confirm:true` is required to actually delete.
+//   * The full payload is appended to Submissions_Log as a 'Pruned' row BEFORE
+//     the ledger is written, so the removal is itself reversible from the log.
+//   * The dry-run reports whether the identical payload already exists under
+//     another task, and whether the log still holds it — i.e. whether this row
+//     is the only copy of anything.
+// ============================================================================
+function pruneTask_(ss, payload) {
+  var email = String(payload.email || '').trim().toLowerCase();
+  var task  = String(payload.task || '').trim();
+  if (!email || !task) throw new Error('email and task are required.');
+  var dry    = payload.dryRun !== false;
+  var confirm = (payload.confirm === true || payload.confirm === 'yes');
+
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var row = findStudentRow_(sheet, email);
+  if (row === -1) return jsonOut_({ status: 'error', message: 'No Students row for that email.' });
+
+  var raw = String(sheet.getRange(row, S_LEDGER).getValue() || '');
+  var ledger = null; try { ledger = JSON.parse(raw); } catch (e) {}
+  if (!ledger || !ledger._tasks || !ledger._tasks[task]) {
+    return jsonOut_({ status: 'ok', dryRun: dry, removed: false, why: 'that row has no entry for this task' });
+  }
+
+  var entry = ledger._tasks[task] || {};
+  var body  = JSON.stringify(entry.data || {});
+
+  // identical payload already filed under a different task?
+  var twins = [];
+  Object.keys(ledger._tasks).forEach(function (k) {
+    if (k === task) return;
+    if (JSON.stringify(ledger._tasks[k].data || {}) === body) twins.push(k);
+  });
+
+  var inLog = newestLogRowFor_(ss.getSheetByName(TAB_LOG), email, task);
+  var logHasIt = !!(inLog && countCompleted_(inLog.data) > 0);
+
+  var report = {
+    row: row, email: email, task: task,
+    bytes: body.length,
+    keys: Object.keys(entry.data || {}).slice(0, 60),
+    status: entry.status || '', updated: entry.updated || null,
+    archived: !!entry._archived,
+    identicalPayloadUnderOtherTasks: twins,
+    recoverableFromLog: logHasIt,
+    onlyCopy: !twins.length && !logHasIt
+  };
+
+  if (dry) {
+    report.next = report.onlyCopy
+      ? 'WARNING: nothing else holds this payload. Re-file it under the right task before pruning.'
+      : 'Safe to remove. Re-post with dryRun:false and confirm:true.';
+    return jsonOut_({ status: 'ok', dryRun: true, wouldRemove: report });
+  }
+  if (!confirm) {
+    return jsonOut_({ status: 'error',
+      message: 'Refusing to delete without confirm:true. Nothing was changed. Preview: ' + JSON.stringify(report) });
+  }
+
+  // Re-read under the lock, then back up to the log BEFORE writing the ledger.
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var live = null;
+    try { live = JSON.parse(String(sheet.getRange(row, S_LEDGER).getValue() || '{}')); } catch (e) { live = null; }
+    if (!live || !live._tasks || !live._tasks[task]) {
+      return jsonOut_({ status: 'error', message: 'Entry vanished before the write; nothing changed.' });
+    }
+    ss.getSheetByName(TAB_LOG).appendRow([new Date(), email, String(live._tasks[task].section || ''),
+                                         task, 'Pruned', String(live._tasks[task].summary || ''),
+                                         JSON.stringify(live._tasks[task].data || {}),
+                                         'prune_' + Utilities.getUuid()]);
+    delete live._tasks[task];
+    sheet.getRange(row, S_LEDGER).setValue(JSON.stringify(live));
+  } finally { lock.releaseLock(); }
+
+  return jsonOut_({ status: 'ok', dryRun: false, removed: true, email: email, task: task, row: row,
+                   note: 'Full payload appended to Submissions_Log as a Pruned row before deletion — recoverable from there.' });
 }
 
 // ============================================================================
@@ -842,17 +942,27 @@ function getTaskProgress_(ss, payload) {
     students.push({ email: String(r[0]), name: String(r[1]), section: sec,
                     updated: t.updated || null, summary: t.summary || '', written: written,
                     feedback: fb ? fb.text : '',
+                    _archived: !!t._archived,
                     data: payload.includeData ? t.data : undefined });
   });
   // Archived tasks carry only a stub — rebuild answers from the durable log so
   // the mark sheet shows real work instead of "not answered".
+  //
+  // Only when the log is genuinely NEWER than the ledger. Without this, a student
+  // who deliberately cleared their submission had their old answers silently
+  // resurrected from an older log row — the newest log row wins in the index, but
+  // that row can predate the clear. An _archived stub is always overwritten
+  // (its data is gone, not empty), regardless of timestamps.
   if (payload.includeData) {
     var need = students.filter(function (s) { return s.data && countCompleted_(s.data) === 0; });
     if (need.length) {
       var idx = logIndexForRecovery_(ss);
       need.forEach(function (s) {
         var rec = idx[s.email.toLowerCase() + '||' + task];
-        if (rec && countCompleted_(rec.data) > 0) { s.data = rec.data; s.recovered = true; }
+        if (!rec || countCompleted_(rec.data) === 0) return;
+        if (s._archived === true || msOf_(rec.ts) > msOf_(s.updated)) {
+          s.data = rec.data; s.recovered = true;
+        }
       });
     }
   }
@@ -1204,7 +1314,11 @@ function cleanSections_(ss, payload) {
       var nc = courseForTask_(newest.task);
       if (nc) wantRowSection = sectionForCourse_(homeroom, nc);
     }
-    var rowChanged = (String(r[2] || '') !== wantRowSection) || (String(r[3] || '') !== wantGrade);
+    // Coerce BOTH sides to String. wantGrade is a Number (homeroomGrade_ returns
+    // 8|9) while the stored cell reads back as a String, so `String(r[3]) !== wantGrade`
+    // was '9' !== 9 -> true on every row, reporting 161 phantom grade changes and
+    // (on apply) rewriting 161 Grade cells plus their ledgers for no change at all.
+    var rowChanged = (String(r[2] || '') !== wantRowSection) || (String(r[3] || '') !== String(wantGrade));
 
     if (rowChanged || perTask.length) {
       plan.push({ row: rowNo, email: email, name: String(r[1] || ''),
@@ -1360,9 +1474,15 @@ function getSnapshot_(ss) {
     toRecover.forEach(function (pair) {
       var rec = idx[pair[0].email + '||' + pair[1]];
       if (rec && countCompleted_(rec.data) > 0) {
-        pair[2].data = rec.data;
-        pair[2].recovered = true;
-        pair[2].written = true;
+        // Same rule as getTaskProgress_: only let the log win when it is
+        // genuinely newer, so a cleared submission stays cleared. An archived
+        // stub is always recoverable regardless of timestamps.
+        var t = pair[2];
+        if (t.archived === true || msOf_(rec.ts) > msOf_(t.updated)) {
+          t.data = rec.data;
+          t.recovered = true;
+          t.written = true;
+        }
       }
     });
   }
