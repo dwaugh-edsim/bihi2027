@@ -1652,26 +1652,49 @@ function useProposedComment() {
 // Push YOUR comment + YOUR grade. The model's note stays behind.
 function approveMark() {
   if (!selectedEmail || !current) return;
-  const stu = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
+  const email = selectedEmail;
+  const task = current.task;
+  const grade = currentGrade;
+  const comment = $('dFb').value;
+  const stu = STUDENTS.filter(function (s) { return s.email === email; })[0];
   const btn = $('dApprove'); btn.disabled = true;
   $('dStatus').textContent = 'Pushing…';
   const payload = {
-    email: selectedEmail, studentEmail: selectedEmail, task: current.task,
-    comment: $('dFb').value, grade: currentGrade
+    email: email, studentEmail: email, task: task,
+    comment: comment, grade: grade
   };
   if (stu) { payload.name = stu.name; payload.section = stu.section; }
   teacherCall('approve_mark', payload).then(function (j) {
     if (j && j.status === 'feedback_saved') {
-      $('dStatus').textContent = 'Pushed to the sheet — the student sees it on their next load.';
-      if (stu) { stu.feedback = payload.comment; stu.grade = currentGrade; }
-      const d = DRAFTS[draftKey(selectedEmail, current.task)];
-      if (d) { d.status = 'SYNCED'; d.finalComment = payload.comment; d.finalGrade = currentGrade; showDraft(stu || { email: selectedEmail }); }
+      if (current && current.task === task) {
+        STUDENTS.forEach(function (s) {
+          if (s.email === email) { s.feedback = comment; s.grade = grade; }
+        });
+      }
+      Object.keys(CACHE).forEach(function (k) {
+        if (k.slice(k.indexOf('||') + 2) !== task) return;
+        (CACHE[k].students || []).forEach(function (s) {
+          if (s.email === email) { s.feedback = comment; s.grade = grade; }
+        });
+      });
+      persistCache_();
+      const d = DRAFTS[draftKey(email, task)];
+      if (d) { d.status = 'SYNCED'; d.finalComment = comment; d.finalGrade = grade; }
+      if (selectedEmail === email && current && current.task === task) {
+        $('dStatus').textContent = 'Pushed to the sheet — the student sees it on their next load.';
+        if (d) showDraft(stu || { email: email });
+      }
     } else {
-      $('dStatus').textContent = (j && j.message) || 'Could not push.';
+      if (selectedEmail === email && current && current.task === task) {
+        $('dStatus').textContent = (j && j.message) || 'Could not push.';
+      }
     }
     btn.disabled = false;
   }).catch(function (e) {
-    $('dStatus').textContent = 'Failed: ' + e.message; btn.disabled = false;
+    if (selectedEmail === email && current && current.task === task) {
+      $('dStatus').textContent = 'Failed: ' + e.message;
+    }
+    btn.disabled = false;
   });
 }
 
@@ -1699,15 +1722,21 @@ function openDetail(s) {
   // Answers arrive per (class, task). If this student's class isn't loaded yet,
   // fetch it now rather than showing an empty pane — teachers click a name from
   // the class they're marking, so this is almost always the class already chosen.
-  if (!s.data && s.section && current && current.task) {
+  if (!s.data && s.section && current && current.task &&
+      LOADED_KEY !== cacheKey(s.section, current.task)) {
     $('dAnswers').innerHTML = '<span class="meta">Loading ' + escapeHtml(s.section) + '…</span>';
     const who = s.email;
     loadData(s.section, current.task, false).then(function (ok) {
       if (selectedEmail !== who) return;              // teacher moved on
-      const now = STUDENTS.filter(function (x) { return x.email === who; })[0];
-      if (ok && now) openDetail(now);
-      else if (now) { openDetail(now); }
+      if (!ok) {
+        $('dAnswers').innerHTML = '<span class="meta">Could not load answers. Check the status above and try again.</span>';
+      }
     });
+    return;
+  }
+  if (!s.data && s.section && current && current.task &&
+      LOADED_KEY === cacheKey(s.section, current.task)) {
+    $('dAnswers').innerHTML = '<span class="meta">No saved answers were returned for this student.</span>';
     return;
   }
   if (!s.data && (!s.section || !current)) {
@@ -1725,7 +1754,10 @@ function openDetail(s) {
   }
 
   // 2) a live v2 page that can describe its own layout
-  fetchConfig(current.task).then(function (cfg) {
+  const who = s.email;
+  const task = current.task;
+  fetchConfig(task).then(function (cfg) {
+    if (selectedEmail !== who || !current || current.task !== task) return;
     if (cfg) {
       $('dAnswers').innerHTML = markSheet(s, cfg);
     } else {
@@ -1797,8 +1829,7 @@ function saveFeedback() {
 //  in view. Works entirely client-side on the progress payload (includeData).
 // =========================================================================
 const RATING_LEVELS = ['Never', 'Brief', 'Deep', 'Over-Covered'];
-function normRating(v) { return String(v == null ? '' : v).toLowerCase().replace(/[^a-z]/g, ''); }
-const RATING_KEYS = RATING_LEVELS.map(normRating);
+function normRating(v) { return String(v == null ? '' : v).toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
 // The rating-scale field for this task: from the legacy schema when known,
 // else sniff any top-level object whose values are 4-level ratings.
@@ -1809,11 +1840,13 @@ function ratingFieldFor(task) {
     for (let i = 0; i < secs.length; i++) {
       const fs = secs[i].fields || [];
       for (let j = 0; j < fs.length; j++) {
-        if (fs[j].type === 'ratings') return { key: fs[j].key, comments: fs[j].comments, order: fs[j].order };
+        if (fs[j].type === 'ratings') {
+          return { key: fs[j].key, comments: fs[j].comments, order: fs[j].order, levels: fs[j].levels };
+        }
       }
     }
   }
-  return { key: 'matrix', comments: 'matrix_comments', order: null };
+  return { key: 'matrix', comments: 'matrix_comments', order: null, levels: RATING_LEVELS };
 }
 
 function toggleClassView() {
@@ -1832,6 +1865,11 @@ function toggleClassView() {
 function renderClassView() {
   const cv = $('classView');
   const f = ratingFieldFor(current ? current.task : '');
+  const levels = f.levels && f.levels.length ? f.levels : RATING_LEVELS;
+  const ratingKeys = levels.map(normRating);
+  const emptyTally = function () {
+    return { counts: levels.map(function () { return 0; }), notRated: 0, comments: [] };
+  };
   const students = STUDENTS.filter(function (s) { return s.data && !s.notStarted; });
 
   if (!students.length) {
@@ -1841,11 +1879,9 @@ function renderClassView() {
       '</div>';
     return;
   }
-
   // tally: outcome -> {counts:[n,n,n,n], notRated, comments:[]}
   const tally = {};
   const order = (f.order || []).slice();
-  let ratedAny = 0;
   students.forEach(function (s) {
     const d = (s.data && (s.data.answers || s.data)) || {};
     const obj = (d[f.key] && typeof d[f.key] === 'object' && !Array.isArray(d[f.key])) ? d[f.key] : {};
@@ -1854,22 +1890,28 @@ function renderClassView() {
     Object.keys(obj).forEach(function (k) {
       seen[k] = 1;
       if (order.indexOf(k) === -1) order.push(k);
-      if (!tally[k]) tally[k] = { counts: [0, 0, 0, 0], notRated: 0, comments: [] };
-      const idx = RATING_KEYS.indexOf(normRating(obj[k]));
+      if (!tally[k]) tally[k] = emptyTally();
+      const raw = String(obj[k] == null ? '' : obj[k]).trim();
+      const numeric = /^\d+$/.test(raw) ? Number(raw) : 0;
+      const idx = numeric >= 1 && numeric <= levels.length
+        ? numeric - 1
+        : ratingKeys.indexOf(normRating(obj[k]));
       if (idx === -1) tally[k].notRated++;
-      else { tally[k].counts[idx]++; ratedAny++; }
+      else tally[k].counts[idx]++;
       const c = String(cmts[k] || '').trim();
       if (c) tally[k].comments.push({ who: (s.name || '?').split(' ')[0], text: c });
     });
     // outcomes this student skipped entirely
     order.forEach(function (k) {
-      if (!seen[k]) { if (!tally[k]) tally[k] = { counts: [0, 0, 0, 0], notRated: 0, comments: [] }; }
+      if (!seen[k] && !tally[k]) tally[k] = emptyTally();
     });
   });
 
   // totals across the whole view
-  const totals = [0, 0, 0, 0];
-  order.forEach(function (k) { if (tally[k]) for (let i = 0; i < 4; i++) totals[i] += tally[k].counts[i]; });
+  const totals = levels.map(function () { return 0; });
+  order.forEach(function (k) {
+    if (tally[k]) for (let i = 0; i < levels.length; i++) totals[i] += tally[k].counts[i];
+  });
 
   if (!order.length) {
     cv.innerHTML = '<div class="cv-head"><div class="cv-title">📊 Class distribution — ' +
@@ -1887,15 +1929,15 @@ function renderClassView() {
   // legend / overall chips
   html += '<div class="cv-chips">';
   const COLORS = ['#64748b', '#d97706', '#15803d', '#7c3aed'];
-  RATING_LEVELS.forEach(function (L, i) {
+  levels.forEach(function (L, i) {
     html += '<span class="cv-chip"><span class="sw" style="background:' + COLORS[i] + '"></span>' +
-            L + ' <b>' + totals[i] + '</b></span>';
+            escapeHtml(L) + ' <b>' + totals[i] + '</b></span>';
   });
   html += '</div>';
 
   // per-outcome stacked bars
   order.forEach(function (k) {
-    const t = tally[k] || { counts: [0, 0, 0, 0], notRated: 0, comments: [] };
+    const t = tally[k] || emptyTally();
     const sum = t.counts.reduce(function (a, b) { return a + b; }, 0);
     html += '<div class="dist-outcome"><div class="dist-label">' + escapeHtml(k) + '</div>';
     if (sum === 0) {
@@ -1906,12 +1948,12 @@ function renderClassView() {
         if (!n) return;
         const pct = Math.round((n / sum) * 100);
         html += '<div class="dist-seg s' + i + '" style="width:' + pct + '%" title="' +
-                RATING_LEVELS[i] + ': ' + n + '">' + (pct >= 9 ? n : '') + '</div>';
+                escapeHtml(levels[i]) + ': ' + n + '">' + (pct >= 9 ? n : '') + '</div>';
       });
       html += '</div>';
     }
     html += '<div class="dist-legend">' +
-            t.counts.map(function (n, i) { return RATING_LEVELS[i] + ' <b>' + n + '</b>'; }).join(' · ') +
+            t.counts.map(function (n, i) { return escapeHtml(levels[i]) + ' <b>' + n + '</b>'; }).join(' · ') +
             (t.notRated ? ' · not rated <b>' + t.notRated + '</b>' : '') + '</div>';
     if (t.comments.length) {
       html += '<details class="cv-comments"><summary>💬 ' + t.comments.length + ' comment' +
