@@ -234,6 +234,8 @@
                  border-radius: 8px; padding: 8px 14px; margin: 8px 0 14px; }
   .mk-exemplar summary { font-weight: 700; color: #14532d; font-size: .88rem; cursor: pointer; }
   .mk-exemplar[open] summary { margin-bottom: 6px; }
+  .mk-map { margin-top: 6px; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+  .mk-map iframe { display: block; width: 100%; height: 180px; border: 0; }
   .meta { font-size: .82rem; color: var(--text-muted); }
   .hidden { display: none; }
   a.meta { color: var(--accent-blue); text-decoration: none; }
@@ -1090,11 +1092,11 @@ const C9_SCHEMA = {
       { key: 'teacher_note', label: 'Private note to the teacher' }
     ] },
     { num: 'G', title: 'Place cards', fields: [
-      { key: 'p1', label: 'Place 1', type: 'place' },
-      { key: 'p2', label: 'Place 2', type: 'place' },
-      { key: 'p3', label: 'Place 3', type: 'place' },
-      { key: 'p4', label: 'Place 4', type: 'place' },
-      { key: 'p5', label: 'Place 5', type: 'place' }
+      { key: 'p1', label: 'Place 1', type: 'place', map: true },
+      { key: 'p2', label: 'Place 2', type: 'place', map: true },
+      { key: 'p3', label: 'Place 3', type: 'place', map: true },
+      { key: 'p4', label: 'Place 4', type: 'place', map: true },
+      { key: 'p5', label: 'Place 5', type: 'place', map: true }
     ] }
   ]
 };
@@ -1125,7 +1127,46 @@ const LEGACY = {
 // payload is a subset of the same shape; sections with absent keys render as
 // "not answered" rather than breaking). Must come after LEGACY is declared.
 LEGACY['Citizenship 9 Current Issues Diagnostic'] = C9_SCHEMA;
-LEGACY['The WHERE Project — Places Portfolio'] = C9_SCHEMA;
+
+// ---- The WHERE Project — Places Portfolio (legacy) ----
+// Its own schema, NOT Current Issues': the heart of this task is the four
+// places (personal / community / global / aspirational) plus the map cards.
+// Labels verbatim from Citizenship 9/09_WHERE_4_Places_Activity.html.
+const WHERE_SCHEMA = {
+  title: 'The WHERE Project — Places Portfolio',
+  badge: 'Recovered from the old system',
+  sections: [
+    { num: '1', title: 'The four places', fields: [
+      { key: 'where_personal', label: 'Personal Place — what is it, where is it, and why does it matter to you?' },
+      { key: 'where_community', label: 'Community Place — what local landmark or public space represents your community?' },
+      { key: 'where_global', label: 'Global Place — what country or global region connects to your family heritage or story?' },
+      { key: 'where_aspirational', label: 'Aspirational Place — where in the world do you dream of travelling, and what draws you there?' }
+    ] },
+    { num: '2', title: 'Map cards (what they pinned)', hint: 'Only places the student actually named are shown',
+      fields: [
+        { key: 'p1', label: 'Place 1', type: 'place', map: true },
+        { key: 'p2', label: 'Place 2', type: 'place', map: true },
+        { key: 'p3', label: 'Place 3', type: 'place', map: true },
+        { key: 'p4', label: 'Place 4', type: 'place', map: true },
+        { key: 'p5', label: 'Place 5 / music', type: 'place' }
+      ] },
+    { num: '3', title: 'Category answers', fields: [
+      { key: 'cat1_personal', label: 'Category 1 — personal' },
+      { key: 'cat2_community', label: 'Category 2 — community' },
+      { key: 'cat3_global', label: 'Category 3 — global' },
+      { key: 'cat4_aspirational', label: 'Category 4 — aspirational' },
+      { key: 'cat5_music', label: 'Category 5 — music' },
+      { key: 'youtube_url', label: 'Link they submitted' }
+    ] },
+    { num: '4', title: 'Their words to me', fields: [
+      { key: 'submission_note', label: 'Submission note' },
+      { key: 'submission_source', label: 'Submission source' },
+      { key: 'partner', label: 'Partner' },
+      { key: 'teacher_note', label: 'Private note to the teacher' }
+    ] }
+  ]
+};
+LEGACY['The WHERE Project — Places Portfolio'] = WHERE_SCHEMA;
 
 function findLegacy(task) {
   const want = norm(task);
@@ -1224,17 +1265,28 @@ function legacyMarkSheet(s, schema) {
         return;
       }
 
-      // ---- place cards (p1..p5): title / description / coordinates ----
+      // ---- place cards (p1..p5): title / description / coordinates / map ----
       if (f.type === 'place') {
         const p = (v && typeof v === 'object' && !Array.isArray(v)) ? v : null;
-        if (!p || (!p.title && !p.desc && !(Array.isArray(p.coords) && p.coords.length))) return;  // absent -> skip
+        const hasText = p && (String(p.title || '').trim() || String(p.desc || '').trim());
+        if (!hasText) return;   // unfilled place: no card (a default pin + empty title is noise)
         const cArr = Array.isArray(p.coords) ? p.coords : null;
         html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>';
         html += '<div class="mk-val" style="font-weight:700;">' +
                 escapeHtml(String(p.title || '(no title)')) + '</div>';
         if (p.desc) html += '<div class="mk-val" style="margin-top:4px;">' + escapeHtml(String(p.desc)) + '</div>';
-        if (cArr && cArr.length >= 2) {
-          html += '<div class="rate-other">📍 ' + Number(cArr[0]).toFixed(4) + ', ' + Number(cArr[1]).toFixed(4) + '</div>';
+        if (p.yt) {
+          html += '<div class="rate-other">🎵 <a href="' + escapeHtml(String(p.yt)) +
+                  '" target="_blank" rel="noopener">open the link</a></div>';
+        }
+        // Real map: Google's keyless embed (no API key, no quota, no student data sent).
+        // Only for a place the student actually named.
+        if (f.map && cArr && cArr.length >= 2 && isFinite(cArr[0]) && isFinite(cArr[1])) {
+          const lat = Number(cArr[0]), lng = Number(cArr[1]);
+          html += '<div class="mk-map"><iframe title="Map for ' + escapeHtml(f.label) + '" ' +
+                  'loading="lazy" referrerpolicy="no-referrer" ' +
+                  'src="https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=11&amp;output=embed"></iframe></div>';
+          html += '<div class="rate-other">📍 ' + lat.toFixed(4) + ', ' + lng.toFixed(4) + '</div>';
         }
         html += '</div>';
         return;
