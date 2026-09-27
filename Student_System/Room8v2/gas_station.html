@@ -437,8 +437,9 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.12.1 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
-  Server actions: <code>get_overview</code>, <code>get_task_progress</code>, <code>set_feedback</code>, <code>export_class</code>.
+  Room 8 v2 — GAS Station · R8-STATION-0.14.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Answers load one class + assignment at a time (responses that big don't survive the Apps Script redirect hop);
+  the class list, counts and picker come from one cheap metadata call.
 </footer>
 
 </div><!-- /.wrap -->
@@ -457,17 +458,41 @@ const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLH
 const PIN_KEY = 'r8station_pin';
 let PIN = '';
 let ID = null;                // pipe identity {email, ts, sig} once signed in
-let SNAPSHOT = null;          // one-shot full dump; null => per-task fallback
-let OVERVIEW = null;     // get_overview result
-let STUDENTS = [];       // current get_task_progress students
-let current = null;      // {section, task}
+let OVERVIEW = null;          // get_overview result (counts only — always small)
+let STUDENTS = [];            // current view: metadata, plus .data once loaded
+let current = null;           // {section, task}
 let selectedEmail = null;
+
+// ---------------------------------------------------------------------------
+// Loading model (R8-STATION-0.14.0)
+//
+// The one-shot snapshot is GONE. It bundled every student x every task into a
+// single response, and responses that big do not survive the Apps Script
+// 302 -> macros/echo hop (404, or a stale body from a previous action).
+// Measured ceiling: 75,172 bytes (903-HL, one task) works; 174 students fails.
+//
+// The unit that fits is (class, task) — and bytes track *answered work*, not
+// student count, so class size is a bad predictor. A 31-student class with no
+// submissions is 4 KB; a 23-student class with real work is 75 KB.
+//
+// So: metadata first, answers on demand.
+//   1. includeData:false  -> rail, stats, counts. ~3 KB for all 174 students.
+//   2. includeData:true   -> one class + one task, on demand, cached below.
+// Re-opening an already-loaded class is instant; switching classes costs one
+// ~50-70 KB call. Refresh busts the cache for the current view.
+// ---------------------------------------------------------------------------
+let CACHE = {};               // "section||task" -> {at, students:[...with data]}
+let INFLIGHT = {};            // "section||task" -> promise, so we never double-fetch
+let LOADED_KEY = null;        // which (section, task) STUDENTS currently holds data for
+
 
 function $(id) { return document.getElementById(id); }
 // Session gone (4-hour identity window elapsed): drop back to the gate with a
 // clear reason instead of leaving a half-dead view and a bare "error".
 function expireSession_(j) {
-  SNAPSHOT = null;
+  CACHE = {};
+  INFLIGHT = {};
+  LOADED_KEY = null;
   ID = null;
   sessionStorage.removeItem(PIN_KEY);
   $('main').classList.add('hidden');
@@ -537,23 +562,8 @@ function enterMain(j) {
   $('gate').classList.add('hidden');
   $('main').classList.remove('hidden');
   $('whoAmI').textContent = ID ? ('🔑 ' + ID.email) : '🔑 PIN session';
-  // Try the one-shot snapshot: if it lands, every later view is instant
-  // (client-side). If it fails (older backend, too big, transient error),
-  // SNAPSHOT stays null and refresh() falls back to the per-task calls.
-  setStatus('Loading snapshot…', 'warn');
-  teacherCall('get_snapshot', {}).then(function (s) {
-    if (s && s.status === 'ok' && s.students) {
-      SNAPSHOT = s;
-      OVERVIEW = { version: j.version || s.version, tasks: s.tasks };
-      setStatus('Snapshot loaded (' + s.studentCount + ' students) — views are instant until Refresh.', 'ok');
-    } else {
-      setStatus('Snapshot unavailable — using per-task loading.', 'warn');
-    }
-    finishEnter();
-  }).catch(function () {
-    setStatus('Snapshot unavailable — using per-task loading.', 'warn');
-    finishEnter();
-  });
+  // No mega-snapshot any more — go straight to the cheap metadata pass.
+  finishEnter();
 }
 function finishEnter() {
   fillTaskPicker();
@@ -695,72 +705,87 @@ function onTaskChange() {
   refresh();
 }
 
+// ---------------------------------------------------------------------------
+//  Metadata first, answers on demand.
+//
+//  Pass 1 (always): includeData:false -> rail, stats, counts. Cheap: ~3 KB even
+//  for every student in the school, so the whole picker/rail renders instantly.
+//  Pass 2 (on demand): includeData:true for exactly one class + one task.
+// ---------------------------------------------------------------------------
+function cacheKey(section, task) { return (section || '') + '||' + (task || ''); }
+
 function refresh() {
   const task = $('selTask').value;
-  if (!task) { STUDENTS = []; render(); return; }
+  if (!task) { STUDENTS = []; LOADED_KEY = null; render(); return; }
   const section = $('selSection').value;
+  current = { section: section, task: task };
 
-  // ---- snapshot mode: slice the in-memory dump; zero network, instant ----
-  if (SNAPSHOT) {
-    const out = [];
-    SNAPSHOT.students.forEach(function (r) {
-      const t = r.tasks[task];
-      if (t) {
-        const sec = t.section || r.section || '';
-        if (section && sec !== section) return;
-        out.push({ email: r.email, name: r.name, section: sec, updated: t.updated,
-                   summary: t.summary, written: !!t.written, archived: !!t.archived,
-                   feedback: t.feedback, data: t.data });
-      } else {
-        if (section && (r.section || '') !== section) return;
-        out.push({ email: r.email, name: r.name, section: r.section || '', written: false,
-                   notStarted: true, updated: null, summary: '', feedback: '', data: null });
-      }
-    });
-    STUDENTS = out;
-    current = { section: section, task: task };
-    finishLoad(true);
-    return;
-  }
-
-  // ---- fallback: per-task calls (older backend / snapshot failed) ----
-  setStatus('Loading…', 'warn');
-  Promise.all([
-    teacherCall('get_task_progress', { task: task, section: section, includeData: true, includeRoster: true })
-  ]).then(function (res) {
-    const j = res[0];
-    if (j.status === 'auth_failed') { expireSession_(j); return; }
-    if (j.status !== 'ok') { setStatus(j.message || 'error', 'bad'); return; }
-    current = { section: j.section, task: j.task };
+  LOADED_KEY = null;                      // metadata has no answers
+  setStatus('Loading class list…', 'warn');
+  teacherCall('get_task_progress', { task: task, section: section,
+                                     includeData: false, includeRoster: true })
+  .then(function (j) {
+    if (!j || j.status === 'auth_failed') { expireSession_(j); return; }
+    if (!j || j.status !== 'ok') { setStatus((j && j.message) || 'error', 'bad'); return; }
     STUDENTS = (j.students || []).slice();
-    STUDENTS.forEach(function (s) { s.written = !!s.written; });
+    current = { section: j.section, task: j.task };
     finishLoad(false);
+    // If a class is selected, bring its answers in behind the rail.
+    if (current.section) loadData(current.section, current.task, false);
   }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); });
 }
 
-// Refresh button: in snapshot mode re-pull the dump (fresh data); otherwise
-// plain refresh. Class/task switching never re-pulls — only this button does.
-function reload() {
-  if (!SNAPSHOT) { refresh(); return; }
-  setStatus('Refreshing snapshot…', 'warn');
-  teacherCall('get_snapshot', {}).then(function (s) {
-    if (s && s.status === 'auth_failed') { expireSession_(s); return; }
-    if (s && s.status === 'ok' && s.students) {
-      SNAPSHOT = s;
-      OVERVIEW = { version: SNAPSHOT.version || (OVERVIEW && OVERVIEW.version), tasks: s.tasks };
-      const keep = $('selTask').value;
-      fillTaskPicker();
-      if (keep && OVERVIEW.tasks.some(function (t) { return t.name === keep; })) $('selTask').value = keep;
-      refresh();
-      setStatus('Snapshot refreshed at ' + new Date().toLocaleTimeString() + ' — views are instant.', 'ok');
-    } else {
-      setStatus('Refresh failed — keeping previous snapshot.', 'warn');
-      refresh();
+// Fetch answers for one class + one task, and memoise them. Cached views are
+// instant; force=true (the Refresh button) re-pulls. Concurrent callers for the
+// same key share one request, so selecting a student while switching classes
+// can't fire the same fetch twice.
+function loadData(section, task, force) {
+  if (!section) return Promise.resolve(false);
+  const key = cacheKey(section, task);
+  if (!force && CACHE[key]) { applyData_(key, CACHE[key].students); return Promise.resolve(true); }
+  if (INFLIGHT[key]) return INFLIGHT[key];
+
+  setStatus('Loading ' + section + '…', 'warn');
+  const p = teacherCall('get_task_progress', { task: task, section: section,
+                                               includeData: true, includeRoster: false })
+  .then(function (j) {
+    if (!j || j.status === 'auth_failed') { expireSession_(j); return false; }
+    if (!j || j.status !== 'ok') {
+      setStatus('Could not load ' + section + ': ' + ((j && j.message) || 'error'), 'bad');
+      return false;
     }
-  }).catch(function () { setStatus('Refresh failed — keeping previous snapshot.', 'warn'); });
+    CACHE[key] = { at: new Date(), students: j.students || [] };
+    applyData_(key, CACHE[key].students);
+    return true;
+  }).catch(function (e) { setStatus('Load failed: ' + e.message, 'bad'); return false; })
+    .then(function (r) { delete INFLIGHT[key]; return r; });
+  INFLIGHT[key] = p;
+  return p;
 }
 
-function finishLoad(fromSnapshot) {
+// Merge a loaded class's answers into the current view, keyed by email.
+function applyData_(key, list) {
+  const byEmail = {};
+  list.forEach(function (s) { byEmail[s.email] = s; });
+  STUDENTS.forEach(function (s) {
+    const hit = byEmail[s.email];
+    s.data = hit ? hit.data : undefined;
+    if (hit) { s.updated = hit.updated || s.updated; s.written = !!hit.written; }
+  });
+  LOADED_KEY = key;
+  finishLoad(true);
+}
+
+// Refresh button: re-pull the current class + task, ignoring the cache.
+function reload() {
+  const task = $('selTask').value;
+  if (!task) return refresh();
+  const section = $('selSection').value;
+  if (!section) return refresh();                  // metadata only; nothing cached
+  loadData(section, task, true);
+}
+
+function finishLoad(fromCache) {
   STUDENTS.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
   render();
   if ($('classView') && $('classView').style.display === 'block') renderClassView();
@@ -768,7 +793,8 @@ function finishLoad(fromSnapshot) {
     const again = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
     if (again) openDetail(again); else closeDetail();
   }
-  setStatus(STUDENTS.length + ' students shown' + (fromSnapshot ? ' · instant' : ''), 'ok');
+  setStatus(STUDENTS.length + ' students shown' +
+            (LOADED_KEY ? ' · answers loaded' : ' · pick a class to load answers'), 'ok');
 }
 
 // =========================================================================
@@ -1376,6 +1402,26 @@ function openDetail(s) {
       escapeHtml(s.name || 'This student') + ' hasn’t opened this assignment — nothing saved on the server.</span>';
     return;
   }
+
+  // Answers arrive per (class, task). If this student's class isn't loaded yet,
+  // fetch it now rather than showing an empty pane — teachers click a name from
+  // the class they're marking, so this is almost always the class already chosen.
+  if (!s.data && s.section && current && current.task) {
+    $('dAnswers').innerHTML = '<span class="meta">Loading ' + escapeHtml(s.section) + '…</span>';
+    const who = s.email;
+    loadData(s.section, current.task, false).then(function (ok) {
+      if (selectedEmail !== who) return;              // teacher moved on
+      const now = STUDENTS.filter(function (x) { return x.email === who; })[0];
+      if (ok && now) openDetail(now);
+      else if (now) { openDetail(now); }
+    });
+    return;
+  }
+  if (!s.data && (!s.section || !current)) {
+    $('dAnswers').innerHTML = '<span class="meta">Pick a class above, then choose a student.</span>';
+    return;
+  }
+
   $('dAnswers').innerHTML = '<span class="meta">Loading the assignment layout…</span>';
 
   // 1) legacy (pre-v2) task with a mapping registered above — no page to read
@@ -1420,11 +1466,12 @@ function saveFeedback() {
   teacherCall('set_feedback', payload).then(function (j) {
     if (j.status === 'feedback_saved') {
       if (stu) stu.feedback = payload.feedback;
-      // keep the in-memory snapshot in sync so it doesn't show stale feedback
-      if (SNAPSHOT) {
-        const snapStu = SNAPSHOT.students.filter(function (s) { return s.email === selectedEmail; })[0];
-        if (snapStu && snapStu.tasks[current.task]) snapStu.tasks[current.task].feedback = payload.feedback;
-      }
+      // keep every cached view in sync so a later class switch doesn't show stale feedback
+      Object.keys(CACHE).forEach(function (k) {
+        (CACHE[k].students || []).forEach(function (s) {
+          if (s.email === selectedEmail) s.feedback = payload.feedback;
+        });
+      });
       $('dStatus').textContent = j.empty ? 'Cleared (empty feedback).' : '✓ Saved — student sees it on next load.';
       render();
     } else {
@@ -1478,7 +1525,10 @@ function renderClassView() {
   const students = STUDENTS.filter(function (s) { return s.data && !s.notStarted; });
 
   if (!students.length) {
-    cv.innerHTML = '<div class="meta">No saved work in view to aggregate yet.</div>';
+    cv.innerHTML = '<div class="meta">' +
+      (LOADED_KEY ? 'No saved work in view to aggregate yet.'
+                  : 'Choose a class above — answers load per class, and the distribution needs them.') +
+      '</div>';
     return;
   }
 
@@ -1574,6 +1624,12 @@ function exportJSON(wholeClass) {
   const section = $('selSection').value;
   const task = wholeClass ? '' : $('selTask').value;
   if (!wholeClass && !task) { setStatus('Pick an assignment first (or use “all tasks”).', 'warn'); return; }
+  // A whole-school export is one response for every student — the same shape
+  // that won't come back through the Apps Script echo hop. Scope it to a class.
+  if (!section) {
+    setStatus('Choose a class above first — exporting every class at once is too large to return.', 'warn');
+    return;
+  }
   setStatus('Building export…', 'warn');
   teacherCall('export_class', { section: section, task: task }).then(function (j) {
     if (j.status !== 'ok') { setStatus('Export failed: ' + (j.message || j.status), 'bad'); return; }
