@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.15.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T17:55:00Z';
+var CONFIG_VERSION = 'R8-BE-0.16.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T19:20:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
