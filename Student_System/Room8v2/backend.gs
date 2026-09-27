@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.17.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T20:05:00Z';
+var CONFIG_VERSION = 'R8-BE-0.18.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T21:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -773,12 +773,22 @@ function putMarkDrafts_(ss, payload) {
   var sh = draftsSheet_(ss);
   var lock = LockService.getScriptLock(); lock.waitLock(30000);
   var written = 0, held = [];
+  // A grade already in Feedback means the teacher has judged this student on
+  // this assignment. Do not propose a competing one - the Station would show a
+  // draft beside a mark that is already final. Feedback is append-only and is
+  // never modified from here; this only stops us drafting over it.
+  var graded = feedbackMap_(ss);
   try {
     items.forEach(function (d) {
       var email = String(d.email || '').trim().toLowerCase();
       var task = String(d.task || d.assignment || '').trim();
       if (!email || !task) return;
       if (!/@gnspes\.ca$/i.test(email)) { held.push(email + ': not a school address'); return; }
+      var done = graded[email + '||' + task];
+      if (done && String(done.grade || '').trim()) {
+        held.push(email + '/' + task + ': already graded ' + done.grade + ' by teacher - not drafted');
+        return;
+      }
       var row = findDraftRow_(sh, email, task);
       if (row !== -1) {
         // Never overwrite a row the teacher has touched.
