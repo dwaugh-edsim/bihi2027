@@ -118,6 +118,33 @@
   .pill.part { background: #fef3c7; color: var(--warn); }
   .pill.none { background: #f1f5f9; color: var(--muted); }
   .pill.fb   { background: #ede9fe; color: #6d28d9; }
+  .pill.grade { font-size: .62rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+  .pill.grade.g4  { background: #15803d; color: #fff; }
+  .pill.grade.g3p { background: #16a34a; color: #fff; }
+  .pill.grade.g3  { background: #22c55e; color: #052e16; }
+  .pill.grade.g2p { background: #eab308; color: #422006; }
+  .pill.grade.g2  { background: #f59e0b; color: #451a03; }
+  .pill.grade.g1p { background: #f97316; color: #fff; }
+  .pill.grade.g1  { background: #ef4444; color: #fff; }
+  .pill.grade.goth { background: #475569; color: #fff; }
+
+  .grade-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 8px; }
+  .grade-btn { font-family: 'JetBrains Mono', monospace; font-size: .75rem; font-weight: 700;
+               padding: 3px 8px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc;
+               color: #334155; cursor: pointer; transition: all .1s ease; line-height: 1.2; }
+  .grade-btn:hover { background: #e2e8f0; border-color: #94a3b8; }
+  .grade-btn.sel { background: #1e293b; color: #fff; border-color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .grade-btn.sel.g4  { background: #15803d; border-color: #15803d; color: #fff; }
+  .grade-btn.sel.g3p { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .grade-btn.sel.g3  { background: #22c55e; border-color: #22c55e; color: #052e16; }
+  .grade-btn.sel.g2p { background: #eab308; border-color: #eab308; color: #422006; }
+  .grade-btn.sel.g2  { background: #f59e0b; border-color: #f59e0b; color: #451a03; }
+  .grade-btn.sel.g1p { background: #f97316; border-color: #f97316; color: #fff; }
+  .grade-btn.sel.g1  { background: #ef4444; border-color: #ef4444; color: #fff; }
+  .grade-custom { width: 56px; font-family: 'JetBrains Mono', monospace; font-size: .75rem; font-weight: 600;
+                  padding: 3px 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
+  .grade-clear { font-size: .68rem; padding: 2px 4px; color: var(--muted); border: none; background: transparent; cursor: pointer; text-decoration: underline; }
+  .grade-clear:hover { color: #b91c1c; }
   .count { color: var(--muted); font-size: .8rem; margin-left: 6px; }
 
   /* ---- 3-panel station: rail | spec bar | work — one consistent border treatment ---- */
@@ -420,6 +447,20 @@
           <div class="spec-sum-val" id="dSummary">—</div>
         </div>
         <div class="spec-fb">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <span class="spec-lbl">Grade</span>
+            <button type="button" class="grade-clear" onclick="setGradeVal('')">Clear grade</button>
+          </div>
+          <div class="grade-picker" id="dGradePicker">
+            <button type="button" class="grade-btn" data-val="4" onclick="setGradeVal('4')">4</button>
+            <button type="button" class="grade-btn" data-val="3+" onclick="setGradeVal('3+')">3+</button>
+            <button type="button" class="grade-btn" data-val="3" onclick="setGradeVal('3')">3</button>
+            <button type="button" class="grade-btn" data-val="2+" onclick="setGradeVal('2+')">2+</button>
+            <button type="button" class="grade-btn" data-val="2" onclick="setGradeVal('2')">2</button>
+            <button type="button" class="grade-btn" data-val="1+" onclick="setGradeVal('1+')">1+</button>
+            <button type="button" class="grade-btn" data-val="1" onclick="setGradeVal('1')">1</button>
+            <input type="text" id="dGradeCustom" class="grade-custom" placeholder="other" maxlength="10" oninput="onCustomGradeInput(this.value)">
+          </div>
           <span class="spec-lbl">Teacher feedback <span style="text-transform:none; letter-spacing:0;">(student sees it on their next load)</span></span>
           <textarea id="dFb" placeholder="Write feedback for this student on this assignment…"></textarea>
           <div class="row">
@@ -437,7 +478,7 @@
 </div>
 
 <footer>
-  Room 8 v2 — GAS Station · R8-STATION-0.14.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
+  Room 8 v2 — GAS Station · R8-STATION-0.15.0 · Staff Google sign-in (HMAC-verified, allowlisted) with PIN fallback.
   Answers load one class + assignment at a time (responses that big don't survive the Apps Script redirect hop);
   the class list, counts and picker come from one cheap metadata call.
 </footer>
@@ -770,7 +811,12 @@ function applyData_(key, list) {
   STUDENTS.forEach(function (s) {
     const hit = byEmail[s.email];
     s.data = hit ? hit.data : undefined;
-    if (hit) { s.updated = hit.updated || s.updated; s.written = !!hit.written; }
+    if (hit) {
+      s.updated = hit.updated || s.updated;
+      s.written = !!hit.written;
+      if (hit.feedback !== undefined) s.feedback = hit.feedback;
+      if (hit.grade !== undefined) s.grade = hit.grade;
+    }
   });
   LOADED_KEY = key;
   finishLoad(true);
@@ -805,10 +851,11 @@ function render() {
   const done = STUDENTS.filter(function (s) { return s.written; }).length;
   const started = STUDENTS.filter(function (s) { return !s.written && !s.notStarted; }).length;
   const untouched = STUDENTS.filter(function (s) { return s.notStarted; }).length;
+  const withGrade = STUDENTS.filter(function (s) { return s.grade && s.grade.trim(); }).length;
   const withFb = STUDENTS.filter(function (s) { return s.feedback && s.feedback.trim(); }).length;
   $('stats').innerHTML =
     chip(done, 'submitted') + chip(started, 'started only') + chip(untouched, 'not started') +
-    chip(STUDENTS.length, 'in view') + chip(withFb, 'with feedback');
+    chip(STUDENTS.length, 'in view') + chip(withGrade, 'graded') + chip(withFb, 'with feedback');
   function chip(n, label) { return '<div class="stat"><b>' + n + '</b><span>' + escapeHtml(label) + '</span></div>'; }
 
   const q = ($('filter') ? $('filter').value : '').trim().toLowerCase();
@@ -822,6 +869,9 @@ function render() {
     const s = o.s;
     const cls = s.written ? 'done' : s.notStarted ? 'none' : 'part';
     const sel = (selectedEmail && s.email === selectedEmail) ? ' sel' : '';
+    const gradePill = (s.grade && s.grade.trim())
+      ? '<span class="pill grade ' + gradeClass(s.grade) + '">' + escapeHtml(s.grade) + '</span>'
+      : '';
     const tick = (s.feedback && s.feedback.trim()) ? '<span class="pill fb" style="font-size:.58rem; padding:0 5px;">✓</span>' : '';
     return '<div class="rail-item' + sel + '" data-i="' + o.i + '">' +
              '<div style="min-width:0">' +
@@ -829,8 +879,8 @@ function render() {
                '<div class="meta" style="font-size:.68rem">' + escapeHtml(s.section || '') +
                  (s.written ? ' · ' + fmtWhen(s.updated) : '') + '</div>' +
              '</div>' +
-             '<span style="display:flex; align-items:center; gap:4px; flex:none;">' + tick +
-               '<span class="rail-dot ' + cls + '"></span></span>' +
+             '<span style="display:flex; align-items:center; gap:4px; flex:none;">' +
+               gradePill + tick + '<span class="rail-dot ' + cls + '"></span></span>' +
            '</div>';
   }).join('') || ('<div class="meta" style="padding:10px">' +
     (STUDENTS.length ? 'No students match that filter.'
@@ -1385,12 +1435,52 @@ function markSelected(email) {
   });
 }
 
+let currentGrade = '';
+function gradeClass(g) {
+  if (!g) return '';
+  const n = String(g).trim().toLowerCase();
+  if (n === '4') return 'g4';
+  if (n === '3+' || n === '3p') return 'g3p';
+  if (n === '3') return 'g3';
+  if (n === '2+' || n === '2p') return 'g2p';
+  if (n === '2') return 'g2';
+  if (n === '1+' || n === '1p') return 'g1p';
+  if (n === '1') return 'g1';
+  return 'goth';
+}
+function setGradeVal(val) {
+  currentGrade = String(val || '').trim();
+  syncGradePickerUI();
+}
+function onCustomGradeInput(val) {
+  currentGrade = String(val || '').trim();
+  syncGradePickerUI(true);
+}
+function syncGradePickerUI(fromCustomInput) {
+  const btns = document.querySelectorAll('#dGradePicker .grade-btn');
+  let matchedStandard = false;
+  btns.forEach(function (b) {
+    const v = b.dataset.val;
+    if (v === currentGrade) {
+      b.className = 'grade-btn sel ' + gradeClass(v);
+      matchedStandard = true;
+    } else {
+      b.className = 'grade-btn';
+    }
+  });
+  if (!fromCustomInput && $('dGradeCustom')) {
+    $('dGradeCustom').value = matchedStandard ? '' : currentGrade;
+  }
+}
+
 function openDetail(s) {
   if (!s) return;
   selectedEmail = s.email;
+  setGradeVal(s.grade || '');
   $('dName').textContent = s.name || '(no name)';
   $('dMeta').textContent = (s.section || '') + ' · ' +
                            (s.written ? 'submitted' : s.notStarted ? 'not started' : 'started only') +
+                           (s.grade ? ' · Grade ' + s.grade : '') +
                            ' · last save ' + (fmtWhen(s.updated) || '—') + ' · ' + s.email;
   $('dSummary').textContent = s.summary || '—';
   $('dFb').value = s.feedback || '';
@@ -1447,6 +1537,7 @@ function openDetail(s) {
 
 function closeDetail() {
   selectedEmail = null;
+  setGradeVal('');
   $('dName').textContent = 'No student selected';
   $('dMeta').textContent = 'Pick a name on the left.';
   $('dSummary').textContent = '—';
@@ -1461,18 +1552,33 @@ function saveFeedback() {
   const stu = STUDENTS.filter(function (s) { return s.email === selectedEmail; })[0];
   const btn = $('dSave'); btn.disabled = true;
   $('dStatus').textContent = 'Saving…';
-  const payload = { email: selectedEmail, task: current.task, feedback: $('dFb').value };
+  const payload = {
+    email: selectedEmail,
+    task: current.task,
+    feedback: $('dFb').value,
+    grade: currentGrade
+  };
   if (stu) { payload.name = stu.name; payload.section = stu.section; }
   teacherCall('set_feedback', payload).then(function (j) {
     if (j.status === 'feedback_saved') {
-      if (stu) stu.feedback = payload.feedback;
+      if (stu) {
+        stu.feedback = payload.feedback;
+        stu.grade = payload.grade;
+      }
       // keep every cached view in sync so a later class switch doesn't show stale feedback
       Object.keys(CACHE).forEach(function (k) {
         (CACHE[k].students || []).forEach(function (s) {
-          if (s.email === selectedEmail) s.feedback = payload.feedback;
+          if (s.email === selectedEmail) {
+            s.feedback = payload.feedback;
+            s.grade = payload.grade;
+          }
         });
       });
-      $('dStatus').textContent = j.empty ? 'Cleared (empty feedback).' : '✓ Saved — student sees it on next load.';
+      $('dStatus').textContent = j.empty ? 'Cleared (empty feedback/grade).' : '✓ Saved — student sees it on next load.';
+      $('dMeta').textContent = (stu ? stu.section : '') + ' · ' +
+                               (stu && stu.written ? 'submitted' : stu && stu.notStarted ? 'not started' : 'started only') +
+                               (payload.grade ? ' · Grade ' + payload.grade : '') +
+                               ' · last save ' + (stu ? fmtWhen(stu.updated) || '—' : '—') + ' · ' + selectedEmail;
       render();
     } else {
       $('dStatus').textContent = 'FAILED: ' + (j.message || j.status);

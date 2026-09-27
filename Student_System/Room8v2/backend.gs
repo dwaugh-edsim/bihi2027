@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Room 8 — BACKEND (v2)                                        R8-BE-0.1.0
+ * Room 8 — BACKEND (v2)                                        R8-BE-0.14.0
  * ============================================================================
  * A clean rebuild of the old Student_System/Code.gs on the Google-auth pipe.
  * Identity is a VERIFIED @gnspes.ca email (HMAC-signed by the Identity app),
@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.13.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T16:20:00Z';
+var CONFIG_VERSION = 'R8-BE-0.14.0-2026-09-27';
+var CONFIG_DEPLOYED = '2026-09-27T17:30:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -94,8 +94,9 @@ function ensureSheets_(ss) {
   ensureTab_(ss, TAB_CLASSLOG, ['Date', 'Section', 'Course', 'Class #', 'What We Did', 'Next Class', 'Timestamp']);
   ensureTab_(ss, TAB_PLAN, ['Section', 'Next Note', 'Next Class #', 'Updated']);
   ensureTab_(ss, TAB_SLIDE, ['Section', 'Title', 'Announcements', 'Outcome', 'Updated']);
-  var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback']);
+  var fb = ensureTab_(ss, TAB_FEEDBACK, ['Timestamp', 'Email', 'Name', 'Section', 'Task', 'Feedback', 'Grade']);
   fb.setColumnWidth(6, 380);
+  fb.setColumnWidth(7, 80);
   var ad = ensureTab_(ss, TAB_ADAPT, ['Email', 'Name', 'Section', 'Codes', 'Note', 'Updated']);
   ad.setColumnWidth(4, 320);
   ad.setColumnWidth(5, 320);
@@ -479,7 +480,7 @@ function studentLoad_(ss, payload) {
         var fb = feedbackMap_(ss)[id.email + '||' + task];
         return jsonOut_({ status: 'ok', found: true, data: t.data, summary: t.summary || '',
                           section: ledger.section || '', savedAt: t.updated || null,
-                          feedback: fb ? fb.text : '', feedbackAt: fb ? fb.ts : null });
+                          feedback: fb ? fb.text : '', grade: fb ? fb.grade : '', feedbackAt: fb ? fb.ts : null });
       }
     }
   }
@@ -491,9 +492,9 @@ function studentLoad_(ss, payload) {
   if (rec) {
     return jsonOut_({ status: 'ok', found: true, data: rec.data, summary: rec.summary,
                       section: rec.section, savedAt: rec.ts, recovered: true,
-                      feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
+                      feedback: fb2 ? fb2.text : '', grade: fb2 ? fb2.grade : '', feedbackAt: fb2 ? fb2.ts : null });
   }
-  return jsonOut_({ status: 'ok', found: false, feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null });
+  return jsonOut_({ status: 'ok', found: false, feedback: fb2 ? fb2.text : '', grade: fb2 ? fb2.grade : '', feedbackAt: fb2 ? fb2.ts : null });
 }
 
 function studentTasks_(ss, payload) {
@@ -513,7 +514,7 @@ function studentTasks_(ss, payload) {
           out[k] = { updated: t.updated || null, summary: t.summary || '', status: t.status || '',
                      written: countCompleted_(t.data) > 0 || !!t._archived };
           var fb = fbMap[id.email + '||' + k];
-          if (fb) out[k].feedback = fb.text;
+          if (fb) { out[k].feedback = fb.text; out[k].grade = fb.grade; }
         });
       }
     }
@@ -529,12 +530,15 @@ function feedbackMap_(ss) {
   var sh = ss.getSheetByName(TAB_FEEDBACK);
   var map = {};
   if (!sh || sh.getLastRow() < 2) return map;
-  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+  var numCols = Math.max(7, sh.getLastColumn());
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, numCols).getValues();
   for (var i = 0; i < rows.length; i++) {
     var email = String(rows[i][1] || '').trim().toLowerCase();
     var task = String(rows[i][4] || '');
     if (!email || !task) continue;
-    map[email + '||' + task] = { text: String(rows[i][5] || ''), ts: rows[i][0],
+    map[email + '||' + task] = { text: String(rows[i][5] || ''),
+                                  grade: String(rows[i][6] || '').trim(),
+                                  ts: rows[i][0],
                                   name: String(rows[i][2] || ''), section: String(rows[i][3] || '') };
   }
   return map;
@@ -544,15 +548,22 @@ function setFeedback_(ss, payload) {
   var email = String(payload.email || '').trim().toLowerCase();
   var task = String(payload.task || '').trim();
   var text = String(payload.feedback || '').trim();
+  var grade = String(payload.grade || '').trim();
   if (!email || !task) return jsonOut_({ status: 'error', message: 'email and task are required.' });
   if (!/@gnspes\.ca$/i.test(email)) return jsonOut_({ status: 'error', message: 'email must be @gnspes.ca' });
   var who = rosterFor_(ss, email);
   var sh = ss.getSheetByName(TAB_FEEDBACK);
   var lock = LockService.getScriptLock(); lock.waitLock(30000);
-  try { sh.appendRow([new Date(), email, who.known ? who.name : String(payload.name || ''),
-                      String(payload.section || who.section || ''), task, text]); }
+  try {
+    if (sh.getLastColumn() < 7) {
+      sh.getRange(1, 7).setValue('Grade').setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
+      sh.setColumnWidth(7, 80);
+    }
+    sh.appendRow([new Date(), email, who.known ? who.name : String(payload.name || ''),
+                  String(payload.section || who.section || ''), task, text, grade]);
+  }
   finally { lock.releaseLock(); }
-  return jsonOut_({ status: 'feedback_saved', email: email, task: task, empty: !text });
+  return jsonOut_({ status: 'feedback_saved', email: email, task: task, empty: (!text && !grade), grade: grade });
 }
 
 function getFeedback_(ss, payload) {
@@ -564,7 +575,7 @@ function getFeedback_(ss, payload) {
     if (wantSection && f.section !== wantSection) return;
     if (wantTask && k.split('||').slice(1).join('||') !== wantTask) return;
     out.push({ email: k.split('||')[0], task: k.split('||').slice(1).join('||'),
-               name: f.name, section: f.section, feedback: f.text, ts: f.ts });
+               name: f.name, section: f.section, feedback: f.text, grade: f.grade || '', ts: f.ts });
   });
   return jsonOut_({ status: 'ok', count: out.length, feedback: out });
 }
@@ -596,9 +607,14 @@ function getOverview_(ss) {
   });
   var taskList = Object.keys(tasks).map(function (k) { return tasks[k]; })
     .sort(function (a, b) { return b.submitted + b.started - (a.submitted + a.started); });
-  var fbCount = 0;
-  var fbMap = feedbackMap_(ss); Object.keys(fbMap).forEach(function (k) { if (fbMap[k].text) fbCount++; });
-  return jsonOut_({ status: 'ok', students: nStudents, sections: sections, tasks: taskList, feedbackGiven: fbCount });
+  var fbCount = 0, gradeCount = 0;
+  var fbMap = feedbackMap_(ss);
+  Object.keys(fbMap).forEach(function (k) {
+    if (fbMap[k].text) fbCount++;
+    if (fbMap[k].grade) gradeCount++;
+  });
+  return jsonOut_({ status: 'ok', students: nStudents, sections: sections, tasks: taskList,
+                    feedbackGiven: fbCount, gradesGiven: gradeCount });
 }
 
 // ============================================================================
@@ -749,7 +765,7 @@ function exportClass_(ss, payload) {
         tasksOut[tName] = {
           status: status, updated: t.updated || null, summary: t.summary || '',
           answers: data || {}, telemetry: (data && data._telemetry) || null,
-          feedback: fb ? fb.text : '', feedbackAt: fb ? fb.ts : null
+          feedback: fb ? fb.text : '', grade: fb ? fb.grade : '', feedbackAt: fb ? fb.ts : null
         };
         seenTasks[tName] = 1; taskSet[tName] = 1;
       });
@@ -765,7 +781,7 @@ function exportClass_(ss, payload) {
         var fb2 = fbMap[key];
         tasksOut[parts[1]] = { status: 'submitted', updated: rec.ts, summary: rec.summary,
                                 answers: rec.data, telemetry: (rec.data && rec.data._telemetry) || null,
-                                feedback: fb2 ? fb2.text : '', feedbackAt: fb2 ? fb2.ts : null, fromLog: true };
+                                feedback: fb2 ? fb2.text : '', grade: fb2 ? fb2.grade : '', feedbackAt: fb2 ? fb2.ts : null, fromLog: true };
         taskSet[parts[1]] = 1; recovered++;
       });
     }
@@ -929,7 +945,7 @@ function getTaskProgress_(ss, payload) {
         var fbNs = fbMap[String(r[0]).toLowerCase() + '||' + task];
         students.push({ email: String(r[0]), name: String(r[1]), section: rowSec,
                         updated: null, summary: '', written: false, notStarted: true,
-                        feedback: fbNs ? fbNs.text : '', data: null });
+                        feedback: fbNs ? fbNs.text : '', grade: fbNs ? fbNs.grade : '', data: null });
       }
       return;
     }
@@ -941,7 +957,7 @@ function getTaskProgress_(ss, payload) {
     var fb = fbMap[String(r[0]).toLowerCase() + '||' + task];
     students.push({ email: String(r[0]), name: String(r[1]), section: sec,
                     updated: t.updated || null, summary: t.summary || '', written: written,
-                    feedback: fb ? fb.text : '',
+                    feedback: fb ? fb.text : '', grade: fb ? fb.grade : '',
                     _archived: !!t._archived,
                     data: payload.includeData ? t.data : undefined });
   });
@@ -1324,7 +1340,7 @@ function cleanSections_(ss, payload) {
       plan.push({ row: rowNo, email: email, name: String(r[1] || ''),
                   homeroom: homeroom,
                   section: { from: String(r[2] || ''), to: wantRowSection, changed: String(r[2] || '') !== wantRowSection },
-                  grade: { from: r[3], to: wantGrade, changed: String(r[3] || '') !== wantGrade },
+                  grade: { from: r[3], to: wantGrade, changed: String(r[3] || '') !== String(wantGrade) },
                   tasks: perTask,
                   writeback: rowChanged || perTask.length });
     }
@@ -1447,7 +1463,7 @@ function getSnapshot_(ss) {
       var fb = fbMap[email + '||' + tk];
       mine[tk] = { updated: t.updated || null, summary: t.summary || '', written: written,
                    archived: !!t._archived, section: sec,
-                   feedback: fb ? fb.text : '', data: t.data || null };
+                   feedback: fb ? fb.text : '', grade: fb ? fb.grade : '', data: t.data || null };
       if (!tasks[tk]) tasks[tk] = { name: tk, submitted: 0, started: 0, bySection: {} };
       if (!t._archived) {
         var bs = tasks[tk].bySection[sec] || { submitted: 0, started: 0 };

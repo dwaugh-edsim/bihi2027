@@ -212,6 +212,13 @@ next time they load that assignment. The PIN fallback lives in the tab's session
 never in the file, never in git. The sign-in token is the same 4-hour HMAC identity students
 use; nothing secret is stored or typed on a shared Chromebook.
 
+## Dedicated Grading in GAS Station (R8-BE-0.14.0 / R8-STATION-0.15.0)
+
+Adds a first-class **Grade** field for student work alongside feedback:
+- **Backend (`Feedback` tab):** Column 7 added (`Grade`). Backward compatible — if only 6 columns exist on the sheet, the backend automatically appends the `Grade` header.
+- **API Payloads:** `set_feedback` accepts `{ email, task, feedback, grade }`. Grade is returned across `get_feedback`, `get_task_progress`, `studentLoad_`, `studentTasks_`, `get_snapshot`, and `export_class`.
+- **Station UI:** Quick-select buttons for the Nova Scotia 7-point scale (`4`, `3+`, `3`, `2+`, `2`, `1+`, `1`), custom input for points/marks, and "Clear grade". Color-coded grade pills appear in the student rail, and graded count is tracked in top stats (`X graded`).
+
 ## Deleting dead deployments
 
 **Manage deployments** can hold several rows; only the **Active** one answers, and the
