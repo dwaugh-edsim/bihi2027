@@ -24,6 +24,11 @@ What does and doesn't travel:
 
 - **`bihi2027` (this repo — public, GitHub Pages)** — student-facing only: assignments,
   slide decks, dashboards, projector tools, and the runtime client assets they load.
+  **Pages base is `https://dwaugh-edsim.github.io/bihi2027/`** — the repo name is part of
+  the path. The bare `https://dwaugh-edsim.github.io/` root 404s, as does any path
+  without the `/bihi2027/` segment. Space in a folder name is percent-encoded
+  (`HealthyLiving8/Unit%201%20-%20Junction/...`). The root `README.md` still states the
+  bare host — that line is wrong.
 - **`bihipri-27` (private — cloned as a sibling at `../bihipri-27`)** — everything
   non-student-facing: curriculum planning + outcome maps, teacher facilitation/answer
   keys, test banks, system audits and hardening proposals, maintenance logs, marking and
@@ -158,17 +163,22 @@ confirm `assignments_data.js` `active` per course → refresh the seed → print
 per-section verification line. Ask for `CLASS_LOG_PIN` up front if writes are
 needed; read-only steps need no PIN.
 
-> **PENDING SCREEN ITEMS — from the principal's Monday Memo (Sept 21), awaiting Mr.
-> Waugh's go + PIN. Push via `set_class_slide`, then DELETE this block.**
-> 1. Every section meeting Sept 22–24: append "PD Day Friday (Sept 25) — no classes."
->    Clear after Sept 25.
-> 2. Every section meeting Sept 22–24: append "Hold & Secure drill this week — we'll
->    review expectations first." Clear once the drill has happened.
-> 3. Sections meeting Sept 28–29 (P1 HL9 · P4 CIT9 · P5 HL8 on the 29th): set on or
->    after Sept 28 — "Orange Shirt Day Tuesday (Sept 29) — wear orange." Clear after
->    Sept 29.
+> **SCREEN ITEMS — from the principal's Monday Memo (Sept 21).** Pushed Sept 28 with
+> Mr. Waugh's PIN. **1 and 3 are DONE; only 2 is still open.**
+> 1. ~~"PD Day Friday (Sept 25) — no classes."~~ — pushed Sept 22, **cleared Sept 28**
+>    across all ten sections (it was still on the slides, showing on Sept 28).
+> 2. **STILL OPEN:** "Hold & Secure drill this week — we'll review expectations first."
+>    Left in place on all ten sections on purpose — kept because clearing it on a guess
+>    would drop a safety heads-up. **Ask Mr. Waugh whether the drill has happened, then
+>    clear it.** This is the last line on every opening slide.
+> 3. ~~"Orange Shirt Day Tuesday (Sept 29) — wear orange."~~ — **pushed Sept 28** to the
+>    six sections meeting Sept 28 or 29 (`801-HE 803-HE 901-CIT 902-CIT 902-HL 903-CIT`).
+>    **Clear after Sept 29.** Note: the memo's "P1 HL9 · P4 CIT9 · P5 HL8 on the 29th"
+>    resolves against `class_log_meetings_data.js` to `902-HL · 903-CIT · 803-HE`; the
+>    cycle dates moved since Sept 21, so trust the meetings file, not the memo.
 > Mechanics: `set_class_slide` overwrites the whole announcements field — read current
-> slides with `get_class_log` first and merge (they were all empty as of Sept 21).
+> slides with `get_class_log` first and merge. Existing titles/outcomes (802-HE, 803-HE
+> "Junction Launch — Sam's World") were preserved, not clobbered.
 
 ## Seating plans
 
@@ -234,6 +244,13 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   - **No Ad-Hoc Legacy Fetches:** Never inject manual `fetch()` calls to defunct script URLs.
     Loading and saving is handled exclusively by the Room 8 v2 engine via `pipe.load(task)`
     and `pipe.autosave()` against `BACKEND_URL`.
+  - **Autosave Baseline Collects at Mount (crash gotcha, 2026-09-28):** `pipe.autosave()` takes
+    a baseline hash the moment it is registered, so the page's `collect()` runs BEFORE any
+    post-`mount()` DOM builder (e.g. `buildNumbeo()`) fills custom blocks. Custom collectors
+    must null-guard every element they read — one unguarded `.textContent` on a not-yet-built
+    cell kills the whole top-level script (page renders its sections, then dies silently:
+    no table, no sign-in, no lock/banner code ever runs). Headless-Chrome `--dump-dom` plus
+    `--enable-logging=stderr` catches this; a bare dump looks "fine" because sections exist.
   - **Chromebook Reality — Zero Client `localStorage` for Students:** Chromebooks wipe local
     browser storage on session close. All student state must be saved to the server. Off-roster
     section choices are bundled directly into the cloud payload (`payload.section`).

@@ -22,7 +22,9 @@
 window.COURSE_ASSIGNMENTS = {
     CIT9: {
         label: "Citizenship 9",
-        active: "cit9-checkpoint-quiz",
+        // Sept 28: the checkpoint quiz was run Sept 23 — CIT9 is on the Real Issues
+        // Case File now, so the slide must not default to the finished quiz.
+        active: "cit9-rent-case-file",
         items: [
             {
                 id: "cit9-checkpoint-quiz",
@@ -36,9 +38,21 @@ window.COURSE_ASSIGNMENTS = {
                 id: "cit9-rent-case-file",
                 taskName: "Citizenship 9 — Real Issues Case File #1: The Rent We Pay",
                 short: "Real Issues Case File #1 · The Rent We Pay",
-                match: /rent|real.?issues|case.?file|numbeo|cost.?of.?living|curated.?city.?snapshot|city.?price/i,
+                match: /rent|real.?issues|case.?file/i,
                 outcome: "Learners will evaluate strategies to meaningfully engage as citizens within a democratic process.",
                 ref: "CIT9 U5C — facilitation key: engaged citizenship via the citizen loop (evidence → position → power → speech); U3A is the close alternate when the work period is data-heavy"
+            },
+            {
+                // Sept 28: Part 2 of the Rent We Pay case file — the Numbeo price
+                // comparison + PPP, split onto its own page so it can be run in
+                // groups. Tracked separately so the panel can report Part 1 and
+                // Part 2 independently.
+                id: "cit9-part2-numbeo",
+                taskName: "Citizenship 9 — Part 2: Numbeo — Halifax vs the World",
+                short: "Part 2 · Numbeo — Halifax vs the World",
+                match: /part.?2|numbeo|halifax.?vs.?the.?world|purchasing.?power|curated.?city.?snapshot|city.?price/i,
+                outcome: "Learners will compare the impact of economic decisions from the perspectives of various groups of people.",
+                ref: "CIT9 U3A — the data-heavy half of the case file: Numbeo prices + purchasing power parity compare economic conditions across cities/groups (U3A tags: cost of living, rent, housing, affordability, Numbeo, disparity). U5C remains the outcome for Part 1's deputation work."
             },
             {
                 id: "cit9-where-places",
@@ -98,15 +112,25 @@ window.COURSE_ASSIGNMENTS = {
     },
     HL8: {
         label: "Healthy Living 8",
-        active: "hl8-junction-smoke-detector",
+        // Sept 28: Junction is now TWO exhibits. Ex.1 (group chat) is the launch;
+        // Ex.2 (tipping point) is the follow-up that unblocks Class 4.
+        active: "hl8-junction-ex1",
         items: [
             {
-                id: "hl8-junction-smoke-detector",
-                taskName: "HL8 Junction Exhibit 1: Smoke Detector vs Strategist",
-                short: "Smoke Detector vs. Strategist · Junction",
-                match: /junction|smoke.?detector|strategist|amygdala|sam.?s.?world/i,
+                id: "hl8-junction-ex1",
+                taskName: "HL8 Junction Exhibit 1 — Strategy Matrix",
+                short: "Junction Ex. 1 · The Group Chat Fire",
+                match: /junction|smoke.?detector|strategist|amygdala|sam.?s.?world|group.?chat/i,
                 outcome: "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
                 ref: "HL8 CO1 — outcomes doc tags CO1 'junction': life-skills decision-making + coping (grounding pause, boundary text, trusted adult) inside the Sam's World peer-conflict story. CO3 (brain function/stress) is the close alternate for the amygdala science."
+            },
+            {
+                id: "hl8-junction-ex2",
+                taskName: "HL8 Junction Exhibit 2 — Tipping Point",
+                short: "Junction Ex. 2 · The Tipping Point",
+                match: /junction|tipping.?point|allostatic|stick.?alarm|fire.?marshal|triage/i,
+                outcome: "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
+                ref: "HL8 CO1 — the Exhibit 1→2 bridge is the unit's core argument: Exhibit 1's 30-second strategy is necessary and not sufficient for a five-day load. Triage + assertiveness are life-skills application; CO3 is the close alternate for the sustained-stress/allostatic-load science."
             },
             {
                 id: "hl8-5dimension-audit",

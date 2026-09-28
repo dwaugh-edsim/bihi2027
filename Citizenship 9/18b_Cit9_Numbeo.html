@@ -338,6 +338,10 @@
   table.matrix tbody tr:hover { background: #fdf2f4; }
   table.matrix input { padding: 6px 8px; font-size: 0.88rem; }
   table.matrix .pct { font-weight: 700; color: #c94663; white-space: nowrap; }
+  table.matrix .nb_diff { color: #52525b; }
+  table.matrix .nb_diff.nb-diff-higher { color: #b91c1c; }
+  table.matrix .nb_diff.nb-diff-lower { color: #15803d; }
+  table.matrix .nb_diff.nb-diff-same { color: #52525b; }
   table.matrix td.item-cell b { font-size: 0.94rem; color: #232323; }
   table.matrix td.item-cell .src { color: #777777; font-size: 0.8rem; margin-top: 2px; }
 
@@ -391,7 +395,7 @@
       '<td><input type="text" value="$3.00" disabled style="background:#fce7f3; font-weight:700;"></td>' +
       '<td><input type="text" value="Bangkok, Thailand" disabled style="background:#fce7f3; font-weight:700;"></td>' +
       '<td><input type="text" value="$0.90" disabled style="background:#fce7f3; font-weight:700;"></td>' +
-      '<td style="font-size: 0.78rem; color: #be185d; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
+      '<td style="font-size: 0.78rem; color: #b91c1c; font-weight: 700; white-space: nowrap;">Halifax price is 233% higher</td>' +
       '</tr>';
 
     NUMBEO_ROWS.forEach(r => {
@@ -411,7 +415,7 @@
         '<td><input type="number" step="0.01" class="nb_comp" id="nb_comp_' + n + '" data-n="' + n + '" placeholder="$ CAD" oninput="calcRow(' + n + ', false)" onblur="calcRow(' + n + ', false)"></td>' +
         '<td>' +
           '<div style="display:flex; gap:6px; align-items:center;">' +
-            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" style="flex:1; min-width:130px; font-size:0.82rem; font-weight:700; color:#be185d; padding:6px 8px;">' +
+            '<input type="text" class="nb_diff" id="nb_diff_' + n + '" data-n="' + n + '" placeholder="% Difference" oninput="colorNumbeoResult(this)" style="flex:1; min-width:130px; font-size:0.82rem; font-weight:700; padding:6px 8px;">' +
             '<button type="button" class="mini calc-btn" id="nb_btn_' + n + '" onclick="calcRow(' + n + ', true)" style="padding:4px 8px; font-size:0.75rem; white-space:nowrap;" title="Calculate % difference">Calc %</button>' +
           '</div>' +
         '</td>' +
@@ -471,6 +475,15 @@
 
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
 
+  window.colorNumbeoResult = function (out, pct) {
+    const text = String(out.value || '').toLowerCase();
+    const className = typeof pct === 'number'
+      ? (Math.round(Math.abs(pct)) === 0 ? 'nb-diff-same' : pct > 0 ? 'nb-diff-higher' : 'nb-diff-lower')
+      : (/\blower\b/.test(text) ? 'nb-diff-lower' : /\bhigher\b/.test(text) ? 'nb-diff-higher' : /\bsame\b/.test(text) ? 'nb-diff-same' : '');
+    out.classList.remove('nb-diff-higher', 'nb-diff-lower', 'nb-diff-same');
+    if (className) out.classList.add(className);
+  };
+
   window.calcRow = function (n, isManual) {
     const hfxEl  = document.getElementById('nb_hfx_' + n);
     const compEl = document.getElementById('nb_comp_' + n);
@@ -508,6 +521,7 @@
 
     out.value = sentence;
     out.title = sentence;
+    colorNumbeoResult(out, pct);
 
     // Visual feedback when clicking Calc %
     if (isManual && btn) {
