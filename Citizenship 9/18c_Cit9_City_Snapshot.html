@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIT9 · Part 2: City Prices &amp; Purchasing Power</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+<!-- Striped Design Typography (HTML5 UP Striped) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Open+Sans+Condensed:wght@300;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  /* Base & Reset per Striped by HTML5 UP */
+  *, *:before, *:after { box-sizing: border-box; }
+  body {
+    background-color: #e8e8e8;
+    background-image: radial-gradient(#d1d5db 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
+    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+    color: #333333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 14px 16px 60px 16px;
+  }
+
+  /* Main Container Box (Striped Post Box) */
+  #r8 {
+    max-width: 920px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+    border-bottom: solid 3px #d5d7db;
+    padding: 30px 36px 40px 36px;
+  }
+
+  /* Sticky Top Identity & Sync Bar (Striped Dark Header) */
+  .r8-top-bar {
+    position: sticky;
+    top: 8px;
+    z-index: 1000;
+    background: #232323;
+    color: #ffffff;
+    border-bottom: 3px solid #c94663;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin: -16px -20px 22px -20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .r8-top-bar strong {
+    color: #38bdf8;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 700;
+  }
+  .r8-top-bar .r8-top-meta {
+    color: #a3a3a3;
+    font-size: 0.84rem;
+  }
+  .r8-top-bar .r8-top-sync {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .r8-sync-badge {
+    background: #171717;
+    border: 1px solid #404040;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e5e5e5;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .r8-sync-badge.ok { border-color: #15803d; color: #4ade80; background: #052e16; }
+  .r8-sync-badge.warn { border-color: #b45309; color: #fde047; background: #451a03; }
+  .r8-sync-badge.bad { border-color: #b91c1c; color: #fca5a5; background: #450a0a; }
+
+  .r8-top-bar button.mini-top {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid #525252;
+    background: #262626;
+    color: #f5f5f5;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .r8-top-bar button.mini-top:hover { background: #404040; border-color: #737373; }
+  .r8-top-bar button.mini-verify {
+    background: #c94663;
+    border-color: #c94663;
+    color: #fff;
+  }
+  .r8-top-bar button.mini-verify:hover { background: #d85773; }
+
+  /* Typography & Titles */
+  h1 {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 2rem;
+    letter-spacing: 0.04em;
+    color: #232323;
+    border-bottom: solid 1px #e5e5e5;
+    padding-bottom: 0.35em;
+    margin: 4px 0 10px 0;
+  }
+  .r8-kicker {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #c94663;
+  }
+  .r8-badge {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #232323;
+    color: #ffffff;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .r8-sub { color: #666666; font-size: 0.95rem; }
+  .r8-who {
+    border-bottom: 1px dashed #d5d5d5;
+    padding-bottom: 10px;
+    margin: 12px 0 16px 0;
+    color: #555555;
+    font-size: 0.94rem;
+  }
+  .r8-who b { color: #232323; }
+  .r8-intro {
+    background: #fdfafb;
+    border: 1px solid #f0ccd4;
+    border-left: 4px solid #c94663;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0 20px 0;
+    font-size: 0.96rem;
+  }
+  .r8-intro b { color: #232323; }
+  .r8-intro p { margin: 0 0 8px 0; }
+  .r8-intro p:last-child { margin-bottom: 0; }
+
+  /* Sections */
+  h2 {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    color: #232323;
+    border-bottom: solid 1px #e5e5e5;
+    padding-bottom: 6px;
+    margin: 34px 0 10px 0;
+  }
+  .r8-num {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: #c94663;
+    color: #ffffff;
+    padding: 2px 9px;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+  .r8-hint { color: #777777; font-size: 0.88rem; margin: 0 0 8px 0; }
+  .r8-label {
+    display: block;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    color: #232323;
+    margin: 16px 0 5px 0;
+  }
+  .r8-label .r8-hint { font-family: 'Source Sans Pro', sans-serif; font-weight: 400; font-size: 0.85rem; color: #777; }
+
+  /* Form Controls */
+  textarea, input[type=text], input[type=number], select {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    padding: 9px 12px;
+    border: solid 1px #ddd;
+    border-radius: 5px;
+    background: #fdfdfd;
+    color: #232323;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input[type=number] { max-width: 240px; }
+  textarea { resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus {
+    border-color: #c94663;
+    box-shadow: 0 0 0 3px rgba(201, 70, 99, 0.18);
+    outline: none;
+    background: #ffffff;
+  }
+
+  .r8-radios { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0; }
+  .r8-radios label {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    background: #f7f7f7;
+    border: 1px solid #e2e2e2;
+    padding: 6px 12px;
+    border-radius: 5px;
+  }
+  .r8-radios label:hover { background: #fdf2f4; border-color: #f0ccd4; }
+
+  .r8-restored {
+    display: none;
+    margin: 14px 0;
+    padding: 10px 14px;
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #166534;
+  }
+
+  /* Bottom Actions Bar */
+  .r8-bar {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  button {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.96rem;
+    padding: 9px 22px;
+    border-radius: 5px;
+    border: none;
+    background: #c94663;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color .2s;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+  }
+  button:hover { background-color: #d85773; }
+  button:disabled { cursor: not-allowed; opacity: 0.6; }
+  button.mini { padding: 4px 10px; font-size: 0.8rem; background: #2563eb; }
+  button.mini:hover { background: #1d4ed8; }
+  .r8-status { color: #555555; font-weight: 600; font-size: 0.9rem; }
+  .r8-status.ok { color: #15803d; }
+  .r8-status.bad { color: #b91c1c; }
+  .r8-status.warn { color: #b45309; }
+
+  /* Benchmarks, Evidence Facts & Positions (Striped Feature Cards) */
+  .bench { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+  .bench div {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-left: 4px solid #232323;
+    border-radius: 5px;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+  .bench b { font-family: 'Open Sans Condensed', sans-serif; font-size: 1.25rem; display: block; color: #232323; }
+
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+  .fact {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-left: 4px solid #c94663;
+    border-radius: 5px;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+  }
+  .fact b { font-family: 'Open Sans Condensed', sans-serif; font-size: 1.3rem; display: block; color: #232323; }
+  .fact .src { color: #777777; font-size: 0.76rem; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .pos {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-left: 4px solid #232323;
+    border-radius: 5px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-size: 0.94rem;
+  }
+  .pos b { font-family: 'Open Sans Condensed', sans-serif; font-size: 1.15rem; color: #232323; text-transform: uppercase; }
+
+  /* Curated city-price comparison table */
+  table.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  table.matrix th {
+    background: #232323;
+    color: #ffffff;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  table.matrix td { border: 1px solid #e8e8e8; padding: 6px 10px; vertical-align: middle; }
+  table.matrix tbody tr:nth-child(even) { background: #fafafa; }
+  table.matrix tbody tr:hover { background: #fdf2f4; }
+  table.matrix input { padding: 6px 8px; font-size: 0.88rem; }
+  table.matrix .pct { font-weight: 700; color: #c94663; white-space: nowrap; }
+  table.matrix td.item-cell b { font-size: 0.94rem; color: #232323; }
+  table.matrix td.item-cell .src { color: #777777; font-size: 0.8rem; margin-top: 2px; }
+  table.matrix caption {
+    text-align: left;
+    padding: 8px 10px;
+    color: #555555;
+    font-size: 0.84rem;
+  }
+
+  .snapshot-selectors, .snapshot-affordability { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .snapshot-selectors label { display: block; font-weight: 700; }
+  .snapshot-selectors select { margin-top: 5px; }
+  .snapshot-meta { display: block; color: #666666; font-size: 0.82rem; font-weight: 400; margin-top: 3px; }
+  .snapshot-warning {
+    display: none;
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 1px solid #f1d29b;
+    background: #fffbeb;
+    border-radius: 5px;
+    color: #713f12;
+    font-size: 0.9rem;
+  }
+  .snapshot-difference { min-width: 150px; }
+  .snapshot-difference output { display: block; min-height: 1.45em; margin-top: 4px; font-weight: 700; color: #333333; }
+  .dataset-sources { margin: 14px 0; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 5px; background: #fafafa; }
+  .dataset-sources summary { cursor: pointer; font-weight: 700; }
+  .dataset-sources p { margin: 8px 0 0; font-size: 0.88rem; }
+  .dataset-sources a { color: #9f2f4a; }
+  .snapshot-footnote { color: #666666; font-size: 0.84rem; margin: 8px 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  /* Gate Box */
+  .r8-gate {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-top: 4px solid #c94663;
+    border-radius: 8px;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .r8-gate h1 { border-bottom: none; }
+  .r8-gate button { font-size: 1.1rem; padding: 12px 28px; margin-top: 12px; }
+
+  @media (max-width: 720px) {
+    #r8 { padding: 20px 16px; margin: 10px auto; }
+    .bench, .facts { grid-template-columns: 1fr; }
+    .snapshot-selectors, .snapshot-affordability { grid-template-columns: 1fr; }
+    .r8-top-bar { margin: -10px -10px 16px -10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="r8"></div>
+
+<script src="../Student_System/Room8v2/pipe.js"></script>
+<script src="../Student_System/Room8v2/assignment_engine.js"></script>
+<script>
+  // Curated data snapshot. Students' browsers never call Numbeo or WhereNext.
+  const CITY_DATA = [
+    {
+      id: 'PT-Lisbon', name: 'Lisbon, Portugal', currency: 'EUR', exchangeRate: 0.92,
+      priceDate: '2026-01-15', priceSource: 'INE (Statistics Portugal), Eurostat',
+      netAnnualLocal: 13729, salaryYear: 2023,
+      prices: {
+        bread: { local: 1.2, usd: 1.3 }, milk: { local: 0.78, usd: 0.85 },
+        eggs: { local: 2.3, usd: 2.5 }, chicken: { local: 5.98, usd: 6.5 },
+        fastFood: { local: 7, usd: 7.6 }, rent: { local: 1200, usd: 1300 },
+        utilities: { local: 110, usd: 120 }, internet: { local: 32, usd: 35 }
+      }
+    },
+    {
+      id: 'ZA-Cape Town', name: 'Cape Town, South Africa', currency: 'ZAR', exchangeRate: 18.2,
+      priceDate: '2026-01-15', priceSource: 'Stats SA, World Bank',
+      netAnnualLocal: 134460, salaryYear: 2022,
+      prices: {
+        bread: { local: 14.56, usd: 0.8 }, milk: { local: 16.38, usd: 0.9 },
+        eggs: { local: 36.4, usd: 2 }, chicken: { local: 69.16, usd: 3.8 },
+        fastFood: { local: 80, usd: 4.4 }, rent: { local: 17188, usd: 944 },
+        utilities: { local: 1456, usd: 80 }, internet: { local: 546, usd: 30 }
+      }
+    },
+    {
+      id: 'MX-Mexico City', name: 'Mexico City, Mexico', currency: 'MXN', exchangeRate: 17.2,
+      priceDate: '2026-01-15', priceSource: 'INEGI (Mexico), World Bank',
+      netAnnualLocal: 87583, salaryYear: 2023,
+      prices: {
+        bread: { local: 31, usd: 1.8 }, milk: { local: 21, usd: 1.2 },
+        eggs: { local: 33, usd: 1.9 }, chicken: { local: 81, usd: 4.7 },
+        fastFood: { local: 110, usd: 6.4 }, rent: { local: 24000, usd: 1395 },
+        utilities: { local: 946, usd: 55 }, internet: { local: 430, usd: 25 }
+      }
+    },
+    {
+      id: 'TH-Bangkok', name: 'Bangkok, Thailand', currency: 'THB', exchangeRate: 35.5,
+      priceDate: '2026-01-15', priceSource: 'NSO (Thailand), World Bank',
+      netAnnualLocal: 274500, salaryYear: 2022,
+      prices: {
+        bread: { local: 53, usd: 1.5 }, milk: { local: 57, usd: 1.6 },
+        eggs: { local: 64, usd: 1.8 }, chicken: { local: 120, usd: 3.4 },
+        fastFood: { local: 170, usd: 4.8 }, rent: { local: 19525, usd: 550 },
+        utilities: { local: 3550, usd: 100 }, internet: { local: 710, usd: 20 }
+      }
+    }
+  ];
+
+  const PRICE_ITEMS = [
+    { id: 'bread', item: 'Loaf of bread', unit: '500 g' },
+    { id: 'milk', item: 'Milk', unit: '1 liter' },
+    { id: 'eggs', item: 'Eggs', unit: '12' },
+    { id: 'chicken', item: 'Chicken breast', unit: '1 kg' },
+    { id: 'fastFood', item: 'Fast food combo meal', unit: 'one meal' },
+    { id: 'rent', item: '1-bedroom apartment, centre', unit: 'monthly; Cape Town is City Bowl' },
+    { id: 'utilities', item: 'Electricity, water, garbage', unit: 'monthly; 85 m² apartment' },
+    { id: 'internet', item: 'Internet (60+ Mbps)', unit: 'monthly' }
+  ];
+
+  function cityById(id) {
+    return CITY_DATA.find(function (city) { return city.id === id; }) || null;
+  }
+
+  function formatNumber(value) {
+    return Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  }
+
+  function priceCellHtml(city, item) {
+    const price = city.prices[item.id];
+    return '<span>' + city.currency + ' ' + formatNumber(price.local) + '</span>' +
+      '<span class="snapshot-meta">about $' + formatNumber(price.usd) + ' USD</span>';
+  }
+
+  function generateCitySnapshotHtml() {
+    const options = CITY_DATA.map(function (city) {
+      return '<option value="' + city.id + '">' + city.name + '</option>';
+    }).join('');
+    const rows = PRICE_ITEMS.map(function (item, index) {
+      return '<tr>' +
+        '<td class="item-cell"><b>' + item.item + '</b><span class="snapshot-meta">' + item.unit + '</span></td>' +
+        '<td id="price-a-' + item.id + '">' + priceCellHtml(CITY_DATA[0], item) + '</td>' +
+        '<td id="price-b-' + item.id + '">' + priceCellHtml(CITY_DATA[3], item) + '</td>' +
+        '<td class="snapshot-difference">' +
+          '<button type="button" class="mini city-calc-btn" data-item-id="' + item.id + '"' +
+            ' aria-label="Calculate the price difference for ' + item.item + '">Calculate %</button>' +
+          '<output id="diff-' + item.id + '" aria-live="polite">Not calculated</output>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="snapshot-selectors">' +
+        '<label for="cityASelect">City A<select id="cityASelect" aria-label="Choose City A">' + options + '</select>' +
+          '<span id="cityAMeta" class="snapshot-meta"></span></label>' +
+        '<label for="cityBSelect">City B<select id="cityBSelect" aria-label="Choose City B">' + options + '</select>' +
+          '<span id="cityBMeta" class="snapshot-meta"></span></label>' +
+      '</div>' +
+      '<p id="snapshotPairWarning" class="snapshot-warning" role="status"></p>' +
+      '<div style="overflow-x:auto;">' +
+        '<table class="matrix" id="citySnapshotTable">' +
+          '<caption>Same item and unit in each city; local prices are shown with their approximate USD equivalents.</caption>' +
+          '<thead><tr><th style="width:28%;">ITEM / UNIT</th>' +
+            '<th id="cityAHeading" style="width:22%;">CITY A PRICE</th>' +
+            '<th id="cityBHeading" style="width:22%;">CITY B PRICE</th>' +
+            '<th style="width:28%;">DIFFERENCE</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<p class="snapshot-footnote">Use the approximate USD equivalents for the formula: (City A price − City B price) ÷ City B price × 100. A positive result means City A costs more for that item. Click Calculate % to reveal each result.</p>' +
+      '<details class="dataset-sources">' +
+        '<summary>Sources, dates and comparison limits</summary>' +
+        '<p>City prices: <a href="https://getwherenext.com/data/cost-of-living-2026#api-access" target="_blank" rel="noopener">WhereNext City Price Dataset</a>, version 2026.1, snapshot updated 15 January 2026. Its city records list these source labels: INE/Eurostat (Lisbon), Stats SA/World Bank (Cape Town), INEGI/World Bank (Mexico City), and NSO/World Bank (Bangkok).</p>' +
+        '<p>Affordability context: <a href="https://getwherenext.com/data/median-salaries-2026" target="_blank" rel="noopener">WhereNext Median Salaries by Country</a>. Annual net income is national, not city- or career-specific, and comes from the year shown; the dataset uses a tax model. Source records reference <a href="https://ec.europa.eu/eurostat/web/microdata/structure-of-earnings-survey" target="_blank" rel="noopener">Eurostat/INE Portugal</a>, <a href="https://www.statssa.gov.za/?p=16285" target="_blank" rel="noopener">Statistics South Africa</a>, <a href="https://www.inegi.org.mx/programas/enoe/15ymas/" target="_blank" rel="noopener">INEGI Mexico</a>, and <a href="https://www.nso.go.th/sites/2014en/Pages/Survey/Social/Labour-Force-Survey.aspx" target="_blank" rel="noopener">Thailand NSO</a>.</p>' +
+        '<p>These are selected price examples, not a complete or standardized cost-of-living basket. City-centre definitions differ (Cape Town uses City Bowl), and prices are from 2026 while national income records are from 2022 or 2023. The figures support a careful comparison, not a definitive affordability ranking. Data is attributed to WhereNext and shared under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>' +
+      '</details>';
+  }
+
+  function generateAffordabilityHtml() {
+    return '<p class="snapshot-footnote">A rough PPP lens: compare a meal with an estimated hourly wage, and central rent with one-twelfth of annual national net income. The income is not specific to the city or a particular job, so use these as clues, not a verdict.</p>' +
+      '<div style="overflow-x:auto;">' +
+        '<table class="matrix" aria-label="Directional affordability comparison">' +
+          '<thead><tr><th>MEASURE</th><th id="affordCityA">City A</th><th id="affordCityB">City B</th></tr></thead>' +
+          '<tbody>' +
+            '<tr><td>Hours at 2,000 work hours/year to afford one combo meal</td><td id="mealHoursA">—</td><td id="mealHoursB">—</td></tr>' +
+            '<tr><td>Central 1-bedroom rent as a share of annual net income ÷ 12</td><td id="rentShareA">—</td><td id="rentShareB">—</td></tr>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<p class="snapshot-footnote">Income records are national median net estimates from 2022–2023; price records are city estimates from 15 January 2026. Currency is kept local for these calculations.</p>';
+  }
+
+  // ================= ASSIGNMENT CONFIG =================
+  const ASSIGNMENT = {
+    taskName: 'Citizenship 9 — Part 2 Alternative: Curated City Snapshot',
+    course: 'CIT9',
+    title: 'Part 2 Alternative: City Prices & Purchasing Power',
+    kicker: 'CIT9 · REAL ISSUES · CASE FILE 1 · PART 2 ALTERNATIVE',
+    badge: 'CIT9 • PART 2 ALTERNATIVE • CITY SNAPSHOT',
+    classList: ['901-CIT', '902-CIT', '903-CIT'],
+    introHtml:
+      '<p>This is the optional alternative for students who could not access the Numbeo version. If you completed that assignment, you do not need to redo it here. This page saves to a separate Server task and will not overwrite your Numbeo submission.</p>' +
+      '<p>Compare a small, shared basket of prices in four cities. The price and income snapshots are bundled into this page, so it makes no Numbeo or WhereNext data requests. Your work autosaves to the Server.</p>' +
+      '<p><b>Halifax is not in this dataset.</b> Choose two supported cities and compare the listed items. Prices appear in local currency and approximate USD equivalents; the city-centre rent row uses City Bowl for Cape Town.</p>' +
+      '<p>City prices are dated 15 January 2026. National income figures are older and are included only to help think about affordability, not to rank cities with certainty. The selected data is attributed to WhereNext and licensed under CC BY 4.0.</p>',
+    sections: [
+      { num: '2A', title: 'Compare two city prices',
+        hint: 'Choose two different cities. Compare the same eight items using the approximate USD equivalents, then calculate each percentage difference. Positive means City A costs more than City B.',
+        fields: [
+          { id: 'citySnapshotWrap', type: 'static', html: generateCitySnapshotHtml() },
+          { id: 'city_compare_observation', type: 'textarea', label: 'What patterns do you notice?', hint: 'Name two items with large differences. Which city is higher, and what is one possible reason?', rows: 3 },
+          { id: 'city_compare_surprise', type: 'textarea', label: 'Which comparison surprised you most?', hint: 'Use at least one specific item and both city prices as evidence.', rows: 3 }
+        ]
+      },
+      { num: '2B', title: 'Price is not the same as affordability',
+        hint: 'Use the rough meal-hours and rent-share measures, then explain what they suggest and what they cannot prove.',
+        fields: [
+          { id: 'cityAffordabilityWrap', type: 'static', html: generateAffordabilityHtml() },
+          { id: 'city_affordability_analysis', type: 'textarea', label: 'Purchasing power analysis:', hint: 'Do lower prices automatically mean a city is more affordable for local residents? Compare the meal-hours and rent-share estimates for your two cities.', rows: 4 },
+          { id: 'city_data_limitations', type: 'textarea', label: 'What is one important limitation?', hint: 'Consider national versus city income, different data years, local neighbourhoods, or the fact that this is only a small basket.', rows: 3 }
+        ]
+      }
+    ]
+  };
+
+  // =======================================================================================
+  const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+  const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
+
+  Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
+
+  function updateAffordabilityCell(city, suffix) {
+    const mealPrice = city.prices.fastFood.local;
+    const rentPrice = city.prices.rent.local;
+    const hourlyIncome = city.netAnnualLocal / 2000;
+    const monthlyIncome = city.netAnnualLocal / 12;
+    const hours = mealPrice / hourlyIncome;
+    const rentShare = (rentPrice / monthlyIncome) * 100;
+    document.getElementById('mealHours' + suffix).textContent = formatNumber(hours) + ' hours';
+    document.getElementById('rentShare' + suffix).textContent = formatNumber(rentShare) + '%';
+  }
+
+  function renderCitySnapshot(clearDifferences) {
+    const selectA = document.getElementById('cityASelect');
+    const selectB = document.getElementById('cityBSelect');
+    if (!selectA || !selectB) return;
+    const cityA = cityById(selectA.value);
+    const cityB = cityById(selectB.value);
+    if (!cityA || !cityB) return;
+
+    document.getElementById('cityAHeading').textContent = cityA.name;
+    document.getElementById('cityBHeading').textContent = cityB.name;
+    document.getElementById('cityAMeta').textContent =
+      'Snapshot: ' + cityA.priceDate + ' · 1 USD = ' + formatNumber(cityA.exchangeRate) + ' ' + cityA.currency +
+      ' · ' + cityA.priceSource;
+    document.getElementById('cityBMeta').textContent =
+      'Snapshot: ' + cityB.priceDate + ' · 1 USD = ' + formatNumber(cityB.exchangeRate) + ' ' + cityB.currency +
+      ' · ' + cityB.priceSource;
+    document.getElementById('affordCityA').textContent = cityA.name + ' · ' + cityA.salaryYear + ' income';
+    document.getElementById('affordCityB').textContent = cityB.name + ' · ' + cityB.salaryYear + ' income';
+
+    PRICE_ITEMS.forEach(function (item) {
+      document.getElementById('price-a-' + item.id).innerHTML = priceCellHtml(cityA, item);
+      document.getElementById('price-b-' + item.id).innerHTML = priceCellHtml(cityB, item);
+      const output = document.getElementById('diff-' + item.id);
+      if (clearDifferences) output.textContent = 'Not calculated';
+      else if (cityA.id === cityB.id) output.textContent = 'Choose two different cities.';
+    });
+
+    updateAffordabilityCell(cityA, 'A');
+    updateAffordabilityCell(cityB, 'B');
+    const sameCity = cityA.id === cityB.id;
+    const warning = document.getElementById('snapshotPairWarning');
+    warning.textContent = sameCity ? 'Choose two different cities to calculate a comparison.' : '';
+    warning.style.display = sameCity ? 'block' : 'none';
+    document.querySelectorAll('.city-calc-btn').forEach(function (button) {
+      button.disabled = sameCity;
+    });
+  }
+
+  function calculateDifference(itemId) {
+    const selectA = document.getElementById('cityASelect');
+    const selectB = document.getElementById('cityBSelect');
+    const cityA = cityById(selectA.value);
+    const cityB = cityById(selectB.value);
+    const item = PRICE_ITEMS.find(function (row) { return row.id === itemId; });
+    if (!cityA || !cityB || !item || cityA.id === cityB.id) return;
+
+    const priceA = cityA.prices[item.id].usd;
+    const priceB = cityB.prices[item.id].usd;
+    const percent = ((priceA - priceB) / priceB) * 100;
+    const amount = formatNumber(Math.abs(percent));
+    const result = percent === 0
+      ? 'Same price (0%)'
+      : cityA.name + ' is ' + amount + '% ' + (percent > 0 ? 'higher' : 'lower');
+    const output = document.getElementById('diff-' + item.id);
+    output.textContent = result;
+    output.title = result;
+    if (window.Room8 && Room8.touch) Room8.touch();
+  }
+
+  function collectCityPriceData() {
+    const cityA = document.getElementById('cityASelect').value;
+    const cityB = document.getElementById('cityBSelect').value;
+    return {
+      city_a: cityA,
+      city_b: cityB,
+      rows: PRICE_ITEMS.map(function (item, index) {
+        const a = cityById(cityA);
+        const b = cityById(cityB);
+        const priceA = a.prices[item.id];
+        const priceB = b.prices[item.id];
+        return {
+          row: index + 1,
+          item_id: item.id,
+          item: item.item + ' (' + item.unit + ')',
+          city_a_local: priceA.local,
+          city_a_usd: priceA.usd,
+          city_b_local: priceB.local,
+          city_b_usd: priceB.usd,
+          pct_difference: document.getElementById('diff-' + item.id).textContent
+        };
+      })
+    };
+  }
+
+  function restoreCityPriceData(saved) {
+    const selectA = document.getElementById('cityASelect');
+    const selectB = document.getElementById('cityBSelect');
+    if (saved.city_a && cityById(saved.city_a)) selectA.value = saved.city_a;
+    if (saved.city_b && cityById(saved.city_b)) selectB.value = saved.city_b;
+    renderCitySnapshot(true);
+    (Array.isArray(saved.rows) ? saved.rows : []).forEach(function (row) {
+      if (!row || !row.item_id || !row.pct_difference) return;
+      const output = document.getElementById('diff-' + row.item_id);
+      if (output) output.textContent = row.pct_difference;
+    });
+  }
+
+  // Store the selected city pair and calculated comparisons as one custom answer.
+  const _mount = R8Assignment.mount;
+  R8Assignment.mount = function (opts) {
+    opts.custom = {
+      collect: function (answers) {
+        answers.global_city_prices = collectCityPriceData();
+      },
+      populate: function (data) {
+        if (data.global_city_prices && typeof data.global_city_prices === 'object') {
+          restoreCityPriceData(data.global_city_prices);
+        }
+      }
+    };
+    return _mount(opts);
+  };
+  // =======================================================================================
+  R8Assignment.mount({ mount: document.getElementById('r8'), pipe: Room8, assignment: ASSIGNMENT });
+  const citySelectA = document.getElementById('cityASelect');
+  const citySelectB = document.getElementById('cityBSelect');
+  const snapshotTable = document.getElementById('citySnapshotTable');
+
+  [citySelectA, citySelectB].forEach(function (select) {
+    select.addEventListener('change', function () {
+      renderCitySnapshot(true);
+      if (window.Room8 && Room8.touch) Room8.touch();
+    });
+  });
+  snapshotTable.addEventListener('click', function (event) {
+    const button = event.target.closest('.city-calc-btn');
+    if (button) calculateDifference(button.dataset.itemId);
+  });
+  renderCitySnapshot(true);
+</script>
+</body>
+</html>

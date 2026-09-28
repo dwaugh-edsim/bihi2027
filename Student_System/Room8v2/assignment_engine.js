@@ -428,10 +428,21 @@ window.R8Assignment = (function () {
           var data = res.data || {};
           var ans = data.answers || data;
           var ansCount = countAnswers(ans);
-          var numbeoCount = Array.isArray(data.global_numbeo)
-            ? data.global_numbeo.filter(function (r) { return r.halifax_price || r.city_price || r.halifax || r.price; }).length
+          var numbeoRows = Array.isArray(ans.global_numbeo) ? ans.global_numbeo
+            : (Array.isArray(data.global_numbeo) ? data.global_numbeo : []);
+          var numbeoCount = numbeoRows.filter(function (r) {
+            return r.halifax_price || r.city_price || r.halifax || r.price;
+          }).length;
+          var cityPriceData = ans.global_city_prices || data.global_city_prices || {};
+          var cityPriceCount = Array.isArray(cityPriceData.rows)
+            ? cityPriceData.rows.filter(function (r) {
+                return Number.isFinite(Number(r.city_a_usd)) && Number.isFinite(Number(r.city_b_usd));
+              }).length
             : 0;
-          var extra = numbeoCount ? (' + ' + numbeoCount + ' Numbeo items') : '';
+          var extras = [];
+          if (cityPriceCount) extras.push(cityPriceCount + ' city price comparisons');
+          if (numbeoCount) extras.push(numbeoCount + (cityPriceCount ? ' archived Numbeo items' : ' Numbeo items'));
+          var extra = extras.length ? (' + ' + extras.join(' + ')) : '';
           var summaryMsg = '✓ Server Confirmed: ' + ansCount + ' answers' + extra + ' saved (' + tStr + ')';
           topSyncBadge.textContent = '☁️ ' + summaryMsg;
           topSyncBadge.className = 'r8-sync-badge ok';

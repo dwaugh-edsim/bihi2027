@@ -1378,6 +1378,7 @@ var TASK_COURSE_MAP = {
   'The WHERE Project — Places Portfolio': 'CIT9',
   'Citizenship 9 — Real Issues Case File #1: The Rent We Pay': 'CIT9',
   'Citizenship 9 — Part 2: Numbeo — Halifax vs the World': 'CIT9',
+  'Citizenship 9 — Part 2 Alternative: Curated City Snapshot': 'CIT9',
   'HL8 5-Dimension Systems Audit': 'HL8',
   'Healthy Living 8: Grade 7 Learning Audit': 'HL8',
   'HL9 Sleep Clinic 10-Station Audit': 'HL9',

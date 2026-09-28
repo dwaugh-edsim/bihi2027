@@ -36,7 +36,7 @@ window.COURSE_ASSIGNMENTS = {
                 id: "cit9-rent-case-file",
                 taskName: "Citizenship 9 — Real Issues Case File #1: The Rent We Pay",
                 short: "Real Issues Case File #1 · The Rent We Pay",
-                match: /rent|real.?issues|case.?file|numbeo|cost.?of.?living/i,
+                match: /rent|real.?issues|case.?file|numbeo|cost.?of.?living|curated.?city.?snapshot|city.?price/i,
                 outcome: "Learners will evaluate strategies to meaningfully engage as citizens within a democratic process.",
                 ref: "CIT9 U5C — facilitation key: engaged citizenship via the citizen loop (evidence → position → power → speech); U3A is the close alternate when the work period is data-heavy"
             },
