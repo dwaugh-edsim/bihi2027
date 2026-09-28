@@ -10,6 +10,16 @@
 <style>
     @page { size: A4 portrait; margin: 0; }
 
+    /* Screen-only chrome must not consume page space. Without this the body's
+       padding, the grey backdrop and the .print-bar all get printed, eating
+       ~20mm and pushing every sheet past the page boundary. */
+    @media print {
+        body { padding: 0; background: #fff; display: block; }
+        .print-bar { display: none !important; }
+        .sheet { margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+        .sheet:last-of-type { break-after: auto; page-break-after: auto; }
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
