@@ -22,7 +22,9 @@
 window.COURSE_ASSIGNMENTS = {
     CIT9: {
         label: "Citizenship 9",
-        active: "cit9-checkpoint-quiz",
+        // Sept 28: the checkpoint quiz was run Sept 23 — CIT9 is on the Real Issues
+        // Case File now, so the slide must not default to the finished quiz.
+        active: "cit9-rent-case-file",
         items: [
             {
                 id: "cit9-checkpoint-quiz",
@@ -98,15 +100,25 @@ window.COURSE_ASSIGNMENTS = {
     },
     HL8: {
         label: "Healthy Living 8",
-        active: "hl8-junction-smoke-detector",
+        // Sept 28: Junction is now TWO exhibits. Ex.1 (group chat) is the launch;
+        // Ex.2 (tipping point) is the follow-up that unblocks Class 4.
+        active: "hl8-junction-ex1",
         items: [
             {
-                id: "hl8-junction-smoke-detector",
-                taskName: "HL8 Junction Exhibit 1: Smoke Detector vs Strategist",
-                short: "Smoke Detector vs. Strategist · Junction",
-                match: /junction|smoke.?detector|strategist|amygdala|sam.?s.?world/i,
+                id: "hl8-junction-ex1",
+                taskName: "HL8 Junction Exhibit 1 — Strategy Matrix",
+                short: "Junction Ex. 1 · The Group Chat Fire",
+                match: /junction|smoke.?detector|strategist|amygdala|sam.?s.?world|group.?chat/i,
                 outcome: "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
                 ref: "HL8 CO1 — outcomes doc tags CO1 'junction': life-skills decision-making + coping (grounding pause, boundary text, trusted adult) inside the Sam's World peer-conflict story. CO3 (brain function/stress) is the close alternate for the amygdala science."
+            },
+            {
+                id: "hl8-junction-ex2",
+                taskName: "HL8 Junction Exhibit 2 — Tipping Point",
+                short: "Junction Ex. 2 · The Tipping Point",
+                match: /junction|tipping.?point|allostatic|stick.?alarm|fire.?marshal|triage/i,
+                outcome: "Learners will analyse how life skills influence physical, mental, emotional, social, and spiritual health",
+                ref: "HL8 CO1 — the Exhibit 1→2 bridge is the unit's core argument: Exhibit 1's 30-second strategy is necessary and not sufficient for a five-day load. Triage + assertiveness are life-skills application; CO3 is the close alternate for the sustained-stress/allostatic-load science."
             },
             {
                 id: "hl8-5dimension-audit",
