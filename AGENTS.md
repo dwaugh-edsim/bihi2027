@@ -244,6 +244,13 @@ snapshots and push. Names only — never PINs/IDs/notes on projector screens.
   - **No Ad-Hoc Legacy Fetches:** Never inject manual `fetch()` calls to defunct script URLs.
     Loading and saving is handled exclusively by the Room 8 v2 engine via `pipe.load(task)`
     and `pipe.autosave()` against `BACKEND_URL`.
+  - **Autosave Baseline Collects at Mount (crash gotcha, 2026-09-28):** `pipe.autosave()` takes
+    a baseline hash the moment it is registered, so the page's `collect()` runs BEFORE any
+    post-`mount()` DOM builder (e.g. `buildNumbeo()`) fills custom blocks. Custom collectors
+    must null-guard every element they read — one unguarded `.textContent` on a not-yet-built
+    cell kills the whole top-level script (page renders its sections, then dies silently:
+    no table, no sign-in, no lock/banner code ever runs). Headless-Chrome `--dump-dom` plus
+    `--enable-logging=stderr` catches this; a bare dump looks "fine" because sections exist.
   - **Chromebook Reality — Zero Client `localStorage` for Students:** Chromebooks wipe local
     browser storage on session close. All student state must be saved to the server. Off-roster
     section choices are bundled directly into the cloud payload (`payload.section`).
