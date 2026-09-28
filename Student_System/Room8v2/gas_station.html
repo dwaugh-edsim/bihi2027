@@ -1106,9 +1106,51 @@ function renderAnswerVal(f, v) {
   return '<div class="mk-val">' + escapeHtml(Array.isArray(v) ? v.join(' · ') : v) + '</div>';
 }
 
+// A v2 page can store its answers in a nested map instead of the flat field ids
+// its own config declares: the HL9 Sleep Clinic page's collect() adapter writes
+// stations{"1":{hrs,debt,...}} while ASSIGNMENT still describes s1_hrs, s1_debt...
+// The page normalizes that itself on load (its populate() adapter) — the Station
+// has to do the same, or every answer misses its field and the whole mark sheet
+// reads "not answered" with the real data dumped into Extra data at the bottom.
+// Shape-driven (needs a `stations` map AND ids shaped like sN_key), so pages that
+// really are flat — HL8 5-Dimension, the CIT9 pages — pass straight through.
+function liftNestedStations(src, cfg) {
+  const st = src.stations;
+  if (!st || typeof st !== 'object' || Array.isArray(st)) return null;   // nothing nested: leave it alone
+  const ans = {};                 // shallow copy — never mutate the stored payload
+  Object.keys(src).forEach(function (k) { ans[k] = src[k]; });
+  const wanted = {};              // 'N|key' -> the declared field id
+  (cfg.sections || []).forEach(function (sec) {
+    (sec.fields || []).forEach(function (f) {
+      if (!f || f.type === 'static' || !f.id) return;
+      const m = /^s0*(\d+)_(.+)$/.exec(f.id);
+      if (m) wanted[m[1] + '|' + m[2]] = f.id;
+    });
+  });
+  if (!Object.keys(wanted).length) return null;
+  let lifted = 0;
+  Object.keys(st).forEach(function (idx) {
+    const node = st[idx];
+    if (!node || typeof node !== 'object') return;
+    Object.keys(node).forEach(function (key) {
+      const v = node[key];
+      if (v === '' || v == null) return;
+      const id = wanted[String(Number(idx)) + '|' + key];
+      // a flat value already there wins — same precedence as the page's populate()
+      if (id && (ans[id] === '' || ans[id] == null)) { ans[id] = v; lifted++; return; }
+      // sub-keys the config never declares (tags, shift on older saves) stay
+      // visible in Extra data rather than vanishing with the map
+      const k = 's' + String(Number(idx)) + '_' + key;
+      if (ans[k] == null) ans[k] = v;
+    });
+  });
+  if (!lifted) return null;
+  delete ans.stations;            // now rendered in the real layout; don't repeat it as raw JSON
+  return ans;
+}
 function markSheet(s, cfg) {
   const d = s.data || {};
-  const ans = d.answers || d;
+  const ans = liftNestedStations(d.answers || d, cfg) || d.answers || d;
   const used = {};
   let html = '<div class="mk-title">' + escapeHtml(cfg.title || current.task) + '</div>';
   if (cfg.badge) html += '<div class="mk-badge">' + escapeHtml(cfg.badge) + '</div>';
