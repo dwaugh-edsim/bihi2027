@@ -296,6 +296,34 @@
   .cv-comments .rate-cmt { margin-top: 4px; }
   .mk-json { font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: #0f172a; color: #e2e8f0;
              border-radius: 6px; padding: 10px; overflow: auto; max-height: 240px; margin: 4px 0 0; }
+  /* sorter table: B/F card sort (Junction assignments) */
+  .mk-sorter { width: 100%; border-collapse: collapse; margin: 6px 0 0; font-size: .88rem; background: #fff;
+               border: 1.5px solid #0f172a; border-radius: 6px; overflow: hidden; }
+  .mk-sorter th { background: #1e293b; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+                  font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 7px 9px;
+                  border: 1px solid #334155; text-align: left; }
+  .mk-sorter td { border: 1px solid #cbd5e1; padding: 7px 9px; vertical-align: top; }
+  .mk-sorter tr:nth-child(even) { background: #f8fafc; }
+  .mk-sorter .s-name { font-weight: 800; font-size: .9rem; color: #0f172a; }
+  .mk-sorter .s-desc { font-size: .78rem; color: #64748b; line-height: 1.3; margin-top: 2px; }
+  .mk-pick { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .74rem; font-weight: 800;
+             padding: 3px 10px; border-radius: 4px; text-align: center; }
+  .mk-pick.b { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .mk-pick.f { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .mk-pick.empty { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+  /* array list: numbered items with labels */
+  .mk-array { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .mk-array li { display: flex; align-items: baseline; gap: 8px; }
+  .mk-array .arr-num { font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 800;
+                       background: var(--brand-primary); color: #fff; border-radius: 4px;
+                       padding: 1px 7px; flex: none; }
+  .mk-array .arr-lbl { font-weight: 700; font-size: .84rem; color: #475569; flex: none; min-width: 70px; }
+  .mk-array .arr-val { font-size: .9rem; color: #0f172a; flex: 1; }
+  /* smart-render sub-section */
+  .mk-sub { border-left: 3px solid var(--border-accent); background: #fdfafb; padding: 6px 12px;
+            margin: 6px 0; border-radius: 0 6px 6px 0; }
+  .mk-sub-item { margin-top: 3px; font-size: .88rem; }
+  .mk-sub-key { font-weight: 700; color: #475569; font-size: .82rem; }
   .mk-exemplar { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a;
                  border-radius: 8px; padding: 8px 14px; margin: 8px 0 14px; }
   .mk-exemplar summary { font-weight: 700; color: #14532d; font-size: .88rem; cursor: pointer; }
@@ -585,6 +613,7 @@
 </div><!-- /.wrap -->
 
 <script src="pipe.js"></script>
+<script src="render_schemas.js"></script>
 <script>
 // =========================================================================
 //  CONFIG — change only if you redeploy the Apps Script backend
@@ -1489,8 +1518,7 @@ function markSheet(s, cfg) {
     extra[k] = ans[k];
   });
   if (Object.keys(extra).length) {
-    html += '<div class="mk-field"><div class="mk-label">Extra data (custom blocks)</div><pre class="mk-json">' +
-            escapeHtml(JSON.stringify(extra, null, 1).slice(0, 4000)) + '</pre></div>';
+    html += renderExtraData_(extra, 'Additional Work / Custom Blocks');
   }
   return html;
 }
@@ -1510,6 +1538,216 @@ function flatAnswers(s) {   // fallback when nothing else knows this payload
     out.push({ k: k, v: text });
   });
   return out;
+}
+
+// =========================================================================
+//  Smart heuristic renderer — replaces the raw-JSON fallback.
+//  Walks the data object and infers structure: sorter tables, arrays,
+//  nested objects, and plain strings. No schema required.
+// =========================================================================
+function humanizeKey_(k) {
+  return String(k || '')
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+}
+
+function isSorterShape_(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const keys = Object.keys(v);
+  if (!keys.length) return false;
+  let hits = 0;
+  keys.forEach(function (k) {
+    const inner = v[k];
+    if (inner && typeof inner === 'object' && !Array.isArray(inner) &&
+        ('pick' in inner || 'why' in inner)) hits++;
+  });
+  return hits >= keys.length * 0.6;  // >=60% of entries look like {pick, why}
+}
+
+function smartRender(s) {
+  const d = s.data || {};
+  const ans = d.answers || d;
+  let html = '<div class="mk-title">' + escapeHtml(current ? current.task : '') + '</div>';
+  html += '<div class="mk-badge">AUTO-RENDERED FROM DATA SHAPE</div>';
+
+  const SKIP = { name:1, section:1, pin:1, className:1, email:1, 'class':1,
+                 updated_at:1, _requestId:1, _telemetry:1, _v:1, _pipe:1,
+                 _tasks:1, answers:1, grade:1, feedback:1 };
+
+  Object.keys(ans).forEach(function (k) {
+    if (SKIP[k] || k.charAt(0) === '_') return;
+    const v = ans[k];
+    if (v === '' || v == null) return;
+    html += smartRenderField_(k, v);
+  });
+  return html;
+}
+
+function smartRenderField_(key, val) {
+  var html = '';
+  var label = humanizeKey_(key);
+
+  // 1. String
+  if (typeof val === 'string') {
+    html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+    html += '<div class="mk-val">' + escapeHtml(val) + '</div></div>';
+    return html;
+  }
+
+  // 2. Number
+  if (typeof val === 'number') {
+    html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+    html += '<div class="mk-val">' + val + '</div></div>';
+    return html;
+  }
+
+  // 3. Array of primitives
+  if (Array.isArray(val)) {
+    html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+    if (!val.length || val.every(function (x) { return !x; })) {
+      html += '<div class="mk-val empty">\u2014 empty \u2014</div>';
+    } else {
+      html += '<ul class="mk-array">';
+      val.forEach(function (item, i) {
+        var text = (item && typeof item === 'object') ? JSON.stringify(item) : String(item || '');
+        html += '<li><span class="arr-num">' + (i + 1) + '</span>' +
+          '<span class="arr-val' + (text ? '' : ' mk-val empty') + '">' +
+          (text ? escapeHtml(text) : '\u2014') + '</span></li>';
+      });
+      html += '</ul>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // 4. Sorter map: { key: { pick, why } }
+  if (isSorterShape_(val)) {
+    html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+    html += '<table class="mk-sorter"><thead><tr>' +
+            '<th style="width:40%">Strategy</th>' +
+            '<th style="width:60px; text-align:center;">Pick</th>' +
+            '<th>Reason</th></tr></thead><tbody>';
+    Object.keys(val).forEach(function (card) {
+      var entry = val[card] || {};
+      var pick = String(entry.pick || '').trim().toUpperCase();
+      var why = String(entry.why || '').trim();
+      var pickCls = pick === 'B' ? 'b' : pick === 'F' ? 'f' : 'empty';
+      var pickLabel = pick === 'B' ? '\u{1F6E1} B' : pick === 'F' ? '\u{1F525} F' : '\u2014';
+      html += '<tr><td><div class="s-name">' + escapeHtml(humanizeKey_(card)) + '</div></td>' +
+        '<td style="text-align:center;"><span class="mk-pick ' + pickCls + '">' + pickLabel + '</span></td>' +
+        '<td>' + (why ? escapeHtml(why) : '<span class="mk-val empty" style="padding:0;">\u2014</span>') + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  // 5. Generic object — render as sub-section with labelled children
+  if (typeof val === 'object' && val !== null) {
+    html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+    var subKeys = Object.keys(val);
+    if (!subKeys.length) {
+      html += '<div class="mk-val empty">\u2014 empty \u2014</div>';
+    } else {
+      html += '<div class="mk-sub">';
+      subKeys.forEach(function (sk) {
+        var sv = val[sk];
+        if (sv === '' || sv == null) return;
+        if (typeof sv === 'string' || typeof sv === 'number') {
+          html += '<div class="mk-sub-item"><span class="mk-sub-key">' +
+                  escapeHtml(humanizeKey_(sk)) + ':</span> ' + escapeHtml(String(sv)) + '</div>';
+        } else if (Array.isArray(sv)) {
+          html += '<div class="mk-sub-item"><span class="mk-sub-key">' +
+                  escapeHtml(humanizeKey_(sk)) + ':</span> ' + escapeHtml(sv.join(' \u00b7 ')) + '</div>';
+        } else {
+          html += '<div class="mk-sub-item"><span class="mk-sub-key">' +
+                  escapeHtml(humanizeKey_(sk)) + '</span>' +
+                  '<pre class="mk-json" style="margin-top:2px;">' +
+                  escapeHtml(JSON.stringify(sv, null, 1)) + '</pre></div>';
+        }
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // 6. Fallback
+  html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(label) + '</div>';
+  html += '<div class="mk-val">' + escapeHtml(String(val)) + '</div></div>';
+  return html;
+}
+
+function renderNumbeoTableFromExtra_(extra) {
+  const NUMBEO_PRESETS = [
+    { num: 1, item: '1. Meal, Inexpensive Restaurant', city: 'Delhi, India' },
+    { num: 2, item: '2. 1.5L Bottle of Water (Supermarket)', city: 'Delhi, India' },
+    { num: 3, item: '3. 10GB Cellphone Plan (Monthly)', city: 'Miami, US' },
+    { num: 4, item: '4. Rent (1-Bed Apt Downtown)', city: 'Toronto, Canada' },
+    { num: 5, item: '5. Basic Utilities (Apt Monthly)', city: 'Toronto, Canada' },
+    { num: 6, item: '6. Buy Apt Outside City (per m\xc2\xb2)', city: 'Geneva, Switzerland' },
+    { num: 7, item: '7. Avg Monthly Net Salary (After Tax)', city: 'Delhi, India' },
+    { num: 8, item: '8. Avg Monthly Net Salary (After Tax)', city: 'Miami, US' },
+    { num: 9, item: '9. Avg Monthly Net Salary (After Tax)', city: 'Toronto, Canada' },
+    { num: 10, item: '10. Surprise Item 1...', city: 'Choose City...' },
+    { num: 11, item: '11. Surprise Item 2...', city: 'Choose City...' }
+  ];
+  let hasNumbeo = false;
+  for (let n = 1; n <= 11; n++) {
+    if (('nb_hfx_' + n) in extra || ('nb_comp_' + n) in extra || ('nb_diff_' + n) in extra) {
+      hasNumbeo = true;
+      break;
+    }
+  }
+  if (!hasNumbeo) return '';
+
+  let html = '<div class="mk-field"><div class="mk-label">Cost-of-Living Matrix (Numbeo Comparison)</div>';
+  html += '<div style="overflow-x:auto;"><table class="mk-sorter" style="font-size:0.82rem;"><thead><tr>' +
+          '<th>Item</th><th>Halifax ($ CAD)</th><th>Comparison City</th><th>City Price</th><th>Difference</th></tr></thead><tbody>';
+  NUMBEO_PRESETS.forEach(function (r) {
+    const n = r.num;
+    const hfx = extra['nb_hfx_' + n] || '';
+    const comp = extra['nb_comp_' + n] || '';
+    const diff = extra['nb_diff_' + n] || '';
+    const city = extra['nb_city_' + n] || r.city;
+    const item = extra['nb_item_' + n] || r.item;
+    delete extra['nb_hfx_' + n];
+    delete extra['nb_comp_' + n];
+    delete extra['nb_diff_' + n];
+    delete extra['nb_city_' + n];
+    delete extra['nb_item_' + n];
+    delete extra['nb_btn_' + n];
+    if (!hfx && !comp && !diff) return;
+    html += '<tr>' +
+            '<td><b>' + escapeHtml(item) + '</b></td>' +
+            '<td>' + (hfx ? '$' + escapeHtml(String(hfx)) : '<span class="mk-val empty" style="padding:0;">\u2014</span>') + '</td>' +
+            '<td>' + escapeHtml(city) + '</td>' +
+            '<td>' + (comp ? '$' + escapeHtml(String(comp)) : '<span class="mk-val empty" style="padding:0;">\u2014</span>') + '</td>' +
+            '<td><b style="color:#b91c1c;">' + escapeHtml(String(diff || '\u2014')) + '</b></td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderExtraData_(extra, title) {
+  const copy = Object.assign({}, extra);
+  let numbeoHtml = renderNumbeoTableFromExtra_(copy);
+  const remainingKeys = Object.keys(copy);
+  if (!numbeoHtml && !remainingKeys.length) return '';
+
+  let html = '<div class="mk-extra-wrap" style="margin-top:20px; border-top:1.5px dashed #cbd5e1; padding-top:14px;">';
+  html += '<div class="mk-sec" style="font-size:0.86rem; font-weight:800; color:#475569; display:flex; align-items:center; gap:8px; margin-bottom:8px;">';
+  html += '<span class="mk-num" style="background:#64748b; font-size:0.75rem;">+</span> ' + escapeHtml(title || 'Additional & Legacy Work') + '</div>';
+
+  if (numbeoHtml) html += numbeoHtml;
+
+  if (remainingKeys.length) {
+    remainingKeys.forEach(function (k) {
+      html += smartRenderField_(k, copy[k]);
+    });
+  }
+  html += '</div>';
+  return html;
 }
 
 // =========================================================================
@@ -1731,6 +1969,17 @@ function findLegacy(task) {
   return null;
 }
 
+// External schema registry (render_schemas.js) — new assignments that aren't
+// legacy or engine-based get their configs here, indexed by TASK_NAME.
+function findSchema(task) {
+  if (!window.R8_SCHEMAS) return null;
+  const want = norm(task);
+  const schemas = window.R8_SCHEMAS;
+  const keys = Object.keys(schemas);
+  for (let i = 0; i < keys.length; i++) if (norm(keys[i]) === want) return schemas[keys[i]];
+  return null;
+}
+
 function legacyVal(v) {
   const empty = v === '' || v == null || (Array.isArray(v) && v.length === 0) ||
                 (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0);
@@ -1882,6 +2131,72 @@ function legacyMarkSheet(s, schema) {
         return;
       }
 
+      // ---- sorter: B/F card sort table (Junction pattern) ----
+      if (f.type === 'sorter') {
+        const obj = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        const cards = f.cards || {};
+        const order = Object.keys(cards).length ? Object.keys(cards) : Object.keys(obj);
+        if (!order.length) {
+          html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) +
+                  '</div><div class="mk-val empty">— not answered —</div></div>';
+          return;
+        }
+        html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>';
+        html += '<table class="mk-sorter"><thead><tr>' +
+                '<th style="width:42%">Strategy</th>' +
+                '<th style="width:60px; text-align:center;">Pick</th>' +
+                '<th>Reason</th></tr></thead><tbody>';
+        order.forEach(function (card) {
+          const entry = obj[card] || {};
+          const pick = String(entry.pick || '').trim().toUpperCase();
+          const why = String(entry.why || '').trim();
+          const info = cards[card] || {};
+          const pickCls = pick === 'B' ? 'b' : pick === 'F' ? 'f' : 'empty';
+          const pickLabel = pick === 'B' ? '\u{1F6E1} B' : pick === 'F' ? '\u{1F525} F' : '\u2014';
+          html += '<tr>' +
+            '<td><div class="s-name">' + escapeHtml(info.name || humanizeKey_(card)) + '</div>' +
+            (info.desc ? '<div class="s-desc">' + escapeHtml(info.desc) + '</div>' : '') + '</td>' +
+            '<td style="text-align:center;"><span class="mk-pick ' + pickCls + '">' + pickLabel + '</span></td>' +
+            '<td>' + (why ? escapeHtml(why) : '<span class="mk-val empty" style="padding:0;">\u2014</span>') + '</td></tr>';
+        });
+        // any cards the student answered that aren't in the schema
+        Object.keys(obj).forEach(function (card) {
+          if (order.indexOf(card) !== -1) return;
+          const entry = obj[card] || {};
+          const pick = String(entry.pick || '').trim().toUpperCase();
+          const why = String(entry.why || '').trim();
+          const pickCls = pick === 'B' ? 'b' : pick === 'F' ? 'f' : 'empty';
+          const pickLabel = pick === 'B' ? '\u{1F6E1} B' : pick === 'F' ? '\u{1F525} F' : '\u2014';
+          html += '<tr><td><div class="s-name">' + escapeHtml(humanizeKey_(card)) + '</div></td>' +
+            '<td style="text-align:center;"><span class="mk-pick ' + pickCls + '">' + pickLabel + '</span></td>' +
+            '<td>' + (why ? escapeHtml(why) : '<span class="mk-val empty" style="padding:0;">\u2014</span>') + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        return;
+      }
+
+      // ---- array: ordered list with optional per-item labels ----
+      if (f.type === 'array') {
+        const arr = Array.isArray(v) ? v : (v ? [v] : []);
+        if (!arr.length || arr.every(function (x) { return !x; })) {
+          html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) +
+                  '</div><div class="mk-val empty">— not answered —</div></div>';
+          return;
+        }
+        html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>';
+        html += '<ul class="mk-array">';
+        arr.forEach(function (item, i) {
+          const itemLabel = (f.items && f.items[i] && f.items[i].label) || '';
+          const val = String(item || '').trim();
+          html += '<li><span class="arr-num">' + (i + 1) + '</span>' +
+            (itemLabel ? '<span class="arr-lbl">' + escapeHtml(itemLabel) + '</span>' : '') +
+            '<span class="arr-val' + (val ? '' : ' mk-val empty') + '">' +
+            (val ? escapeHtml(val) : '\u2014') + '</span></li>';
+        });
+        html += '</ul></div>';
+        return;
+      }
+
       // ---- plain text (with optional enum translation from schema.valueLabels) ----
       html += '<div class="mk-field"><div class="mk-label">' + escapeHtml(f.label) + '</div>' +
               legacyVal(translateVal(v, schema.valueLabels)) + '</div>';
@@ -1902,8 +2217,7 @@ function legacyMarkSheet(s, schema) {
     extra[k] = v;
   });
   if (Object.keys(extra).length) {
-    html += '<div class="mk-field"><div class="mk-label">Other recorded fields</div><pre class="mk-json">' +
-            escapeHtml(JSON.stringify(extra, null, 1).slice(0, 4000)) + '</pre></div>';
+    html += renderExtraData_(extra, 'Other Recorded / Legacy Fields');
   }
   return html;
 }
@@ -2119,7 +2433,14 @@ function openDetail(s) {
     return;
   }
 
-  // 2) a live v2 page that can describe its own layout
+  // 2) external schema registry (render_schemas.js)
+  const extSchema = findSchema(current.task);
+  if (extSchema) {
+    $('dAnswers').innerHTML = legacyMarkSheet(s, extSchema);
+    return;
+  }
+
+  // 3) a live v2 page that can describe its own layout
   const who = s.email;
   const task = current.task;
   fetchConfig(task).then(function (cfg) {
@@ -2127,11 +2448,8 @@ function openDetail(s) {
     if (cfg) {
       $('dAnswers').innerHTML = markSheet(s, cfg);
     } else {
-      const list = flatAnswers(s);
-      $('dAnswers').innerHTML = (list.length
-        ? list.map(function (a) { return '<dt>' + escapeHtml(a.k) + '</dt><dd>' + escapeHtml(a.v) + '</dd>'; }).join('')
-        : '<span class="meta">No saved answers yet.</span>') +
-        '<div class="meta" style="margin-top:8px">(plain list — this page hasn’t registered its layout with the Station)</div>';
+      // 4) smart heuristic render — infers structure from data shape
+      $('dAnswers').innerHTML = smartRender(s);
     }
   });
 }
