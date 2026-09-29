@@ -379,7 +379,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .section-pick .sp.on { background: var(--theme-accent-bg); border-color: var(--theme-accent-border); color: var(--theme-accent-dark); }
 
-/* ---------- seating popup (Room 8 v2 Physical Blueprint) ---------- */
+/* ---------- seating popup (Room 8 v3 Blueprint · three cluster rows) ---------- */
 #seatOverlay {
     display: none; position: fixed; inset: 0; z-index: 60;
     background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px);
@@ -417,70 +417,35 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     background: #fafbff;
 }
 
-/* Room Blueprint */
+/* Room Blueprint — v3: three rows of desk clusters
+   Front 2-2-2-3-2 (11) · Middle 2-2-2-3 (9) · Back 2-2-2-3 (9) + teacher desk back-right */
 .room-blueprint {
     flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px;
-    justify-content: space-between;
 }
-.room-upper { flex: 1; min-height: 0; display: flex; gap: 10px; }
-
-/* Wall Columns (Left & Right) */
-.wall-col { width: 140px; flex: none; display: flex; flex-direction: column; justify-content: space-between; }
-.wall-top-open {
-    flex: 0.85; min-height: 44px; border: 1.5px dashed #c9cde6; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(241, 245, 249, 0.45); margin-bottom: 5px;
-}
-.wall-top-cupboards {
-    flex: 0.85; min-height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    background: #f1f5f9; margin-bottom: 5px;
-}
-.open-label { font-size: 0.6rem; font-weight: 800; color: #7a80a0; letter-spacing: 0.12em; text-transform: uppercase; }
-.cupboard-label { font-size: 0.6rem; font-weight: 800; color: #475569; letter-spacing: 0.12em; text-transform: uppercase; }
-
-.wall-lower-cluster {
-    flex: 1.5; display: flex; flex-direction: column; gap: 4px;
-    background: #fffdf5; border: 1.5px solid #fde68a; border-radius: 10px; padding: 5px;
-    justify-content: space-between;
-}
-.wall-title { font-size: 0.62rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
-
-/* Center Area */
-.center-area {
-    flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 5px;
-    padding: 2px 4px;
-}
+.seat-row { min-height: 0; display: flex; flex-direction: column; gap: 3px; }
+.room-blueprint > .seat-row { flex: 1; }
+.room-bottom { flex: 1; min-height: 0; display: flex; gap: 10px; align-items: stretch; }
+.room-bottom .seat-row { flex: 2.6; }
 .row-label {
     font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
-    margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2px; flex: none;
 }
 .row-label.front-label { color: #047857; }
-.row-label.second-label { color: #1d4ed8; }
-.pairs-row { display: flex; gap: 8px; width: 100%; }
-.pairs-row.center-pairs { justify-content: center; padding: 0 40px; }
-.pair {
+.row-label.middle-label { color: #1d4ed8; }
+.row-label.back-label { color: #be185d; }
+.clusters-row { flex: 1; min-height: 0; display: flex; gap: 14px; align-items: stretch; }
+.cluster {
     flex: 1; display: flex; gap: 4px; min-width: 0;
     background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 4px;
 }
-
-/* Room Bottom */
-.room-bottom { flex: none; display: flex; gap: 10px; align-items: stretch; }
-.wall-back-two-thirds {
-    flex: 2.2; display: flex; flex-direction: column; gap: 3px;
-    background: #fdf4f8; border: 1.5px solid #fbcfe8; border-radius: 10px; padding: 5px 7px;
-}
-.wall-back-two-thirds .wall-title { color: #be185d; }
-.wall-back-desks { display: flex; gap: 5px; width: 100%; }
-
-.teacher-station-corner { flex: 0.9; display: flex; align-items: stretch; }
+.teacher-station-corner { flex: 0.55; display: flex; align-items: stretch; }
 .tdesk-box {
     width: 100%; border: 2px dashed #059669; background: #ecfdf5; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    padding: 5px 10px; text-align: center; gap: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 5px 8px; text-align: center; gap: 4px;
 }
 .tdesk-icon { font-size: 1.2rem; line-height: 1; }
-.tdesk-text { font-size: 0.8rem; font-weight: 800; color: #065f46; letter-spacing: 0.08em; }
+.tdesk-text { font-size: 0.72rem; font-weight: 800; color: #065f46; letter-spacing: 0.08em; }
 
 /* Desks */
 .seat-sheet .desk {
@@ -865,97 +830,80 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         </div>
 
         <div class="room-blueprint">
-            <div class="room-upper">
-                <!-- Left Wall Column (Top Doorway Aisle Open; Lower Half has 4 desks) -->
-                <div class="wall-col wall-left">
-                    <div class="wall-top-open">
-                        <span class="open-label">DOORWAY AISLE</span>
+            <div class="seat-row">
+                <!-- Front Row · 5 clusters (2-2-2-3-2) = 11 desks -->
+                <div class="row-label front-label"><span>Front Row (11)</span></div>
+                <div class="clusters-row">
+                    <div class="cluster">
+                        <div class="desk desk-front" data-seat="1"><span class="num">1</span><div class="name" data-seat="1"></div></div>
+                        <div class="desk desk-front" data-seat="2"><span class="num">2</span><div class="name" data-seat="2"></div></div>
                     </div>
-                    <div class="wall-lower-cluster">
-                        <div class="wall-title">Left Wall (4)</div>
-                        <div class="desk desk-wall" data-seat="15"><span class="num">15</span><div class="name" data-seat="15"></div></div>
-                        <div class="desk desk-wall" data-seat="16"><span class="num">16</span><div class="name" data-seat="16"></div></div>
-                        <div class="desk desk-wall" data-seat="17"><span class="num">17</span><div class="name" data-seat="17"></div></div>
-                        <div class="desk desk-wall" data-seat="18"><span class="num">18</span><div class="name" data-seat="18"></div></div>
+                    <div class="cluster">
+                        <div class="desk desk-front" data-seat="3"><span class="num">3</span><div class="name" data-seat="3"></div></div>
+                        <div class="desk desk-front" data-seat="4"><span class="num">4</span><div class="name" data-seat="4"></div></div>
                     </div>
-                </div>
-
-                <!-- Center Area (4 Front Pairs + 3 Second Row Pairs) -->
-                <div class="center-area">
-                    <!-- Front Row -->
-                    <div>
-                        <div class="row-label front-label">
-                            <span>Front Row (8)</span>
-                        </div>
-                        <div class="pairs-row">
-                            <div class="pair">
-                                <div class="desk desk-front" data-seat="1"><span class="num">1</span><div class="name" data-seat="1"></div></div>
-                                <div class="desk desk-front" data-seat="2"><span class="num">2</span><div class="name" data-seat="2"></div></div>
-                            </div>
-                            <div class="pair">
-                                <div class="desk desk-front" data-seat="3"><span class="num">3</span><div class="name" data-seat="3"></div></div>
-                                <div class="desk desk-front" data-seat="4"><span class="num">4</span><div class="name" data-seat="4"></div></div>
-                            </div>
-                            <div class="pair">
-                                <div class="desk desk-front" data-seat="5"><span class="num">5</span><div class="name" data-seat="5"></div></div>
-                                <div class="desk desk-front" data-seat="6"><span class="num">6</span><div class="name" data-seat="6"></div></div>
-                            </div>
-                            <div class="pair">
-                                <div class="desk desk-front" data-seat="7"><span class="num">7</span><div class="name" data-seat="7"></div></div>
-                                <div class="desk desk-front" data-seat="8"><span class="num">8</span><div class="name" data-seat="8"></div></div>
-                            </div>
-                        </div>
+                    <div class="cluster">
+                        <div class="desk desk-front" data-seat="5"><span class="num">5</span><div class="name" data-seat="5"></div></div>
+                        <div class="desk desk-front" data-seat="6"><span class="num">6</span><div class="name" data-seat="6"></div></div>
                     </div>
-
-                    <!-- Second Row -->
-                    <div>
-                        <div class="row-label second-label">
-                            <span>Second Row (6)</span>
-                        </div>
-                        <div class="pairs-row center-pairs">
-                            <div class="pair">
-                                <div class="desk desk-second" data-seat="9"><span class="num">9</span><div class="name" data-seat="9"></div></div>
-                                <div class="desk desk-second" data-seat="10"><span class="num">10</span><div class="name" data-seat="10"></div></div>
-                            </div>
-                            <div class="pair">
-                                <div class="desk desk-second" data-seat="11"><span class="num">11</span><div class="name" data-seat="11"></div></div>
-                                <div class="desk desk-second" data-seat="12"><span class="num">12</span><div class="name" data-seat="12"></div></div>
-                            </div>
-                            <div class="pair">
-                                <div class="desk desk-second" data-seat="13"><span class="num">13</span><div class="name" data-seat="13"></div></div>
-                                <div class="desk desk-second" data-seat="14"><span class="num">14</span><div class="name" data-seat="14"></div></div>
-                            </div>
-                        </div>
+                    <div class="cluster">
+                        <div class="desk desk-front" data-seat="7"><span class="num">7</span><div class="name" data-seat="7"></div></div>
+                        <div class="desk desk-front" data-seat="8"><span class="num">8</span><div class="name" data-seat="8"></div></div>
+                        <div class="desk desk-front" data-seat="9"><span class="num">9</span><div class="name" data-seat="9"></div></div>
                     </div>
-                </div>
-
-                <!-- Right Wall Column (Top Cupboards; Lower Half has 3 desks) -->
-                <div class="wall-col wall-right">
-                    <div class="wall-top-cupboards">
-                        <span class="cupboard-label">CUPBOARDS</span>
-                    </div>
-                    <div class="wall-lower-cluster">
-                        <div class="wall-title">Right Wall (3)</div>
-                        <div class="desk desk-wall" data-seat="19"><span class="num">19</span><div class="name" data-seat="19"></div></div>
-                        <div class="desk desk-wall" data-seat="20"><span class="num">20</span><div class="name" data-seat="20"></div></div>
-                        <div class="desk desk-wall" data-seat="21"><span class="num">21</span><div class="name" data-seat="21"></div></div>
+                    <div class="cluster">
+                        <div class="desk desk-front" data-seat="10"><span class="num">10</span><div class="name" data-seat="10"></div></div>
+                        <div class="desk desk-front" data-seat="11"><span class="num">11</span><div class="name" data-seat="11"></div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Room Bottom: Back Wall (8 Desks · Windows) + Teacher Desk in Back-Right Corner -->
+            <!-- Middle Row · 4 clusters (2-2-2-3) = 9 desks -->
+            <div class="seat-row">
+                <div class="row-label middle-label"><span>Middle Row (9)</span></div>
+                <div class="clusters-row">
+                    <div class="cluster">
+                        <div class="desk desk-second" data-seat="12"><span class="num">12</span><div class="name" data-seat="12"></div></div>
+                        <div class="desk desk-second" data-seat="13"><span class="num">13</span><div class="name" data-seat="13"></div></div>
+                    </div>
+                    <div class="cluster">
+                        <div class="desk desk-second" data-seat="14"><span class="num">14</span><div class="name" data-seat="14"></div></div>
+                        <div class="desk desk-second" data-seat="15"><span class="num">15</span><div class="name" data-seat="15"></div></div>
+                    </div>
+                    <div class="cluster">
+                        <div class="desk desk-second" data-seat="16"><span class="num">16</span><div class="name" data-seat="16"></div></div>
+                        <div class="desk desk-second" data-seat="17"><span class="num">17</span><div class="name" data-seat="17"></div></div>
+                    </div>
+                    <div class="cluster">
+                        <div class="desk desk-second" data-seat="18"><span class="num">18</span><div class="name" data-seat="18"></div></div>
+                        <div class="desk desk-second" data-seat="19"><span class="num">19</span><div class="name" data-seat="19"></div></div>
+                        <div class="desk desk-second" data-seat="20"><span class="num">20</span><div class="name" data-seat="20"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Row · 4 clusters (2-2-2-3) = 9 desks + Teacher Desk in Back-Right Corner -->
             <div class="room-bottom">
-                <div class="wall-back-two-thirds">
-                    <div class="wall-title">Back Wall · Windows (8)</div>
-                    <div class="wall-back-desks">
-                        <div class="desk desk-back" data-seat="22"><span class="num">22</span><div class="name" data-seat="22"></div></div>
-                        <div class="desk desk-back" data-seat="23"><span class="num">23</span><div class="name" data-seat="23"></div></div>
-                        <div class="desk desk-back" data-seat="24"><span class="num">24</span><div class="name" data-seat="24"></div></div>
-                        <div class="desk desk-back" data-seat="25"><span class="num">25</span><div class="name" data-seat="25"></div></div>
-                        <div class="desk desk-back" data-seat="26"><span class="num">26</span><div class="name" data-seat="26"></div></div>
-                        <div class="desk desk-back" data-seat="27"><span class="num">27</span><div class="name" data-seat="27"></div></div>
-                        <div class="desk desk-back" data-seat="28"><span class="num">28</span><div class="name" data-seat="28"></div></div>
-                        <div class="desk desk-back" data-seat="29"><span class="num">29</span><div class="name" data-seat="29"></div></div>
+                <div class="seat-row">
+                    <div class="row-label back-label"><span>Back Row (9)</span></div>
+                    <div class="clusters-row">
+                        <div class="cluster">
+                            <div class="desk desk-back" data-seat="21"><span class="num">21</span><div class="name" data-seat="21"></div></div>
+                            <div class="desk desk-back" data-seat="22"><span class="num">22</span><div class="name" data-seat="22"></div></div>
+                        </div>
+                        <div class="cluster">
+                            <div class="desk desk-back" data-seat="23"><span class="num">23</span><div class="name" data-seat="23"></div></div>
+                            <div class="desk desk-back" data-seat="24"><span class="num">24</span><div class="name" data-seat="24"></div></div>
+                        </div>
+                        <div class="cluster">
+                            <div class="desk desk-back" data-seat="25"><span class="num">25</span><div class="name" data-seat="25"></div></div>
+                            <div class="desk desk-back" data-seat="26"><span class="num">26</span><div class="name" data-seat="26"></div></div>
+                        </div>
+                        <div class="cluster">
+                            <div class="desk desk-back" data-seat="27"><span class="num">27</span><div class="name" data-seat="27"></div></div>
+                            <div class="desk desk-back" data-seat="28"><span class="num">28</span><div class="name" data-seat="28"></div></div>
+                            <div class="desk desk-back" data-seat="29"><span class="num">29</span><div class="name" data-seat="29"></div></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1340,8 +1288,21 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     });
 
     // ---------- seating popup ----------
-    // Sources, best first: the seating doc's own browser storage ("sp_<homeroom>"),
-    // a snapshot in class_seating_data.js, then the alphabetical roster.
+    // Sources, best first: the seating doc's browser storage ("sp2_<homeroom>",
+    // falling back to legacy "sp_<homeroom>"), a snapshot in class_seating_data.js,
+    // then the alphabetical roster. A stored copy that exactly equals the matching
+    // `legacy` map is a stale pre-reshuffle (old room) copy and is dropped.
+    function isLegacyPlanCopy(hr, ls2) {
+        const legacy = (window.CLASS_SEATING || {}).legacy || {};
+        const oldSeats = legacy[hr] && legacy[hr].seats;
+        if (!oldSeats) return false;
+        try {
+            const parsed = JSON.parse(ls2);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+            const pk = Object.keys(parsed), ok = Object.keys(oldSeats);
+            return pk.length === ok.length && pk.every(k => parsed[k] === oldSeats[k]);
+        } catch (e) { return false; }
+    }
     function rosterNamesFor(homeroom) {
         const roster = window.MASTER_ROSTER_DATA || [];
         const kids = roster.filter(s => String(s.homeroom) === homeroom)
@@ -1372,6 +1333,9 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         let source = 'roster', seats = {};
         // 1. check v2 localStorage from seating-plan-v2.html
         let ls2 = localStorage.getItem('sp2_' + hr);
+        if (ls2 && isLegacyPlanCopy(hr, ls2)) {
+            try { localStorage.removeItem('sp2_' + hr); ls2 = null; } catch(e){}
+        }
         if (ls2 && hr === '903' && ls2.includes('"7":"Addy C."')) {
             try { localStorage.removeItem('sp2_903'); ls2 = null; } catch(e){}
         }
@@ -1419,6 +1383,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 let i = queue.indexOf(saved);
                 if (i === -1 && saved === 'Kossy U.') i = queue.indexOf('Blessing U.');
                 if (i === -1 && saved === 'Blessing U.') i = queue.indexOf('Kossy U.');
+                if (i === -1 && saved.includes(' ')) {
+                    // tolerate roster display variants: saved "Samuel Mac" (old-plan
+                    // spelling) vs generated "Samuel Ma." — same first name, one
+                    // surname prefix of the other
+                    const sp = saved.indexOf(' ');
+                    const sStem = saved.slice(sp + 1).replace(/\.$/, '').toLowerCase();
+                    i = queue.findIndex(q => {
+                        const qp = q.indexOf(' ');
+                        if (qp === -1 || q.slice(0, qp) !== saved.slice(0, sp)) return false;
+                        const qStem = q.slice(qp + 1).replace(/\.$/, '').toLowerCase();
+                        return qStem.startsWith(sStem) || sStem.startsWith(qStem);
+                    });
+                }
                 if (i > -1) queue.splice(i, 1);
             } else {
                 map[s] = '';
@@ -2110,6 +2087,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
     current = autoPickSection();
     render();
+    // ?seats=1 deep link: open the seating popup immediately on load
+    if (new URLSearchParams(location.search).get('seats')) toggleSeats(true);
     refreshLive(true);
 })();
 </script>

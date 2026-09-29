@@ -182,13 +182,18 @@ needed; read-only steps need no PIN.
 
 ## Seating plans
 
-`seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in
-that page's **browser storage** (`sp_<homeroom>`, JSON seatNumber→name). The opening
-slide's 🪑 popup reads, best first: that storage → snapshot in
-`Student_System/class_seating_data.js` (`snapshots.<homeroom>`) → alphabetical roster
-from `Student_System/students_roster_data.js`. To sync a class for projectors on a
-different browser/origin, mirror its saved layout into `class_seating_data.js`
-snapshots and push. Names only — never PINs/IDs/notes on projector screens.
+Room 8 blueprint (v3, Sept 2026 reshuffle): 29 desks in 3 cluster rows — Front
+2-2-2-3-2 (seats 1–11), Middle 2-2-2-3 (12–20), Back 2-2-2-3 (21–29), teacher desk
+back-right; seats number front-to-back, left-to-right within each row. The opening
+slide's 🪑 popup reads, best first: seating-doc browser storage (`sp2_<homeroom>`,
+then legacy `sp_<homeroom>`) → snapshot in `Student_System/class_seating_data.js`
+(`snapshots.<homeroom>`) → alphabetical roster from
+`Student_System/students_roster_data.js`. A stored copy that exactly equals the
+matching `legacy.<homeroom>.seats` map is a stale pre-reshuffle copy and is
+auto-removed. To sync a class for projectors on a different browser/origin, mirror
+its saved layout into `class_seating_data.js` snapshots and push;
+`Class_Startup.html?section=<sec>&seats=1` deep-links the popup. Names only — never
+PINs/IDs/notes on projector screens.
 
 - Section keys: `902-CIT 902-HL 901-CIT 901-HL 903-CIT 903-HL 801-HE 802-HE 803-HE 804-HE`
   (course = `CIT9` / `HL9` / `HL8`).
