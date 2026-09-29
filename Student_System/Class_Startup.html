@@ -1010,7 +1010,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     function meetingsOf(sec) { return (MEET[sec] && MEET[sec].meetings) || []; }
     function meetingToday(sec) {
         const t = todayISO();
-        return meetingsOf(sec).find(m => m.d === t) || null;
+        const ms = meetingsOf(sec).filter(m => m.d === t);
+        if (!ms.length) return null;
+        // Sections can hold two meetings on one day (e.g. 803: P3 ILT + P5 HE).
+        // During a period, prefer that period's meeting; otherwise the earliest.
+        const p = currentPeriod();
+        return (p && ms.find(m => m.p === p)) || ms[0];
     }
     function todaysSections() { return ORDER.filter(sec => meetingToday(sec)); }
 
@@ -1134,8 +1139,9 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                     const mm = meetingToday(s);
                     const bell = BELLS.find(b => b[0] === mm.p);
                     const past = bell && toMin(bell[2]) <= now;
+                    const lbl = mm.t === 'ILT' ? s.split('-')[0] + ' ILT' : s.replace('-', ' ');
                     return '<span class="period-chip' + (s === sec ? ' current' : '') + (past ? ' past' : '') +
-                        '" data-sec="' + s + '"><span class="p">' + mm.p + '</span>' + s.replace('-', ' ') + '</span>';
+                        '" data-sec="' + s + '"><span class="p">' + mm.p + '</span>' + lbl + '</span>';
                   }).join('')
                 : '<span class="empty-note">no Room 8 classes today — pick one:</span>' +
                   ORDER.map(s => '<span class="period-chip' + (s === sec ? ' current' : '') +
@@ -1157,12 +1163,13 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         document.body.setAttribute('data-theme', themeKey);
         const icon = ICON_MAP[themeKey] || '📋';
 
+        const iltTag = (m && m.t === 'ILT') ? ' · ILT' : '';
         document.getElementById('courseLine').innerHTML =
             '<span class="course-icon">' + icon + '</span>' +
-            escapeHtml((info ? info.label : sec) + (slides[sec] && slides[sec].title ? ' · ' + slides[sec].title : ''));
+            escapeHtml((info ? info.label : sec) + iltTag + (slides[sec] && slides[sec].title ? ' · ' + slides[sec].title : ''));
         document.getElementById('metaLine').innerHTML =
             '<span class="mono">' + sec + '</span>' +
-            (m ? ' · ' + m.p + ' · ' + escapeHtml(info.room) : ' · not scheduled today') +
+            (m ? ' · ' + m.p + (m.t === 'ILT' ? ' · ILT' : '') + ' · ' + escapeHtml(info.room) : ' · not scheduled today') +
             ' · Mr. Waugh';
 
         // today panel
