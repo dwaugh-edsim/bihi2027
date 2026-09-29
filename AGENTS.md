@@ -40,9 +40,12 @@ Rules:
 - **Planning docs, answer keys, audits, and tooling go in the private repo** — never here.
 - Need a file that has moved (outcome maps, answer keys, `tools/*.py`, roster JSON,
   audits)? Read it from `../bihipri-27/<dir>-priv/…`, and `git pull` there too.
-- **This repo's `.gitignore` ignores `tools/`, `inbox/`, `curriculum-planning/`,
+- **This repo's `.gitignore` ignores `tools/`, `curriculum-planning/`,
   `system-maintenance/`, `audit/`, and `data/sheets/`** — a file written to those paths
   here is invisible to git. Author them in the private repo instead.
+- **Morning kickstarts are authored to `../bihipri-27/inbox-priv/`** (tracked in the
+  private repo) — never to public `inbox/`, which only stores legacy digests from before
+  the repo split and stays tracked for continuity.
 - Both repos must be **cloned and pushed on both machines**; a fact that lives only in
   one clone does not exist for the other harness.
 - **Coordination log:** append to `../bihipri-27/Student_System-priv/piiiharden.md`
@@ -88,9 +91,11 @@ will be at school).
   content-related can be swallowed there. Don't add content patterns to it.
 - `Private_Student_Data/*` here is ignored **by design**; its traveling copy is
   `../bihipri-27/Private_Student_Data-priv/` (tracked). The checker verifies that pairing.
-- The public repo's ignored paths (`tools/ inbox/ audit/ curriculum-planning/
+- The public repo's ignored paths (`tools/ audit/ curriculum-planning/
   system-maintenance/ data/sheets/`) are the **leak net**: a file dropped there is never
-  published — but it also never travels, so author those in the private repo.
+  published — but it also never travels, so author those in the private repo. Public
+  `inbox/` is legacy (pre-split digests, still tracked); new digests go to
+  `../bihipri-27/inbox-priv/`.
 
 ## Class Log live API (the teacher's "what did we do last class" tracker)
 
