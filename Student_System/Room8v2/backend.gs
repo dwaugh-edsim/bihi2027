@@ -26,8 +26,8 @@
  * ============================================================================
  */
 
-var CONFIG_VERSION = 'R8-BE-0.18.0-2026-09-27';
-var CONFIG_DEPLOYED = '2026-09-27T21:00:00Z';
+var CONFIG_VERSION = 'R8-BE-0.19.0-2026-09-28';
+var CONFIG_DEPLOYED = '2026-09-28T00:00:00Z';
 
 var ALLOWED_DOMAIN = 'gnspes.ca';
 var FRESH_MS       = 4 * 60 * 60 * 1000;   // identity signatures valid 4 hours (a class)
@@ -228,6 +228,18 @@ function mergeTaskIntoStudent_(ss, email, p) {
   var sheet = ss.getSheetByName(TAB_STUDENTS);
   var row = findStudentRow_(sheet, email);
   var now = new Date();
+  // Sanitize the incoming section — garbage ('271', floats, blanks) must never reach
+  // the row or the per-task entries (Sept 28 audit: section=271 rows clobbered by a
+  // malformed writer). Impossible course/homeroom pairs fall back to the sanitized value.
+  p.section = saneSection_(p.section);
+  var taskCourse = courseForTask_(p.task);
+  if (taskCourse) {
+    var hr = String(p.section || '').split('-')[0];
+    if (hr && hr.length === 3) {
+      var want = sectionForCourse_(hr, taskCourse);
+      if (want) p.section = want;
+    }
+  }
   var ledger;
   if (row === -1) {
     ledger = { _v: 1, email: email, name: p.name, section: p.section, grade: p.grade, _tasks: {} };
@@ -385,6 +397,7 @@ function doPost(e) {
     if (action === 'get_snapshot')      { requireTeacher_(payload); return getSnapshot_(ss); }
     if (action === 'list_roster')       { requireTeacher_(payload); return listRoster_(ss); }
     if (action === 'remove_roster_student') { requireTeacher_(payload); return removeRosterStudent_(ss, payload); }
+    if (action === 'admin_fix_student_row') { requireTeacher_(payload); return adminFixStudentRow_(ss, payload); }
 
     return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
   } catch (err) {
@@ -426,10 +439,16 @@ function studentSubmit_(ss, payload) {
   }
 
   var who = rosterFor_(ss, id.email);
-  var section = String(payload.section || '');
-  if (!section && who.known && who.section) {
-    section = sectionForCourse_(who.section, payload.course || task);
+  // SECTION AUTHORITY (R8-BE-0.19.0): the server decides, not the client.
+  // For rostered students the row section is derived from the roster homeroom + THIS
+  // task's course — a CIT9 page can no longer flip a student's section to -CIT while
+  // they're saving HL9 work (the last-write-wins drift found in the Sept 28 audit).
+  // Off-roster students keep their client-sent section, sanitized.
+  var section = '';
+  if (who.known && who.section) {
+    section = sectionForCourse_(who.section, courseForTask_(task) || payload.course || task);
   }
+  if (!section) section = saneSection_(payload.section);
   var name = who.known ? who.name : String(payload.name || '');
   var data = payload.data || {};
   if (requestId) data._requestId = requestId;
@@ -726,6 +745,11 @@ function pruneTask_(ss, payload) {
                                          'prune_' + Utilities.getUuid()]);
     delete live._tasks[task];
     sheet.getRange(row, S_LEDGER).setValue(JSON.stringify(live));
+    // R8-BE-0.19.0: clear the gradebook stamp too — a ✅ used to outlive its data.
+    try {
+      var tcol = getOrCreateTaskColumn_(sheet, task);
+      sheet.getRange(row, tcol).setValue('');
+    } catch (e) { /* column write is best-effort */ }
   } finally { lock.releaseLock(); }
 
   return jsonOut_({ status: 'ok', dryRun: false, removed: true, email: email, task: task, row: row,
@@ -1013,12 +1037,21 @@ function setRoster_(ss, payload) {
   var roster = payload.roster || {};
   var mode = String(payload.mode || 'replace');   // 'replace' clears the tab; 'merge' upserts and never deletes
   var students = Array.isArray(roster.students) ? roster.students : [];
-  var seen = {}, rows = [], dupes = 0;
+  var seen = {}, rows = [], dupes = 0, sectionsNormalized = 0, namesDropped = 0;
   students.forEach(function (s) {
     var email = String(s.email || '').trim().toLowerCase();
     if (!email || seen[email]) { if (email) dupes++; return; }
     seen[email] = 1;
-    rows.push([email, String(s.first || ''), String(s.last || ''), String(s.section || ''), s.grade || '', String(s.courses || ''), new Date()]);
+    // R8-BE-0.19.0: normalize sections (floats '901.0' -> '901', garbage -> '') and
+    // refuse numeric names (student numbers in the name column caused the '642' row).
+    var rawSec = String(s.section || '').trim();
+    var sec = saneSection_(rawSec);
+    if (sec !== rawSec) sectionsNormalized++;
+    var nm = String(s.first || '').trim();
+    if (/^\d+(\.0+)?$/.test(nm)) { nm = ''; namesDropped++; }
+    var lk = String(s.last || '').trim();
+    if (/^\d+(\.0+)?$/.test(lk)) { lk = ''; namesDropped++; }
+    rows.push([email, nm, lk, sec, s.grade || '', String(s.courses || ''), new Date()]);
   });
   var sh = ss.getSheetByName(TAB_ROSTER);
   var lock = LockService.getScriptLock(); lock.waitLock(30000);
@@ -1044,7 +1077,9 @@ function setRoster_(ss, payload) {
       if (rows.length) sh.getRange(2, 1, rows.length, 7).setValues(rows);
     }
   } finally { lock.releaseLock(); }
-  return jsonOut_({ status: 'roster_saved', mode: mode, count: count, duplicatesSkipped: dupes, updated: roster.updated || '' });
+  return jsonOut_({ status: 'roster_saved', mode: mode, count: count, duplicatesSkipped: dupes,
+                    sectionsNormalized: sectionsNormalized, numericNamesDropped: namesDropped,
+                    updated: roster.updated || '' });
 }
 
 function getRosterMeta_(ss) {
@@ -1074,6 +1109,58 @@ function listRoster_(ss) {
 // Remove one student from the Roster by email. The Students tab row (their
 // work) is reported if one exists but NEVER deleted here — student work
 // removal is a separate, deliberate decision. Returns before/after counts.
+// ============================================================================
+// ADMIN ROW REPAIR (R8-BE-0.19.0, teacher-gated)
+// Surgical fixes to a single Students row: restore a clobbered Name, set a
+// Section/Grade, or delete a junk row. Every call appends an audit row to
+// Submissions_Log (status 'AdminRepair') describing exactly what changed.
+// Payload: { email, name?, section?, grade?, deleteRow?, note? }
+// ============================================================================
+function adminFixStudentRow_(ss, payload) {
+  var email = String(payload.email || '').trim().toLowerCase();
+  if (!email) throw new Error('email is required.');
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var row = findStudentRow_(sheet, email);
+  if (row === -1) return jsonOut_({ status: 'error', message: 'No Students row for that email.' });
+  if (payload.deleteRow !== true && payload.name === undefined && payload.section === undefined && payload.grade === undefined) {
+    return jsonOut_({ status: 'error', message: 'Nothing to do: pass name/section/grade and/or deleteRow:true.' });
+  }
+
+  var changes = [];
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    if (payload.deleteRow === true) {
+      var snapshot = sheet.getRange(row, 1, 1, 8).getValues()[0];
+      ss.getSheetByName(TAB_LOG).appendRow([new Date(), email, String(snapshot[2] || ''),
+        String(snapshot[4] || ''), 'AdminRepair', 'ROW DELETED: ' + String(payload.note || ''),
+        String(snapshot[5] || ''), 'admin_' + Utilities.getUuid()]);   // full ledger backed up first
+      sheet.deleteRow(row);
+      return jsonOut_({ status: 'ok', deleted: true, email: email, row: row });
+    }
+    if (payload.name !== undefined) {
+      var nm = String(payload.name || '').trim();
+      if (/^\d+(\.0+)?$/.test(nm)) throw new Error('Refusing to write a numeric name.');
+      sheet.getRange(row, S_NAME).setValue(nm);
+      changes.push('name="' + nm + '"');
+    }
+    if (payload.section !== undefined) {
+      var sec = saneSection_(payload.section);
+      if (!sec) throw new Error('Invalid section "' + payload.section + '" — use NNN or NNN-CIT/HL/HE.');
+      sheet.getRange(row, S_SECTION).setValue(sec);
+      changes.push('section="' + sec + '"');
+    }
+    if (payload.grade !== undefined) {
+      var g = Number(payload.grade);
+      if (g !== 8 && g !== 9) throw new Error('Grade must be 8 or 9.');
+      sheet.getRange(row, S_GRADE).setValue(g);
+      changes.push('grade=' + g);
+    }
+  } finally { lock.releaseLock(); }
+  ss.getSheetByName(TAB_LOG).appendRow([new Date(), email, String(payload.section || ''), '', 'AdminRepair',
+    'Changed: ' + changes.join(', ') + (payload.note ? ' — ' + payload.note : ''), '', 'admin_' + Utilities.getUuid()]);
+  return jsonOut_({ status: 'ok', email: email, row: row, changed: changes });
+}
+
 function removeRosterStudent_(ss, payload) {
   var email = String(payload.email || '').trim().toLowerCase();
   if (!email) throw new Error('email is required.');
@@ -1402,12 +1489,29 @@ function sectionForCourse_(hr, course) {
   var s = String(hr).trim();
   if (s.indexOf('-') !== -1) return s;
   var c = String(course || '').toUpperCase();
+  // IMPOSSIBLE PAIR GUARD (R8-BE-0.19.0): an 8xx homeroom has no CIT9/HL9 class and a
+  // 9xx homeroom has no HL8 class. Returning '' (instead of e.g. '801-CIT') makes
+  // callers keep the existing value instead of manufacturing invalid sections — the
+  // generator of the '801-CIT'/'801-HL' artifacts found in the Sept 28 audit.
+  if (s.charAt(0) === '8' && (c.indexOf('CIT') !== -1 || c.indexOf('HL9') !== -1)) return '';
+  if (s.charAt(0) === '9' && (c.indexOf('HL8') !== -1 || c.indexOf('GRADE 7') !== -1)) return '';
   var suffix = '';
   if (c.indexOf('CIT') !== -1) suffix = 'CIT';
   else if (c.indexOf('HL9') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '9')) suffix = 'HL';
   else if (c.indexOf('HL8') !== -1 || c.indexOf('HE') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '8')) suffix = 'HE';
   else suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[c] || c;
   return suffix ? (s + '-' + suffix) : s;
+}
+
+// A section cell is only trustworthy in these shapes: '901', '901-CIT', '901-HL', '801-HE'.
+// Anything else (room numbers like 271, student numbers, floats like '901.0', blanks) is
+// garbage and must be normalized to '' before it reaches the sheet (Sept 28 audit).
+var SECTION_RE_ = /^\d{3}(-(CIT|HL|HE))?$/;
+function saneSection_(v) {
+  var s = String(v || '').trim();
+  var m = s.match(/^(\d{3})(?:\.0+)?(-(CIT|HL|HE))?$/);   // tolerate float-coerced '901.0'
+  if (!m) return '';
+  return m[1] + (m[2] || '');
 }
 
 // Seed the Roster tab from the old class tabs: email -> name/homeroom/grade/courses.
@@ -1504,6 +1608,10 @@ function transformLegacyData_(taskName, data) {
 // ============================================================================
 function cleanSections_(ss, payload) {
   var dry = payload.dryRun !== false;
+  // R8-BE-0.19.0: rows whose email is in skipEmails are left untouched — used where a
+  // row's ledger legitimately holds another student's recovered work (mingled rows).
+  var skip = {};
+  (payload.skipEmails || []).forEach(function (e) { skip[String(e || '').trim().toLowerCase()] = 1; });
   var roster = readRoster_(ss);
   var byEmail = {};
   roster.forEach(function (r) { byEmail[r.email] = r; });
@@ -1516,6 +1624,7 @@ function cleanSections_(ss, payload) {
   rows.forEach(function (r, i) {
     var email = String(r[0] || '').trim().toLowerCase();
     if (!email) return;
+    if (skip[email]) { skipped.push({ row: i + 2, email: email, why: 'skipped by request (skipEmails)' }); return; }
     var rowNo = i + 2;
     var rosterRec = byEmail[email];
     if (!rosterRec || !rosterRec.section) {
@@ -1535,6 +1644,7 @@ function cleanSections_(ss, payload) {
       var course = courseForTask_(tk);
       if (!course) { noCourse.push(tk); return; }
       var want = sectionForCourse_(homeroom, course);
+      if (!want) return;   // impossible homeroom/course pair — leave the entry alone
       if (String(t.section || '') !== want) {
         perTask.push({ task: tk, from: String(t.section || '(none)'), to: want });
       }
@@ -1546,7 +1656,8 @@ function cleanSections_(ss, payload) {
     var wantGrade = homeroomGrade_(homeroom);
     if (newest) {
       var nc = courseForTask_(newest.task);
-      if (nc) wantRowSection = sectionForCourse_(homeroom, nc);
+      var wantNewest = nc ? sectionForCourse_(homeroom, nc) : '';
+      if (wantNewest) wantRowSection = wantNewest;   // impossible pair: keep current row value
     }
     // Coerce BOTH sides to String. wantGrade is a Number (homeroomGrade_ returns
     // 8|9) while the stored cell reads back as a String, so `String(r[3]) !== wantGrade`
@@ -1795,19 +1906,29 @@ function importSubmissions_(ss, payload) {
       if (!email) { errors.push('Missing email for ' + (sub.name || 'unnamed')); return; }
       var task = String(sub.task || '').trim();
       if (!task) { errors.push('Missing task for ' + email); return; }
+      // R8-BE-0.19.0: the Sept 28 audit traced the 'section=271' / name='642' Students
+      // rows to batch imports carrying shifted columns. Reject garbage before it lands.
+      var subName = String(sub.name || '').trim();
+      if (!subName || /^\d+(\.0+)?$/.test(subName)) {
+        errors.push('Invalid name for ' + email + ' ("' + subName + '") — row skipped.'); return;
+      }
+      var subSection = saneSection_(sub.section);
+      if (sub.section && !subSection) {
+        errors.push('Invalid section for ' + email + ' ("' + sub.section + '") — row skipped.'); return;
+      }
       var now = new Date();
       var data = sub.data || {};
       var reqId = 'import_' + Utilities.getUuid();
-      
+
       // 1) Audit log entry
       if (log) {
-        log.appendRow([now, email, sub.section || '', task, 'Imported', String(sub.summary || ''), JSON.stringify(data), reqId]);
+        log.appendRow([now, email, subSection, task, 'Imported', String(sub.summary || ''), JSON.stringify(data), reqId]);
       }
-      
+
       // 2) Merge into student ledger
       var res = mergeTaskIntoStudent_(ss, email, {
-        name: String(sub.name || ''),
-        section: String(sub.section || ''),
+        name: subName,
+        section: subSection,
         grade: sub.grade || 8,
         task: task,
         summary: String(sub.summary || ''),

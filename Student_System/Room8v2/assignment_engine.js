@@ -393,17 +393,26 @@ window.R8Assignment = (function () {
     function resolveSectionKey(raw, course, classList) {
       if (!raw) return '';
       var s = String(raw).trim();
-      if (s.indexOf('-') !== -1) return s;
       var c = String(course || '').toUpperCase();
       var suffix = '';
       if (c.indexOf('CIT') !== -1) suffix = 'CIT';
       else if (c.indexOf('HL9') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '9')) suffix = 'HL';
       else if (c.indexOf('HL8') !== -1 || c.indexOf('HE') !== -1 || (c.indexOf('HL') !== -1 && s.charAt(0) === '8')) suffix = 'HE';
       else suffix = { CIT9: 'CIT', HL9: 'HL', HL8: 'HE' }[c] || '';
+      // R8-BE-0.19.0: an already-suffixed roster value whose course contradicts THIS page
+      // used to pass through untouched (engine bug: '902-CIT' submitted from HL9 pages).
+      // Re-derive from the bare homeroom, validated against this page's classList.
+      var m = s.match(/^(\d{3})-([A-Z]+)$/);
+      if (m) {
+        if (!suffix || m[2] === suffix) return s;              // correct (or unknown) course — keep
+        var rederived = m[1] + '-' + suffix;
+        if (Array.isArray(classList) && classList.length && classList.indexOf(rederived) === -1) return s;
+        return rederived;
+      }
       var candidate = suffix ? (s + '-' + suffix) : s;
       if (Array.isArray(classList) && classList.length) {
         for (var i = 0; i < classList.length; i++) {
-          if (classList[i] === candidate || classList[i].indexOf(s + '-') === 0) return classList[i];
+          if (classList[i] === candidate) return classList[i];
         }
       }
       return candidate;
@@ -498,8 +507,10 @@ window.R8Assignment = (function () {
       whoEl.appendChild(document.createTextNode('Signed in as '));
       whoEl.appendChild(h('b', '', id.email));
       whoEl.appendChild(document.createTextNode(known ? ' · ' + name + ' · ' + resolvedSection : ' · not on the roster yet — choose below:'));
-      if (!known && (cfg.classList || []).length) {
-        sectionWrap.textContent = 'Section (not on the roster — choose): ';
+      if ((!known || !resolvedSection) && (cfg.classList || []).length) {
+        // R8-BE-0.19.0: also show the picker for rostered students whose roster Section
+        // is blank — they used to submit section:'' silently.
+        sectionWrap.textContent = known ? 'Section (roster has none — choose): ' : 'Section (not on the roster — choose): ';
         var sel = h('select'); sel.id = 'r8section';
         sel.appendChild(h('option', '', '—'));
         cfg.classList.forEach(function (s) { var o = h('option', '', s); o.value = s; sel.appendChild(o); });

@@ -24,7 +24,7 @@
 window.Room8 = (function () {
   'use strict';
 
-  var cfg = { identityUrl: '', backendUrl: '' };
+  var cfg = { identityUrl: '', backendUrl: '', course: '' };
   var ID_KEY = 'r8id';
   var identity = null;
   var popupRef = null;
@@ -52,6 +52,7 @@ window.Room8 = (function () {
     if (config) {
       if (config.identityUrl) cfg.identityUrl = config.identityUrl;
       if (config.backendUrl) cfg.backendUrl = config.backendUrl;
+      if (config.course) cfg.course = config.course;   // lets resolve_student course-suffix server-side
     }
     telemetry.wire();
     window.addEventListener('message', onMessage);
@@ -130,7 +131,11 @@ window.Room8 = (function () {
     return p;
   }
 
-  function resolve(extra) { return post(cfg.backendUrl, authed('resolve_student', extra || {})); }
+  function resolve(extra) {
+    var p = extra || {};
+    if (cfg.course && !p.course) p.course = cfg.course;   // R8-BE-0.19.0: tell the backend which course is asking
+    return post(cfg.backendUrl, authed('resolve_student', p));
+  }
   function load(task) { return post(cfg.backendUrl, authed('load_assignment', { task: task })); }
   function myTasks() { return post(cfg.backendUrl, authed('get_my_tasks', {})); }
   function teacher(action, payload, teacherPin) {
