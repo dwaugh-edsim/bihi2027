@@ -398,64 +398,255 @@
 <script src="../Student_System/Room8v2/pipe.js"></script>
 <script src="../Student_System/Room8v2/assignment_engine.js"></script>
 <script>
-  // Curated data snapshot. Students' browsers never call Numbeo or WhereNext.
+  // Curated snapshot: Numbeo cost-of-living data (crowd-sourced), December 2022, all prices in USD.
+  // Redistributed from the Kaggle dataset "Global Cost of Living" (CC0 1.0 Public Domain).
+  // Students' browsers never call Numbeo or any other live data service.
+  const DATA_VERSION = 2;
+  const SNAPSHOT_NOTE = 'Snapshot: Dec 2022 · Numbeo crowd data';
+  const DEFAULT_CITY_A = 'CA-halifax';
+  const DEFAULT_CITY_B = 'US-new-york';
+
   const CITY_DATA = [
-    {
-      id: 'PT-Lisbon', name: 'Lisbon, Portugal', currency: 'EUR', exchangeRate: 0.92,
-      priceDate: '2026-01-15', priceSource: 'INE (Statistics Portugal), Eurostat',
-      netAnnualLocal: 13729, salaryYear: 2023,
-      prices: {
-        bread: { local: 1.2, usd: 1.3 }, milk: { local: 0.78, usd: 0.85 },
-        eggs: { local: 2.3, usd: 2.5 }, chicken: { local: 5.98, usd: 6.5 },
-        fastFood: { local: 7, usd: 7.6 }, rent: { local: 1200, usd: 1300 },
-        utilities: { local: 110, usd: 120 }, internet: { local: 32, usd: 35 }
-      }
-    },
-    {
-      id: 'ZA-Cape Town', name: 'Cape Town, South Africa', currency: 'ZAR', exchangeRate: 18.2,
-      priceDate: '2026-01-15', priceSource: 'Stats SA, World Bank',
-      netAnnualLocal: 134460, salaryYear: 2022,
-      prices: {
-        bread: { local: 14.56, usd: 0.8 }, milk: { local: 16.38, usd: 0.9 },
-        eggs: { local: 36.4, usd: 2 }, chicken: { local: 69.16, usd: 3.8 },
-        fastFood: { local: 80, usd: 4.4 }, rent: { local: 17188, usd: 944 },
-        utilities: { local: 1456, usd: 80 }, internet: { local: 546, usd: 30 }
-      }
-    },
-    {
-      id: 'MX-Mexico City', name: 'Mexico City, Mexico', currency: 'MXN', exchangeRate: 17.2,
-      priceDate: '2026-01-15', priceSource: 'INEGI (Mexico), World Bank',
-      netAnnualLocal: 87583, salaryYear: 2023,
-      prices: {
-        bread: { local: 31, usd: 1.8 }, milk: { local: 21, usd: 1.2 },
-        eggs: { local: 33, usd: 1.9 }, chicken: { local: 81, usd: 4.7 },
-        fastFood: { local: 110, usd: 6.4 }, rent: { local: 24000, usd: 1395 },
-        utilities: { local: 946, usd: 55 }, internet: { local: 430, usd: 25 }
-      }
-    },
-    {
-      id: 'TH-Bangkok', name: 'Bangkok, Thailand', currency: 'THB', exchangeRate: 35.5,
-      priceDate: '2026-01-15', priceSource: 'NSO (Thailand), World Bank',
-      netAnnualLocal: 274500, salaryYear: 2022,
-      prices: {
-        bread: { local: 53, usd: 1.5 }, milk: { local: 57, usd: 1.6 },
-        eggs: { local: 64, usd: 1.8 }, chicken: { local: 120, usd: 3.4 },
-        fastFood: { local: 170, usd: 4.8 }, rent: { local: 19525, usd: 550 },
-        utilities: { local: 3550, usd: 100 }, internet: { local: 710, usd: 20 }
-      }
-    }
+    { id: 'CA-halifax', name: 'Halifax, Canada', region: 'Canada', salary: 3072,
+      p: { bread:2.26,milk:1.8,eggs:3.41,chicken:11.43,cappuccino:3.53,fastFood:8.89,gasoline:1.42,transit:61.14,cinema:11.12,rent:1217,utilities:140,internet:75.81 } },
+    { id: 'CA-toronto', name: 'Toronto, Canada', region: 'Canada', salary: 3250,
+      p: { bread:2.54,milk:2.52,eggs:2.96,chicken:11.92,cappuccino:3.59,fastFood:9.63,gasoline:1.44,transit:116,cinema:11.12,rent:1728,utilities:128,internet:54.91 } },
+    { id: 'CA-montreal', name: 'Montreal, Canada', region: 'Canada', salary: 2824,
+      p: { bread:2.81,milk:2.17,eggs:2.87,chicken:11.07,cappuccino:3.57,fastFood:9.63,gasoline:1.47,transit:69.67,cinema:11.12,rent:1046,utilities:80.09,internet:47.56 } },
+    { id: 'CA-ottawa', name: 'Ottawa, Canada', region: 'Canada', salary: 3320,
+      p: { bread:2.18,milk:1.85,eggs:2.91,chicken:11.6,cappuccino:3.68,fastFood:8.89,gasoline:1.43,transit:91.72,cinema:11.12,rent:1272,utilities:120,internet:59.52 } },
+    { id: 'CA-calgary', name: 'Calgary, Canada', region: 'Canada', salary: 3808,
+      p: { bread:2.18,milk:1.73,eggs:2.9,chicken:10.51,cappuccino:3.75,fastFood:8.89,gasoline:1.26,transit:83.01,cinema:11.29,rent:1122,utilities:190,internet:64.35 } },
+    { id: 'CA-winnipeg', name: 'Winnipeg, Canada', region: 'Canada', salary: 2146,
+      p: { bread:1.94,milk:1.34,eggs:2.78,chicken:10.68,cappuccino:3.38,fastFood:8.22,gasoline:1.4,transit:77.08,cinema:10.38,rent:818,utilities:145,internet:60.69 } },
+    { id: 'CA-vancouver', name: 'Vancouver, Canada', region: 'Canada', salary: 3475,
+      p: { bread:2.61,milk:2.19,eggs:3.58,chicken:11.52,cappuccino:3.8,fastFood:8.89,gasoline:1.58,transit:95.24,cinema:12.6,rent:1800,utilities:91.93,internet:62.95 } },
+    { id: 'US-new-york', name: 'New York, USA', region: 'United States', salary: 5944,
+      p: { bread:4.11,milk:1.26,eggs:3.93,chicken:17.88,cappuccino:5.38,fastFood:10.0,gasoline:1.29,transit:129,cinema:18.0,rent:3852,utilities:181,internet:69.77 } },
+    { id: 'US-boston', name: 'Boston, USA', region: 'United States', salary: 5342,
+      p: { bread:3.82,milk:1.09,eggs:3.49,chicken:13.22,cappuccino:4.83,fastFood:10.0,gasoline:1.23,transit:90.0,cinema:15.0,rent:2716,utilities:185,internet:60.95 } },
+    { id: 'US-chicago', name: 'Chicago, USA', region: 'United States', salary: 4819,
+      p: { bread:3.18,milk:0.84,eggs:2.98,chicken:10.47,cappuccino:4.83,fastFood:10.0,gasoline:1.39,transit:80.0,cinema:15.0,rent:1969,utilities:164,internet:62.56 } },
+    { id: 'US-houston', name: 'Houston, USA', region: 'United States', salary: 5063,
+      p: { bread:3.02,milk:0.95,eggs:3.15,chicken:9.11,cappuccino:4.74,fastFood:9.0,gasoline:1.03,transit:40.0,cinema:12.0,rent:1591,utilities:173,internet:73.91 } },
+    { id: 'US-los-angeles', name: 'Los Angeles, USA', region: 'United States', salary: 5456,
+      p: { bread:3.8,milk:1.14,eggs:3.84,chicken:11.58,cappuccino:4.94,fastFood:10.0,gasoline:1.59,transit:99.5,cinema:15.99,rent:2527,utilities:140,internet:67.95 } },
+    { id: 'US-miami', name: 'Miami, USA', region: 'United States', salary: 4196,
+      p: { bread:3.17,milk:1.15,eggs:3.92,chicken:16.04,cappuccino:4.59,fastFood:10.0,gasoline:1.12,transit:111,cinema:15.0,rent:2605,utilities:156,internet:62.69 } },
+    { id: 'US-seattle', name: 'Seattle, USA', region: 'United States', salary: 6292,
+      p: { bread:4.2,milk:1.12,eggs:3.53,chicken:14.78,cappuccino:5.21,fastFood:11.0,gasoline:1.4,transit:100,cinema:15.0,rent:2292,utilities:222,internet:71.0 } },
+    { id: 'US-honolulu', name: 'Honolulu, USA', region: 'United States', salary: 4091,
+      p: { bread:6.1,milk:1.87,eggs:5.98,chicken:18.51,cappuccino:5.43,fastFood:10.0,gasoline:1.37,transit:75.0,cinema:15.0,rent:2051,utilities:282,internet:66.61 } },
+    { id: 'MX-mexico-city', name: 'Mexico City, Mexico', region: 'Latin America & Caribbean', salary: 719,
+      p: { bread:2.02,milk:1.32,eggs:1.97,chicken:6.32,cappuccino:2.71,fastFood:6.7,gasoline:1.2,transit:15.69,cinema:4.64,rent:767,utilities:48.85,internet:26.67 } },
+    { id: 'CU-havana', name: 'Havana, Cuba', region: 'Latin America & Caribbean', salary: 35.75,
+      p: { bread:1.18,milk:3.52,eggs:1.64,chicken:6.07,cappuccino:1.91,fastFood:7.0,gasoline:1.14,transit:20.0,cinema:1.12,rent:533,utilities:37.14,internet:165 } },
+    { id: 'JM-kingston', name: 'Kingston, Jamaica', region: 'Latin America & Caribbean', salary: 585,
+      p: { bread:2.73,milk:3.39,eggs:2.9,chicken:5.77,cappuccino:3.49,fastFood:6.5,gasoline:1.33,transit:32.48,cinema:9.74,rent:635,utilities:134,internet:40.65 } },
+    { id: 'PA-panama-city', name: 'Panama City, Panama', region: 'Latin America & Caribbean', salary: 804,
+      p: { bread:2.17,milk:1.58,eggs:2.13,chicken:7.2,cappuccino:3.34,fastFood:6.5,gasoline:1.07,transit:27.5,cinema:6.0,rent:909,utilities:98.85,internet:46.98 } },
+    { id: 'DO-santo-domingo', name: 'Santo Domingo, Dominican Republic', region: 'Latin America & Caribbean', salary: 460,
+      p: { bread:2.15,milk:1.31,eggs:2.22,chicken:5.61,cappuccino:2.23,fastFood:7.4,gasoline:1.27,transit:91.41,cinema:5.94,rent:908,utilities:86.9,internet:46.85 } },
+    { id: 'BR-sao-paulo', name: 'São Paulo, Brazil', region: 'Latin America & Caribbean', salary: 446,
+      p: { bread:1.56,milk:1.29,eggs:2.28,chicken:4.57,cappuccino:1.57,fastFood:6.71,gasoline:1.26,transit:45.98,cinema:8.62,rent:568,utilities:69.27,internet:21.55 } },
+    { id: 'BR-rio-de-janeiro', name: 'Rio de Janeiro, Brazil', region: 'Latin America & Caribbean', salary: 363,
+      p: { bread:1.53,milk:1.07,eggs:1.9,chicken:3.72,cappuccino:1.57,fastFood:6.71,gasoline:1.38,transit:48.09,cinema:6.71,rent:397,utilities:93.12,internet:20.1 } },
+    { id: 'AR-buenos-aires', name: 'Buenos Aires, Argentina', region: 'Latin America & Caribbean', salary: 404,
+      p: { bread:1.29,milk:0.77,eggs:1.37,chicken:4.0,cappuccino:1.78,fastFood:5.0,gasoline:0.97,transit:10.0,cinema:5.0,rent:312,utilities:48.19,internet:21.87 } },
+    { id: 'CL-santiago', name: 'Santiago, Chile', region: 'Latin America & Caribbean', salary: 638,
+      p: { bread:1.33,milk:1.06,eggs:2.88,chicken:5.76,cappuccino:2.62,fastFood:6.79,gasoline:1.34,transit:45.27,cinema:5.94,rent:456,utilities:138,internet:23.72 } },
+    { id: 'CO-bogota', name: 'Bogotá, Colombia', region: 'Latin America & Caribbean', salary: 300,
+      p: { bread:0.99,milk:0.87,eggs:1.52,chicken:3.69,cappuccino:1.14,fastFood:4.62,gasoline:0.52,transit:26.22,cinema:3.36,rent:335,utilities:67.58,internet:19.69 } },
+    { id: 'PE-lima', name: 'Lima, Peru', region: 'Latin America & Caribbean', salary: 490,
+      p: { bread:1.83,milk:1.22,eggs:1.81,chicken:4.99,cappuccino:2.66,fastFood:5.22,gasoline:1.31,transit:15.66,cinema:5.48,rent:511,utilities:71.32,internet:30.91 } },
+    { id: 'EC-quito', name: 'Quito, Ecuador', region: 'Latin America & Caribbean', salary: 462,
+      p: { bread:1.7,milk:0.95,eggs:1.67,chicken:5.75,cappuccino:2.53,fastFood:7.0,gasoline:0.76,transit:20.87,cinema:6.06,rent:446,utilities:41.9,internet:37.62 } },
+    { id: 'VE-caracas', name: 'Caracas, Venezuela', region: 'Latin America & Caribbean', salary: 185,
+      p: { bread:2.35,milk:1.84,eggs:2.04,chicken:5.44,cappuccino:1.74,fastFood:10.0,gasoline:0.5,transit:30.0,cinema:6.0,rent:383,utilities:12.37,internet:49.38 } },
+    { id: 'UY-montevideo', name: 'Montevideo, Uruguay', region: 'Latin America & Caribbean', salary: 876,
+      p: { bread:2.38,milk:1.11,eggs:3.29,chicken:10.08,cappuccino:3.89,fastFood:10.23,gasoline:1.91,transit:46.05,cinema:8.96,rent:584,utilities:139,internet:40.14 } },
+    { id: 'GB-london', name: 'London, UK', region: 'Europe', salary: 4034,
+      p: { bread:1.25,milk:1.35,eggs:2.93,chicken:8.19,cappuccino:4.14,fastFood:8.61,gasoline:2.16,transit:184,cinema:14.76,rent:2417,utilities:299,internet:35.92 } },
+    { id: 'GB-manchester', name: 'Manchester, UK', region: 'Europe', salary: 2799,
+      p: { bread:1.39,milk:1.32,eggs:2.86,chicken:7.24,cappuccino:3.82,fastFood:7.38,gasoline:2.02,transit:86.1,cinema:11.69,rent:1137,utilities:255,internet:34.03 } },
+    { id: 'GB-edinburgh', name: 'Edinburgh, UK', region: 'Europe', salary: 2761,
+      p: { bread:1.31,milk:1.19,eggs:2.46,chicken:6.68,cappuccino:3.77,fastFood:7.38,gasoline:1.97,transit:73.8,cinema:10.46,rent:1148,utilities:206,internet:34.38 } },
+    { id: 'IE-dublin', name: 'Dublin, Ireland', region: 'Europe', salary: 3177,
+      p: { bread:1.87,milk:1.27,eggs:3.27,chicken:9.63,cappuccino:3.79,fastFood:10.01,gasoline:2.14,transit:126,cinema:13.67,rent:2019,utilities:234,internet:59.14 } },
+    { id: 'FR-paris', name: 'Paris, France', region: 'Europe', salary: 2752,
+      p: { bread:2.11,milk:1.24,eggs:3.67,chicken:13.01,cappuccino:3.89,fastFood:10.54,gasoline:2.13,transit:79.03,cinema:13.17,rent:1365,utilities:199,internet:31.36 } },
+    { id: 'ES-madrid', name: 'Madrid, Spain', region: 'Europe', salary: 2090,
+      p: { bread:1.09,milk:0.9,eggs:2.45,chicken:7.45,cappuccino:2.23,fastFood:8.43,gasoline:2.01,transit:57.48,cinema:9.48,rent:1056,utilities:166,internet:38.1 } },
+    { id: 'ES-barcelona', name: 'Barcelona, Spain', region: 'Europe', salary: 1978,
+      p: { bread:1.5,milk:1.0,eggs:2.62,chicken:7.45,cappuccino:2.35,fastFood:9.48,gasoline:2.05,transit:42.15,cinema:9.48,rent:1084,utilities:171,internet:40.15 } },
+    { id: 'PT-lisbon', name: 'Lisbon, Portugal', region: 'Europe', salary: 1125,
+      p: { bread:1.33,milk:0.88,eggs:2.67,chicken:6.94,cappuccino:1.97,fastFood:7.38,gasoline:2.12,transit:42.15,cinema:7.9,rent:1242,utilities:131,internet:35.58 } },
+    { id: 'PT-porto', name: 'Porto, Portugal', region: 'Europe', salary: 1036,
+      p: { bread:1.27,milk:0.75,eggs:2.2,chicken:6.16,cappuccino:1.8,fastFood:7.38,gasoline:2.09,transit:42.15,cinema:7.38,rent:804,utilities:121,internet:35.72 } },
+    { id: 'IT-rome', name: 'Rome, Italy', region: 'Europe', salary: 1580,
+      p: { bread:1.58,milk:1.61,eggs:3.59,chicken:9.95,cappuccino:1.5,fastFood:9.48,gasoline:2.07,transit:36.88,cinema:9.48,rent:1070,utilities:198,internet:29.26 } },
+    { id: 'IT-milan', name: 'Milan, Italy', region: 'Europe', salary: 1898,
+      p: { bread:2.4,milk:1.51,eggs:3.65,chicken:11.1,cappuccino:1.86,fastFood:10.22,gasoline:2.07,transit:41.1,cinema:10.54,rent:1336,utilities:216,internet:29.7 } },
+    { id: 'NL-amsterdam', name: 'Amsterdam, Netherlands', region: 'Europe', salary: 3655,
+      p: { bread:1.65,milk:1.25,eggs:3.75,chicken:10.12,cappuccino:3.58,fastFood:10.54,gasoline:2.25,transit:105,cinema:14.23,rent:1800,utilities:282,internet:49.7 } },
+    { id: 'BE-brussels', name: 'Brussels, Belgium', region: 'Europe', salary: 2798,
+      p: { bread:2.05,milk:1.12,eggs:3.08,chicken:9.97,cappuccino:3.34,fastFood:9.48,gasoline:1.98,transit:52.69,cinema:12.64,rent:985,utilities:208,internet:51.82 } },
+    { id: 'DE-berlin', name: 'Berlin, Germany', region: 'Europe', salary: 3158,
+      p: { bread:1.7,milk:1.19,eggs:2.99,chicken:9.87,cappuccino:3.37,fastFood:9.48,gasoline:2.16,transit:89.57,cinema:12.64,rent:1322,utilities:308,internet:40.24 } },
+    { id: 'DE-munich', name: 'Munich, Germany', region: 'Europe', salary: 3467,
+      p: { bread:1.94,milk:1.28,eggs:3.34,chicken:10.49,cappuccino:3.59,fastFood:9.48,gasoline:2.22,transit:62.28,cinema:12.64,rent:1428,utilities:303,internet:37.72 } },
+    { id: 'DE-frankfurt', name: 'Frankfurt, Germany', region: 'Europe', salary: 3366,
+      p: { bread:1.8,milk:1.12,eggs:2.87,chicken:10.35,cappuccino:3.37,fastFood:9.05,gasoline:2.25,transit:98.1,cinema:12.91,rent:1169,utilities:342,internet:38.65 } },
+    { id: 'DE-hamburg', name: 'Hamburg, Germany', region: 'Europe', salary: 3164,
+      p: { bread:2.38,milk:1.18,eggs:3.75,chicken:9.0,cappuccino:3.59,fastFood:9.48,gasoline:2.24,transit:96.94,cinema:15.81,rent:1111,utilities:287,internet:37.75 } },
+    { id: 'AT-vienna', name: 'Vienna, Austria', region: 'Europe', salary: 2735,
+      p: { bread:2.0,milk:1.36,eggs:3.68,chicken:10.9,cappuccino:3.89,fastFood:9.48,gasoline:2.03,transit:34.77,cinema:12.38,rent:997,utilities:217,internet:34.15 } },
+    { id: 'CH-zurich', name: 'Zurich, Switzerland', region: 'Europe', salary: 6783,
+      p: { bread:3.17,milk:1.78,eggs:6.04,chicken:28.52,cappuccino:5.6,fastFood:16.03,gasoline:2.25,transit:96.16,cinema:21.37,rent:2073,utilities:250,internet:52.59 } },
+    { id: 'CH-geneva', name: 'Geneva, Switzerland', region: 'Europe', salary: 5856,
+      p: { bread:2.97,milk:1.7,eggs:5.34,chicken:25.22,cappuccino:4.77,fastFood:16.03,gasoline:2.08,transit:74.79,cinema:20.3,rent:2121,utilities:194,internet:56.69 } },
+    { id: 'DK-copenhagen', name: 'Copenhagen, Denmark', region: 'Europe', salary: 3670,
+      p: { bread:2.87,milk:1.84,eggs:4.35,chicken:10.44,cappuccino:5.99,fastFood:12.05,gasoline:2.2,transit:73.71,cinema:17.01,rent:1765,utilities:203,internet:37.29 } },
+    { id: 'NO-oslo', name: 'Oslo, Norway', region: 'Europe', salary: 3646,
+      p: { bread:3.54,milk:2.12,eggs:4.14,chicken:14.16,cappuccino:4.65,fastFood:12.33,gasoline:2.22,transit:83.64,cinema:16.39,rent:1436,utilities:245,internet:50.07 } },
+    { id: 'SE-stockholm', name: 'Stockholm, Sweden', region: 'Europe', salary: 3021,
+      p: { bread:2.79,milk:1.44,eggs:3.74,chicken:11.81,cappuccino:3.95,fastFood:8.72,gasoline:2.16,transit:93.94,cinema:14.53,rent:1376,utilities:103,internet:34.07 } },
+    { id: 'FI-helsinki', name: 'Helsinki, Finland', region: 'Europe', salary: 2875,
+      p: { bread:2.35,milk:1.05,eggs:2.51,chicken:10.98,cappuccino:4.31,fastFood:9.72,gasoline:2.35,transit:68.49,cinema:15.81,rent:1045,utilities:109,internet:22.85 } },
+    { id: 'PL-warsaw', name: 'Warsaw, Poland', region: 'Europe', salary: 1286,
+      p: { bread:0.99,milk:0.79,eggs:2.5,chicken:5.61,cappuccino:2.97,fastFood:6.31,gasoline:1.66,transit:24.79,cinema:6.76,rent:793,utilities:199,internet:13.45 } },
+    { id: 'CZ-prague', name: 'Prague, Czechia', region: 'Europe', salary: 1686,
+      p: { bread:1.39,milk:1.02,eggs:2.34,chicken:8.53,cappuccino:2.79,fastFood:7.35,gasoline:1.93,transit:23.79,cinema:8.85,rent:945,utilities:267,internet:22.72 } },
+    { id: 'HU-budapest', name: 'Budapest, Hungary', region: 'Europe', salary: 974,
+      p: { bread:1.35,milk:1.08,eggs:2.78,chicken:4.81,cappuccino:1.85,fastFood:5.66,gasoline:1.55,transit:24.43,cinema:5.91,rent:492,utilities:154,internet:12.82 } },
+    { id: 'RO-bucharest', name: 'Bucharest, Romania', region: 'Europe', salary: 949,
+      p: { bread:1.0,milk:1.55,eggs:2.74,chicken:6.04,cappuccino:2.61,fastFood:5.78,gasoline:1.75,transit:17.13,cinema:7.49,rent:470,utilities:119,internet:8.37 } },
+    { id: 'BG-sofia', name: 'Sofia, Bulgaria', region: 'Europe', salary: 1006,
+      p: { bread:1.02,milk:1.57,eggs:2.58,chicken:7.65,cappuccino:1.93,fastFood:6.41,gasoline:1.74,transit:26.72,cinema:8.01,rent:446,utilities:134,internet:12.8 } },
+    { id: 'RS-belgrade', name: 'Belgrade, Serbia', region: 'Europe', salary: 670,
+      p: { bread:0.65,milk:1.33,eggs:2.36,chicken:6.65,cappuccino:1.9,fastFood:7.18,gasoline:1.8,transit:29.4,cinema:5.39,rent:649,utilities:153,internet:24.23 } },
+    { id: 'GR-athens', name: 'Athens, Greece', region: 'Europe', salary: 960,
+      p: { bread:1.15,milk:1.62,eggs:3.87,chicken:8.93,cappuccino:3.55,fastFood:7.38,gasoline:2.27,transit:31.61,cinema:8.43,rent:522,utilities:265,internet:32.2 } },
+    { id: 'TR-istanbul', name: 'Istanbul, Turkey', region: 'Europe', salary: 383,
+      p: { bread:0.5,milk:1.03,eggs:1.81,chicken:4.18,cappuccino:1.98,fastFood:4.29,gasoline:1.31,transit:32.31,cinema:3.76,rent:555,utilities:68.88,internet:8.9 } },
+    { id: 'RU-moscow', name: 'Moscow, Russia', region: 'Europe', salary: 1452,
+      p: { bread:0.83,milk:1.41,eggs:1.84,chicken:5.61,cappuccino:3.34,fastFood:6.4,gasoline:0.85,transit:38.4,cinema:8.0,rent:1141,utilities:146,internet:8.3 } },
+    { id: 'UA-kyiv', name: 'Kyiv, Ukraine', region: 'Europe', salary: 517,
+      p: { bread:0.69,milk:0.99,eggs:1.28,chicken:3.8,cappuccino:1.32,fastFood:3.62,gasoline:1.44,transit:9.52,cinema:3.67,rent:473,utilities:93.68,internet:5.11 } },
+    { id: 'AE-dubai', name: 'Dubai, UAE', region: 'Middle East & Africa', salary: 4322,
+      p: { bread:1.48,milk:1.81,eggs:3.14,chicken:8.22,cappuccino:5.3,fastFood:8.17,gasoline:1.1,transit:95.29,cinema:12.8,rent:1793,utilities:192,internet:97.02 } },
+    { id: 'AE-abu-dhabi', name: 'Abu Dhabi, UAE', region: 'Middle East & Africa', salary: 3541,
+      p: { bread:1.28,milk:1.71,eggs:2.69,chicken:7.44,cappuccino:4.83,fastFood:8.17,gasoline:1.07,transit:21.78,cinema:11.98,rent:1574,utilities:149,internet:101 } },
+    { id: 'QA-doha', name: 'Doha, Qatar', region: 'Middle East & Africa', salary: 3342,
+      p: { bread:1.64,milk:2.0,eggs:2.77,chicken:6.85,cappuccino:5.44,fastFood:6.87,gasoline:0.57,transit:41.2,cinema:10.99,rent:1835,utilities:122,internet:90.49 } },
+    { id: 'SA-riyadh', name: 'Riyadh, Saudi Arabia', region: 'Middle East & Africa', salary: 2216,
+      p: { bread:0.85,milk:1.82,eggs:2.74,chicken:7.37,cappuccino:3.84,fastFood:6.92,gasoline:0.61,transit:31.92,cinema:17.29,rent:753,utilities:92.83,internet:72.34 } },
+    { id: 'IL-tel-aviv', name: 'Tel Aviv, Israel', region: 'Middle East & Africa', salary: 3149,
+      p: { bread:2.72,milk:1.77,eggs:3.99,chicken:11.75,cappuccino:4.23,fastFood:16.15,gasoline:2.17,transit:66.79,cinema:13.06,rent:1728,utilities:269,internet:30.76 } },
+    { id: 'LB-beirut', name: 'Beirut, Lebanon', region: 'Middle East & Africa', salary: 370,
+      p: { bread:1.51,milk:6.81,eggs:1.88,chicken:6.71,cappuccino:3.51,fastFood:6.1,gasoline:1.31,transit:80.0,cinema:10.0,rent:719,utilities:278,internet:65.01 } },
+    { id: 'JO-amman', name: 'Amman, Jordan', region: 'Middle East & Africa', salary: 636,
+      p: { bread:0.53,milk:1.47,eggs:2.02,chicken:6.12,cappuccino:4.12,fastFood:7.05,gasoline:1.36,transit:49.34,cinema:11.28,rent:353,utilities:75.22,internet:36.88 } },
+    { id: 'EG-cairo', name: 'Cairo, Egypt', region: 'Middle East & Africa', salary: 200,
+      p: { bread:0.52,milk:0.82,eggs:1.29,chicken:3.96,cappuccino:1.75,fastFood:4.07,gasoline:0.4,transit:13.23,cinema:4.48,rent:197,utilities:26.53,internet:16.37 } },
+    { id: 'MA-casablanca', name: 'Casablanca, Morocco', region: 'Middle East & Africa', salary: 471,
+      p: { bread:0.47,milk:0.69,eggs:1.23,chicken:5.44,cappuccino:1.78,fastFood:6.14,gasoline:1.43,transit:21.72,cinema:5.9,rent:426,utilities:37.98,internet:36.34 } },
+    { id: 'NG-lagos', name: 'Lagos, Nigeria', region: 'Middle East & Africa', salary: 215,
+      p: { bread:1.37,milk:3.59,eggs:2.15,chicken:5.5,cappuccino:3.4,fastFood:6.75,gasoline:0.39,transit:33.77,cinema:7.88,rent:1407,utilities:28.27,internet:52.83 } },
+    { id: 'GH-accra', name: 'Accra, Ghana', region: 'Middle East & Africa', salary: 184,
+      p: { bread:0.64,milk:1.19,eggs:1.01,chicken:2.55,cappuccino:1.46,fastFood:4.46,gasoline:0.65,transit:18.21,cinema:3.93,rent:589,utilities:26.75,internet:31.37 } },
+    { id: 'KE-nairobi', name: 'Nairobi, Kenya', region: 'Middle East & Africa', salary: 456,
+      p: { bread:0.52,milk:0.96,eggs:1.39,chicken:5.88,cappuccino:2.25,fastFood:5.91,gasoline:1.18,transit:32.61,cinema:6.52,rent:415,utilities:28.18,internet:52.18 } },
+    { id: 'ET-addis-ababa', name: 'Addis Ababa, Ethiopia', region: 'Middle East & Africa', salary: 195,
+      p: { bread:0.53,milk:0.91,eggs:2.13,chicken:8.09,cappuccino:0.72,fastFood:4.0,gasoline:0.75,transit:12.0,cinema:4.0,rent:467,utilities:168,internet:202 } },
+    { id: 'ZA-johannesburg', name: 'Johannesburg, South Africa', region: 'Middle East & Africa', salary: 1503,
+      p: { bread:0.91,milk:1.07,eggs:2.05,chicken:4.49,cappuccino:1.82,fastFood:4.28,gasoline:1.43,transit:62.48,cinema:5.7,rent:397,utilities:106,internet:49.89 } },
+    { id: 'ZA-cape-town', name: 'Cape Town, South Africa', region: 'Middle East & Africa', salary: 1255,
+      p: { bread:0.96,milk:0.91,eggs:1.81,chicken:4.43,cappuccino:1.8,fastFood:3.99,gasoline:1.3,transit:29.75,cinema:5.7,rent:690,utilities:75.45,internet:46.26 } },
+    { id: 'ZA-durban', name: 'Durban, South Africa', region: 'Middle East & Africa', salary: 1080,
+      p: { bread:0.84,milk:1.07,eggs:1.59,chicken:4.2,cappuccino:1.73,fastFood:3.99,gasoline:1.22,transit:44.48,cinema:5.42,rent:352,utilities:146,internet:46.45 } },
+    { id: 'JP-tokyo', name: 'Tokyo, Japan', region: 'Asia', salary: 2869,
+      p: { bread:1.59,milk:1.44,eggs:1.93,chicken:8.3,cappuccino:3.42,fastFood:5.21,gasoline:1.24,transit:74.45,cinema:13.4,rent:1140,utilities:171,internet:32.85 } },
+    { id: 'JP-osaka', name: 'Osaka, Japan', region: 'Asia', salary: 2322,
+      p: { bread:1.47,milk:1.41,eggs:1.9,chicken:6.93,cappuccino:3.28,fastFood:5.36,gasoline:1.24,transit:88.81,cinema:13.84,rent:675,utilities:129,internet:32.15 } },
+    { id: 'KR-seoul', name: 'Seoul, South Korea', region: 'Asia', salary: 2690,
+      p: { bread:2.85,milk:2.2,eggs:4.04,chicken:10.58,cappuccino:3.93,fastFood:6.15,gasoline:1.43,transit:42.25,cinema:9.6,rent:743,utilities:182,internet:22.48 } },
+    { id: 'CN-beijing', name: 'Beijing, China', region: 'Asia', salary: 1562,
+      p: { bread:2.17,milk:2.01,eggs:1.94,chicken:3.95,cappuccino:4.62,fastFood:5.69,gasoline:1.2,transit:42.71,cinema:8.54,rent:1199,utilities:55.64,internet:20.83 } },
+    { id: 'CN-shanghai', name: 'Shanghai, China', region: 'Asia', salary: 1420,
+      p: { bread:2.61,milk:2.74,eggs:2.22,chicken:4.86,cappuccino:3.98,fastFood:5.69,gasoline:1.2,transit:28.47,cinema:8.54,rent:1092,utilities:66.0,internet:17.07 } },
+    { id: 'CN-shenzhen', name: 'Shenzhen, China', region: 'Asia', salary: 1572,
+      p: { bread:2.4,milk:2.23,eggs:2.13,chicken:4.37,cappuccino:4.2,fastFood:4.98,gasoline:1.19,transit:35.59,cinema:7.12,rent:739,utilities:67.63,internet:18.21 } },
+    { id: 'CN-hong-kong', name: 'Hong Kong, China', region: 'Asia', salary: 2994,
+      p: { bread:2.28,milk:3.11,eggs:3.41,chicken:9.35,cappuccino:5.09,fastFood:5.52,gasoline:2.77,transit:64.18,cinema:12.84,rent:2295,utilities:200,internet:22.84 } },
+    { id: 'TW-taipei', name: 'Taipei, Taiwan', region: 'Asia', salary: 1877,
+      p: { bread:1.93,milk:3.15,eggs:3.28,chicken:8.7,cappuccino:3.03,fastFood:4.91,gasoline:1.02,transit:41.89,cinema:10.47,rent:680,utilities:82.34,internet:25.62 } },
+    { id: 'SG-singapore', name: 'Singapore', region: 'Asia', salary: 4619,
+      p: { bread:2.03,milk:2.59,eggs:2.81,chicken:8.98,cappuccino:4.55,fastFood:5.92,gasoline:2.35,transit:94.65,cinema:11.09,rent:2735,utilities:146,internet:35.02 } },
+    { id: 'MY-kuala-lumpur', name: 'Kuala Lumpur, Malaysia', region: 'Asia', salary: 1291,
+      p: { bread:0.83,milk:1.7,eggs:1.74,chicken:3.72,cappuccino:2.74,fastFood:4.1,gasoline:0.48,transit:22.79,cinema:4.44,rent:438,utilities:53.07,internet:25.49 } },
+    { id: 'ID-jakarta', name: 'Jakarta, Indonesia', region: 'Asia', salary: 509,
+      p: { bread:1.2,milk:1.3,eggs:1.71,chicken:3.52,cappuccino:2.23,fastFood:3.57,gasoline:0.81,transit:11.34,cinema:3.24,rent:506,utilities:83.88,internet:31.57 } },
+    { id: 'PH-manila', name: 'Manila, Philippines', region: 'Asia', salary: 429,
+      p: { bread:1.24,milk:1.67,eggs:1.77,chicken:4.21,cappuccino:2.97,fastFood:3.59,gasoline:1.4,transit:12.04,cinema:5.74,rent:542,utilities:98.89,internet:37.97 } },
+    { id: 'VN-hanoi', name: 'Hanoi, Vietnam', region: 'Asia', salary: 510,
+      p: { bread:0.92,milk:1.36,eggs:1.49,chicken:3.48,cappuccino:1.91,fastFood:5.3,gasoline:1.11,transit:8.16,cinema:4.08,rent:330,utilities:74.36,internet:9.66 } },
+    { id: 'VN-ho-chi-minh-city', name: 'Ho Chi Minh City, Vietnam', region: 'Asia', salary: 488,
+      p: { bread:1.17,milk:1.49,eggs:1.52,chicken:3.42,cappuccino:2.02,fastFood:4.08,gasoline:1.11,transit:5.51,cinema:3.67,rent:494,utilities:74.15,internet:11.48 } },
+    { id: 'KH-phnom-penh', name: 'Phnom Penh, Cambodia', region: 'Asia', salary: 304,
+      p: { bread:1.85,milk:2.21,eggs:1.85,chicken:5.42,cappuccino:2.89,fastFood:6.53,gasoline:1.18,transit:10.62,cinema:5.0,rent:547,utilities:123,internet:35.25 } },
+    { id: 'TH-bangkok', name: 'Bangkok, Thailand', region: 'Asia', salary: 630,
+      p: { bread:1.91,milk:1.65,eggs:2.0,chicken:3.08,cappuccino:2.13,fastFood:5.76,gasoline:1.21,transit:37.44,cinema:7.63,rent:595,utilities:79.55,internet:15.46 } },
+    { id: 'BD-dhaka', name: 'Dhaka, Bangladesh', region: 'Asia', salary: 281,
+      p: { bread:0.67,milk:0.83,eggs:1.32,chicken:3.07,cappuccino:1.95,fastFood:4.88,gasoline:1.1,transit:18.53,cinema:4.88,rent:142,utilities:37.06,internet:21.9 } },
+    { id: 'PK-karachi', name: 'Karachi, Pakistan', region: 'Asia', salary: 167,
+      p: { bread:0.46,milk:0.8,eggs:1.14,chicken:2.83,cappuccino:1.41,fastFood:3.8,gasoline:1.05,transit:11.18,cinema:4.47,rent:114,utilities:66.56,internet:20.72 } },
+    { id: 'PK-lahore', name: 'Lahore, Pakistan', region: 'Asia', salary: 164,
+      p: { bread:0.67,milk:0.69,eggs:1.05,chicken:2.83,cappuccino:1.81,fastFood:3.58,gasoline:1.08,transit:6.71,cinema:4.47,rent:113,utilities:92.43,internet:23.83 } },
+    { id: 'IN-delhi', name: 'Delhi, India', region: 'Asia', salary: 586,
+      p: { bread:0.5,milk:0.73,eggs:1.02,chicken:3.81,cappuccino:1.77,fastFood:4.3,gasoline:1.24,transit:11.67,cinema:4.91,rent:230,utilities:58.07,internet:7.95 } },
+    { id: 'IN-mumbai', name: 'Mumbai, India', region: 'Asia', salary: 641,
+      p: { bread:0.5,milk:0.75,eggs:0.95,chicken:3.69,cappuccino:2.48,fastFood:3.68,gasoline:1.35,transit:4.91,cinema:4.3,rent:522,utilities:43.57,internet:9.33 } },
+    { id: 'IN-bangalore', name: 'Bangalore, India', region: 'Asia', salary: 970,
+      p: { bread:0.57,milk:0.58,eggs:0.98,chicken:3.83,cappuccino:2.09,fastFood:4.3,gasoline:1.29,transit:18.42,cinema:4.91,rent:241,utilities:24.93,internet:10.75 } },
+    { id: 'IN-chennai', name: 'Chennai, India', region: 'Asia', salary: 553,
+      p: { bread:0.5,milk:0.61,eggs:0.85,chicken:3.19,cappuccino:1.63,fastFood:4.91,gasoline:1.32,transit:12.28,cinema:2.46,rent:181,utilities:33.92,internet:9.48 } },
+    { id: 'IN-kolkata', name: 'Kolkata, India', region: 'Asia', salary: 532,
+      p: { bread:0.37,milk:0.63,eggs:0.92,chicken:3.05,cappuccino:1.64,fastFood:3.68,gasoline:1.33,transit:3.93,cinema:3.56,rent:149,utilities:31.81,internet:7.47 } },
+    { id: 'LK-colombo', name: 'Colombo, Sri Lanka', region: 'Asia', salary: 156,
+      p: { bread:0.64,milk:1.15,eggs:1.77,chicken:4.03,cappuccino:1.46,fastFood:3.25,gasoline:1.17,transit:4.07,cinema:2.37,rent:296,utilities:23.56,internet:9.61 } },
+    { id: 'NP-kathmandu', name: 'Kathmandu, Nepal', region: 'Asia', salary: 201,
+      p: { bread:0.5,milk:0.76,eggs:1.56,chicken:3.27,cappuccino:1.42,fastFood:7.69,gasoline:1.17,transit:4.61,cinema:3.84,rent:174,utilities:26.28,internet:12.17 } },
+    { id: 'AU-sydney', name: 'Sydney, Australia', region: 'Oceania', salary: 4684,
+      p: { bread:2.31,milk:1.4,eggs:3.77,chicken:8.01,cappuccino:3.11,fastFood:9.5,gasoline:1.38,transit:148,cinema:14.27,rent:1721,utilities:133,internet:50.66 } },
+    { id: 'AU-melbourne', name: 'Melbourne, Australia', region: 'Oceania', salary: 4053,
+      p: { bread:2.25,milk:1.31,eggs:3.65,chicken:8.36,cappuccino:3.23,fastFood:9.68,gasoline:1.42,transit:108,cinema:14.95,rent:1285,utilities:149,internet:51.57 } },
+    { id: 'AU-brisbane', name: 'Brisbane, Australia', region: 'Oceania', salary: 4083,
+      p: { bread:2.11,milk:1.32,eggs:3.23,chicken:7.65,cappuccino:3.34,fastFood:8.83,gasoline:1.38,transit:135,cinema:12.23,rent:1332,utilities:143,internet:51.29 } },
+    { id: 'AU-perth', name: 'Perth, Australia', region: 'Oceania', salary: 4256,
+      p: { bread:1.95,milk:1.61,eggs:4.06,chicken:8.7,cappuccino:3.36,fastFood:9.48,gasoline:1.32,transit:91.55,cinema:13.59,rent:1230,utilities:143,internet:53.26 } },
+    { id: 'NZ-auckland', name: 'Auckland, New Zealand', region: 'Oceania', salary: 3979,
+      p: { bread:2.19,milk:1.96,eggs:4.95,chicken:9.95,cappuccino:3.57,fastFood:9.62,gasoline:1.92,transit:138,cinema:13.47,rent:1369,utilities:150,internet:54.87 } },
+    { id: 'NZ-wellington', name: 'Wellington, New Zealand', region: 'Oceania', salary: 3549,
+      p: { bread:2.0,milk:1.97,eggs:4.23,chicken:10.15,cappuccino:3.34,fastFood:9.3,gasoline:1.81,transit:96.21,cinema:11.55,rent:1416,utilities:138,internet:53.65 } }
   ];
 
   const PRICE_ITEMS = [
-    { id: 'bread', item: 'Loaf of bread', unit: '500 g' },
+    { id: 'bread', item: 'Loaf of bread', unit: 'fresh white, 500 g' },
     { id: 'milk', item: 'Milk', unit: '1 liter' },
-    { id: 'eggs', item: 'Eggs', unit: '12' },
-    { id: 'chicken', item: 'Chicken breast', unit: '1 kg' },
-    { id: 'fastFood', item: 'Fast food combo meal', unit: 'one meal' },
-    { id: 'rent', item: '1-bedroom apartment, centre', unit: 'monthly; Cape Town is City Bowl' },
-    { id: 'utilities', item: 'Electricity, water, garbage', unit: 'monthly; 85 m² apartment' },
-    { id: 'internet', item: 'Internet (60+ Mbps)', unit: 'monthly' }
+    { id: 'eggs', item: 'Eggs', unit: 'dozen' },
+    { id: 'chicken', item: 'Chicken fillets', unit: '1 kg' },
+    { id: 'cappuccino', item: 'Cappuccino', unit: 'regular, café' },
+    { id: 'fastFood', item: 'Fast-food combo meal', unit: "McDonald's or equivalent" },
+    { id: 'gasoline', item: 'Gasoline / petrol', unit: '1 liter' },
+    { id: 'transit', item: 'Public transit pass', unit: 'monthly' },
+    { id: 'cinema', item: 'Cinema ticket', unit: 'international release' },
+    { id: 'rent', item: '1-bedroom apartment rent', unit: 'monthly, city centre' },
+    { id: 'utilities', item: 'Basic utilities', unit: 'monthly, 85 m² apartment' },
+    { id: 'internet', item: 'Home internet', unit: 'monthly, 60+ Mbps' }
   ];
+
+  const REGION_ORDER = ['Canada', 'United States', 'Latin America & Caribbean', 'Europe', 'Middle East & Africa', 'Asia', 'Oceania'];
 
   function cityById(id) {
     return CITY_DATA.find(function (city) { return city.id === id; }) || null;
@@ -465,21 +656,29 @@
     return Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });
   }
 
+  function cityOptionsHtml() {
+    return REGION_ORDER.map(function (region) {
+      const inRegion = CITY_DATA.filter(function (city) { return city.region === region; });
+      if (!inRegion.length) return '';
+      return '<optgroup label="' + region + '">' + inRegion.map(function (city) {
+        return '<option value="' + city.id + '">' + city.name + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+  }
+
   function priceCellHtml(city, item) {
-    const price = city.prices[item.id];
-    return '<span>' + city.currency + ' ' + formatNumber(price.local) + '</span>' +
-      '<span class="snapshot-meta">about $' + formatNumber(price.usd) + ' USD</span>';
+    const price = city.p[item.id];
+    if (price === undefined || price === null) return '<span>—</span>';
+    return '<span><b>$' + formatNumber(price) + '</b> <span class="snapshot-meta">USD</span></span>';
   }
 
   function generateCitySnapshotHtml() {
-    const options = CITY_DATA.map(function (city) {
-      return '<option value="' + city.id + '">' + city.name + '</option>';
-    }).join('');
-    const rows = PRICE_ITEMS.map(function (item, index) {
+    const options = cityOptionsHtml();
+    const rows = PRICE_ITEMS.map(function (item) {
       return '<tr>' +
         '<td class="item-cell"><b>' + item.item + '</b><span class="snapshot-meta">' + item.unit + '</span></td>' +
-        '<td id="price-a-' + item.id + '">' + priceCellHtml(CITY_DATA[0], item) + '</td>' +
-        '<td id="price-b-' + item.id + '">' + priceCellHtml(CITY_DATA[3], item) + '</td>' +
+        '<td id="price-a-' + item.id + '">' + priceCellHtml(cityById(DEFAULT_CITY_A), item) + '</td>' +
+        '<td id="price-b-' + item.id + '">' + priceCellHtml(cityById(DEFAULT_CITY_B), item) + '</td>' +
         '<td class="snapshot-difference">' +
           '<button type="button" class="mini city-calc-btn" data-item-id="' + item.id + '"' +
             ' aria-label="Calculate the price difference for ' + item.item + '">Calculate %</button>' +
@@ -488,7 +687,7 @@
       '</tr>';
     }).join('');
     return '<div class="snapshot-selectors">' +
-        '<label for="cityASelect">City A<select id="cityASelect" aria-label="Choose City A">' + options + '</select>' +
+        '<label for="cityASelect">City A (starts as Halifax)<select id="cityASelect" aria-label="Choose City A">' + options + '</select>' +
           '<span id="cityAMeta" class="snapshot-meta"></span></label>' +
         '<label for="cityBSelect">City B<select id="cityBSelect" aria-label="Choose City B">' + options + '</select>' +
           '<span id="cityBMeta" class="snapshot-meta"></span></label>' +
@@ -496,7 +695,7 @@
       '<p id="snapshotPairWarning" class="snapshot-warning" role="status"></p>' +
       '<div style="overflow-x:auto;">' +
         '<table class="matrix" id="citySnapshotTable">' +
-          '<caption>Same item and unit in each city; local prices are shown with their approximate USD equivalents.</caption>' +
+          '<caption>Same item and unit in each city. Every price is in US dollars (USD), from the December 2022 Numbeo snapshot bundled into this page.</caption>' +
           '<thead><tr><th style="width:28%;">ITEM / UNIT</th>' +
             '<th id="cityAHeading" style="width:22%;">CITY A PRICE</th>' +
             '<th id="cityBHeading" style="width:22%;">CITY B PRICE</th>' +
@@ -504,27 +703,27 @@
           '<tbody>' + rows + '</tbody>' +
         '</table>' +
       '</div>' +
-      '<p class="snapshot-footnote">Use the approximate USD equivalents for the formula: (City A price − City B price) ÷ City B price × 100. A positive result means City A costs more for that item. Click Calculate % to reveal each result.</p>' +
+      '<p class="snapshot-footnote">Both columns are already in USD, so the formula is simply: (City A price − City B price) ÷ City B price × 100. A positive result means City A costs more for that item. Click Calculate % to reveal each result.</p>' +
       '<details class="dataset-sources">' +
         '<summary>Sources, dates and comparison limits</summary>' +
-        '<p>City prices: <a href="https://getwherenext.com/data/cost-of-living-2026#api-access" target="_blank" rel="noopener">WhereNext City Price Dataset</a>, version 2026.1, snapshot updated 15 January 2026. Its city records list these source labels: INE/Eurostat (Lisbon), Stats SA/World Bank (Cape Town), INEGI/World Bank (Mexico City), and NSO/World Bank (Bangkok).</p>' +
-        '<p>Affordability context: <a href="https://getwherenext.com/data/median-salaries-2026" target="_blank" rel="noopener">WhereNext Median Salaries by Country</a>. Annual net income is national, not city- or career-specific, and comes from the year shown; the dataset uses a tax model. Source records reference <a href="https://ec.europa.eu/eurostat/web/microdata/structure-of-earnings-survey" target="_blank" rel="noopener">Eurostat/INE Portugal</a>, <a href="https://www.statssa.gov.za/?p=16285" target="_blank" rel="noopener">Statistics South Africa</a>, <a href="https://www.inegi.org.mx/programas/enoe/15ymas/" target="_blank" rel="noopener">INEGI Mexico</a>, and <a href="https://www.nso.go.th/sites/2014en/Pages/Survey/Social/Labour-Force-Survey.aspx" target="_blank" rel="noopener">Thailand NSO</a>.</p>' +
-        '<p>These are selected price examples, not a complete or standardized cost-of-living basket. City-centre definitions differ (Cape Town uses City Bowl), and prices are from 2026 while national income records are from 2022 or 2023. The figures support a careful comparison, not a definitive affordability ranking. Data is attributed to WhereNext and shared under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>' +
+        '<p>City prices: <a href="https://www.numbeo.com/cost-of-living/" target="_blank" rel="noopener">Numbeo cost-of-living database</a>, snapshot of <b>December 2022</b>, redistributed through the Kaggle dataset <a href="https://www.kaggle.com/datasets/mvieira101/global-cost-of-living" target="_blank" rel="noopener">Global Cost of Living</a> and licensed <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Public Domain</a>. Items follow Numbeo\'s standard definitions (rent = 1-bedroom apartment in the city centre; utilities = electricity, heating, cooling, water and garbage for an 85 m² apartment). All prices were converted to US dollars.</p>' +
+        '<p>Income: Numbeo\'s <i>Average Monthly Net Salary (After Tax)</i> for each city, from the same December 2022 snapshot.</p>' +
+        '<p>Limitations: the data is crowd-sourced, so the number of price entries differs between cities; "city centre" means different things in different countries; city averages hide big neighbourhood differences; and December 2022 is several years old — Halifax rents, for example, have risen sharply since. Treat every comparison as a structured estimate, not a current fact. This page makes no requests to Numbeo or any other live service.</p>' +
       '</details>';
   }
 
   function generateAffordabilityHtml() {
-    return '<p class="snapshot-footnote">A rough PPP lens: compare a meal with an estimated hourly wage, and central rent with one-twelfth of annual national net income. The income is not specific to the city or a particular job, so use these as clues, not a verdict.</p>' +
+    return '<p class="snapshot-footnote">A rough purchasing-power lens: compare the fast-food meal with an estimated hourly wage, and central rent with the city\'s average monthly net salary. The salary is a city-level average from the same December 2022 snapshot — use these as clues, not a verdict.</p>' +
       '<div style="overflow-x:auto;">' +
         '<table class="matrix" aria-label="Directional affordability comparison">' +
           '<thead><tr><th>MEASURE</th><th id="affordCityA">City A</th><th id="affordCityB">City B</th></tr></thead>' +
           '<tbody>' +
             '<tr><td>Hours at 2,000 work hours/year to afford one combo meal</td><td id="mealHoursA">—</td><td id="mealHoursB">—</td></tr>' +
-            '<tr><td>Central 1-bedroom rent as a share of annual net income ÷ 12</td><td id="rentShareA">—</td><td id="rentShareB">—</td></tr>' +
+            '<tr><td>City-centre 1-bedroom rent as a share of the average monthly net salary</td><td id="rentShareA">—</td><td id="rentShareB">—</td></tr>' +
           '</tbody>' +
         '</table>' +
       '</div>' +
-      '<p class="snapshot-footnote">Income records are national median net estimates from 2022–2023; price records are city estimates from 15 January 2026. Currency is kept local for these calculations.</p>';
+      '<p class="snapshot-footnote">Salary is each city\'s average NET (after-tax) monthly salary in USD, December 2022. It is an average across all jobs — not the salary of a specific career — which is exactly why price alone can be misleading.</p>';
   }
 
   // ================= ASSIGNMENT CONFIG =================
@@ -537,12 +736,12 @@
     classList: ['901-CIT', '902-CIT', '903-CIT'],
     introHtml:
       '<p>This is the optional alternative for students who could not access the Numbeo version. If you completed that assignment, you do not need to redo it here. This page saves to a separate Server task and will not overwrite your Numbeo submission.</p>' +
-      '<p>Compare a small, shared basket of prices in four cities. The price and income snapshots are bundled into this page, so it makes no Numbeo or WhereNext data requests. Your work autosaves to the Server.</p>' +
-      '<p><b>Halifax is not in this dataset.</b> Choose two supported cities and compare the listed items. Prices appear in local currency and approximate USD equivalents; the city-centre rent row uses City Bowl for Cape Town.</p>' +
-      '<p>City prices are dated 15 January 2026. National income figures are older and are included only to help think about affordability, not to rank cities with certainty. The selected data is attributed to WhereNext and licensed under CC BY 4.0.</p>',
+      '<p><b>Halifax is City A by default.</b> Compare Halifax with any of the other ' + (CITY_DATA.length - 1) + ' cities bundled into this page — Toronto, New York, London, Seoul, Delhi, Bangkok, Rio, Frankfurt, Paris and many more. Every price is in US dollars, and the page makes no live data requests, so it cannot be blocked or rate-limited.</p>' +
+      '<p>The data is a saved copy of Numbeo\'s crowd-sourced cost-of-living database from <b>December 2022</b>. Prices have changed since then — Halifax rents in particular have risen a lot — so treat this as a structured comparison exercise, not today\'s price list.</p>' +
+      '<p>Pick any two cities, work through the 12-item basket, calculate each % difference, then test what the numbers actually mean for people who live and earn there.</p>',
     sections: [
       { num: '2A', title: 'Compare two city prices',
-        hint: 'Choose two different cities. Compare the same eight items using the approximate USD equivalents, then calculate each percentage difference. Positive means City A costs more than City B.',
+        hint: 'City A starts as Halifax. Choose any City B from the dropdown, compare the same twelve items in US dollars, then calculate each percentage difference. Positive means City A costs more than City B.',
         fields: [
           { id: 'citySnapshotWrap', type: 'static', html: generateCitySnapshotHtml() },
           { id: 'city_compare_observation', type: 'textarea', label: 'What patterns do you notice?', hint: 'Name two items with large differences. Which city is higher, and what is one possible reason?', rows: 3 },
@@ -554,7 +753,7 @@
         fields: [
           { id: 'cityAffordabilityWrap', type: 'static', html: generateAffordabilityHtml() },
           { id: 'city_affordability_analysis', type: 'textarea', label: 'Purchasing power analysis:', hint: 'Do lower prices automatically mean a city is more affordable for local residents? Compare the meal-hours and rent-share estimates for your two cities.', rows: 4 },
-          { id: 'city_data_limitations', type: 'textarea', label: 'What is one important limitation?', hint: 'Consider national versus city income, different data years, local neighbourhoods, or the fact that this is only a small basket.', rows: 3 }
+          { id: 'city_data_limitations', type: 'textarea', label: 'What is one important limitation?', hint: 'Consider crowd-sourced data, the December 2022 snapshot date, city averages versus real neighbourhoods, or the fact that this is only a 12-item basket.', rows: 3 }
         ]
       }
     ]
@@ -567,14 +766,19 @@
   Room8.init({ identityUrl: IDENTITY_URL, backendUrl: BACKEND_URL });
 
   function updateAffordabilityCell(city, suffix) {
-    const mealPrice = city.prices.fastFood.local;
-    const rentPrice = city.prices.rent.local;
-    const hourlyIncome = city.netAnnualLocal / 2000;
-    const monthlyIncome = city.netAnnualLocal / 12;
-    const hours = mealPrice / hourlyIncome;
-    const rentShare = (rentPrice / monthlyIncome) * 100;
-    document.getElementById('mealHours' + suffix).textContent = formatNumber(hours) + ' hours';
-    document.getElementById('rentShare' + suffix).textContent = formatNumber(rentShare) + '%';
+    const mealEl = document.getElementById('mealHours' + suffix);
+    const rentEl = document.getElementById('rentShare' + suffix);
+    const mealPrice = city.p.fastFood;
+    const rentPrice = city.p.rent;
+    const monthlySalary = city.salary;
+    if (mealPrice === undefined || monthlySalary === undefined || rentPrice === undefined) {
+      mealEl.textContent = '—';
+      rentEl.textContent = '—';
+      return;
+    }
+    const hourlyIncome = (monthlySalary * 12) / 2000;
+    mealEl.textContent = formatNumber(mealPrice / hourlyIncome) + ' hours';
+    rentEl.textContent = formatNumber((rentPrice / monthlySalary) * 100) + '%';
   }
 
   function renderCitySnapshot(clearDifferences) {
@@ -587,14 +791,10 @@
 
     document.getElementById('cityAHeading').textContent = cityA.name;
     document.getElementById('cityBHeading').textContent = cityB.name;
-    document.getElementById('cityAMeta').textContent =
-      'Snapshot: ' + cityA.priceDate + ' · 1 USD = ' + formatNumber(cityA.exchangeRate) + ' ' + cityA.currency +
-      ' · ' + cityA.priceSource;
-    document.getElementById('cityBMeta').textContent =
-      'Snapshot: ' + cityB.priceDate + ' · 1 USD = ' + formatNumber(cityB.exchangeRate) + ' ' + cityB.currency +
-      ' · ' + cityB.priceSource;
-    document.getElementById('affordCityA').textContent = cityA.name + ' · ' + cityA.salaryYear + ' income';
-    document.getElementById('affordCityB').textContent = cityB.name + ' · ' + cityB.salaryYear + ' income';
+    document.getElementById('cityAMeta').textContent = SNAPSHOT_NOTE;
+    document.getElementById('cityBMeta').textContent = SNAPSHOT_NOTE;
+    document.getElementById('affordCityA').textContent = cityA.name + ' · salary $' + formatNumber(cityA.salary) + '/mo';
+    document.getElementById('affordCityB').textContent = cityB.name + ' · salary $' + formatNumber(cityB.salary) + '/mo';
 
     PRICE_ITEMS.forEach(function (item) {
       document.getElementById('price-a-' + item.id).innerHTML = priceCellHtml(cityA, item);
@@ -623,8 +823,9 @@
     const item = PRICE_ITEMS.find(function (row) { return row.id === itemId; });
     if (!cityA || !cityB || !item || cityA.id === cityB.id) return;
 
-    const priceA = cityA.prices[item.id].usd;
-    const priceB = cityB.prices[item.id].usd;
+    const priceA = cityA.p[item.id];
+    const priceB = cityB.p[item.id];
+    if (priceA === undefined || priceB === undefined || !priceB) return;
     const percent = ((priceA - priceB) / priceB) * 100;
     const amount = formatNumber(Math.abs(percent));
     const result = percent === 0
@@ -639,22 +840,24 @@
   function collectCityPriceData() {
     const cityA = document.getElementById('cityASelect').value;
     const cityB = document.getElementById('cityBSelect').value;
+    const a = cityById(cityA) || cityById(DEFAULT_CITY_A);
+    const b = cityById(cityB) || cityById(DEFAULT_CITY_B);
+    if (!a || !b) return { version: DATA_VERSION, city_a: cityA, city_b: cityB, rows: [] };
     return {
+      version: DATA_VERSION,
       city_a: cityA,
       city_b: cityB,
       rows: PRICE_ITEMS.map(function (item, index) {
-        const a = cityById(cityA);
-        const b = cityById(cityB);
-        const priceA = a.prices[item.id];
-        const priceB = b.prices[item.id];
+        const priceA = a.p[item.id];
+        const priceB = b.p[item.id];
         return {
           row: index + 1,
           item_id: item.id,
           item: item.item + ' (' + item.unit + ')',
-          city_a_local: priceA.local,
-          city_a_usd: priceA.usd,
-          city_b_local: priceB.local,
-          city_b_usd: priceB.usd,
+          city_a_name: a.name,
+          city_a_usd: priceA,
+          city_b_name: b.name,
+          city_b_usd: priceB,
           pct_difference: document.getElementById('diff-' + item.id).textContent
         };
       })
@@ -667,6 +870,7 @@
     if (saved.city_a && cityById(saved.city_a)) selectA.value = saved.city_a;
     if (saved.city_b && cityById(saved.city_b)) selectB.value = saved.city_b;
     renderCitySnapshot(true);
+    if (saved.version !== DATA_VERSION) return; // older dataset layout: selections restored, results recalculated fresh
     (Array.isArray(saved.rows) ? saved.rows : []).forEach(function (row) {
       if (!row || !row.item_id || !row.pct_difference) return;
       const output = document.getElementById('diff-' + row.item_id);
@@ -705,7 +909,12 @@
     const button = event.target.closest('.city-calc-btn');
     if (button) calculateDifference(button.dataset.itemId);
   });
+
+  // Set the default pair (Halifax vs New York) and render.
+  citySelectA.value = DEFAULT_CITY_A;
+  citySelectB.value = DEFAULT_CITY_B;
   renderCitySnapshot(true);
+
 </script>
 </body>
 </html>
