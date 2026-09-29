@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seating Editor — Room 8</title>
+<!--
+  Seating Editor — drag-and-drop seat adjustments for the Class Startup 🪑 popup.
+
+  WHERE CHANGES GO
+  1. "Save to this browser" writes localStorage key "sp2_<homeroom>" — the SAME
+     key the Startup popup reads (source 1). Same browser + same origin = the
+     projector sees it on the next popup open / reload.
+  2. "Copy snapshot code" produces a ready-to-paste entry for
+     class_seating_data.js → snapshots — the tracked, travels-via-git copy.
+     Paste, push, and other machines pick it up (as long as they have no local
+     sp2 copy shadowing it — "Forget browser copy" clears that).
+
+  CONVENTIONS MATCHED (do not drift):
+  - seats are numbered front-to-back, left-to-right within each row (1..29)
+  - storage value: flat JSON map { "<seatNumber>": "First Ls." } — never nest
+  - a saved map exactly equal to CLASS_SEATING.legacy[hr].seats is treated as
+    a stale pre-reshuffle copy by the slide (this editor warns before saving one)
+-->
+<style>
+  :root {
+    --bg: #eef1f7; --card: #ffffff; --text: #1c2333; --muted: #64748b;
+    --border: #d7deea; --accent: #7c3aed; --accent-soft: #ede9fe;
+    --danger: #b91c1c; --ok: #047857;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10141f; --card: #1a2130; --text: #e8ecf5; --muted: #8b96ab;
+      --border: #2c3550; --accent-soft: #2a2440;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    padding-bottom: 90px;
+  }
+  .bar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+    padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .bar h1 { font-size: 1.15rem; margin: 0 8px 0 0; letter-spacing: -0.01em; }
+  select, button {
+    font: inherit; padding: 7px 12px; border-radius: 9px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer;
+  }
+  select { font-weight: 600; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  button.primary.unsaved::after { content: " •"; }
+  .spacer { flex: 1; }
+  #previewLink { color: var(--accent); font-size: 0.9rem; text-decoration: none; font-weight: 600; }
+  #previewLink:hover { text-decoration: underline; }
+  #srcBadge {
+    font-size: 0.78rem; padding: 4px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--text); border: 1px solid var(--border);
+  }
+  #srcBadge.live { background: #d1fae5; color: #065f46; }
+  #srcBadge.snap { background: #fef3c7; color: #92400e; }
+  @media (prefers-color-scheme: dark) {
+    #srcBadge.live { background: #0c3a2c; color: #a7f3d0; }
+    #srcBadge.snap { background: #3a2f10; color: #fde68a; }
+  }
+  #status {
+    padding: 8px 20px; font-size: 0.85rem; color: var(--muted);
+  }
+  #status b { color: var(--text); }
+  .warnbox {
+    margin: 10px 20px 0; padding: 10px 14px; border-radius: 10px; font-size: 0.88rem;
+    background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d;
+  }
+  .warnbox a { color: inherit; font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    .warnbox { background: #3a1414; border-color: #6b1f1f; color: #fecaca; }
+  }
+  main { max-width: 1180px; margin: 0 auto; padding: 18px 20px 0; }
+  .room { display: flex; flex-direction: column; gap: 22px; align-items: center; padding: 8px 0 4px; }
+  .row { display: flex; gap: 26px; align-items: flex-start; }
+  .cluster { display: flex; gap: 8px; }
+  .desk {
+    width: 92px; height: 66px; border-radius: 10px; background: var(--card);
+    border: 1.5px solid var(--border); position: relative;
+    display: flex; align-items: center; justify-content: center; padding: 4px;
+    cursor: grab; transition: border-color .12s, box-shadow .12s, transform .12s;
+  }
+  .desk.filled { border-color: #94a3b8; box-shadow: 0 1px 3px rgba(15,23,42,.12); }
+  .desk.empty { border-style: dashed; cursor: default; }
+  .desk .num {
+    position: absolute; top: 3px; left: 6px; font-size: 0.62rem; color: var(--muted);
+  }
+  .desk .name { font-weight: 700; font-size: 0.78rem; text-align: center; line-height: 1.15; word-break: break-word; }
+  .desk .name.empty { color: var(--muted); font-weight: 400; }
+  .desk.over { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: scale(1.05); }
+  .desk.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .desk.dragging { opacity: 0.45; }
+  .teacher-desk {
+    width: 120px; height: 66px; border-radius: 10px; align-self: center;
+    background: repeating-linear-gradient(45deg, var(--border), var(--border) 6px, transparent 6px, transparent 12px);
+    border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+  }
+  .pool-wrap {
+    margin-top: 20px; background: var(--card); border: 1.5px dashed var(--border);
+    border-radius: 14px; padding: 12px 14px;
+  }
+  .pool-wrap.over { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .pool-head { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+  .pool-head .hint { font-weight: 400; color: var(--muted); }
+  .pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 42px; }
+  .pool .chip {
+    padding: 6px 12px; border-radius: 999px; background: var(--accent-soft);
+    font-weight: 700; font-size: 0.82rem; cursor: grab; user-select: none;
+  }
+  .pool .chip.custom { border: 1.5px dashed var(--accent); }
+  .pool .chip.sel { box-shadow: 0 0 0 3px var(--accent); }
+  .pool .chip .x {
+    margin-left: 7px; cursor: pointer; opacity: 0.55; font-weight: 400;
+  }
+  .pool .chip .x:hover { opacity: 1; }
+  .pool .none { color: var(--muted); font-size: 0.82rem; padding: 8px 2px; }
+  .addrow { display: flex; gap: 8px; margin-top: 10px; }
+  .addrow input {
+    flex: 1; max-width: 340px; font: inherit; padding: 7px 12px; border-radius: 9px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  }
+  .howto { font-size: 0.8rem; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: #1c2333; color: #fff; padding: 11px 18px; border-radius: 12px;
+    font-size: 0.9rem; max-width: min(680px, 92vw); opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s; z-index: 20; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>🪑 Seating Editor</h1>
+    <select id="secSel" title="Class section"></select>
+    <span id="srcBadge"></span>
+    <span class="spacer"></span>
+    <a id="previewLink" href="#" target="_blank" rel="noopener">▶ Preview on Startup Screen</a>
+    <button id="forgetBtn" title="Delete this browser's saved copy so the snapshot/roster shows through">Forget browser copy</button>
+    <button id="snapBtn" title="Copy a ready-to-paste entry for class_seating_data.js">📋 Copy snapshot code</button>
+    <button id="saveBtn" class="primary" title="Save as the live copy for THIS browser">💾 Save to this browser</button>
+  </div>
+  <div id="status"></div>
+  <div id="fileWarn" class="warnbox" hidden>
+    ⚠ <b>Opened as a local file.</b> "Save to this browser" writes file:// storage, which the
+    Startup screen can't read on GitHub Pages. Use the published page instead:
+    <a href="https://dwaugh-edsim.github.io/bihi2027/Student_System/Seating_Editor.html"
+       >dwaugh-edsim.github.io/bihi2027/Student_System/Seating_Editor.html</a>
+  </div>
+  <div id="dataWarn" class="warnbox" hidden>
+    ⚠ <b>Data files not found.</b> This page needs <code>class_seating_data.js</code> and
+    <code>students_roster_data.js</code> in the same folder (Student_System/).
+  </div>
+
+  <main>
+    <div class="room" id="room"></div>
+    <div class="pool-wrap" id="poolWrap">
+      <div class="pool-head">Unassigned <span class="hint">— drag or click-move a student here to unseat them</span></div>
+      <div class="pool" id="pool"></div>
+      <div class="addrow">
+        <input id="addName" placeholder="Add a name not on the roster…" autocomplete="off">
+        <button id="addBtn">Add</button>
+      </div>
+      <div class="howto">
+        <b>Drag</b> a name to a desk (drop on an occupied desk to swap) — or <b>click</b> a name,
+        then click the destination. Drop on the Unassigned box to unseat.
+        <b>Save to this browser</b> makes the Startup 🪑 popup show it (same computer, after the
+        popup is reopened). For other computers, use <b>Copy snapshot code</b> → paste into
+        <code>class_seating_data.js</code> → push.
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+<script src="class_seating_data.js"></script>
+<script src="students_roster_data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- room blueprint (v3, Sept 2026 reshuffle) ----------
+  const TOTAL = 29;
+  const ROWS = [
+    { label: "Front",  clusters: [2, 2, 2, 3, 2] },  // seats 1..11
+    { label: "Middle", clusters: [2, 2, 2, 3] },      // seats 12..20
+    { label: "Back",   clusters: [2, 2, 2, 3] },      // seats 21..29 (teacher desk back-right)
+  ];
+  const SECTIONS = [
+    ["902-CIT", "Citizenship 9"], ["902-HL", "Healthy Living 9"],
+    ["901-CIT", "Citizenship 9"], ["901-HL", "Healthy Living 9"],
+    ["903-CIT", "Citizenship 9"], ["903-HL", "Healthy Living 9"],
+    ["801-HE", "Healthy Living 8"], ["802-HE", "Healthy Living 8"],
+    ["803-HE", "Healthy Living 8"], ["804-HE", "Healthy Living 8"],
+  ];
+
+  // ---------- state ----------
+  const state = { sec: null, hr: null, seats: {}, source: "", custom: [], sel: null, dirty: false, drag: null };
+
+  const $ = (id) => document.getElementById(id);
+  const roomEl = $("room"), poolEl = $("pool"), poolWrapEl = $("poolWrap");
+
+  // ---------- name display (mirrors Class_Startup.html rosterNamesFor) ----------
+  function displayNames(hr) {
+    const roster = window.MASTER_ROSTER_DATA || [];
+    const kids = roster.filter(s => String(s.homeroom) === hr)
+      .map(s => {
+        let first = s.first_name || s.full_first_name || "";
+        if (s.pin === "BEU" || first === "Blessing") first = "Kossy";
+        return { first, last: (s.last_name || "").trim() };
+      })
+      .sort((a, b) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first));
+    const byFirst = {};
+    kids.forEach(k => (byFirst[k.first] = byFirst[k.first] || []).push(k));
+    return kids.map(k => {
+      const twins = byFirst[k.first];
+      if (twins.length < 2 || !k.last) return k.first + (k.last ? " " + k.last.charAt(0).toUpperCase() + "." : "");
+      for (let len = 1; len <= 8; len++) {
+        const p = k.last.slice(0, len).toLowerCase();
+        if (twins.every(t => t === k || (t.last.slice(0, len).toLowerCase() !== p))) {
+          return k.first + " " + k.last.slice(0, len) + ".";
+        }
+      }
+      return k.first + " " + k.last;
+    });
+  }
+  function sameName(saved, display) {
+    if (saved === display) return true;
+    if (!saved.includes(" ") || !display.includes(" ")) return false;
+    // "Blessing" and "Kossy" are display aliases of the same student
+    const flip = (n) => n.replace(/^(Blessing|Kossy) /, (m, f) => (f === "Blessing" ? "Kossy " : "Blessing "));
+    saved = flip(saved); display = flip(display);
+    const sp = saved.indexOf(" "), dp = display.indexOf(" ");
+    if (saved.slice(0, sp) !== display.slice(0, dp)) return false;
+    const a = saved.slice(sp + 1).replace(/\.$/, "").toLowerCase();
+    const b = display.slice(dp + 1).replace(/\.$/, "").toLowerCase();
+    return a.startsWith(b) || b.startsWith(a);
+  }
+
+  // ---------- plan resolution (mirrors seatPlanFor source order + stale checks) ----------
+  function isLegacyCopy(hr, json) {
+    const legacy = (window.CLASS_SEATING || {}).legacy || {};
+    const oldSeats = legacy[hr] && legacy[hr].seats;
+    if (!oldSeats) return false;
+    try {
+      const parsed = JSON.parse(json);
+      const pk = Object.keys(parsed), ok = Object.keys(oldSeats);
+      return pk.length === ok.length && pk.every(k => parsed[k] === oldSeats[k]);
+    } catch (e) { return false; }
+  }
+  function resolvePlan(section) {
+    const seating = window.CLASS_SEATING || {};
+    const hr = (seating.homeroomOf || {})[section] || section.replace(/-(CIT|HL|HE)$/, "");
+    let source = "roster", seats = {};
+    let ls2 = localStorage.getItem("sp2_" + hr);
+    if (ls2 && isLegacyCopy(hr, ls2)) { try { localStorage.removeItem("sp2_" + hr); ls2 = null; } catch (e) {} }
+    if (ls2 && hr === "903" && ls2.includes('"7":"Addy C."')) { try { localStorage.removeItem("sp2_903"); ls2 = null; } catch (e) {} }
+    if (ls2 && hr === "902" && (ls2.includes('"1":"Sebastian H."') || ls2.includes('"27":"Morgan P."'))) { try { localStorage.removeItem("sp2_902"); ls2 = null; } catch (e) {} }
+    if (ls2) {
+      try {
+        const parsed = JSON.parse(ls2);
+        if (parsed && Object.keys(parsed).length) { seats = parsed; source = "live · seating doc v2 (this browser)"; }
+      } catch (e) {}
+    }
+    if (!Object.keys(seats).length) {
+      const ls = localStorage.getItem("sp_" + hr);
+      if (ls) {
+        try {
+          const parsed = JSON.parse(ls);
+          if (parsed && Object.keys(parsed).length) { seats = parsed; source = "live · seating doc (this browser)"; }
+        } catch (e) {}
+      }
+    }
+    if (!Object.keys(seats).length) {
+      const snap = (seating.snapshots || {})[hr];
+      if (snap && snap.seats && Object.keys(snap.seats).length) {
+        seats = snap.seats; source = "snapshot · " + (snap.updated || "undated");
+      }
+    }
+    const queue = displayNames(hr);
+    const map = {};
+    for (let s = 1; s <= TOTAL; s++) {
+      const saved = seats[s] || seats[String(s)];
+      if (saved) {
+        map[s] = saved;
+        let i = queue.findIndex(q => sameName(saved, q));
+        if (i > -1) queue.splice(i, 1);
+      } else map[s] = "";
+    }
+    if (source === "roster") {
+      for (let s = 1; s <= TOTAL; s++) if (!map[s] && queue.length) map[s] = queue.shift();
+    }
+    return { hr, source, seats: map, leftovers: queue.slice() };
+  }
+  function hasLocalCopy(hr) {
+    return !!(localStorage.getItem("sp2_" + hr) || localStorage.getItem("sp_" + hr));
+  }
+
+  // ---------- pool derivation ----------
+  function seatedSet() {
+    const set = new Set();
+    for (let s = 1; s <= TOTAL; s++) if (state.seats[s]) set.add(state.seats[s]);
+    return set;
+  }
+  function poolNames() {
+    const seated = seatedSet();
+    const pool = displayNames(state.hr).filter(n => {
+      for (const s of seated) if (sameName(s, n)) return false;
+      return true;
+    });
+    for (const c of state.custom) {
+      if (![...seated].some(s => sameName(s, c))) pool.push(c);
+    }
+    return pool;
+  }
+  function isCustom(name) { return state.custom.includes(name); }
+
+  // ---------- mutations ----------
+  function markDirty() { state.dirty = true; $("saveBtn").classList.add("unsaved"); }
+  function assign(targetSeat, src) {
+    if (src.t === "desk") {
+      if (src.seat === targetSeat) return;
+      const from = state.seats[src.seat], to = state.seats[targetSeat];
+      state.seats[targetSeat] = from;
+      state.seats[src.seat] = to || "";
+    } else {
+      state.seats[targetSeat] = src.name;
+    }
+    markDirty(); render();
+  }
+  function unseat(seat) {
+    if (!state.seats[seat]) return;
+    state.seats[seat] = "";
+    markDirty(); render();
+  }
+  function clearSel() {
+    state.sel = null;
+    document.querySelectorAll(".sel").forEach(el => el.classList.remove("sel"));
+  }
+
+  // ---------- rendering ----------
+  function deskEl(seat) {
+    const d = document.createElement("div");
+    const name = state.seats[seat] || "";
+    d.className = "desk " + (name ? "filled" : "empty");
+    d.dataset.seat = seat;
+    if (state.sel && state.sel.t === "desk" && state.sel.seat === seat) d.classList.add("sel");
+    if (state.drag && state.drag.t === "desk" && state.drag.seat === seat) d.classList.add("dragging");
+    const num = document.createElement("span");
+    num.className = "num"; num.textContent = seat;
+    const nm = document.createElement("div");
+    nm.className = "name" + (name ? "" : " empty");
+    nm.textContent = name || "—";
+    d.append(num, nm);
+    if (name) d.draggable = true;
+    d.addEventListener("dragstart", (e) => {
+      state.drag = { t: "desk", seat: seat, name: name };
+      try { e.dataTransfer.setData("text/plain", name); } catch (err) {}
+      e.dataTransfer.effectAllowed = "move";
+      d.classList.add("dragging");
+    });
+    d.addEventListener("dragend", () => { state.drag = null; document.querySelectorAll(".over").forEach(x => x.classList.remove("over")); });
+    d.addEventListener("dragover", (e) => { if (state.drag) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; d.classList.add("over"); } });
+    d.addEventListener("dragleave", () => d.classList.remove("over"));
+    d.addEventListener("drop", (e) => {
+      e.preventDefault(); d.classList.remove("over");
+      if (state.drag) { assign(seat, state.drag); state.drag = null; }
+    });
+    d.addEventListener("click", () => {
+      if (state.sel) {
+        const sel = state.sel; clearSel();
+        assign(seat, sel);
+      } else if (name) {
+        state.sel = { t: "desk", seat: seat, name: name };
+        d.classList.add("sel");
+      }
+    });
+    return d;
+  }
+  function renderRoom() {
+    roomEl.innerHTML = "";
+    let seat = 1;
+    for (const row of ROWS) {
+      const rowEl = document.createElement("div");
+      rowEl.className = "row";
+      for (const n of row.clusters) {
+        const cl = document.createElement("div");
+        cl.className = "cluster";
+        for (let i = 0; i < n; i++) cl.appendChild(deskEl(seat++));
+        rowEl.appendChild(cl);
+      }
+      if (row.label === "Back") {
+        const t = document.createElement("div");
+        t.className = "teacher-desk"; t.textContent = "TEACHER";
+        rowEl.appendChild(t);
+      }
+      roomEl.appendChild(rowEl);
+    }
+  }
+  function chipEl(name) {
+    const chip = document.createElement("span");
+    chip.className = "chip" + (isCustom(name) ? " custom" : "");
+    chip.textContent = name;
+    if (state.sel && state.sel.t === "pool" && state.sel.name === name) chip.classList.add("sel");
+    if (isCustom(name)) {
+      const x = document.createElement("span");
+      x.className = "x"; x.title = "Remove this custom name"; x.textContent = "×";
+      x.addEventListener("click", (e) => {
+        e.stopPropagation();
+        state.custom = state.custom.filter(c => c !== name);
+        if (state.sel && state.sel.t === "pool" && state.sel.name === name) clearSel();
+        render();
+      });
+      chip.appendChild(x);
+    }
+    chip.draggable = true;
+    chip.addEventListener("dragstart", (e) => {
+      state.drag = { t: "pool", name: name };
+      try { e.dataTransfer.setData("text/plain", name); } catch (err) {}
+      e.dataTransfer.effectAllowed = "move";
+    });
+    chip.addEventListener("dragend", () => { state.drag = null; document.querySelectorAll(".over").forEach(x => x.classList.remove("over")); });
+    chip.addEventListener("click", () => {
+      if (state.sel && state.sel.t === "pool" && state.sel.name === name) { clearSel(); render(); return; }
+      clearSel();
+      state.sel = { t: "pool", name: name };
+      render();
+    });
+    return chip;
+  }
+  function renderPool() {
+    poolEl.innerHTML = "";
+    const names = poolNames();
+    if (!names.length) {
+      const n = document.createElement("div");
+      n.className = "none"; n.textContent = "Everyone is seated.";
+      poolEl.appendChild(n);
+      return;
+    }
+    for (const n of names) poolEl.appendChild(chipEl(n));
+  }
+  function fitNames() {
+    document.querySelectorAll("#room .desk").forEach(d => {
+      const n = d.querySelector(".name");
+      if (!n || !n.textContent.trim() || n.textContent === "—") return;
+      n.style.fontSize = "";
+      let size = 13;
+      const probe = document.createElement("span");
+      probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;padding:0;margin:0;font-weight:700;";
+      probe.textContent = n.textContent;
+      d.appendChild(probe);
+      const maxW = d.clientWidth - 10;
+      let guard = 40;
+      while (guard-- > 0 && size > 8.5 && probe.offsetWidth > maxW) { size -= 0.5; probe.style.fontSize = size + "px"; }
+      n.style.fontSize = size + "px";
+      probe.remove();
+    });
+  }
+  function renderStatus() {
+    const local = hasLocalCopy(state.hr);
+    const badge = $("srcBadge");
+    badge.textContent = state.source;
+    badge.className = state.source.startsWith("live") ? "live" : state.source.startsWith("snapshot") ? "snap" : "";
+    $("status").innerHTML =
+      "Homeroom <b>" + state.hr + "</b> · section <b>" + state.sec + "</b> · " +
+      "saved copy in this browser: <b>" + (local ? "yes (the slide reads it first)" : "none") + "</b>" +
+      (state.dirty ? " · <b style='color:var(--accent)'>unsaved changes</b>" : "");
+    $("previewLink").href = "Class_Startup.html?section=" + encodeURIComponent(state.sec) + "&seats=1";
+  }
+  function render() { renderRoom(); renderPool(); renderStatus(); requestAnimationFrame(fitNames); }
+
+  // ---------- toast ----------
+  let toastTimer = null;
+  function toast(msg, ms) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), ms || 4200);
+  }
+
+  // ---------- section loading ----------
+  function loadSection(sec, opts) {
+    opts = opts || {};
+    if (state.dirty && !opts.force && !confirm("Discard unsaved seating changes for " + state.sec + "?")) {
+      $("secSel").value = state.sec; return;
+    }
+    const plan = resolvePlan(sec);
+    state.sec = sec; state.hr = plan.hr; state.seats = plan.seats;
+    state.source = plan.source; state.custom = []; state.sel = null; state.drag = null; state.dirty = false;
+    $("saveBtn").classList.remove("unsaved");
+    render();
+  }
+
+  // ---------- save / forget / snapshot export ----------
+  function nonEmptyMap() {
+    const map = {};
+    for (let s = 1; s <= TOTAL; s++) if (state.seats[s]) map[String(s)] = state.seats[s];
+    return map;
+  }
+  $("saveBtn").addEventListener("click", () => {
+    const map = nonEmptyMap();
+    if (!Object.keys(map).length) { toast("Nothing to save — every desk is empty."); return; }
+    const json = JSON.stringify(map);
+    if (isLegacyCopy(state.hr, json) &&
+        !confirm("This layout is IDENTICAL to the old pre-reshuffle layout for " + state.hr +
+                 ". The Startup slide treats such a copy as stale and ignores it.\n\nSave anyway?")) return;
+    try {
+      localStorage.setItem("sp2_" + state.hr, json);
+    } catch (e) { toast("Could not save: " + e.message); return; }
+    state.dirty = false; $("saveBtn").classList.remove("unsaved");
+    state.source = "live · seating doc v2 (this browser)";
+    render();
+    toast("💾 Saved to THIS browser (" + state.hr + "). The Startup 🪑 popup shows it after it is reopened or the page reloaded." +
+          (location.protocol === "file:" ? "  (file:// storage — see the warning at the top.)" : ""));
+  });
+  $("forgetBtn").addEventListener("click", () => {
+    if (state.dirty && !confirm("Forget AND discard your unsaved edits for " + state.sec + "?")) return;
+    if (!confirm("Delete this browser's saved seating copy for " + state.hr + "?\n\nThe Startup slide falls back to the snapshot / roster.")) return;
+    localStorage.removeItem("sp2_" + state.hr);
+    localStorage.removeItem("sp_" + state.hr);
+    loadSection(state.sec, { force: true });
+    toast(" Forgotten (" + state.hr + ") — the slide now reads the snapshot or roster.");
+  });
+  $("snapBtn").addEventListener("click", () => {
+    const map = nonEmptyMap();
+    if (!Object.keys(map).length) { toast("Nothing to export — every desk is empty."); return; }
+    const keys = Object.keys(map).sort((a, b) => Number(a) - Number(b));
+    const items = keys.map(k => '"' + k + '": "' + String(map[k]).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"');
+    const lines = [];
+    for (let i = 0; i < items.length; i += 4) {
+      lines.push("        " + items.slice(i, i + 4).join(", "));
+    }
+    const today = new Date().toLocaleDateString("en-CA");
+    const code = '"' + state.hr + '": {\n' +
+      '            updated: "' + today + '-editor",\n' +
+      '            seats: {\n' + lines.join(",\n") + '\n            }\n        }';
+    copyText(code).then(ok => {
+      toast(ok
+        ? "📋 Copied the snapshot entry for " + state.hr + ". Paste it into class_seating_data.js → snapshots (replace the existing \"" + state.hr + "\" entry), then push."
+        : "Copy failed — check the browser console.", 6500);
+    });
+  });
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(() => true, () => copyFallback(text));
+    }
+    return Promise.resolve(copyFallback(text));
+  }
+  function copyFallback(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;opacity:0;";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+
+  // ---------- pool drop target + add-name ----------
+  poolWrapEl.addEventListener("dragover", (e) => {
+    if (state.drag && state.drag.t === "desk") { e.preventDefault(); poolWrapEl.classList.add("over"); }
+  });
+  poolWrapEl.addEventListener("dragleave", () => poolWrapEl.classList.remove("over"));
+  poolWrapEl.addEventListener("drop", (e) => {
+    e.preventDefault(); poolWrapEl.classList.remove("over");
+    if (state.drag && state.drag.t === "desk") { unseat(state.drag.seat); state.drag = null; }
+  });
+  poolWrapEl.addEventListener("click", (e) => {
+    if (e.target.closest(".addrow")) return;
+    if (state.sel && state.sel.t === "desk") { const sel = state.sel; clearSel(); unseat(sel.seat); }
+  });
+  function addCustom() {
+    const inp = $("addName");
+    const name = inp.value.trim();
+    if (!name) return;
+    const names = poolNames();
+    if (names.some(n => sameName(n, name))) { toast(name + " is already in the pool."); return; }
+    state.custom.push(name);
+    inp.value = "";
+    render();
+    toast("Added " + name + " — drag them onto a desk, then Save.");
+  }
+  $("addBtn").addEventListener("click", addCustom);
+  $("addName").addEventListener("keydown", (e) => { if (e.key === "Enter") addCustom(); });
+
+  // ---------- keyboard ----------
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { clearSel(); renderPool(); }
+  });
+  window.addEventListener("resize", fitNames);
+  window.addEventListener("beforeunload", (e) => {
+    if (state.dirty) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  // ---------- init ----------
+  (function init() {
+    if (!window.CLASS_SEATING || !window.MASTER_ROSTER_DATA) { $("dataWarn").hidden = false; }
+    if (location.protocol === "file:") $("fileWarn").hidden = false;
+    const sel = $("secSel");
+    for (const [sec, course] of SECTIONS) {
+      const o = document.createElement("option");
+      o.value = sec; o.textContent = sec + " — " + course;
+      sel.appendChild(o);
+    }
+    const want = new URLSearchParams(location.search).get("section");
+    sel.value = SECTIONS.some(s => s[0] === want) ? want : SECTIONS[0][0];
+    sel.addEventListener("change", () => loadSection(sel.value));
+    loadSection(sel.value, { force: true });
+  })();
+})();
+</script>
+</body>
+</html>
