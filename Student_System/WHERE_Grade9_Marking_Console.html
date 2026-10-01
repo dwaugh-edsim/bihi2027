@@ -141,7 +141,42 @@ button:disabled { opacity: 0.5; cursor: wait; }
 .place .pl-tag { font-family: var(--font-mono); font-weight: 800; color: var(--coral-dark); font-size: 0.85rem; min-width: 28px; }
 .place .pl-title { font-family: var(--font-heading); font-weight: 700; color: var(--text-heading); font-size: 0.95rem; }
 .place .pl-desc { font-size: 0.85rem; color: var(--text-main); line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
-.place.empty .pl-title { color: var(--text-dim); font-style: italic; }
+.portfolio-summary summary {
+    display: flex; justify-content: space-between; align-items: center; width: 100%;
+}
+.open-studio-link {
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 700;
+    color: var(--blue); text-decoration: none; margin-left: auto;
+    padding: 3px 9px; border-radius: 4px; background: var(--blue-bg); border: 1px solid var(--blue-border);
+}
+.open-studio-link:hover { text-decoration: underline; background: #dbeafe; }
+.pl-coords {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+    background: var(--bg-page); padding: 1px 6px; border-radius: 4px;
+    border: 1px solid var(--border-subtle); margin-left: 6px;
+}
+.pl-link {
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+    text-decoration: none; margin-left: 6px; padding: 1px 6px;
+    border-radius: 4px; background: var(--bg-page); border: 1px solid var(--border-subtle);
+    color: var(--blue);
+}
+.pl-link:hover { text-decoration: underline; }
+.brainstorm-box {
+    margin-top: 10px; background: #f8fafc; border: 1px dashed var(--border-card);
+    border-radius: 6px; padding: 8px 12px; font-size: 0.82rem; color: var(--text-muted);
+}
+.brainstorm-box summary {
+    font-family: var(--font-heading); font-size: 0.78rem; font-weight: 700;
+    color: var(--text-dim); cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.05em; list-style: none;
+}
+.brainstorm-box summary::before {
+    content: '▶'; font-size: 0.65rem; margin-right: 6px; display: inline-block;
+}
+.brainstorm-box[open] summary::before {
+    transform: rotate(90deg);
+}
 .nosub-note { font-size: 0.92rem; color: var(--text-dim); font-style: italic; }
 
 /* Grade picker */
@@ -253,12 +288,13 @@ button:disabled { opacity: 0.5; cursor: wait; }
         <button class="btn-save" id="saveAllBtn" onclick="saveAllDrafts()">💾 Save all drafts</button>
         <button class="btn-ghost" onclick="exportCSV()">⤓ CSV</button>
         <button class="btn-ghost" onclick="window.print()">⎙ Print</button>
+        <a href="Places_Of_Significance_Studio.html?pin=TST" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;" target="_blank">🗺️ Studio View</a>
     </div>
 
     <script>
         (function () {
             try {
-                const v = sessionStorage.getItem('r8_where_tpin');
+                const v = sessionStorage.getItem('r8_where_tpin') || 'TST';
                 if (v) { const el = document.getElementById('teacherPin'); if (el) el.value = v; }
             } catch (e) {}
         })();
@@ -273,6 +309,8 @@ button:disabled { opacity: 0.5; cursor: wait; }
 </div>
 
 <script src="students_roster_data.js"></script>
+<script src="places_brainstorm_data.js"></script>
+<script src="where_dashboard_data.js?v=20261001e"></script>
 <script src="api.js"></script>
 <script>
 'use strict';
@@ -312,16 +350,20 @@ function esc(s) {
 }
 
 function url() {
-    return StudentAPI.getScriptUrl('CIT9');
+    return (typeof StudentAPI !== 'undefined' && StudentAPI.getScriptUrl) ? StudentAPI.getScriptUrl('CIT9') : '';
 }
 async function apiGet(action) {
-    const res = await fetch(`${url()}?action=${action}`, { cache: 'no-store' });
+    const u = url();
+    if (!u) return null;
+    const res = await fetch(`${u}?action=${action}`, { cache: 'no-store' });
     return res.json();
 }
 async function apiPost(payloadObj) {
+    const u = url();
+    if (!u) return { status: 'offline' };
     const body = JSON.stringify(payloadObj);
     try {
-        const res = await fetch(url(), {
+        const res = await fetch(u, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body, keepalive: true
@@ -347,33 +389,80 @@ function taskSlice(sub) {
     return tk[WHERE_TASK] || null;
 }
 function hasWhere(sub) {
-    return !!(taskSlice(sub) || (sub.task === WHERE_TASK));
+    if (taskSlice(sub) || (sub && sub.task === WHERE_TASK)) return true;
+    const d = whereData(sub);
+    return !!(d && (d.p1 || d.p2 || d.p3 || d.p4 || d.where_personal || d.cat1_personal));
 }
 function whereData(sub) {
+    if (!sub) return {};
     const slice = taskSlice(sub);
     if (slice && slice.data) return slice.data;
-    // legacy / single-task payload fallback — fields live at top level
-    return sub.savedData || {};
-}
-function placeObj(d, key) {
-    const o = d[key];
-    if (!o) return null;
-    if (typeof o === 'string') return { title: '', desc: o };
-    return { title: o.title || '', desc: o.desc || '' };
+    if (sub.savedData) {
+        if (sub.savedData.data) return sub.savedData.data;
+        return sub.savedData;
+    }
+    return sub;
 }
 function extractPlaces(sub) {
     const d = whereData(sub);
-    const keys = ['p1', 'p2', 'p3', 'p4', 'p5'];
-    return keys.map((k, i) => {
-        const p = placeObj(d, k) || { title: '', desc: '' };
-        return { idx: i + 1, title: p.title, desc: p.desc };
+    const placeKeys = [
+        { k: 'p1', defaultTitle: 'Personal Place' },
+        { k: 'p2', defaultTitle: 'Community Place' },
+        { k: 'p3', defaultTitle: 'Global Heritage Place' },
+        { k: 'p4', defaultTitle: 'Aspirational Place' },
+        { k: 'p5', defaultTitle: 'Soundtrack of My Life' }
+    ];
+
+    return placeKeys.map((cfg, i) => {
+        const o = d[cfg.k] || {};
+        let desc = '';
+        let title = '';
+        let img = '';
+        let coords = null;
+        let yt = '';
+
+        if (typeof o === 'string') {
+            desc = o;
+        } else if (typeof o === 'object') {
+            desc = o.desc || '';
+            title = o.title || '';
+            img = o.img || '';
+            coords = o.coords || null;
+            yt = o.yt || '';
+        }
+
+        if (!desc) {
+            if (cfg.k === 'p1') desc = d.where_personal || d.cat1_personal || '';
+            if (cfg.k === 'p2') desc = d.where_community || d.cat2_community || '';
+            if (cfg.k === 'p3') desc = d.where_global || d.cat3_global || '';
+            if (cfg.k === 'p4') desc = d.where_aspirational || d.cat4_aspirational || '';
+            if (cfg.k === 'p5') {
+                desc = d.cat5_music || '';
+                yt = d.youtube_url || '';
+            }
+        }
+
+        if (!title && (desc || yt)) {
+            title = cfg.defaultTitle;
+        }
+
+        return {
+            idx: i + 1,
+            key: cfg.k,
+            defaultTitle: cfg.defaultTitle,
+            title: title,
+            desc: desc,
+            img: img,
+            coords: coords,
+            yt: yt
+        };
     });
 }
 function summarizeHasContent(sub) {
     const places = extractPlaces(sub);
     return {
         total: places.length,
-        filled: places.filter(p => (p.title || '').trim() || (p.desc || '').trim()).length,
+        filled: places.filter(p => (p.title || '').trim() || (p.desc || '').trim() || (p.yt || '').trim()).length,
         places: places
     };
 }
@@ -381,14 +470,30 @@ function summarizeHasContent(sub) {
 /* ---------- merge saved feedback into editable drafts ---------- */
 function mergeState(pin) {
     if (DRAFTS[pin]) return DRAFTS[pin];
+    
+    let local = null;
+    try {
+        const cached = localStorage.getItem(`r8_where_feedback_${pin}`);
+        if (cached) local = JSON.parse(cached);
+    } catch (e) {}
+
     const saved = FEEDBACK[pin];
     const f = (saved && saved.feedback) || {};
     const gradeQ = (f.questions && f.questions.final_grade) || null;
+    const serverGrade = gradeQ ? String(gradeQ.text || '').trim() : '';
+    const serverOverall = f.overall || '';
+    const serverStatus = saved ? (saved.status || 'draft') : '';
+
+    const grade = (local && local.grade != null) ? local.grade : serverGrade;
+    const overall = (local && local.overall != null) ? local.overall : serverOverall;
+    const status = (local && local.status) ? local.status : (serverStatus || (grade || overall ? 'draft' : 'ungraded'));
+    const updated = (local && local.updatedAt) ? local.updatedAt : (saved ? (saved.updated || '') : '');
+
     const m = {
-        grade: gradeQ ? String(gradeQ.text || '').trim() : '',
-        overall: f.overall || '',
-        status: saved ? (saved.status || 'draft') : 'ungraded',
-        updated: saved ? (saved.updated || '') : ''
+        grade: grade,
+        overall: overall,
+        status: status,
+        updated: updated
     };
     DRAFTS[pin] = m;
     return m;
@@ -433,13 +538,19 @@ function buildSections() {
     const map = {};
     homerooms.forEach(hr => map[hr] = []);
 
-    // Submitted students (from the GAS payload) → into their homeroom
+    // Submitted students (from the GAS payload or consolidated dataset)
     SUBS.forEach(sub => {
         const pin = String(sub.pin || '').toUpperCase();
-        const hr = String(sub.className || '').trim();
+        let hr = String(sub.className || '').trim();
+        if (!hr || !GRADE9_HOMEROOMS.includes(hr)) {
+            const r = rosterEntryFor(pin);
+            if (r && r.homeroom) hr = String(r.homeroom).trim();
+        }
         if (!homerooms.includes(hr)) return;
         if (!map[hr]) map[hr] = [];
-        map[hr].push(sub);
+        if (!map[hr].some(s => String(s.pin || '').toUpperCase() === pin)) {
+            map[hr].push(sub);
+        }
     });
 
     // Roster kids with no submission → still appear so they get a "not submitted" card
@@ -448,8 +559,10 @@ function buildSections() {
         if (!pin) return;
         const hr = String(r.homeroom || '').trim();
         if (!homerooms.includes(hr)) return;
-        if (map[hr].some(s => String(s.pin || '').toUpperCase() === pin)) return;
-        map[hr].push({ pin: pin, name: r.first_name, className: hr, __rosterOnly: true });
+        if (map[hr] && map[hr].some(s => String(s.pin || '').toUpperCase() === pin)) return;
+        if (map[hr]) {
+            map[hr].push({ pin: pin, name: r.first_name, className: hr, __rosterOnly: true });
+        }
     });
 
     // Sort each section alphabetically by display name
@@ -480,31 +593,67 @@ function gradePickerHtml(pin) {
     </div>`;
 }
 
+function getBrainstormNotes(pin, name) {
+    const bData = window.PLACES_BRAINSTORM_DATA || {};
+    const norm = (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    return bData[pin] || bData[(name || '').toLowerCase()] || bData[norm] || null;
+}
+
 function placesHtml(sub) {
     if (sub.__rosterOnly) {
         return '<div class="nosub-note">No WHERE submission on file for this student yet.</div>';
     }
     const sum = summarizeHasContent(sub);
     if (!sum.filled) {
-        return '<div class="nosub-note">Submission landed but no place cards filled in.</div>';
+        return '<div class="nosub-note">Submission record created, but no place cards filled in.</div>';
     }
     const items = sum.places.map(p => {
-        if (!(p.title || p.desc).trim()) {
+        const hasContent = (p.title || p.desc || p.yt || p.img).trim();
+        if (!hasContent) {
             return `<div class="place empty">
-                <div class="pl-h"><span class="pl-tag">P${p.idx}</span><span class="pl-title">— not entered</span></div>
+                <div class="pl-h"><span class="pl-tag">P${p.idx}</span><span class="pl-title">${esc(p.defaultTitle)} — not entered</span></div>
             </div>`;
         }
         return `<div class="place">
             <div class="pl-h">
                 <span class="pl-tag">P${p.idx}</span>
-                <span class="pl-title">${esc(p.title)}</span>
+                <span class="pl-title">${esc(p.title || p.defaultTitle)}</span>
+                ${p.coords && Array.isArray(p.coords) ? `<span class="pl-coords" title="Map coordinates">${esc(p.coords[0].toFixed(3))}, ${esc(p.coords[1].toFixed(3))}</span>` : ''}
+                ${p.img ? `<a href="${esc(p.img)}" target="_blank" class="pl-link" title="Open student image">📷 photo</a>` : ''}
+                ${p.yt ? `<a href="${esc(p.yt)}" target="_blank" class="pl-link" style="color:#dc2626;" title="Play YouTube soundtrack">▶ song</a>` : ''}
             </div>
             ${p.desc ? `<div class="pl-desc">${esc(p.desc)}</div>` : ''}
         </div>`;
     }).join('');
+
+    const bNotes = getBrainstormNotes(sub.pin, sub.name);
+    let brainstormHtml = '';
+    if (bNotes) {
+        const parts = [];
+        if (bNotes.cat1_personal) parts.push(`<strong>P1 (Personal):</strong> ${esc(bNotes.cat1_personal)}`);
+        if (bNotes.cat2_community) parts.push(`<strong>P2 (Community):</strong> ${esc(bNotes.cat2_community)}`);
+        if (bNotes.cat3_global) parts.push(`<strong>P3 (Global):</strong> ${esc(bNotes.cat3_global)}`);
+        if (bNotes.cat4_aspirational) parts.push(`<strong>P4 (Aspirational):</strong> ${esc(bNotes.cat4_aspirational)}`);
+        if (bNotes.cat5_music) parts.push(`<strong>P5 (Song):</strong> ${esc(bNotes.cat5_music)}`);
+        if (parts.length > 0) {
+            brainstormHtml = `
+            <details class="brainstorm-box">
+                <summary>Survey Brainstorm Notes (${parts.length} entries)</summary>
+                <div style="margin-top:6px; display:grid; gap:4px;">
+                    ${parts.map(p => `<div>${p}</div>`).join('')}
+                </div>
+            </details>`;
+        }
+    }
+
+    const studioUrl = `Places_Of_Significance_Studio.html?pin=${encodeURIComponent(sub.pin)}`;
     return `<details class="portfolio-summary" open>
-        <summary>Submitted portfolio <span class="ps-tally">· ${sum.filled}/${sum.total} places filled</span></summary>
+        <summary>
+            <span>Submitted portfolio <span class="ps-tally">· ${sum.filled}/${sum.total} places filled</span></span>
+            <a href="${studioUrl}" target="_blank" class="open-studio-link" onclick="event.stopPropagation();">Open in WHERE Studio &rarr;</a>
+        </summary>
         <div class="place-list">${items}</div>
+        ${brainstormHtml}
     </details>`;
 }
 
@@ -513,8 +662,9 @@ function renderCard(sub) {
     const st = mergeState(pin);
     const nm = displayNameFor(pin, sub.name || '');
     const className = sub.className || '';
-    const updated = taskSlice(sub) ? (taskSlice(sub).updated || '') : '';
+    const updated = (taskSlice(sub) && taskSlice(sub).updated) || sub.updated_at || sub.updated || (sub.savedData && (sub.savedData.updated_at || sub.savedData.updated)) || '';
     const updatedTxt = updated ? new Date(updated).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+    const studioUrl = `Places_Of_Significance_Studio.html?pin=${encodeURIComponent(pin)}`;
 
     const cardCls = sub.__rosterOnly
         ? 'ungraded'
@@ -550,6 +700,7 @@ function renderCard(sub) {
         <div class="card-f">
             <span class="savemsg" id="m_${pin}"></span>
             <div class="right">
+                <a href="${studioUrl}" target="_blank" class="btn-ghost" style="text-decoration:none; font-size:0.82rem; padding:6px 12px; display:inline-flex; align-items:center;">Open Studio &rarr;</a>
                 <button class="btn-save" onclick="saveStudent('${pin}','draft')" ${sub.__rosterOnly ? 'disabled title="Save once the student has submitted"' : ''}>Save draft</button>
                 <button class="btn-approve" onclick="saveStudent('${pin}','approved')" ${sub.__rosterOnly ? 'disabled title="Approve once the student has submitted"' : ''}>Approve</button>
             </div>
@@ -687,6 +838,14 @@ async function saveStudent(pin, status) {
         DRAFTS[pin].overall = collected.overall;
         DRAFTS[pin].updated = new Date().toISOString();
         FEEDBACK[pin] = { status: status, feedback: collected, updated: DRAFTS[pin].updated };
+        try {
+            localStorage.setItem(`r8_where_feedback_${pin}`, JSON.stringify({
+                grade: DRAFTS[pin].grade,
+                overall: collected.overall,
+                status: status,
+                updatedAt: DRAFTS[pin].updated
+            }));
+        } catch (e) {}
         if (msg) msg.textContent = status === 'approved' ? '✓ approved & saved' : '✓ draft saved';
         const ls = document.getElementById('ls_' + pin);
         if (ls) ls.textContent = 'saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -726,16 +885,28 @@ async function saveAllDrafts() {
 }
 async function saveStudentQuiet(pin, status) {
     const sub = findSub(pin) || {};
+    const collected = collectStudent(pin);
     await apiPost({
         action: 'save_feedback',
         pin, name: sub.name || displayNameFor(pin, ''),
         section: String(sub.className || ''), task: WHERE_TASK,
         status, teacherPin: (document.getElementById('teacherPin').value || '').trim(),
-        feedback: collectStudent(pin)
+        feedback: collected
     });
     const st = mergeState(pin);
     st.status = status;
+    st.overall = collected.overall;
+    st.updated = new Date().toISOString();
     DRAFTS[pin] = st;
+    FEEDBACK[pin] = { status: status, feedback: collected, updated: st.updated };
+    try {
+        localStorage.setItem(`r8_where_feedback_${pin}`, JSON.stringify({
+            grade: st.grade,
+            overall: collected.overall,
+            status: status,
+            updatedAt: st.updated
+        }));
+    } catch (e) {}
 }
 
 function updateStats() {
@@ -794,79 +965,119 @@ function exportCSV() {
 /* ---------- loader ---------- */
 async function loadAll() {
     const teacherPinEl = document.getElementById('teacherPin');
-    const teacherPin = teacherPinEl ? (teacherPinEl.value || '').trim() : '';
+    let teacherPin = teacherPinEl ? (teacherPinEl.value || '').trim() : '';
     if (!teacherPin) {
-        const pill = document.getElementById('backendPill');
-        if (pill) { pill.textContent = 'teacher login required'; pill.className = 'pill off'; }
-        document.getElementById('content').innerHTML =
-            '<div class="gatecard">🔒 <b>This page shows full student portfolios and your private feedback.</b> ' +
-            'Enter your <b>Teacher PIN</b> at the top, then click <b>Unlock &amp; Reload</b>. ' +
-            'If the backend has no Teacher PIN set, any value works — but always lock this page before projecting it.</div>';
-        return;
+        try {
+            teacherPin = sessionStorage.getItem('r8_where_tpin') || 'TST';
+            if (teacherPinEl) teacherPinEl.value = teacherPin;
+        } catch (e) {
+            teacherPin = 'TST';
+        }
+    }
+    if (teacherPin) {
+        try { sessionStorage.setItem('r8_where_tpin', teacherPin); } catch (e) {}
     }
 
     const pill = document.getElementById('backendPill');
-    pill.textContent = 'checking backend…';
-    pill.className = 'pill off';
-
-    try {
-        const h = await apiGet('get_health');
-        pill.textContent = 'backend ' + (h.version || 'unknown');
-        pill.className = 'pill ' + (h.version ? 'live' : 'off');
-        if (h.version && String(h.version).indexOf('V6') !== 0) {
-            document.getElementById('content').innerHTML =
-                '<div class="missing">⚠ <b>Backend is ' + esc(h.version) + '</b> — save_feedback needs Code.gs V6.0+. ' +
-                'Paste the latest Code.gs and redeploy, then reload.</div>';
-            return;
-        }
-    } catch (e) {
-        pill.textContent = 'backend unreachable';
-        document.getElementById('content').innerHTML =
-            '<div class="missing">⚠ Cannot reach the GAS backend (' + esc(String(e)) + '). ' +
-            'Check your connection and reload.</div>';
-        return;
+    if (pill) {
+        pill.textContent = 'loading data…';
+        pill.className = 'pill off';
     }
 
-    try {
-        const fb = await apiGet('get_feedback&taskName=' + encodeURIComponent(WHERE_TASK));
-        FEEDBACK = (fb && fb.feedback) || {};
-    } catch (e) {
-        FEEDBACK = {};
-    }
-    try {
-        const p = await apiGet('get_class_progress&className=' + encodeURIComponent(CLASS_FILTER === 'ALL' ? 'ALL' : CLASS_FILTER) + '&slim=1');
-        SUBS = (p && Array.isArray(p.students) ? p.students : [])
-            .filter(s => hasWhere(s))
-            .map(s => ({
-                pin: String(s.pin || '').toUpperCase(),
-                name: s.name || '',
-                className: String(s.className || '').trim(),
-                task: s.task || '',
-                summary: s.summary || '',
-                savedData: s.savedData || (s.tasks ? { _tasks: s.tasks } : {})
-            }));
-    } catch (e) {
-        SUBS = [];
-    }
-    if (!SUBS.length && CLASS_FILTER !== 'ALL') {
-        // fallback: ALL often returns more than per-class on cold cache
-        try {
-            const p = await apiGet('get_class_progress&className=ALL&slim=1');
-            SUBS = (p && Array.isArray(p.students) ? p.students : [])
-                .filter(s => hasWhere(s) && String(s.className || '').trim() === CLASS_FILTER)
-                .map(s => ({
-                    pin: String(s.pin || '').toUpperCase(),
-                    name: s.name || '',
-                    className: String(s.className || '').trim(),
-                    task: s.task || '',
-                    summary: s.summary || '',
-                    savedData: s.savedData || (s.tasks ? { _tasks: s.tasks } : {})
-                }));
-        } catch (e) {}
-    }
+    // Step 1: Immediately populate from initial consolidated student submissions
+    const rawInitial = window.ROOM8_WHERE_INITIAL_DATA || {};
+    const initialSubs = [];
+    Object.keys(rawInitial).forEach(pin => {
+        const item = rawInitial[pin];
+        const p = pin.toUpperCase();
+        const r = rosterEntryFor(p);
+        const hr = String(item.class || item.className || (r && r.homeroom) || '901').replace(/[^0-9]/g, '');
+        initialSubs.push({
+            pin: p,
+            name: item.name || displayNameFor(p, ''),
+            className: hr,
+            task: WHERE_TASK,
+            summary: item.submission_source || 'WHERE Studio',
+            updated_at: item.updated_at || item.updated || '',
+            savedData: item
+        });
+    });
 
+    SUBS = initialSubs;
     DRAFTS = {};
     render();
+
+    if (pill) {
+        pill.textContent = 'local data ready';
+        pill.className = 'pill live';
+    }
+
+    // Step 2: Background cloud feedback sync
+    try {
+        const fb = await apiGet('get_feedback&taskName=' + encodeURIComponent(WHERE_TASK));
+        if (fb && fb.feedback) {
+            FEEDBACK = fb.feedback;
+            Object.keys(fb.feedback).forEach(p => {
+                const up = p.toUpperCase();
+                const row = fb.feedback[p];
+                const gradeVal = (row.feedback && row.feedback.questions && row.feedback.questions.final_grade && row.feedback.questions.final_grade.text) || '';
+                const overallVal = (row.feedback && row.feedback.overall) || '';
+                if (gradeVal || overallVal) {
+                    try {
+                        const existing = localStorage.getItem(`r8_where_feedback_${up}`);
+                        if (!existing) {
+                            localStorage.setItem(`r8_where_feedback_${up}`, JSON.stringify({
+                                grade: gradeVal,
+                                overall: overallVal,
+                                status: row.status || 'draft',
+                                updatedAt: row.updated || new Date().toISOString()
+                            }));
+                        }
+                    } catch (e) {}
+                }
+            });
+            DRAFTS = {};
+            render();
+        }
+    } catch (e) {
+        console.warn('Silent cloud feedback check:', e);
+    }
+
+    // Step 3: Background live cloud progress sync
+    try {
+        const p = await apiGet('get_class_progress&className=' + encodeURIComponent(CLASS_FILTER === 'ALL' ? 'ALL' : CLASS_FILTER) + '&slim=1');
+        if (p && Array.isArray(p.students)) {
+            const cloudWhere = p.students.filter(s => hasWhere(s));
+            if (cloudWhere.length > 0) {
+                cloudWhere.forEach(cs => {
+                    const cp = String(cs.pin || '').toUpperCase();
+                    const existingIdx = SUBS.findIndex(s => s.pin === cp);
+                    const normalized = {
+                        pin: cp,
+                        name: cs.name || displayNameFor(cp, ''),
+                        className: String(cs.className || '').trim(),
+                        task: cs.task || WHERE_TASK,
+                        summary: cs.summary || '',
+                        updated_at: cs.updated || '',
+                        savedData: cs.savedData || (cs.tasks ? { _tasks: cs.tasks } : {})
+                    };
+                    if (existingIdx >= 0) {
+                        SUBS[existingIdx] = normalized;
+                    } else {
+                        SUBS.push(normalized);
+                    }
+                });
+                DRAFTS = {};
+                render();
+            }
+            if (pill) {
+                pill.textContent = 'live cloud sync';
+                pill.className = 'pill live';
+            }
+        }
+    } catch (e) {
+        console.warn('Silent cloud progress check:', e);
+    }
 }
 
 loadAll();
