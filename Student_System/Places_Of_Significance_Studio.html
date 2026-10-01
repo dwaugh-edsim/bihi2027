@@ -841,11 +841,14 @@
                     style="background: #f1f5f9; border-color: #cbd5e1; color: #1e293b;">🖥️ Intro Slides</a>
                 <button class="btn btn-secondary"
                     style="background: #f8fafc; border-color: #cbd5e1; color: #334155; font-weight: 600;"
-                    onclick="switchTab('tab-review')">📄 Portfolio View</button>
+                    onclick="switchTab('tab-review')">Portfolio View</button>
+                <button class="btn btn-secondary"
+                    style="background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; font-weight: 700;"
+                    onclick="if (window.WhereTeacherReview) { WhereTeacherReview.activate(); }">Teacher Review (PIN TST)</button>
                 <button class="btn btn-secondary"
                     style="background: var(--gold-bg); border-color: #fcd34d; color: #92400e;"
-                    onclick="loadWaughExemplar()">⭐ Load Mr. Waugh's Sample</button>
-                <button class="btn btn-primary" onclick="openStoryMapModal()">📺 Present Deck</button>
+                    onclick="loadWaughExemplar()">Load Waugh Sample</button>
+                <button class="btn btn-primary" onclick="openStoryMapModal()">Present Deck</button>
                 <a href="../index.html" class="btn btn-secondary">&larr; Hub</a>
                 <button class="btn btn-secondary" id="topLogoutBtn" style="display: none;" onclick="logout()">Sign
                     Out</button>
@@ -1437,6 +1440,8 @@
     <!-- Script Dependencies -->
     <script src="students_roster_data.js"></script>
     <script src="places_brainstorm_data.js"></script>
+    <script src="where_dashboard_data.js"></script>
+    <script src="where_teacher_review.js"></script>
     <script src="api.js"></script>
 
     <script>
@@ -2085,7 +2090,7 @@
 
         function isIdentityChange(newPin) {
             const cur = PlacesSession.getPin();
-            return !!(cur && cur !== '---' && cur !== 'WAU' && cur !== 'MRW' && cur !== newPin.toUpperCase());
+            return !!(cur && cur !== '---' && cur !== 'WAU' && cur !== 'MRW' && cur !== 'TST' && cur !== newPin.toUpperCase());
         }
 
         function countCompletedFields() {
@@ -2102,7 +2107,15 @@
         async function handlePinAutoLookup(val) {
             const rawPin = (val || '').trim().toUpperCase();
             if (rawPin.length === 3) {
-                if (rawPin === 'WAU' || rawPin === 'MRW' || rawPin === 'DEV' || rawPin === 'TST') {
+                if (rawPin === 'TST') {
+                    if (window.WhereTeacherReview) {
+                        WhereTeacherReview.activate();
+                    } else {
+                        loadWaughExemplar();
+                    }
+                    return;
+                }
+                if (rawPin === 'WAU' || rawPin === 'MRW' || rawPin === 'DEV') {
                     loadWaughExemplar();
                     return;
                 }
@@ -2128,10 +2141,10 @@
                     PlacesSession.set(matched.homeroom || '902', matched.first_name, rawPin);
                     setAuthState(matched);
                     loadStudentBrainstorm(matched, rawPin);
-                    showToast(`👤 Identified: ${matched.first_name} (Class ${matched.homeroom || '902'})`);
+                    showToast(`Identified: ${matched.first_name} (Class ${matched.homeroom || '902'})`);
                     await loginAndRestore();
                 } else {
-                    showToast(`❌ Access Denied: PIN "${rawPin}" is not on the official class list.`, true);
+                    showToast(`Access Denied: PIN "${rawPin}" is not on the official class list.`, true);
                 }
             }
         }
@@ -2142,7 +2155,16 @@
             let firstName = document.getElementById('firstNameInput').value.trim();
             let pin = document.getElementById('pinInput').value.trim().toUpperCase();
 
-            if (pin === 'WAU' || pin === 'MRW' || pin === 'DEV' || pin === 'TST') {
+            if (pin === 'TST') {
+                if (window.WhereTeacherReview) {
+                    WhereTeacherReview.activate();
+                } else {
+                    loadWaughExemplar();
+                }
+                return;
+            }
+
+            if (pin === 'WAU' || pin === 'MRW' || pin === 'DEV') {
                 loadWaughExemplar();
                 return;
             }
@@ -2814,6 +2836,15 @@
                 }
             }
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramPin = (urlParams.get('pin') || '').trim().toUpperCase();
+            if (paramPin === 'TST' || urlParams.get('tst') === '1' || urlParams.get('teacher') === '1') {
+                if (window.WhereTeacherReview) {
+                    WhereTeacherReview.activate();
+                    return;
+                }
+            }
+
             const savedPin = PlacesSession.getPin();
             const savedName = PlacesSession.getName();
             const savedClass = PlacesSession.getClass();
@@ -2821,8 +2852,8 @@
             if (savedClass) document.getElementById('classSelect').value = savedClass;
             if (savedName) document.getElementById('firstNameInput').value = savedName;
 
-            // Only auto-restore if PIN is a legitimate student PIN (not demo/sample WAU)
-            if (savedPin && savedPin !== 'WAU' && savedPin !== 'MRW') {
+            // Only auto-restore if PIN is a legitimate student PIN (not demo/sample WAU or TST)
+            if (savedPin && savedPin !== 'WAU' && savedPin !== 'MRW' && savedPin !== 'TST') {
                 document.getElementById('pinInput').value = savedPin;
                 const roster = window.MASTER_ROSTER_DATA || [];
                 const student = roster.find(s => s.pin && s.pin.toUpperCase() === savedPin);
