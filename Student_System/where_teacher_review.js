@@ -186,6 +186,10 @@
 
         const list = Object.values(pool);
         list.sort((a, b) => {
+            const isG9A = ['901', '902', '903'].includes(a.class);
+            const isG9B = ['901', '902', '903'].includes(b.class);
+            if (isG9A && !isG9B) return -1;
+            if (!isG9A && isG9B) return 1;
             if (a.class !== b.class) return a.class.localeCompare(b.class);
             return a.name.localeCompare(b.name);
         });
@@ -553,8 +557,8 @@
             <div class="tst-nav-row">
                 <button type="button" class="tst-nav-btn" onclick="WhereTeacherReview.prevStudent()" title="Keyboard: [">&#9664; Prev</button>
                 <select class="tst-select" id="tstStudentDropdown" onchange="WhereTeacherReview.selectStudent(this.value)">
-                    <option value="EXEMPLAR" ${exemplarSel}>Exemplar: Mr. Waugh Model (Dartmouth &bull; Alderney &bull; Gwangju)</option>
                     ${optionsHtml}
+                    <option value="EXEMPLAR" ${exemplarSel}>Exemplar: Mr. Waugh Model (Dartmouth &bull; Alderney &bull; Gwangju)</option>
                 </select>
                 <button type="button" class="tst-nav-btn" onclick="WhereTeacherReview.nextStudent()" title="Keyboard: ]">Next &#9654;</button>
                 <input type="text" placeholder="Search student or PIN..." value="${escapeHtml(State.searchQuery)}"
@@ -624,6 +628,21 @@
 
         if (typeof window.clearAllFormFields === 'function') {
             window.clearAllFormFields();
+        } else {
+            ['p1', 'p2', 'p3', 'p4'].forEach(k => {
+                const t = document.getElementById(`${k}-title`);
+                const d = document.getElementById(`${k}-desc`);
+                const i = document.getElementById(`${k}-img`);
+                if (t) t.value = '';
+                if (d) d.value = '';
+                if (i) i.value = '';
+            });
+            const p5t = document.getElementById('p5-title');
+            const p5d = document.getElementById('p5-desc');
+            const p5y = document.getElementById('p5-yt');
+            if (p5t) p5t.value = '';
+            if (p5d) p5d.value = '';
+            if (p5y) p5y.value = '';
         }
 
         const firstNameInput = document.getElementById('firstNameInput');
@@ -641,15 +660,27 @@
         const badge = document.getElementById('badgeStudent');
         if (badge) {
             badge.innerText = `REVIEWING: ${student.name} • Class ${student.class} (PIN: ${student.pin})`;
+            badge.style.background = '#dbeafe';
+            badge.style.borderColor = '#93c5fd';
+            badge.style.color = '#1e40af';
         }
 
         if (typeof window.applyDraftData === 'function') {
             window.applyDraftData(student.data);
         }
 
+        // Direct DOM assignment to guarantee all text, images, and coords populate unconditionally
+        const d = student.data || {};
         ['p1', 'p2', 'p3', 'p4'].forEach(k => {
-            const p = student.data[k];
-            if (p && p.coords && Array.isArray(p.coords) && p.coords.length === 2) {
+            const p = d[k] || {};
+            const titleEl = document.getElementById(`${k}-title`);
+            const descEl = document.getElementById(`${k}-desc`);
+            const imgEl = document.getElementById(`${k}-img`);
+            if (titleEl && p.title) titleEl.value = p.title;
+            if (descEl && p.desc) descEl.value = p.desc;
+            if (imgEl && p.img) imgEl.value = p.img;
+
+            if (p.coords && Array.isArray(p.coords) && p.coords.length === 2) {
                 if (typeof window.setMapCoords === 'function') {
                     window.setMapCoords(k, p.coords[0], p.coords[1]);
                 }
@@ -658,6 +689,14 @@
                 window.updateImagePreview(k);
             }
         });
+
+        const p5 = d.p5 || {};
+        const p5Title = document.getElementById('p5-title');
+        const p5Desc = document.getElementById('p5-desc');
+        const p5Yt = document.getElementById('p5-yt');
+        if (p5Title && p5.title) p5Title.value = p5.title;
+        if (p5Desc && p5.desc) p5Desc.value = p5.desc;
+        if (p5Yt && p5.yt) p5Yt.value = p5.yt;
 
         if (typeof window.updateYouTubePreview === 'function') {
             window.updateYouTubePreview();
@@ -760,14 +799,17 @@
             buildStudentList();
 
             if (!State.currentPin) {
-                const firstWithWriting = State.students.find(s => s.hasWriting);
-                if (firstWithWriting) {
-                    this.selectStudent(firstWithWriting.pin);
+                const clara = State.students.find(s => s.pin === 'CAB');
+                const firstG9Writing = State.students.find(s => ['901', '902', '903'].includes(s.class) && s.hasWriting);
+                const firstAnyWriting = State.students.find(s => s.hasWriting);
+                const targetStudent = clara || firstG9Writing || firstAnyWriting || State.students[0];
+                if (targetStudent) {
+                    this.selectStudent(targetStudent.pin);
                 } else {
-                    this.selectStudent('EXEMPLAR');
+                    renderReviewPanel();
                 }
             } else {
-                renderReviewPanel();
+                this.selectStudent(State.currentPin);
             }
 
             setTimeout(syncCloudFeedback, 300);
