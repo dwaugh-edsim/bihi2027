@@ -535,7 +535,7 @@
             <div class="tst-panel-header">
                 <div class="tst-badge-title">
                     <span>Teacher Review &amp; Marking Console</span>
-                    <span class="tst-tag-live">PIN: TST ACTIVE</span>
+                    <span class="tst-tag-live">TEACHER MODE</span>
                 </div>
                 <div class="tst-filter-pills">
                     <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Class:</span>
@@ -743,7 +743,7 @@
 
             const badge = document.getElementById('badgeStudent');
             if (badge) {
-                badge.innerText = 'TEACHER MODE • Reviewing Submissions (PIN: TST)';
+                badge.innerText = 'TEACHER MODE • Reviewing Submissions';
                 badge.style.background = '#dbeafe';
                 badge.style.borderColor = '#93c5fd';
                 badge.style.color = '#1e40af';
@@ -774,7 +774,7 @@
             setTimeout(syncCloudProgress, 600);
 
             if (typeof window.showToast === 'function') {
-                window.showToast('Teacher Review Mode Active (PIN: TST). Loading student submissions...');
+                window.showToast('Teacher Review Mode Active. Loading student submissions...');
             }
         },
 
