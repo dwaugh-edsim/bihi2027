@@ -40,9 +40,12 @@ Rules:
 - **Planning docs, answer keys, audits, and tooling go in the private repo** — never here.
 - Need a file that has moved (outcome maps, answer keys, `tools/*.py`, roster JSON,
   audits)? Read it from `../bihipri-27/<dir>-priv/…`, and `git pull` there too.
-- **This repo's `.gitignore` ignores `tools/`, `inbox/`, `curriculum-planning/`,
+- **This repo's `.gitignore` ignores `tools/`, `curriculum-planning/`,
   `system-maintenance/`, `audit/`, and `data/sheets/`** — a file written to those paths
   here is invisible to git. Author them in the private repo instead.
+- **Morning kickstarts are authored to `../bihipri-27/inbox-priv/`** (tracked in the
+  private repo) — never to public `inbox/`, which only stores legacy digests from before
+  the repo split and stays tracked for continuity.
 - Both repos must be **cloned and pushed on both machines**; a fact that lives only in
   one clone does not exist for the other harness.
 - **Coordination log:** append to `../bihipri-27/Student_System-priv/piiiharden.md`
@@ -88,9 +91,11 @@ will be at school).
   content-related can be swallowed there. Don't add content patterns to it.
 - `Private_Student_Data/*` here is ignored **by design**; its traveling copy is
   `../bihipri-27/Private_Student_Data-priv/` (tracked). The checker verifies that pairing.
-- The public repo's ignored paths (`tools/ inbox/ audit/ curriculum-planning/
+- The public repo's ignored paths (`tools/ audit/ curriculum-planning/
   system-maintenance/ data/sheets/`) are the **leak net**: a file dropped there is never
-  published — but it also never travels, so author those in the private repo.
+  published — but it also never travels, so author those in the private repo. Public
+  `inbox/` is legacy (pre-split digests, still tracked); new digests go to
+  `../bihipri-27/inbox-priv/`.
 
 ## Class Log live API (the teacher's "what did we do last class" tracker)
 
@@ -182,13 +187,18 @@ needed; read-only steps need no PIN.
 
 ## Seating plans
 
-`seating-plan.html` (repo root) is the editable seating doc; its saved layouts live in
-that page's **browser storage** (`sp_<homeroom>`, JSON seatNumber→name). The opening
-slide's 🪑 popup reads, best first: that storage → snapshot in
-`Student_System/class_seating_data.js` (`snapshots.<homeroom>`) → alphabetical roster
-from `Student_System/students_roster_data.js`. To sync a class for projectors on a
-different browser/origin, mirror its saved layout into `class_seating_data.js`
-snapshots and push. Names only — never PINs/IDs/notes on projector screens.
+Room 8 blueprint (v3, Sept 2026 reshuffle): 29 desks in 3 cluster rows — Front
+2-2-2-3-2 (seats 1–11), Middle 2-2-2-3 (12–20), Back 2-2-2-3 (21–29), teacher desk
+back-right; seats number front-to-back, left-to-right within each row. The opening
+slide's 🪑 popup reads, best first: seating-doc browser storage (`sp2_<homeroom>`,
+then legacy `sp_<homeroom>`) → snapshot in `Student_System/class_seating_data.js`
+(`snapshots.<homeroom>`) → alphabetical roster from
+`Student_System/students_roster_data.js`. A stored copy that exactly equals the
+matching `legacy.<homeroom>.seats` map is a stale pre-reshuffle copy and is
+auto-removed. To sync a class for projectors on a different browser/origin, mirror
+its saved layout into `class_seating_data.js` snapshots and push;
+`Class_Startup.html?section=<sec>&seats=1` deep-links the popup. Names only — never
+PINs/IDs/notes on projector screens.
 
 - Section keys: `902-CIT 902-HL 901-CIT 901-HL 903-CIT 903-HL 801-HE 802-HE 803-HE 804-HE`
   (course = `CIT9` / `HL9` / `HL8`).

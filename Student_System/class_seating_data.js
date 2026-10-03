@@ -1,22 +1,26 @@
 // class_seating_data.js — room layout + seat-assignment snapshots for
-// Class_Startup.html's seating popup (matching seating-plan-v2.html).
+// Class_Startup.html's seating popup.
 //
 // SOURCE ORDER on the slide (best first):
-//   1. seating-plan-v2.html browser storage ("sp2_<homeroom>") — live edits in browser
+//   1. seating doc browser storage ("sp2_<homeroom>") — live edits in browser
 //   2. legacy browser storage ("sp_<homeroom>")
 //   3. snapshots here — { "<homeroom>": { updated, seats: {seatNumber: "Name"} } }
 //   4. alphabetical roster fallback (students_roster_data.js)
+//      (a stored copy that exactly equals the matching `legacy` map is treated
+//       as a stale pre-reshuffle copy and ignored)
 //
-// Room 8 physical blueprint (29 desks total):
-//   - Front row: 4 pairs of 2 = 8 desks (1..8)
-//   - Second row: 3 pairs of 2 = 6 desks (9..14)
-//   - Left wall: Doorway aisle top, cluster of 4 desks below (15..18)
-//   - Right wall: Cupboards top, cluster of 3 desks below (19..21)
-//   - Back wall (windows): 8 desks (22..29)
-//   - Back right corner: Teacher desk
+// Room 8 physical blueprint (v3, Sept 2026 reshuffle — 29 desks in 3 cluster rows):
+//   - Front row:  5 clusters, 2-2-2-3-2 = 11 desks (seats 1..11)
+//   - Middle row: 4 clusters, 2-2-2-3  =  9 desks (seats 12..20)
+//   - Back row:   4 clusters, 2-2-2-3  =  9 desks (seats 21..29)
+//   - Teacher desk: back-right corner
+//   Seats are numbered front-to-back, left-to-right within each row.
+//
+// `legacy` keeps the pre-reshuffle (old wall-layout) seat maps — reference only,
+// the slide uses it solely to detect stale browser-storage copies.
 
 window.CLASS_SEATING = {
-    version: 2,
+    version: 3,
     totalDesks: 29,
     homeroomOf: {
         "902-CIT": "902", "902-HL": "902",
@@ -26,88 +30,89 @@ window.CLASS_SEATING = {
     },
     snapshots: {
         "901": {
-            updated: "2026-09-21-v2",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Johnny C.", "2": "Drew J.", "3": "Justin A.", "4": "Benjamin L.",
-                "5": "Clara B.", "6": "Tess B.", "7": "Finn G.", "8": "Trenton J.",
-                "9": "Nova B.", "10": "Madeleine T.", "11": "Avery P.", "12": "Marty P.",
-                "13": "Isaac N.", "14": "Nolan C.", "15": "Danielle P.", "16": "Lauren L.",
-                "17": "Cameo S.", "18": "Aurelia M.", "19": "Abby E.", "20": "Brielle F.",
-                "21": "Adie R.", "22": "Olivia D.", "23": "Anastasia S.", "24": "Roselyn B.",
-                "25": "Aiden H.", "26": "Duncan M.", "27": "Doun K."
+                "1": "Trenton J.", "2": "Benjamin L.", "3": "Adie R.", "4": "Abby E.",
+                "5": "Nolan C.", "6": "Johnny C.", "7": "Anastasia S.", "8": "Aurelia M.",
+                "9": "Roselyn B.", "10": "Avery P.", "11": "Marty P.", "12": "Tess B.",
+                "13": "Clara B.", "14": "Drew J.", "15": "Duncan M.", "16": "Olivia D.",
+                "17": "Danielle P.", "18": "Isaac N.", "19": "Finn G.", "20": "Justin A.",
+                "23": "Brielle F.", "24": "Nova B.", "25": "Aiden H.", "26": "Doun K.",
+                "27": "Lauren L.", "28": "Cameo S.", "29": "Madeleine T."
             }
         },
         "902": {
-            updated: "2026-09-21-v4",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Seb H.", "2": "Jax M.", "3": "Sofia K.", "4": "Sofie S.",
-                "5": "Berlin C.", "6": "Mona A.", "7": "Anna T.", "8": "Nova T.",
-                "9": "Gemma B.", "10": "Marla L.", "11": "John B.", "12": "Tristan H.",
-                "13": "Noah B.", "14": "Arlo J.", "15": "Zackory N.", "16": "Thomas O.",
-                "17": "Jordan H.", "18": "Lyla F.", "19": "Chelsea R.", "20": "Jordan S.",
-                "21": "Hannah S.", "22": "Douglas L.", "23": "Simon M.", "24": "Oscar P.",
-                "25": "Nolan C.", "26": "Mhareon O."
+                "1": "Noah B.", "2": "Arlo J.", "3": "Sofie S.", "4": "Nova T.",
+                "5": "Nolan C.", "6": "Douglas L.", "7": "Hannah S.", "8": "Jordan S.",
+                "9": "Marla L.", "10": "Zackory N.", "11": "John B.", "12": "Gemma B.",
+                "13": "Sofia K.", "14": "Mhareon O.", "15": "Oscar P.", "16": "Berlin C.",
+                "17": "Chelsea R.", "18": "Jax M.", "19": "Jordan H.", "20": "Tristan H.",
+                "23": "Mona A.", "24": "Anna T.", "25": "Simon M.", "26": "Seb H.",
+                "27": "Lyla F.", "28": "Thomas O."
             }
         },
         "903": {
-            updated: "2026-09-21-v3",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Evan S.", "2": "Tommy M.", "3": "Gwenna W.", "4": "Maia R.",
-                "5": "Milo H.", "6": "Jacob M.", "7": "Michelle N.", "8": "Chie M.",
-                "9": "Zeiden S.", "10": "Kossy U.", "11": "Patience S.", "12": "Pauline S.",
-                "13": "Zoe M.", "14": "Kenzie L.", "15": "Avery F.", "16": "Oscar D.",
-                "17": "Misha C.", "18": "Daphne M.", "19": "April F.", "20": "Ava G.",
-                "21": "Bella K.", "22": "Addy C.", "23": "Zana S.", "24": "Andrew M.",
-                "25": "Callum M.", "26": "Walter D.", "27": "Liam M.", "28": "Ben F.",
-                "29": "Oliver S."
+                "1": "Evan S.", "2": "Ben F.", "3": "Gwenna W.", "4": "Maia R.",
+                "5": "Misha C.", "6": "Avery F.", "7": "Bella K.", "8": "Liam M.",
+                "9": "Michelle N.", "10": "Jacob M.", "11": "Walter D.", "12": "Pauline S.",
+                "13": "Patience S.", "14": "Oscar D.", "15": "Ava G.", "16": "Daphne M.",
+                "17": "Chie M.", "18": "Callum M.", "19": "Zoe M.", "20": "Milo H.",
+                "21": "Kenzie L.", "22": "Zeiden S.", "23": "Kossy U.", "24": "Tommy M.",
+                "25": "April F.", "26": "Oliver S.", "27": "Andrew M.", "28": "Zana S.",
+                "29": "Addy C."
             }
         },
         "801": {
-            updated: "2026-09-21-v2",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Jaela L.", "2": "Sydney S.", "3": "Kenzie K.", "4": "Ruby C.",
-                "5": "Julia T.", "6": "Alex W.", "7": "Ainslie M.", "8": "Juliet M.",
-                "9": "Fiona S.", "10": "Marieke M.", "11": "Mae'ijah D.", "12": "Talia D.",
-                "13": "Ruby M.", "14": "Shaviah O.", "15": "Zephyr G.", "16": "Jason D.",
-                "17": "Steven E.", "18": "Samuel Mac", "19": "Trey L.", "20": "James T.",
-                "21": "Nikolas S.", "22": "Nehemiah S.", "23": "Jayden L.", "24": "Alex R.",
-                "25": "Martin V.", "26": "Samuel H.", "27": "Samuel Mil", "28": "Samuel S."
+                "1": "Samuel Mil", "2": "Martin V.", "3": "Alex R.", "4": "Julia T.",
+                "5": "Zephyr G.", "6": "Samuel Mac", "7": "Ainslie M.", "8": "Ruby C.",
+                "9": "Kenzie K.", "10": "Nikolas S.", "11": "Trey L.", "12": "Samuel S.",
+                "13": "Jaela L.", "14": "Nehemiah S.", "15": "Jason D.", "16": "Fiona S.",
+                "17": "Marieke M.", "18": "Steven E.", "19": "Shaviah O.", "20": "James T.",
+                "21": "Samuel H.", "22": "Jayden L.", "23": "Sydney S.", "24": "Alex W.",
+                "25": "Artem P.", "26": "Mae'ijah D.", "27": "Juliet M.", "28": "Ruby M.",
+                "29": "Talia D."
             }
         },
         "802": {
-            updated: "2026-09-21-v2",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Miles G.", "2": "Drew B.", "3": "Jada R.", "4": "Katie G.",
-                "5": "Mikaela V.", "6": "Lillian W.", "7": "Hadley D.", "8": "Bella F.",
-                "9": "Sophie H.", "10": "Mairi L.", "11": "Myah H.", "12": "Michaela M.",
-                "13": "David C.", "14": "William E.", "15": "Caleb C.", "16": "Misha K.",
-                "17": "Marcus G.", "18": "Alice M.", "19": "Loughlan C.", "20": "Amit K.",
-                "21": "Sam H.", "22": "Emmet M.", "23": "Lena R.", "24": "Scarlett T.",
-                "25": "Aliiza B.", "26": "Aria S.", "27": "Gianna W.", "28": "Hendy B."
+                "1": "David C.", "2": "Amit K.", "3": "Mikaela V.", "4": "Katie G.",
+                "5": "Caleb C.", "6": "Loughlan C.", "7": "Bella F.", "8": "Sophie H.",
+                "9": "Hadley D.", "10": "Emmet M.", "11": "Misha K.", "12": "Alice M.",
+                "13": "Lillian W.", "14": "Drew B.", "15": "Miles G.", "16": "Michaela M.",
+                "18": "Aliiza B.", "19": "Scarlett T.", "20": "Lena R.", "21": "Hendy B.",
+                "22": "William E.", "23": "Jada R.", "24": "Myah H.", "25": "Marcus G.",
+                "26": "Sam H.", "27": "Aria S.", "28": "Mairi L.", "29": "Gianna W.",
             }
         },
         "803": {
-            updated: "2026-09-21-v2",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "La'Monte B.", "2": "Alex J.", "3": "Theron H.", "4": "Dorian G.",
-                "5": "Stella G.", "6": "Amelia M.", "7": "Elijah T.", "8": "Muhammad N.",
-                "9": "Nev C.", "10": "Enid B.", "11": "Chandrika L.", "12": "Tiyasha B.",
-                "13": "Sarah A.", "14": "Isla K.", "15": "JL B.", "16": "Evabel C.",
-                "17": "Santaya M.", "18": "Ziegfried A.", "19": "Feng L.", "20": "Marley W.",
-                "21": "Yohan B.", "22": "Jason B.", "23": "Emmanuel V.", "24": "Haruki T.",
-                "25": "Beau B.", "26": "Ben V.", "27": "Jon M.", "28": "Drew M."
+                "1": "Yohan B.", "2": "Emmanuel V.", "3": "Dorian G.", "4": "Stella G.",
+                "5": "La'Monte B.", "6": "Drew M.", "7": "Nev C.", "8": "JL B.",
+                "9": "Isla K.", "10": "Muhammad N.", "11": "Santaya M.", "12": "Beau B.",
+                "13": "Haruki T.", "14": "Elijah T.", "15": "Theron H.", "16": "Enid B.",
+                "17": "Jon M.", "18": "Evabel C.", "19": "Ziegfried A.", "20": "Amelia M.",
+                "21": "Alex J.", "22": "Jason B.", "23": "Chandrika L.", "24": "Tiyasha B.",
+                "25": "Ben V.", "27": "Marley W.", "28": "Sarah A.", "29": "Feng L.",
             }
         },
         "804": {
-            updated: "2026-09-21-v2",
+            updated: "2026-09-29-roomv3",
             seats: {
-                "1": "Max P.", "2": "Charles T.", "3": "Cora A.", "4": "Vasylyna B.",
-                "5": "Arielle S.", "6": "Heavenly D.", "7": "Kate D.", "8": "Margot D.",
-                "9": "Marielle H.", "10": "Rosie M.", "11": "Caspian D.", "12": "Molly G.",
-                "13": "Charlotte M.", "14": "Theo D.", "15": "Ronn M.", "16": "Cameron M.",
-                "17": "Artem P.", "18": "Jack A.", "19": "Jeremiah S.", "20": "Hasan S.",
-                "21": "Khovin Y.", "22": "Oritshetimehin A.", "23": "Habib B.", "24": "Demetrius S.",
-                "25": "Taneil T.", "26": "Ezra O.", "27": "Sophie R."
+                "1": "Timi A.", "2": "Taneil T.", "3": "Vasylyna B.", "4": "Arielle S.",
+                "5": "Habib B.", "7": "Rosie M.", "8": "Heavenly D.", "9": "Cameron M.",
+                "10": "Hasan S.", "11": "Khovin Y.", "12": "Cora A.", "13": "Sophie R.",
+                "14": "Margot D.", "15": "Charles T.", "16": "Kate D.", "17": "Elizabeth L.",
+                "18": "Theo D.", "20": "Jeremiah S.", "21": "Max P.", "22": "Caspian D.",
+                "23": "Demetrius S.", "24": "Marielle H.", "25": "Jack A.", "26": "Ronn M.",
+                "27": "Ezra O.", "28": "Molly G.", "29": "Charlotte M."
             }
         },
         "7 ILT": {
@@ -120,6 +125,86 @@ window.CLASS_SEATING = {
                 "17": "Ruby N.", "18": "Ava N.", "19": "Elle R.", "20": "Madison R.",
                 "21": "Zacharia S.", "22": "Briem S.", "23": "Carson T.", "24": "Oliver W.",
                 "25": "Veronika Z."
+            }
+        }
+    },
+    legacy: {
+        "901": {
+            seats: {
+                "1": "Trenton J.", "2": "Benjamin L.", "3": "Adie R.", "4": "Abby E.",
+                "5": "Nolan C.", "6": "Johnny C.", "7": "Anastasia S.", "8": "Aurelia M.",
+                "9": "Roselyn B.", "10": "Avery P.", "11": "Marty P.", "12": "Tess B.",
+                "13": "Clara B.", "14": "Drew J.", "15": "Duncan M.", "16": "Olivia D.",
+                "17": "Danielle P.", "18": "Isaac N.", "19": "Finn G.", "20": "Justin A.",
+                "23": "Brielle F.", "24": "Nova B.", "25": "Aiden H.", "26": "Doun K.",
+                "27": "Lauren L.", "28": "Cameo S.", "29": "Madeleine T."
+            }
+        },
+        "902": {
+            seats: {
+                "1": "Noah B.", "2": "Arlo J.", "3": "Sofie S.", "4": "Nova T.",
+                "5": "Nolan C.", "6": "Douglas L.", "7": "Hannah S.", "8": "Jordan S.",
+                "9": "Marla L.", "10": "Zackory N.", "11": "John B.", "12": "Gemma B.",
+                "13": "Sofia K.", "14": "Mhareon O.", "15": "Oscar P.", "16": "Berlin C.",
+                "17": "Chelsea R.", "18": "Jax M.", "19": "Jordan H.", "20": "Tristan H.",
+                "23": "Mona A.", "24": "Anna T.", "25": "Simon M.", "26": "Seb H.",
+                "27": "Lyla F.", "28": "Thomas O."
+            }
+        },
+        "903": {
+            seats: {
+                "1": "Evan S.", "2": "Ben F.", "3": "Gwenna W.", "4": "Maia R.",
+                "5": "Misha C.", "6": "Avery F.", "7": "Bella K.", "8": "Liam M.",
+                "9": "Michelle N.", "10": "Jacob M.", "11": "Walter D.", "12": "Pauline S.",
+                "13": "Patience S.", "14": "Oscar D.", "15": "Ava G.", "16": "Daphne M.",
+                "17": "Chie M.", "18": "Callum M.", "19": "Zoe M.", "20": "Milo H.",
+                "21": "Kenzie L.", "22": "Zeiden S.", "23": "Kossy U.", "24": "Tommy M.",
+                "25": "April F.", "26": "Oliver S.", "27": "Andrew M.", "28": "Zana S.",
+                "29": "Addy C."
+            }
+        },
+        "801": {
+            seats: {
+                "1": "Samuel Mil", "2": "Martin V.", "3": "Alex R.", "4": "Julia T.",
+                "5": "Zephyr G.", "6": "Samuel Mac", "7": "Ainslie M.", "8": "Ruby C.",
+                "9": "Kenzie K.", "10": "Nikolas S.", "11": "Trey L.", "12": "Samuel S.",
+                "13": "Jaela L.", "14": "Nehemiah S.", "15": "Jason D.", "16": "Fiona S.",
+                "17": "Marieke M.", "18": "Steven E.", "19": "Shaviah O.", "20": "James T.",
+                "21": "Samuel H.", "22": "Jayden L.", "23": "Sydney S.", "24": "Alex W.",
+                "26": "Mae'ijah D.", "27": "Juliet M.", "28": "Ruby M.", "29": "Talia D.",
+            }
+        },
+        "802": {
+            seats: {
+                "1": "David C.", "2": "Amit K.", "3": "Mikaela V.", "4": "Katie G.",
+                "5": "Caleb C.", "6": "Loughlan C.", "7": "Bella F.", "8": "Sophie H.",
+                "9": "Hadley D.", "10": "Emmet M.", "11": "Misha K.", "12": "Alice M.",
+                "13": "Lillian W.", "14": "Drew B.", "15": "Miles G.", "16": "Michaela M.",
+                "18": "Aliiza B.", "19": "Scarlett T.", "20": "Lena R.", "21": "Hendy B.",
+                "22": "William E.", "23": "Jada R.", "24": "Myah H.", "25": "Marcus G.",
+                "26": "Sam H.", "27": "Aria S.", "28": "Mairi L.", "29": "Gianna W.",
+            }
+        },
+        "803": {
+            seats: {
+                "1": "Yohan B.", "2": "Emmanuel V.", "3": "Dorian G.", "4": "Stella G.",
+                "5": "La'Monte B.", "6": "Drew M.", "7": "Nev C.", "8": "JL B.",
+                "9": "Isla K.", "10": "Muhammad N.", "11": "Santaya M.", "12": "Beau B.",
+                "13": "Haruki T.", "14": "Elijah T.", "15": "Theron H.", "16": "Enid B.",
+                "17": "Jon M.", "18": "Evabel C.", "19": "Ziegfried A.", "20": "Amelia M.",
+                "21": "Alex J.", "22": "Jason B.", "23": "Chandrika L.", "24": "Tiyasha B.",
+                "25": "Ben V.", "27": "Marley W.", "28": "Sarah A.", "29": "Feng L.",
+            }
+        },
+        "804": {
+            seats: {
+                "1": "Oritshetimehin A.", "2": "Taneil T.", "3": "Vasylyna B.", "4": "Arielle S.",
+                "5": "Habib B.", "7": "Rosie M.", "8": "Heavenly D.", "9": "Cameron M.",
+                "10": "Hasan S.", "11": "Khovin Y.", "12": "Cora A.", "13": "Sophie R.",
+                "14": "Margot D.", "15": "Charles T.", "16": "Kate D.", "18": "Theo D.",
+                "19": "Artem P.", "20": "Jeremiah S.", "21": "Max P.", "22": "Caspian D.",
+                "23": "Demetrius S.", "24": "Marielle H.", "25": "Jack A.", "26": "Ronn M.",
+                "27": "Ezra O.", "28": "Molly G.", "29": "Charlotte M."
             }
         }
     }
