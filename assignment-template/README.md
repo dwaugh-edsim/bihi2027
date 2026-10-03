@@ -3,6 +3,11 @@
 > **Notice for AI Assistants & LLMs:**
 > This document specifies the architectural rules, mechanics, and design standards required to build or modify interactive student assignments for Bicentennial Junior High (Room 8, Mr. Waugh).
 > Follow these instructions strictly. Every pattern described here exists to eliminate recurring bugs in classroom Chromebook environments.
+>
+> **Scope (2026-09-30):** v2 HTML pages are now **legacy delivery**. New assignments are agent-designed
+> Google Docs/Slides task templates delivered via Google Classroom — those builds are governed by
+> **[AUTHORING-STANDARD.md](AUTHORING-STANDARD.md)** in this folder (backward design, answer-key-first,
+> and the three logged QA gates). The UDL defaults (§9) apply to both formats.
 
 ---
 
@@ -289,7 +294,19 @@ When building math or comparison tools (such as cost-of-living differences betwe
 
 When creating a new assignment:
 
-1. **Outcome Selection:**
+1. **Adaptation Review (mandatory — before designing the task):**
+   - Pull the target section's documented adaptations: the sheet's `Adaptations` tab
+     (`get_adaptations`, `aggregateOnly:true`) for the quick codes, and the **full per-student matrix** in
+     the private repo at `../bihipri-27/Private_Student_Data-priv/2026-27 Adaptations Summary.xlsx`
+     (seating, assessment, instructional, technology and EAL adaptations with teacher notes).
+   - Design the documented supports **into the assignment itself** — chunked sections, writing volume,
+     read-aloud-friendly text, oral/alternative response options, extra-time-compatible structure —
+     **§9's standard sections bake most of this in automatically**, and the AUTHORING-STANDARD's
+     adaptations pass applies to both v2 and Google Docs/Slides builds.
+     See `../bihipri-27/curriculum-planning-priv/ADAPTATIONS-REFERENCE-2026-09-30.md` and AGENTS.md
+     ("Student adaptations") for the full rule.
+   - Never print an adaptation label on a student's screen — adapt silently.
+2. **Outcome Selection:**
    - Check `curriculum-planning-priv/2026-27outcomes.md` (in the private repo) for verbatim outcome codes and match tags (e.g. `HL8-OUT-01`, `CIT9-OUT-03`).
 2. **Registry Entry:**
    - Add the assignment to `Student_System/assignments_data.js` so it automatically appears in the teacher's Class Startup projector slide picker:
@@ -311,11 +328,74 @@ When creating a new assignment:
 Before committing any assignment:
 - [ ] Filename contains **course only** (e.g. `HL8_...`), never a homeroom number (`Class804`).
 - [ ] Title tag and heading reflect the course-wide scope.
+- [ ] **Documented adaptations for the target sections are designed into the task (§7 step 1); no student-facing adaptation labels.**
 - [ ] Inline SVG favicon is present in `<head>`.
 - [ ] All student-facing buttons, badges, and alerts say **"Server"**, never "GAS".
 - [ ] No defunct legacy `fetch()` calls to old Apps Script URLs exist in the code.
-- [ ] Dropdown select placeholder options include `value=""`.
-- [ ] Custom tables use the `{ type: 'static', html: ... }` pre-rendering pattern.
-- [ ] Custom inputs are wired to `custom.collect` and `custom.populate`.
-- [ ] All math tools output full, readable sentences and provide button feedback.
-- [ ] File is committed and pushed to `origin/main` (GitHub Pages deploys automatically).
+   - [ ] Dropdown select placeholder options include `value=""`.
+   - [ ] Custom tables use the `{ type: 'static', html: ... }` pre-rendering pattern.
+   - [ ] Custom inputs are wired to `custom.collect` and `custom.populate`.
+   - [ ] All math tools output full, readable sentences and provide button feedback.
+   - [ ] introHtml states the goal, why it matters, a realistic time estimate, and what "done" looks like.
+   - [ ] A worked exemplar appears near the first task; a quality checklist sits before sign-off.
+   - [ ] Extension fields (if any) use the `ext_` id prefix, `optional: true`, and an "(optional)" label; sign-off never requires them.
+   - [ ] Text is speakable (TTS-friendly) and no key content lives only inside images.
+   - [ ] No timers or in-page hard deadlines; students can stop and resume.
+   - [ ] File is committed and pushed to `origin/main` (GitHub Pages deploys automatically).
+
+---
+
+## 9. Universal Design Defaults (UDL-aligned — the four habits)
+
+The documented-adaptations review (§7 step 1) is the *individual* layer. This section is the
+*universal* layer: supports that ship to every student by default, so the per-student
+adaptation list shrinks to what is genuinely individual. The template
+(`template_assignment.html`) carries these as standard blocks — keep them in every build.
+
+### The four habits (standard sections in the template)
+
+1. **Chunked sections, one instruction per field.** Each field label states exactly one
+   instruction; the `hint` carries the how. Keep sections small. (Engine schema enforces the
+   structure; don't stack multiple asks into one label.)
+2. **No time pressure.** Never add timers or in-page deadlines. State a realistic
+   `timeEstimate`, and say in the intro that work saves to the server and can be resumed
+   any time on any Chromebook.
+3. **Exemplar + checklist.** A "What a strong answer looks like" block (`exemplarBlockHtml()`)
+   near the first task — a short worked model at student depth, naming the transferable move.
+   A "Before you sign off" checklist (`checklistBlockHtml()`) just before the signature field —
+   3–5 first-person quality checks that define "done" for the core task.
+4. **Speakable text.** Students use Read & Write / text-to-speech. Write full sentences; put
+   no key content only inside images or canvas; keep button/link labels meaningful; plain
+   language throughout — **adjust the language, never the content or concepts.**
+
+### Core vs. extension (the reduced pathway, designed once)
+
+- The **core** task is what the sign-off checklist describes; every student does it.
+- **Extension** content is optional stretch: fields use the `ext_` id prefix, an
+  `optional: true` flag (inert today — self-documenting for future engine/dashboard work),
+  and an "(optional…)" label. Students who skip them have still completed the task.
+- This is the designed answer to "reduce the number of questions / length for some students":
+  the pathway exists in the artifact for everyone, and the adapted-assessment students take
+  the core path — no per-student rewrite, and no adaptation label on any screen.
+
+### Also standard, where relevant
+
+- **Word bank / key words** in the intro (3–6 terms, plain-language definitions).
+- **Media alternatives**: captions on any video; audio alternatives for long required texts.
+- **Response flexibility**: prefer prompts a student can answer in writing *or* orally
+  (teacher-scribed) — avoid tasks whose only evidence is extended handwriting.
+
+### Why this framing (UDL in one paragraph)
+
+These defaults are the Room 8 implementation of **Universal Design for Learning** (CAST):
+design for the margins from the start, because barriers live in the environment, not the
+learner — the curb-cut effect. The four habits map onto UDL's three principles:
+**chunking** and **exemplars** (multiple means of *representation* — comprehension and
+guiding information processing), **checklists** and **no timers** (multiple means of
+*action & expression* — executive function: planning, monitoring progress, varying demand),
+and the **goal/why intro** plus **core-vs-extension choice** (multiple means of *engagement* —
+relevance, autonomy, effort without penalty). UDL does not replace documented adaptations:
+it is the universal tier underneath them. Students who need more than the defaults still
+get their TIENET-documented adaptations — just fewer of them, because the defaults already
+cover the most common ones (extra time: 24 of 41 students; Chromebook/Read & Write: 20;
+checklists/exemplars: 17; chunking: 13).

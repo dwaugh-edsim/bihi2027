@@ -61,6 +61,17 @@ POST <BACKEND_URL> { action:'get_adaptations', teacherPin|identity, section:'802
 -> { count, codeTotals:{code:n}, bySection:{section:{students,codes:{}}}, students?:[...] }
 ```
 
+**Full documented adaptations (the detailed record, private repo):** the sheet tab is only the quick codes
+view. The full TIENET-derived picture — seating, assessment, instructional, technology and EAL adaptations
+per student, with teacher notes — lives in the private repo at
+`../bihipri-27/Private_Student_Data-priv/2026-27 Adaptations Summary.xlsx`
+(one row per student, shared-adaptation columns + per-student notes; start with its "Legend & Source Notes"
+sheet). `../bihipri-27/Private_Student_Data-priv/2026-27 Adaptations.md` in the same folder is the detailed
+source and wins on any conflict. Check both the sheet tab and this document when designing a task, and
+**design the documented supports into the assignment itself** (chunked sections, writing volume, read-aloud
+friendliness, oral/alternative response options, extra-time-compatible structure) rather than bolting them on
+afterwards. See also `../bihipri-27/curriculum-planning-priv/ADAPTATIONS-REFERENCE-2026-09-30.md`.
+
 - **Bring it up unprompted.** When Dave asks for a new assignment, say what the section's
   documented adaptations are and how the task supports them (writing volume, chunking,
   read-aloud friendliness, whether extra time changes the shape). That is an expected part of
@@ -70,6 +81,31 @@ POST <BACKEND_URL> { action:'get_adaptations', teacherPin|identity, section:'802
   page silently, don't announce why.
 - **Adaptation vs IPP.** Adaptations keep the same outcomes with different supports (a UI/design
   problem). Modified/IPP programs change the outcomes (a rubric problem). Don't blend them.
+- **Seating tag.** `Student_System/class_seating_data.js` carries an `adaptationSeats` array per
+  homeroom: seats whose placement satisfies a documented adaptation or adaptation-linked request.
+  Data only — **never render it, or the reasons, on any student-facing surface** (the reasons aren't
+  in this repo at all; they're in the private repo's `ADAPTATIONS-REFERENCE-2026-09-30.md`). Check it
+  before reshuffling seats; untagged seats are the flexible ones.
+
+### Assignment creation (current workflow — 2026-09 shift)
+
+- **New assignments are agent-designed and delivered through Google Classroom**: the student-facing
+  task is a **Google Docs or Slides template** (marked in Classroom), not a bespoke v2 HTML page.
+  v2 pages remain live but are legacy delivery. The agent can't create Google Docs directly — it
+  produces a **Gemini hand-off prompt** (verbatim finished text + layout directives; Gemini Canvas
+  does typesetting only) that the teacher renders; see the AUTHORING-STANDARD's hand-off section
+  and its post-render check.
+- **`assignment-template/AUTHORING-STANDARD.md` governs every build** — it exists to stop three
+  recurring lazy-LLM failure modes: (1) haiku prose that students can't follow, (2) questions that
+  don't further the outcomes, (3) incoherent design that leaks answers. Its three gates are
+  mandatory and must be **logged with evidence** in the build spec: the Cold-Read Test (rewrites
+  listed), the outcome traceability table (items ↔ outcome codes, ideal answers written *before*
+  the student-facing wording), and the Leak Sweep (exemplar displacement, word-bank limits,
+  sequencing).
+- **Build specs, ideal answers and rubrics go in the private repo** (the course's `-priv` folder).
+  Student responses and marks live in Google/Classroom — never into either repo.
+- **Reduced pathway**: for adapted-assessment students, assign core-only copies to individuals in
+  Classroom — differentiation stays invisible in the document itself.
 
 ### The sync contract (home → school)
 

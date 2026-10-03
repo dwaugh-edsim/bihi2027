@@ -77,6 +77,18 @@
       into the cloud payload (payload.section) so they travel with the student across
       any device or Chromebook session.
 
+ 9. UNIVERSAL DESIGN DEFAULTS (EVERY ASSIGNMENT — SEE README §9):
+    • Chunked sections, ONE instruction per field label; hints carry the "how".
+    • introHtml states the goal, why it matters, a realistic time estimate
+      (no timers exist — server autosave means stop/resume any time), and
+      what "done" looks like (the sign-off checklist says it exactly).
+    • A worked exemplar ("What a strong answer looks like") near the first
+      task; a quality checklist before sign-off.
+    • Core vs. extension: extension fields are prefixed ext_, flagged
+      optional: true, labelled "(optional…)", and are never needed to sign off.
+    • Speakable text: full sentences, no key content inside images, plain
+      language — adjust the language, never the content or concepts.
+
  HOW TO CREATE A NEW ASSIGNMENT:
    1. Copy this file into your course folder (e.g., "Citizenship 9/" or "HealthyLiving8/").
    2. Ensure script tags point to pipe.js and assignment_engine.js:
@@ -438,6 +450,35 @@
       '</div>';
   }
 
+  // ================= UNIVERSAL DESIGN DEFAULTS (README §9) =================
+  // Standard blocks every assignment carries: a worked exemplar near the first
+  // task, and a quality checklist at sign-off. Keep the wording speakable.
+  function exemplarBlockHtml() {
+    return '<div style="background:#f0f9ff; border:1px solid #bae6fd; border-left:4px solid #2563eb; border-radius:6px; padding:12px 16px; margin:6px 0 14px 0;">' +
+      '<div style="font-family:\'JetBrains Mono\', monospace; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; color:#1d4ed8; margin-bottom:6px;">WHAT A STRONG ANSWER LOOKS LIKE</div>' +
+      '<p style="margin:0 0 6px 0; font-size:0.93rem;">Replace this with a short worked model of the core task — the same length and depth you expect from students, not a full sample essay.</p>' +
+      '<p style="margin:0; font-size:0.93rem; color:#475569;">Name one move the writer made (notice how the claim comes first, then the evidence) so students can copy the structure, not the content.</p>' +
+      '</div>';
+  }
+
+  function checklistBlockHtml() {
+    // Replace these four items with the task-specific checklist; keep it short
+    // (3-5 items), phrased as first-person checks, and achievable by everyone.
+    const items = [
+      'I answered every numbered prompt in my own words.',
+      'I used at least one piece of evidence or example.',
+      'I re-read my work once (or had Read &amp; Write read it back to me).',
+      'I checked spelling and capitals in my final answers.'
+    ];
+    return '<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-left:4px solid #15803d; border-radius:6px; padding:12px 16px; margin:6px 0 14px 0;">' +
+      '<div style="font-family:\'JetBrains Mono\', monospace; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; color:#15803d; margin-bottom:6px;">BEFORE YOU SIGN OFF — CHECK YOUR WORK</div>' +
+      '<ul style="margin:0; padding-left:20px; font-size:0.93rem;">' +
+        items.map(function (i) { return '<li style="margin:3px 0;">' + i + '</li>'; }).join('') +
+      '</ul>' +
+      '<p style="margin:8px 0 0 0; font-size:0.85rem; color:#475569;">The checklist is the quality bar for the core task — it is not extra work.</p>' +
+      '</div>';
+  }
+
   // ================= ASSIGNMENT CONFIG =================
   const ASSIGNMENT = {
     taskName: 'TEMPLATE — Rename Me (Room 8 v2)',
@@ -447,17 +488,23 @@
     badge: 'POINTS • CLASS',
     classList: ['901-CIT', '902-CIT', '903-CIT'],      // Fallback sections for off-roster accounts
     introHtml:
-      '<p>What students read before they start: the scenario, the outcomes, and guidelines.</p>' +
+      '<p><b>The goal:</b> one sentence stating what students will be able to do by the end of this task.</p>' +
+      '<p><b>Why it matters:</b> one sentence connecting the task to something real — an interest, a current event, a decision they will actually face.</p>' +
+      '<p><b>Time &amp; pace:</b> a realistic estimate (there is no timer — work saves to the server, so you can stop and resume any time, on any Chromebook).</p>' +
+      '<p><b>Key words for this task:</b> list 3–6 terms with a plain-language definition each — a built-in word bank. Keep the language simple and the ideas rich.</p>' +
+      '<p><b>What "done" looks like:</b> the green checklist at the end says it exactly. Sign off when every box is true.</p>' +
       '<p><b>New this round:</b> sign in with your <code>@gnspes.ca</code> account — no PINs needed. Work autosaves live to the server.</p>',
     sections: [
       {
         num: '1',
         title: 'Section One — Questions & Prompts',
-        hint: 'Standard form inputs automatically serialize and restore.',
+        hint: 'One instruction per field; the hint carries the how.',
         fields: [
+          { id: 's1_exemplar', type: 'static', html: exemplarBlockHtml() },
           { id: 'p1_notes', type: 'textarea', label: '1 · Written Analysis:', hint: 'Explain your reasoning with evidence', rows: 4 },
-          { id: 'p1_choice', type: 'select', label: '2 · Policy Selection:', options: ['Option A: Expand Transit', 'Option B: Rent Stabilization', 'Option C: Incentive Grants'] },
-          { id: 'p1_checks', type: 'checks', label: '3 · Key Factors Identified:', options: ['Affordability', 'Supply Chain', 'Zoning Laws', 'Inflation'] }
+          { id: 'p1_choice', type: 'select', label: '2 · Policy Selection:', hint: 'Pick the option you can defend best', options: ['Option A: Expand Transit', 'Option B: Rent Stabilization', 'Option C: Incentive Grants'] },
+          { id: 'p1_checks', type: 'checks', label: '3 · Key Factors Identified:', options: ['Affordability', 'Supply Chain', 'Zoning Laws', 'Inflation'] },
+          { id: 'ext_1_go_further', type: 'textarea', optional: true, label: 'Go Further (optional — a stretch, never required):', hint: 'Take the same reasoning one step past the core task', rows: 3 }
         ]
       },
       {
@@ -466,6 +513,15 @@
         hint: 'Demonstrates pre-rendered static table with custom collect/populate hooks.',
         fields: [
           { id: 'interactiveTableWrap', type: 'static', html: generateInteractiveTableHtml() }
+        ]
+      },
+      {
+        num: '3',
+        title: 'Check & Sign Off',
+        hint: 'The checklist is the quality bar for the core task.',
+        fields: [
+          { id: 's3_checklist', type: 'static', html: checklistBlockHtml() },
+          { id: 'docSignature', type: 'text', label: 'Sign off — type your full name:', hint: 'This confirms every checklist box above is true for your work' }
         ]
       }
     ]

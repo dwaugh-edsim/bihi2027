@@ -18,6 +18,18 @@
 //
 // `legacy` keeps the pre-reshuffle (old wall-layout) seat maps — reference only,
 // the slide uses it solely to detect stale browser-storage copies.
+//
+// `adaptationSeats` — per homeroom, seat numbers whose placement is
+// adaptation-constrained: the occupant has a documented adaptation this
+// placement satisfies, or sits beside an adaptation-paired peer. DATA ONLY:
+// never render, print, or project it on any student-facing surface, and never
+// write the reason here — per-seat reasons live only in the private repo
+// (../bihipri-27/curriculum-planning-priv/ADAPTATIONS-REFERENCE-2026-09-30.md).
+// Tools may read it to avoid breaking compliance when reshuffling seats.
+// NOTE (2026-10-03): no homeroom carries adaptationSeats yet on the v3 maps —
+// the Sept-30 tags were written against the PRE-v3 layout (preserved in
+// Student_System-priv/class_seating_data_PRE-v3-adapt-2026-09-30.js.bak) and
+// must be re-derived against v3 before re-tagging.
 
 window.CLASS_SEATING = {
     version: 3,
