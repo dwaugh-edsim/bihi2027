@@ -21,22 +21,30 @@ slide), announcements, and a course outcome strip at the bottom for administrato
   "Last class (date · #n)" shows above it as continuing context — it is the section's
   newest Class_Log entry, so logging a class (tracker, Sheet app, or curl) is what keeps
   it current. A course with no entries shows a quiet "No log yet" nudge instead.
-- **Which assignment the live view shows**: the Task Progress panel has a dropdown
-  listing the course's curated assignments (`assignments_data.js`) plus anything found
-  in the ledger. Pick one and it sticks (per course, in that browser) — including a
-  brand-new assignment before anyone has saved (it renders at 0 / "Not started").
+- **Do This Now (the instructions panel)**: what students should be doing, as a big
+  numbered list. Curated in `display_instructions_data.js`, keyed by section
+  (`903-HL`) or by course (`CIT9` / `HL9` / `HL8` — a section key wins). Fields:
+  `heading` (default "Do This Now"), `steps`, an optional `note`, and an optional
+  `owed` block (`{ label, names }` — first names only) for students who still owe work,
+  printed as a warning so it reads as "these are the ones". Mr. Waugh dictates the
+  wording; an agent session formats and files it — no PIN, no sheet edit, no `Code.gs`
+  change. An agenda line that says the same thing as an instruction is dropped from the
+  agenda automatically, so a step never prints twice. No entry for a section → no panel.
 - **Announcements / title / outcome**: press `⚙` (or `e`) on the slide, type, Save — stored
   per section in the `Class_Slide` tab via the webhook.
 - **Learning outcome strip** (the administrator view — always on screen), resolved in
   this order:
   1. the ⚙ outcome override, when the teacher typed one;
-  2. the outcome curated for the assignment on screen (`assignments_data.js` matches
-     the ledger task name → the verbatim curriculum statement chosen from
-     `../2026-27outcomes.md`, the compiled outcome pool an agent digs into whenever a
-     new assignment launches);
+  2. the outcome curated for the course's current assignment (`assignments_data.js`
+     `active` — the verbatim curriculum statement chosen from `../2026-27outcomes.md`,
+     the compiled outcome pool an agent digs into whenever a new assignment launches);
   3. the lesson-map unit outcome for the next class # (`class_log_lesson_maps.js`);
   4. the course's default outcome.
-- **🪑 Seats popup** (`s` key): the Room 8 desk chart (11 · 11 · 7) for the class on screen.
+- **No ledger reads**: since Oct 5 2026 the slide does not read the GAS assignment
+  ledger at all. The old Task Progress panel, its assignment dropdown, and the `p` key
+  are gone; `getClassLog` and `setClassSlide` are the only webhook calls the page makes.
+  `p` is free again.
+- **🪑 Seats popup** (`s` key): the Room 8 desk chart (12 · 9 · 8) for the class on screen.
   Names come from, best first: the seating doc's own browser storage (`sp_<homeroom>` —
   your live edits in `seating-plan.html` when both pages run in the same browser),
   a synced snapshot in `class_seating_data.js`, then the alphabetical roster.
@@ -71,19 +79,23 @@ re-pulls the log on its own); a registry flip needs an F5 on the projector tab.
    otherwise). Leave the outcome override alone except special days: the strip
    auto-matches the assignment.
 5. **Assignment pick.** Check `assignments_data.js` — each course's `active` id must be
-   what today's classes are working on. If the course moved on, flip `active` (and the
-   item's `taskName` must equal the assignment page's `TASK_NAME` exactly), then
-   commit + push; the projector picks it up on next page load. Manual per-browser
-   overrides (the dropdown) beat `active`, so tell Mr. Waugh if a projector was
-   re-pinned by hand.
-6. **Refresh the offline seed.** Re-bake `class_log_seed_data.js` from the GET
+   what today's classes are working on; it drives the LEARNING OUTCOME strip. If the
+   course moved on, flip `active` (and the item's `taskName` must equal the assignment
+   page's `TASK_NAME` exactly), then commit + push; the projector picks it up on next
+   page load. There is no per-browser override to worry about any more — the assignment
+   dropdown went away with the Task Progress panel.
+6. **Set the Do This Now instructions.** Dictated by Mr. Waugh → format into
+   `display_instructions_data.js` under the section key (or the course key to hit every
+   class at once) and push. Say which sections it applies to; a step that restates a
+   plan line can be skipped, since the agenda copy is dropped automatically.
+7. **Refresh the offline seed.** Re-bake `class_log_seed_data.js` from the GET
    (entries + plans + slides) so a dead-network morning still shows last class.
-7. **Verify and print.** Re-read the GET and print one line per today's section:
-   *last class → agenda → announcements → assignment ★ → outcome*. That printout is
-   the day's screen, confirmed. Missing logs or stale announcements are called out
-   right there.
+8. **Verify and print.** Re-read the GET and print one line per today's section:
+   *last class → agenda → instructions → announcements → assignment ★ → outcome*. That
+   printout is the day's screen, confirmed. Missing logs or stale announcements are
+   called out right there.
 
-Steps 1, 6, 7 are read-only — safe to run any time, PIN or not.
+Steps 1, 7, 8 are read-only — safe to run any time, PIN or not.
 
 ---
 

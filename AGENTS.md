@@ -15,9 +15,9 @@ What does and doesn't travel:
   **Room 8 Master Google Sheet** — the class-log webhook + teacher PIN works from any
   machine, so log writes and slide extras can be done from home; verify with a GET.
 - **Does NOT travel (machine-local):** the projector browser's localStorage — the
-  per-course Task Progress pick (`room8_prog_task_<course>`), the cached teacher PIN
-  (`room8_class_log_pin`), and seating-doc storage (`sp_*` / `sp2_*`). To change
-  defaults from home, edit tracked files (e.g. `assignments_data.js` `active`) and
+  cached teacher PIN (`room8_class_log_pin`) and seating-doc storage (`sp_*` / `sp2_*`).
+  To change defaults from home, edit tracked files (e.g. `assignments_data.js` `active`,
+  or `display_instructions_data.js` for the slide's instructions) and
   push; the projector picks it up on reload.
 
 ## Two repositories (public vs private)
@@ -182,19 +182,34 @@ top of a probe that was measuring the wrong tab; the redeploy had been fine all
 along. Humans break things less often than models miss hidden branches.
 
 **Class Startup daily system (the projector opening slide):**
-`Student_System/Class_Startup.html` is the projector do-now. Its Task Progress picker
-and LEARNING OUTCOME strip are driven by
+`Student_System/Class_Startup.html` is the projector do-now. Its **INSTRUCTIONS panel**
+("Do This Now") is curated in `Student_System/display_instructions_data.js`, keyed by
+section (`903-HL`) or by course (`CIT9` / `HL9` / `HL8`, section wins). Mr. Waugh
+dictates the wording and an agent session formats and files it — that file is the only
+data source, so instructions need no sheet write, no PIN, and no `Code.gs` change. An
+agenda line that reads the same as an instruction is dropped from the agenda so a step
+never prints twice. The panel also carries an optional `owed` block (a heading + first
+names of students who still owe work) for accountability nudges — keep it current or
+delete it, and never put grades or reasons in it.
+
+Its LEARNING OUTCOME strip is driven by
 `Student_System/assignments_data.js` — the curated registry mapping each course's
 ledger `TASK_NAME`s to a short label + best-fit outcome, with `active` per course.
 When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from the
 assignment page, and the outcome **chosen by digging into
 `../bihipri-27/curriculum-planning-priv/2026-27outcomes.md`** — the compiled verbatim
 outcome pool for CIT9/HL9/HL8 with codes, match tags, and the choosing steps; cite the
-code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → matched assignment
+code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → the course's `active` assignment
 → lesson-map unit by next class # → course default. The "Last class (date · #n)" line
 is the section's newest Class_Log entry; it only appears once the course has been
 logged at least once. `class_log_seed_data.js` is the offline snapshot
 (entries+plans+slides) — regenerate it from `get_class_log` after a batch of logging.
+
+⚠ Since Oct 5 2026 this display **does not read the GAS ledger at all** — the Task
+Progress panel, its per-browser task picker (`room8_prog_task_<course>`) and the `p`
+key are gone. `getClassLog` (class log/plans/slides) and `setClassSlide` (⚙ saves) are
+the only webhook calls the page makes. `get_class_progress` still exists in `Code.gs`
+and is still used by other pages (audit displays), so don't delete it.
 
 **Morning preset:** when Mr. Waugh says *"get today's screens ready"*, *"bang the
 day's screen into shape"*, or pastes a raw day note, follow the **Morning preset

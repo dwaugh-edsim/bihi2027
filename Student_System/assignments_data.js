@@ -1,24 +1,25 @@
 // assignments_data.js — per-course assignment registry + ASSIGNMENT → OUTCOME map.
-// Used by Class_Startup.html: the Task Progress picker lists these (so the
-// teacher chooses what the live view shows), and the LEARNING OUTCOME strip at the
-// bottom shows the outcome matched to whichever assignment is on screen.
+// Used by Class_Startup.html: each course's `active` item drives the LEARNING OUTCOME
+// strip on the slide, so the registry decides which outcome the projector shows.
+// (The slide used to also list these in a Task Progress picker — that panel and its
+// per-browser override were removed Oct 5 2026; `active` is now the only switch.)
 //
 // MAINTENANCE (LLM-curated — the "dig into the outcomes doc and pick" loop):
 //  1. When Mr. Waugh launches a new assignment, add one item here:
 //       id        short slug
 //       taskName  EXACT TASK_NAME the assignment page writes to the GAS ledger
 //                 (grep the page for TASK_NAME — must match character for character)
-//       short     projector-friendly label for the picker dropdown
+//       short     projector-friendly label for the assignment
 //       match     RegExp that recognises this assignment's ledger/task text
 //       outcome   the VERBATIM curriculum statement chosen from ../2026-27outcomes.md
 //                 (repo root) — follow that doc's "How an agent chooses" steps
 //       ref       the outcome's code from that doc (e.g. "CIT9 U5C", "HL9 CO1")
 //                 plus a one-line why when the pick was close
-//  2. Set `active` to the id the course is working on right now — new sections see it
-//     at 0% until students save, and it is the outcome fallback when nothing is pinned.
+//  2. Set `active` to the id the course is working on right now — that is the one the
+//     slide's outcome strip reports, and the fallback when the teacher typed no override.
 //  3. Add the pick to the mapping table at the bottom of 2026-27outcomes.md.
-//  Outcome resolution on the slide: teacher's ⚙ override → matched assignment
-//  (this file) → lesson-map unit by next class # → course default.
+//  Outcome resolution on the slide: teacher's ⚙ override → the course's `active`
+//  assignment (this file) → lesson-map unit by next class # → course default.
 window.COURSE_ASSIGNMENTS = {
     CIT9: {
         label: "Citizenship 9",
