@@ -37,7 +37,9 @@ slide), announcements, and a course outcome strip at the bottom for administrato
   agenda item on the slide. If there's no plan, it falls back to the suggested next lesson.
   "Last class (date · #n)" shows above it as continuing context — it is the section's
   newest Class_Log entry, so logging a class (tracker, Sheet app, or curl) is what keeps
-  it current. A course with no entries shows a quiet "No log yet" nudge instead.
+  it current. A course with no entries shows nothing in that slot — the line is
+  student-facing, so it never carries a teacher reminder to quick-log. (The tracker
+  is the teacher-facing place for that nudge.)
 - **Do This Now (the instructions panel)**: what students should be doing, as a big
   numbered list. Curated in `display_instructions_data.js`, keyed by section
   (`903-HL`) or by course (`CIT9` / `HL9` / `HL8` — a section key wins). Fields:

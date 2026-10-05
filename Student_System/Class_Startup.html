@@ -1223,9 +1223,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const last = lastEntry(sec);
         const lastDateTxt = last ? new Date(last.date + 'T12:00:00')
             .toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+        // A course with no log yet just shows nothing here. This line is
+        // student-facing, so it must never carry the "quick-log this in the
+        // tracker" reminder that used to sit in this slot.
         document.getElementById('lastLine').innerHTML = last
             ? '<b>Last class (' + lastDateTxt + (last.classNo ? ' · #' + escapeHtml(String(last.classNo)) : '') + '):</b> ' + escapeHtml(last.did || '—')
-            : '<span class="empty-note" style="font-size:0.9rem;">No log yet — quick-log this course in the Class Log tracker and “Last class” will show here.</span>';
+            : '';
         const items = agendaItemsFor(sec);
         document.getElementById('todayHeading').textContent =
             (slides[sec] && slides[sec].title) ? slides[sec].title : 'Today';
