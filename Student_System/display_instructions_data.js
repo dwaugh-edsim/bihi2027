@@ -47,14 +47,17 @@ window.DISPLAY_INSTRUCTIONS = {
             "60-second case to the government — drafting today. Already handed in: Jax, Oscar, Sofie.",
             "Numbeo Part 2 sheet — career math AND the reflection box. Hand it in before you leave."
         ],
-        note: "Nolan: the career math is in ($92k lawyer) — the reflection box is still empty.",
         owed: [
             { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
             { label: "Sleep Audit not handed in yet", names: [
                 "Anna T.", "Arlo", "Berlin", "Chelsea", "Jordan H.", "Nolan",
                 "Sofie", "Thomas", "Tristan"
             ] },
-            { label: "Numbeo sheet not submitted / not started", names: [
+            { label: "Numbeo — done, feedback waiting in the assignment", names: [
+                "Anna", "Chelsea", "Douglas", "Gemma", "Jax", "Lyla", "Mona",
+                "Noah", "Nolan", "Nova T.", "Oscar", "Thomas"
+            ] },
+            { label: "Numbeo — not submitted / not started", names: [
                 "Arlo", "Berlin", "Hannah", "Jordan", "Marla L.", "Sofia", "Sofie", "Zackory"
             ] }
         ]
