@@ -47,6 +47,7 @@ Click into any subfolder below to access its detailed architecture documentation
    * Physical locker assignments, Dudley combination locks, and printable slips: `Day1_Deliverables/902-locker-assignments.html`, `Day1_Deliverables/902_desk_lock_slips.html`.
    * Complete 10-day cycle student clipboard with daily schedules and point rubrics: `Homeroom_902/902_Class_Clipboard_10Day_Cycle.html`.
    * Today's schedule and morning briefing deck: `Homeroom_902/902_Today_Schedule_Deck.html`.
+   * The 10-day rotation itself lives in `Homeroom_902/homeroom_902_schedule_data.js` — one source of truth shared by that deck and the projector's before-P1 homeroom view in `Student_System/Class_Startup.html` (edit the rotation there, not in the deck). Morning-announcement seed text: `Homeroom_902/homeroom_902_notices.js`.
 
 3. **Substitute Teacher / Emergency Binder (`sub_folder/`):**
    * All class lists, medical alerts, and course enrollments: `sub_folder/sub_folder_class_lists.html` and `sub_folder/SUB_FOLDER_CLASS_LISTS.md`.

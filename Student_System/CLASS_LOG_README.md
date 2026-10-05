@@ -16,6 +16,23 @@ slide), announcements, and a course outcome strip at the bottom for administrato
 
 - **Zero setup per class**: open `Class_Startup.html` on the projector — it picks the
   right class from the time of day. Wrong pick? Click a chip or press ← / →. `F` = fullscreen.
+  `H` = force the before-P1 homeroom view on or off.
+- **Before P1 it's the homeroom, not a section**: from 07:45 until the first bell the
+  middle of the screen becomes **Homeroom 902** — the day's rotation (five periods,
+  Room 8 periods badged) plus the morning announcements, because the 902s are in the
+  room and no section is on yet. The section view, the agenda/instructions panels and
+  the outcome strip step aside. Clicking a period chip or pressing ← / → goes back to
+  the section view; a `?section=` URL pin also wins over the homeroom.
+  - **Rotation**: `../Homeroom_902/homeroom_902_schedule_data.js` — the same file the
+    902 master deck loads, so the deck and this screen can never disagree. Cycle day
+    comes from the same 10-day clock as the `Day N` chip (anchored Mon 2026-09-14).
+  - **Morning announcements**: the ⚙ editor writes the `902-HOMEROOM` row of the
+    `Class_Slide` tab while the homeroom view is up (the same editor, re-pointed — no
+    new picker). That row **wins** once it has any text. Until then the screen falls
+    back to the seed list in `../Homeroom_902/homeroom_902_notices.js`, which is what
+    an agent session edits when Mr. Waugh dictates notices. ⚠ If he later clears the
+    `Class_Slide` row, the old seed reappears — delete the matching entry at the same
+    time. He can also add the row from the Sheet app on his phone.
 - **Agenda**: comes from the section's plan in the tracker. In the plan, one line = one
   agenda item on the slide. If there's no plan, it falls back to the suggested next lesson.
   "Last class (date · #n)" shows above it as continuing context — it is the section's
@@ -88,14 +105,21 @@ re-pulls the log on its own); a registry flip needs an F5 on the projector tab.
    `display_instructions_data.js` under the section key (or the course key to hit every
    class at once) and push. Say which sections it applies to; a step that restates a
    plan line can be skipped, since the agenda copy is dropped automatically.
-7. **Refresh the offline seed.** Re-bake `class_log_seed_data.js` from the GET
+7. **Set the homeroom screen.** Anything dictated for before first period →
+   `../Homeroom_902/homeroom_902_notices.js` (the seed the before-P1 view shows until
+   Mr. Waugh types his own into the `902-HOMEROOM` Class_Slide row). ⚠ If a
+   `902-HOMEROOM` row already exists, his live text wins — ask before overwriting the
+   seed, and drop a seed entry the moment he has replaced it, or it will come back if
+   he ever clears the row.
+8. **Refresh the offline seed.** Re-bake `class_log_seed_data.js` from the GET
    (entries + plans + slides) so a dead-network morning still shows last class.
-8. **Verify and print.** Re-read the GET and print one line per today's section:
-   *last class → agenda → instructions → announcements → assignment ★ → outcome*. That
-   printout is the day's screen, confirmed. Missing logs or stale announcements are
-   called out right there.
+9. **Verify and print.** Re-read the GET and print one line per today's section:
+   *last class → agenda → instructions → announcements → assignment ★ → outcome*, plus
+   one **homeroom** line: *cycle day → the five periods → the notices that will show*.
+   That printout is the day's screen, confirmed. Missing logs or stale announcements
+   are called out right there.
 
-Steps 1, 7, 8 are read-only — safe to run any time, PIN or not.
+Steps 1, 8, 9 are read-only — safe to run any time, PIN or not.
 
 ---
 

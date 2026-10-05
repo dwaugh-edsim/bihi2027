@@ -28,7 +28,16 @@
   instructions panel took its place. getClassLog is still the only webhook call this
   page makes.
 
-  Keyboard: ← / → switch class · e edit · s seating · Esc close · F fullscreen.
+  Before P1 the screen becomes the 902 HOMEROOM view (07:45 until the first bell):
+  today's rotation + the morning announcements, since the 902s are in the room and
+  no section is on yet. The rotation comes from
+  ../Homeroom_902/homeroom_902_schedule_data.js — the same file the 902 master deck
+  loads, so the two cannot drift. `h` forces that view on or off; clicking a period
+  chip or pressing ← / → goes back to the section view. While the homeroom view is
+  up, ⚙ edits the `902-HOMEROOM` row of the Class_Slide tab, falling back to the
+  seed notices in ../Homeroom_902/homeroom_902_notices.js until he types his own.
+
+  Keyboard: ← / → switch class · e edit · s seating · h homeroom · Esc close · F fullscreen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -544,6 +553,81 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     color: var(--text-main);
     font-weight: 600;
 }
+
+/* ---------- homeroom view (before P1) ---------- */
+.panel.hro-sched { flex: 1.45; }
+.panel.hro-notices { flex: 0 1 auto; border-left: 4px solid var(--amber); }
+.hro-day {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-left: 10px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+.hro-list { list-style: none; }
+.hro-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+}
+.hro-row:last-child { border-bottom: none; }
+.hro-p {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    min-width: 78px;
+    flex-shrink: 0;
+}
+.hro-time {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    min-width: 132px;
+    flex-shrink: 0;
+}
+.hro-name { font-size: 1.32rem; font-weight: 600; line-height: 1.25; }
+.hro-loc {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin-left: 8px;
+    white-space: nowrap;
+}
+.hro-row.room8 { background: var(--bg-page); border-radius: 8px; padding-left: 12px; padding-right: 12px; }
+.hro-row.room8 .hro-p { color: var(--theme-accent); }
+.hro-row.room8 .hro-name { font-weight: 700; }
+.hro-row.here { box-shadow: inset 4px 0 0 var(--theme-accent); }
+.hro-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: var(--theme-accent);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 10px;
+    vertical-align: 2px;
+}
+.hro-notices p {
+    font-size: 1.42rem;
+    line-height: 1.4;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+}
+.hro-notices p:last-child { border-bottom: none; }
+.hro-src {
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    margin-top: 10px;
+    font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -595,6 +679,23 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <div class="outcomebar">
     <span class="o-label">LEARNING OUTCOME</span>
     <span class="o-text" id="outcomeText">…</span>
+</div>
+
+<!-- Before P1: the 902s are in the room for homeroom, so the screen addresses the
+     homeroom rather than whichever section meets next. Rotation + period times come
+     from ../Homeroom_902/homeroom_902_schedule_data.js (shared with the master deck). -->
+<div class="content homeroom" id="homeroomView" style="display:none;">
+    <section class="panel hro-sched">
+        <h2>Today's Schedule <span class="hro-day" id="hroDay"></span></h2>
+        <ul class="hro-list" id="hroList"></ul>
+    </section>
+    <div class="content-side">
+        <section class="panel hro-notices" id="hroNoticesPanel">
+            <h2>Before First Period</h2>
+            <div id="hroNotices"></div>
+            <div class="hro-src" id="hroSrc"></div>
+        </section>
+    </div>
 </div>
 
 <div id="seatOverlay">
@@ -733,6 +834,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script src="class_seating_data.js"></script>
 <script src="students_roster_data.js"></script>
 <script src="class_log_seed_data.js"></script>
+<script src="../Homeroom_902/homeroom_902_schedule_data.js"></script>
+<script src="../Homeroom_902/homeroom_902_notices.js"></script>
 <script src="api.js"></script>
 <script>
 (function () {
@@ -946,24 +1049,95 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         }
     }
 
-    // ---------- render ----------
-    function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    // ---------- homeroom view (before P1) ----------
+    // Ahead of Period 1 the 902s are in Room 8 for homeroom, so the screen talks to
+    // the homeroom instead of whichever section meets next. The rotation itself is
+    // NOT stored here: it comes from ../Homeroom_902/homeroom_902_schedule_data.js,
+    // the same file the master deck loads, so the two can't disagree.
+    const HRO = {
+        key: '902-HOMEROOM',              // Class_Slide row the ⚙ editor writes to
+        label: 'Homeroom 902',
+        startMin: 7 * 60 + 45,            // 07:45 — projector on, students arriving
+        endFromBell: 'P1'                 // ends when the first bell rings
+    };
+    let forceHomeroom = false;            // `h` key — overrides URL pin / manual pick
+
+    function homeroomMode() {
+        if (forceHomeroom) return true;
+        if (new URLSearchParams(location.search).get('section')) return false;
+        if (manualPick) return false;
+        if (cycleDayOf(todayISO()) === null) return false;   // weekend
+        const now = minutesNow();
+        return now >= HRO.startMin && now < toMin(periodStart(HRO.endFromBell));
     }
-    function render() {
-        const t = todayISO();
-        const cd = cycleDayOf(t);
-        const sec = current;
-        const info = MEET[sec];
+    function periodStart(p) {
+        const bell = BELLS.find(b => b[0] === p);
+        return bell ? bell[1] : '09:05';
+    }
+    // Live Class_Slide row wins once the teacher has typed anything; the in-repo
+    // seed file is the fallback so the morning screen is never blank.
+    function homeroomNotices() {
+        const row = slides[HRO.key];
+        const typed = row && String(row.announcements || '').trim();
+        if (typed) {
+            return {
+                heading: (row.title && String(row.title).trim()) || 'Before First Period',
+                lines: String(row.announcements).split(/\n+/).filter(x => x.trim()),
+                src: 'typed on the slide (⚙) — saved to the Class_Slide tab'
+            };
+        }
+        const seed = (window.HOMEROOM_902_NOTICES || {}).announcements || [];
+        return {
+            heading: 'Before First Period',
+            lines: seed.map(s => String(s)).filter(s => s.trim()),
+            src: 'seed — homeroom_902_notices.js (press ⚙ to type your own)'
+        };
+    }
+    function renderHomeroom() {
+        const data = window.HOMEROOM_902;
+        const day = cycleDayOf(todayISO());
+        const plan = (data && data.schedule && data.schedule[day]) || null;
+        const times = (data && data.periodTimes) || {};
         const nowP = currentPeriod();
-        const m = meetingToday(sec);
 
-        document.getElementById('dateLine').textContent =
-            new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
-        document.getElementById('cycleChip').textContent =
-            cd ? ('Day ' + cd + (m ? ' · ' + m.p : '')) : 'No school';
+        document.getElementById('hroDay').textContent = plan
+            ? ('Day ' + day + ' of ' + (data.cycleLength || 10) + ' · ' + plan.dayName)
+            : ('Day ' + day);
+        document.getElementById('hroList').innerHTML = plan
+            ? ['p1', 'p2', 'p3', 'p4', 'p5'].map(k => {
+                const per = plan[k] || {};
+                const isRoom8 = per.type === 'room8';
+                const cls = ['hro-row', isRoom8 ? 'room8' : '', (nowP === k.toUpperCase() ? 'here' : '')].filter(Boolean).join(' ');
+                return '<li class="' + cls + '">' +
+                    '<span class="hro-p">' + k.toUpperCase().replace('P', 'P') + '</span>' +
+                    '<span class="hro-time">' + escapeHtml(times[k.slice(1)] || '') + '</span>' +
+                    '<span class="hro-name">' + escapeHtml(per.name || '') +
+                        (isRoom8 ? '<span class="hro-badge">Room 8</span>' : '') + '</span>' +
+                    '<span class="hro-loc">' + escapeHtml(per.loc || '') + '</span>' +
+                '</li>';
+            }).join('')
+            : '<li class="empty-note">No rotation found for cycle day ' + day + '.</li>';
 
-        // day strip
+        const n = homeroomNotices();
+        const panel = document.getElementById('hroNoticesPanel');
+        panel.style.display = n.lines.length ? 'flex' : 'none';
+        panel.querySelector('h2').textContent = n.heading;
+        document.getElementById('hroNotices').innerHTML =
+            n.lines.map(l => '<p>' + escapeHtml(l) + '</p>').join('');
+        document.getElementById('hroSrc').textContent = n.src;
+
+        // hero speaks for the homeroom, not a section
+        document.body.setAttribute('data-theme', 'CIT9');
+        document.getElementById('courseLine').innerHTML =
+            '<span class="course-icon">🍁</span>' + escapeHtml(HRO.label);
+        document.getElementById('metaLine').innerHTML =
+            '<span class="mono">Room 8</span> · before first period · Mr. Waugh';
+    }
+
+    // The period chips: which Room 8 sections run today, in order. Shared by the
+    // section view and the homeroom view (before P1 the room is 902's, but the
+    // teacher still wants to see the day's shape and be able to jump to a section).
+    function renderDayStrip(sec, nowP) {
         const now = minutesNow();
         document.getElementById('dayStrip').innerHTML =
             '<span class="lbl">Today</span>' +
@@ -979,6 +1153,40 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
                 : '<span class="empty-note">no Room 8 classes today — pick one:</span>' +
                   ORDER.map(s => '<span class="period-chip' + (s === sec ? ' current' : '') +
                       '" data-sec="' + s + '">' + s.replace('-', ' ') + '</span>').join(''));
+    }
+
+    // ---------- render ----------
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function render() {
+        const t = todayISO();
+        const cd = cycleDayOf(t);
+        const sec = current;
+        const info = MEET[sec];
+        const nowP = currentPeriod();
+        const m = meetingToday(sec);
+
+        document.getElementById('dateLine').textContent =
+            new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        // Before P1 the room is the homeroom's, not a section's: swap the whole
+        // middle of the screen and skip the section-specific render entirely.
+        const hro = homeroomMode();
+        document.getElementById('homeroomView').style.display = hro ? 'flex' : 'none';
+        document.querySelector('.content:not(#homeroomView)').style.display = hro ? 'none' : 'flex';
+        document.querySelector('.outcomebar').style.display = hro ? 'none' : 'flex';
+        document.getElementById('cycleChip').textContent =
+            hro ? ('Day ' + cd + ' · Homeroom') : (cd ? ('Day ' + cd + (m ? ' · ' + m.p : '')) : 'No school');
+        if (hro) {
+            renderDayStrip(sec, nowP);
+            renderHomeroom();
+            bindEditorFields();
+            return;
+        }
+
+        // day strip
+        renderDayStrip(sec, nowP);
 
         // hero
         const THEME_MAP = {
@@ -1033,13 +1241,18 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         // curated instructions panel
         renderInstructions(sec);
 
-        // editor section picker + fields
+        // editor section picker + fields — bound to whichever row the ⚙ editor
+        // is editing (the homeroom's while the homeroom view is up)
         renderSectionPick();
-        const slide = slides[sec] || {};
+        bindEditorFields();
+    }
+    function bindEditorFields() {
+        const eKey = editorKey();
+        const slide = slides[eKey] || {};
         document.getElementById('edTitle').value = slide.title || '';
         document.getElementById('edAnnounce').value = slide.announcements || '';
         document.getElementById('edOutcome').value = slide.outcome || '';
-        document.getElementById('edSection').textContent = sec;
+        document.getElementById('edSection').textContent = eKey;
     }
     function renderSectionPick() {
         const today = todaysSections();
@@ -1062,9 +1275,15 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (!MEET[sec]) return;
         current = sec;
         if (opts && opts.manual) manualPick = true;
+        // an explicit pick always wins over the `h` homeroom override
+        forceHomeroom = false;
         localStorage.setItem('room8_slide_section', sec);
         render();
     }
+    // Which Class_Slide row the ⚙ editor is editing: the homeroom's while the
+    // homeroom view is up, otherwise the section on screen. Lets the teacher type
+    // morning announcements before P1 without a new picker.
+    function editorKey() { return homeroomMode() ? HRO.key : current; }
 
     document.getElementById('editBtn').addEventListener('click', () => toggleEditor(true));
     document.getElementById('edClose').addEventListener('click', () => toggleEditor(false));
@@ -1078,7 +1297,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 
     document.getElementById('edSave').addEventListener('click', async () => {
         const statusEl = document.getElementById('edStatus');
-        const sec = current;
+        const sec = editorKey();
         const title = document.getElementById('edTitle').value.trim();
         const announcements = document.getElementById('edAnnounce').value.trim();
         const outcome = document.getElementById('edOutcome').value.trim();
@@ -1108,15 +1327,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     });
     document.getElementById('edClear').addEventListener('click', async () => {
         const statusEl = document.getElementById('edStatus');
+        const sec = editorKey();
         let pin = localStorage.getItem(PIN_KEY) || '';
-        let res = await StudentAPI.setClassSlide(current, '', '', '', pin);
+        let res = await StudentAPI.setClassSlide(sec, '', '', '', pin);
         if (res && /PIN/i.test(res.message || '')) {
             const entered = prompt('Teacher PIN:');
             if (entered === null) return;
-            res = await StudentAPI.setClassSlide(current, '', '', '', entered);
+            res = await StudentAPI.setClassSlide(sec, '', '', '', entered);
         }
         if (res && (res.status === 'class_slide_set' || res.status === 'submitted_no_cors')) {
-            delete slides[current];
+            delete slides[sec];
             statusEl.textContent = 'Cleared ✓';
             render();
             refreshLive(true);
@@ -1363,6 +1583,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (typing) return;
         if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
         else if (ev.key === 's' || ev.key === 'S') toggleSeats(!document.getElementById('seatOverlay').classList.contains('open'));
+        else if (ev.key === 'h' || ev.key === 'H') {
+            // force the before-P1 homeroom view on (or off) regardless of the clock
+            forceHomeroom = !forceHomeroom;
+            render();
+        }
         else if (ev.key === 'f' || ev.key === 'F') document.getElementById('fsBtn').click();
         else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
             const today = todaysSections();

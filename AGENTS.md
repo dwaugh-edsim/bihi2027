@@ -211,6 +211,23 @@ key are gone. `getClassLog` (class log/plans/slides) and `setClassSlide` (⚙ sa
 the only webhook calls the page makes. `get_class_progress` still exists in `Code.gs`
 and is still used by other pages (audit displays), so don't delete it.
 
+**The before-P1 homeroom view:** from 07:45 to the first bell the screen is
+**Homeroom 902** — the day's five-period rotation (Room 8 periods badged) plus the
+morning announcements, because the 902s are in the room and no section is on yet. The
+section view, agenda/instructions and the outcome strip step aside; `h` forces it, a
+period chip or `?section=` overrides it.
+- **Rotation data:** `Homeroom_902/homeroom_902_schedule_data.js` is the ONE source of
+  truth for the 10-day 902 rotation. It was extracted from `902_Today_Schedule_Deck.html`
+  (which now loads it) precisely so the deck and the projector display cannot drift.
+  **Change the rotation there, never in the deck** — an agent that edits the deck's
+  markup is editing a file that no longer holds the data.
+- **Morning announcements:** the `902-HOMEROOM` row of the `Class_Slide` tab wins once
+  it has text (typed via ⚙ on the projector, or added from the Sheet app on a phone —
+  no redeploy, the column layout is unchanged). The fallback seed is
+  `Homeroom_902/homeroom_902_notices.js`. Dictated notices go there **only** when no
+  live row exists, and a seed entry must be dropped once he has replaced it live —
+  otherwise clearing his row silently resurrects the old text.
+
 **Morning preset:** when Mr. Waugh says *"get today's screens ready"*, *"bang the
 day's screen into shape"*, or pastes a raw day note, follow the **Morning preset
 runbook** in `Student_System/CLASS_LOG_README.md`: orient (read-only) → log
