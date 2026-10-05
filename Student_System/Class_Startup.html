@@ -15,14 +15,20 @@
   Daily system:
   - "Last class (date · #n)" comes from the section's newest Class_Log entry — log the
     class (tracker, Sheet app, or curl) and tomorrow's slide shows it automatically.
-  - The Task Progress picker (dropdown in the progress panel) selects which recent
-    assignment the live view reports. Choices come from assignments_data.js (curated
-    registry) plus anything found in the ledger; the pick is remembered per course in
-    this browser (localStorage room8_prog_task_<course>).
-  - The outcome strip follows the assignment on screen: matched from the registry's
-    curated assignment → outcome pairs, falling back to the lesson-map unit outcome.
+  - The INSTRUCTIONS panel is curated in display_instructions_data.js (per section or
+    per course) and read straight from the repo — see that file's header for the shape
+    and the edit workflow. An agenda line that reads the same as an instruction is
+    dropped from the agenda so no step prints twice.
+  - The outcome strip follows the assignment the course is working on: matched from the
+    registry's curated assignment → outcome pairs (assignments_data.js), falling back to
+    the lesson-map unit outcome.
 
-  Keyboard: ← / → switch class · e edit · s seating · p progress · Esc close · F fullscreen.
+  Oct 5 2026: this display no longer reads the GAS ledger. The Task Progress panel
+  (per-student assignment progress, its picker, and the p-key modal) is gone — the
+  instructions panel took its place. getClassLog is still the only webhook call this
+  page makes.
+
+  Keyboard: ← / → switch class · e edit · s seating · Esc close · F fullscreen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -303,13 +309,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 }
 .panel h2 { font-size: 1.15rem; letter-spacing: 0.5px; margin-bottom: 12px; }
 .panel.today { flex: 1.6; }
-/* When live task progress is on screen it becomes the primary column */
-.content.has-progress .panel.today { flex: 0.75; }
-.content.has-progress .panel.announce { flex: 0 0 auto; }
-.content.has-progress .content-side { flex: 2.1; }
-.content.has-progress .agenda li { font-size: 1.18rem; padding: 6px 0; }
-.content.has-progress .last-line { font-size: 0.92rem; margin-bottom: 8px; }
-.panel.announce { flex: 1; border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
+/* When curated instructions are on screen they become the primary column */
+.content.has-instructions .panel.today { flex: 1.05; }
+.content.has-instructions .content-side { flex: 1.5; }
+.panel.announce { flex: 0 1 auto; border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
 .last-line { font-size: 1.02rem; color: var(--text-muted); margin-bottom: 14px; }
 .last-line b { color: var(--text-heading); }
 .agenda { list-style: none; }
@@ -473,7 +476,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 .seat-sheet .desk .name.empty { color: #cbd5e1; font-weight: 400; }
 .seat-leftovers { font-size: 0.82rem; color: #dc2626; padding: 4px 0 0; text-align: center; font-weight: 600; }
 
-/* ---------- content side & progress panel ---------- */
+/* ---------- content side & instructions panel ---------- */
 .content-side {
     flex: 1.25;
     display: flex;
@@ -481,263 +484,65 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     gap: 16px;
     min-width: 0;
 }
-.panel.announce { border-left: 4px solid var(--amber); transition: border-left-color 0.3s; }
-.panel.progress {
-    border-left: 4px solid var(--blue);
+
+.panel.instructions {
+    border-left: 4px solid var(--theme-accent);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     min-height: 0;
     flex: 1;
 }
-.prog-head-row {
+.instr-steps {
+    list-style: none;
+    counter-reset: instr;
+    margin: 0;
+}
+.instr-steps li {
+    counter-increment: instr;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
+    gap: 14px;
+    align-items: baseline;
+    font-size: 1.34rem;
+    line-height: 1.3;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--border-subtle);
 }
-.prog-head-row h2 { margin: 0; font-size: 1.3rem; }
-.prog-fresh {
+.instr-steps li:last-child { border-bottom: none; }
+.instr-steps li::before {
+    content: counter(instr) ".";
     font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    margin-left: 8px;
-    vertical-align: middle;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--theme-accent);
+    transition: color 0.3s;
 }
-.prog-fresh.stale { color: #b45309; font-weight: 700; }
-.prog-task-badge {
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--blue);
-    background: var(--blue-bg);
-    border: 1px solid var(--blue-border);
-    padding: 4px 10px;
-    border-radius: 4px;
-    display: inline-block;
-    max-width: 340px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
+.instr-note {
+    font-size: 1.12rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+    font-style: italic;
+    padding-top: 2px;
 }
-.prog-task-select {
-    font-family: var(--font-mono);
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--blue);
-    background: var(--blue-bg);
-    border: 1px solid var(--blue-border);
-    padding: 5px 10px;
-    border-radius: 4px;
-    max-width: 480px;
-    cursor: pointer;
-}
-.prog-stats-strip {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-.prog-stat-chip {
-    background: var(--bg-page);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    font-weight: 600;
-}
-.prog-stat-chip b {
-    font-family: var(--font-mono);
-    color: var(--text-heading);
-    font-size: 1.05rem;
-    margin-right: 3px;
-}
-.prog-class-bar-wrap {
-    height: 12px;
-    background: #e2e8f0;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border-subtle);
-}
-.prog-class-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #2563eb, #10b981);
-    transition: width 0.4s ease;
-}
-.prog-missing {
+.instr-owed {
+    margin-top: auto;
     background: var(--amber-bg);
     border: 1px solid var(--amber-border);
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 0.95rem;
-    color: var(--text-main);
-    line-height: 1.5;
-}
-.prog-missing b { color: var(--text-heading); }
-.prog-list-wrap {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    align-content: start;
-    padding-right: 4px;
-}
-.prog-row {
-    background: var(--bg-page);
-    border: 1px solid var(--border-subtle);
     border-radius: 8px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    padding: 12px 16px;
+}
+.instr-owed-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
     font-size: 1.02rem;
-}
-.prog-row-lead {
-    font-weight: 700;
     color: var(--text-heading);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-bottom: 6px;
 }
-.prog-row-partner {
-    color: var(--text-dim);
-    font-weight: 500;
-    font-size: 0.85rem;
-    margin-left: 5px;
-}
-.prog-row-meter {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-.prog-row-val {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.95rem;
+.instr-owed-names {
+    font-size: 1.22rem;
+    line-height: 1.45;
     color: var(--text-main);
-    min-width: 52px;
-    text-align: right;
-}
-.prog-mini-bar {
-    width: 96px;
-    height: 8px;
-    background: #cbd5e1;
-    border-radius: 4px;
-    overflow: hidden;
-}
-.prog-mini-fill {
-    height: 100%;
-    background: var(--blue);
-}
-.prog-row.ns { opacity: 0.72; }
-.prog-row-ns {
-    font-size: 0.82rem;
     font-weight: 600;
-    color: var(--text-dim);
-    font-style: italic;
-}
-
-/* ---------- progress modal overlay ---------- */
-#progOverlay {
-    display: none; position: fixed; inset: 0; background: rgba(20, 26, 38, 0.65);
-    z-index: 55; align-items: center; justify-content: center;
-}
-#progOverlay.open { display: flex; }
-.prog-modal {
-    background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-card);
-    box-shadow: 0 16px 50px rgba(0,0,0,0.3); width: min(1060px, 95vw); max-height: 90vh;
-    overflow: hidden; display: flex; flex-direction: column;
-}
-.prog-modal-head {
-    padding: 16px 24px; border-bottom: 2px solid var(--border-subtle);
-    display: flex; align-items: center; justify-content: space-between; gap: 14px;
-    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
-}
-.prog-modal-stats {
-    padding: 12px 24px; background: var(--bg-page); border-bottom: 1px solid var(--border-subtle);
-    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
-}
-.prog-modal-body {
-    padding: 20px 24px; overflow-y: auto; flex: 1;
-}
-.prog-grid-2col {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-}
-.prog-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-card);
-    border-radius: 8px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.prog-card-left {
-    min-width: 0;
-    flex: 1;
-}
-.prog-card-title {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 0.98rem;
-    color: var(--text-heading);
-}
-.prog-card-pin {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    font-weight: 800;
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-    padding: 1px 5px;
-    border-radius: 4px;
-}
-.prog-card-sub {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-top: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.prog-card-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    flex-shrink: 0;
-}
-.prog-card-ratio {
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 0.92rem;
-    color: var(--text-heading);
-}
-.prog-card-bar {
-    width: 85px;
-    height: 7px;
-    background: #e2e8f0;
-    border-radius: 3.5px;
-    overflow: hidden;
-}
-.prog-card-fill {
-    height: 100%;
-    background: var(--blue);
-}
-.prog-card-fill.done {
-    background: var(--emerald);
 }
 </style>
 </head>
@@ -750,7 +555,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="spacer"></span>
     <button class="sync-pill" id="syncPill">SEED</button>
     <button class="tool-btn" id="seatBtn" title="Seating plan (s)">🪑 Seats</button>
-    <button class="tool-btn" id="progBtn" title="Class task progress (p)">📊 Progress</button>
     <button class="tool-btn" id="editBtn" title="Edit announcements / outcome (e)">⚙ Edit</button>
     <button class="tool-btn" id="fsBtn" title="Fullscreen (f)">⛶</button>
 </div>
@@ -776,16 +580,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <h2>Announcements</h2>
             <div id="announceBody"></div>
         </section>
-        <section class="panel progress" id="progressPanel" style="display:none;">
-            <div class="prog-head-row">
-                <h2>Task Progress <span class="prog-fresh" id="progFresh"></span></h2>
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <select id="progTaskSelect" class="prog-task-select" title="Choose which assignment to report"></select>
-                    <button class="tool-btn" id="progExpandBtn" style="padding:2px 8px;font-size:0.75rem;" title="Expand full roster matrix (p)">⛶</button>
-                </div>
+        <section class="panel instructions" id="instrPanel" style="display:none;">
+            <h2 id="instrHeading">Do This Now</h2>
+            <ol class="instr-steps" id="instrSteps"></ol>
+            <div class="instr-note" id="instrNote" style="display:none;"></div>
+            <div class="instr-owed" id="instrOwed" style="display:none;">
+                <div class="instr-owed-label" id="instrOwedLabel"></div>
+                <div class="instr-owed-names" id="instrOwedNames"></div>
             </div>
-            <div class="prog-stats-strip" id="progStatsStrip"></div>
-            <div class="prog-list-wrap" id="progListWrap"></div>
         </section>
     </div>
 </div>
@@ -793,25 +595,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <div class="outcomebar">
     <span class="o-label">LEARNING OUTCOME</span>
     <span class="o-text" id="outcomeText">…</span>
-</div>
-
-<div id="progOverlay" class="overlay">
-    <div class="prog-modal">
-        <div class="prog-modal-head">
-            <div>
-                <h2 style="margin:0;font-family:var(--font-heading);font-size:1.35rem;">Task Progress · <span id="progModalSection" class="mono"></span></h2>
-                <div id="progModalSub" style="font-size:0.88rem;color:var(--text-muted);margin-top:2px;"></div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-                <button class="tool-btn" id="progRefreshBtn">🔄 Refresh</button>
-                <button class="tool-btn" id="progClose">✕ Close (Esc)</button>
-            </div>
-        </div>
-        <div class="prog-modal-stats" id="progModalStats"></div>
-        <div class="prog-modal-body">
-            <div class="prog-grid-2col" id="progModalGrid"></div>
-        </div>
-    </div>
 </div>
 
 <div id="seatOverlay">
@@ -924,7 +707,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <div class="overlay" id="overlay">
     <div class="editor">
         <h3>Slide setup — <span id="edSection" class="mono"></span></h3>
-        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). Which assignment the live view reports is picked with the dropdown in the Task Progress panel.</div>
+        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). The Do This Now instructions are curated in the repo — ask an agent session to change them.</div>
         <label>Class</label>
         <div class="section-pick" id="sectionPick"></div>
         <label>Title (optional)</label>
@@ -946,6 +729,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script src="class_log_meetings_data.js"></script>
 <script src="class_log_lesson_maps.js"></script>
 <script src="assignments_data.js"></script>
+<script src="display_instructions_data.js"></script>
 <script src="class_seating_data.js"></script>
 <script src="students_roster_data.js"></script>
 <script src="class_log_seed_data.js"></script>
@@ -956,8 +740,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     const MEET = window.CLASS_LOG_MEETINGS.sections;
     const MAPS = window.CLASS_LOG_LESSON_MAPS || {};
     const ASSIGN = window.COURSE_ASSIGNMENTS || {};
-    // Teacher/demo test pins never belong on a class progress board.
-    const TEST_PINS = ['TST', 'WAU', 'DEV', 'MRW'];
+    const INSTRUCTIONS = window.DISPLAY_INSTRUCTIONS || {};
     function courseAsgList(course) { return (ASSIGN[course] && ASSIGN[course].items) || []; }
     function activeAsg(course) {
         const list = courseAsgList(course);
@@ -1075,13 +858,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (slide && slide.outcome && slide.outcome.trim()) return slide.outcome.trim();
         const course = MEET[sec] ? MEET[sec].course : '';
         const map = MAPS[course];
-        // 1. The assignment on screen carries its curated outcome: whichever task
-        //    the progress panel is reporting (or the teacher's pinned pick, or the
-        //    course's active assignment), matched through assignments_data.js.
-        const prog = classProgressCache[homeroomOf(sec)];
-        const sel = storedTaskFor(course);
-        const shownTask = (prog && prog.taskName) || (sel && sel !== 'auto' ? sel : null);
-        const asg = asgForTask(shownTask, course) || activeAsg(course);
+        // 1. The course's current assignment carries its curated outcome
+        //    (assignments_data.js). The panel no longer reads the ledger, so there
+        //    is no per-browser task pin to consult — `active` is the single source.
+        const asg = activeAsg(course);
         if (asg && asg.outcome) return asg.outcome;
         // 2. Lesson-map unit outcome for the upcoming class number.
         if (map) {
@@ -1098,19 +878,72 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         }
         return '';
     }
+    // ---------- instructions (curated in display_instructions_data.js) ----------
+    // A section key wins over its course key, so one class can be given different
+    // instructions from the rest of the course. Missing entry → no panel.
+    function instructionsFor(sec) {
+        const course = (MEET[sec] && MEET[sec].course) || '';
+        return INSTRUCTIONS[sec] || INSTRUCTIONS[course] || null;
+    }
+    // Loose compare, so a plan line and an instruction that say the same thing
+    // differently (case, trailing full stop, doubled spaces) still match.
+    function normLine(s) {
+        return String(s || '').toLowerCase().replace(/[.!?,;:]+$/, '').replace(/\s+/g, ' ').trim();
+    }
+
     function agendaItemsFor(sec) {
         const plan = plans[sec];
         const items = [];
+        const instr = instructionsFor(sec);
+        // Don't print the same step twice: the plan (live, from the sheet) often
+        // restates a curated instruction. Instructions win, so drop the plan copy.
+        const saidAlready = new Set(((instr && instr.steps) || []).map(normLine).filter(Boolean));
         if (plan && plan.note && String(plan.note).trim()) {
             String(plan.note).split(/\n+/).forEach(line => {
-                if (line.trim()) items.push(line.trim());
+                const t = line.trim();
+                if (t && !saidAlready.has(normLine(t))) items.push(t);
             });
         }
         if (!items.length) {
             const s = suggestedNext(sec);
-            if (s) items.push(s);
+            if (s && !saidAlready.has(normLine(s))) items.push(s);
         }
         return items;
+    }
+    function renderInstructions(sec) {
+        const panel = document.getElementById('instrPanel');
+        const contentEl = document.querySelector('.content');
+        const instr = instructionsFor(sec);
+        const steps = ((instr && instr.steps) || []).filter(s => String(s).trim());
+        const note = (instr && instr.note) ? String(instr.note).trim() : '';
+        const owed = (instr && instr.owed) || null;
+        const owedNames = owed ? (owed.names || []).map(n => String(n).trim()).filter(Boolean) : [];
+        const showOwed = !!(owedNames.length || (owed && String(owed.label || '').trim()));
+
+        if (!steps.length && !note && !showOwed) {
+            panel.style.display = 'none';
+            contentEl.classList.remove('has-instructions');
+            return;
+        }
+
+        panel.style.display = 'flex';
+        contentEl.classList.add('has-instructions');
+        document.getElementById('instrHeading').textContent =
+            (instr && instr.heading && String(instr.heading).trim()) || 'Do This Now';
+        document.getElementById('instrSteps').innerHTML = steps.length
+            ? steps.map(s => '<li><span>' + escapeHtml(s) + '</span></li>').join('')
+            : '';
+        const noteEl = document.getElementById('instrNote');
+        noteEl.style.display = note ? '' : 'none';
+        noteEl.textContent = note;
+        const owedEl = document.getElementById('instrOwed');
+        owedEl.style.display = showOwed ? '' : 'none';
+        if (showOwed) {
+            document.getElementById('instrOwedLabel').textContent =
+                (owed && String(owed.label || '').trim()) || 'Still owed';
+            document.getElementById('instrOwedNames').textContent =
+                owedNames.join(' · ') || '—';
+        }
     }
 
     // ---------- render ----------
@@ -1197,8 +1030,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         // outcome bar
         document.getElementById('outcomeText').textContent = outcomeFor(sec) || '—';
 
-        // task progress breakdown
-        renderProgress(sec);
+        // curated instructions panel
+        renderInstructions(sec);
 
         // editor section picker + fields
         renderSectionPick();
@@ -1230,10 +1063,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         current = sec;
         if (opts && opts.manual) manualPick = true;
         localStorage.setItem('room8_slide_section', sec);
-        // clear the previous section's progress panel right away so a cross-course
-        // roster never lingers while the new section's ledger fetch is in flight
-        document.getElementById('progressPanel').style.display = 'none';
-        document.querySelector('.content').classList.remove('has-progress');
         render();
     }
 
@@ -1485,554 +1314,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (ev.target === document.getElementById('seatOverlay')) toggleSeats(false);
     });
 
-    // ---------- task progress breakdown ----------
-    const classProgressCache = {};
-    const rawStudentsByHr = {}; // hr → unfiltered GAS ledger rows, for re-parsing on task switch
-    let activeProgressData = null;
-
-    function homeroomOf(sec) {
-        const seating = window.CLASS_SEATING || {};
-        return (seating.homeroomOf || {})[sec] || sec.replace(/-(CIT|HL|HE)$/, '');
-    }
-
-    // The assignment each course is working on right now comes from the curated
-    // registry in assignments_data.js (activeAsg): the progress panel reports that
-    // task — even before anyone has saved — instead of whichever old task has the
-    // most ledger data. taskName there must match the TASK_NAME the assignment page
-    // writes to the GAS ledger.
-
-    // Course keyword fingerprints — used to tell which ledger students belong to
-    // which course (one homeroom's ledger rows mix e.g. 902-CIT and 902-HL kids).
-    const COURSE_TASK_RE = {
-        CIT9: /cit|citizenship|rent|where/i,
-        HL9: /hl|addictive|sleep|dimension/i,
-        HL8: /hl|addictive|sleep|dimension/i
-    };
-    function courseAligned(text, course) {
-        const re = COURSE_TASK_RE[course] || /cit|citizenship|rent|where|hl|addictive|sleep|dimension/i;
-        return re.test(text);
-    }
-    function storedTaskFor(course) {
-        try { return localStorage.getItem('room8_prog_task_' + course); } catch (e) { return null; }
-    }
-
-    // Pinned-task view: cohort = ledger students of this course (spotted by their
-    // citizenship-task footprints); students without the pinned task show as
-    // "Not started", so a fresh assignment renders correctly at 0.
-    function parsePinnedTaskProgress(students, taskName, course, hr) {
-        const inCourse = s => {
-            const names = [s.task];
-            if (s.assignments) names.push(...Object.keys(s.assignments));
-            if (s._t) names.push(...Object.keys(s._t));
-            return names.some(t => t && courseAligned(t, course));
-        };
-        const records = [];
-        const seenPins = new Set();
-        students.forEach(s => {
-            if (!inCourse(s)) return;
-            const pin = String(s.pin || '').trim().toUpperCase();
-            if (pin) {
-                if (seenPins.has(pin)) return;
-                if (TEST_PINS.indexOf(pin) !== -1) return; // demo/test rows stay off the board
-                seenPins.add(pin);
-            }
-            let text = '';
-            if (s.task === taskName) text = s.summary || '';
-            if (!text && s.assignments && s.assignments[taskName]) text = s.assignments[taskName];
-            if (!text && s._t && s._t[taskName]) text = s._t[taskName].summary;
-            let done = 0, total = 0;
-            const m = text.match(/(\d+)\s*\/\s*(\d+)/);
-            if (m) { done = parseInt(m[1], 10); total = parseInt(m[2], 10); }
-            // Tasks whose summaries never carry an x/y score (diagnostics) fall
-            // back to counting completed fields against the assignment's total.
-            if (!m) {
-                const meta = asgForTask(taskName, course) || {};
-                if (meta.totalFields) {
-                    const legacyTask = s.savedData && s.savedData._tasks && s.savedData._tasks[taskName];
-                    let taskData = legacyTask ? (legacyTask.data || null) : null;
-                    // September-era storage kept audit answers at savedData top
-                    // level, before per-task wrapping existed.
-                    if (!taskData && s.savedData && (s.savedData.matrix || s.savedData.overdone || s.savedData.real_questions)) {
-                        taskData = s.savedData;
-                    }
-                    if (taskData) {
-                        done = Math.min(countSubmittedFields(taskData), meta.totalFields);
-                        total = meta.totalFields;
-                    }
-                }
-            }
-            let displayName = s.name || '';
-            if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
-            let started = hasWritten(s, taskName);
-            if (done > 0) started = true; // counted fields exist — they worked, even if the row predates per-task storage
-            records.push({
-                name: displayName,
-                pin: pin,
-                partner: s.partner || '',
-                done: done, total: total,
-                pct: total > 0 ? Math.round((done / total) * 100) : 0,
-                started: started
-            });
-        });
-        // Roster completion: kids with no ledger row at all still show, as 0 /
-        // Not Started, so the whole class stays visible on the projector. A kid
-        // named as a partner on someone else's submission shows as "Partnered"
-        // instead — they're covered by that doc, not missing.
-        const partnerTokens = new Set();
-        records.forEach(r => {
-            String(r.partner || '').toLowerCase().split(/[^a-z]+/).forEach(t => {
-                if (t.length >= 3) partnerTokens.add(t);
-            });
-        });
-        // Roster kids are matched to ledger rows by first name (the public
-        // roster no longer carries PINs, so pin-matching is unavailable).
-        const seenFirst = new Set(records.map(r => String(r.name || '').toLowerCase().split(/[^a-z]+/)[0]));
-        const roster = window.MASTER_ROSTER_DATA || [];
-        roster.forEach(r => {
-            const pin = String(r.pin || '').trim().toUpperCase();
-            let first = r.first_name || '';
-            if (r.pin === 'BEU' || first === 'Blessing') first = 'Kossy';
-            const fl = first.toLowerCase();
-            if (fl && (seenFirst.has(fl) || [...seenFirst].some(n => fl.startsWith(n) || n.startsWith(fl)))) return;
-            if (String(r.homeroom || '').trim() !== String(hr || '').trim()) return;
-            if (fl) seenFirst.add(fl);
-            const last = (r.last_name || '').trim();
-            const partnered = fl.length >= 3 && [...partnerTokens].some(t => t === fl || fl.startsWith(t) || t.startsWith(fl));
-            records.push({
-                name: first + (last ? ' ' + last.charAt(0).toUpperCase() + '.' : ''),
-                pin: pin,
-                partner: '',
-                done: 0, total: 0,
-                pct: 0,
-                started: false,
-                partnered: partnered
-            });
-        });
-        // Partner pass: any not-started record whose name shows up in a
-        // partner string is covered by a classmate's doc — "Partnered", not
-        // "Not started".
-        records.forEach(r => {
-            if (r.started || r.partnered) return;
-            const parts = String(r.name || '').toLowerCase().split(/[^a-z]+/).filter(t => t.length >= 3);
-            if (parts.some(p => partnerTokens.has(p) ||
-                [...partnerTokens].some(t => t.startsWith(p) || p.startsWith(t)))) {
-                r.partnered = true;
-            }
-        });
-        records.sort((a, b) => (b.started - a.started) || (b.pct - a.pct) ||
-            (b.done - a.done) || a.name.localeCompare(b.name));
-        return {
-            taskName: taskName,
-            pinned: true,
-            records: records,
-            totalActive: records.length,
-            startedCount: records.filter(r => r.started).length,
-            finishedCount: records.filter(r => r.pct === 100).length,
-            classAvg: records.length
-                ? Math.round(records.reduce((a, r) => a + r.pct, 0) / records.length)
-                : 0
-        };
-    }
-
-    // Completed-field counter mirroring the diagnostic pages' own countCompleted
-    // (scalars + self-assessment matrix rows + formats + knowledge-check answers).
-    function countSubmittedFields(data) {
-        if (!data || typeof data !== 'object') return 0;
-        let done = 0;
-        ['email', 'pronouns', 'phonetic', 'transit', 'curious', 'overdone', 'real_questions',
-         'where_personal', 'where_community', 'where_global', 'where_aspirational', 'teacher_note'].forEach(k => {
-            if (data[k] && String(data[k]).trim() !== '') done++;
-        });
-        if (data.matrix && typeof data.matrix === 'object') {
-            Object.keys(data.matrix).forEach(k => { const v = data.matrix[k]; if (v && v !== 'Not Specified') done++; });
-        }
-        if (data.formats) {
-            const arr = Array.isArray(data.formats) ? data.formats : String(data.formats).split(',');
-            if (arr.filter(f => String(f).trim()).length > 0) done++;
-        }
-        if (data.knowledge_check && typeof data.knowledge_check === 'object') {
-            Object.keys(data.knowledge_check).forEach(k => { const v = data.knowledge_check[k]; if (v && v !== 'Not Answered') done++; });
-        }
-        return done;
-    }
-
-    // True when the ledger student has written content for the given task.
-    function hasWritten(s, taskName) {        if (s.task === taskName && (s.summary || '').trim()) return true;
-        const a = (s.assignments || {})[taskName];
-        if (a && String(a).trim()) return true;
-        const t = (s._t || {})[taskName];
-        return !!(t && (t.written || t.summary.trim()));
-    }
-
-    function parseProgressFor(sec, students) {
-        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
-        const hr = homeroomOf(sec);
-        const sel = storedTaskFor(course);
-        if (sel === 'auto') return parseAutoProgress(students, course);
-        if (sel) return parsePinnedTaskProgress(students, sel, course, hr);
-        const act = activeAsg(course);
-        if (act) return parsePinnedTaskProgress(students, act.taskName, course, hr);
-        return parseAutoProgress(students, course);
-    }
-
-    function parseAutoProgress(students, course) {
-        if (!students || !students.length) return null;
-        const taskCounts = {};
-        students.forEach(s => {
-            const candidates = new Set();
-            if (s.task && s.task.trim()) candidates.add(s.task.trim());
-            if (s.assignments && typeof s.assignments === 'object') {
-                Object.keys(s.assignments).forEach(t => {
-                    if (s.assignments[t]) candidates.add(t.trim());
-                });
-            }
-            if (s._t) {
-                Object.keys(s._t).forEach(t => {
-                    candidates.add(t.trim());
-                });
-            }
-
-            candidates.forEach(c => {
-                const cLower = c.toLowerCase();
-                const isAligned = (course === 'CIT9' && (cLower.includes('cit') || cLower.includes('citizenship') || cLower.includes('rent') || cLower.includes('where'))) ||
-                                  ((course === 'HL9' || course === 'HL8') && (cLower.includes('hl') || cLower.includes('addictive') || cLower.includes('sleep') || cLower.includes('dimension')));
-                const weight = isAligned ? 10 : 1;
-                taskCounts[c] = (taskCounts[c] || 0) + weight;
-            });
-        });
-
-        let activeTask = '';
-        let maxCount = 0;
-        for (const [t, cnt] of Object.entries(taskCounts)) {
-            if (cnt > maxCount) {
-                maxCount = cnt;
-                activeTask = t;
-            }
-        }
-        if (!activeTask || maxCount === 0) return null;
-
-        let totalDone = 0;
-        let totalItems = 0;
-        const records = [];
-
-        students.forEach(s => {
-            let text = '';
-            if (s.task === activeTask) text = s.summary || '';
-            if (!text && s.assignments && s.assignments[activeTask]) {
-                text = s.assignments[activeTask];
-            }
-            if (!text && s._t && s._t[activeTask]) {
-                text = s._t[activeTask].summary;
-            }
-
-            let done = 0, total = 24, hasData = false;
-            const m = (text + ' ' + (s.summary || '')).match(/(\d+)\s*\/\s*(\d+)/);
-            if (m) {
-                done = parseInt(m[1], 10);
-                total = parseInt(m[2], 10);
-                hasData = true;
-            } else if (s.task === activeTask || (s.assignments && s.assignments[activeTask]) || (s._t && s._t[activeTask])) {
-                hasData = true;
-            }
-
-            if (hasData) {
-                totalDone += done;
-                totalItems += total;
-                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-                let partner = s.partner || '';
-                let displayName = s.name || '';
-                if (s.pin === 'BEU' || displayName === 'Blessing') displayName = 'Kossy';
-                records.push({
-                    name: displayName,
-                    pin: s.pin,
-                    partner: partner,
-                    done: done,
-                    total: total,
-                    pct: pct,
-                    started: true
-                });
-            }
-        });
-
-        records.sort((a, b) => b.pct - a.pct || b.done - a.done);
-
-        const classAvg = records.length && totalItems > 0
-            ? Math.round((totalDone / totalItems) * 100)
-            : 0;
-
-        return {
-            taskName: activeTask,
-            records: records,
-            totalActive: records.length,
-            finishedCount: records.filter(r => r.pct === 100).length,
-            classAvg: classAvg
-        };
-    }
-
-    // Normalize a ledger row to a canonical shape so the parsers work unchanged
-    // with both the full GAS payload (savedData._tasks) and the slim one
-    // (tasks:{name:{summary,written}} — see GAS_PATCH_slim_progress.md).
-    function normalizeStudent(s) {
-        const saved = s.savedData || {};
-        if (s.partner === undefined) s.partner = saved.partner || '';
-        const legacy = saved._tasks || {};
-        const slim = s.tasks || {};
-        const names = {};
-        Object.keys(legacy).forEach(k => names[k] = 1);
-        Object.keys(slim).forEach(k => names[k] = 1);
-        s._t = {};
-        Object.keys(names).forEach(k => {
-            const l = legacy[k] || {};
-            const v = slim[k] || {};
-            const d = l.data || {};
-            const sum = String(l.summary || v.summary || d.summary || '');
-            let written = !!sum.trim() || !!(v && v.written);
-            if (!written) {
-                for (const k2 in d) {
-                    const val = d[k2];
-                    if (typeof val === 'string' && val.trim()) { written = true; break; }
-                    if (val && typeof val === 'object' &&
-                        Object.keys(val).some(k3 => String(val[k3]).trim())) { written = true; break; }
-                }
-            }
-            s._t[k] = { summary: sum, written: written };
-        });
-        return s;
-    }
-
-    const progFresh = {};   // hr → Date.now() of the last successful ledger fetch
-    let progRetryTimer = null;
-    function freshLabel(sec) {
-        const t = progFresh[homeroomOf(sec)];
-        if (!t) return { text: 'ledger · stale', stale: true };
-        const s = Math.round((Date.now() - t) / 1000);
-        if (s < 90) return { text: 'ledger · just now', stale: false };
-        const m = Math.round(s / 60);
-        return { text: 'ledger · ' + m + ' min ago', stale: m >= 10 };
-    }
-    function updateFreshMarker() {
-        const el = document.getElementById('progFresh');
-        if (!el || !current) return;
-        const f = freshLabel(current);
-        el.textContent = f.text;
-        el.classList.toggle('stale', f.stale);
-    }
-    function scheduleProgressRetry(sec) {
-        if (progRetryTimer) return; // one catch-up retry in flight at a time
-        progRetryTimer = setTimeout(() => {
-            progRetryTimer = null;
-            loadProgressFor(sec, true).then(p => { if (p) renderProgress(sec); });
-        }, 45000);
-    }
-
-    async function loadProgressFor(sec, force = false) {
-        const hr = homeroomOf(sec);
-        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
-        if (!force && classProgressCache[hr]) {
-            return classProgressCache[hr];
-        }
-        try {
-            if (window.StudentAPI && StudentAPI.getClassProgress) {
-                const data = await StudentAPI.getClassProgress(hr, course);
-                if (data && data.status === 'success' && Array.isArray(data.students)) {
-                    data.students.forEach(normalizeStudent);
-                    rawStudentsByHr[hr] = data.students;
-                    progFresh[hr] = Date.now();
-                    classProgressCache[hr] = parseProgressFor(sec, data.students);
-                    updateFreshMarker();
-                    return classProgressCache[hr];
-                }
-            }
-            progFresh[hr] = 0;
-            scheduleProgressRetry(sec);
-        } catch (e) {
-            console.warn('Progress load failed:', e);
-            progFresh[hr] = 0;
-            scheduleProgressRetry(sec);
-        }
-        return null;
-    }
-
-    // Assignment picker: lists the course's curated assignments (assignments_data.js)
-    // plus every course-aligned task found in the ledger, plus 'auto' (old
-    // busiest-task behaviour). The choice is remembered per course in this browser,
-    // so it survives refreshes and day-to-day use on the projector.
-    function populateTaskSelect(sec) {
-        const sel = document.getElementById('progTaskSelect');
-        if (!sel) return;
-        const course = (MEET[sec] && MEET[sec].course) || 'HL9';
-        const stored = storedTaskFor(course);
-        const act = activeAsg(course);
-        const opts = taskOptionsFor(homeroomOf(sec), course);
-        let current = stored !== null ? stored : (act ? act.taskName : 'auto');
-        if (current !== 'auto' && opts.indexOf(current) === -1) {
-            // stored task is neither in the registry nor the ledger any more —
-            // fall back to the course's active assignment and forget the pick
-            try { localStorage.removeItem('room8_prog_task_' + course); } catch (e) { /* private mode */ }
-            current = act ? act.taskName : 'auto';
-        }
-        if (opts.indexOf('auto') === -1) opts.push('auto');
-        sel.innerHTML = opts.map(t => {
-            if (t === 'auto') return '<option value="auto">Auto (busiest ledger task)</option>';
-            const a = asgForTask(t, course);
-            const label = (a && a.short) ? a.short : t;
-            return '<option value="' + escapeHtml(t) + '">' +
-                escapeHtml((act && act.taskName === t ? '★ ' : '') + label) + '</option>';
-        }).join('');
-        sel.value = current;
-        const cur = asgForTask(current, course);
-        sel.title = current === 'auto' ? 'Auto: whichever ledger task has the most activity'
-                                       : (cur ? cur.taskName : current);
-    }
-    function taskOptionsFor(hr, course) {
-        const opts = [];
-        const seen = new Set();
-        const add = (t, vetted) => {
-            if (!t) return;
-            t = t.trim();
-            if (!t || seen.has(t)) return;
-            // registry items are pre-vetted; ledger discoveries must look like
-            // this course's tasks before they're offered
-            if (!vetted && !courseAligned(t, course)) return;
-            seen.add(t);
-            opts.push(t);
-        };
-        courseAsgList(course).forEach(a => add(a.taskName, true));
-        (rawStudentsByHr[hr] || []).forEach(s => {
-            if (s.task) add(s.task);
-            if (s.assignments) Object.keys(s.assignments).forEach(t => add(t));
-            if (s._t) Object.keys(s._t).forEach(t => add(t));
-        });
-        return opts;
-    }
-
-    // Roster-vs-ledger helpers retained for future diagnostics.
-
-    async function renderProgress(sec) {
-        const panel = document.getElementById('progressPanel');
-        const prog = await loadProgressFor(sec);
-        activeProgressData = prog;
-
-        const contentEl = document.querySelector('.content');
-        if (!prog || !prog.records.length) {
-            panel.style.display = 'none';
-            contentEl.classList.remove('has-progress');
-            return;
-        }
-
-        panel.style.display = 'flex';
-        contentEl.classList.add('has-progress');
-        populateTaskSelect(sec);
-        updateFreshMarker();
-        // The outcome strip follows the assignment now on screen — re-resolve it
-        // once the ledger tells us which task is actually being reported.
-        if (sec === current) {
-            document.getElementById('outcomeText').textContent = outcomeFor(sec) || '—';
-        }
-
-        document.getElementById('progStatsStrip').innerHTML =
-            `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Active'}</span>` +
-            `<span class="prog-stat-chip"><b>${prog.finishedCount}/${prog.totalActive}</b> Done</span>`;
-
-        document.getElementById('progListWrap').innerHTML = prog.records.map(r => `
-            <div class="prog-row${r.started ? '' : ' ns'}">
-                <div class="prog-row-lead">
-                    ${escapeHtml(r.name)}
-                    ${r.partner ? '<span class="prog-row-partner">+ ' + escapeHtml(r.partner) + '</span>' : ''}
-                </div>
-                <div class="prog-row-meter">
-                    ${r.started && r.total > 0
-                        ? `<span class="prog-row-val">${r.done}/${r.total}</span>
-                            <div class="prog-mini-bar">
-                                <div class="prog-mini-fill" style="width:${r.pct}%;background:${r.pct === 100 ? 'var(--emerald)' : 'var(--blue)'};"></div>
-                            </div>`
-                        : `<span class="prog-row-ns">${r.partnered ? 'Partnered' : (r.started ? (r.total > 0 ? 'In progress…' : 'Started') : 'Not started')}</span>`}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderProgressModal() {
-        const sec = current;
-        const hr = homeroomOf(sec);
-        const prog = classProgressCache[hr] || activeProgressData;
-        document.getElementById('progModalSection').textContent = sec;
-
-        if (!prog || !prog.records.length) {
-            document.getElementById('progModalSub').textContent = 'No digital task progress recorded yet for ' + sec + '.';
-            document.getElementById('progModalStats').innerHTML = '';
-            document.getElementById('progModalGrid').innerHTML = '<div style="padding:20px;color:var(--text-dim);font-style:italic;grid-column:span 2;">No active assignments recorded in ledger.</div>';
-            return;
-        }
-
-        document.getElementById('progModalSub').textContent = prog.pinned
-            ? prog.taskName + ' · ' + prog.startedCount + ' of ' + prog.totalActive + ' started'
-            : prog.taskName + ' · Live Class Ledger';
-        document.getElementById('progModalStats').innerHTML =
-            `<span class="prog-stat-chip"><b>${prog.pinned ? prog.startedCount : prog.totalActive}</b> ${prog.pinned ? 'Started' : 'Students Active'}</span>` +
-            `<span class="prog-stat-chip"><b>${prog.finishedCount}</b> Completed (100%)</span>` +
-            `<span class="prog-stat-chip"><b>${prog.totalActive - prog.finishedCount}</b> ${prog.pinned ? 'Not Started' : 'In Progress'}</span>`;
-
-        document.getElementById('progModalGrid').innerHTML = prog.records.map(r => `
-            <div class="prog-card">
-                <div class="prog-card-left">
-                    <div class="prog-card-title">
-                        <span>${escapeHtml(r.name)}</span>
-                    </div>
-                    <div class="prog-card-sub">${r.partner ? 'Partner: ' + escapeHtml(r.partner) : 'Independent / Lead'}</div>
-                </div>
-                <div class="prog-card-right">
-                    ${r.started && r.total > 0
-                        ? `<div class="prog-card-ratio">${r.done}/${r.total} <span style="font-size:0.75rem;font-weight:600;color:var(--text-dim);">(${r.pct}%)</span></div>
-                            <div class="prog-card-bar">
-                                <div class="prog-card-fill ${r.pct === 100 ? 'done' : ''}" style="width:${r.pct}%"></div>
-                            </div>`
-                        : `<div class="prog-card-ratio" style="color:var(--text-dim);font-style:italic;">${r.started ? 'In progress…' : 'Not started'}</div>`}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    async function toggleProgress(open) {
-        if (!open) {
-            document.getElementById('progOverlay').classList.toggle('open', false);
-            return;
-        }
-        // Don't paint "no data" before the fetch resolves — that frame is what
-        // made the slide look broken even when the ledger actually had data.
-        const sub = document.getElementById('progModalSub');
-        if (sub) sub.textContent = 'Fetching live progress from Google Sheets…';
-        document.getElementById('progOverlay').classList.toggle('open', true);
-
-        const hr = homeroomOf(current);
-        if (!classProgressCache[hr]) {
-            await loadProgressFor(current, true);
-        }
-        renderProgress(current);
-        renderProgressModal();
-    }
-
-    document.getElementById('progBtn').addEventListener('click', () => toggleProgress(true));
-    document.getElementById('progTaskSelect').addEventListener('change', ev => {
-        const course = (MEET[current] && MEET[current].course) || 'HL9';
-        try { localStorage.setItem('room8_prog_task_' + course, ev.target.value); } catch (e) { /* private mode */ }
-        const hr = homeroomOf(current);
-        if (rawStudentsByHr[hr]) classProgressCache[hr] = parseProgressFor(current, rawStudentsByHr[hr]);
-        renderProgress(current);
-        if (document.getElementById('progOverlay').classList.contains('open')) renderProgressModal();
-    });
-    document.getElementById('progExpandBtn').addEventListener('click', () => toggleProgress(true));
-    document.getElementById('progClose').addEventListener('click', () => toggleProgress(false));
-    document.getElementById('progOverlay').addEventListener('click', ev => {
-        if (ev.target === document.getElementById('progOverlay')) toggleProgress(false);
-    });
-    document.getElementById('progRefreshBtn').addEventListener('click', async () => {
-        document.getElementById('progRefreshBtn').textContent = '⏳…';
-        await loadProgressFor(current, true);
-        renderProgress(current);
-        renderProgressModal();
-        document.getElementById('progRefreshBtn').textContent = '🔄 Refresh';
-    });
 
     // ---------- live sync ----------
     const pill = document.getElementById('syncPill');
@@ -2057,7 +1338,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (!live) setPill('seed', 'SEED (offline)');
         }
         render();
-        loadProgressFor(current, true).then(() => renderProgress(current));
     }
     pill.addEventListener('click', () => refreshLive(false));
     setInterval(() => refreshLive(true), 3 * 60 * 1000);
@@ -2077,14 +1357,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (ev.key === 'Escape') {
             toggleSeats(false);
             toggleEditor(false);
-            toggleProgress(false);
             return;
         }
         const typing = ev.target && (ev.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(ev.target.tagName));
         if (typing) return;
         if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
         else if (ev.key === 's' || ev.key === 'S') toggleSeats(!document.getElementById('seatOverlay').classList.contains('open'));
-        else if (ev.key === 'p' || ev.key === 'P') toggleProgress(!document.getElementById('progOverlay').classList.contains('open'));
         else if (ev.key === 'f' || ev.key === 'F') document.getElementById('fsBtn').click();
         else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
             const today = todaysSections();
@@ -2093,7 +1371,6 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             if (i !== -1) {
                 setSection(list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length], { manual: true });
                 if (document.getElementById('seatOverlay').classList.contains('open')) renderSeats();
-                if (document.getElementById('progOverlay').classList.contains('open')) renderProgressModal();
             }
         }
     });
