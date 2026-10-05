@@ -37,7 +37,6 @@ window.DISPLAY_INSTRUCTIONS = {
             "Sleep app slideshows — submit in Google Classroom."
         ],
         owed: [
-            { label: "Missing: sleep assignment (grades are in PowerSchool)", names: ["Johnny", "Aiden"] },
             { label: "Still owe the Citizenship quiz", names: ["Anastasia", "Cameo", "Oliva"] }
         ]
     },
