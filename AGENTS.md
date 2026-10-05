@@ -181,6 +181,15 @@ misdiagnosis stacked an invented "the teacher's redeploy didn't take" story on
 top of a probe that was measuring the wrong tab; the redeploy had been fine all
 along. Humans break things less often than models miss hidden branches.
 
+**Sections are periods, not cohorts.** 902-CIT and 902-HL are the *same* students — a
+homeroom cohort split across periods in one room. So a note aimed at one course can
+legitimately go on the other course's slide: Mr. Waugh will say "we're talking about
+the HL sleep audit" to the Citizenship class because it is literally the same kids.
+Same for 901 and 903. When he files instructions, a list that came from a different
+course's roster is not a mistake — don't "fix" it, and don't assume a section is a
+distinct set of students. (The 10 Station Sleep Audit roster is 902-HL's and is shown
+to 902-CIT on purpose; likewise the Citizenship quiz list on the 901-HL slide.)
+
 **Class Startup daily system (the projector opening slide):**
 `Student_System/Class_Startup.html` is the projector do-now. Its **INSTRUCTIONS panel**
 ("Do This Now") is curated in `Student_System/display_instructions_data.js`, keyed by
