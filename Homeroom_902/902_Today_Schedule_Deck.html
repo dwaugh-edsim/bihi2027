@@ -1408,14 +1408,31 @@ const SCHEDULE_902 = H902.schedule;
    The 10-day cycle is anchored to Day 1 = Monday, September 14, 2026
    and repeats every 10 SCHOOL days (weekends skipped). Dates and the
    active cycle day are computed from the real clock, so the deck never
-   goes stale. To re-anchor after a schedule change, edit CYCLE_ANCHOR.
+   goes stale. The anchor and length are read from
+   homeroom_902_schedule_data.js — re-anchor there after a schedule change.
    ══════════════════════════════════════════════════════════ */
-const CYCLE_ANCHOR = new Date(2026, 8, 14);   // 2026-09-14, a Monday = Day 1
-const CYCLE_LENGTH = 10;
+/* Parse 'YYYY-MM-DD' as a LOCAL date — new Date('2026-09-14') is UTC midnight
+   and would read back as the 13th in Halifax. */
+const ANCHOR_ISO = (H902 && H902.cycleAnchor) || '2026-09-14';
+const [A_YEAR, A_MONTH, A_DAY] = ANCHOR_ISO.split('-').map(Number);
+const CYCLE_ANCHOR = new Date(A_YEAR, A_MONTH - 1, A_DAY);   // 2026-09-14, a Monday = Day 1
+const CYCLE_LENGTH = (H902 && H902.cycleLength) || 10;
 
 function isWeekend(d) { return d.getDay() === 0 || d.getDay() === 6; }
 function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function addDays(d, n) { const x = startOfDay(d); x.setDate(x.getDate() + n); return x; }
+
+/* Step `n` school days (Mon–Fri) from `d`. n may be negative. */
+function addSchoolDays(d, n) {
+    let x = startOfDay(d);
+    const step = n >= 0 ? 1 : -1;
+    let left = Math.abs(n);
+    while (left > 0) {
+        x = addDays(x, step);
+        if (!isWeekend(x)) left--;
+    }
+    return x;
+}
 
 /* Count school days (Mon–Fri) from `from` up to and including `to`. */
 function schoolDaysBetween(from, to) {
@@ -1425,12 +1442,13 @@ function schoolDaysBetween(from, to) {
     return n;
 }
 
-/* The 10 real dates of the cycle window containing `today`, Mon→Fri × 2 weeks. */
+/* The 10 real dates of the cycle window containing `today`.
+   Walked back from `today` to THIS cycle's Day 1 — not to the Monday of the
+   calendar week — so the dates stay locked to the anchor instead of sliding
+   forward a week every time the cycle crosses a week boundary. */
 function cycleWindow(today) {
-    let mon = startOfDay(today);
-    while (mon.getDay() !== 1) mon = addDays(mon, -1);   // back to Monday
     const out = [];
-    let d = mon;
+    let d = addSchoolDays(today, -(currentCycleDay(today) - 1));   // this cycle's Day 1
     while (out.length < CYCLE_LENGTH) {
         if (!isWeekend(d)) out.push(d);
         d = addDays(d, 1);
