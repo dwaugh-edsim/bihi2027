@@ -15,11 +15,14 @@
 //   heading  panel title. Defaults to "Do This Now" when omitted.
 //   steps    array of instruction lines, shown as a big numbered list (projector-legible).
 //   note     optional closing line, set apart under the steps.
-//   owed     optional block for work a student still has to make up. Deliberately
-//           styled as a warning so it reads as "these are the ones", and it holds
-//            FIRST NAMES ONLY — a short accountability nudge, never a grade or a
-//            reason. Keep it alphabetical; keep it current or delete it.
-//           { label: "Missing Citizenship Quiz", names: ["First", "First"] }
+//   owed     optional block — or an ARRAY of blocks — for work students still have to
+//            make up. Deliberately styled as a warning so it reads as "these are the
+//            ones", and it holds FIRST NAMES ONLY: a short accountability nudge, never
+//            a grade and never a reason.
+//              owed:   { label: "…", names: ["First", "First"] }
+//              owed: [ { label, names }, { label, names } ]
+//            Keep it alphabetical; keep it current or delete it. Anything a student has
+//            since handed in should be removed, not left to look like they're missing.
 //
 // A section with no entry here (and no course entry) simply shows no panel — the slide
 // falls back to agenda + announcements only.
@@ -28,6 +31,29 @@
 // live. Any agenda line that reads the same as an instruction here is dropped from the
 // agenda automatically, so the same step is never printed twice on the display.
 window.DISPLAY_INSTRUCTIONS = {
+    // ── Mon Oct 5, afternoon ────────────────────────────────────────────────
+    "901-HL": {
+        steps: [
+            "Sleep app slideshows — submit in Google Classroom."
+        ],
+        owed: [
+            { label: "Missing: sleep assignment (grades are in PowerSchool)", names: ["Johnny", "Aiden"] },
+            { label: "Still owe the Citizenship quiz", names: ["Anastasia", "Cameo", "Oliva"] }
+        ]
+    },
+    "902-CIT": {
+        steps: [
+            "10 Station Sleep Audit — if your sheet is not in yet, get a paper version from me.",
+            "60-second case to the government — drafting today. Already handed in: Jax, Oscar, Sofie."
+        ],
+        owed: [
+            { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
+            { label: "Sleep Audit not handed in yet", names: [
+                "Anna T.", "Arlo", "Berlin", "Chelsea", "Jordan H.", "Nolan",
+                "Sofie", "Thomas", "Tristan"
+            ] }
+        ]
+    },
     "903-HL": {
         steps: [
             "Submit the paper version of the 10 Station Sleep Audit."

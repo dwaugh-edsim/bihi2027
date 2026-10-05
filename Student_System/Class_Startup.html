@@ -540,6 +540,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     border-radius: 8px;
     padding: 12px 16px;
 }
+.instr-owed-block + .instr-owed-block { margin-top: 12px; }
 .instr-owed-label {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -669,8 +670,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <ol class="instr-steps" id="instrSteps"></ol>
             <div class="instr-note" id="instrNote" style="display:none;"></div>
             <div class="instr-owed" id="instrOwed" style="display:none;">
-                <div class="instr-owed-label" id="instrOwedLabel"></div>
-                <div class="instr-owed-names" id="instrOwedNames"></div>
+                <div id="instrOwedBlocks"></div>
             </div>
         </section>
     </div>
@@ -1019,9 +1019,13 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const instr = instructionsFor(sec);
         const steps = ((instr && instr.steps) || []).filter(s => String(s).trim());
         const note = (instr && instr.note) ? String(instr.note).trim() : '';
-        const owed = (instr && instr.owed) || null;
-        const owedNames = owed ? (owed.names || []).map(n => String(n).trim()).filter(Boolean) : [];
-        const showOwed = !!(owedNames.length || (owed && String(owed.label || '').trim()));
+        // `owed` is one block or several — a section can owe two different things.
+        const raw = (instr && instr.owed) ? (Array.isArray(instr.owed) ? instr.owed : [instr.owed]) : [];
+        const blocks = raw.map(b => ({
+            label: String((b && b.label) || 'Still owed').trim(),
+            names: ((b && b.names) || []).map(n => String(n).trim()).filter(Boolean)
+        })).filter(b => b.names.length || b.label !== 'Still owed');
+        const showOwed = blocks.length > 0;
 
         if (!steps.length && !note && !showOwed) {
             panel.style.display = 'none';
@@ -1042,10 +1046,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const owedEl = document.getElementById('instrOwed');
         owedEl.style.display = showOwed ? '' : 'none';
         if (showOwed) {
-            document.getElementById('instrOwedLabel').textContent =
-                (owed && String(owed.label || '').trim()) || 'Still owed';
-            document.getElementById('instrOwedNames').textContent =
-                owedNames.join(' · ') || '—';
+            document.getElementById('instrOwedBlocks').innerHTML = blocks
+                .map(b => '<div class="instr-owed-block">'
+                    + '<div class="instr-owed-label">' + escapeHtml(b.label) + '</div>'
+                    + '<div class="instr-owed-names">' + escapeHtml(b.names.join(' · ')) + '</div>'
+                    + '</div>')
+                .join('');
         }
     }
 
