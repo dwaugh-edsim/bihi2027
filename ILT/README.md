@@ -54,6 +54,9 @@ Student-selected capstone projects:
 * `proposal-07-learning-game-studio.html` — Board game and simulation mechanics.
 * `proposal-10-sports-analytics.html` — Data science in athletics.
 
+### E. Service Learning Proposal (Staff-Facing Working Doc)
+* `2026-27 Bicentennial ILT- Service Learning Brainstorm.html` — Staff-facing proposal structured around who / what / when / why. Grade 9 ILT students (902/903) run four service streams as the Citizenship 9 service-learning backbone: **A** Wet-Weather Outdoor Gear Drive (fall, rehoming via family-first asks, capped 8-item manifest), **B** Warmth Collection for Local Shelters (early winter, shelter wishlist first), **C** Pre-Primary Partnership (teachers speak to the 9s about their program and needs; students design the response), **D** Structured Lunchtime Sports (9s run a scheduled, role-based program for elementary students; adult supervision always present). All four run inside existing Grade 9 ILT blocks; formal business letters are Phase 2 pending real drive data and admin approval. Includes colleague asks, guardrails, open questions, and a clickable gear seed-board appendix.
+
 ---
 
 ## 3. Technical Scripts & Generators
