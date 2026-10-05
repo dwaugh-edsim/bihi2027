@@ -19,8 +19,9 @@
   CONVENTIONS MATCHED (do not drift):
   - seats are numbered front-to-back, left-to-right within each row (1..29)
   - storage value: flat JSON map { "<seatNumber>": "First Ls." } — never nest
-  - a saved map exactly equal to CLASS_SEATING.legacy[hr].seats is treated as
-    a stale pre-reshuffle copy by the slide (this editor warns before saving one)
+  - a saved map exactly equal to CLASS_SEATING.legacy[hr].seats or
+    CLASS_SEATING.superseded[hr].seats is treated as a stale pre-reshuffle
+    copy by the slide (this editor warns before saving one)
 -->
 <style>
   :root {
@@ -189,12 +190,12 @@
 (function () {
   "use strict";
 
-  // ---------- room blueprint (v3, Sept 2026 reshuffle) ----------
+  // ---------- room blueprint (v4, Oct 2026 reshuffle) ----------
   const TOTAL = 29;
   const ROWS = [
-    { label: "Front",  clusters: [2, 2, 2, 3, 2] },  // seats 1..11
-    { label: "Middle", clusters: [2, 2, 2, 3] },      // seats 12..20
-    { label: "Back",   clusters: [2, 2, 2, 3] },      // seats 21..29 (teacher desk back-right)
+    { label: "Front",  clusters: [2, 2, 2, 3, 3] },  // seats 1..12 (both 3-clusters same gender)
+    { label: "Middle", clusters: [2, 2, 2, 3] },      // seats 13..21
+    { label: "Back",   clusters: [2, 2, 2, 2] },      // seats 22..29 (teacher desk back-right)
   ];
   const SECTIONS = [
     ["902-CIT", "Citizenship 9"], ["902-HL", "Healthy Living 9"],
@@ -249,13 +250,19 @@
 
   // ---------- plan resolution (mirrors seatPlanFor source order + stale checks) ----------
   function isLegacyCopy(hr, json) {
-    const legacy = (window.CLASS_SEATING || {}).legacy || {};
-    const oldSeats = legacy[hr] && legacy[hr].seats;
-    if (!oldSeats) return false;
+    const seating = window.CLASS_SEATING || {};
+    const candidates = [
+      (seating.legacy || {})[hr] && seating.legacy[hr].seats,
+      (seating.superseded || {})[hr] && seating.superseded[hr].seats
+    ].filter(Boolean);
+    if (!candidates.length) return false;
     try {
       const parsed = JSON.parse(json);
-      const pk = Object.keys(parsed), ok = Object.keys(oldSeats);
-      return pk.length === ok.length && pk.every(k => parsed[k] === oldSeats[k]);
+      const pk = Object.keys(parsed);
+      return candidates.some(oldSeats => {
+        const ok = Object.keys(oldSeats);
+        return pk.length === ok.length && pk.every(k => parsed[k] === oldSeats[k]);
+      });
     } catch (e) { return false; }
   }
   function resolvePlan(section) {
