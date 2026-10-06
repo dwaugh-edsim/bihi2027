@@ -74,9 +74,9 @@ window.HOMEROOM_902 = {
         body: 'Visual Arts in the Art Studio. Expect to be working on your hands.'
     },
     CS: {
-        icon: 'laptop', label: 'Computer Science',
-        materials: ['Notebook', 'Closed-toe shoes'],
-        body: 'Computer Science in the Computer Lab. Log on with your student account.'
+        icon: 'users', label: 'Child Studies',
+        materials: ['Notebook', 'A pen or pencil'],
+        body: 'Child Studies in the Child Studies Classroom. Bring your notebook.'
     },
     FR: {
         icon: 'globe', label: 'Core French',
@@ -102,7 +102,7 @@ window.HOMEROOM_902 = {
     2: {
         dayName: 'Tuesday',
         p1: { key: 'HL',     code: 'HL',    name: 'Healthy Living 9',       loc: 'Room 8 (Mr. Waugh)', notes: 'Start the day in Room 8 with Mr. Waugh!',                           type: 'room8' },
-        p2: { key: 'CS',     code: 'CS',    name: 'Computer Science',       loc: 'Computer Lab',       notes: 'Computer Lab.',                                                        type: 'special' },
+        p2: { key: 'CS',     code: 'CS',    name: 'Child Studies',          loc: 'Child Studies Classroom', notes: 'Child Studies Classroom. Bring your notebook.',                      type: 'special' },
         p3: { key: 'ART',    code: 'ART',   name: 'Visual Arts',            loc: 'Art Studio',         notes: 'Art Studio.',                                                          type: 'special' },
         p4: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',            loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
         p5: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts',  loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
@@ -143,7 +143,7 @@ window.HOMEROOM_902 = {
         dayName: 'Tuesday',
         p1: { key: 'PE',     code: 'PE',     name: 'Physical Education',    loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
         p2: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p3: { key: 'CS',     code: 'CS',     name: 'Computer Science',      loc: 'Computer Lab',       notes: 'Computer Lab.',                                                        type: 'special' },
+        p3: { key: 'CS',     code: 'CS',     name: 'Child Studies',         loc: 'Child Studies Classroom', notes: 'Child Studies Classroom. Bring your notebook.',                   type: 'special' },
         p4: { key: 'SCI',    code: 'SCI',    name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
         p5: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
     },

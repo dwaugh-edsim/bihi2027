@@ -837,10 +837,10 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script src="class_log_lesson_maps.js?v=2"></script>
 <script src="assignments_data.js?v=2"></script>
 <script src="display_instructions_data.js?v=2"></script>
-<script src="class_seating_data.js?v=2"></script>
+<script src="class_seating_data.js?v=3"></script>
 <script src="students_roster_data.js?v=2"></script>
 <script src="class_log_seed_data.js?v=2"></script>
-<script src="../Homeroom_902/homeroom_902_schedule_data.js?v=2"></script>
+<script src="../Homeroom_902/homeroom_902_schedule_data.js?v=3"></script>
 <script src="../Homeroom_902/homeroom_902_notices.js?v=2"></script>
 <script src="api.js?v=2"></script>
 <script>
@@ -1490,8 +1490,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         return { hr, source, seats: map, leftovers };
     }
     function renderSeats() {
-        const plan = seatPlanFor(current);
-        document.getElementById('seatClass').textContent = plan.hr + ' · ' + current;
+        // In the before-P1 homeroom view the kids in the room are the 902s, so the
+        // seating popup shows Homeroom 902's plan rather than the next section's.
+        const seatsFor = homeroomMode() ? HRO.key : current;
+        const plan = seatPlanFor(seatsFor);
+        document.getElementById('seatClass').textContent = plan.hr + ' · ' + (homeroomMode() ? HRO.label : current);
         const srcEl = document.getElementById('seatSource');
         srcEl.textContent = plan.source;
         srcEl.className = 'src' + (plan.source.startsWith('live') ? ' live' : plan.source.startsWith('snapshot') ? ' snap' : '');
@@ -1602,6 +1605,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             // force the before-P1 homeroom view on (or off) regardless of the clock
             forceHomeroom = !forceHomeroom;
             render();
+            // seating follows the view: 902 in homeroom mode, the section otherwise
+            if (document.getElementById('seatOverlay').classList.contains('open')) renderSeats();
         }
         else if (ev.key === 'f' || ev.key === 'F') document.getElementById('fsBtn').click();
         else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
