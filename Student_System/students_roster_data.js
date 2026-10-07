@@ -77,7 +77,7 @@ window.MASTER_ROSTER_DATA = [
   {"homeroom": "803", "grade": 8, "first_name": "Alex", "last_name": "Jarvis", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "803", "grade": 8, "first_name": "Isla", "last_name": "Kirkwood", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "803", "grade": 8, "first_name": "Feng", "last_name": "Lerdchaisakda", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
-  {"homeroom": "803", "grade": 8, "first_name": "Chandrika", "last_name": "Loza", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
+  {"homeroom": "803", "grade": 8, "first_name": "Chari", "last_name": "Loza", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "803", "grade": 8, "first_name": "Drew", "last_name": "MacGregor", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "803", "grade": 8, "first_name": "Jon", "last_name": "MacIntyre", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "803", "grade": 8, "first_name": "Santaya", "last_name": "MacNeil-Lapointe", "courses": ["HL 8"], "course_label": "Healthy Living 8"},

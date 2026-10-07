@@ -237,7 +237,7 @@ window.CLASS_SEATING = {
                 "21": "Amelia M.",
                 "22": "Alex J.",
                 "23": "Jason B.",
-                "24": "Chandrika L.",
+                "24": "Chari L.",
                 "25": "Tiyasha B.",
                 "26": "Muhammad N.",
                 "27": "Santaya M.",
@@ -357,7 +357,7 @@ window.CLASS_SEATING = {
                 "9": "Isla K.", "10": "Muhammad N.", "11": "Santaya M.", "12": "Beau B.",
                 "13": "Haruki T.", "14": "Elijah T.", "15": "Theron H.", "16": "Enid B.",
                 "17": "Jon M.", "18": "Evabel C.", "19": "Ziegfried A.", "20": "Amelia M.",
-                "21": "Alex J.", "22": "Jason B.", "23": "Chandrika L.", "24": "Tiyasha B.",
+                "21": "Alex J.", "22": "Jason B.", "23": "Chari L.", "24": "Tiyasha B.",
                 "25": "Ben V.", "27": "Marley W.", "28": "Sarah A.", "29": "Feng L."
             }
         },
@@ -437,7 +437,7 @@ window.CLASS_SEATING = {
                 "9": "Isla K.", "10": "Muhammad N.", "11": "Santaya M.", "12": "Beau B.",
                 "13": "Haruki T.", "14": "Elijah T.", "15": "Theron H.", "16": "Enid B.",
                 "17": "Jon M.", "18": "Evabel C.", "19": "Ziegfried A.", "20": "Amelia M.",
-                "21": "Alex J.", "22": "Jason B.", "23": "Chandrika L.", "24": "Tiyasha B.",
+                "21": "Alex J.", "22": "Jason B.", "23": "Chari L.", "24": "Tiyasha B.",
                 "25": "Ben V.", "27": "Marley W.", "28": "Sarah A.", "29": "Feng L.",
             }
         },
