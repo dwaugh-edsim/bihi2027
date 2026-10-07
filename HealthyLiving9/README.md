@@ -46,12 +46,24 @@ The signature instructional design of this course is **Forensic Quantitative Hea
 
 ## 3. Curriculum Documents & Reference Files
 
-* `HL9-COMPRESSED-OUTLINE-2026-27.md` — Year-long scope and sequence aligned with the 10-day school schedule.
+> **These files are NOT in this repo.** They live in the sibling **private** repo at
+> `../bihipri-27/HealthyLiving9-priv/`. This folder holds only the **student-facing / print-facing
+> artifacts**; the private repo holds the **planning and assessment documents**.
+> If you are an LLM or agent: search **both** repos before concluding a document does not exist.
+
+**In `../bihipri-27/HealthyLiving9-priv/`:**
+
+* `HL9-COMPRESSED-OUTLINE-2026-27.md` — Year-long scope and sequence (55 classes). **Authoritative class order and dates.** Contains the O2-A/O2-B split, the Sept 25 no-personal-disclosure design rule, and the Day 1 empirical realignment.
 * `HL9-Curriculum-Reference-2025.md` — Complete outcome mapping for NS Department of Education Healthy Living 9.
-* `HL9_CIT9_Master_Curriculum_Realignment_Plan.md` — Cross-curricular alignment between Healthy Living 9 and Citizenship 9 (identity, social determinants of health, and community advocacy).
+* `HL9_CIT9_Master_Curriculum_Realignment_Plan.md` — Cross-curricular alignment between Healthy Living 9 and Citizenship 9.
 * `assessment-plan.md` — Evaluation framework, tripartite term weights, and mastery criteria.
-* `study-content.md` & `simulation-concepts.md` — Core content modules on mental health, substance misuse, vaping risks, and sexual health.
-* `Healthy_Living_9_AAG_(2025).pdf` — Official provincial curriculum reference.
+* `study-content.md` & `simulation-concepts.md` — Core content modules (all 11 outcomes).
+* `HL9_Class1/2_Teacher_Facilitation_and_Answer_Key*.md` — Minute-by-minute facilitation guides and answer keys.
+
+**In this repo (`HealthyLiving9/`):**
+
+* `HL9_Grade9_Master_Submission_Dashboard.html` — Student survey + submissions dashboard. **Survey response data lives in `window.HL9_SEED_DATA` → `items.survey.data.matrix`.** Note: only 25 of 72 respondents completed the HL8 outcome matrix.
+* `resources/Theme_*/` — Provincial and federal curriculum reference PDFs, by theme.
 
 ---
 
