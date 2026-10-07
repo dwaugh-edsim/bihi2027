@@ -31,21 +31,30 @@
 // live. Any agenda line that reads the same as an instruction here is dropped from the
 // agenda automatically, so the same step is never printed twice on the display.
 window.DISPLAY_INSTRUCTIONS = {
-    // ── Mon Oct 5, afternoon ────────────────────────────────────────────────
-    "901-HL": {
+    // ── Wed Oct 7 ──────────────────────────────────────────────────────────
+    // P1 903-CIT · P2 803-HE · P3 802-HE · P4 901-CIT · P5 902-CIT.
+    // Both CIT9 and both HE sections share today's wording, so it sits on the
+    // course keys; 902-CIT overrides below (section beats course).
+    "CIT9": {
         steps: [
-            "Sleep app slideshows — submit in Google Classroom."
-        ],
-        owed: [
-            { label: "Still owe the Citizenship quiz", names: ["Anastasia", "Cameo", "Oliva"] }
+            "Go over the last of yesterday's reproductive health questions (HL9 Class 3).",
+            "Quick 2-minute item from The National (Monday's broadcast).",
+            "The Speech — a quick tutorial on what the assignment is all about."
+        ]
+    },
+    "HL8": {
+        steps: [
+            "Junction Part 2 (The Tipping Point) — paper versions.",
+            "Finish today."
         ]
     },
     "902-CIT": {
         steps: [
-            "10 Station Sleep Audit — if your sheet is not in yet, get a paper version from me.",
-            "60-second case to the government — drafting today. Already handed in: Jax, Oscar, Sofie.",
-            "Numbeo Part 2 sheet — career math AND the reflection box. Hand it in before you leave."
+            "The Speech — a quick tutorial on what the assignment is all about.",
+            "If finished: start on the HL9 Class 1 items around the room (Sleep Clinic)."
         ],
+        // Carried verbatim from Mon Oct 5 (this section's last meeting) — prune at
+        // P5 once there's fresh hand-in info; don't let stale names linger past it.
         owed: [
             { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
             { label: "Sleep Audit not handed in yet", names: [
@@ -59,6 +68,16 @@ window.DISPLAY_INSTRUCTIONS = {
             { label: "Numbeo — not submitted / not started", names: [
                 "Arlo", "Berlin", "Hannah", "Jordan", "Marla L.", "Sofia", "Sofie", "Zackory"
             ] }
+        ]
+    },
+
+    // ── Mon Oct 5, afternoon (carried — these sections don't meet Oct 7) ───
+    "901-HL": {
+        steps: [
+            "Sleep app slideshows — submit in Google Classroom."
+        ],
+        owed: [
+            { label: "Still owe the Citizenship quiz", names: ["Anastasia", "Cameo", "Oliva"] }
         ]
     },
     "903-HL": {

@@ -113,9 +113,9 @@ window.COURSE_ASSIGNMENTS = {
     },
     HL8: {
         label: "Healthy Living 8",
-        // Sept 28: Junction is now TWO exhibits. Ex.1 (group chat) is the launch;
-        // Ex.2 (tipping point) is the follow-up that unblocks Class 4.
-        active: "hl8-junction-ex1",
+        // Sept 28: Junction is now TWO exhibits. Ex.1 (group chat) was the launch;
+        // Oct 7: 802/803 are on Ex.2 (tipping point) on paper, so that's the active one.
+        active: "hl8-junction-ex2",
         items: [
             {
                 id: "hl8-junction-ex1",
