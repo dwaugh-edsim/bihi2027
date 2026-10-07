@@ -532,6 +532,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     color: var(--theme-accent);
     transition: color 0.3s;
 }
+.instr-steps a {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    font-weight: 700;
+    color: var(--theme-accent-dark);
+    text-decoration: underline;
+    word-break: break-all;
+}
 .instr-note {
     font-size: 1.12rem;
     line-height: 1.4;
@@ -828,7 +836,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script src="class_log_meetings_data.js?v=2"></script>
 <script src="class_log_lesson_maps.js?v=2"></script>
 <script src="assignments_data.js?v=3"></script>
-<script src="display_instructions_data.js?v=3"></script>
+<script src="display_instructions_data.js?v=4"></script>
 <script src="class_seating_data.js?v=3"></script>
 <script src="students_roster_data.js?v=2"></script>
 <script src="class_log_seed_data.js?v=2"></script>
@@ -1036,7 +1044,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         document.getElementById('instrHeading').textContent =
             (instr && instr.heading && String(instr.heading).trim()) || 'Do This Now';
         document.getElementById('instrSteps').innerHTML = steps.length
-            ? steps.map(s => '<li><span>' + escapeHtml(s) + '</span></li>').join('')
+            ? steps.map(s => '<li><span>' + linkify(escapeHtml(s)) + '</span></li>').join('')
             : '';
         const noteEl = document.getElementById('instrNote');
         noteEl.style.display = note ? '' : 'none';
@@ -1162,6 +1170,13 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // ---------- render ----------
     function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    // Curated instruction lines may carry a bare URL (a clip Mr. Waugh wants one
+    // click from the slide). Runs AFTER escapeHtml, so '&' arrives as &amp; — that
+    // is exactly right in the href (the browser decodes it) and in the label.
+    function linkify(escaped) {
+        return String(escaped).replace(/https:\/\/[^\s<]+/g,
+            u => '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>');
     }
     function render() {
         const t = todayISO();

@@ -38,7 +38,7 @@ window.DISPLAY_INSTRUCTIONS = {
     "CIT9": {
         steps: [
             "Go over the last of yesterday's reproductive health questions (HL9 Class 3).",
-            "Quick 2-minute item from The National (Monday's broadcast).",
+            "Quick 2-minute item from The National (Monday's broadcast) — https://www.youtube.com/watch?v=yhQ8elK08ek&t=1085s",
             "The Speech — a quick tutorial on what the assignment is all about."
         ]
     },
@@ -51,6 +51,7 @@ window.DISPLAY_INSTRUCTIONS = {
     "902-CIT": {
         steps: [
             "The Speech — a quick tutorial on what the assignment is all about.",
+            "Quick 2-minute item from The National (Monday's broadcast) — https://www.youtube.com/watch?v=yhQ8elK08ek&t=1085s",
             "If finished: start on the HL9 Class 1 items around the room (Sleep Clinic)."
         ],
         // Carried verbatim from Mon Oct 5 (this section's last meeting) — prune at
