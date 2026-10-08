@@ -145,37 +145,37 @@ window.CLASS_SEATING = {
             }
         },
         "801": {
-            updated: "2026-10-06-front-v5",
+            updated: "2026-10-07-v6",
             seats: {
                 "1": "Alex R.",
-                "2": "Samuel Mil",
-                "3": "Martin V.",
-                "4": "Zephyr G.",
-                "5": "Samuel Mac",
+                "2": "Jason D.",
+                "3": "Steven E.",
+                "4": "Samuel Mil",
+                "5": "James T.",
                 "6": "Ruby C.",
-                "7": "Kenzie K.",
-                "8": "Julia T.",
-                "9": "Ainslie M.",
-                "10": "Juliet M.",
-                "11": "Ruby M.",
-                "12": "Talia D.",
-                "13": "Samuel S.",
-                "14": "Jaela L.",
-                "15": "Nehemiah S.",
-                "16": "Jason D.",
-                "17": "Fiona S.",
-                "18": "Marieke M.",
-                "19": "Steven E.",
-                "20": "Shaviah O.",
-                "21": "James T.",
+                "7": "Ruby M.",
+                "8": "Sydney S.",
+                "9": "Jaela L.",
+                "10": "Kenzie K.",
+                "11": "Ainslie M.",
+                "12": "Juliet M.",
+                "13": "Martin V.",
+                "14": "Zephyr G.",
+                "15": "Samuel Mac",
+                "16": "Nikolas S.",
+                "17": "Trey L.",
+                "18": "Fiona S.",
+                "19": "Marieke M.",
+                "20": "Talia D.",
+                "21": "Julia T.",
                 "22": "Samuel H.",
                 "23": "Jayden L.",
-                "24": "Sydney S.",
+                "24": "Mae'ijah D.",
                 "25": "Alex W.",
-                "26": "Nikolas S.",
-                "27": "Trey L.",
-                "28": "Artem P.",
-                "29": "Mae'ijah D."
+                "26": "Artem P.",
+                "27": "Samuel S.",
+                "28": "Nehemiah S.",
+                "29": "Shaviah O."
             }
         },
         "802": {
@@ -328,15 +328,17 @@ window.CLASS_SEATING = {
             }
         },
         "801": {
+            // the 2026-10-06 plan just replaced in snapshots — a browser-saved copy
+            // equal to this is stale and is auto-dropped by the slide
             seats: {
-                "1": "Samuel Mil", "2": "Martin V.", "3": "Alex R.", "4": "Julia T.",
-                "5": "Zephyr G.", "6": "Samuel Mac", "7": "Ainslie M.", "8": "Ruby C.",
-                "9": "Kenzie K.", "10": "Nikolas S.", "11": "Trey L.", "12": "Samuel S.",
-                "13": "Jaela L.", "14": "Nehemiah S.", "15": "Jason D.", "16": "Fiona S.",
-                "17": "Marieke M.", "18": "Steven E.", "19": "Shaviah O.", "20": "James T.",
-                "21": "Samuel H.", "22": "Jayden L.", "23": "Sydney S.", "24": "Alex W.",
-                "25": "Artem P.", "26": "Mae'ijah D.", "27": "Juliet M.", "28": "Ruby M.",
-                "29": "Talia D."
+                "1": "Alex R.", "2": "Samuel Mil", "3": "Martin V.", "4": "Zephyr G.",
+                "5": "Samuel Mac", "6": "Ruby C.", "7": "Kenzie K.", "8": "Julia T.",
+                "9": "Ainslie M.", "10": "Juliet M.", "11": "Ruby M.", "12": "Talia D.",
+                "13": "Samuel S.", "14": "Jaela L.", "15": "Nehemiah S.", "16": "Jason D.",
+                "17": "Fiona S.", "18": "Marieke M.", "19": "Steven E.", "20": "Shaviah O.",
+                "21": "James T.", "22": "Samuel H.", "23": "Jayden L.", "24": "Sydney S.",
+                "25": "Alex W.", "26": "Nikolas S.", "27": "Trey L.", "28": "Artem P.",
+                "29": "Mae'ijah D."
             }
         },
         "802": {
