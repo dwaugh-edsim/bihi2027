@@ -31,17 +31,20 @@
 // live. Any agenda line that reads the same as an instruction here is dropped from the
 // agenda automatically, so the same step is never printed twice on the display.
 window.DISPLAY_INSTRUCTIONS = {
-    // ── Wed Oct 7 ──────────────────────────────────────────────────────────
-    // P1 903-CIT · P2 803-HE · P3 802-HE · P4 901-CIT · P5 902-CIT.
-    // Both CIT9 and both HE sections share today's wording, so it sits on the
-    // course keys; 902-CIT overrides below (section beats course).
-    "CIT9": {
+    // ── Thu Oct 8 ──────────────────────────────────────────────────────────
+    // P1 901-CIT · P2 804-HE · P4 801-HE · P5 902-HL.
+    // The Oct-7 CIT9 course entry (HL9 Class 3 questions + National + Speech
+    // tutorial) came out after that class ran — 901-CIT falls back to the agenda
+    // until today's steps are dictated. 804-HE falls through to the HL8 course
+    // entry below. 902-CIT (next meets Oct 9) keeps its Oct-7 entry with the
+    // owed lists, now without Berlin C.
+    "801-HE": {
         steps: [
-            "Go over the last of yesterday's reproductive health questions (HL9 Class 3).",
-            "Quick 2-minute item from The National (Monday's broadcast) — https://www.youtube.com/watch?v=yhQ8elK08ek&t=1085s",
-            "The Speech — a quick tutorial on what the assignment is all about."
+            "Sam III — video + written story."
         ]
     },
+
+    // ── Wed Oct 7 ──────────────────────────────────────────────────────────
     "HL8": {
         steps: [
             "Junction Part 2 (The Tipping Point) — paper versions.",
@@ -59,7 +62,7 @@ window.DISPLAY_INSTRUCTIONS = {
         owed: [
             { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
             { label: "Sleep Audit not handed in yet", names: [
-                "Anna T.", "Arlo", "Berlin", "Chelsea", "Jordan H.", "Nolan",
+                "Anna T.", "Arlo", "Chelsea", "Jordan H.", "Nolan",
                 "Sofie", "Thomas", "Tristan"
             ] },
             { label: "Numbeo — done, feedback waiting in the assignment", names: [
@@ -67,7 +70,7 @@ window.DISPLAY_INSTRUCTIONS = {
                 "Noah", "Nolan", "Nova T.", "Oscar", "Thomas"
             ] },
             { label: "Numbeo — not submitted / not started", names: [
-                "Arlo", "Berlin", "Hannah", "Jordan", "Marla L.", "Sofia", "Sofie", "Zackory"
+                "Arlo", "Hannah", "Jordan", "Marla L.", "Sofia", "Sofie", "Zackory"
             ] }
         ]
     },
