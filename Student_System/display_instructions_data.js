@@ -55,23 +55,10 @@ window.DISPLAY_INSTRUCTIONS = {
     "902-CIT": {
         steps: [
             "Finish your assignments so Mr. Waugh can mark them over the long weekend."
-        ],
-        // Owed lists carried from the Oct-7 entry — prune at today's P4 once
-        // there's fresh hand-in info; don't let stale names linger past it.
-        owed: [
-            { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
-            { label: "Sleep Audit not handed in yet", names: [
-                "Anna T.", "Arlo", "Chelsea", "Jordan H.", "Nolan",
-                "Sofie", "Thomas", "Tristan"
-            ] },
-            { label: "Numbeo — done, feedback waiting in the assignment", names: [
-                "Anna", "Chelsea", "Douglas", "Gemma", "Jax", "Lyla", "Mona",
-                "Noah", "Nolan", "Nova T.", "Oscar", "Thomas"
-            ] },
-            { label: "Numbeo — not submitted / not started", names: [
-                "Arlo", "Hannah", "Jordan", "Marla L.", "Sofia", "Sofie", "Zackory"
-            ] }
         ]
+        // Owed lists (Citizenship quiz / Sleep Audit / Numbeo) removed Oct 9 at
+        // Mr. Waugh's request — the live sheet plan for this section still carries
+        // the stale Numbeo steps; clear those in the Class Log tracker.
     },
 
     // ── Mon Oct 5, afternoon (carried — these sections don't meet Oct 7) ───

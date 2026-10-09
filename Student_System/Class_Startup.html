@@ -364,6 +364,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     z-index: 50; align-items: center; justify-content: center;
 }
 .overlay.open { display: flex; }
+.update-banner {
+    position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+    z-index: 70; font-family: var(--font-body); font-weight: 700; font-size: 0.95rem;
+    color: var(--amber); background: var(--bg-surface); border: 1px solid var(--amber-border);
+    border-radius: 999px; padding: 10px 22px; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+.update-banner:hover { border-color: var(--amber); }
 .editor {
     background: var(--bg-surface); border-radius: 10px; border: 1px solid var(--border-card);
     box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: min(720px, 92vw); max-height: 90vh;
@@ -816,7 +824,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <div class="overlay" id="overlay">
     <div class="editor">
         <h3>Slide setup — <span id="edSection" class="mono"></span></h3>
-        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). The Do This Now instructions are curated in the repo — ask an agent session to change them.</div>
+        <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). The Do This Now instructions are curated in the repo — ask an agent session to change them. <span id="buildTag"></span></div>
         <label>Class</label>
         <div class="section-pick" id="sectionPick"></div>
         <label>Title (optional)</label>
@@ -838,7 +846,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script src="class_log_meetings_data.js?v=2"></script>
 <script src="class_log_lesson_maps.js?v=2"></script>
 <script src="assignments_data.js?v=3"></script>
-<script src="display_instructions_data.js?v=6"></script>
+<script src="display_instructions_data.js?v=7"></script>
 <script src="class_seating_data.js?v=5"></script>
 <script src="students_roster_data.js?v=3"></script>
 <script src="class_log_seed_data.js?v=3"></script>
@@ -1341,7 +1349,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             } else {
                 delete slides[sec];
             }
-            statusEl.textContent = 'Saved ✓';
+            if (res.status === 'submitted_no_cors') {
+                // the CORS write bounced and the no-cors fallback can't read the
+                // reply — say so instead of faking a green Saved ✓
+                statusEl.style.color = 'var(--amber)';
+                statusEl.textContent = 'Sent, not confirmed. If it is not on the slide after a refresh, the sheet write did not land.';
+            } else {
+                statusEl.textContent = 'Saved ✓';
+            }
             render();
             refreshLive(true);
         } else {
@@ -1628,6 +1643,33 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             }
         }
     });
+
+    // ---------- self-update check ----------
+    // The projector browser can sit on one cached copy of this file for days, so
+    // fixes that ship to origin never reach the screen (the Oct 7 "gear does
+    // nothing" report was exactly this). Poll our own URL for a different BUILD_ID
+    // and offer a one-tap reload — never auto-reload mid-class.
+    const BUILD_ID = '2026-10-09a';
+    const buildTagEl = document.getElementById('buildTag');
+    if (buildTagEl) buildTagEl.textContent = '· build ' + BUILD_ID;
+    let updateBanner = null;
+    function offerReload() {
+        if (updateBanner) return;
+        updateBanner = document.createElement('button');
+        updateBanner.className = 'update-banner';
+        updateBanner.textContent = '⟳ New version ready — tap to update this screen';
+        updateBanner.addEventListener('click', () => location.reload());
+        document.body.appendChild(updateBanner);
+    }
+    async function checkForUpdate() {
+        try {
+            const txt = await (await fetch(location.pathname + '?selfcheck=' + Date.now(), { cache: 'no-store' })).text();
+            const m = txt.match(/BUILD_ID = '([^']+)'/);
+            if (m && m[1] !== BUILD_ID) offerReload();
+        } catch (e) { /* offline — stay on the current copy */ }
+    }
+    setInterval(checkForUpdate, 5 * 60 * 1000);
+    checkForUpdate();
 
     current = autoPickSection();
     render();
