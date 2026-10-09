@@ -31,34 +31,33 @@
 // live. Any agenda line that reads the same as an instruction here is dropped from the
 // agenda automatically, so the same step is never printed twice on the display.
 window.DISPLAY_INSTRUCTIONS = {
-    // ── Thu Oct 8 ──────────────────────────────────────────────────────────
-    // P1 901-CIT · P2 804-HE · P4 801-HE · P5 902-HL.
-    // The Oct-7 CIT9 course entry (HL9 Class 3 questions + National + Speech
-    // tutorial) came out after that class ran — 901-CIT falls back to the agenda
-    // until today's steps are dictated. 804-HE falls through to the HL8 course
-    // entry below. 902-CIT (next meets Oct 9) keeps its Oct-7 entry with the
-    // owed lists, now without Berlin C.
-    "801-HE": {
+    // ── Fri Oct 9 ──────────────────────────────────────────────────────────
+    // P1 804-HE · P3 903-CIT · P4 902-CIT — the last classes before the long
+    // weekend (Thanksgiving Monday). Mr. Waugh marks over the break, so the
+    // do-now in all three is the same: finish what you owe and hand it in.
+    // The HL8 course entry below keeps the paper-Junction line for 802/803-HE
+    // (they haven't met since Oct 7); 901-HL and 903-HL carry from Oct 5.
+    "804-HE": {
         steps: [
-            "Sam III — video + written story."
+            "Finish your assignments so Mr. Waugh can mark them over the long weekend."
         ]
     },
-
-    // ── Wed Oct 7 ──────────────────────────────────────────────────────────
+    "903-CIT": {
+        steps: [
+            "Finish your assignments so Mr. Waugh can mark them over the long weekend."
+        ]
+    },
     "HL8": {
         steps: [
-            "Junction Part 2 (The Tipping Point) — paper versions.",
-            "Finish today."
+            "Junction Part 2 (The Tipping Point) — paper versions."
         ]
     },
     "902-CIT": {
         steps: [
-            "The Speech — a quick tutorial on what the assignment is all about.",
-            "Quick 2-minute item from The National (Monday's broadcast) — https://www.youtube.com/watch?v=yhQ8elK08ek&t=1085s",
-            "If finished: start on the HL9 Class 1 items around the room (Sleep Clinic)."
+            "Finish your assignments so Mr. Waugh can mark them over the long weekend."
         ],
-        // Carried verbatim from Mon Oct 5 (this section's last meeting) — prune at
-        // P5 once there's fresh hand-in info; don't let stale names linger past it.
+        // Owed lists carried from the Oct-7 entry — prune at today's P4 once
+        // there's fresh hand-in info; don't let stale names linger past it.
         owed: [
             { label: "Still owe the Citizenship quiz", names: ["Anna", "Noah", "Sofia", "Thomas"] },
             { label: "Sleep Audit not handed in yet", names: [

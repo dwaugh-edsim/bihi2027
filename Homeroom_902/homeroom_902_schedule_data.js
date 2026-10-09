@@ -166,7 +166,7 @@ window.HOMEROOM_902 = {
     10: {
         dayName: 'Friday',
         p1: { key: 'SCI',    code: 'SCI',   name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
-        p2: { key: 'ILT',    code: 'ILT',   name: 'ILT (Ms. Traille)',     loc: 'Assigned ILT Room',  notes: 'Assigned ILT Room with Ms. Traille.',                               type: 'special' },
+        p2: { key: 'ILT',    code: 'ILT',   name: 'ILT (Mr. Traille)',     loc: 'Assigned ILT Room',  notes: 'Trolleys and Rings with Mr. Traille.',                              type: 'special' },
         p3: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
         p4: { key: 'CIT',    code: 'CIT',   name: 'Citizenship 9',         loc: 'Room 8 (Mr. Waugh)', notes: 'In Room 8 with Mr. Waugh! Chromebooks in room.',                     type: 'room8' },
         p5: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. 3:05 PM dismissal.',                                     type: 'core' }

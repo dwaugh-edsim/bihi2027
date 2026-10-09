@@ -18,6 +18,7 @@
 window.HOMEROOM_902_NOTICES = {
     announcements: [
         "Bring in your Take Your Kid to Work form.",
+        "Bring headphones to Science if you'd like — it's a study day. Get them from your locker BEFORE O Canada.",
         "Be in Room 8 by 8:55 — before O Canada."
     ]
 };
