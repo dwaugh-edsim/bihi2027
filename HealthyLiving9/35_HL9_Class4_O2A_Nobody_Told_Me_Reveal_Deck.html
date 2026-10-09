@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O2-A: Nobody Told Me — Reveal Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --text-main:#0f172a; --text-muted:#475569; --bg:#e2e8f0;
+        --accent:#2563eb; --amber:#b45309; --red:#b91c1c; --green:#15803d;
+        --line:#cbd5e1;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--text-main); background:var(--bg); line-height:1.45; }
+
+    .top-toolbar { position:sticky; top:0; z-index:50; background:#0f172a; color:#fff; padding:10px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .tb-title { font-family:'Roboto Slab',serif; font-weight:800; font-size:1rem; }
+    .tb-btn { background:#1e293b; color:#fff; border:1px solid #334155; padding:5px 12px; border-radius:4px; cursor:pointer; font-size:.82rem; font-weight:600; }
+    .tb-btn:hover { background:#334155; }
+    .tb-count { font-family:'JetBrains Mono',monospace; font-size:.8rem; color:#94a3b8; margin-left:auto; }
+
+    .progress-container { height:4px; background:#1e293b; }
+    .progress-bar-wrap { height:100%; }
+    .progress-bar-fill { height:100%; background:var(--accent); width:0; transition:width .18s ease; }
+
+    .stage { max-width:1180px; margin:26px auto 30px auto; padding:0 20px; }
+    .slide { background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 6px 22px rgba(15,23,42,.10); padding:56px 56px 48px 56px; display:none; }
+    .slide.active { display:block; }
+
+    .slide-num { font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:800; letter-spacing:.1em; color:var(--text-muted); text-transform:uppercase; margin-bottom:20px; }
+
+    .claim { font-family:'Roboto Slab',serif; font-size:2.5rem; font-weight:800; line-height:1.24; }
+    .claim-src { font-size:.9rem; color:var(--text-muted); font-family:'JetBrains Mono',monospace; margin-top:18px; }
+
+    .prompt { margin-top:40px; border:2px dashed var(--line); border-radius:10px; padding:20px 24px; background:#f8fafc; }
+    .prompt-h { font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; }
+    .vote-chips { display:flex; gap:14px; flex-wrap:wrap; }
+    .vote-chip { font-family:'JetBrains Mono',monospace; font-weight:800; font-size:1.05rem; padding:10px 26px; border:2px solid var(--text-main); border-radius:8px; background:#fff; }
+
+    .verdict-head { display:flex; align-items:center; gap:22px; margin-bottom:28px; flex-wrap:wrap; }
+    .verdict-badge { font-family:'Roboto Slab',serif; font-size:2.1rem; font-weight:900; padding:8px 26px; border-radius:10px; color:#fff; }
+    .v-no { background:var(--red); }
+    .v-yes { background:var(--green); }
+    .v-dep { background:var(--amber); }
+    .verdict-claim { font-family:'Roboto Slab',serif; font-size:1.28rem; font-weight:700; line-height:1.34; flex:1; min-width:300px; }
+
+    .why-label { font-size:.74rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; }
+    .why { font-size:1.18rem; line-height:1.66; }
+    .hl { background:#fef3c7; padding:0 4px; border-radius:3px; font-weight:700; }
+    .rule { height:1px; background:var(--line); margin-top:26px; }
+
+    .nav-foot { max-width:1180px; margin:0 auto 40px auto; padding:0 20px; display:flex; justify-content:space-between; gap:14px; }
+    .nav-btn { background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:11px 22px; cursor:pointer; font-weight:700; font-size:.9rem; color:var(--text-main); }
+    .nav-btn:hover:not(:disabled) { background:#f1f5f9; border-color:var(--text-main); }
+    .nav-btn:disabled { opacity:.4; cursor:default; }
+
+    @media print {
+        @page { size:landscape; margin:10mm; }
+        body { background:#fff; }
+        .top-toolbar, .progress-container, .nav-foot, .no-print { display:none !important; }
+        .stage { margin:0; padding:0; max-width:100%; }
+        .slide { display:block !important; box-shadow:none; border:1px solid #cbd5e1; border-radius:0; padding:13mm; page-break-after:always; break-after:page; margin:0 0 6mm 0; }
+        .slide:last-child { page-break-after:auto; break-after:auto; }
+        .claim { font-size:2.15rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="top-toolbar no-print">
+  <div class="tb-title">Nobody Told Me — Reveal</div>
+  <button class="tb-btn" onclick="window.print()">Print all 40</button>
+  <button class="tb-btn" onclick="jump(0)">Start</button>
+  <div class="tb-count"><span id="cur">1</span> / <span id="tot">40</span> &nbsp;·&nbsp; arrow keys</div>
+</div>
+<div class="progress-container no-print"><div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar"></div></div></div>
+
+<div class="stage" id="stage"></div>
+
+<div class="nav-foot no-print">
+  <button class="nav-btn" id="prev" onclick="step(-1)">&larr; Previous</button>
+  <button class="nav-btn" id="next" onclick="step(1)">Next &rarr;</button>
+</div>
+<script>
+// [claim, attribution, verdict, why]
+// Student-facing only. Teacher scripts and notes live in the facilitation guide.
+const DECK = [
+
+["Clear or whitish discharge in your underwear is a sign something's wrong.","overheard in a change room","FALSE",
+ "Clear or whitish discharge is the body's <strong>self-cleaning system</strong> at work — the vagina washes itself out, the same way your eyes wash themselves. It changes across the month, and that is normal. The thing to watch is <strong>a change from your normal</strong>: a strong new smell, grey or green colour, clumpy texture, itching or burning — <span class=\"hl\">that list is what a clinic visit is for</span>. The everyday version is just the system working."],
+
+["To get properly clean, you should pull the foreskin back firmly in the shower.","gym change room · someone's theory","FALSE",
+ "The foreskin is <strong>attached at birth and loosens on its own over years</strong> — a scheduled process, not a chore. Forcing it back tears it, and the scar tissue causes the exact problem people are scared of. The rule: <span class=\"hl\">it should slide easily. If it doesn't, wash what shows and leave it alone.</span> No pulling, no stretching, no peer advice."],
+
+["The vulva and the vagina are the same thing.","a health poster everyone skimmed","FALSE",
+ "The <strong>vulva is everything on the outside</strong> — the lips, the clitoris, the openings. The <strong>vagina is the canal on the inside</strong>. You wash the vulva; tampons go in the vagina. English borrowed &ldquo;vagina&rdquo; for all of it, and the mix-up hides the care instructions: outside parts get washed, <strong>inside parts clean themselves</strong>."],
+
+["Sudden, severe pain in a testicle is something you tough out and see if it settles.","a tough-it-out household","FALSE",
+ "A testicle can twist and cut off its own blood supply — <strong>testicular torsion</strong>. Sudden, severe pain, often with swelling or feeling sick. <span class=\"hl\">It is a clock: hours, not days.</span> Quick surgery fixes it; toughing it out is how people lose a testicle. Sudden severe pain means the emergency department, now — no version of embarrassment beats that math."],
+
+["Pregnancy is basically impossible the first time someone has sex.","an older cousin · very confident","FALSE",
+ "Pregnancy does not check your history. It can happen <strong>the very first time</strong> — ovulation does not wait for experience, and STI risk is identical. &ldquo;First time&rdquo; is a story people tell each other; <strong>biology does not follow it</strong>."],
+
+["Period pain bad enough to make you miss school is just something you push through.","half the comments under a cramps video","FALSE",
+ "Cramps are common. <strong>Pain that stops you attending school or doing your normal day — especially when pain meds and a heat pack don't touch it — is a reason to get checked, not a thing to push through.</strong> Treatable causes exist, and &ldquo;just live with it&rdquo; is how people lose years to them. Pain that rewrites your week gets described to a doctor."],
+
+["Small bumps around the head of the penis mean you caught an infection.","a 2 a.m. search · scary image results","DEPENDS",
+ "<strong>Depends which bumps.</strong> Tiny shiny dots around the rim (pearly papules) and small yellowish dots (Fordyce spots) are <strong>normal anatomy</strong> — common, not an infection, nothing to treat. Worth a clinic visit: anything <em>new</em>, painful, open, oozing, or arriving with flu-like symptoms. <span class=\"hl\">The clinic has seen every version of this question and will not be shocked.</span>"],
+["As long as it isn't leaking, a tampon is fine to leave in all day.","a life-hack account","FALSE",
+ "A tampon has a clock on it: <strong>4 to 8 hours, then out</strong> — leaking is not the signal, the clock is. Left longer, the risk of <strong>toxic shock syndrome</strong> climbs: rare, but serious — sudden fever, rash, dizziness. Sleeping more than 8 hours? <span class=\"hl\">Pad that night.</span>"],
+
+["It's completely normal for one testicle to hang lower than the other.","someone who checked in a mirror and panicked","TRUE",
+ "<strong>True — and almost always the left one sits lower.</strong> Pairs in the body are not matched; hands, feet, nothing is symmetrical. What matters is <strong>change</strong>: a new lump, a swelling that stays, a heavy ache that does not leave — those get checked."],
+
+["Soaking through a pad or tampon every hour for several hours is still a normal period.","a group chat · 2 a.m.","FALSE",
+ "<strong>Soaking through a pad or tampon every hour for 2+ hours in a row is a flag, not a feature.</strong> Same for a period lasting more than about 8 days, or clots bigger than a loonie. These can point to things like low iron or clotting problems — <span class=\"hl\">treatable things</span> — and they are worth saying out loud to a doctor instead of absorbing quietly."],
+
+["If one breast is bigger than the other, that's worth getting checked.","asked once · quietly","DEPENDS",
+ "<strong>Depends on the story.</strong> Some size difference is <strong>completely normal</strong> — most people have it, and sides grow at different speeds. Worth checking: a <em>new</em> lump that stays, a growing difference, a change in shape or skin, or discharge. <strong>Normal range is huge; change is the thing to watch.</strong>"],
+
+["Wet dreams are a normal part of puberty and mean nothing is wrong.","a kid who heard it from another kid","TRUE",
+ "<strong>True.</strong> The body starts producing semen and releases some during sleep — that is the whole event. Frequency varies hugely, including zero, and the body handles it either way. It is a sign the system is switching on, <strong>not a problem and not a report card</strong>."],
+
+["A period that skips a month or shows up at odd times means something's wrong.","someone's mom said one thing · the internet said another","DEPENDS",
+ "<strong>Depends how new this is.</strong> In the first couple of years, cycles anywhere from 21 to 45 days apart — and skips — can be completely normal. Worth checking: no period by 16, a sudden stop of 3+ months, very heavy or painful periods, or pregnancy is possible. <span class=\"hl\">New system = wobbly. Settled system that changed = look into it.</span>"],
+
+["Vulvas come in a huge range of shapes, sizes and colours — every one of them is normal.","a comment section · argued about for hours","TRUE",
+ "<strong>True — like faces.</strong> Colour, size, symmetry, inner lips longer than outer lips: all standard issue. Most of the &ldquo;am I normal?&rdquo; anxiety comes from never having seen the range. Nobody is grading symmetry."],
+["If the foreskin gets stuck behind the head and starts to swell, it's safe to wait a couple of days.","someone too embarrassed to ask a real adult","FALSE",
+ "A foreskin that slides back but <strong>gets stuck behind the head and swells</strong> (paraphimosis) is genuinely time-sensitive: <span class=\"hl\">same-day care, urgently</span>. It does not settle on its own, and waiting makes the swelling worse. It is a quick fix for a doctor — and a bad weekend if ignored."],
+
+["The best way to catch a problem with your body early is knowing what's normal for you.","a nurse, actually","TRUE",
+ "<strong>True — and it is the whole point of today.</strong> Doctors cannot know your baseline; only you live with your body. A change that sticks around — lump, smell, bleeding, pain — gets described to someone: <strong>family doctor or nurse practitioner, Youth Health Centre, public health nurse, or 811</strong>. In Nova Scotia, none of that needs a parent's permission."],
+
+["If a foreskin still doesn't pull back at 14, it needs to be fixed right away.","a group chat argument that got heated","DEPENDS",
+ "<strong>Depends on what it's doing.</strong> Many foreskins are not fully retractable until 16 or 17 — <strong>not broken, just on schedule</strong>. Worth a doctor visit: it hurts, it balloons when peeing, or it is getting in the way. When help is needed, <span class=\"hl\">a prescription cream plus gentle stretching fixes most cases</span> — surgery is a rare last resort."],
+
+["During puberty, erections can show up at random times for no reason at all.","everyone in grade 9 · quietly worried","TRUE",
+ "<strong>True — blood-flow reflex, no agenda.</strong> During puberty the plumbing is brand new and fires at everything. It passes on its own and is far less visible than it feels. Nobody else is taking notes."],
+
+["Changing out of sweaty gym clothes helps prevent jock itch.","gym class wisdom","TRUE",
+ "<strong>True.</strong> Jock itch is a <strong>fungus — same family as athlete's foot</strong> — and it loves warm, damp fabric. Dry off after the shower, change after sweating, and it starves. If it shows up anyway, the same anti-fungal cream as athlete's foot works; a pharmacist can point you to it. <strong>It is a laundry problem, not an embarrassment problem.</strong>"],
+
+["Special feminine washes are needed to keep the vulva healthy.","an ad between videos, basically","FALSE",
+ "The vulva is <strong>self-maintaining: warm water on the outside is the whole routine</strong>. Scented washes and sprays can irritate and cause the exact smells people buy them to fight. A strong new smell that is not your normal is a <strong>check-it question, not a soap question</strong>. Same family as the douching myth from last class: <span class=\"hl\">inside parts clean themselves — nobody needs to do it for them.</span>"]
+
+];
+const CLS = {"FALSE":"v-no","TRUE":"v-yes","DEPENDS":"v-dep"};
+
+const stage = document.getElementById('stage');
+let slides = [];
+
+DECK.forEach(function(d, i) {
+  var claim = d[0], attrib = d[1], verdict = d[2], why = d[3];
+  var n = String(i + 1).padStart(2, '0');
+
+  var s1 = document.createElement('div');
+  s1.className = 'slide';
+  s1.innerHTML =
+    '<div class="slide-num">Statement ' + n + ' of 20</div>' +
+    '<div class="claim">&ldquo;' + claim + '&rdquo;</div>' +
+    '<div class="claim-src">' + attrib + '</div>' +
+    '<div class="prompt"><div class="prompt-h">Vote with your partner — one tick</div>' +
+    '<div class="vote-chips"><span class="vote-chip">TRUE</span><span class="vote-chip">FALSE</span><span class="vote-chip">IT DEPENDS</span></div></div>';
+  stage.appendChild(s1);
+  slides.push(s1);
+
+  var s2 = document.createElement('div');
+  s2.className = 'slide';
+  s2.innerHTML =
+    '<div class="slide-num">Statement ' + n + ' of 20</div>' +
+    '<div class="verdict-head"><div class="verdict-badge ' + CLS[verdict] + '">' + verdict + '</div>' +
+    '<div class="verdict-claim">&ldquo;' + claim + '&rdquo;</div></div>' +
+    '<div class="rule"></div>' +
+    '<div class="why">' + why + '</div>';
+  stage.appendChild(s2);
+  slides.push(s2);
+});
+
+document.getElementById('tot').textContent = slides.length;
+let cur = -1;
+
+function show(i) {
+  if (i < 0 || i >= slides.length) return;
+  if (cur >= 0) slides[cur].classList.remove('active');
+  cur = i;
+  slides[cur].classList.add('active');
+  document.getElementById('cur').textContent = cur + 1;
+  document.getElementById('bar').style.width = ((cur + 1) / slides.length * 100) + '%';
+  document.getElementById('prev').disabled = (cur === 0);
+  document.getElementById('next').disabled = (cur === slides.length - 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function step(d) { show(cur + d); }
+function jump(i) { show(i); }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); step(1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); step(-1); }
+  else if (e.key === 'Home') { e.preventDefault(); show(0); }
+  else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+});
+
+show(0);
+</script>
+
+</body>
+</html>
