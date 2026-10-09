@@ -147,7 +147,6 @@ window.MASTER_ROSTER_DATA = [
   {"homeroom": "902", "grade": 9, "first_name": "Gemma", "last_name": "Brown", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
   {"homeroom": "902", "grade": 9, "first_name": "Noah", "last_name": "Burbridge", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
   {"homeroom": "902", "grade": 9, "first_name": "Nolan", "last_name": "Campbell", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
-  {"homeroom": "902", "grade": 9, "first_name": "Berlin", "last_name": "Coady", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
   {"homeroom": "902", "grade": 9, "first_name": "Lyla", "last_name": "Fleet", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
   {"homeroom": "902", "grade": 9, "first_name": "Seb", "last_name": "Hall", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},
   {"homeroom": "902", "grade": 9, "first_name": "Tristan", "last_name": "Hansford", "courses": ["CIT 9", "HL 9"], "course_label": "Citizenship 9 & Healthy Living 9"},

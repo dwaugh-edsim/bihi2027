@@ -38,7 +38,7 @@
 // still pending; re-tag against v4 when done.
 
 window.CLASS_SEATING = {
-    version: 5,
+    version: 6,
     totalDesks: 29,
     homeroomOf: {
         "902-CIT": "902", "902-HL": "902", "902-HOMEROOM": "902",
@@ -80,7 +80,7 @@ window.CLASS_SEATING = {
             }
         },
         "902": {
-            updated: "2026-10-06-front-v5",
+            updated: "2026-10-09-v5-berlin-out",
             seats: {
                 "1": "Hannah S.",
                 "2": "Noah B.",
@@ -97,7 +97,6 @@ window.CLASS_SEATING = {
                 "14": "Sofia K.",
                 "15": "Mhareon O.",
                 "16": "Oscar P.",
-                "17": "Berlin C.",
                 "18": "Chelsea R.",
                 "19": "Jax M.",
                 "20": "Jordan H.",
@@ -305,14 +304,37 @@ window.CLASS_SEATING = {
             }
         },
         "902": {
+            // the 2026-10-06 v5 plan as it was before Berlin C. moved schools
+            // (Oct 9) — a browser-saved copy equal to this is stale and is
+            // auto-dropped by the slide. The v3 map this used to hold is still
+            // covered by `legacy` below (they were identical).
             seats: {
-                "1": "Noah B.", "2": "Arlo J.", "3": "Sofie S.", "4": "Nova T.",
-                "5": "Nolan C.", "6": "Douglas L.", "7": "Hannah S.", "8": "Jordan S.",
-                "9": "Marla L.", "10": "Zackory N.", "11": "John B.", "12": "Gemma B.",
-                "13": "Sofia K.", "14": "Mhareon O.", "15": "Oscar P.", "16": "Berlin C.",
-                "17": "Chelsea R.", "18": "Jax M.", "19": "Jordan H.", "20": "Tristan H.",
-                "23": "Mona A.", "24": "Anna T.", "25": "Simon M.", "26": "Seb H.",
-                "27": "Lyla F.", "28": "Thomas O."
+                "1": "Hannah S.",
+                "2": "Noah B.",
+                "3": "Arlo J.",
+                "4": "Sofie S.",
+                "5": "Nova T.",
+                "6": "Nolan C.",
+                "7": "Douglas L.",
+                "8": "Jordan S.",
+                "9": "Marla L.",
+                "10": "Lyla F.",
+                "11": "Thomas O.",
+                "13": "Gemma B.",
+                "14": "Sofia K.",
+                "15": "Mhareon O.",
+                "16": "Oscar P.",
+                "17": "Berlin C.",
+                "18": "Chelsea R.",
+                "19": "Jax M.",
+                "20": "Jordan H.",
+                "21": "Tristan H.",
+                "22": "Zackory N.",
+                "23": "John B.",
+                "24": "Mona A.",
+                "25": "Anna T.",
+                "26": "Simon M.",
+                "27": "Seb H."
             }
         },
         "903": {
