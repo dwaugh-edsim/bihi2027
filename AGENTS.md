@@ -296,10 +296,13 @@ PINs/IDs/notes on projector screens.
   page on GETs — retry 2–3 times. Verify writes with `get_class_log`, never assume.
 - GATE IS ACTIVE (since Sept 21): `CLASS_LOG_PIN` is set on the deployed project,
   so every class-log WRITE (`submit_class_log`, `set_class_plan`,
-  `set_class_slide`, `delete_class_log`) and `set_roster` now requires
+  `set_class_slide`, `delete_class_log`), `set_roster`, and the teacher-gated
+  read `get_class_progress` now require
   `"teacherPin":"<ask the teacher>"` in the POST body — GETs are unaffected.
-  The PIN value is deliberately NOT recorded in this repo; ask the teacher for
-  it at the start of any session that needs writes.
+  **As of 2026-10-11 the PIN lives in the private repo at
+  `../bihipri-27/GAS-downloads/teacher_pin.txt`** (saved at Mr. Waugh's explicit
+  request so sessions self-serve) — read it from there instead of asking; still
+  never write it into this repo or any student-facing surface.
 - UI: `Student_System/Class_Log_Tracker.html` · docs: `Student_System/CLASS_LOG_README.md`
 
 ## Repo conventions
