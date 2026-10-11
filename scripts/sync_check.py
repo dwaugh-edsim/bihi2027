@@ -31,13 +31,24 @@ PRIVATE = os.path.normpath(os.path.join(PUBLIC, '..', 'bihipri-27'))
 # Paths ignored HERE on purpose, whose real (traveling) copy lives in the private repo.
 # Keyed by public prefix -> private prefix. Anything ignored in the public repo that
 # resolves through here is fine IF the private copy is tracked.
-PAIRED = {'Private_Student_Data/': 'Private_Student_Data-priv/'}
+PAIRED = {'Private_Student_Data/': 'Private_Student_Data-priv/',
+          'audit/': 'audit-priv/',
+          'curriculum-planning/': 'curriculum-planning-priv/',
+          'system-maintenance/': 'system-maintenance-priv/',
+          'tools/': 'tools-priv/',
+          'data/sheets/': 'data-priv/sheets/'}
+
+# Ignored files whose real traveling copy lives at a different private path.
+EXACT_PAIRED = {'Student_System/cit9_rent_feedback_drafts.js':
+                'Citizenship 9-priv/cit9_rent_feedback_drafts.js'}
 
 OK, WARN, BAD = '\u2705', '\u26a0\ufe0f', '\u274c'
 
 
 def paired_private_path(pub_rel):
     rel = pub_rel.replace('\\', '/')
+    if rel in EXACT_PAIRED:
+        return EXACT_PAIRED[rel]
     for pub_pfx, priv_pfx in PAIRED.items():
         if rel.startswith(pub_pfx):
             return priv_pfx + rel[len(pub_pfx):]
