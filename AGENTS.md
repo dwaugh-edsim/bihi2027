@@ -9,6 +9,14 @@ that lives only in one session's conversation does not exist for the next harnes
 Start of session: `git pull` / check `git status` — the other machine may have moved
 since you last looked.
 
+**Git credentials — never hang on a popup (2026-10-11):** GitHub credentials for both
+repos are stored in Windows Credential Manager, so plain `git fetch/push/pull` is
+silent on both machines. If a git command ever *stalls*, assume Git Credential Manager
+is waiting for a human to click a popup — kill it and retry with
+`-c credential.interactive=false` so it fails fast with a clear auth error instead of
+hanging; then tell Mr. Waugh to run that one command himself so the popup can be
+clicked once and the credential re-stored. Never leave a git command hanging.
+
 What does and doesn't travel:
 
 - **Travels:** tracked files + push (GitHub Pages deploys `main` in ~1–2 min), and the
