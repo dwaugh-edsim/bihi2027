@@ -1389,172 +1389,50 @@
     <button class="nav-btn" onclick="nextSlide()">Next &rarr;</button>
 </footer>
 
+<script src="homeroom_902_schedule_data.js"></script>
 <script>
-/* ══════════════════════════════════════════════════════════
-   1 · SUBJECT PROFILES
-   Icon + detail copy per course, so the spotlight slides can
-   re-render for ANY day of the 10-day cycle.
-   ══════════════════════════════════════════════════════════ */
-const SUBJECTS = {
-    PE: {
-        icon: 'dumbbell', label: 'Physical Education',
-        materials: ['Clean indoor running shoes (non-marking soles)', 'Water bottle', 'Chromebooks stay in Room 8'],
-        body: 'Head straight to the gymnasium after morning homeroom announcements. Remember that Chromebooks stay in Room 8.'
-    },
-    SCI: {
-        icon: 'flask', label: 'Science',
-        materials: ['Science binder / notebook', 'Pencils and pens', 'Safety goggles when directed'],
-        body: 'Arrive promptly with your science binder and pencils. Lab work starts on the bell.'
-    },
-    CIT: {
-        icon: 'shield', label: 'Citizenship 9',
-        materials: ['Both diagnostic sheets (Sheet 1 &amp; Sheet 2)', 'A pen', 'Chromebooks stay in Room 8 for the cart buffer'],
-        body: 'Unit 1 diagnostic: the head-to-toe citizen and the three levels of civic engagement. Chromebooks stay in Room 8.'
-    },
-    MATH: {
-        icon: 'calc', label: 'Mathematics',
-        materials: ['Math binder', 'Pencils (graphite)', 'Calculator if issued'],
-        body: 'Report with your math binder and pencils. Be in your seat when the bell rings.'
-    },
-    ELA: {
-        icon: 'book', label: 'English Language Arts',
-        materials: ['ELA notebook / binder', 'A writing implement', 'Reading log if issued'],
-        body: 'Bring your ELA materials and be seated before the bell.'
-    },
-    HL: {
-        icon: 'heart', label: 'Healthy Living 9',
-        materials: ['Health journal', 'A pen or pencil'],
-        body: 'Healthy Living runs in Room 8 with Mr. Waugh. Journals stay with you.'
-    },
-    ART: {
-        icon: 'droplet', label: 'Visual Arts',
-        materials: ['Sketchbook', 'Pencil and eraser', 'Art smock if issued'],
-        body: 'Visual Arts in the Art Studio. Expect to be working on your hands.'
-    },
-    CS: {
-        icon: 'laptop', label: 'Computer Science',
-        materials: ['Notebook', 'Closed-toe shoes'],
-        body: 'Computer Science in the Computer Lab. Log on with your student account.'
-    },
-    FR: {
-        icon: 'globe', label: 'Core French',
-        materials: ['French binder / vocab book', 'A writing implement'],
-        body: 'Core French in the French Classroom. Bring your binder.'
-    },
-    ILT: {
-        icon: 'clipboard', label: 'Independent Learning Time',
-        materials: ['Your ILT task sheet', 'All materials for that task', 'Headphones if your task needs audio'],
-        body: 'ILT is independent work time. Start your task in the first five minutes and ask for help early.'
-    }
-};
-
-/* ══════════════════════════════════════════════════════════
-   2 · 10-DAY CYCLE MATRIX
-   ══════════════════════════════════════════════════════════ */
-const PERIOD_TIMES = {
-    1: '9:05 – 10:05 AM',
-    2: '10:05 – 11:05 AM',
-    3: '11:05 – 12:05 PM',
-    4: '1:05 – 2:05 PM',
-    5: '2:05 – 3:05 PM'
-};
-
-const SCHEDULE_902 = {
-    1: {
-        dayName: 'Monday',
-        p1: { key: 'PE',     code: 'PE',    name: 'Physical Education',     loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
-        p2: { key: 'SCI',    code: 'SCI',   name: 'Science',                loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pen/pencil.',                          type: 'core' },
-        p3: { key: 'CIT',    code: 'CIT',   name: 'Citizenship 9',          loc: 'Room 8 (Mr. Waugh)', notes: 'Back in Room 8! Chromebooks stay in Room 8.',                        type: 'room8' },
-        p4: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',            loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts',  loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
-    },
-    2: {
-        dayName: 'Tuesday',
-        p1: { key: 'HL',     code: 'HL',    name: 'Healthy Living 9',       loc: 'Room 8 (Mr. Waugh)', notes: 'Start the day in Room 8 with Mr. Waugh!',                           type: 'room8' },
-        p2: { key: 'CS',     code: 'CS',    name: 'Computer Science',       loc: 'Computer Lab',       notes: 'Computer Lab.',                                                        type: 'special' },
-        p3: { key: 'ART',    code: 'ART',   name: 'Visual Arts',            loc: 'Art Studio',         notes: 'Art Studio.',                                                          type: 'special' },
-        p4: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',            loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts',  loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
-    },
-    3: {
-        dayName: 'Wednesday',
-        p1: { key: 'FR',     code: 'FRENCH', name: 'Core French',           loc: 'French Classroom',   notes: 'French Classroom. Bring French binder.',                            type: 'special' },
-        p2: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p3: { key: 'PE',     code: 'PE',     name: 'Physical Education',    loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
-        p4: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p5: { key: 'HL',     code: 'HL',     name: 'Healthy Living 9',      loc: 'Room 8 (Mr. Waugh)', notes: 'Close the day in Room 8 with Mr. Waugh!',                           type: 'room8' }
-    },
-    4: {
-        dayName: 'Thursday',
-        p1: { key: 'ART',    code: 'ART',    name: 'Visual Arts',           loc: 'Art Studio',         notes: 'Art Studio.',                                                          type: 'special' },
-        p2: { key: 'CIT',    code: 'CIT',    name: 'Citizenship 9',         loc: 'Room 8 (Mr. Waugh)', notes: 'In Room 8 with Mr. Waugh! Chromebooks in room.',                     type: 'room8' },
-        p3: { key: 'SCI',    code: 'SCI',    name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
-        p4: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
-    },
-    5: {
-        dayName: 'Friday',
-        p1: { key: 'PE',     code: 'PE',     name: 'Physical Education',    loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
-        p2: { key: 'ILT',    code: '9 ILT',  name: 'Grade 9 ILT',           loc: 'Room 8 (Mr. Waugh)', notes: 'Independent Learning Time in Room 8!',                            type: 'room8' },
-        p3: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p4: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'FR',     code: 'FRENCH', name: 'Core French',           loc: 'French Classroom',   notes: 'French Classroom. 3:05 PM dismissal.',                              type: 'special' }
-    },
-    6: {
-        dayName: 'Monday',
-        p1: { key: 'SCI',    code: 'SCI',   name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
-        p2: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p3: { key: 'FR',     code: 'FRENCH', name: 'Core French',           loc: 'French Classroom',   notes: 'French Classroom. Bring French binder.',                            type: 'special' },
-        p4: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'CIT',    code: 'CIT',   name: 'Citizenship 9',         loc: 'Room 8 (Mr. Waugh)', notes: 'Finish Monday in Room 8 with Mr. Waugh!',                          type: 'room8' }
-    },
-    7: {
-        dayName: 'Tuesday',
-        p1: { key: 'PE',     code: 'PE',     name: 'Physical Education',    loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
-        p2: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p3: { key: 'CS',     code: 'CS',     name: 'Computer Science',      loc: 'Computer Lab',       notes: 'Computer Lab.',                                                        type: 'special' },
-        p4: { key: 'SCI',    code: 'SCI',    name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
-        p5: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. 3:05 PM dismissal.',                                 type: 'core' }
-    },
-    8: {
-        dayName: 'Wednesday',
-        p1: { key: 'ART',    code: 'ART',    name: 'Visual Arts',           loc: 'Art Studio',         notes: 'Art Studio.',                                                          type: 'special' },
-        p2: { key: 'FR',     code: 'FRENCH', name: 'Core French',           loc: 'French Classroom',   notes: 'French Classroom. Bring French binder.',                            type: 'special' },
-        p3: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p4: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'CIT',    code: 'CIT',    name: 'Citizenship 9',         loc: 'Room 8 (Mr. Waugh)', notes: 'Citizenship in Room 8 with Mr. Waugh!',                             type: 'room8' }
-    },
-    9: {
-        dayName: 'Thursday',
-        p1: { key: 'PE',     code: 'PE',     name: 'Physical Education',    loc: 'Gymnasium',          notes: 'Gymnasium. Indoor sneakers required.',                              type: 'special' },
-        p2: { key: 'ELA',    code: 'ELA',    name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p3: { key: 'FR',     code: 'FRENCH', name: 'Core French',           loc: 'French Classroom',   notes: 'French Classroom. Bring French binder.',                            type: 'special' },
-        p4: { key: 'MATH',   code: 'MATH',   name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. Bring binder and pencil.',                                type: 'core' },
-        p5: { key: 'HL',     code: 'HL',     name: 'Healthy Living 9',      loc: 'Room 8 (Mr. Waugh)', notes: 'In Room 8 with Mr. Waugh! 3:05 PM dismissal.',                     type: 'room8' }
-    },
-    10: {
-        dayName: 'Friday',
-        p1: { key: 'SCI',    code: 'SCI',   name: 'Science',               loc: 'Science Lab',        notes: 'Science Lab. Bring binder and pencil.',                              type: 'core' },
-        p2: { key: 'ILT',    code: 'ILT',   name: 'ILT (Ms. Traille)',     loc: 'Assigned ILT Room',  notes: 'Assigned ILT Room with Ms. Traille.',                               type: 'special' },
-        p3: { key: 'ELA',    code: 'ELA',   name: 'English Language Arts', loc: 'ELA Classroom',      notes: 'ELA Classroom. Bring ELA binder.',                                 type: 'core' },
-        p4: { key: 'CIT',    code: 'CIT',   name: 'Citizenship 9',         loc: 'Room 8 (Mr. Waugh)', notes: 'In Room 8 with Mr. Waugh! Chromebooks in room.',                     type: 'room8' },
-        p5: { key: 'MATH',   code: 'MATH',  name: 'Mathematics',           loc: 'Math Room',          notes: 'Math Room. 3:05 PM dismissal.',                                     type: 'core' }
-    }
-};
+/* ═════════════════════════════════════════════════════════════════════════
+   1-2 · SUBJECT PROFILES + 10-DAY CYCLE MATRIX
+   Loaded from homeroom_902_schedule_data.js (extracted Oct 5 2026) so this deck
+   and the Class_Startup.html homeroom view share ONE source of truth. Edit the
+   rotation there, never here.
+   ═════════════════════════════════════════════════════════════════════════ */
+const H902 = window.HOMEROOM_902;
+if (!H902) { throw new Error("homeroom_902_schedule_data.js failed to load - the deck needs it next to this file."); }
+const SUBJECTS = H902.subjects;
+const PERIOD_TIMES = H902.periodTimes;
+const SCHEDULE_902 = H902.schedule;
 
 /* ══════════════════════════════════════════════════════════
    3 · CYCLE CALENDAR ENGINE
    The 10-day cycle is anchored to Day 1 = Monday, September 14, 2026
    and repeats every 10 SCHOOL days (weekends skipped). Dates and the
    active cycle day are computed from the real clock, so the deck never
-   goes stale. To re-anchor after a schedule change, edit CYCLE_ANCHOR.
+   goes stale. The anchor and length are read from
+   homeroom_902_schedule_data.js — re-anchor there after a schedule change.
    ══════════════════════════════════════════════════════════ */
-const CYCLE_ANCHOR = new Date(2026, 8, 14);   // 2026-09-14, a Monday = Day 1
-const CYCLE_LENGTH = 10;
+/* Parse 'YYYY-MM-DD' as a LOCAL date — new Date('2026-09-14') is UTC midnight
+   and would read back as the 13th in Halifax. */
+const ANCHOR_ISO = (H902 && H902.cycleAnchor) || '2026-09-14';
+const [A_YEAR, A_MONTH, A_DAY] = ANCHOR_ISO.split('-').map(Number);
+const CYCLE_ANCHOR = new Date(A_YEAR, A_MONTH - 1, A_DAY);   // 2026-09-14, a Monday = Day 1
+const CYCLE_LENGTH = (H902 && H902.cycleLength) || 10;
 
 function isWeekend(d) { return d.getDay() === 0 || d.getDay() === 6; }
 function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function addDays(d, n) { const x = startOfDay(d); x.setDate(x.getDate() + n); return x; }
+
+/* Step `n` school days (Mon–Fri) from `d`. n may be negative. */
+function addSchoolDays(d, n) {
+    let x = startOfDay(d);
+    const step = n >= 0 ? 1 : -1;
+    let left = Math.abs(n);
+    while (left > 0) {
+        x = addDays(x, step);
+        if (!isWeekend(x)) left--;
+    }
+    return x;
+}
 
 /* Count school days (Mon–Fri) from `from` up to and including `to`. */
 function schoolDaysBetween(from, to) {
@@ -1564,12 +1442,13 @@ function schoolDaysBetween(from, to) {
     return n;
 }
 
-/* The 10 real dates of the cycle window containing `today`, Mon→Fri × 2 weeks. */
+/* The 10 real dates of the cycle window containing `today`.
+   Walked back from `today` to THIS cycle's Day 1 — not to the Monday of the
+   calendar week — so the dates stay locked to the anchor instead of sliding
+   forward a week every time the cycle crosses a week boundary. */
 function cycleWindow(today) {
-    let mon = startOfDay(today);
-    while (mon.getDay() !== 1) mon = addDays(mon, -1);   // back to Monday
     const out = [];
-    let d = mon;
+    let d = addSchoolDays(today, -(currentCycleDay(today) - 1));   // this cycle's Day 1
     while (out.length < CYCLE_LENGTH) {
         if (!isWeekend(d)) out.push(d);
         d = addDays(d, 1);
@@ -1785,7 +1664,7 @@ function renderLunch(data) {
 function shortName(name) {
     if (name.startsWith('English Language Arts')) return 'ELA';
     if (name.startsWith('Physical Education')) return 'PE';
-    if (name.startsWith('Computer Science')) return 'CS';
+    if (name.startsWith('Child Studies')) return 'Child Studies';
     if (name.startsWith('Core French')) return 'French';
     if (name.startsWith('Independent') || name.startsWith('ILT') || name.startsWith('Grade 9 ILT')) return 'ILT';
     if (name.startsWith('Healthy Living')) return 'Healthy Living';

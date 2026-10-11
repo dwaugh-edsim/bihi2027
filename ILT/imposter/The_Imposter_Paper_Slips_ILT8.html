@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Imposter — ILT 8 · Paper Slips (3 sheets)</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; background: #e8eaf0; }
+
+  .sheet {
+    width: 297mm; height: 210mm;
+    padding: 8mm;
+    background: #ffffff;
+    page-break-after: always;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .sheet:last-child { page-break-after: auto; }
+
+  .bar {
+    flex: 0 0 auto;
+    background: #0f1726; color: #fff;
+    border-radius: 2.5mm;
+    padding: 2.2mm 5mm;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 3mm;
+  }
+  .bar .t { font-size: 10.5pt; font-weight: 800; letter-spacing: 0.3mm; }
+  .bar .t .r { color: #f43f5e; }
+  .bar .d { font-size: 6.8pt; color: #c3cbe0; text-align: right; line-height: 1.35; }
+
+  .grid {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 2mm;
+  }
+
+  .slip {
+    border: 0.35mm dashed #9aa3b8;
+    border-radius: 2mm;
+    padding: 2mm 2.4mm;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .slip .eyebrow { font-size: 5.6pt; font-weight: 800; letter-spacing: 0.25mm; }
+  .slip .name    { font-size: 14pt;  font-weight: 800; line-height: 1.02; margin-top: 0.8mm; }
+  .slip .body    { font-size: 6.4pt; color: #3d4663; line-height: 1.3; margin-top: 1mm; flex: 1 1 auto; }
+  .slip .foot    { font-size: 4.8pt; color: #8791ad; border-top: 0.25mm solid #d7dce8;
+                   padding-top: 0.8mm; margin-top: 0.8mm; display: flex; justify-content: space-between; }
+
+  .slip.know .eyebrow { color: #1d6fd8; }
+  .slip.know .name    { color: #0f1726; }
+
+  .slip.imp { border-color: #f43f5e; background: #fff5f6; }
+  .slip.imp .eyebrow { color: #be123c; }
+  .slip.imp .name    { color: #e11d48; }
+  .slip.imp .body    { color: #7a2033; }
+
+  .note { position: absolute; bottom: 2.5mm; right: 8mm; font-size: 5.5pt; color: #aab2c8; }
+
+  @media print { body { background: #ffffff; } }
+</style>
+</head>
+<body>
+
+<!-- ================= ROUND 1 · IKEA ================= -->
+<section class="sheet">
+  <div class="bar">
+    <div class="t">THE IMPOSTER · ILT 8 &nbsp;—&nbsp; <span class="r">ROUND 1: IKEA</span></div>
+    <div class="d">Print single-sided · cut along dashed lines · deal one slip per student FACE DOWN<br>
+    3 imposters are mixed into every sheet · teacher keeps any leftover slips</div>
+  </div>
+  <div class="grid" id="g1"></div>
+  <div class="note">The Imposter · paper slips · 2026-10-06</div>
+</section>
+
+<!-- ================= ROUND 2 · THE MOON ================= -->
+<section class="sheet">
+  <div class="bar">
+    <div class="t">THE IMPOSTER · ILT 8 &nbsp;—&nbsp; <span class="r">ROUND 2: THE MOON</span></div>
+    <div class="d">Print single-sided · cut along dashed lines · deal one slip per student FACE DOWN<br>
+    3 imposters are mixed into every sheet · teacher keeps any leftover slips</div>
+  </div>
+  <div class="grid" id="g2"></div>
+  <div class="note">The Imposter · paper slips · 2026-10-06</div>
+</section>
+
+<!-- ================= ROUND 3 · THE SCHOOL GYM ================= -->
+<section class="sheet">
+  <div class="bar">
+    <div class="t">THE IMPOSTER · ILT 8 &nbsp;—&nbsp; <span class="r">ROUND 3: THE SCHOOL GYM</span></div>
+    <div class="d">Print single-sided · cut along dashed lines · deal one slip per student FACE DOWN<br>
+    3 imposters are mixed into every sheet · teacher keeps any leftover slips</div>
+  </div>
+  <div class="grid" id="g3"></div>
+  <div class="note">The Imposter · paper slips · 2026-10-06</div>
+</section>
+
+<script>
+  const ROUNDS = [
+    { loc: "IKEA",          grid: "g1", imposters: [4, 15, 26] },
+    { loc: "The Moon",      grid: "g2", imposters: [7, 18, 29] },
+    { loc: "The school gym",grid: "g3", imposters: [2, 13, 24] },
+  ];
+  const KNOW_BODY = "You know today\u2019s secret place. Ask smart questions, answer clearly \u2014 but never say the name!";
+  const IMP_BODY  = "You DON\u2019T know the place. Blend in, listen carefully, copy the others \u2014 pretend you belong!";
+  const foot = (r) => `<span>THE IMPOSTER \u00b7 ILT 8</span><span>ROUND ${r} \u00b7 keep hidden!</span>`;
+
+  for (let i = 0; i < ROUNDS.length; i++) {
+    const R = ROUNDS[i], g = document.getElementById(R.grid);
+    for (let s = 1; s <= 30; s++) {
+      const imp = R.imposters.includes(s);
+      const div = document.createElement("div");
+      div.className = "slip " + (imp ? "imp" : "know");
+      div.innerHTML = imp
+        ? `<div class="eyebrow">SECRET IDENTITY</div>
+           <div class="name">IMPOSTER</div>
+           <div class="body">${IMP_BODY}</div>
+           <div class="foot">${foot(i + 1)}</div>`
+        : `<div class="eyebrow">YOU KNOW THE PLACE</div>
+           <div class="name">${R.loc}</div>
+           <div class="body">${KNOW_BODY}</div>
+           <div class="foot">${foot(i + 1)}</div>`;
+      g.appendChild(div);
+    }
+  }
+</script>
+</body>
+</html>

@@ -15,9 +15,9 @@ What does and doesn't travel:
   **Room 8 Master Google Sheet** — the class-log webhook + teacher PIN works from any
   machine, so log writes and slide extras can be done from home; verify with a GET.
 - **Does NOT travel (machine-local):** the projector browser's localStorage — the
-  per-course Task Progress pick (`room8_prog_task_<course>`), the cached teacher PIN
-  (`room8_class_log_pin`), and seating-doc storage (`sp_*` / `sp2_*`). To change
-  defaults from home, edit tracked files (e.g. `assignments_data.js` `active`) and
+  cached teacher PIN (`room8_class_log_pin`) and seating-doc storage (`sp_*` / `sp2_*`).
+  To change defaults from home, edit tracked files (e.g. `assignments_data.js` `active`,
+  or `display_instructions_data.js` for the slide's instructions) and
   push; the projector picks it up on reload.
 
 ## Two repositories (public vs private)
@@ -181,20 +181,61 @@ misdiagnosis stacked an invented "the teacher's redeploy didn't take" story on
 top of a probe that was measuring the wrong tab; the redeploy had been fine all
 along. Humans break things less often than models miss hidden branches.
 
+**Sections are periods, not cohorts.** 902-CIT and 902-HL are the *same* students — a
+homeroom cohort split across periods in one room. So a note aimed at one course can
+legitimately go on the other course's slide: Mr. Waugh will say "we're talking about
+the HL sleep audit" to the Citizenship class because it is literally the same kids.
+Same for 901 and 903. When he files instructions, a list that came from a different
+course's roster is not a mistake — don't "fix" it, and don't assume a section is a
+distinct set of students. (The 10 Station Sleep Audit roster is 902-HL's and is shown
+to 902-CIT on purpose; likewise the Citizenship quiz list on the 901-HL slide.)
+
 **Class Startup daily system (the projector opening slide):**
-`Student_System/Class_Startup.html` is the projector do-now. Its Task Progress picker
-and LEARNING OUTCOME strip are driven by
+`Student_System/Class_Startup.html` is the projector do-now. Its **INSTRUCTIONS panel**
+("Do This Now") is curated in `Student_System/display_instructions_data.js`, keyed by
+section (`903-HL`) or by course (`CIT9` / `HL9` / `HL8`, section wins). Mr. Waugh
+dictates the wording and an agent session formats and files it — that file is the only
+data source, so instructions need no sheet write, no PIN, and no `Code.gs` change. An
+agenda line that reads the same as an instruction is dropped from the agenda so a step
+never prints twice. The panel also carries an optional `owed` block (a heading + first
+names of students who still owe work) for accountability nudges — keep it current or
+delete it, and never put grades or reasons in it.
+
+Its LEARNING OUTCOME strip is driven by
 `Student_System/assignments_data.js` — the curated registry mapping each course's
 ledger `TASK_NAME`s to a short label + best-fit outcome, with `active` per course.
 When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from the
 assignment page, and the outcome **chosen by digging into
 `../bihipri-27/curriculum-planning-priv/2026-27outcomes.md`** — the compiled verbatim
 outcome pool for CIT9/HL9/HL8 with codes, match tags, and the choosing steps; cite the
-code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → matched assignment
+code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → the course's `active` assignment
 → lesson-map unit by next class # → course default. The "Last class (date · #n)" line
 is the section's newest Class_Log entry; it only appears once the course has been
 logged at least once. `class_log_seed_data.js` is the offline snapshot
 (entries+plans+slides) — regenerate it from `get_class_log` after a batch of logging.
+
+⚠ Since Oct 5 2026 this display **does not read the GAS ledger at all** — the Task
+Progress panel, its per-browser task picker (`room8_prog_task_<course>`) and the `p`
+key are gone. `getClassLog` (class log/plans/slides) and `setClassSlide` (⚙ saves) are
+the only webhook calls the page makes. `get_class_progress` still exists in `Code.gs`
+and is still used by other pages (audit displays), so don't delete it.
+
+**The before-P1 homeroom view:** from 07:45 to the first bell the screen is
+**Homeroom 902** — the day's five-period rotation (Room 8 periods badged) plus the
+morning announcements, because the 902s are in the room and no section is on yet. The
+section view, agenda/instructions and the outcome strip step aside; `h` forces it, a
+period chip or `?section=` overrides it.
+- **Rotation data:** `Homeroom_902/homeroom_902_schedule_data.js` is the ONE source of
+  truth for the 10-day 902 rotation. It was extracted from `902_Today_Schedule_Deck.html`
+  (which now loads it) precisely so the deck and the projector display cannot drift.
+  **Change the rotation there, never in the deck** — an agent that edits the deck's
+  markup is editing a file that no longer holds the data.
+- **Morning announcements:** the `902-HOMEROOM` row of the `Class_Slide` tab wins once
+  it has text (typed via ⚙ on the projector, or added from the Sheet app on a phone —
+  no redeploy, the column layout is unchanged). The fallback seed is
+  `Homeroom_902/homeroom_902_notices.js`. Dictated notices go there **only** when no
+  live row exists, and a seed entry must be dropped once he has replaced it live —
+  otherwise clearing his row silently resurrects the old text.
 
 **Morning preset:** when Mr. Waugh says *"get today's screens ready"*, *"bang the
 day's screen into shape"*, or pastes a raw day note, follow the **Morning preset

@@ -1,4 +1,7 @@
-// class_log_seed_data.js — offline seed generated 2026-09-22
+// class_log_seed_data.js - offline seed regenerated 2026-10-07
+// (Sept 22 build was corrupt mid-file and broke the fallback board;
+//  901/902 CIT do-now replaced with the 60-second-speech plan.
+//  Live board data lives in the GAS Class_Slide/Plan tabs - this file is fallback only.)
 window.CLASS_LOG_SEED = {
     "status": "success",
     "entries": [
@@ -28,18 +31,27 @@ window.CLASS_LOG_SEED = {
             "did": "Three Levels sheet done and corrected; did the maps (NS & Canada).",
             "next": "Start the cost-of-living / Numbeo assignment.",
             "timestamp": "2026-09-17T18:56:47.220Z"
+        },
+        {
+            "date": "2026-09-23",
+            "section": "901-CIT",
+            "course": "CIT9",
+            "classNo": "7",
+            "did": "Short quiz (3 levels of government + maps and capitals). Made no progress on other work.",
+            "next": "Rent Case File - Part 2 (Numbeo comparison).",
+            "timestamp": "2026-09-23T12:00:00.000Z"
         }
     ],
     "plans": {
-        "902-CIT": {
-            "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
-            "classNo": "6",
-            "updated": "2026-09-23T08:30:00.000Z"
-        },
         "901-CIT": {
-            "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
+            "note": "HL9: Two news stories\nThe 60 second speech\n901: https://youtu.be/pZwvrxVavnQ",
             "classNo": "7",
-            "updated": "2026-09-23T08:30:00.000Z"
+            "updated": "2026-10-07T14:30:00.000Z"
+        },
+        "902-CIT": {
+            "note": "HL9: Two news stories\nThe 60 second speech",
+            "classNo": "6",
+            "updated": "2026-10-07T14:30:00.000Z"
         },
         "903-CIT": {
             "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
@@ -80,16 +92,16 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-CIT": {
-            "title": "Citizenship Checkpoint Day — Review & Quiz #1",
-            "announcements": "PD Day Friday (Sept 25) — no classes.\nHold & Secure drill this week — we'll review expectations first.",
+            "title": "The 60 Second Speech",
+            "announcements": "",
             "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
-            "updated": "2026-09-23T08:30:00.000Z"
+            "updated": "2026-10-07T14:30:00.000Z"
         },
         "902-CIT": {
-            "title": "Citizenship Checkpoint Day — Review & Quiz #1",
-            "announcements": "PD Day Friday (Sept 25) — no classes.\nHold & Secure drill this week — we'll review expectations first.",
+            "title": "The 60 Second Speech",
+            "announcements": "",
             "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
-            "updated": "2026-09-23T08:30:00.000Z"
+            "updated": "2026-10-07T14:30:00.000Z"
         },
         "802-HE": {
             "title": "Junction Launch — Sam's World",

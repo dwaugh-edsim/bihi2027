@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Imposter — 803 Board Deck</title>
+<style>
+  @page { size: landscape; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #ffffff; color: #0f1726;
+    overflow: hidden;
+  }
+
+  .deck { height: 100vh; }
+  .slide {
+    display: none;
+    height: 100vh;
+    padding: 3.5vh 4vw;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; }
+
+  /* ---------- shared chrome ---------- */
+  .kicker {
+    font-size: 1.6vh; font-weight: 700; letter-spacing: 0.35em;
+    color: #e11d48; text-transform: uppercase; margin-bottom: 1vh;
+  }
+  .headline { font-size: 6.2vh; font-weight: 800; letter-spacing: 0.02em; }
+  .pagenum {
+    position: fixed; bottom: 2vh; right: 2.5vw; font-size: 1.8vh;
+    color: #94a3b8; letter-spacing: 0.2em;
+  }
+  .hint {
+    position: fixed; bottom: 2vh; left: 2.5vw; font-size: 1.7vh; color: #94a3b8;
+  }
+
+  /* ---------- slide 1 · do now ---------- */
+  .donow { justify-content: center; }
+  .donow .task {
+    background: #f0f9ff; border: 1px solid #bae6fd; border-left: 1vh solid #0284c7;
+    border-radius: 1.2vh; padding: 3.5vh 4vw; margin-top: 3vh;
+  }
+  .donow .task p { font-size: 3.4vh; line-height: 1.5; color: #1e293b; }
+  .donow .task b { color: #0369a1; }
+  .timer-row { display: flex; align-items: center; gap: 3vw; margin-top: 4vh; }
+  .clock {
+    font-size: 13vh; font-weight: 800; font-variant-numeric: tabular-nums;
+    color: #0f1726; line-height: 1;
+  }
+  .clock.low { color: #b45309; }
+  .clock.danger { color: #dc2626; }
+  .timer-btn {
+    font-size: 2.6vh; font-weight: 700; color: #ffffff; background: #0284c7;
+    border: none; border-radius: 1vh; padding: 1.6vh 3vw; cursor: pointer;
+  }
+  .timer-btn.reset { background: #e2e8f0; color: #334155; }
+  .timer-note { font-size: 2vh; color: #64748b; margin-top: 1.5vh; }
+
+  /* ---------- slide 2 · rules board ---------- */
+  .board .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1.6vh;
+    padding: 1.8vh 2.5vw; margin-bottom: 2.5vh;
+  }
+  .board .topbar .left { display: flex; align-items: center; gap: 1.5vw; }
+  .board .logo {
+    width: 6.5vh; height: 6.5vh; border-radius: 1.4vh; background: #e11d48;
+    display: flex; align-items: center; justify-content: center; font-size: 3.6vh;
+  }
+  .board .topbar .kick { font-size: 1.5vh; font-weight: 700; letter-spacing: 0.3em; color: #e11d48; }
+  .board .topbar h1 { font-size: 4.6vh; font-weight: 800; letter-spacing: 0.04em; color: #0f1726; }
+  .board .banner {
+    font-size: 2.2vh; font-weight: 700; color: #be123c;
+    background: #fff1f2; border: 1px solid #fda4af;
+    border-radius: 1.2vh; padding: 1.4vh 2vw;
+  }
+  .cols { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 2vw; flex: 1 1 auto; min-height: 0; }
+  .panel {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1.6vh;
+    padding: 2.6vh 1.8vw; display: flex; flex-direction: column; gap: 1.8vh;
+    min-height: 0;
+  }
+  .panel h2 { font-size: 2.8vh; font-weight: 800; color: #0f1726; display: flex; align-items: center; gap: 1vw; }
+  .panel h2 .n {
+    width: 4.2vh; height: 4.2vh; border-radius: 1vh; font-size: 2.4vh;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+  }
+  .n.blue { background: #0369a1; } .n.purple { background: #6d28d9; } .n.gold { background: #a16207; }
+  .card {
+    border-radius: 1.2vh; padding: 1.8vh 1.4vw; font-size: 2.2vh; line-height: 1.45;
+    color: #334155;
+  }
+  .card .ct { font-weight: 800; font-size: 2.2vh; margin-bottom: 0.6vh; }
+  .card.role-know { border-left: 0.8vh solid #0ea5e9; background: #eff6ff; }
+  .card.role-know .ct { color: #1d4ed8; }
+  .card.role-imp  { border-left: 0.8vh solid #f43f5e; background: #fff1f2; }
+  .card.role-imp  .ct { color: #be123c; }
+  .card.ask    { background: #eef2ff; border: 1px solid #c7d2fe; }
+  .card.ask .ct { color: #6d28d9; }
+  .card.win-c  { background: #ecfdf5; border: 1px solid #a7f3d0; }
+  .card.win-c .ct { color: #047857; }
+  .card.win-i  { background: #fff1f2; border: 1px solid #fecdd3; }
+  .card.win-i .ct { color: #be123c; }
+  .card b.ex { color: #6d28d9; font-style: italic; font-weight: 600; }
+  .rounds { font-size: 2vh; color: #475569; }
+  .rounds b { color: #b45309; }
+
+  /* ---------- slide 3 · how it ends ---------- */
+  .ends .row {
+    display: flex; gap: 2vw; align-items: stretch;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1.6vh;
+    padding: 2.4vh 2vw; margin-top: 2.2vh;
+  }
+  .ends .row .who {
+    flex: 0 0 16vw; font-size: 2.6vh; font-weight: 800; display: flex; align-items: center;
+    color: #0f1726;
+  }
+  .ends .row .what { flex: 1; font-size: 2.4vh; line-height: 1.5; align-self: center; color: #334155; }
+  .ends .tag {
+    display: inline-block; font-size: 1.9vh; font-weight: 800; border-radius: 0.8vh;
+    padding: 0.4vh 1vw; margin-right: 0.8vw;
+  }
+  .tag.good { background: #d1fae5; color: #047857; }
+  .tag.bad  { background: #fee2e2; color: #b91c1c; }
+  .ends .warn {
+    margin-top: 3vh; font-size: 2.2vh; color: #854d0e; background: #fefce8;
+    border: 1px solid #fde047; border-radius: 1.2vh; padding: 1.8vh 2vw; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- SLIDE 1 · DO NOW -->
+  <section class="slide donow active" id="s1">
+    <div class="kicker">Do Now · 803 · ILT 8</div>
+    <div class="headline">First 25 minutes: <span style="color:#0369a1">finish your paper sleep assignment.</span></div>
+    <div class="task">
+      <p><b>Done?</b> Flip it face down, write your name on the back, and sit quietly.<br>
+      <b>Stuck?</b> Skip it and come back — hand in whatever you finished.</p>
+    </div>
+    <div class="timer-row">
+      <div class="clock" id="clock">25:00</div>
+      <div>
+        <button class="timer-btn" id="startBtn" onclick="startTimer()">▶ Start 25:00</button>
+        <button class="timer-btn reset" onclick="resetTimer()">↺ Reset</button>
+        <div class="timer-note">Hand in when the timer hits zero — then we play The Imposter.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 · MISSION RULES -->
+  <section class="slide board" id="s2">
+    <div class="topbar">
+      <div class="left">
+        <div class="logo">🎭</div>
+        <div>
+          <div class="kick">Mission Rules · Eyes on the board · ILT 8 (803)</div>
+          <h1>THE IMPOSTER</h1>
+        </div>
+      </div>
+      <div class="banner">👀 Keep your paper slip hidden at all times!</div>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <h2><span class="n blue">1</span> WHAT'S YOUR ROLE?</h2>
+        <div class="card role-know">
+          <div class="ct">🔍 You know the place</div>
+          Your slip names the secret location. Find out who <i>doesn't</i> know it!
+        </div>
+        <div class="card role-imp">
+          <div class="ct">🎭 You're an IMPOSTER</div>
+          Your slip says IMPOSTER — you <b>don't</b> know the location. Blend in, listen carefully, pretend you belong!
+        </div>
+        <div class="rounds">3 imposters are mixed into every round.<br>Deal is secret — no peeking, no telling.</div>
+      </div>
+      <div class="panel">
+        <h2><span class="n purple">2</span> ON YOUR TURN</h2>
+        <div class="card ask">
+          <div class="ct">💬 Ask one classmate a question</div>
+          Ask about the place <b>without naming it</b>!<br>
+          <b class="ex">"Is it cold here?" · "Do people wear special uniforms here?"</b>
+        </div>
+        <div class="card ask">
+          <div class="ct">🧠 Answer smartly</div>
+          <b>Detectives:</b> clear enough to prove you know it, vague enough that the Imposter can't guess.<br>
+          <b>Imposters:</b> copy previous answers and fake it!
+        </div>
+      </div>
+      <div class="panel">
+        <h2><span class="n gold">3</span> HOW TO WIN</h2>
+        <div class="card win-c">
+          <div class="ct">👥 Classroom victory</div>
+          Vote together and catch <b>any</b> Imposter when time is up!
+        </div>
+        <div class="card win-i">
+          <div class="ct">🎭 Imposter victory</div>
+          Avoid getting voted out <b>OR</b> guess the secret location out loud at any time!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 · HOW THE ROUND ENDS -->
+  <section class="slide ends" id="s3">
+    <div class="kicker">The Imposter · 803 · Read before round 1</div>
+    <div class="headline">How the round ends</div>
+    <div class="row">
+      <div class="who">🎭 An Imposter blurts the location</div>
+      <div class="what">
+        <span class="tag good">Right guess = Imposters win</span>
+        <span class="tag bad">Wrong guess = instant loss</span><br>
+        Guessing is all-in: everyone will know who you are — so only fire when you're sure.
+      </div>
+    </div>
+    <div class="row">
+      <div class="who">🗳️ Time is up → class votes</div>
+      <div class="what">
+        <span class="tag good">Catch any Imposter = class wins</span>
+        <span class="tag bad">Vote out a detective = Imposters win</span><br>
+        One flip of the slip decides it. Discuss first, vote once.
+      </div>
+    </div>
+    <div class="row">
+      <div class="who">📢 A detective says the place out loud</div>
+      <div class="what">
+        <span class="tag bad">Instant loss for the class</span><br>
+        Only Imposters are allowed to name the location. Detectives prove it with questions, never the name.
+      </div>
+    </div>
+    <div class="warn">⚠️ With 3 imposters, one right guess wins it for the <b>whole imposter team</b> — detectives, keep your answers vague and your slips hidden.</div>
+  </section>
+
+</div>
+
+<div class="pagenum" id="pagenum">1 / 3</div>
+<div class="hint">→ / ← arrow keys or click to change slides · F11 for full screen</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, j) => s.classList.toggle('active', j === cur));
+    document.getElementById('pagenum').textContent = (cur + 1) + ' / ' + slides.length;
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') show(cur + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   show(cur - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('button')) return;
+    show(cur + 1);
+  });
+
+  /* 25-minute do-now countdown */
+  let total = 25 * 60, ticking = null;
+  const clock = document.getElementById('clock'), startBtn = document.getElementById('startBtn');
+  function paint() {
+    const m = Math.floor(total / 60), s = total % 60;
+    clock.textContent = m + ':' + String(s).padStart(2, '0');
+    clock.classList.toggle('danger', total <= 60);
+    clock.classList.toggle('low', total > 60 && total <= 300);
+  }
+  function startTimer() {
+    if (ticking) return;
+    startBtn.textContent = '⏸ Running…';
+    ticking = setInterval(() => {
+      if (total > 0) { total--; paint(); }
+      if (total === 0) { clearInterval(ticking); ticking = null; startBtn.textContent = '⏱ Time!'; }
+    }, 1000);
+  }
+  function resetTimer() {
+    clearInterval(ticking); ticking = null;
+    total = 25 * 60; startBtn.textContent = '▶ Start 25:00'; paint();
+  }
+  paint();
+</script>
+</body>
+</html>
