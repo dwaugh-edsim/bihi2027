@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O2-A: Nobody Told Me — Grade 8 Edition (PSA Assignment)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root { --bg:#0f172a; --panel:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8; --amber:#fef3c7; --gold:#fbbf24; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html,body { height:100%; }
+    body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
+
+    .slide { position:absolute; inset:0; display:none; flex-direction:column; padding:5.5vh 6vw 9vh 6vw; }
+    .slide.active { display:flex; }
+    .slide::after { content:""; position:fixed; left:0; right:0; bottom:0; height:5.2vh; background:var(--panel); border-top:1px solid var(--line); }
+    .footer { position:fixed; left:6vw; right:6vw; bottom:1.2vh; z-index:5; display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:max(11px,1.55vh); font-weight:700; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; }
+    .footer .gold { color:var(--gold); }
+
+    .kicker { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.8vh); font-weight:800; letter-spacing:.14em; color:var(--gold); text-transform:uppercase; margin-bottom:2.2vh; }
+    h1 { font-family:'Roboto Slab',Georgia,serif; font-weight:900; font-size:max(34px,7.6vh); line-height:1.04; letter-spacing:-.015em; }
+    .sub { font-size:max(16px,2.9vh); color:var(--muted); margin-top:2vh; line-height:1.35; }
+    .sub strong { color:var(--text); }
+
+    .chips3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.6vw; margin-top:4.5vh; }
+    .chip3 { background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:10px; padding:2.6vh 1.4vw; }
+    .chip3 .n { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.7vh); font-weight:800; color:var(--gold); letter-spacing:.1em; }
+    .chip3 .t { font-family:'Roboto Slab',Georgia,serif; font-size:max(18px,3.1vh); font-weight:800; margin:.8vh 0 1vh 0; }
+    .chip3 .d { font-size:max(13px,2.1vh); color:var(--muted); line-height:1.4; }
+    .chip3 .d strong { color:var(--text); }
+
+    .cols { display:grid; grid-template-columns:1.35fr 1fr; gap:2.4vw; margin-top:3.6vh; flex:1; min-height:0; }
+    .rowbar { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:1.9vh 1.4vw; margin-bottom:1.6vh; display:flex; align-items:baseline; gap:1.2vw; }
+    .rowbar .lab { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.09em; color:var(--gold); white-space:nowrap; }
+    .rowbar .txt { font-size:max(14px,2.4vh); line-height:1.35; color:var(--text); }
+    .rowbar .txt em { color:var(--muted); text-decoration:line-through; font-style:normal; }
+    .rail { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:2.4vh 1.4vw; align-self:start; }
+    .rail h3 { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.12em; color:var(--gold); text-transform:uppercase; margin-bottom:1.6vh; }
+    .rail li { list-style:none; font-size:max(14px,2.35vh); line-height:1.42; margin-bottom:1.3vh; padding-left:1.5em; position:relative; }
+    .rail li::before { content:"›"; position:absolute; left:0; color:var(--gold); font-weight:800; }
+    .rail li strong { color:var(--text); } .rail li { color:var(--muted); }
+
+    /* slide 3 source shelf */
+    .shelf { display:grid; grid-template-columns:repeat(5,1fr); gap:1.2vw; margin-top:3.4vh; }
+    .src { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:2.2vh 1vw; text-align:left; }
+    .src .who { font-family:'Roboto Slab',Georgia,serif; font-size:max(15px,2.5vh); font-weight:800; line-height:1.2; }
+    .src .what { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); font-weight:700; color:var(--muted); margin-top:1vh; line-height:1.45; }
+
+    /* slide 4 exemplar */
+    .ex { display:grid; grid-template-columns:1fr 1.25fr; gap:2.4vw; margin-top:3.4vh; flex:1; min-height:0; }
+    .wallcard { background:#f8fafc; color:#0f172a; border-radius:10px; padding:2.6vh 1.5vw; display:flex; flex-direction:column; }
+    .wallcard .lab { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); font-weight:800; letter-spacing:.1em; color:#64748b; text-transform:uppercase; }
+    .wallcard .claim { font-family:'Roboto Slab',Georgia,serif; font-size:max(16px,2.9vh); font-weight:800; line-height:1.3; margin-top:1.6vh; }
+    .wallcard .attrib { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); color:#64748b; margin-top:auto; padding-top:2vh; }
+    .psa { background:var(--panel); border:1px solid var(--line); border-top:4px solid var(--gold); border-radius:10px; padding:2.6vh 1.6vw; display:flex; flex-direction:column; gap:1.5vh; }
+    .psa .myth { color:var(--muted); font-size:max(13px,2.1vh); } .psa .myth em { text-decoration:line-through; font-style:normal; }
+    .psa .truth { font-family:'Roboto Slab',Georgia,serif; font-size:max(24px,4.6vh); font-weight:900; line-height:1.1; }
+    .psa .why { font-size:max(14px,2.35vh); color:var(--muted); line-height:1.4; }
+    .psa .why strong { color:var(--text); }
+    .psa .meta { font-family:'JetBrains Mono',monospace; font-size:max(11.5px,1.75vh); font-weight:700; color:var(--gold); letter-spacing:.04em; line-height:1.6; margin-top:auto; }
+    .notice { margin-top:2.2vh; background:rgba(251,191,36,.09); border:1px solid rgba(251,191,36,.4); border-radius:8px; padding:1.6vh 1.3vw; font-size:max(13px,2.2vh); }
+    .notice strong { color:var(--gold); }
+
+    .hint { position:fixed; right:1vw; top:1vh; z-index:6; font-family:'JetBrains Mono',monospace; font-size:max(10px,1.4vh); color:#475569; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 · MISSION -->
+<section class="slide active">
+    <div class="kicker">HL9 · O2-A · The Output Assignment</div>
+    <h1>Nobody Told Me:<br>Grade 8 Edition</h1>
+    <p class="sub">You walked the wall. Now you build one <strong>a grade 8 class could walk.</strong></p>
+    <div class="chips3">
+        <div class="chip3"><div class="n">01 · PICK</div><div class="t">Three facts</div><div class="d">From the walls we walked. <strong>At least one DEPENDS</strong> — with its condition named.</div></div>
+        <div class="chip3"><div class="n">02 · VERIFY</div><div class="t">Check my work</div><div class="d">Every fact gets a <strong>legit source</strong> and one line on why it's legit. I built the walls — check me anyway.</div></div>
+        <div class="chip3"><div class="n">03 · BUILD</div><div class="t">A PSA they get</div><div class="d"><strong>3 slides + 1 source slide</strong> in Google Slides — or a 3-panel poster. Age-appropriate for a grade 8.</div></div>
+    </div>
+</section>
+
+<!-- SLIDE 2 · THE BUILD -->
+<section class="slide">
+    <div class="kicker">02 · The Build</div>
+    <h1>Anatomy of a fact slide</h1>
+    <div class="cols">
+        <div>
+            <div class="rowbar"><span class="lab">THE MYTH</span><span class="txt"><em>&ldquo;Can't you just hold it in?&rdquo;</em> — small, struck, at the top.</span></div>
+            <div class="rowbar"><span class="lab">THE TRUTH</span><span class="txt"><strong>The headline.</strong> The biggest thing on the slide — never the question.</span></div>
+            <div class="rowbar"><span class="lab">THE CONDITION</span><span class="txt">DEPENDS fact? <strong>Name it in one line</strong> — which bumps, which type, how new.</span></div>
+            <div class="rowbar"><span class="lab">WHERE TO GO</span><span class="txt"><strong>811 · Youth Health Centre · clinic</strong> — none of it needs a parent's permission.</span></div>
+        </div>
+        <div class="rail">
+            <h3>The Grade 8 Test</h3>
+            <ul>
+                <li>A grade 8 reads it <strong>alone and gets it.</strong></li>
+                <li>Keep the clinical term — <strong>add the plain words</strong> beside it.</li>
+                <li><strong>Headline the truth.</strong> No shock, no scare, no come-on.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 3 · THE VERIFY -->
+<section class="slide">
+    <div class="kicker">03 · The Verify</div>
+    <h1>I built those walls.<br>Verify me anyway.</h1>
+    <p class="sub">Class 3 you audited <strong>where information comes from.</strong> This time the source is me — same audit, new target.</p>
+    <div class="shelf">
+        <div class="src"><div class="who">811 Nova Scotia</div><div class="what">NS Health — registered nurses, 24/7</div></div>
+        <div class="src"><div class="who">KidsHealth.org</div><div class="what">Nemours — pediatric hospital network</div></div>
+        <div class="src"><div class="who">SexandU.ca</div><div class="what">Canada's obstetricians &amp; gynecologists</div></div>
+        <div class="src"><div class="who">Canada.ca/health</div><div class="what">Public Health Agency of Canada</div></div>
+        <div class="src"><div class="who">IWK Health</div><div class="what">Maritime children's &amp; women's hospital</div></div>
+    </div>
+    <p class="sub" style="margin-top:2.6vh;">Each fact slide names its source <strong>+ one line: why is this source legit?</strong> &nbsp;Can't find it? <strong>Ask me — I'll show you where it lives.</strong></p>
+</section>
+
+<!-- SLIDE 4 · THE EXEMPLAR -->
+<section class="slide">
+    <div class="kicker">04 · Worked Example — from wall card 16</div>
+    <h1 style="font-size:max(26px,5.2vh);">The wall card becomes the PSA</h1>
+    <div class="ex">
+        <div class="wallcard">
+            <div class="lab">The wall · card 16</div>
+            <div class="claim">&ldquo;Someone having a period can just hold the flow in until they get to a bathroom, like peeing.&rdquo;</div>
+            <div class="attrib">Source: a guy who was very confused during science class</div>
+        </div>
+        <div class="psa">
+            <div class="myth"><em>&ldquo;Can't you just hold it in?&rdquo;</em></div>
+            <div class="truth">You can't hold a period in.</div>
+            <div class="why">Peeing has valves you control. The uterus has <strong>none</strong> — contractions and gravity do the work. That's anatomy, not carelessness.</div>
+            <div class="meta">WHERE: 811 · Youth Health Centre · clinic<br>SOURCE: SexandU.ca — run by Canada's OB/GYNs</div>
+        </div>
+    </div>
+    <div class="notice"><strong>Notice:</strong> the headline is the truth. The question never makes the poster — it goes small and struck at the top.</div>
+</section>
+
+<div class="hint">← → to move · F fullscreen</div>
+<div class="footer"><span>PSA · <span class="gold">Grade 8 Edition</span></span><span>pairs · after the last walk · due before Quiz 2</span><span id="ctr">01 / 04</span></div>
+
+<script>
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var i = 0;
+    function show(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach(function(s, k) { s.classList.toggle('active', k === i); });
+        document.getElementById('ctr').textContent = ('0' + (i + 1)).slice(-2) + ' / 0' + slides.length;
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { show(i + 1); e.preventDefault(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+        else if (e.key === 'Home') { show(0); }
+        else if (e.key === 'End') { show(slides.length - 1); }
+        else if (e.key === 'f' || e.key === 'F') {
+            if (document.fullscreenElement) { document.exitFullscreen(); } else { document.documentElement.requestFullscreen(); }
+        }
+    });
+    document.addEventListener('click', function(e) {
+        if (e.clientX > window.innerWidth * 0.3) { show(i + 1); } else { show(i - 1); }
+    });
+    show(0);
+</script>
+</body>
+</html>
