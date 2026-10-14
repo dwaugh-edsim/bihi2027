@@ -31,17 +31,30 @@
 // live. Any agenda line that reads the same as an instruction here is dropped from the
 // agenda automatically, so the same step is never printed twice on the display.
 window.DISPLAY_INSTRUCTIONS = {
-    // ── Fri Oct 9 ──────────────────────────────────────────────────────────
-    // P1 804-HE · P3 903-CIT · P4 902-CIT — the last classes before the long
-    // weekend (Thanksgiving Monday). Mr. Waugh marks over the break, so the
-    // do-now in all three is the same: finish what you owe and hand it in.
-    // The HL8 course entry below keeps the paper-Junction line for 802/803-HE
-    // (they haven't met since Oct 7); 901-HL and 903-HL carry from Oct 5.
+    // ── Wed Oct 14 ──────────────────────────────────────────────────────────
+    // 802/804-HE: Mr. Waugh wants every piece of missing work in — the Sleep
+    // Audit and Junction 1-2-3. Blank copies of all of them sit at the front
+    // of the room for anyone who lost theirs. Section entries override the
+    // HL8 course line below for these two classes.
+    "802-HE": {
+        steps: [
+            "Hand in everything you still owe today: the Sleep Audit and Junction 1, 2 and 3."
+        ],
+        note: "Blank copies are at the front of the room."
+    },
     "804-HE": {
         steps: [
-            "Finish your assignments so Mr. Waugh can mark them over the long weekend."
-        ]
+            "Hand in everything you still owe today: the Sleep Audit and Junction 1, 2 and 3."
+        ],
+        note: "Blank copies are at the front of the room."
     },
+
+    // ── Fri Oct 9 (carried) ────────────────────────────────────────────────
+    // P3 903-CIT · P4 902-CIT — the last classes before the long weekend
+    // (Thanksgiving Monday). Mr. Waugh marks over the break, so the do-now in
+    // both is the same: finish what you owe and hand it in. The HL8 course
+    // entry keeps the paper-Junction line for 803-HE (hasn't met since Oct 7);
+    // 901-HL and 903-HL carry from Oct 5.
     "903-CIT": {
         steps: [
             "Finish your assignments so Mr. Waugh can mark them over the long weekend."
