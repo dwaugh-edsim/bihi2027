@@ -33,9 +33,9 @@
 window.DISPLAY_INSTRUCTIONS = {
     // ── Wed Oct 14 ──────────────────────────────────────────────────────────
     // 802/804-HE: Mr. Waugh wants every piece of missing work in — the Sleep
-    // Audit and Junction 1-2-3. Blank copies of all of them sit at the front
-    // of the room for anyone who lost theirs. Section entries override the
-    // HL8 course line below for these two classes.
+    // Audit and Junction 1-3 (804 is exempt from J2, per the intake board).
+    // Blank copies of all of them sit at the front of the room for anyone
+    // who lost theirs. Section entries override the HL8 course line below.
     "802-HE": {
         steps: [
             "Hand in everything you still owe today: the Sleep Audit and Junction 1, 2 and 3."
@@ -44,9 +44,9 @@ window.DISPLAY_INSTRUCTIONS = {
     },
     "804-HE": {
         steps: [
-            "Hand in everything you still owe today: the Sleep Audit and Junction 1, 2 and 3."
+            "Hand in everything you still owe today: the Sleep Audit and Junction 1 and 3."
         ],
-        note: "Blank copies are at the front of the room."
+        note: "Blank copies are at the front of the room. (804 is exempt from Junction 2.)"
     },
 
     // ── Fri Oct 9 (carried) ────────────────────────────────────────────────
