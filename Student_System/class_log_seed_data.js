@@ -44,9 +44,9 @@ window.CLASS_LOG_SEED = {
     ],
     "plans": {
         "901-CIT": {
-            "note": "HL9: Two news stories\nThe 60 second speech\n901: https://youtu.be/pZwvrxVavnQ",
-            "classNo": "7",
-            "updated": "2026-10-07T14:30:00.000Z"
+            "note": "Territorial Acknowledgement & the case briefing\nEvidence room walk: 10 case files around the room\nDetective pairs: log clues and deliver your verdict",
+            "classNo": "8",
+            "updated": "2026-10-14T13:00:00.000Z"
         },
         "902-CIT": {
             "note": "HL9: Two news stories\nThe 60 second speech",
@@ -59,9 +59,9 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-HL": {
-            "note": "Finish the Sleep Clinic 10-Station Audit input\nAddictive phone apps assignment",
-            "classNo": "",
-            "updated": "2026-09-21T15:55:21.564Z"
+            "note": "Walk 3 of 3: The Fine Print (20 wall statements)\nRecord verdicts on your sheet (True / False / Depends)\nReveal deck & class debrief",
+            "classNo": "5",
+            "updated": "2026-10-14T13:00:00.000Z"
         },
         "903-HL": {
             "note": "Addictive phone apps assignment",
@@ -92,10 +92,16 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-CIT": {
-            "title": "The 60 Second Speech",
+            "title": "Mi'kmaq were here first. But where did they come from?",
             "announcements": "",
-            "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
-            "updated": "2026-10-07T14:30:00.000Z"
+            "outcome": "Learners will evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people.",
+            "updated": "2026-10-14T13:00:00.000Z"
+        },
+        "901-HL": {
+            "title": "Nobody Told Me 3/3",
+            "announcements": "",
+            "outcome": "Learners will analyse ways to care for one's own sexual and reproductive health",
+            "updated": "2026-10-14T13:00:00.000Z"
         },
         "902-CIT": {
             "title": "The 60 Second Speech",

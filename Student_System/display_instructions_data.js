@@ -48,13 +48,23 @@ window.DISPLAY_INSTRUCTIONS = {
         ],
         note: "Blank copies are at the front of the room. (804 is exempt from Junction 2.)"
     },
+    "901-CIT": {
+        steps: [
+            "Mi'kmaq were here first. But where did they come from?"
+        ]
+    },
+    "901-HL": {
+        steps: [
+            "Nobody Told Me 3/3"
+        ]
+    },
 
     // ── Fri Oct 9 (carried) ────────────────────────────────────────────────
     // P3 903-CIT · P4 902-CIT — the last classes before the long weekend
     // (Thanksgiving Monday). Mr. Waugh marks over the break, so the do-now in
     // both is the same: finish what you owe and hand it in. The HL8 course
     // entry keeps the paper-Junction line for 803-HE (hasn't met since Oct 7);
-    // 901-HL and 903-HL carry from Oct 5.
+    // 903-HL carries from Oct 5.
     "903-CIT": {
         steps: [
             "Finish your assignments so Mr. Waugh can mark them over the long weekend."
@@ -75,14 +85,6 @@ window.DISPLAY_INSTRUCTIONS = {
     },
 
     // ── Mon Oct 5, afternoon (carried — these sections don't meet Oct 7) ───
-    "901-HL": {
-        steps: [
-            "Sleep app slideshows — submit in Google Classroom."
-        ],
-        owed: [
-            { label: "Still owe the Citizenship quiz", names: ["Anastasia", "Cameo", "Oliva"] }
-        ]
-    },
     "903-HL": {
         steps: [
             "Submit the paper version of the 10 Station Sleep Audit."
