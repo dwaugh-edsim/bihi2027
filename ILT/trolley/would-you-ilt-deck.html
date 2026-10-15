@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILT Ethics Lab: Tough Choices</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --surface-hover: #f1f5f9;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --text-faint: #94a3b8;
+            --left: #16a34a;
+            --left-bg: #f0fdf4;
+            --right: #d97706;
+            --right-bg: #fffbeb;
+            --red-alert: #dc2626;
+            --blue: #2563eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Inter', -apple-system, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== TOP BAR ===== */
+        header.top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 2px solid var(--border);
+            padding: 10px 24px;
+            flex-shrink: 0;
+            background: #ffffff;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .meta-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #f1f5f9;
+            color: var(--text-heading);
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dark);
+        }
+        .meta-pill.highlight {
+            background: var(--text-heading);
+            color: #ffffff;
+            border-color: var(--text-heading);
+        }
+
+        .timer-block { display: flex; align-items: center; gap: 8px; }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            background: #ffffff;
+            border: 2px solid var(--border-dark);
+            padding: 2px 14px;
+            border-radius: 6px;
+            min-width: 140px;
+            text-align: center;
+        }
+        .timer-display.running { border-color: var(--left); color: var(--left); }
+        .timer-display.warn { border-color: var(--right); color: var(--right); }
+        .timer-display.done { border-color: var(--red-alert); color: var(--red-alert); }
+
+        .tbtn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            color: var(--text-heading);
+            border: 1px solid var(--border-dark);
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .tbtn:hover { background: #e2e8f0; }
+        .tbtn.go { background: var(--left); color: #ffffff; border-color: var(--left); }
+        .tbtn.stop { background: var(--red-alert); color: #ffffff; border-color: var(--red-alert); }
+
+        .kbd-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* ===== STAGE STRIP ===== */
+        nav.stage-strip {
+            display: flex;
+            gap: 4px;
+            padding: 8px 20px;
+            flex-shrink: 0;
+            overflow-x: auto;
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+        }
+        .stage-tab {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #ffffff;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-bottom: 3px solid transparent;
+            padding: 7px 12px;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.1s ease;
+        }
+        .stage-tab:hover { color: var(--text-heading); background: #f1f5f9; }
+        .stage-tab.active {
+            background: #ffffff;
+            color: var(--text-heading);
+            border-color: var(--border-dark);
+            border-bottom: 3px solid var(--text-heading);
+            font-weight: 800;
+        }
+        .stage-tab.done { color: var(--left); }
+        .stage-tab .num { opacity: 0.6; margin-right: 5px; }
+
+        /* ===== MAIN LAYOUT ===== */
+        main.hub { flex: 1; display: flex; min-height: 0; }
+
+        .stage-area {
+            flex: 1;
+            padding: 36px 48px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadein 0.2s ease-out; }
+        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 3.4rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1.05;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+        .scenario-text {
+            font-size: 1.55rem;
+            line-height: 1.48;
+            max-width: 65ch;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+        .scenario-text strong { color: var(--text-heading); font-weight: 800; }
+
+        .ask {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            border-left: 6px solid var(--blue);
+            padding: 4px 0 4px 20px;
+            margin-bottom: 22px;
+            max-width: 65ch;
+            line-height: 1.35;
+        }
+
+        .callout {
+            border: 2px solid var(--border);
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            max-width: 72ch;
+        }
+        .callout p {
+            font-size: 1.15rem;
+            line-height: 1.45;
+            color: var(--text-body);
+        }
+        .callout b { color: var(--text-heading); }
+
+        .hint-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+        .btn-ghost {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: #ffffff;
+            color: var(--text-heading);
+            border: 2px solid var(--border-dark);
+            padding: 11px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .btn-ghost:hover {
+            background: var(--text-heading);
+            color: #ffffff;
+            border-color: var(--text-heading);
+        }
+
+        /* ===== WALL VOTING ===== */
+        .walls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 980px;
+            margin-bottom: 20px;
+        }
+        .wall {
+            border-radius: 12px;
+            padding: 24px;
+            border: 3px solid var(--border);
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .wall.L {
+            border-color: var(--left);
+            background: var(--left-bg);
+        }
+        .wall.R {
+            border-color: var(--right);
+            background: var(--right-bg);
+        }
+        .wall .dir {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .wall.L .dir { color: var(--left); }
+        .wall.R .dir { color: var(--right); text-align: right; }
+        .wall .choice {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.95rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.15;
+        }
+        .wall.R .choice { text-align: right; }
+        .wall .count-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .wall.R .count-row { flex-direction: row-reverse; }
+        .wall .count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            min-width: 80px;
+        }
+        .wall.R .count { text-align: right; }
+        .cbtn {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 0.95rem;
+            background: #ffffff;
+            color: var(--text-heading);
+            border: 2px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 7px 12px;
+            cursor: pointer;
+        }
+        .cbtn:hover { background: var(--text-heading); color: #ffffff; border-color: var(--text-heading); }
+
+        /* ===== TWISTS / VARIATIONS ===== */
+        .twist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 980px;
+            margin-bottom: 18px;
+        }
+        .twist {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .twist .tn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        .twist .tt {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            line-height: 1.35;
+            filter: blur(8px);
+            user-select: none;
+            transition: filter 0.25s ease;
+        }
+        .twist.shown {
+            border-color: var(--border-dark);
+            background: #ffffff;
+        }
+        .twist.shown .tt { filter: none; }
+        .twist.current {
+            border-color: var(--blue);
+            background: #eff6ff;
+        }
+
+        /* ===== PORTRAIT VIDEO CROP CONTAINER ===== */
+        .portrait-crop-container {
+            width: 470px;
+            max-width: 45vw;
+            aspect-ratio: 1 / 1;
+            max-height: 56vh;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-dark);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            background: #000000;
+            flex-shrink: 0;
+        }
+        .portrait-crop-container video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* ===== FRAMEWORKS ===== */
+        .fw-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .fw-card {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 22px 20px;
+        }
+        .fw-card:nth-child(1) { border-top: 5px solid var(--left); }
+        .fw-card:nth-child(2) { border-top: 5px solid var(--right); }
+        .fw-card:nth-child(3) { border-top: 5px solid var(--blue); }
+
+        .fw-card .fw-name {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+            line-height: 1.15;
+        }
+        .fw-card .fw-term {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .fw-card .fw-q {
+            font-size: 1.08rem;
+            line-height: 1.4;
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .fw-card .fw-d {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+        }
+
+        /* ===== PATTERN COMPARISON ===== */
+        .pattern {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 980px;
+            margin-bottom: 24px;
+        }
+        .pcol {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .pcol .pl {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .pcol .pv {
+            font-family: 'Roboto Slab', serif;
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1;
+        }
+        .pcol .ps {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        .ptrack {
+            height: 12px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-top: 14px;
+            overflow: hidden;
+        }
+        .pfill {
+            height: 100%;
+            background: var(--blue);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            width: 0;
+        }
+
+        /* ===== TASKS / CARDS ===== */
+        .tasks { max-width: 72ch; }
+        .task {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-left: 5px solid var(--blue);
+        }
+        .task .rn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--blue);
+            line-height: 1.1;
+            min-width: 28px;
+        }
+        .task .rt {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+        .task .rd {
+            font-size: 1.02rem;
+            line-height: 1.45;
+            color: var(--text-body);
+        }
+
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+            max-width: 1050px;
+        }
+        .day-card {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-left: 5px solid var(--blue);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .day-card .q {
+            font-size: 1.25rem;
+            line-height: 1.4;
+            color: var(--text-heading);
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+        .day-card .sides {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .day-card .sides .l { color: var(--left); }
+        .day-card .sides .r { color: var(--right); }
+
+        /* ===== RIGHT RAIL (CLASS RECORD) ===== */
+        aside.record {
+            width: 320px;
+            flex-shrink: 0;
+            background: #f8fafc;
+            border-left: 2px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .record h3 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+        .record .sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+        .rec-block { margin-bottom: 18px; }
+        .rec-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--border);
+        }
+        .rec-row { margin-bottom: 9px; }
+        .rec-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--text-body);
+        }
+        .rec-label .n {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+        .bar-track {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: var(--left);
+            transition: width 0.35s ease;
+        }
+        .bar-fill.R { background: var(--right); }
+
+        .gap-callout {
+            border: 2px solid var(--border-dark);
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: auto;
+        }
+        .gap-callout .hd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+        .gap-callout p {
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: var(--text-body);
+        }
+        .gap-callout.empty p { color: var(--text-muted); }
+
+        .rail-clear {
+            width: 100%;
+            margin-top: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            background: #ffffff;
+            color: var(--text-muted);
+            border: 1px solid var(--border-dark);
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .rail-clear:hover {
+            color: var(--text-heading);
+            border-color: var(--text-heading);
+            background: #f1f5f9;
+        }
+
+        /* ===== FACILITATOR DRAWER ===== */
+        .fac {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 320px;
+            background: #ffffff;
+            border-top: 3px solid var(--blue);
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
+            padding: 16px 24px;
+            z-index: 50;
+            display: none;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        .fac.show { display: block; }
+        .fac .fh {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue);
+            margin-bottom: 8px;
+        }
+        .fac p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 6px;
+            color: var(--text-body);
+            max-width: 95ch;
+        }
+        .fac b { color: var(--text-heading); }
+        .fac .say { color: var(--blue); font-weight: 600; }
+
+        /* ===== BLACKOUT OVERLAY ===== */
+        .blackout {
+            position: fixed;
+            inset: 0;
+            background: #000000;
+            z-index: 9999;
+            display: none;
+        }
+        .blackout.active { display: block; }
+
+        body.rail-hidden aside.record { display: none; }
+        body.rail-hidden .fac { right: 0; }
+    </style>
+</head>
+<body>
+
+<div class="blackout" id="blackoutOverlay"></div>
+
+<header class="top-bar">
+    <div class="header-left">
+        <span class="meta-pill highlight">ILT</span>
+        <span class="meta-pill">Ethics Lab: Tough Choices</span>
+    </div>
+    <div class="timer-block">
+        <span class="kbd-hint">Clicker Next/Prev: slides</span>
+        <span class="kbd-hint">Clicker B: blank screen</span>
+        <span class="kbd-hint">Space / Enter: video &amp; timer</span>
+        <span class="kbd-hint">F: notes</span>
+        <span class="kbd-hint">H: hide panel</span>
+        <div class="timer-display" id="timerDisplay">02:00</div>
+        <button class="tbtn go" id="timerBtn" onclick="toggleTimer()">Start</button>
+        <button class="tbtn" onclick="resetTimer()">Reset</button>
+    </div>
+</header>
+
+<nav class="stage-strip" id="stageStrip"></nav>
+
+<main class="hub">
+<section class="stage-area" id="stageArea">
+
+    <!-- 0 TITLE -->
+    <div class="panel active" data-stage="0">
+        <div class="eyebrow">Instructional Leadership Time: Ethics Lab</div>
+        <h1>Would You?</h1>
+        <div class="scenario-text">
+            Today we will examine several difficult moral dilemmas. <strong>There are no wrong answers</strong>,
+            but you must be able to explain <strong>why</strong> you made your choice.
+        </div>
+        <div class="hint-row">
+            <button class="btn-ghost" onclick="stepNext()">Begin (Clicker Next)</button>
+            <button class="btn-ghost" onclick="toggleFac()">Teacher Notes (F)</button>
+        </div>
+    </div>
+
+    <!-- 1 RULES -->
+    <div class="panel" data-stage="1">
+        <div class="eyebrow">Before We Start</div>
+        <h2>Three Ground Rules</h2>
+        <div class="tasks">
+            <div class="task"><span class="rn">1</span><div>
+                <div class="rt">Decide independently first</div>
+                <div class="rd">Take 10 seconds of silence before each vote. Decide your position before looking around the room.</div>
+            </div></div>
+            <div class="task"><span class="rn">2</span><div>
+                <div class="rt">Work within the scenario</div>
+                <div class="rd">Do not look for loopholes like yelling or untying knots. Choose between the specific options given.</div>
+            </div></div>
+            <div class="task"><span class="rn">3</span><div>
+                <div class="rt">Focus on the reasons</div>
+                <div class="rd">You are always free to change sides if a classmate offers a reason that persuades you.</div>
+            </div></div>
+        </div>
+        <div class="hint-row"><button class="btn-ghost" onclick="stepNext()">Next: Video Introduction</button></div>
+    </div>
+
+    <!-- 2 VIDEO / INTRO -->
+    <div class="panel" data-stage="2">
+        <div style="display: flex; gap: 40px; align-items: center; max-width: 1050px;">
+            <div style="flex: 1;">
+                <div class="eyebrow">Scenario Introduction</div>
+                <h1>The Trolley Problem</h1>
+                <div class="scenario-text">
+                    First described by philosopher Philippa Foot in 1967.
+                    Today, this problem is directly studied by engineers programming decision systems in autonomous vehicles.
+                </div>
+                <div class="hint-row"><button class="btn-ghost" onclick="stepNext()">Next: The Switch</button></div>
+            </div>
+            <div class="portrait-crop-container">
+                <video id="trolleyVideo" controls preload="metadata">
+                    <source src="How_The_Trolley_Problem_Works.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 SWITCH -->
+    <div class="panel" data-stage="3">
+        <div class="eyebrow">Scenario 1: Decide In Silence, Then Move</div>
+        <h1>The Switch</h1>
+        <div class="scenario-text">
+            A runaway trolley is hurtling toward <strong>five workers</strong> on the track.
+            You are standing beside a lever. If you pull it, the trolley diverts onto a side track where <strong>one worker</strong> is tied.
+            If you do nothing, the five workers die.
+        </div>
+        <div class="walls" data-vote="switch"></div>
+    </div>
+
+    <!-- 4 TWISTS -->
+    <div class="panel" data-stage="4">
+        <div class="eyebrow">Variations: Move If Your Choice Changes (Clicker Next Advances)</div>
+        <h2>What If?</h2>
+        <div class="twist-list" id="twistList"></div>
+        <div class="hint-row">
+            <button class="btn-ghost" onclick="nextTwist()">Reveal Next Variation</button>
+            <button class="btn-ghost" onclick="resetTwists()">Reset Variations</button>
+        </div>
+    </div>
+
+    <!-- 5 FOOTBRIDGE -->
+    <div class="panel" data-stage="5">
+        <div class="eyebrow">Scenario 2: Decide In Silence, Then Move</div>
+        <h1>The Footbridge</h1>
+        <div class="scenario-text">
+            The same runaway trolley is heading toward the same <strong>five workers</strong>.
+            There is no side track and no lever. You are standing on a footbridge above the rails next to a stranger wearing an <strong>enormous, heavy backpack</strong>.
+            The backpack is heavy enough to stop the train. You are not.
+            The only way to save the five workers is to <strong>push the stranger</strong> off the footbridge onto the tracks.
+        </div>
+        <div class="walls" data-vote="footbridge"></div>
+    </div>
+
+    <!-- 6 SURGEON -->
+    <div class="panel" data-stage="6">
+        <div class="eyebrow">Scenario 3: Decide In Silence, Then Move</div>
+        <h1>The Transplant</h1>
+        <div class="scenario-text">
+            Five hospital patients each urgently require a different organ to survive.
+            A healthy visitor arrives for a routine annual checkup and is a <strong>perfect match for all five patients</strong>.
+            The doctor could sedate the visitor and use their organs to save all five lives.
+            <strong>Nobody asks the visitor. Nobody would ever discover what occurred.</strong>
+        </div>
+        <div class="walls" data-vote="surgeon"></div>
+    </div>
+
+    <!-- 7 PATTERN -->
+    <div class="panel" data-stage="7">
+        <div class="eyebrow">Data Summary</div>
+        <h2>Comparing the Results</h2>
+        <div class="pattern">
+            <div class="pcol"><div class="pl">Pulled the Lever</div><div class="pv" id="pv-switch">-</div><div class="ps">1 dies / 5 live</div><div class="ptrack"><div class="pfill" id="pf-switch"></div></div></div>
+            <div class="pcol"><div class="pl">Pushed the Stranger</div><div class="pv" id="pv-footbridge">-</div><div class="ps">1 dies / 5 live</div><div class="ptrack"><div class="pfill" id="pf-footbridge"></div></div></div>
+            <div class="pcol"><div class="pl">Performed Surgery</div><div class="pv" id="pv-surgeon">-</div><div class="ps">1 dies / 5 live</div><div class="ptrack"><div class="pfill" id="pf-surgeon"></div></div></div>
+        </div>
+        <div class="ask">In every scenario, the numbers are identical: 1 life lost to save 5 lives. Why did the answers change?</div>
+        <div class="callout">
+            <p><b>Partner Question (60 seconds):</b> Why does pulling a lever feel morally different from pushing a person or operating on a visitor?</p>
+        </div>
+    </div>
+
+    <!-- 8 LENSES -->
+    <div class="panel" data-stage="8">
+        <div class="eyebrow">Three Frameworks</div>
+        <h2>How Philosophers Categorize These Arguments</h2>
+        <div class="fw-grid">
+            <div class="fw-card">
+                <div class="fw-name">Outcomes</div>
+                <div class="fw-term">Consequentialism / Utilitarianism</div>
+                <div class="fw-q">Judge the action solely by the final result.</div>
+                <div class="fw-d">Saving 5 lives produces a better outcome than saving 1 life. If you pull the lever or push the stranger on this basis, you are evaluating total results.</div>
+            </div>
+            <div class="fw-card">
+                <div class="fw-name">Duties and Rules</div>
+                <div class="fw-term">Deontology (Kant)</div>
+                <div class="fw-q">Certain actions are wrong in themselves, regardless of results.</div>
+                <div class="fw-d">Using an innocent person as a physical tool or taking their life directly violates a fundamental moral duty. The outcome does not excuse the action.</div>
+            </div>
+            <div class="fw-card">
+                <div class="fw-name">Character</div>
+                <div class="fw-term">Virtue Ethics (Aristotle)</div>
+                <div class="fw-q">What kind of person does this choice make you?</div>
+                <div class="fw-d">Rather than calculating math or following rigid rules, ask what a person of integrity, compassion, and courage would do in this situation.</div>
+            </div>
+        </div>
+        <div class="ask">Which of these three frameworks best explains your own choices today?</div>
+    </div>
+
+    <!-- 9 GROUP DISCUSSION -->
+    <div class="panel" data-stage="9">
+        <div style="display: flex; gap: 40px; align-items: flex-start; max-width: 1100px;">
+            <div style="flex: 1;">
+                <div class="eyebrow" id="grpEyebrow">Small Groups: 12 Minutes</div>
+                <h1 id="grpTitle"></h1>
+                <div class="scenario-text" id="grpBody"></div>
+                <div class="tasks" id="grpTasks"></div>
+                <div class="hint-row" style="margin-top: 18px;">
+                    <button class="btn-ghost" id="swapBtn" onclick="swapGroup()">Switch to Omelas</button>
+                    <button class="btn-ghost" onclick="stepNext()">Next: Everyday Dilemmas</button>
+                </div>
+            </div>
+            <div class="portrait-crop-container" id="ringVideoContainer">
+                <video id="ringVideo" controls preload="metadata">
+                    <source src="The_Invisible_Ring_Moral_Trap.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 EVERYDAY -->
+    <div class="panel" data-stage="10">
+        <div class="eyebrow">Everyday Situations: Fast Wall Vote</div>
+        <h2>Real-World Dilemmas</h2>
+        <div class="day-grid">
+            <div class="day-card"><div class="q">Someone is being insulted in a large group chat and it is getting cruel.</div><div class="sides"><span class="l">Speak up</span><span class="r">Stay out of it</span></div></div>
+            <div class="day-card"><div class="q">A cashier hands you $20 too much in change and nobody noticed.</div><div class="sides"><span class="l">Return the money</span><span class="r">Keep the change</span></div></div>
+            <div class="day-card"><div class="q">An AI program could write your paper completely undetected.</div><div class="sides"><span class="l">Write it yourself</span><span class="r">Use the AI</span></div></div>
+            <div class="day-card"><div class="q">A close friend confides a secret that is actively harming their safety.</div><div class="sides"><span class="l">Tell a trusted adult</span><span class="r">Keep the secret</span></div></div>
+        </div>
+        <div class="ask">Why do smaller, everyday situations often feel harder to decide than large-scale hypothetical thought experiments?</div>
+    </div>
+
+    <!-- 11 FINAL DISCUSSION -->
+    <div class="panel" data-stage="11">
+        <div class="eyebrow">Wrap-Up: 4 Minutes</div>
+        <h2>Final Reflection</h2>
+        <div class="tasks">
+            <div class="task"><span class="rn">1</span><div>
+                <div class="rt">Did anyone change their mind today?</div>
+                <div class="rd">Think back across the scenarios and variations. Was there a specific argument or twist that made you switch sides?</div>
+            </div></div>
+            <div class="task"><span class="rn">2</span><div>
+                <div class="rt">Which lens did you rely on most?</div>
+                <div class="rd">Were you calculating numbers and outcomes, following fixed rules and duties, or thinking about what kind of person you want to be?</div>
+            </div></div>
+        </div>
+        <div class="callout"><p><b>Whole-class share-out:</b> Two or three volunteers to share their biggest takeaway before the bell.</p></div>
+    </div>
+
+</section>
+
+<aside class="record">
+    <h3>Class Record</h3>
+    <div class="sub">Tally Left / Right Walls</div>
+    <div class="rec-block"><div class="rec-title">1: The Switch</div><div id="rec-switch"></div></div>
+    <div class="rec-block"><div class="rec-title">2: The Footbridge</div><div id="rec-footbridge"></div></div>
+    <div class="rec-block"><div class="rec-title">3: The Transplant</div><div id="rec-surgeon"></div></div>
+    <div class="gap-callout empty" id="gapCallout">
+        <div class="hd">Comparison</div>
+        <p id="gapText">Count Scenarios 1 and 2 to compare responses.</p>
+    </div>
+    <button class="rail-clear" onclick="clearAll()">Reset All Counts</button>
+</aside>
+</main>
+
+<div class="fac" id="facPanel">
+    <div class="fh">Teacher Notes: Press F to Toggle</div>
+    <div id="facBody"></div>
+</div>
+
+<script>
+/* ============ STAGES ============ */
+const STAGES = [
+    { label: 'Start',       min: 1 },
+    { label: 'Rules',       min: 2 },
+    { label: 'Intro Video', min: 3 },
+    { label: '1: Switch',   min: 4 },
+    { label: 'Variations',  min: 6 },
+    { label: '2: Bridge',   min: 4 },
+    { label: '3: Surgeon',  min: 3 },
+    { label: 'Comparison',  min: 4 },
+    { label: 'Frameworks',  min: 4 },
+    { label: 'Groups',      min: 12 },
+    { label: 'Everyday',    min: 6 },
+    { label: 'Discussion',  min: 4 }
+];
+
+const FAC = {
+    0: 'Keep a neutral posture. Do not show agreement or disagreement with any answer.',
+    1: 'Emphasize Rule 1 clearly: 10 seconds of silence before moving. This prevents students from immediately grouping with friends.',
+    2: 'Play the short video clip. Press Space or Clicker Enter to start/pause. If audio or video issues occur, read the summary text on the slide.',
+    3: 'Have students vote by physically walking to the left or right wall. Tally the numbers using the buttons on the screen. Ask one person on each side for their reason.',
+    4: 'Press Next on your PPT remote to reveal each variation one at a time. Have students stay on their feet and change walls if the condition changes their answer.',
+    5: 'Run the vote. Note the sharp drop in votes for pushing versus pulling the switch, despite identical numbers.',
+    6: 'Run the vote. Expect almost the entire room to choose not operating. Ask anyone on the left wall to explain their reasoning.',
+    7: 'Review the side-by-side data. Point out that the numbers remained 5 to 1 in all three cases, meaning the mechanism itself carried moral weight for students.',
+    8: 'Walk through the three frameworks briefly. Keep the descriptions grounded in the scenarios students just debated.',
+    9: 'Assign groups of 4. Ring of Gyges is selected by default; toggle to Omelas if preferred. Each group selects one speaker to share their consensus rule.',
+    10: 'Rapid-fire voting with physical movement for each situation. Highlight that everyday choices can be more stressful because personal relationships are involved.',
+    11: 'Ask 2 or 3 volunteers to share whether any argument changed their mind today, and which ethical lens felt most natural to them.'
+};
+
+/* ============ VOTES ============ */
+const VOTES = {
+    switch:     { L: 'Pull the switch', R: 'Do not pull' },
+    footbridge: { L: 'Push the stranger', R: 'Do not push' },
+    surgeon:    { L: 'Perform surgery', R: 'Do not perform' }
+};
+const tallies = { switch: [0,0], footbridge: [0,0], surgeon: [0,0] };
+
+function buildWalls() {
+    document.querySelectorAll('[data-vote]').forEach(el => {
+        const k = el.dataset.vote, v = VOTES[k];
+        el.innerHTML = ['L','R'].map((side, i) => `
+            <div class="wall ${side}">
+                <div class="dir">${side === 'L' ? 'Left Wall' : 'Right Wall'}</div>
+                <div class="choice">${v[side]}</div>
+                <div class="count-row">
+                    <span class="count" id="c-${k}-${i}">0</span>
+                    <button class="cbtn" onclick="bump('${k}',${i},1)">+1</button>
+                    <button class="cbtn" onclick="bump('${k}',${i},5)">+5</button>
+                    <button class="cbtn" onclick="bump('${k}',${i},-1)">-1</button>
+                </div>
+            </div>`).join('');
+    });
+}
+function bump(k, i, d) { tallies[k][i] = Math.max(0, tallies[k][i] + d); render(k); }
+function clearAll() { Object.keys(tallies).forEach(k => { tallies[k] = [0,0]; render(k); }); }
+function pct(k) { const t = tallies[k][0] + tallies[k][1]; return t ? Math.round(tallies[k][0] / t * 100) : null; }
+
+function render(k) {
+    [0,1].forEach(i => { const c = document.getElementById(`c-${k}-${i}`); if (c) c.textContent = tallies[k][i]; });
+    const t = tallies[k][0] + tallies[k][1];
+    document.getElementById('rec-' + k).innerHTML = ['L','R'].map((s, i) => {
+        const p = t ? Math.round(tallies[k][i] / t * 100) : 0;
+        return `<div class="rec-row"><div class="rec-label"><span>${VOTES[k][s]}</span><span class="n">${tallies[k][i]}</span></div>
+                <div class="bar-track"><div class="bar-fill ${s}" style="width:${p}%"></div></div></div>`;
+    }).join('');
+    const p = pct(k);
+    document.getElementById('pv-' + k).textContent = p === null ? '-' : p + '%';
+    document.getElementById('pf-' + k).style.width = (p || 0) + '%';
+    renderGap();
+}
+function renderGap() {
+    const box = document.getElementById('gapCallout'), txt = document.getElementById('gapText');
+    const s = pct('switch'), f = pct('footbridge');
+    if (s === null || f === null) {
+        box.classList.add('empty');
+        txt.textContent = 'Count Scenarios 1 and 2 to compare responses.';
+        return;
+    }
+    box.classList.remove('empty');
+    const gap = s - f;
+    txt.innerHTML = `Identical numbers: 1 life lost to save 5.<br><br>` +
+        `Pulled the switch: <b>${s}%</b><br>` +
+        `Pushed the stranger: <b>${f}%</b><br><br>` +
+        `Difference: <b>${Math.abs(gap)} percentage points</b>. The mechanism changed the outcome.`;
+}
+
+/* ============ TWISTS / VARIATIONS ============ */
+const TWISTS = [
+    'The one person on the side track is <b>your close friend</b>.',
+    'There are <b>1,000 workers</b> on the main track instead of 5.',
+    'The five people on the track walked past warning signs on a dare. The one person is a railway employee on duty.',
+    'If you pull the switch, your decision and name will be published publicly.',
+    'A computer controls the switch. You are the programmer setting the default protocol before an emergency occurs.'
+];
+let twistIdx = -1;
+function buildTwists() {
+    document.getElementById('twistList').innerHTML = TWISTS.map((t, i) =>
+        `<div class="twist" id="tw-${i}" onclick="showTwist(${i})"><span class="tn">${i+1}</span><span class="tt">${t}</span></div>`).join('');
+}
+function showTwist(i) {
+    twistIdx = i;
+    TWISTS.forEach((_, j) => {
+        const el = document.getElementById('tw-' + j);
+        el.classList.toggle('shown', j <= i);
+        el.classList.toggle('current', j === i);
+    });
+}
+function nextTwist() {
+    if (twistIdx < TWISTS.length - 1) {
+        showTwist(twistIdx + 1);
+        return true;
+    }
+    return false; // all twists already shown
+}
+function prevTwist() {
+    if (twistIdx > 0) {
+        showTwist(twistIdx - 1);
+        return true;
+    } else if (twistIdx === 0) {
+        resetTwists();
+        return true;
+    }
+    return false;
+}
+function resetTwists() {
+    twistIdx = -1;
+    TWISTS.forEach((_, j) => document.getElementById('tw-' + j).className = 'twist');
+}
+
+/* ============ GROUP DILEMMA ============ */
+const GROUPS = {
+    gyges: {
+        title: 'The Ring of Gyges',
+        body: 'A shepherd finds a ring that grants <strong>complete invisibility</strong>. No one can see him, catch him, or ever know what he does. In Plato\'s Republic, Glaucon argues that <strong>people only act justly because they fear consequences</strong>.',
+        tasks: [
+            ['Student Perspective', 'Name three things a typical person your age might do with such a ring.'],
+            ['Individual Choice', 'Would you keep the ring, destroy it, or turn it in? Every group member must answer.'],
+            ['Core Question', 'Is Glaucon correct that people only do good things to avoid getting caught? Agree on a one-sentence group position.']
+        ]
+    },
+    omelas: {
+        title: 'The Ones Who Walk Away from Omelas',
+        body: 'In Ursula K. Le Guin\'s story, Omelas is a prosperous and joyful city. However, the entire city\'s happiness depends on one single child being kept alone and neglected in a basement room. If the child is helped or freed, the prosperity of the city ends.',
+        tasks: [
+            ['Group Vote', 'Would you stay in Omelas or walk away? Take a count within your group.'],
+            ['Ethical Analysis', 'Does walking away help the child, or does it only protect the person walking away from feeling guilty?'],
+            ['Real-World Connection', 'Are there situations in modern society where the comfort of many depends on the hardship of a few? Agree on one example.']
+        ]
+    }
+};
+let group = 'gyges';
+function applyGroup() {
+    const g = GROUPS[group];
+    document.getElementById('grpTitle').textContent = g.title;
+    document.getElementById('grpBody').innerHTML = g.body;
+    document.getElementById('grpTasks').innerHTML = g.tasks.map((t, i) =>
+        `<div class="task"><span class="rn">${i+1}</span><div><div class="rt">${t[0]}</div><div class="rd">${t[1]}</div></div></div>`).join('');
+    document.getElementById('swapBtn').textContent = group === 'gyges' ? 'Switch to Omelas' : 'Switch to Ring of Gyges';
+    const rCont = document.getElementById('ringVideoContainer');
+    if (rCont) {
+        rCont.style.display = group === 'gyges' ? 'block' : 'none';
+        const rVid = document.getElementById('ringVideo');
+        if (rVid && group !== 'gyges') rVid.pause();
+    }
+}
+function swapGroup() { group = group === 'gyges' ? 'omelas' : 'gyges'; applyGroup(); }
+
+/* ============ NAVIGATION & SMART CLICKER ============ */
+let current = 0;
+function buildStrip() {
+    const strip = document.getElementById('stageStrip');
+    strip.innerHTML = '';
+    STAGES.forEach((s, i) => {
+        const b = document.createElement('button');
+        b.className = 'stage-tab'; b.dataset.idx = i;
+        b.innerHTML = `<span class="num">${String(i).padStart(2,'0')}</span>${s.label}`;
+        b.onclick = () => goStage(i);
+        strip.appendChild(b);
+    });
+}
+function goStage(i) {
+    current = Math.max(0, Math.min(STAGES.length - 1, i));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', +p.dataset.stage === current));
+    document.querySelectorAll('.stage-tab').forEach(t => {
+        const n = +t.dataset.idx;
+        t.classList.toggle('active', n === current);
+        t.classList.toggle('done', n < current);
+    });
+    resetTimer();
+    const vid = document.getElementById('trolleyVideo');
+    if (vid && current !== 2) { vid.pause(); }
+    const rVid = document.getElementById('ringVideo');
+    if (rVid && current !== 9) { rVid.pause(); }
+    document.getElementById('facBody').innerHTML = '<p>' + (FAC[current] || '') + '</p>';
+    document.getElementById('stageArea').scrollTop = 0;
+}
+
+/* SMART ADVANCE FOR PPT REMOTES */
+function stepNext() {
+    // Stage 4 is Variations: next reveals each variation one-by-one before moving to stage 5 (Footbridge)
+    if (current === 4) {
+        const revealed = nextTwist();
+        if (revealed) return;
+    }
+    goStage(current + 1);
+}
+
+function stepPrev() {
+    if (current === 4) {
+        const steppedBack = prevTwist();
+        if (steppedBack) return;
+    }
+    goStage(current - 1);
+}
+
+/* ============ TIMER & VIDEO ============ */
+let secs = 120, iv = null, running = false, actx = null;
+function beep(f, d) {
+    try {
+        if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.connect(g); g.connect(actx.destination); o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.35, actx.currentTime + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + d);
+        o.start(); o.stop(actx.currentTime + d + 0.02);
+    } catch (e) {}
+}
+function showTime() {
+    const d = document.getElementById('timerDisplay');
+    d.textContent = String(Math.floor(secs / 60)).padStart(2,'0') + ':' + String(secs % 60).padStart(2,'0');
+    d.classList.toggle('running', running && secs > 30);
+    d.classList.toggle('warn', running && secs <= 30 && secs > 0);
+    d.classList.toggle('done', secs <= 0);
+}
+function toggleTimer() {
+    const b = document.getElementById('timerBtn');
+    if (running) {
+        clearInterval(iv); running = false;
+        b.textContent = 'Start'; b.className = 'tbtn go';
+    } else {
+        if (secs <= 0) resetTimer();
+        running = true; b.textContent = 'Pause'; b.className = 'tbtn stop';
+        iv = setInterval(() => {
+            secs--;
+            if (secs === 30) beep(880, 0.25);
+            if (secs <= 0) {
+                clearInterval(iv); running = false;
+                beep(440, 0.7);
+                b.textContent = 'Start'; b.className = 'tbtn go';
+            }
+            showTime();
+        }, 1000);
+    }
+    showTime();
+}
+function resetTimer() {
+    clearInterval(iv); running = false;
+    const b = document.getElementById('timerBtn');
+    b.textContent = 'Start'; b.className = 'tbtn go';
+    secs = STAGES[current].min * 60; showTime();
+}
+function toggleFac() { document.getElementById('facPanel').classList.toggle('show'); }
+function toggleBlackout() { document.getElementById('blackoutOverlay').classList.toggle('active'); }
+
+/* ============ FULL PPT REMOTE KEYBOARD HANDLER ============ */
+document.addEventListener('keydown', e => {
+    // Standard PPT clicker NEXT: PageDown, ArrowRight, ArrowDown
+    if (e.key === 'PageDown' || e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        stepNext();
+    }
+    // Standard PPT clicker PREV: PageUp, ArrowLeft, ArrowUp
+    else if (e.key === 'PageUp' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        stepPrev();
+    }
+    // Standard PPT clicker BLACK SCREEN: 'b', 'B', or '.' (Period)
+    else if (e.key === 'b' || e.key === 'B' || e.key === '.') {
+        e.preventDefault();
+        toggleBlackout();
+    }
+    // Space or Enter: Play/pause video on Stage 2 (Trolley) or Stage 9 (Ring), or toggle timer elsewhere
+    else if (e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        if (current === 2) {
+            const vid = document.getElementById('trolleyVideo');
+            if (vid) {
+                if (vid.paused) vid.play();
+                else vid.pause();
+            }
+        } else if (current === 9 && group === 'gyges') {
+            const rVid = document.getElementById('ringVideo');
+            if (rVid) {
+                if (rVid.paused) rVid.play();
+                else rVid.pause();
+            }
+        } else {
+            toggleTimer();
+        }
+    }
+    // Teacher convenience shortcuts
+    else if (e.key === 'f' || e.key === 'F') toggleFac();
+    else if (e.key === 'r' || e.key === 'R') resetTimer();
+    else if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('rail-hidden');
+    else if (e.key === 'Escape') {
+        // Clear blackout if active
+        document.getElementById('blackoutOverlay').classList.remove('active');
+    }
+});
+
+/* ============ INITIALIZATION ============ */
+buildStrip();
+buildWalls();
+buildTwists();
+applyGroup();
+Object.keys(tallies).forEach(render);
+goStage(0);
+</script>
+</body>
+</html>

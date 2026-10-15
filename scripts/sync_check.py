@@ -20,6 +20,11 @@ import os
 import subprocess
 import sys
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 # File patterns that are NEVER content — safe to be untracked/ignored.
 NOISE = ('__pycache__', '*.pyc', '.zcode', '.DS_Store', 'Thumbs.db',
          '~$*', '*.tmp', '*.bak', 'node_modules', '.kilo', '*.code-workspace')

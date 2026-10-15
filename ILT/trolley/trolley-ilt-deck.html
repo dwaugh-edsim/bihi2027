@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 8 · The Trolley Problem · ILT Ethics Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --surface-hover: #f1f5f9;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #64748b;
+            --text-faint: #94a3b8;
+            --act: #16a34a;
+            --act-bg: #f0fdf4;
+            --act-ink: #14532d;
+            --wait: #d97706;
+            --wait-bg: #fffbeb;
+            --wait-ink: #78350f;
+            --red-alert: #dc2626;
+            --red-bg: #fef2f2;
+            --blue: #2563eb;
+            --blue-bg: #eff6ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-body);
+            font-family: 'Inter', -apple-system, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== TOP BAR ===== */
+        header.top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 2px solid var(--border);
+            padding: 10px 24px;
+            flex-shrink: 0;
+            background: #ffffff;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .meta-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--surface-hover);
+            color: var(--text-heading);
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dark);
+        }
+        .meta-pill.cool { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+
+        .grade-switch {
+            display: flex;
+            background: var(--surface-hover);
+            padding: 3px;
+            border-radius: 6px;
+            gap: 3px;
+            border: 1px solid var(--border);
+        }
+        .grade-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-family: 'Roboto Slab', serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .grade-btn.active { background: var(--blue); color: #ffffff; }
+        .grade-btn:hover:not(.active) { color: var(--text-heading); }
+
+        .timer-block { display: flex; align-items: center; gap: 8px; }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            background: #ffffff;
+            border: 2px solid var(--border-dark);
+            padding: 2px 14px;
+            border-radius: 6px;
+            min-width: 140px;
+            text-align: center;
+        }
+        .timer-display.running { border-color: var(--act); color: var(--act); }
+        .timer-display.warn { border-color: var(--wait); color: var(--wait); }
+        .timer-display.done { border-color: var(--red-alert); color: var(--red-alert); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+        .tbtn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: var(--surface-subtle);
+            color: var(--text-heading);
+            border: 1px solid var(--border-dark);
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .tbtn:hover { background: var(--surface-hover); }
+        .tbtn.go { background: var(--act); color: #ffffff; border-color: var(--act); }
+        .tbtn.stop { background: var(--red-alert); color: #ffffff; border-color: var(--red-alert); }
+
+        .kbd-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            background: var(--surface-hover);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* ===== STAGE STRIP ===== */
+        nav.stage-strip {
+            display: flex;
+            gap: 4px;
+            padding: 8px 20px;
+            flex-shrink: 0;
+            overflow-x: auto;
+            background: var(--surface-subtle);
+            border-bottom: 2px solid var(--border);
+        }
+        .stage-tab {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #ffffff;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-bottom: 3px solid transparent;
+            padding: 7px 12px;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.1s ease;
+        }
+        .stage-tab:hover { color: var(--text-heading); background: var(--surface-hover); }
+        .stage-tab.active {
+            background: #ffffff;
+            color: var(--text-heading);
+            border-color: var(--border-dark);
+            border-bottom: 3px solid var(--text-heading);
+            font-weight: 800;
+        }
+        .stage-tab.done { color: var(--act); }
+        .stage-tab .num { opacity: 0.6; margin-right: 5px; }
+
+        /* ===== MAIN LAYOUT ===== */
+        main.hub { flex: 1; display: flex; min-height: 0; }
+
+        .stage-area {
+            flex: 1;
+            padding: 36px 48px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadein 0.2s ease-out; }
+        @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 3.4rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1.05;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+
+        /* ===== STAT CHIPS (title) ===== */
+        .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
+        .stat {
+            background: var(--surface-subtle);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 26px;
+            min-width: 150px;
+        }
+        .stat .v {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1;
+        }
+        .stat .l {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* ===== SCENE LINES (scenarios, bullets not paragraphs) ===== */
+        .scene { max-width: 62ch; margin-bottom: 26px; }
+        .scene-line {
+            font-size: 1.55rem;
+            line-height: 1.4;
+            font-weight: 500;
+            color: var(--text-body);
+            margin-bottom: 10px;
+        }
+        .scene-line strong { color: var(--text-heading); font-weight: 800; }
+        .outcome {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-top: 10px;
+        }
+        .outcome .olab {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            flex-shrink: 0;
+        }
+        .outcome .otxt { font-size: 1.3rem; font-weight: 600; line-height: 1.35; }
+        .outcome.act { background: var(--act-bg); border-color: var(--act); }
+        .outcome.act .olab { color: var(--act); }
+        .outcome.act .otxt { color: var(--act-ink); }
+        .outcome.wait { background: var(--wait-bg); border-color: var(--wait); }
+        .outcome.wait .olab { color: var(--wait); }
+        .outcome.wait .otxt { color: var(--wait-ink); }
+
+        .ask {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            border-left: 6px solid var(--blue);
+            padding: 4px 0 4px 20px;
+            margin-bottom: 22px;
+            max-width: 65ch;
+            line-height: 1.35;
+        }
+        .ask b { color: var(--blue); }
+
+        /* ===== BIG BULLETS ===== */
+        .big-bullets { list-style: none; max-width: 62ch; margin-bottom: 24px; }
+        .big-bullets li {
+            position: relative;
+            font-size: 1.45rem;
+            line-height: 1.4;
+            font-weight: 500;
+            color: var(--text-body);
+            padding-left: 30px;
+            margin-bottom: 12px;
+        }
+        .big-bullets li::before {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: 0.6em;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--blue);
+        }
+        .big-bullets li strong { color: var(--text-heading); font-weight: 800; }
+
+        /* ===== CALLOUT ===== */
+        .callout {
+            background: var(--surface-subtle);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 22px;
+            max-width: 66ch;
+        }
+        .callout .ch {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue);
+            margin-bottom: 10px;
+        }
+        .callout ul { list-style: none; }
+        .callout li {
+            position: relative;
+            font-size: 1.12rem;
+            line-height: 1.45;
+            color: var(--text-body);
+            padding-left: 24px;
+            margin-bottom: 7px;
+        }
+        .callout li::before {
+            content: "";
+            position: absolute;
+            left: 2px;
+            top: 0.58em;
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            background: var(--border-dark);
+        }
+        .callout li b { color: var(--text-heading); }
+
+        .hint-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+        .btn-ghost {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: #ffffff;
+            color: var(--text-heading);
+            border: 2px solid var(--border-dark);
+            padding: 11px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .btn-ghost:hover {
+            background: var(--text-heading);
+            color: #ffffff;
+            border-color: var(--text-heading);
+        }
+
+        /* ===== VOTE BUTTONS ===== */
+        .vote-grid { display: flex; flex-direction: column; gap: 14px; max-width: 62ch; margin-bottom: 20px; }
+        .vote-btn {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            width: 100%;
+            background: #ffffff;
+            border: 2px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 20px 24px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            text-align: left;
+            transition: all 0.14s ease;
+        }
+        .vote-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
+        .vote-btn .letter {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-subtle);
+            color: var(--blue);
+            border-radius: 8px;
+            border: 2px solid var(--border);
+        }
+        .vote-btn.tallied { border-color: var(--act); background: var(--act-bg); }
+        .vote-btn .tally {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--act);
+            min-width: 70px;
+            text-align: right;
+        }
+
+        /* ===== RIGHT RAIL: CLASS RECORD ===== */
+        aside.record {
+            width: 340px;
+            flex-shrink: 0;
+            background: var(--surface-subtle);
+            border-left: 2px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .record h3 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+        .record .sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+        .rec-block { margin-bottom: 18px; }
+        .rec-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--border);
+        }
+        .rec-row { margin-bottom: 9px; }
+        .rec-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.86rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--text-body);
+        }
+        .rec-label .n {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+        .bar-track {
+            height: 12px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .bar-fill { height: 100%; background: var(--act); transition: width 0.35s ease; }
+        .bar-fill.passive { background: var(--wait); }
+
+        .gap-callout {
+            background: var(--red-bg);
+            border: 2px solid var(--red-alert);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: auto;
+        }
+        .gap-callout .hd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--red-alert);
+            margin-bottom: 6px;
+        }
+        .gap-callout p { font-size: 0.95rem; line-height: 1.45; color: #7f1d1d; }
+        .gap-callout p b { color: var(--text-heading); }
+        .gap-callout.empty { background: var(--surface-subtle); border-color: var(--border); }
+        .gap-callout.empty .hd { color: var(--text-muted); }
+        .gap-callout.empty p { color: var(--text-muted); }
+
+        .rail-clear {
+            width: 100%;
+            margin-top: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            background: #ffffff;
+            color: var(--text-muted);
+            border: 1px solid var(--border-dark);
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .rail-clear:hover {
+            color: var(--text-heading);
+            border-color: var(--text-heading);
+            background: var(--surface-hover);
+        }
+
+        /* ===== FRAMEWORK CARDS ===== */
+        .fw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .fw-card {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 22px 20px;
+        }
+        .fw-card:nth-child(1) { border-top: 5px solid var(--act); }
+        .fw-card:nth-child(2) { border-top: 5px solid var(--wait); }
+        .fw-card:nth-child(3) { border-top: 5px solid var(--blue); }
+        .fw-card .fw-name {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+            line-height: 1.15;
+        }
+        .fw-card .fw-term {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .fw-card .fw-q {
+            font-size: 1.08rem;
+            line-height: 1.4;
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .fw-card .fw-dl {
+            position: relative;
+            font-size: 0.98rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+            padding-left: 18px;
+            margin-bottom: 6px;
+        }
+        .fw-card .fw-dl::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            background: var(--border-dark);
+        }
+
+        /* ===== EVERYDAY CARDS ===== */
+        .day-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 22px; max-width: 1050px; }
+        .day-card {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-left: 5px solid var(--blue);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .day-card .q {
+            font-size: 1.25rem;
+            line-height: 1.4;
+            color: var(--text-heading);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .day-card .meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ===== RULES ===== */
+        .rules { max-width: 66ch; }
+        .rule {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-left: 5px solid var(--blue);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .rule .rn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--blue);
+            line-height: 1.1;
+            min-width: 30px;
+        }
+        .rule .rt {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+        .rule .ln {
+            position: relative;
+            font-size: 1.02rem;
+            line-height: 1.45;
+            color: var(--text-body);
+            padding-left: 20px;
+            margin-bottom: 5px;
+        }
+        .rule .ln::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.58em;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--border-dark);
+        }
+        .rule .ln b { color: var(--text-heading); }
+
+        /* ===== FACILITATOR DRAWER ===== */
+        .fac {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 340px;
+            background: #ffffff;
+            border-top: 3px solid var(--blue);
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
+            padding: 16px 24px;
+            z-index: 50;
+            display: none;
+            max-height: 42vh;
+            overflow-y: auto;
+        }
+        .fac.show { display: block; }
+        .fac .fh {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue);
+            margin-bottom: 8px;
+        }
+        .fac p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 6px;
+            color: var(--text-body);
+            max-width: 95ch;
+        }
+        .fac b { color: var(--text-heading); }
+        .fac .say-line { color: var(--blue); font-weight: 600; }
+
+        /* ===== FILM STAGES ===== */
+        .video-shell { margin: 14px 0 6px; }
+        .video-shell video {
+            display: block;
+            width: 100%;
+            max-width: 920px;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+            border: 2px solid var(--border-dark);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+        }
+        .film-note { margin-top: 10px; font-weight: 600; color: var(--text-muted); font-size: 1.02rem; }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header class="top-bar">
+    <div class="header-left">
+        <span class="meta-pill cool">Room 8</span>
+        <span class="meta-pill">ILT Ethics Lab</span>
+        <div class="grade-switch" title="Switches scenario depth and vocabulary">
+            <button class="grade-btn active" id="g9btn" onclick="setGrade('9')">Grade 8</button>
+            <button class="grade-btn" id="g7btn" onclick="setGrade('7')">Grade 7</button>
+        </div>
+    </div>
+    <div class="timer-block">
+        <span class="kbd-hint">&larr; &rarr;: stages</span>
+        <span class="kbd-hint">SPACE: timer</span>
+        <span class="kbd-hint">R: reset</span>
+        <span class="kbd-hint">F: notes</span>
+        <div class="timer-display" id="timerDisplay">05:00</div>
+        <button class="tbtn go" id="timerBtn" onclick="toggleTimer()">Start</button>
+        <button class="tbtn" onclick="resetTimer()">Reset</button>
+    </div>
+</header>
+
+<!-- ===== STAGE STRIP ===== -->
+<nav class="stage-strip" id="stageStrip"></nav>
+
+<!-- ===== MAIN ===== -->
+<main class="hub">
+    <section class="stage-area" id="stageArea">
+
+        <!-- STAGE 0 : TITLE -->
+        <div class="panel active" data-stage="0">
+            <div class="eyebrow">Instructional Leadership Time · Ethics Lab</div>
+            <h1>The Trolley Problem</h1>
+            <div class="stat-row">
+                <div class="stat"><div class="v">6</div><div class="l">Scenarios</div></div>
+                <div class="stat"><div class="v">3:00</div><div class="l">Each</div></div>
+                <div class="stat"><div class="v">0</div><div class="l">Wrong answers</div></div>
+            </div>
+            <ul class="big-bullets">
+                <li>The only thing being graded is whether you can say <strong>why</strong>.</li>
+            </ul>
+            <div class="callout">
+                <div class="ch">⚖ The ground rule for every scenario today</div>
+                <ul>
+                    <li>Everyone in every scenario is <b>identical in every way that matters</b>.</li>
+                    <li>Same age. Same health. Same everything.</li>
+                    <li>You choose from the choice you are given.</li>
+                </ul>
+            </div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="goStage(1)">Begin &rarr;</button>
+                <button class="btn-ghost" onclick="toggleFac()">Facilitator notes (F)</button>
+            </div>
+        </div>
+
+        <!-- STAGE 1 : GROUND RULES -->
+        <div class="panel" data-stage="1">
+            <div class="eyebrow">Before we start</div>
+            <h2>Four Ground Rules</h2>
+            <div class="rules">
+                <div class="rule">
+                    <span class="rn">1</span>
+                    <div>
+                        <div class="rt">There are no right answers</div>
+                        <div class="ln">Reasoning is the skill.</div>
+                        <div class="ln">“I don’t know yet” is a real answer, if you can say why you’re still thinking.</div>
+                    </div>
+                </div>
+                <div class="rule">
+                    <span class="rn">2</span>
+                    <div>
+                        <div class="rt">No loopholes</div>
+                        <div class="ln">“Why not just untie them?” “Why not shout?” Clever. And the answer: <b>you get one choice, the scenario as written.</b></div>
+                        <div class="ln">Notice the loophole. Then decide anyway.</div>
+                    </div>
+                </div>
+                <div class="rule">
+                    <span class="rn">3</span>
+                    <div>
+                        <div class="rt">Attack the argument, not the person</div>
+                        <div class="ln">Only two sentences are allowed across this room:</div>
+                        <div class="ln">“I see it differently because…”</div>
+                        <div class="ln">“That’s a fair point, but…”</div>
+                    </div>
+                </div>
+                <div class="rule">
+                    <span class="rn">4</span>
+                    <div>
+                        <div class="rt">I will not tell you what I think</div>
+                        <div class="ln">My job: hand you the labels for what you’re already arguing.</div>
+                        <div class="ln">Your job: find out which label you’re using.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAGE 2 : FILM : HOW THE TROLLEY PROBLEM WORKS -->
+        <div class="panel" data-stage="2">
+            <div class="eyebrow">Watch first · two minutes · then we vote</div>
+            <h2>First: how this thought experiment works</h2>
+            <div class="video-shell">
+                <video src="How_The_Trolley_Problem_Works.mp4" controls preload="metadata"></video>
+                <div class="film-note">The film sets the scene and stops at the question. The choosing is still yours.</div>
+            </div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="goStage(3)">To the lever &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 3 : THE SWITCH -->
+        <div class="panel" data-stage="3">
+            <div class="eyebrow">Scenario 1 · Vote first</div>
+            <h1>The Switch</h1>
+            <div class="scene" id="scene-switch"></div>
+            <div class="ask">Hands up. What do you do, and can you say why?</div>
+            <div class="vote-grid" data-votes="switch"></div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="clearTally('switch')">Clear tally</button>
+                <button class="btn-ghost" onclick="goStage(4)">Next &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 4 : PAIR TALK -->
+        <div class="panel" data-stage="4">
+            <div class="eyebrow">Scenario 1 · 4 minutes</div>
+            <h2>Turn to your partner</h2>
+            <ul class="big-bullets">
+                <li>Tell your partner what you just chose.</li>
+                <li>Then make them ask you the one hard question: <strong>“so what makes this the right call?”</strong></li>
+            </ul>
+            <div class="ask">Write the reason, not the answer. “Fewer people die” is a reason. “It’s my job to protect everyone” is a reason. “Pull” is not.</div>
+            <div class="callout">
+                <div class="ch">📝 On your sheet</div>
+                <ul>
+                    <li>Scenario 1: your choice, and your reason in one sentence.</li>
+                    <li>Keep it. You will compare it to Scenario 2 in a few minutes.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- STAGE 5 : THE FOOTBRIDGE -->
+        <div class="panel" data-stage="5">
+            <div class="eyebrow">Scenario 2 · Vote first</div>
+            <h1>The Footbridge</h1>
+            <div class="scene" id="scene-footbridge"></div>
+            <div class="ask">Same numbers. Different choice. Hands up: what do you do?</div>
+            <div class="vote-grid" data-votes="footbridge"></div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="clearTally('footbridge')">Clear tally</button>
+                <button class="btn-ghost" onclick="goStage(6)">Next &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 6 : THE SURGEON -->
+        <div class="panel" data-stage="6">
+            <div class="eyebrow">Scenario 3 · Vote first</div>
+            <h1>The Surgeon</h1>
+            <div class="scene" id="scene-surgeon"></div>
+            <div class="ask">Watch your own hand on this one. Hands up: what do you do?</div>
+            <div class="vote-grid" data-votes="surgeon"></div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="clearTally('surgeon')">Clear tally</button>
+                <button class="btn-ghost" onclick="goStage(7)">Next &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 7 : THE PATTERN -->
+        <div class="panel" data-stage="7">
+            <div class="eyebrow">Here is the point of the whole lesson</div>
+            <h2>Look at what this room just did</h2>
+            <ul class="big-bullets">
+                <li>Same lives. Same math. Same people.</li>
+                <li>Three scenarios. <strong>Three different answers</strong> from this room.</li>
+                <li>That is not randomness. Something consistent is doing work in your heads.</li>
+            </ul>
+            <div class="ask">So what exactly is doing the counting?</div>
+            <ul class="big-bullets">
+                <li>You argued that <strong>how many</strong> matters.</li>
+                <li>Then you <strong>stopped counting</strong> the moment a hand went up.</li>
+            </ul>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="goStage(8)">Name the frameworks &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 8 : FRAMEWORKS -->
+        <div class="panel" data-stage="8">
+            <div class="eyebrow">The labels for what you were already arguing</div>
+            <h2>Three Lenses</h2>
+            <div class="fw-grid">
+                <div class="fw-card">
+                    <div class="fw-name" data-g7="Does it end well?" data-g9="Consequentialism"></div>
+                    <div class="fw-term" data-g7="The “ends justify the means” lens" data-g9="Also called: utilitarianism"></div>
+                    <div class="fw-q">The outcome is what matters. Count the results.</div>
+                    <div class="fw-dl">The Switch: yes.</div>
+                    <div class="fw-dl">The Footbridge: no.</div>
+                    <div class="fw-dl">Identical outcomes. But one kills by hand.</div>
+                </div>
+                <div class="fw-card">
+                    <div class="fw-name" data-g7="Is the act right?" data-g9="Deontology"></div>
+                    <div class="fw-term" data-g7="The “rules matter” lens" data-g9="Kantian ethics · duty and rules"></div>
+                    <div class="fw-q">Some acts are wrong no matter how good the outcome.</div>
+                    <div class="fw-dl">The Footbridge: no.</div>
+                    <div class="fw-dl">Not because of the numbers.</div>
+                    <div class="fw-dl">Killing an innocent is the thing you don’t do. Ever. Even when it works.</div>
+                </div>
+                <div class="fw-card">
+                    <div class="fw-name" data-g7="What would a good person do?" data-g9="Virtue &amp; Care Ethics"></div>
+                    <div class="fw-term" data-g7="The “what kind of person am I?” lens" data-g9="Character, relationships, context"></div>
+                    <div class="fw-q">Ask who you are and who is in front of you. Not totals.</div>
+                    <div class="fw-dl">Who is this person to me?</div>
+                    <div class="fw-dl">What would I want someone to do?</div>
+                    <div class="fw-dl">Am I the kind of person who pulls levers?</div>
+                </div>
+            </div>
+            <div class="ask">Which lens is <b>your</b> lens? Be ready to defend it against the other two.</div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="goStage(9)">Apply it &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 9 : SMALL GROUP DILEMMA -->
+        <div class="panel" data-stage="9">
+            <div class="eyebrow">Small groups · 10 minutes · you will report back</div>
+            <h1 id="grpTitle">The Lifeboat</h1>
+            <div class="scene" id="grpBody"></div>
+            <div class="ask" id="grpAsk"></div>
+            <div class="callout">
+                <div class="ch"><span id="grpIcon">🚣</span>&nbsp; Argue the card you were dealt</div>
+                <ul id="grpSym"></ul>
+            </div>
+            <div class="hint-row">
+                <button class="btn-ghost" id="swapBtn" onclick="swapGroupDilemma()">Switch to Heinz dilemma</button>
+                <button class="btn-ghost" onclick="goStage(10)">Next &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 10 : FILM : THE INVISIBLE RING -->
+        <div class="panel" data-stage="10">
+            <div class="eyebrow">One more story · Plato, 2,400 years ago</div>
+            <h2>The Invisible Ring</h2>
+            <div class="video-shell">
+                <video src="The_Invisible_Ring_Moral_Trap.mp4" controls preload="metadata"></video>
+                <div class="film-note">The question Plato leaves you: are people only good because they might get caught?</div>
+            </div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="goStage(11)">Smaller stakes &rarr;</button>
+            </div>
+        </div>
+
+        <!-- STAGE 11 : REPORT BACK + EVERYDAY -->
+        <div class="panel" data-stage="11">
+            <div class="eyebrow">One line per group · then we go small</div>
+            <h2>Same Rules, Smaller Stakes</h2>
+            <div class="day-grid">
+                <div class="day-card">
+                    <div class="q">Your best friend asks to copy your math test. Nobody will know. What do you do?</div>
+                    <div class="meta">Everyone has lived this one</div>
+                </div>
+                <div class="day-card">
+                    <div class="q">You see a classmate steal a chocolate bar from the store. What do you do?</div>
+                    <div class="meta">Everyone has lived this one</div>
+                </div>
+                <div class="day-card">
+                    <div class="q">The popular kids won’t let you bring your unpopular friend along. Do you go without them?</div>
+                    <div class="meta">Everyone has lived this one</div>
+                </div>
+                <div class="day-card">
+                    <div class="q">Be honest. Did you use the same reason here that you used in the Footbridge?</div>
+                    <div class="meta">Now with numbers</div>
+                </div>
+            </div>
+            <div class="ask">These look easier. Fewer lives. Smaller numbers. So why are they harder to decide?</div>
+        </div>
+
+        <!-- STAGE 12 : EXIT TICKET -->
+        <div class="panel" data-stage="12">
+            <div class="eyebrow">Last 4 minutes · on your own · no names</div>
+            <h2>Exit Ticket</h2>
+            <ul class="big-bullets">
+                <li>Two sentences. That’s the whole ticket.</li>
+                <li>Hand it to me on your way out.</li>
+            </ul>
+            <div class="rules">
+                <div class="rule">
+                    <span class="rn">A</span>
+                    <div>
+                        <div class="rt">“I used to think…”</div>
+                        <div class="ln">What did you believe when you walked in?</div>
+                        <div class="ln">Be specific: a scenario, not a vibe.</div>
+                    </div>
+                </div>
+                <div class="rule">
+                    <span class="rn">B</span>
+                    <div>
+                        <div class="rt">“…now I think…”</div>
+                        <div class="ln">What changed, or what did you realize you couldn’t explain?</div>
+                        <div class="ln">“Nothing changed but I have a name for it” is a real answer.</div>
+                    </div>
+                </div>
+                <div class="rule">
+                    <span class="rn">C</span>
+                    <div>
+                        <div class="rt">“The lens I’m using is…”</div>
+                        <div class="ln">Name it: Ends · Rules · Character.</div>
+                        <div class="ln">Bonus: name one lens you would need to borrow from someone else to finish the argument.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hint-row">
+                <button class="btn-ghost" onclick="toggleFac()">Facilitator notes (F)</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===== RIGHT RAIL ===== -->
+    <aside class="record">
+        <h3>Class Record</h3>
+        <div class="sub">Tap the numbers in as you count hands</div>
+
+        <div class="rec-block" id="rec-switch">
+            <div class="rec-title">1 · The Switch</div>
+            <div id="rec-switch-rows"></div>
+        </div>
+        <div class="rec-block" id="rec-footbridge">
+            <div class="rec-title">2 · The Footbridge</div>
+            <div id="rec-footbridge-rows"></div>
+        </div>
+        <div class="rec-block" id="rec-surgeon">
+            <div class="rec-title">3 · The Surgeon</div>
+            <div id="rec-surgeon-rows"></div>
+        </div>
+
+        <div class="gap-callout empty" id="gapCallout">
+            <div class="hd">The Gap</div>
+            <p id="gapText">Vote on Scenarios 1 and 2, then this fills itself in.</p>
+        </div>
+        <button class="rail-clear" onclick="clearAllTallies()">Clear the whole record</button>
+    </aside>
+</main>
+
+<!-- ===== FACILITATOR DRAWER ===== -->
+<div class="fac" id="facPanel">
+    <div class="fh">Facilitator notes · press F to hide</div>
+    <div id="facBody"></div>
+</div>
+
+<script>
+    /* ================================================================
+       STAGE MAP
+       ================================================================ */
+    const STAGES = [
+        { n: 1, label: 'Start',      min: 1 },
+        { n: 2, label: 'Rules',      min: 3 },
+        { n: 3, label: 'Film: Trolley', min: 3 },
+        { n: 4, label: '1 Switch',   min: 4 },
+        { n: 5, label: 'Pair Talk',  min: 4 },
+        { n: 6, label: '2 Bridge',   min: 4 },
+        { n: 7, label: '3 Surgeon',  min: 4 },
+        { n: 8, label: 'Pattern',    min: 5 },
+        { n: 9, label: 'Lenses',     min: 8 },
+        { n: 10, label: 'Groups',    min: 10 },
+        { n: 11, label: 'Film: Ring', min: 3 },
+        { n: 12, label: 'Small Stakes', min: 6 },
+        { n: 13, label: 'Exit',      min: 4 }
+    ];
+
+    const FAC = {
+        0: ['<b>Do not explain the lesson.</b> Neutral face is the whole strategy: no nodding, no “good answer.” Hand-count on Scenario 1 works best if you never signal a reaction.'],
+        1: ['<b>Say this out loud, literally:</b> <span class="say-line">“There are no right answers in here. I am not grading your choice, I am grading whether you can tell me why.”</span> That sentence buys you the quiet half of the room.'],
+        2: ['<b>Preview before class.</b> The film must stop at the question, never the answer. If it starts explaining the ethics, skip it and run the Switch slide cold.', '<span class="say-line">Say: “That is the whole setup. Here comes the lever. Hands up.”</span>'],
+        3: ['<span class="say-line">Say: “Hands up if you pull the lever. Keep your hand up.”</span> Count. Tap into the rail. Expect 80 to 90 percent.'],
+        4: ['<span class="say-line">Circulate and eavesdrop.</span> Listen for a student who can only state the outcome: “five versus one.” Write two names on your clipboard. Call on them by name in the Pattern stage.'],
+        5: ['<span class="say-line">Say: “Same five people. Same trolley. Hands up.”</span> <b>The number is the payload.</b> Watch for the visible flinch. Do not rescue them: let the silence sit for three seconds.'],
+        6: ['<span class="say-line">Say: “Third one. Same math. Hands up.”</span> Expect this to collapse toward “do nothing.” The collapse is your best teaching moment.'],
+        7: ['<b>The most important 5 minutes of the period.</b> Do not let them escape into “everyone’s different, it doesn’t matter.” Push back: <span class="say-line">“It does matter. Your answers were not random. You changed your answer when the <i>how</i> changed, not when the <i>how many</i> changed. That’s a rule. You just don’t have words for it yet.”</span>'],
+        8: ['<span class="say-line">Gr 8: “Those are philosophers’ names. Forty years on this board, and they still argue about it.”</span><br><span class="say-line">Gr 7: “Three questions people ask. That’s all these are.”</span><br><b>Then push:</b> someone will ask which one is right. <span class="say-line">“That’s the other three hundred years.”</span>'],
+        9: ['<b>Mix the groups yourself. Do not let friends pick.</b> Lifeboat is stronger with mixed-ability arguers. Heinz is stronger if you split the room: Yes / No / Can’t Decide, each side preps a case.'],
+        10: ['<b>The Ring of Gyges, Plato’s story.</b> A ring that makes you invisible, then the challenge: are people only good because they fear getting caught? Let the film land. Do not resolve it.', '<span class="say-line">Bridge out: “Nobody would ever know. Now: the chocolate bar.”</span> That hands the room straight into Small Stakes.'],
+        11: ['<b>Report-back discipline:</b> one sentence per group, no exceptions, no debate yet. Then the small-stakes round. The point: these feel HARDER, and someone has to explain why.'],
+        12: ['<b>Collect the tickets.</b> Read them tonight. Sort into three piles: changed my mind, hardened my view, now I can name it. The third pile is your assessment data, and it feeds the next lesson.']
+    };
+
+    /* ================================================================
+       SCENE LINES (rendered per grade; bullets, not paragraphs)
+       ================================================================ */
+    const SCENES = {
+        switch: {
+            g7:
+                '<div class="scene-line">A runaway trolley. The brakes are gone.</div>' +
+                '<div class="scene-line">Five workers are tied to the main track.</div>' +
+                '<div class="scene-line">You are standing beside a lever.</div>' +
+                '<div class="outcome act"><span class="olab">Pull</span><span class="otxt">The trolley turns onto a side track. <strong>One</strong> person is tied there. The five workers live.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Leave it</span><span class="otxt">The trolley keeps going. All five die.</span></div>',
+            g9:
+                '<div class="scene-line">A runaway trolley. Brakes gone.</div>' +
+                '<div class="scene-line">Five workers tied to the main track.</div>' +
+                '<div class="scene-line">You stand beside a lever.</div>' +
+                '<div class="outcome act"><span class="olab">Pull</span><span class="otxt">The trolley diverts to a side track. <strong>One</strong> person is tied there. The five live.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Leave it</span><span class="otxt">The trolley stays on the main track. All five die.</span></div>'
+        },
+        footbridge: {
+            g7:
+                '<div class="scene-line">The same runaway trolley. The same <strong>five</strong> people.</div>' +
+                '<div class="scene-line">There is no lever this time.</div>' +
+                '<div class="scene-line">You are standing on a footbridge over the track.</div>' +
+                '<div class="scene-line">Next to you is a large man.</div>' +
+                '<div class="outcome act"><span class="olab">Push him</span><span class="otxt">His body stops the trolley. The five live. He dies.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Do nothing</span><span class="otxt">All five die.</span></div>',
+            g9:
+                '<div class="scene-line">Identical setup. The same trolley. The same <strong>five</strong> workers.</div>' +
+                '<div class="scene-line">No lever. No side track.</div>' +
+                '<div class="scene-line">You stand on a footbridge over the rails.</div>' +
+                '<div class="scene-line">Beside you: a large man.</div>' +
+                '<div class="outcome act"><span class="olab">Push him</span><span class="otxt">His body stops the trolley. The five live. He dies.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Do nothing</span><span class="otxt">All five die.</span></div>'
+        },
+        surgeon: {
+            g7:
+                '<div class="scene-line">Five patients are in the hospital.</div>' +
+                '<div class="scene-line">Each one needs a different organ. Each one will die without it.</div>' +
+                '<div class="scene-line">A healthy visitor arrives for a checkup.</div>' +
+                '<div class="scene-line">The visitor happens to match all five.</div>' +
+                '<div class="outcome act"><span class="olab">Operate tonight</span><span class="otxt">One person dies on the table. The five patients live.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Refuse</span><span class="otxt">The five patients die. The visitor walks out healthy.</span></div>',
+            g9:
+                '<div class="scene-line">Five patients. Five different organs. Five clocks running out.</div>' +
+                '<div class="scene-line">A healthy visitor walks in for a routine checkup.</div>' +
+                '<div class="scene-line">Perfect match for all five at once.</div>' +
+                '<div class="scene-line">You are the surgeon. The visitor signs the consent form.</div>' +
+                '<div class="outcome act"><span class="olab">Operate tonight</span><span class="otxt">The visitor dies on the table. The five patients live.</span></div>' +
+                '<div class="outcome wait"><span class="olab">Refuse</span><span class="otxt">The five patients die. The visitor walks out healthy.</span></div>'
+        }
+    };
+
+    /* ================================================================
+       SCENARIOS / VOTE OPTIONS
+       ================================================================ */
+    const SCENARIOS = {
+        switch: {
+            actIndex: 0,
+            options: [
+                { label: 'Pull the lever', passive: false },
+                { label: 'Do nothing: all five die', passive: true }
+            ]
+        },
+        footbridge: {
+            actIndex: 0,
+            options: [
+                { label: 'Push the man', passive: false },
+                { label: 'Do nothing: all five die', passive: true }
+            ]
+        },
+        surgeon: {
+            actIndex: 1,
+            options: [
+                { label: 'Operate: save the five patients', passive: false },
+                { label: 'Refuse: the five patients die', passive: true }
+            ]
+        }
+    };
+
+    let tallies = {};
+    let grade = '9';
+    let currentStage = 0;
+
+    /* ================================================================
+       STAGE STRIP
+       ================================================================ */
+    function buildStageStrip() {
+        const strip = document.getElementById('stageStrip');
+        STAGES.forEach((s, i) => {
+            const b = document.createElement('button');
+            b.className = 'stage-tab';
+            b.innerHTML = '<span class="num">' + String(i).padStart(2, '0') + '</span>' + s.label;
+            b.onclick = () => goStage(i);
+            b.dataset.idx = i;
+            strip.appendChild(b);
+        });
+    }
+
+    /* ================================================================
+       NAVIGATION
+       ================================================================ */
+    function goStage(i) {
+        currentStage = Math.max(0, Math.min(STAGES.length - 1, i));
+        document.querySelectorAll('.panel video').forEach(v => { try { v.pause(); } catch (e) {} });
+        document.querySelectorAll('.panel').forEach(p => {
+            p.classList.toggle('active', parseInt(p.dataset.stage, 10) === currentStage);
+        });
+        document.querySelectorAll('.stage-tab').forEach(t => {
+            const idx = parseInt(t.dataset.idx, 10);
+            t.classList.toggle('active', idx === currentStage);
+            t.classList.toggle('done', idx < currentStage);
+        });
+        const st = STAGES[currentStage];
+        setTimer(st.min);
+        document.getElementById('facBody').innerHTML = (FAC[currentStage] || []).map(x => '<p>' + x + '</p>').join('');
+        document.getElementById('stageArea').scrollTop = 0;
+    }
+
+    /* ================================================================
+       GRADE SWITCH
+       ================================================================ */
+    function setGrade(g) {
+        grade = g;
+        document.getElementById('g9btn').classList.toggle('active', g === '9');
+        document.getElementById('g7btn').classList.toggle('active', g === '7');
+        document.querySelectorAll('[data-g7][data-g9]').forEach(el => {
+            el.innerHTML = el.dataset['g' + g];
+        });
+        applyScenes();
+        applyGroupVariant();
+    }
+
+    function applyScenes() {
+        Object.keys(SCENES).forEach(key => {
+            const el = document.getElementById('scene-' + key);
+            if (el) el.innerHTML = SCENES[key]['g' + grade];
+        });
+    }
+
+    /* ================================================================
+       VOTE TALLIES
+       ================================================================ */
+    function buildVotes() {
+        Object.keys(SCENARIOS).forEach(key => {
+            const sc = SCENARIOS[key];
+            if (!tallies[key]) tallies[key] = sc.options.map(() => 0);
+
+            const grid = document.querySelector('[data-votes="' + key + '"]');
+            grid.innerHTML = '';
+            sc.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = 'vote-btn';
+                b.innerHTML =
+                    '<span class="letter">' + String.fromCharCode(65 + i) + '</span>' +
+                    '<span class="txt">' + opt.label + '</span>' +
+                    '<span class="tally" id="vt-' + key + '-' + i + '">0</span>';
+                b.onclick = () => bumpTally(key, i);
+                grid.appendChild(b);
+            });
+        });
+    }
+
+    function bumpTally(key, i) {
+        tallies[key][i] = Math.min(999, tallies[key][i] + 1);
+        renderTally(key);
+    }
+
+    function clearTally(key) {
+        tallies[key] = SCENARIOS[key].options.map(() => 0);
+        renderTally(key);
+    }
+
+    function clearAllTallies() {
+        Object.keys(SCENARIOS).forEach(clearTally);
+    }
+
+    function renderTally(key) {
+        const sc = SCENARIOS[key];
+        tallies[key].forEach((n, i) => {
+            const el = document.getElementById('vt-' + key + '-' + i);
+            if (el) el.textContent = n;
+            const btn = el ? el.parentElement : null;
+            if (btn) btn.classList.toggle('tallied', n > 0);
+        });
+
+        // right-rail bars
+        const rowsEl = document.getElementById('rec-' + key + '-rows');
+        const total = tallies[key].reduce((a, b) => a + b, 0);
+        rowsEl.innerHTML = sc.options.map((opt, i) => {
+            const n = tallies[key][i];
+            const pct = total ? Math.round((n / total) * 100) : 0;
+            return '<div class="rec-row">' +
+                '<div class="rec-label"><span>' + opt.label + '</span><span class="n">' + n + '</span></div>' +
+                '<div class="bar-track"><div class="bar-fill' + (opt.passive ? ' passive' : '') +
+                '" style="width:' + pct + '%"></div></div></div>';
+        }).join('');
+
+        renderGap();
+    }
+
+    function renderGap() {
+        const box = document.getElementById('gapCallout');
+        const txt = document.getElementById('gapText');
+        const s = tallies.switch || [], f = tallies.footbridge || [];
+        const sTotal = s.reduce((a, b) => a + b, 0);
+        const fTotal = f.reduce((a, b) => a + b, 0);
+        if (!sTotal || !fTotal) {
+            box.classList.add('empty');
+            txt.textContent = 'Vote on Scenarios 1 and 2, then this fills itself in.';
+            return;
+        }
+        const sAct = Math.round((s[0] / sTotal) * 100);
+        const fAct = Math.round((f[0] / fTotal) * 100);
+        const gap = sAct - fAct;
+        box.classList.remove('empty');
+        txt.innerHTML = 'Identical outcome. Identical numbers.<br><br>' +
+            'Pulled the lever: <b>' + sAct + '%</b><br>' +
+            'Pushed the man: <b>' + fAct + '%</b><br><br>' +
+            (gap > 15
+                ? 'A <b>' + gap + ' point swing</b> from changing nothing about the math. Only the mechanism changed.<br><br>Whatever rule is running in this room, it cares about <b>how</b>, not just <b>how many</b>.'
+                : 'Small gap this time. Push them anyway: ask what else changed besides the lever.');
+    }
+
+    /* ================================================================
+       SMALL-GROUP DILEMMA VARIANTS (Lifeboat <-> Heinz)
+       Fully reversible: the toggle re-renders from this data every time.
+       ================================================================ */
+    const GROUP_VARIANTS = {
+        lifeboat: {
+            title: 'The Lifeboat',
+            icon: '🚣',
+            ask: 'Your group must produce two things: <b>who goes in</b>, and <b>the rule you used to decide</b>. The rule matters more than the names.',
+            g7: {
+                body:
+                    '<div class="scene-line">A lifeboat is sinking. It holds six people.</div>' +
+                    '<div class="scene-line">Ten people are in the water.</div>' +
+                    '<div class="scene-line">It stays afloat with exactly six.</div>' +
+                    '<div class="scene-line">You have to choose who gets in. You are the one choosing.</div>' +
+                    '<div class="scene-line">Your group has the profile cards. Read yours. Argue for it.</div>',
+                sym:
+                    '<li>You argue for <b>that</b> person. Not for whoever seems most deserving in general.</li>' +
+                    '<li>Notice when you start doing the second thing.</li>'
+            },
+            g9: {
+                body:
+                    '<div class="scene-line">An overloaded lifeboat is taking on water.</div>' +
+                    '<div class="scene-line">Room for six. Ten in the water.</div>' +
+                    '<div class="scene-line">Someone has to decide who climbs aboard.</div>' +
+                    '<div class="scene-line">Each of you holds one profile card. No swaps.</div>' +
+                    '<div class="scene-line">Argue for your person. Then your group votes.</div>',
+                sym:
+                    '<li>You argue for <b>that specific person</b>, not for a category.</li>' +
+                    '<li>The moment you argue about categories instead of people, you have left the exercise.</li>'
+            }
+        },
+        heinz: {
+            title: 'The Heinz Dilemma',
+            icon: '⚖',
+            ask: 'Your group must build the <b>strongest case for the side it was assigned</b>. Not the side it personally believes.',
+            g7: {
+                body:
+                    '<div class="scene-line">A woman is dying.</div>' +
+                    '<div class="scene-line">The medicine that will save her is right there. The pharmacist will not sell it.</div>' +
+                    '<div class="scene-line">Her husband does not have enough money.</div>' +
+                    '<div class="scene-line">The law says the pharmacist is right to refuse.</div>' +
+                    '<div class="scene-line">The law does not say the woman is allowed to die.</div>' +
+                    '<div class="scene-line"><strong>What should he do?</strong></div>',
+                sym:
+                    '<li>Split the room: <b>Yes / No / Can’t Decide</b>.</li>' +
+                    '<li>Each group gets five minutes to build the strongest case for its assigned side.</li>' +
+                    '<li>Not the side it personally believes. The side it was assigned.</li>'
+            },
+            g9: {
+                body:
+                    '<div class="scene-line">A woman is dying. The medicine that saves her sits on the pharmacy shelf.</div>' +
+                    '<div class="scene-line">The pharmacist will not sell. The husband cannot pay.</div>' +
+                    '<div class="scene-line">Every legal option has been tried and failed.</div>' +
+                    '<div class="scene-line">There is a law against what he is considering.</div>' +
+                    '<div class="scene-line">It would probably work. It might go unpunished.</div>' +
+                    '<div class="scene-line"><strong>Should he do it?</strong></div>',
+                sym:
+                    '<li>Split the room: <b>Yes / No / Can’t Decide</b>.</li>' +
+                    '<li>Each group gets five minutes to build the strongest case for its assigned side.</li>' +
+                    '<li>Not the side it personally believes. The side it was assigned.</li>'
+            }
+        }
+    };
+
+    let groupVariant = 'lifeboat';
+
+    function applyGroupVariant() {
+        const v = GROUP_VARIANTS[groupVariant];
+        document.getElementById('grpTitle').textContent = v.title;
+        document.getElementById('grpIcon').textContent = v.icon;
+        document.getElementById('grpAsk').innerHTML = v.ask;
+        document.getElementById('grpBody').innerHTML = v['g' + grade].body;
+        document.getElementById('grpSym').innerHTML = v['g' + grade].sym;
+    }
+
+    function swapGroupDilemma() {
+        groupVariant = groupVariant === 'lifeboat' ? 'heinz' : 'lifeboat';
+        document.getElementById('swapBtn').textContent =
+            groupVariant === 'lifeboat' ? 'Switch to Heinz dilemma' : 'Switch back to Lifeboat';
+        applyGroupVariant();
+    }
+
+    /* ================================================================
+       TIMER
+       ================================================================ */
+    let timerSeconds = 300, timerInterval = null, timerRunning = false;
+    let audioCtx = null;
+
+    function beep(freq, dur) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.value = freq;
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+            o.start(); o.stop(audioCtx.currentTime + dur + 0.02);
+        } catch (e) { /* audio unavailable */ }
+    }
+
+    function updateTimerDisplay() {
+        const d = document.getElementById('timerDisplay');
+        const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
+        d.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        d.classList.toggle('running', timerRunning && timerSeconds > 30);
+        d.classList.toggle('warn', timerRunning && timerSeconds <= 30 && timerSeconds > 0);
+        d.classList.toggle('done', timerSeconds <= 0);
+    }
+
+    function toggleTimer() {
+        const btn = document.getElementById('timerBtn');
+        if (timerRunning) {
+            clearInterval(timerInterval); timerRunning = false;
+            btn.textContent = 'Start'; btn.className = 'tbtn go';
+        } else {
+            if (timerSeconds <= 0) resetTimer();
+            timerRunning = true;
+            btn.textContent = 'Pause'; btn.className = 'tbtn stop';
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                if (timerSeconds === 30) beep(880, 0.25);
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval); timerRunning = false;
+                    beep(440, 0.7);
+                    btn.textContent = 'Start'; btn.className = 'tbtn go';
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+        updateTimerDisplay();
+    }
+
+    function setTimer(min) { timerSeconds = min * 60; updateTimerDisplay(); }
+
+    function resetTimer() {
+        clearInterval(timerInterval); timerRunning = false;
+        document.getElementById('timerBtn').textContent = 'Start';
+        document.getElementById('timerBtn').className = 'tbtn go';
+        setTimer(STAGES[currentStage] ? STAGES[currentStage].min : 5);
+    }
+
+    /* ================================================================
+       FACILITATOR PANEL + KEYS
+       ================================================================ */
+    function toggleFac() {
+        document.getElementById('facPanel').classList.toggle('show');
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.code === 'Space') { e.preventDefault(); toggleTimer(); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); goStage(currentStage + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goStage(currentStage - 1); }
+        else if (e.key === 'f' || e.key === 'F') { toggleFac(); }
+        else if (e.key === 'r' || e.key === 'R') { resetTimer(); }
+    });
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+    buildStageStrip();
+    buildVotes();
+    setGrade('9');
+    renderTally('switch');
+    renderTally('footbridge');
+    renderTally('surgeon');
+    goStage(0);
+</script>
+</body>
+</html>

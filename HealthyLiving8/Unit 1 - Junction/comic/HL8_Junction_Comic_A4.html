@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Junction — Comic: Sam's Week (A4 Reading Pack)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    @page { size: A4 portrait; margin: 0; }
+
+    /* NOTE: the @media print block lives at the END of this stylesheet, not here.
+       Same-specificity base rules declared later would otherwise win, re-applying
+       .sheet margin-bottom and the flex body padding during print. */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: #52525b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0 30px 0;
+        color: #000000;
+    }
+
+    .print-bar {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #18181b;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .print-bar button {
+        font-family: 'Roboto Slab', serif;
+        font-size: 0.95rem;
+        font-weight: 800;
+        padding: 8px 20px;
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .sheet {
+        width: 210mm;
+        /* 296mm, not 297mm. A box exactly page-height rounds over the print
+           boundary in Chrome and fragments onto a second sheet. Leave a sliver. */
+        height: 296mm;
+        background: #ffffff;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+        margin-bottom: 10mm;
+        padding: 9mm 12mm 8mm 12mm;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    .sheet::after {
+        content: attr(data-side);
+        position: absolute;
+        bottom: 3.5mm;
+        right: 6mm;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7pt;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #9ca3af;
+    }
+
+    /* ── Header ── */
+    .ex-header {
+        border-bottom: 2.5px solid #000000;
+        padding-bottom: 2mm;
+        margin-bottom: 3.5mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex: none;
+    }
+    .ex-kicker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #52525b;
+    }
+    .ex-title {
+        font-family: 'Roboto Slab', serif;
+        font-size: 15pt;
+        font-weight: 900;
+        margin-top: 1.2mm;
+        color: #000000;
+    }
+    .ex-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7.5pt;
+        font-weight: 700;
+        background: #000000;
+        color: #ffffff;
+        padding: 1mm 2.5mm;
+        border-radius: 1.5mm;
+        white-space: nowrap;
+    }
+
+    /* ── Act divider ── */
+    .act {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: 2.5px solid #000000;
+        background:
+            repeating-linear-gradient(135deg, #18181b 0 14px, #0f0f12 14px 28px);
+        color: #ffffff;
+        padding: 20mm;
+    }
+    .act-no {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9pt;
+        font-weight: 800;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: #f59e0b;
+        margin-bottom: 5mm;
+    }
+    .act-title {
+        font-family: 'Roboto Slab', serif;
+        font-size: 30pt;
+        font-weight: 900;
+        line-height: 1.05;
+        margin-bottom: 5mm;
+    }
+    .act-sub {
+        font-size: 11pt;
+        color: #d4d4d8;
+        max-width: 135mm;
+        line-height: 1.55;
+    }
+
+    /* ── Panel row: image left, caption right ── */
+    /* Fixed height, NOT flex:1. flex let tall captions push the row past the
+       page boundary, which fragmented every other spread across two sheets. */
+    .panel-row {
+        display: flex;
+        gap: 5mm;
+        margin-bottom: 5mm;
+        height: 121mm;
+        flex: none;
+        min-height: 0;
+    }
+    .panel-row:last-child { margin-bottom: 0; }
+
+    .panel-frame {
+        width: 100mm;
+        border: 2px solid #000000;
+        background: #18181b;
+        position: relative;
+        overflow: hidden;
+        flex: none;
+    }
+    .panel-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .panel-num {
+        position: absolute;
+        top: 2mm;
+        left: 2mm;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8pt;
+        font-weight: 800;
+        background: #ffffff;
+        color: #000000;
+        padding: 0.8mm 2mm;
+        border-radius: 1mm;
+        letter-spacing: 0.05em;
+    }
+
+    .caption {
+        flex: 1;
+        border: 1.5px solid #000000;
+        background: #f4f4f5;
+        padding: 3.5mm 4mm;
+        font-size: 9.5pt;
+        line-height: 1.4;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .caption h3 {
+        font-family: 'Roboto Slab', serif;
+        font-size: 10.5pt;
+        font-weight: 900;
+        margin-bottom: 2mm;
+        padding-bottom: 1.2mm;
+        border-bottom: 1px solid #d4d4d8;
+        color: #000000;
+    }
+    .caption p { margin-bottom: 2.2mm; }
+    .caption p:last-child { margin-bottom: 0; }
+    .caption em { color: #7f1d1d; font-style: normal; font-weight: 700; }
+    .caption strong { font-weight: 800; }
+
+    .speak {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7.8pt;
+        line-height: 1.38;
+        background: #18181b;
+        color: #ffffff;
+        padding: 1.8mm 2.2mm;
+        border-radius: 1.5mm;
+        margin-bottom: 2.2mm;
+    }
+
+    .beat {
+        margin-top: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 7pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #b45309;
+        border-top: 1.5px solid #f59e0b;
+        padding-top: 1.6mm;
+    }
+
+    /* ── Cover ── */
+    .cover { justify-content: flex-start; }
+    .cover-hero {
+        height: 104mm;
+        border: 3px solid #000000;
+        overflow: hidden;
+        margin-bottom: 5mm;
+        flex: none;
+    }
+    .cover-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .cover-title {
+        font-family: 'Roboto Slab', serif;
+        font-size: 26pt;
+        font-weight: 900;
+        line-height: 1.05;
+        margin-bottom: 2mm;
+    }
+    .cover-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8.5pt;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #b45309;
+        margin-bottom: 5mm;
+    }
+    .cover-blurb {
+        font-size: 9.5pt;
+        line-height: 1.42;
+        margin-bottom: 3mm;
+        max-width: 160mm;
+    }
+    .cast-strip {
+        display: flex;
+        gap: 4mm;
+        border-top: 2px solid #000000;
+        padding-top: 3.5mm;
+        margin-top: auto;
+        flex: none;
+    }
+    .cast-card {
+        flex: 1;
+        border: 1.5px solid #000000;
+        padding: 2.5mm;
+        background: #f4f4f5;
+    }
+    .cast-card .nm {
+        font-family: 'Roboto Slab', serif;
+        font-size: 10.5pt;
+        font-weight: 900;
+        margin-bottom: 1mm;
+    }
+    .cast-card .ds {
+        font-size: 8pt;
+        line-height: 1.35;
+        color: #3f3f46;
+    }
+    .cast-card img {
+        width: 100%;
+        height: 36mm;
+        object-fit: cover;
+        object-position: top center;
+        border: 1px solid #d4d4d8;
+        margin-bottom: 2mm;
+    }
+
+    .rule {
+        font-family: 'Roboto Slab', serif;
+        font-size: 11.5pt;
+        font-weight: 900;
+        font-style: italic;
+        text-align: center;
+        padding: 3.5mm 0;
+        border-top: 2.5px solid #000000;
+        border-bottom: 2.5px solid #000000;
+        margin: 3mm 0;
+        flex: none;
+    }
+
+    /* Closing "Two Rules" sheet */
+    .rules-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 4mm;
+        flex: 1;
+        min-height: 0;
+    }
+    .rule-card {
+        border: 2.5px solid #000;
+        padding: 5mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: none;
+        height: 92mm;
+    }
+    .rule-card.danger { border-color: #b91c1c; background: #fef2f2; }
+    .rule-card h4 {
+        font-family: 'Roboto Slab', serif;
+        font-size: 14pt;
+        font-weight: 900;
+        margin-bottom: 2.5mm;
+    }
+    .rule-card.danger h4 { color: #7f1d1d; }
+    .rule-card p { font-size: 10.5pt; line-height: 1.45; }
+
+    /* ═══ PRINT ═══
+       Must stay last. These rules neutralise screen-only chrome; if they sit
+       earlier, the base .sheet / body declarations below-in-source override them
+       and every sheet overflows A4, splitting into two printed pages. */
+    @media print {
+        body { padding: 0; background: #fff; display: block; }
+        .print-bar { display: none !important; }
+        .sheet {
+            margin: 0;
+            box-shadow: none;
+            break-after: page;
+            page-break-after: always;
+        }
+        .sheet:last-of-type { break-after: auto; page-break-after: auto; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+    <button onclick="window.print()">Print / Save as PDF</button>
+    <span>Junction Comic — 22 panels · A4 portrait</span>
+</div>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="sheet cover" data-side="COMIC · COVER">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">HL8 Junction · Unit 1 · HealthyLiving8</div>
+            <div class="ex-title">Sam's Week — The Junction Comic</div>
+        </div>
+        <div class="ex-tag">22 PANELS</div>
+    </div>
+
+    <div class="cover-hero">
+        <img src="panels/p10_silence.jpg" alt="Sam and Rae surrounded by turned backs">
+    </div>
+
+    <div>
+        <div class="cover-sub">A graphic novel for grade 8</div>
+        <p class="cover-blurb">One group chat. Fourteen seconds. A stack of fires nobody can see. Sam's Week follows a grade 8 student through the week a single screenshot sets on fire — and the thirty seconds that decide what happens next.</p>
+        <p class="cover-blurb"><strong>Two questions run through the book:</strong> what do you do when staying quiet has a cost? And what do you do when a friend asks you to keep something dangerous quiet?</p>
+    </div>
+
+    <div class="cast-strip">
+        <div class="cast-card">
+            <img src="panels/cast_sam.jpg" alt="Sam">
+            <div class="nm">Sam</div>
+            <div class="ds">13. Short dark curls, gray zip hoodie, tan backpack. The one who keeps choosing what happens next.</div>
+        </div>
+        <div class="cast-card">
+            <img src="panels/cast_rae.jpg" alt="Rae">
+            <div class="nm">Rae</div>
+            <div class="ds">13. Long dark hair, heavy bangs, oversized navy hoodie. Starts the story. Ends it.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ ACT ONE ═══════════════ -->
+<div class="sheet" data-side="ACT I · P1–2">
+    <div class="act">
+        <div class="act-no">Act One</div>
+        <div class="act-title">The Trigger</div>
+        <div class="act-sub">Tuesday, 10:38 PM. Once. Then four times in a row — which means the group chat, not a text. Forty people. One screenshot. Thirty seconds to pick a table.</div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT I · P3–4">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act One · The Trigger</div>
+            <div class="ex-title">10:38 PM</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 1</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">01</span>
+            <img src="panels/p01_trigger.jpg" alt="Phone buzzing on a math textbook">
+        </div>
+        <div class="caption">
+            <h3>10:38 PM</h3>
+            <p>Sam's phone buzzes against the math textbook — the one that's supposed to be open.</p>
+            <p>Once. Then four times in a row, which means the group chat, not a text.</p>
+            <div class="beat">Setup</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">02</span>
+            <img src="panels/p02_screenshot.jpg" alt="The leaked screenshot detonating across the chat">
+        </div>
+        <div class="caption">
+            <h3>The Screenshot</h3>
+            <p>Jayden has posted a screenshot. It shows a private message Rae wrote on a bad night, after getting left out of the weekend tournament group.</p>
+            <p>A message about Chloe and Jayden that was never meant for anyone but one person.</p>
+            <p><strong>Now all forty people have read it.</strong></p>
+            <div class="beat">The trigger</div>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT I · P5–6">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act One · The Trigger</div>
+            <div class="ex-title">Thirty Seconds</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 1</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">03</span>
+            <img src="panels/p03_ultimatum.jpg" alt="The ultimatum landing on Sam">
+        </div>
+        <div class="caption">
+            <h3>The Ultimatum</h3>
+            <p>Jayden declares a new rule: Rae is officially ghosted. Nobody talks to Rae. Nobody sits with Rae at lunch.</p>
+            <p>Then the message lands directly on Sam.</p>
+            <div class="speak">"u sit next to Rae every single day in Homeroom. Tomorrow morning — you sitting with Rae, or sitting with us?"</div>
+            <div class="beat">No safe answer</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">04</span>
+            <img src="panels/p04_alarm.jpg" alt="The tiger and the alarm">
+        </div>
+        <div class="caption">
+            <h3>The Alarm</h3>
+            <p>Sam's chest goes tight and hot at the same time. That feeling has a name nobody says out loud: it's the alarm — the fast, automatic part of the brain that reacts before any thinking happens.</p>
+            <p>It was built for tigers in the woods. <em>It is terrible at 10:38 PM group chats.</em></p>
+            <div class="beat">Amygdala, not judgment</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ ACT TWO ═══════════════ -->
+<div class="sheet" data-side="ACT II · P7–8">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">The Move Nobody Was Counting</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">05</span>
+            <img src="panels/p05_trap.jpg" alt="The cafeteria with no adults in it">
+        </div>
+        <div class="caption">
+            <h3>The Trap</h3>
+            <p>And here is the trap: there are no teachers in a group chat at 10:38 PM. No adult on earth can stop thirty kids from turning their shoulders away in a cafeteria tomorrow.</p>
+            <p>Walk into Homeroom and sit with Rae, and Sam is radioactive for the rest of grade 8. Walk past Rae, and Sam personally executes their best friend in public.</p>
+            <p><strong>Two of those moves start a chain reaction. One of them stops one.</strong></p>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">06</span>
+            <img src="panels/p06_floorboard.jpg" alt="Sam frozen at the top of the stairs">
+        </div>
+        <div class="caption">
+            <h3>The Floorboard</h3>
+            <p>Downstairs, a floorboard creaks — Mom's second lap of the kitchen. Phones after 10:30 is a revoked-charger offense, and Sam's charger is already on probation.</p>
+            <p>The thumb hovers over the keyboard.</p>
+            <div class="beat">10:39 PM</div>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P9–10">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">The Third Option</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">07</span>
+            <img src="panels/p07_third_option.jpg" alt="The phone placed face down on the counter">
+        </div>
+        <div class="caption">
+            <h3>The Choice</h3>
+            <p>Sam picks the move nobody was counting.</p>
+            <p>No clapback. No speech. No picking a table. The phone goes downstairs to the kitchen instead — face down on the counter, charger and all.</p>
+            <div class="beat">Third option</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">08</span>
+            <img src="panels/p08_unread.jpg" alt="The phone buzzing unread on the counter">
+        </div>
+        <div class="caption">
+            <h3>Nobody Is Reading It</h3>
+            <p>For the next twenty minutes the chat buzzes against the countertop, furious and unread. It sounds exactly like it matters.</p>
+            <p>The alarm got its thirty seconds of quiet, and the thinking part of the brain — the slow one, the one that needs about half a minute to warm up — got to keep the keys.</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P11–12">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">The Silence</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">09</span>
+            <img src="panels/p09_homeroom.jpg" alt="Sam sitting beside Rae in homeroom">
+        </div>
+        <div class="caption">
+            <h3>Homeroom</h3>
+            <p>At school, Sam keeps sitting beside Rae in Homeroom. No announcement. No speech. Just showing up in the same seat.</p>
+            <p>At school, and again Thursday. The same seat. No explanation offered to anyone.</p>
+            <div class="beat">Words not needed</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">10</span>
+            <img src="panels/p10_silence.jpg" alt="Forty kids looking at the back of Sam's head">
+        </div>
+        <div class="caption">
+            <h3>The Silence</h3>
+            <p>The squad doesn't fight. Nobody says a word. They just go quiet — and not one message from them since.</p>
+            <p><em>That silence is the message.</em> This is the whole punishment: forty kids looking at the back of Sam's head, and a best friend who has stopped texting back.</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P13–14">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">The Fires Nobody Can See</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">11</span>
+            <img src="panels/p11_515am.jpg" alt="The kitchen light on at 5:15 in the morning">
+        </div>
+        <div class="caption">
+            <h3>Friday, 5:15 AM</h3>
+            <p>The kitchen light is on at 5:15 in the morning. It usually isn't.</p>
+            <p>Nobody at home has asked Sam a single question about school all week. That's not luck. Sam asked them months ago to stay out of school stuff — and they listened completely.</p>
+            <p><em>Be careful what you build a wall against. Sometimes it works too well.</em></p>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">12</span>
+            <img src="panels/p12_stone.jpg" alt="The unopened envelope beside the laptop">
+        </div>
+        <div class="caption">
+            <h3>The Stone in the Sock</h3>
+            <p>At 6:40, an email arrives from the mortgage company. Sam reads only the subject line and closes the laptop.</p>
+            <p>That single line has been sitting in Sam's chest ever since. Mom has been picking up extra shifts all week — and Sam has been quietly covering the ones that run late, telling nobody, because telling somebody would make it real.</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P15–16">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">The Stack</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">13</span>
+            <img src="panels/p13_project.jpg" alt="The returned project sheet beside an empty chair">
+        </div>
+        <div class="caption">
+            <h3>Second Period</h3>
+            <p>The teacher hands back the group project sheet. Due <strong>Monday, 8:00 AM.</strong></p>
+            <p>The partner listed next to Sam's name hasn't been in school since Wednesday. Their whole section is the one Sam already started covering alone.</p>
+            <p>The project now rests entirely on the one person who is secretly exhausted.</p>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">14</span>
+            <img src="panels/p14_email_clock.jpg" alt="The teacher's email and the clock">
+        </div>
+        <div class="caption">
+            <h3>7:41 AM — The Email</h3>
+            <p>The school email chimes. It's Mr. Hallett, Math.</p>
+            <div class="speak">"Hi Sam — Checking in on the Unit 3 project. I see your partner has been out and I have had no message from you about it... are you on track for Monday morning? I can be flexible if there is something going on."</div>
+            <p>A stack doesn't fall because one thing is enormous. It falls because one more thing lands when there's nothing left to hold it up.</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P17–18">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">One Fire at a Time</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">15</span>
+            <img src="panels/p15_thirty_seconds.jpg" alt="Sam sitting still with eyes closed">
+        </div>
+        <div class="caption">
+            <h3>Thirty Seconds</h3>
+            <p>Sam takes thirty seconds first. Not because the problems wait — because the thinking brain needs that long to boot up.</p>
+            <p><em>Decisions made on the alarm are always the expensive ones.</em></p>
+            <div class="beat">The skill</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">16</span>
+            <img src="panels/p16_reply.jpg" alt="Sam typing a calm organized reply">
+        </div>
+        <div class="caption">
+            <h3>The Project — First</h3>
+            <p>Because it's the only fire with a deadline attached.</p>
+            <p>Sam writes back before lunch, in complete sentences: <em>here's what's done, here's what the absence put at risk, here's what I still need.</em></p>
+            <p>A written plan gets a real answer; a panicked midnight email just spreads the panic. Mr. Hallett turns out to be exactly as flexible as he promised.</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT II · P19–20">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Two · The Third Option</div>
+            <div class="ex-title">One True Sentence</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 2</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">17</span>
+            <img src="panels/p17_dinner.jpg" alt="Sam and Mom at the kitchen table">
+        </div>
+        <div class="caption">
+            <h3>Home</h3>
+            <p>At dinner, Sam breaks the wall Sam built.</p>
+            <div class="speak">"I saw the letter on the laptop. I can take a shift Friday, but I can't do Thursdays — those are my homework nights."</div>
+            <p>Not the whole story. Just the truth, out loud, plus what Sam can actually do. The stone in the sock doesn't vanish, but it halves in weight the moment someone else is carrying a corner of it.</p>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">18</span>
+            <img src="panels/p18_monday.jpg" alt="The finished project on the teacher's desk">
+        </div>
+        <div class="caption">
+            <h3>Monday, 8:00 AM</h3>
+            <p><strong>The chat — nothing.</strong> No clapback, no counter-attack, no explaining. Cold chats thaw or freeze on their own.</p>
+            <p>On Monday a couple of the squad nod at Sam by the lockers. The shoulders never fully turn away.</p>
+            <p>Silence, it turns out, was also an answer — just not the one Chloe meant.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ ACT THREE ═══════════════ -->
+<div class="sheet" data-side="ACT III · DIVIDER">
+    <div class="act">
+        <div class="act-no">Act Three</div>
+        <div class="act-title">The Loyalty Bind</div>
+        <div class="act-sub">Rae's story didn't end when the chat went cold. The third option that saved a friendship in Act One is about to be tested against something much heavier.</div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT III · P21–22">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Three · The Loyalty Bind</div>
+            <div class="ex-title">Monday, 3:15 PM</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 3</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">19</span>
+            <img src="panels/p19_bikeracks.jpg" alt="Rae waiting alone by the bike racks">
+        </div>
+        <div class="caption">
+            <h3>The Bike Racks</h3>
+            <p>Monday, 3:15 PM. Outside by the back bike racks, away from the bus loop and the crowded hallways, Rae is waiting.</p>
+            <p>Not scrolling. Not looking around. Hoodie pulled down over their eyes, shoulders hunched inward like someone trying to disappear from the world entirely.</p>
+            <div class="beat">The ambush</div>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">20</span>
+            <img src="panels/p20_approach.jpg" alt="Sam stepping toward Rae">
+        </div>
+        <div class="caption">
+            <h3>"You're The Only One"</h3>
+            <div class="speak">"Sam — you're the only person who didn't abandon me last week. You're the only one who didn't turn your back when Jayden posted that screenshot."</div>
+            <p>"Hey. You made it through Monday. The homeroom thing is cooling off. Nobody said anything at lunch."</p>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT III · P23–24">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Three · The Loyalty Bind</div>
+            <div class="ex-title">The Trap</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 3</div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">21</span>
+            <img src="panels/p21_bind.jpg" alt="Rae gripping Sam's sleeve">
+        </div>
+        <div class="caption">
+            <h3>The Promise</h3>
+            <div class="speak">"I haven't slept in three days. Every time my phone buzzes, my chest goes tight. I'm meeting some older kids by the underpass tonight. They said they have stuff that helps you sleep. I'm not going home tonight."</div>
+            <div class="speak">"Promise me right now you won't tell anyone. Swear it on everything. If you go to a teacher or my parents, you're dead to me."</div>
+            <p><em>Rae is asking Sam to watch smoke pour out of a window — and promise not to call the fire department.</em></p>
+        </div>
+    </div>
+
+    <div class="panel-row">
+        <div class="panel-frame">
+            <span class="panel-num">22</span>
+            <img src="panels/p22_guidance.jpg" alt="Sam and Rae walking to Guidance together">
+        </div>
+        <div class="caption">
+            <h3>What The Strategist Does</h3>
+            <p>First, listening — mirroring the real emotion without agreeing to the dangerous plan. Rae's hands unclench. Their shoulders drop. Someone finally heard them without judging them.</p>
+            <p>Then the line, calmly, eyes to eyes.</p>
+            <div class="speak">"Real friendship protects people, not secrets. I am not keeping this quiet. But you are not walking into this alone, either."</div>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" data-side="ACT III · CLOSER">
+    <div class="ex-header">
+        <div>
+            <div class="ex-kicker">Act Three · The Loyalty Bind</div>
+            <div class="ex-title">Two Rules</div>
+        </div>
+        <div class="ex-tag">EXHIBIT 3</div>
+    </div>
+
+    <div class="rules-stack">
+        <div class="rule-card" style="background:#f4f4f5;">
+            <h4>An everyday secret</h4>
+            <p>Protects someone's privacy or feelings — a crush, a bad grade, an embarrassing moment. <strong>You keep those private.</strong></p>
+        </div>
+
+        <div class="rule-card danger">
+            <h4>A heavy secret</h4>
+            <p>Hides immediate danger to someone's body, health, or safety. <strong>You break those immediately.</strong></p>
+        </div>
+
+        <div class="rule">Two moves start a chain. One move stops one.<br>The strategist picks the third.</div>
+    </div>
+</div>
+
+</body>
+</html>

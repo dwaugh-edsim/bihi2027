@@ -37,13 +37,21 @@ ILT operates with two distinct mandates:
   * `9_ILT_Room8_Setup_Sprint_Slide_Deck.html` — Timed 10-minute setup sprint deck for Grade 9 homeroom helpers.
   * `9_ILT_All_Assignments_One_Slide.html` — High-density projector slide displaying all active student deliverables across subjects.
 
-### C. 10 One-Day Rapid Leadership Challenges (`oneday-*.html`)
+### C. 11 One-Day Rapid Leadership Challenges (`oneday-*.html`)
 Turnkey single-period experiential learning simulations:
 * `oneday-01-human-knot.html` — Kinesthetic problem solving.
 * `oneday-04-minefield-trust.html` — Blindfolded trust navigation.
 * `oneday-06-debate-walk.html` & `oneday-06-summit-deck.pptx` — Philosophical walking debates with printable decree slips (`oneday-06-decree-slips.docx`).
 * `oneday-07-silent-lineup.html` — Non-verbal logic and spatial coordination.
 * `oneday-10-mission-impossible.html` — Team timed escape challenge.
+* `oneday-11-trolley-problem.html` — Structured ethical reasoning across escalating moral dilemmas, with a live class record that makes each cohort's own reasoning inconsistency visible.
+
+### C2. Trolley Problem Teaching Kit (`trolley/`)
+Companion runnable materials for `oneday-11-trolley-problem.html`:
+* **Core Files:**
+  * `trolley/trolley-ilt-deck.html` — Full-screen interactive projector deck running all ~55 minutes: per-stage timers with audio cues, tap-in hand-count tallies, a **persistent cross-scenario class record** (Switch / Footbridge / Surgeon displayed together with an auto-computed gap callout), built-in **Grade 7 / Grade 9 toggle** that swaps scenario wording and framework vocabulary, and an on-screen facilitator-notes panel (`F`). Keyboard: `←`/`→` stages, `Space` timer, `F` notes, `R` reset.
+  * `trolley/trolley-ilt-printables.html` — Five-page A4 print set: student voting & reasoning sheet, lenses + exit ticket, ten cut-apart Lifeboat profile cards, Heinz / small-stakes alternatives with group report-back slip, and a facilitator run sheet.
+* **Design Rationale:** votes are taken by raised hands and entered by the facilitator (no 1:1 devices required), and all three headline scenarios stay visible simultaneously — the Switch-to-Footbridge percentage swing *is* the lesson, so it cannot be discarded after each vote.
 
 ### D. 10 Multi-Week Inquiry Proposals (`proposal-*.html`)
 Student-selected capstone projects:

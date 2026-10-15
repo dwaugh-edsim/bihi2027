@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citizenship 9: Cold Case · The Peopling of the Americas | Room 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f8fafc; --stage-bg:#ffffff; --border:#e2e8f0; --border-dark:#cbd5e1;
+    --text-heading:#0f172a; --text-body:#1e293b; --text-muted:#64748b;
+    --card-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+    --amber:#92400e; --amber-bg:#fefce8; --amber-bd:#fde68a;
+    --blue:#1e3a8a; --blue-bg:#eff6ff; --blue-bd:#bfdbfe;
+    --green:#166534; --green-bg:#f0fdf4; --green-bd:#bbf7d0;
+    --rust:#7c2d12; --rust-bg:#fff7ed; --rust-bd:#fdba74;
+    --purple:#6b21a8; --purple-bg:#faf5ff; --purple-bd:#e9d5ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text-body);font-family:'Inter',system-ui,sans-serif;
+    height:100vh;display:flex;flex-direction:column;padding:14px 22px;overflow:hidden;
+    user-select:none;-webkit-font-smoothing:antialiased;}
+  header.deck-header{display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:12px;flex:none;}
+  .header-title h1{font-family:'Roboto Slab',serif;font-size:1.35rem;font-weight:800;
+    color:var(--text-heading);display:flex;align-items:center;gap:8px;letter-spacing:-.01em;}
+  .header-title h1 span{font-weight:600;color:var(--text-muted);}
+  .header-title p{font-size:.78rem;color:var(--text-muted);margin-top:2px;font-weight:500;}
+  .timer-box{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border-dark);
+    padding:5px 12px;border-radius:6px;box-shadow:var(--card-shadow);}
+  .timer-label{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+  .timer-display{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:800;
+    color:var(--text-heading);min-width:70px;text-align:center;}
+  .slide-stage{flex:1;display:flex;flex-direction:column;position:relative;
+    background:var(--stage-bg);border:1px solid var(--border);border-radius:8px;
+    box-shadow:0 4px 6px -1px rgba(0,0,0,.05);overflow:hidden;}
+  .slide{position:absolute;inset:0;padding:26px 40px 18px;display:none;flex-direction:column;overflow:hidden;}
+  .slide.active{display:flex;}
+  .slide-top{flex:none;margin-bottom:14px;}
+  .slide-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;
+    color:var(--rust);text-transform:uppercase;letter-spacing:.08em;}
+  .slide-heading{font-family:'Roboto Slab',serif;font-size:1.9rem;font-weight:800;
+    color:var(--text-heading);letter-spacing:-.01em;margin-top:4px;line-height:1.15;}
+  .slide-subtitle{font-size:.95rem;color:var(--text-muted);margin-top:4px;font-weight:500;}
+  .slide-body{flex:1;display:flex;min-height:0;}
+  .col{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;}
+  .content-card{background:#fff;border:1px solid var(--border-dark);border-radius:6px;
+    padding:14px 18px;box-shadow:var(--card-shadow);}
+  .card-title{font-family:'Roboto Slab',serif;font-size:1.05rem;font-weight:700;
+    color:var(--text-heading);margin-bottom:6px;}
+  .big-list{list-style:none;display:flex;flex-direction:column;gap:14px;}
+  .big-list li{font-size:1.22rem;line-height:1.4;padding-left:26px;position:relative;}
+  .big-list li::before{content:"";position:absolute;left:2px;top:.52em;width:10px;height:10px;
+    border-radius:50%;background:var(--rust);}
+  .big-list li strong{color:var(--text-heading);}
+  .quote-card{background:var(--rust-bg);border:2px solid var(--rust-bd);border-left:8px solid var(--rust);
+    border-radius:8px;padding:24px 30px;}
+  .quote-card p{font-family:'Roboto Slab',serif;font-size:1.7rem;line-height:1.45;color:var(--text-heading);font-weight:600;}
+  .hl-today{background:#fdba74;padding:0 4px;border-radius:3px;font-weight:800;}
+  .hl-next{background:#e2e8f0;color:#475569;padding:0 4px;border-radius:3px;}
+  .note-strip{font-size:.85rem;color:var(--text-muted);margin-top:12px;font-weight:500;}
+  .part-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;}
+  .part-card{border-radius:8px;border:2px solid;padding:16px 20px;display:flex;flex-direction:column;}
+  .part-card .pn{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+  .part-card .pt{font-family:'Roboto Slab',serif;font-size:1.3rem;font-weight:800;color:var(--text-heading);line-height:1.15;}
+  .part-card .pd{font-size:.95rem;line-height:1.45;margin-top:8px;}
+  .stamp{display:inline-block;font-family:'JetBrains Mono',monospace;font-weight:800;
+    border:3px solid var(--rust);color:var(--rust);border-radius:6px;padding:4px 14px;
+    font-size:1.3rem;letter-spacing:.14em;text-transform:uppercase;transform:rotate(-3deg);}
+  footer.deck-footer{display:flex;justify-content:space-between;align-items:center;
+    border-top:1px solid var(--border);padding-top:10px;margin-top:12px;flex:none;}
+  .slide-counter{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--text-muted);}
+  .nav-controls{display:flex;gap:8px;align-items:center;}
+  .btn-ctrl{background:#fff;color:var(--text-heading);border:1px solid var(--border-dark);
+    padding:6px 14px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s;}
+  .btn-ctrl:hover{background:#f1f5f9;border-color:#0f172a;}
+  .btn-ctrl.primary{background:#0f172a;color:#fff;border-color:#0f172a;}
+  .btn-ctrl.primary:hover{background:#334155;}
+  .slide-dots{display:flex;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .15s;}
+  .dot.active{background:#0f172a;transform:scale(1.3);}
+</style>
+</head>
+<body>
+<header class="deck-header">
+  <div class="header-title">
+    <h1>Cold Case <span>&bull; Citizenship 9 &bull; Beat 1</span></h1>
+    <p>The Peopling of the Americas &bull; Room 8 &bull; Mr. Waugh</p>
+  </div>
+  <div class="timer-box">
+    <span class="timer-label">Class Timer</span>
+    <span class="timer-display" id="timer">60:00</span>
+    <button class="btn-ctrl" style="padding:3px 8px;font-size:.72rem;" onclick="toggleTimer()">Start / Pause</button>
+    <button class="btn-ctrl" style="padding:3px 8px;font-size:.72rem;" onclick="resetTimer(60)">Reset 60m</button>
+  </div>
+</header>
+<div class="slide-stage">
+  <div class="slide active" id="slide-1">
+    <div class="slide-top">
+      <span class="slide-tag">00&ndash;05m &bull; Unit 2 &bull; Beat 1 of 4</span>
+      <h2 class="slide-heading">Cold Case: The Peopling of the Americas</h2>
+      <p class="slide-subtitle">Today you are the investigators &bull; The evidence is on the walls</p>
+    </div>
+    <div class="slide-body" style="gap:18px;align-items:center;">
+      <div class="col" style="justify-content:center;">
+        <div class="quote-card">
+          <p>"We acknowledge that we are gathered in <span class="hl-today">Mi'kma'ki</span>, the <span class="hl-today">ancestral and traditional territory</span> of the Mi'kmaq People."</p>
+        </div>
+        <p class="note-strip">Why today's case matters: by the end you will know what that phrase actually claims, and what the evidence behind it is. The greyed word, <span class="hl-next">unceded</span>, is next class.</p>
+      </div>
+      <div class="col" style="max-width:300px;justify-content:center;align-items:center;">
+        <span class="stamp">Case Opened</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-2">
+    <div class="slide-top">
+      <span class="slide-tag">05&ndash;10m &bull; The Briefing</span>
+      <h2 class="slide-heading">The Case Brief</h2>
+      <p class="slide-subtitle">One mystery: how did the first people arrive in the Americas, long before European contact?</p>
+    </div>
+    <div class="slide-body">
+      <div class="col" style="justify-content:center;">
+        <ul class="big-list" style="gap:16px;">
+          <li>For decades this looked like an <strong>open-and-shut case</strong>: one land bridge, one arrival, about 13,000 years ago.</li>
+          <li><strong>New evidence has cracked the timeline wide open.</strong> People were here earlier, and deeper, than the old story allowed.</li>
+          <li><strong>Your job:</strong> examine the evidence yourself. Walk the room, read the 10 case files, log your findings, and deliver a verdict.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-3">
+    <div class="slide-top">
+      <span class="slide-tag">Your Tools</span>
+      <h2 class="slide-heading">Two Tools, One Team</h2>
+      <p class="slide-subtitle">You work in pairs: a detective duo</p>
+    </div>
+    <div class="slide-body" style="gap:16px;">
+      <div class="col" style="background:var(--amber-bg);border:2px solid var(--amber-bd);border-radius:8px;padding:22px;">
+        <div class="card-title" style="color:var(--amber);font-size:1.3rem;">The Case File <span style="font-size:.95rem;color:var(--text-muted);">(your handout)</span></div>
+        <p style="font-size:1.05rem;line-height:1.5;">Two pages. Four parts. Nine questions, in order. Every question names its clues: <strong>(Clues #01 &amp; #02)</strong> tells you exactly which wall files answer it.</p>
+      </div>
+      <div class="col" style="background:var(--rust-bg);border:2px solid var(--rust-bd);border-radius:8px;padding:22px;">
+        <div class="card-title" style="color:var(--rust);font-size:1.3rem;">The Evidence Locker <span style="font-size:.95rem;color:var(--text-muted);">(the walls)</span></div>
+        <p style="font-size:1.05rem;line-height:1.5;">Ten case files posted around the room, numbered #01 to #10. Each one ends with <strong>LOG IT</strong>: the part and question it feeds. The card tells you where to write. The sheet tells you where to look.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-4">
+    <div class="slide-top">
+      <span class="slide-tag">10&ndash;15m &bull; The Walk</span>
+      <h2 class="slide-heading">How the Investigation Runs</h2>
+      <p class="slide-subtitle">About 25 minutes of walking and logging</p>
+    </div>
+    <div class="slide-body">
+      <div class="col" style="justify-content:center;">
+        <ul class="big-list" style="gap:14px;">
+          <li><strong>Duos, in any order.</strong> Start at any case file. Most pairs begin at #01 and go around.</li>
+          <li><strong>Read the card together, then log it.</strong> Talk it into an answer before anyone writes.</li>
+          <li><strong>Crowded card? Skip it, loop back.</strong> Ten files, plenty of time.</li>
+          <li><strong>Log as you go, not at the end.</strong> The verdict box (Q9) is the only thing that waits.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide" id="slide-5">
+    <div class="slide-top">
+      <span class="slide-tag">15&ndash;18m &bull; The Map</span>
+      <h2 class="slide-heading">The Investigation, in Four Parts</h2>
+      <p class="slide-subtitle">Your log sheet follows the case from suspect to verdict</p>
+    </div>
+    <div class="slide-body">
+      <div class="part-grid">
+        <div class="part-card" style="background:var(--rust-bg);border-color:var(--rust-bd);">
+          <div class="pn" style="color:var(--rust);">Part 1 &bull; Files #01&ndash;05 &bull; Qs 1&ndash;3</div>
+          <div class="pt">The Prime Suspect</div>
+          <div class="pd">The land bridge, the herds, and the official "Clovis First" timeline.</div>
+        </div>
+        <div class="part-card" style="background:var(--blue-bg);border-color:var(--blue-bd);">
+          <div class="pn" style="color:var(--blue);">Part 2 &bull; Files #06&ndash;07 &bull; Qs 4&ndash;5</div>
+          <div class="pt">The Alibi Breaker</div>
+          <div class="pd">Evidence "Eva" shatters the official timeline. Do the math.</div>
+        </div>
+        <div class="part-card" style="background:var(--green-bg);border-color:var(--green-bd);">
+          <div class="pn" style="color:var(--green);">Part 3 &bull; Files #08&ndash;09 &bull; Qs 6&ndash;7</div>
+          <div class="pt">New Leads</div>
+          <div class="pd">Boats down the kelp highway, and the sunken crime scene that hides the proof.</div>
+        </div>
+        <div class="part-card" style="background:var(--purple-bg);border-color:var(--purple-bd);">
+          <div class="pn" style="color:var(--purple);">Part 4 &bull; File #10 &bull; Qs 8&ndash;9</div>
+          <div class="pt">Two Ways of Knowing</div>
+          <div class="pd">Science revises. Oral tradition remembers. You weigh both, then deliver your verdict.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-6">
+    <div class="slide-top">
+      <span class="slide-tag">18&ndash;43m &bull; The Walk &bull; This Slide Stays Up</span>
+      <h2 class="slide-heading">Detective's Rules</h2>
+      <p class="slide-subtitle">Evidence room conduct</p>
+    </div>
+    <div class="slide-body">
+      <div class="col" style="justify-content:center;">
+        <ul class="big-list" style="gap:16px;">
+          <li><strong>Voices at evidence-room level.</strong> Other duos are working.</li>
+          <li><strong>Missed something?</strong> Pair talk after the walk catches it. So does the reveal.</li>
+          <li><strong>Done early?</strong> Finish the Q8 chart, then draft your Q9 verdict. Reread File #10 first.</li>
+          <li><strong>Log sheets are the deliverable.</strong> They leave the room with you named on them.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-7">
+    <div class="slide-top">
+      <span class="slide-tag">43&ndash;49m &bull; Reveal 1</span>
+      <h2 class="slide-heading">The Prime Suspect</h2>
+      <p class="slide-subtitle">What everyone believed for decades</p>
+    </div>
+    <div class="slide-body" style="gap:20px;">
+      <div class="col" style="gap:14px;justify-content:center;flex:1.08;">
+        <ul class="big-list" style="gap:12px;">
+          <li style="font-size:1.12rem;"><strong>The bridge:</strong> ice locks the water, seas drop hundreds of feet, and Beringia appears: tundra up to 1,000 miles wide.</li>
+          <li style="font-size:1.12rem;"><strong>The motive:</strong> following mammoths and giant bison. Not exploring. Dinner.</li>
+          <li style="font-size:1.12rem;"><strong>The official call:</strong> Clovis points everywhere, so the Clovis people were first, about 13,000 years ago, through the ice free corridor.</li>
+        </ul>
+      </div>
+      <div class="col" style="max-width:46%;justify-content:center;">
+        <div class="content-card" style="padding:10px 10px 6px;">
+          <svg viewBox="0 0 720 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Map of Beringia: the land bridge between Siberia and Alaska, dry land 20,000 years ago" style="width:100%;height:auto;display:block;">
+            <defs>
+              <marker id="arrm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 Z" fill="#7c2d12"/>
+              </marker>
+            </defs>
+            <rect width="720" height="470" fill="#2f7d99"/>
+            <path d="M0,90 L150,72 L262,88 L305,152 L262,226 L306,302 L248,386 L268,470 L0,470 Z" fill="#8a6642"/>
+            <path d="M720,70 L556,86 L452,98 L416,166 L462,246 L418,336 L492,416 L468,470 L720,470 Z" fill="#8a6642"/>
+            <path d="M258,150 L458,136 L466,258 L256,280 Z" fill="#e7d3a8"/>
+            <path d="M352,110 C336,175 368,245 344,322" fill="none" stroke="#123f52" stroke-width="4" stroke-dasharray="12 9"/>
+            <line x1="224" y1="246" x2="522" y2="240" stroke="#7c2d12" stroke-width="6" marker-end="url(#arrm)"/>
+            <text x="360" y="44" fill="#eaf4f8" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="bold" font-style="italic" text-anchor="middle">Arctic Ocean</text>
+            <text x="105" y="192" fill="#f5ead7" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="bold" text-anchor="middle">SIBERIA</text>
+            <text x="606" y="192" fill="#f5ead7" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="bold" text-anchor="middle">ALASKA</text>
+            <text x="400" y="198" fill="#5b4630" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" stroke="#e7d3a8" stroke-width="7" paint-order="stroke">BERINGIA</text>
+            <text x="400" y="222" fill="#5b4630" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="bold" text-anchor="middle" stroke="#e7d3a8" stroke-width="5" paint-order="stroke">dry land, 20,000 years ago</text>
+            <text x="376" y="268" fill="#7c2d12" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="bold" font-style="italic" text-anchor="middle" stroke="#e7d3a8" stroke-width="5" paint-order="stroke">people walk east</text>
+            <text x="352" y="356" fill="#eaf4f8" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="bold" font-style="italic" text-anchor="middle">Bering Sea (today)</text>
+            <text x="360" y="443" fill="#eaf4f8" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="bold" font-style="italic" text-anchor="middle">Pacific Ocean</text>
+            <rect x="16" y="384" width="334" height="70" rx="8" fill="#ffffff" opacity="0.93"/>
+            <rect x="30" y="398" width="26" height="14" fill="#e7d3a8"/>
+            <text x="62" y="410" fill="#1e293b" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="bold">land 20,000 years ago</text>
+            <rect x="30" y="424" width="26" height="14" fill="#8a6642"/>
+            <text x="62" y="436" fill="#1e293b" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="bold">land, then and now</text>
+            <line x1="196" y1="405" x2="230" y2="405" stroke="#123f52" stroke-width="4" stroke-dasharray="8 6"/>
+            <text x="236" y="410" fill="#1e293b" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="bold">the sea cuts here today</text>
+            <text x="196" y="440" fill="#64748b" font-family="Arial,Helvetica,sans-serif" font-size="11" font-style="italic">schematic, not to scale</text>
+            <line x1="676" y1="58" x2="676" y2="30" stroke="#eaf4f8" stroke-width="3"/>
+            <path d="M676,22 L669,34 L683,34 Z" fill="#eaf4f8"/>
+            <text x="676" y="78" fill="#eaf4f8" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="bold" text-anchor="middle">N</text>
+          </svg>
+        </div>
+        <p class="note-strip">Schematic. Today the crossing is about 85 kilometres of open sea: the Bering Strait.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide" id="slide-8">
+    <div class="slide-top">
+      <span class="slide-tag">49&ndash;55m &bull; Reveal 2</span>
+      <h2 class="slide-heading">The Case Cracks</h2>
+      <p class="slide-subtitle">Why the official timeline cannot stand</p>
+    </div>
+    <div class="slide-body">
+      <div class="col" style="justify-content:center;">
+        <ul class="big-list" style="gap:16px;">
+          <li><strong>"Eva":</strong> a skeleton in a submerged Mexican cave, over 13,600 years old. People were already thousands of miles south <strong>before</strong> the ice free corridor opened. The Clovis timeline is impossible.</li>
+          <li><strong>The new lead:</strong> boats. The Pacific kelp highway: fish, seals, edible sea plants, coastline all the way down.</li>
+          <li><strong>The sunken crime scene:</strong> seas rose about 100 metres and drowned the ancient shore. The coastal proof is under deep water. That is why this case is hard, not empty.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-9">
+    <div class="slide-top">
+      <span class="slide-tag">55&ndash;59m &bull; Reveal 3 &bull; File #10</span>
+      <h2 class="slide-heading">Two Ways of Knowing</h2>
+      <p class="slide-subtitle">The last piece of evidence changes what kind of case this is</p>
+    </div>
+    <div class="slide-body" style="gap:16px;">
+      <div class="col" style="background:var(--blue-bg);border:2px solid var(--blue-bd);border-radius:8px;padding:22px;justify-content:center;">
+        <div class="card-title" style="color:var(--blue);font-size:1.25rem;">Archaeology asks</div>
+        <p style="font-size:1.08rem;line-height:1.5;">When? Which route? It treats arrival as an open puzzle: date it, revise it, argue it. Current call: <strong>no single route explains all the evidence. Multiple waves, over thousands of years.</strong></p>
+      </div>
+      <div class="col" style="background:var(--purple-bg);border:2px solid var(--purple-bd);border-radius:8px;padding:22px;justify-content:center;">
+        <div class="card-title" style="color:var(--purple);font-size:1.25rem;">Oral tradition answers</div>
+        <p style="font-size:1.08rem;line-height:1.5;">Many Indigenous nations hold that their people have been here <strong>since time immemorial</strong>: living archives, carried by accurate oral tradition, connecting the people to the origin of the land. Not a puzzle. A memory.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-10">
+    <div class="slide-top">
+      <span class="slide-tag">59&ndash;60m &bull; Close the File</span>
+      <h2 class="slide-heading">What This Case Proves</h2>
+      <p class="slide-subtitle">And what it leaves open</p>
+    </div>
+    <div class="slide-body" style="gap:16px;">
+      <div class="col" style="justify-content:center;">
+        <div class="quote-card" style="padding:20px 26px;">
+          <p style="font-size:1.4rem;">"Ancestral and traditional territory" is not a feeling. It is a claim: <strong>the longest continuous presence anyone can show</strong>, by dig or by story.</p>
+        </div>
+        <p class="note-strip">Finish Q8 and Q9 now if you have not. <strong>Log sheets are handed in.</strong> Next class, the greyed word: <span class="hl-next">unceded</span>. Paper, promises, and the year 1752.</p>
+      </div>
+      <div class="col" style="max-width:300px;justify-content:center;align-items:center;">
+        <span class="stamp" style="border-color:#166534;color:#166534;">Case Still Open</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<footer class="deck-footer">
+  <span class="slide-counter" id="slideCounter">Slide 1 of 10</span>
+  <div class="slide-dots" id="slideDots"></div>
+  <div class="nav-controls">
+    <button class="btn-ctrl" onclick="toggleFullscreen()">Fullscreen</button>
+    <button class="btn-ctrl" onclick="prevSlide()">&larr; Back</button>
+    <button class="btn-ctrl primary" onclick="nextSlide()">Next &rarr;</button>
+  </div>
+</footer>
+<script>
+  let currentSlide = 1;
+  const totalSlides = 10;
+  const dotsContainer = document.getElementById('slideDots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = `dot ${i === 1 ? 'active' : ''}`;
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  }
+  function updateSlideUI() {
+    document.querySelectorAll('.slide').forEach((s, idx) => {
+      s.classList.toggle('active', (idx + 1) === currentSlide);
+    });
+    document.querySelectorAll('.dot').forEach((d, idx) => {
+      d.classList.toggle('active', (idx + 1) === currentSlide);
+    });
+    document.getElementById('slideCounter').innerText = `Slide ${currentSlide} of ${totalSlides}`;
+  }
+  function nextSlide() { if (currentSlide < totalSlides) { currentSlide++; updateSlideUI(); } }
+  function prevSlide() { if (currentSlide > 1) { currentSlide--; updateSlideUI(); } }
+  function goToSlide(n) { currentSlide = n; updateSlideUI(); }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); nextSlide(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prevSlide(); }
+  });
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => alert(err.message));
+    } else { document.exitFullscreen(); }
+  }
+  let timerSeconds = 60 * 60;
+  let timerRunning = false;
+  let timerInterval = null;
+  function updateTimerDisplay() {
+    const m = Math.floor(timerSeconds / 60);
+    const s = timerSeconds % 60;
+    document.getElementById('timer').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+  function toggleTimer() {
+    if (timerRunning) { clearInterval(timerInterval); timerRunning = false; }
+    else {
+      timerRunning = true;
+      timerInterval = setInterval(() => {
+        if (timerSeconds > 0) { timerSeconds--; updateTimerDisplay(); }
+      }, 1000);
+    }
+  }
+  function resetTimer(minutes) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSeconds = minutes * 60;
+    updateTimerDisplay();
+  }
+  updateTimerDisplay();
+  updateSlideUI();
+</script>
+</body>
+</html>
