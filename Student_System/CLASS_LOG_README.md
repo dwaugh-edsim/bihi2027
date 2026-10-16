@@ -40,6 +40,38 @@ slide), announcements, and a course outcome strip at the bottom for administrato
   it current. A course with no entries shows nothing in that slot — the line is
   student-facing, so it never carries a teacher reminder to quick-log. (The tracker
   is the teacher-facing place for that nudge.)
+- **Today's note (⚙ → *Save today's note*, or press `d`)** — added Oct 16 2026 because
+  the "Last class" line kept showing weeks-old rows: the tracker is a second interface
+  he had to remember to use. One line typed into the slide writes **one dated Class_Log
+  row** for that section (`submit_class_log`, upsert on date+section — re-saving today
+  fixes it, tomorrow is a clean day, and the section's plan/agenda is left untouched).
+  The same line then picks the day's **learning outcome**, so the outcome strip tracks
+  what he actually taught instead of staying pinned to whatever the course's `active`
+  assignment says.
+  - The picked outcome is stored on a **dated `Class_Slide` row** keyed
+    `902-CIT@2026-10-16` — same tab, same columns, no `Code.gs` change — so it expires
+    with the day instead of sticking like a ⚙ override. `Class_Log_Tracker.html` never
+    reads `slides`, so these rows are invisible there.
+  - **The pick:** an LLM chooses one candidate from the course's curated assignment
+    outcomes (`assignments_data.js`) + the course default — it can only choose from
+    those, never invent curriculum wording. Reply `0` = no fit, and the outcome chain is
+    left alone.
+  - **The LLM key lives in the projector browser only** (`localStorage`), pasted once in
+    ⚙ → *LLM key*, never written to the repo and never displayed again; *Forget key*
+    removes it. Any OpenAI-compatible endpoint works (`base URL` + `model` + `key`).
+    → Consequence to be aware of: anyone with devtools on that projector machine can read
+    it, so use a low-value key. **Without a key the slide falls back to a word match**
+    against the same candidate list, which deliberately only fires on an unambiguous
+    overlap — tested on the real data: it picks Numbeo / Quiz #1 / Operation Addictive /
+    Junction correctly and stays silent on "head to toe" and "60 second speeches".
+  - Outcome resolution order is now: ⚙ override → **today's picked outcome** → the
+    course's `active` assignment → lesson-map unit by next class # → course default.
+    An explicit ⚙ override still wins; clear it to hand the strip to the daily note.
+- **When the gear "does nothing"**: that has twice been a projector browser holding a
+  cached copy of this file (Oct 7 and Oct 9, both fixed by the BUILD_ID self-check +
+  tap-to-update banner). Press `Ctrl+Shift+R` on the projector tab once, or tap the
+  banner. Builds from Oct 16 on also show a red *"old cached copy — reload"* warning if a
+  ⚙ click fails to open the editor, instead of failing silently.
 - **Do This Now (the instructions panel)**: what students should be doing, as a big
   numbered list. Curated in `display_instructions_data.js`, keyed by section
   (`903-HL`) or by course (`CIT9` / `HL9` / `HL8` — a section key wins). Fields:
@@ -227,7 +259,7 @@ Copy the row into the Sheet (or into the quick-log panel). Done.
 | File | Role |
 |---|---|
 | `Class_Log_Tracker.html` | the dashboard + quick-log panel (teacher-only) |
-| `Class_Startup.html` | projector do-now slide (née Class_Opening_Slide.html; old URL 301s via stub): auto class detect, agenda, announcements, outcome strip |
+| `Class_Startup.html` | projector do-now slide (née Class_Opening_Slide.html; old URL 301s via stub): auto class detect, agenda, announcements, per-day note + AI outcome pick, outcome strip |
 | `class_log_meetings_data.js` | generated: all 10 sections' meeting dates/periods, 2026–27 |
 | `class_log_lesson_maps.js` | class # → lesson titles + per-unit course outcomes (outcome fallback) |
 | `assignments_data.js` | curated assignment registry: ledger TASK_NAME → projector label + matched outcome; `active` per course |

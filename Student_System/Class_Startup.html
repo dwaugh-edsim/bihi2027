@@ -15,6 +15,20 @@
   Daily system:
   - "Last class (date · #n)" comes from the section's newest Class_Log entry — log the
     class (tracker, Sheet app, or curl) and tomorrow's slide shows it automatically.
+  - Oct 16 2026: the ⚙ editor's "Today's class note" (or the `d` key) writes ONE dated
+    Class_Log row for the section — upsert on date+section, `next` left empty so the
+    agenda/plan is untouched. That kills the "stale weeks-old Last class line", and once
+    today's row exists the line reads "Today (date · #n)" instead.
+  - The same note picks the day's LEARNING OUTCOME. An LLM chooses one candidate from the
+    course's curated assignment outcomes (assignments_data.js) + the course default — it
+    can only pick from those, never invent curriculum wording. The choice lands on a
+    DATED Class_Slide row keyed "<section>@<YYYY-MM-DD>", so it expires with the day
+    rather than sticking like a ⚙ override; the tracker never reads `slides`, so those
+    rows stay invisible to it. ⚠ The LLM key (base URL + model + key) is pasted once into
+    ⚙ and stored in that project browser's localStorage ONLY — never in this repo, never
+    displayed again. Without a key the page falls back to a conservative word match over
+    the same candidate list, and leaves the outcome chain alone unless the match is
+    unambiguous.
   - The INSTRUCTIONS panel is curated in display_instructions_data.js (per section or
     per course) and read straight from the repo — see that file's header for the shape
     and the edit workflow. An agenda line that reads the same as an instruction is
@@ -37,7 +51,7 @@
   up, ⚙ edits the `902-HOMEROOM` row of the Class_Slide tab, falling back to the
   seed notices in ../Homeroom_902/homeroom_902_notices.js until he types his own.
 
-  Keyboard: ← / → switch class · e edit · s seating · h homeroom · Esc close · F fullscreen.
+  Keyboard: ← / → switch class · e edit · d today's note · s seating · h homeroom · Esc close · F fullscreen.
 
   CACHE BUSTING: the data files below carry a ?v= query. The projector browser
   caches them hard, so when one of these files changes, bump the number here or
@@ -397,6 +411,46 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 .editor .clear { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-card); }
 .editor .close { background: transparent; color: var(--text-dim); margin-left: auto; }
 .editor .status { font-size: 0.85rem; font-weight: 600; color: var(--emerald); }
+
+/* ---------- daily entry block (⚙ editor) ---------- */
+.editor .day-block {
+    border-top: 1px dashed var(--border-card);
+    margin-top: 14px; padding-top: 10px;
+}
+.editor .day-block > label { margin-top: 0; }
+.editor .day-status { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+.editor .day-off { font-size: 0.82rem; color: var(--text-dim); font-style: italic; }
+.editor .llm-box {
+    margin-top: 12px; border: 1px solid var(--border-subtle); border-radius: 8px;
+    padding: 8px 12px; background: var(--bg-page);
+}
+.editor .llm-box summary {
+    cursor: pointer; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-dim);
+}
+.editor .llm-box input { font-family: var(--font-mono); font-size: 0.85rem; margin-top: 4px; }
+.editor .llm-box .btns { margin-top: 10px; }
+.editor .llm-box .clear { padding: 5px 14px; font-size: 0.85rem; }
+.editor .llm-state { font-size: 0.78rem; color: var(--text-dim); margin-top: 8px; }
+.editor textarea:disabled, .editor input:disabled { background: var(--bg-page); color: var(--text-dim); }
+.editor button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Shown only when the ⚙ click does not actually open the editor — the stale
+   cached-page case. Never silently do nothing. */
+.stale-warn {
+    display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 90; align-items: center; gap: 14px;
+    background: var(--bg-surface); border: 1px solid var(--coral-border);
+    border-left: 5px solid var(--coral-dark); border-radius: 10px;
+    padding: 12px 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.35); max-width: 92vw;
+}
+.stale-warn.show { display: flex; }
+.stale-warn .msg { font-size: 0.95rem; font-weight: 600; color: var(--text-heading); }
+.stale-warn button {
+    border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer;
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem;
+    background: var(--coral); color: #fff; white-space: nowrap;
+}
 .section-pick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .section-pick .sp {
     font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem;
@@ -662,7 +716,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <span class="spacer"></span>
     <button class="sync-pill" id="syncPill">SEED</button>
     <button class="tool-btn" id="seatBtn" title="Seating plan (s)">🪑 Seats</button>
-    <button class="tool-btn" id="editBtn" title="Edit announcements / outcome (e)">⚙ Edit</button>
+    <button class="tool-btn" id="editBtn" title="Today's note, announcements, outcome (e · d for the note)">⚙ Edit</button>
     <button class="tool-btn" id="fsBtn" title="Fullscreen (f)">⛶</button>
 </div>
 
@@ -825,6 +879,36 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <div class="editor">
         <h3>Slide setup — <span id="edSection" class="mono"></span></h3>
         <div class="sub">Saved per class to your Google Sheet. Agenda comes from the section's plan in the Class Log tracker (✎ plan there; one line = one agenda item here). The Do This Now instructions are curated in the repo — ask an agent session to change them. <span id="buildTag"></span></div>
+
+        <!-- ===== Per-day entry (Oct 16 2026) ===== -->
+        <div class="day-block">
+            <label>Today's class note — <span id="edDayDate" class="mono"></span></label>
+            <textarea id="edDaily" rows="3" placeholder="One line is plenty.&#10;Sleep audit stations — about half the class handed sheets in."></textarea>
+            <div class="hint">One dated row per day for this class — re-saving today overwrites it, so tomorrow starts clean. It replaces the stale “Last class” line on the slide, and it drives the LEARNING OUTCOME strip: the outcome that matches what you actually taught is chosen for today.</div>
+            <div id="edDayOff" class="day-off" style="display:none;">Homeroom view — daily notes are per class meeting, so switch to a section first.</div>
+            <div class="btns" id="edDayBtns">
+                <button class="save" id="edDaySave">Save today's note</button>
+                <span class="day-status" id="edDayStatus"></span>
+            </div>
+            <div class="llm-box">
+                <details id="llmDetails">
+                    <summary>LLM key (optional — stays in this browser)</summary>
+                    <div class="hint">Used to pick the day's outcome. Any OpenAI-compatible endpoint works. Stored in this browser only: never written to the repo, never shown again after saving. With no key the slide picks the outcome by word-match instead, which only fires when the note clearly matches one.</div>
+                    <label>API base URL</label>
+                    <input type="text" id="llmBase" placeholder="https://api.minimax.io/v1" autocomplete="off" spellcheck="false">
+                    <label>Model</label>
+                    <input type="text" id="llmModel" placeholder="MiniMax-M2.7" autocomplete="off" spellcheck="false">
+                    <label>API key</label>
+                    <input type="password" id="llmKey" placeholder="paste once" autocomplete="off">
+                    <div class="btns">
+                        <button class="clear" id="llmSave">Save key</button>
+                        <button class="clear" id="llmForget">Forget key</button>
+                    </div>
+                </details>
+                <div class="llm-state" id="llmState"></div>
+            </div>
+        </div>
+
         <label>Class</label>
         <div class="section-pick" id="sectionPick"></div>
         <label>Title (optional)</label>
@@ -841,6 +925,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <button class="close" id="edClose">Close (Esc)</button>
         </div>
     </div>
+</div>
+
+<!-- Fires only when a ⚙ click does not actually open the editor (the stale
+     cached-page trap). Says so out loud instead of doing nothing at all. -->
+<div class="stale-warn" id="staleWarn">
+    <span class="msg">⚠ This screen is running an old cached copy — the ⚙ editor can't open. Reload to get the current build.</span>
+    <button id="staleReload">⟳ Reload now</button>
+    <button id="staleHide" style="background:var(--bg-page);color:var(--text-muted);">Dismiss</button>
 </div>
 
 <script src="class_log_meetings_data.js?v=2"></script>
@@ -975,6 +1067,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     function outcomeFor(sec) {
         const slide = slides[sec];
         if (slide && slide.outcome && slide.outcome.trim()) return slide.outcome.trim();
+        // Today's outcome, picked from today's note (⚙ daily entry). Stored on a
+        // DATED slide row so it expires with the day instead of sticking like a
+        // permanent ⚙ override. A real ⚙ override still wins over this.
+        const daily = slides[dailyKey(sec)];
+        if (daily && daily.outcome && daily.outcome.trim()) return daily.outcome.trim();
         const course = MEET[sec] ? MEET[sec].course : '';
         const map = MAPS[course];
         // 1. The course's current assignment carries its curated outcome
@@ -997,6 +1094,120 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         }
         return '';
     }
+    // ---------- per-day entry + picking the day's outcome ----------
+    // Oct 16 2026. The "Last class" line used to be whatever the tracker happened
+    // to hold — in practice weeks-old rows, which read as stale on the projector.
+    // Now the teacher types one line for TODAY; it writes one dated Class_Log row
+    // (upsert on date+section, so re-saving fixes it and tomorrow is a clean day),
+    // and that same line is what chooses the day's LEARNING OUTCOME.
+    const LLM_KEY   = 'room8_llm_key';
+    const LLM_BASE  = 'room8_llm_base';
+    const LLM_MODEL = 'room8_llm_model';
+
+    function dailyKey(sec) { return sec + '@' + todayISO(); }
+    function dailyEntry(sec) {
+        const t = todayISO();
+        const e = entriesFor(sec).filter(x => x.date === t);
+        return e.length ? e[e.length - 1] : null;
+    }
+    // Keep the in-memory list honest after a write, so the slide updates even when
+    // the CORS fallback hides the reply from us.
+    function upsertLocalEntry(e) {
+        const i = entries.findIndex(x => x.section === e.section && x.date === e.date);
+        if (i === -1) entries.push(Object.assign({}, e));
+        else entries[i] = Object.assign({}, entries[i], e);
+    }
+
+    // Candidate outcomes for a course: the curated, verbatim assignment outcomes
+    // (assignments_data.js) plus the course default. The picker may only choose
+    // from these — it never invents curriculum wording.
+    function outcomeCandidates(course) {
+        const out = [];
+        const add = (label, text) => {
+            text = String(text || '').trim();
+            if (!text) return;
+            if (out.some(c => c.text === text)) return;
+            out.push({ label: String(label || '').trim(), text: text });
+        };
+        courseAsgList(course).forEach(a => add(a.short || a.id, a.outcome));
+        const map = MAPS[course];
+        if (map) add('Course default', map.defaultOutcome);
+        return out;
+    }
+
+    // No-API fallback: plain word overlap between the note and each candidate.
+    // Deliberately conservative — a near-zero score means "no idea", and the slide
+    // keeps its normal outcome chain rather than showing a wrong one.
+    const STOP = new Set(['the','a','an','and','or','of','to','in','on','for','with','we','they',
+        'their','our','class','today','students','student','kids','period','did','worked','working',
+        'finished','finishing','start','started','doing','then','is','are','was','were','it','at',
+        'by','from','as','so','up','out','about','into','over','after','before','more','most',
+        'some','all','one','two','three','time','today’s','today\'s','some','were','got','get','go']);
+    function tokens(s) {
+        return String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ')
+            .split(/\s+/).filter(w => w.length > 2 && !STOP.has(w));
+    }
+    function localOutcomePick(course, note) {
+        const cands = outcomeCandidates(course);
+        if (!cands.length) return null;
+        const n = new Set(tokens(note));
+        if (!n.size) return null;
+        let best = null, bestScore = 0;
+        cands.forEach(c => {
+            const t = tokens(c.label + ' ' + c.text);
+            let hit = 0;
+            t.forEach(w => { if (n.has(w)) hit++; });
+            const score = t.length ? hit / Math.sqrt(t.length) : 0;
+            if (score > bestScore) { bestScore = score; best = c; }
+        });
+        return bestScore > 0.25 ? best : null;
+    }
+
+    // One short call per section per day, to pick the index of the best-matching
+    // candidate. OpenAI-compatible chat-completions shape, so MiniMax / Z.AI /
+    // OpenAI-compatible gateways / LM Studio / Ollama all work with one code path.
+    async function llmPickOutcome(course, note) {
+        const key   = (localStorage.getItem(LLM_KEY)   || '').trim();
+        const base  = (localStorage.getItem(LLM_BASE)  || '').trim().replace(/\/+$/, '');
+        const model = (localStorage.getItem(LLM_MODEL) || '').trim();
+        if (!key || !base || !model) return { ok: false, reason: 'no key set' };
+        const cands = outcomeCandidates(course);
+        if (!cands.length) return { ok: false, reason: 'no candidates' };
+        const list = cands.map((c, i) => (i + 1) + '. [' + c.label + '] ' + c.text).join('\n');
+        const prompt =
+            'Pick the ONE learning outcome a junior-high class actually worked on today.\n\n' +
+            'Course: ' + course + '\n' +
+            'What the class did today: "' + note + '"\n\n' +
+            'Candidates:\n' + list + '\n\n' +
+            'Reply with just the number of the best match and nothing else. ' +
+            'If none of them fit what the class actually did, reply 0.';
+        const ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), 20000) : null;
+        try {
+            const res = await fetch(base + '/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+                body: JSON.stringify({
+                    model: model,
+                    temperature: 0,
+                    max_tokens: 12,
+                    messages: [{ role: 'user', content: prompt }]
+                }),
+                signal: ctrl ? ctrl.signal : undefined
+            });
+            if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
+            const data = await res.json();
+            const raw = String((data.choices && data.choices[0] && data.choices[0].message &&
+                                data.choices[0].message.content) || '').trim();
+            const m = raw.match(/\d+/);
+            const n = m ? parseInt(m[0], 10) : 0;
+            if (!n || n < 1 || n > cands.length) return { ok: false, reason: 'no match returned' };
+            return { ok: true, outcome: cands[n - 1].text, label: cands[n - 1].label };
+        } catch (e) {
+            return { ok: false, reason: 'could not reach the model' };
+        } finally { if (timer) clearTimeout(timer); }
+    }
+
     // ---------- instructions (curated in display_instructions_data.js) ----------
     // A section key wins over its course key, so one class can be given different
     // instructions from the rest of the course. Missing entry → no panel.
@@ -1242,15 +1453,19 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             (m ? ' · ' + m.p + (m.t === 'ILT' ? ' · ILT' : '') + ' · ' + escapeHtml(info.room) : ' · not scheduled today') +
             ' · Mr. Waugh';
 
-        // today panel
+        // today panel. Once today's note is saved this line IS today, so it stops
+        // reading as a stale "Last class" from weeks ago.
         const last = lastEntry(sec);
-        const lastDateTxt = last ? new Date(last.date + 'T12:00:00')
-            .toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+        const isToday = !!(last && last.date === t);
+        const lastDateTxt = isToday ? 'today'
+            : (last ? new Date(last.date + 'T12:00:00')
+                .toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }) : '');
         // A course with no log yet just shows nothing here. This line is
         // student-facing, so it must never carry the "quick-log this in the
         // tracker" reminder that used to sit in this slot.
         document.getElementById('lastLine').innerHTML = last
-            ? '<b>Last class (' + lastDateTxt + (last.classNo ? ' · #' + escapeHtml(String(last.classNo)) : '') + '):</b> ' + escapeHtml(last.did || '—')
+            ? '<b>' + (isToday ? 'Today' : 'Last class') + ' (' + lastDateTxt +
+              (last.classNo ? ' · #' + escapeHtml(String(last.classNo)) : '') + '):</b> ' + escapeHtml(last.did || '—')
             : '';
         const items = agendaItemsFor(sec);
         document.getElementById('todayHeading').textContent =
@@ -1285,6 +1500,22 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         document.getElementById('edAnnounce').value = slide.announcements || '';
         document.getElementById('edOutcome').value = slide.outcome || '';
         document.getElementById('edSection').textContent = eKey;
+
+        // Daily entry — only meaningful for a real section, not the homeroom row.
+        const isHro = eKey === HRO.key;
+        const today = dailyEntry(eKey);
+        document.getElementById('edDayDate').textContent = isHro ? '' : todayISO();
+        document.getElementById('edDaily').value = today ? (today.did || '') : '';
+        document.getElementById('edDaily').disabled = isHro;
+        document.getElementById('edDaySave').disabled = isHro;
+        document.getElementById('edDayOff').style.display = isHro ? '' : 'none';
+        document.getElementById('edDayBtns').style.display = isHro ? 'none' : '';
+
+        const hasKey = !!(localStorage.getItem(LLM_KEY) || '').trim();
+        document.getElementById('llmState').textContent = hasKey
+            ? 'Outcome picking: AI · ' + (localStorage.getItem(LLM_MODEL) || '') + ' via ' +
+              (localStorage.getItem(LLM_BASE) || '') + ' (key saved in this browser)'
+            : 'Outcome picking: word-match fallback — add an LLM key below for the smart pick.';
     }
     function renderSectionPick() {
         const today = todaysSections();
@@ -1324,8 +1555,114 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     });
     function toggleEditor(open) {
         document.getElementById('overlay').classList.toggle('open', open);
-        if (open) render();
+        if (open) { render(); armStaleWatchdog(); }
     }
+    // Two "the gear does nothing" reports in Oct 2026 turned out to be a projector
+    // browser sitting on a cached copy of this file. Rather than fail silently,
+    // check shortly after the click whether the editor actually came up and say so
+    // (with a reload) if it did not.
+    let staleTimer = null;
+    function armStaleWatchdog() {
+        clearTimeout(staleTimer);
+        staleTimer = setTimeout(() => {
+            if (document.getElementById('overlay').classList.contains('open')) return;
+            document.getElementById('staleWarn').classList.add('show');
+        }, 400);
+    }
+    document.getElementById('staleReload').addEventListener('click', () => location.reload());
+    document.getElementById('staleHide').addEventListener('click', () =>
+        document.getElementById('staleWarn').classList.remove('show'));
+
+    // ---------- save today's note (per day) ----------
+    document.getElementById('edDaySave').addEventListener('click', async () => {
+        const st = document.getElementById('edDayStatus');
+        const sec = editorKey();
+        const note = document.getElementById('edDaily').value.trim();
+        if (!note) { st.style.color = 'var(--amber)'; st.textContent = 'Type what the class did first.'; return; }
+        st.style.color = 'var(--text-muted)';
+        st.textContent = 'Saving…';
+        const course = (MEET[sec] && MEET[sec].course) || '';
+        // classNo carries the section's current plan number so the "#n" on the
+        // slide stays sensible; an empty `next` leaves the agenda/plan untouched.
+        const entry = {
+            date: todayISO(), section: sec, course: course,
+            classNo: (plans[sec] && plans[sec].classNo) || '',
+            did: note, next: ''
+        };
+        let pin = localStorage.getItem(PIN_KEY) || '';
+        let res = await StudentAPI.submitClassLog(entry, pin);
+        if (res && /PIN/i.test(res.message || '')) {
+            const entered = prompt('Teacher PIN:');
+            if (entered === null) { st.textContent = 'Cancelled.'; return; }
+            localStorage.setItem(PIN_KEY, entered);
+            res = await StudentAPI.submitClassLog(entry, entered);
+        }
+        if (!(res && (res.status === 'class_log_saved' || res.status === 'class_log_updated' ||
+                      res.status === 'submitted_no_cors'))) {
+            st.style.color = 'var(--coral-dark)';
+            st.textContent = (res && res.message) || 'Could not write the day note.';
+            return;
+        }
+        upsertLocalEntry(entry);
+
+        // ---- the day's learning outcome ----
+        st.textContent = 'Note saved · picking outcome…';
+        const picked = await llmPickOutcome(course, note);
+        let outcome = null, how = '';
+        if (picked.ok) {
+            outcome = picked.outcome; how = 'AI · ' + picked.label;
+        } else {
+            const local = localOutcomePick(course, note);
+            if (local) {
+                outcome = local.text;
+                how = 'word match · ' + local.label + ' (AI not used: ' + picked.reason + ')';
+            }
+        }
+        if (!outcome) {
+            st.style.color = 'var(--emerald)';
+            st.textContent = 'Saved ✓ · outcome left as-is (' + picked.reason + ')';
+            render(); refreshLive(true);
+            return;
+        }
+        const dkey = dailyKey(sec);
+        let res2 = await StudentAPI.setClassSlide(dkey, '', '', outcome, pin);
+        if (res2 && /PIN/i.test(res2.message || '')) {
+            const entered = prompt('Teacher PIN:');
+            if (entered === null) { st.textContent = 'Note saved; outcome not written.'; return; }
+            localStorage.setItem(PIN_KEY, entered);
+            res2 = await StudentAPI.setClassSlide(dkey, '', '', outcome, entered);
+        }
+        if (res2 && (res2.status === 'class_slide_set' || res2.status === 'submitted_no_cors')) {
+            slides[dkey] = { title: '', announcements: '', outcome: outcome, updated: new Date().toISOString() };
+            st.style.color = 'var(--emerald)';
+            st.textContent = (res.status === 'submitted_no_cors' ? 'Sent (unconfirmed) · ' : 'Saved ✓ · ') + how;
+        } else {
+            st.style.color = 'var(--amber)';
+            st.textContent = 'Note saved; outcome not written — ' + ((res2 && res2.message) || 'failed');
+        }
+        render();
+        refreshLive(true);
+    });
+
+    // ---------- LLM key (optional) ----------
+    document.getElementById('llmSave').addEventListener('click', () => {
+        const base = document.getElementById('llmBase').value.trim().replace(/\/+$/, '');
+        const model = document.getElementById('llmModel').value.trim();
+        const key = document.getElementById('llmKey').value.trim();
+        if (!base || !model || !key) return;
+        localStorage.setItem(LLM_BASE, base);
+        localStorage.setItem(LLM_MODEL, model);
+        localStorage.setItem(LLM_KEY, key);
+        document.getElementById('llmKey').value = '';   // never leave it on screen
+        bindEditorFields();
+    });
+    document.getElementById('llmForget').addEventListener('click', () => {
+        localStorage.removeItem(LLM_KEY);
+        localStorage.removeItem(LLM_BASE);
+        localStorage.removeItem(LLM_MODEL);
+        document.getElementById('llmKey').value = '';
+        bindEditorFields();
+    });
 
     document.getElementById('edSave').addEventListener('click', async () => {
         const statusEl = document.getElementById('edStatus');
@@ -1624,6 +1961,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const typing = ev.target && (ev.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(ev.target.tagName));
         if (typing) return;
         if (ev.key === 'e' || ev.key === 'E') toggleEditor(!document.getElementById('overlay').classList.contains('open'));
+        else if (ev.key === 'd' || ev.key === 'D') {
+            // open the editor straight onto today's note — the one thing typed daily
+            if (!document.getElementById('overlay').classList.contains('open')) toggleEditor(true);
+            const box = document.getElementById('edDaily');
+            if (box && !box.disabled) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+        }
         else if (ev.key === 's' || ev.key === 'S') toggleSeats(!document.getElementById('seatOverlay').classList.contains('open'));
         else if (ev.key === 'h' || ev.key === 'H') {
             // force the before-P1 homeroom view on (or off) regardless of the clock
@@ -1649,7 +1992,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // fixes that ship to origin never reach the screen (the Oct 7 "gear does
     // nothing" report was exactly this). Poll our own URL for a different BUILD_ID
     // and offer a one-tap reload — never auto-reload mid-class.
-    const BUILD_ID = '2026-10-14f';
+    const BUILD_ID = '2026-10-16a';
     const buildTagEl = document.getElementById('buildTag');
     if (buildTagEl) buildTagEl.textContent = '· build ' + BUILD_ID;
     let updateBanner = null;

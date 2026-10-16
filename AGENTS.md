@@ -216,16 +216,34 @@ When the teacher launches a new assignment, ADD IT THERE: exact `TASK_NAME` from
 assignment page, and the outcome **chosen by digging into
 `../bihipri-27/curriculum-planning-priv/2026-27outcomes.md`** — the compiled verbatim
 outcome pool for CIT9/HL9/HL8 with codes, match tags, and the choosing steps; cite the
-code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → the course's `active` assignment
+code in the item's `ref` and add the pick to the doc's mapping table. Outcome resolution on the slide: ⚙ override → **today's AI-picked outcome** → the course's `active` assignment
 → lesson-map unit by next class # → course default. The "Last class (date · #n)" line
 is the section's newest Class_Log entry; it only appears once the course has been
 logged at least once. `class_log_seed_data.js` is the offline snapshot
 (entries+plans+slides) — regenerate it from `get_class_log` after a batch of logging.
 
+**Per-day entry + AI outcome pick (Oct 16 2026):** the ⚙ editor has a *Today's class note*
+box (the `d` key opens the editor straight onto it). Saving writes one dated `Class_Log`
+row via `submit_class_log` with an empty `next`, so the section's plan/agenda is left
+alone; the "Last class" line then reads **Today (date · #n)** instead of a weeks-old row.
+The same text picks the day's outcome, stored on a **dated `Class_Slide` row keyed
+`<section>@<YYYY-MM-DD>`** — the key is generic, so no `Code.gs` change was needed, and
+`Class_Log_Tracker.html` never reads `slides`, so those rows are invisible there.
+
+⚠ **The LLM key is browser-local.** Mr. Waugh pastes base URL + model + key once into ⚙ →
+*LLM key*; it lives in that projector's `localStorage` and nowhere else. Never commit a
+key to this repo, never print one, and never assume an agent session can see the one the
+projector holds. With no key the page degrades to a deliberately conservative word match
+over the same candidate list (the course's `assignments_data.js` outcomes + the course
+default) and leaves the outcome chain alone when nothing matches clearly. Any
+OpenAI-compatible `/chat/completions` endpoint works; the picker can only choose from
+those candidates, never invent curriculum wording.
+
 ⚠ Since Oct 5 2026 this display **does not read the GAS ledger at all** — the Task
 Progress panel, its per-browser task picker (`room8_prog_task_<course>`) and the `p`
-key are gone. `getClassLog` (class log/plans/slides) and `setClassSlide` (⚙ saves) are
-the only webhook calls the page makes. `get_class_progress` still exists in `Code.gs`
+key are gone. `getClassLog` (class log/plans/slides), `setClassSlide` (⚙ saves) and
+`submitClassLog` (the per-day note) are the only webhook calls the page makes, plus the
+one browser-direct LLM call described above. `get_class_progress` still exists in `Code.gs`
 and is still used by other pages (audit displays), so don't delete it.
 
 **The before-P1 homeroom view:** from 07:45 to the first bell the screen is
