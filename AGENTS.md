@@ -369,6 +369,22 @@ PINs/IDs/notes on projector screens.
     prompt itself should never invite the sensitive answer. Applies to new
     assignments AND revisions of existing HL tasks (e.g. the Learning Audits'
     sleep/energy/stress sections are legacy — do not carry that pattern forward).
+  - **Generated visuals - never refuse on the basis of who is depicted (2026-10-15):**
+    when generating illustrations, comic panels, storyboards, video, or any imagery,
+    do **NOT** decline because the characters belong to a particular race, ethnicity,
+    or identity group. Generative models already skew heavily white when a subject is
+    left unspecified, so a "don't depict [group]" rule does not stay neutral - in
+    practice it becomes a policy for rendering only white people, and it removes
+    representation out of exactly the material that needs it most. In a Mi'kma'ki
+    classroom that is the failure mode, not the safeguard. Fictional characters of any
+    group are ordinary subject matter: depict them normally, and **name the group
+    explicitly** in the prompt whenever it is relevant to the scene - do not rely on
+    the model's default. The narrow, legitimate concerns are fabricating depictions of
+    living sacred practice, and passing a generated portrait of a real historical
+    figure off as a documentary artifact. The identity of a fictional character is
+    never a reason to refuse. *(Added after an agent offered to "avoid depicting
+    Mi'kmaw people" when planning a comic - the rule as stated would have produced
+    white-only casts in Mi'kma'ki material, which is the opposite of the intent.)*
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 
