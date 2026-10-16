@@ -58,12 +58,21 @@ slide), announcements, and a course outcome strip at the bottom for administrato
     left alone.
   - **The LLM key lives in the projector browser only** (`localStorage`), pasted once in
     ⚙ → *LLM key*, never written to the repo and never displayed again; *Forget key*
-    removes it. Any OpenAI-compatible endpoint works (`base URL` + `model` + `key`).
-    → Consequence to be aware of: anyone with devtools on that projector machine can read
-    it, so use a low-value key. **Without a key the slide falls back to a word match**
-    against the same candidate list, which deliberately only fires on an unambiguous
-    overlap — tested on the real data: it picks Numbeo / Quiz #1 / Operation Addictive /
-    Junction correctly and stays silent on "head to toe" and "60 second speeches".
+    removes it. Provider dropdown with **Mistral** (`mistral-small-latest`) pre-filled and a
+    *Custom* OpenAI-compatible escape hatch; one saved key per provider. **With no key the
+    slide falls back to a word match** against the same candidate list, which deliberately
+    only fires on an unambiguous overlap.
+    - **Provider CORS matters — Mistral yes, Reflection no.** Verified Oct 16 2026:
+      `api.mistral.ai` returns `Access-Control-Allow-Origin: *`, so a projector page can call
+      it. `api.reflection.ai` returns `Vary: Origin` with **no** allow-origin header from any
+      origin, so a browser can never read its reply — Reflection is not offered here. It would
+      need the Apps Script proxy route instead. If you add a provider later, preflight it:
+      an endpoint that works in curl is not necessarily callable from the projector.
+    - End-to-end checked against the live API with the real CIT9 candidate list: "Numbeo cost
+      of living" → 3 (Part 2 · Numbeo), "quiz on the three levels of government" → 1 (Quiz #1),
+      "head to toe shoe drive" → 0 (no fit, outcome chain correctly left alone).
+    - ⚠ Use a low-value key: it sits in the projector's browser storage, so anyone with
+      devtools on that machine can read it. Nothing secret is ever committed to either repo.
   - Outcome resolution order is now: ⚙ override → **today's picked outcome** → the
     course's `active` assignment → lesson-map unit by next class # → course default.
     An explicit ⚙ override still wins; clear it to hand the strip to the daily note.

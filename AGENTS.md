@@ -231,13 +231,18 @@ The same text picks the day's outcome, stored on a **dated `Class_Slide` row key
 `Class_Log_Tracker.html` never reads `slides`, so those rows are invisible there.
 
 ⚠ **The LLM key is browser-local.** Mr. Waugh pastes base URL + model + key once into ⚙ →
-*LLM key*; it lives in that projector's `localStorage` and nowhere else. Never commit a
-key to this repo, never print one, and never assume an agent session can see the one the
-projector holds. With no key the page degrades to a deliberately conservative word match
-over the same candidate list (the course's `assignments_data.js` outcomes + the course
-default) and leaves the outcome chain alone when nothing matches clearly. Any
-OpenAI-compatible `/chat/completions` endpoint works; the picker can only choose from
-those candidates, never invent curriculum wording.
+*LLM key*; it lives in that projector's `localStorage` and nowhere else — **not** in this
+repo, **not** in `bihipri-27`. Never commit a key to either repo, never print one, and
+never assume an agent session can see the one the projector holds. Provider dropdown:
+**Mistral** (`mistral-small-latest`) + a *Custom* escape hatch, one saved key each.
+**Reflection is deliberately not offered**: `api.reflection.ai` returns `Vary: Origin` with
+no `Access-Control-Allow-Origin` header, so a browser page cannot read its reply at all —
+it would need an Apps Script proxy, not a client-side fetch. **Preflight any new provider's
+CORS before shipping it** (an endpoint that answers fine in curl is still unusable from the
+projector). With no key the page degrades to a deliberately conservative word match over the
+same candidate list (the course's `assignments_data.js` outcomes + the course default) and
+leaves the outcome chain alone when nothing matches clearly. The picker can only choose
+from those candidates, never invent curriculum wording.
 
 ⚠ Since Oct 5 2026 this display **does not read the GAS ledger at all** — the Task
 Progress panel, its per-browser task picker (`room8_prog_task_<course>`) and the `p`

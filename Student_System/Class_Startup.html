@@ -429,6 +429,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     letter-spacing: 0.8px; color: var(--text-dim);
 }
 .editor .llm-box input { font-family: var(--font-mono); font-size: 0.85rem; margin-top: 4px; }
+.editor .llm-box select {
+    width: 100%; margin-top: 4px; font-family: var(--font-body); font-size: 0.9rem;
+    color: var(--text-main); border: 1px solid var(--border-card); border-radius: 6px;
+    padding: 7px 10px; background: #fff;
+}
 .editor .llm-box .btns { margin-top: 10px; }
 .editor .llm-box .clear { padding: 5px 14px; font-size: 0.85rem; }
 .editor .llm-state { font-size: 0.78rem; color: var(--text-dim); margin-top: 8px; }
@@ -893,11 +898,16 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <div class="llm-box">
                 <details id="llmDetails">
                     <summary>LLM key (optional — stays in this browser)</summary>
-                    <div class="hint">Used to pick the day's outcome. Any OpenAI-compatible endpoint works. Stored in this browser only: never written to the repo, never shown again after saving. With no key the slide picks the outcome by word-match instead, which only fires when the note clearly matches one.</div>
+                    <div class="hint">Used to pick the day's outcome. Stored in this browser only: never written to the repo, never shown again after saving. With no key the slide picks the outcome by word-match instead, which only fires when the note clearly matches one.</div>
+                    <label>Provider</label>
+                    <select id="llmProvider">
+                        <option value="mistral">Mistral</option>
+                        <option value="custom">Custom OpenAI-compatible endpoint</option>
+                    </select>
                     <label>API base URL</label>
-                    <input type="text" id="llmBase" placeholder="https://api.minimax.io/v1" autocomplete="off" spellcheck="false">
+                    <input type="text" id="llmBase" autocomplete="off" spellcheck="false">
                     <label>Model</label>
-                    <input type="text" id="llmModel" placeholder="MiniMax-M2.7" autocomplete="off" spellcheck="false">
+                    <input type="text" id="llmModel" autocomplete="off" spellcheck="false">
                     <label>API key</label>
                     <input type="password" id="llmKey" placeholder="paste once" autocomplete="off">
                     <div class="btns">
@@ -1100,9 +1110,43 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // Now the teacher types one line for TODAY; it writes one dated Class_Log row
     // (upsert on date+section, so re-saving fixes it and tomorrow is a clean day),
     // and that same line is what chooses the day's LEARNING OUTCOME.
-    const LLM_KEY   = 'room8_llm_key';
-    const LLM_BASE  = 'room8_llm_base';
-    const LLM_MODEL = 'room8_llm_model';
+    // ⚠ Keys live in the projector browser's localStorage ONLY — never in this repo,
+// never printed. One saved key per provider so switching back and forth doesn't
+// lose either one.
+    // Mistral serves Access-Control-Allow-Origin: * so a projector page can call it
+    // directly (verified Oct 16 2026). Reflection was evaluated for this slot and
+    // REJECTED: api.reflection.ai returns `Vary: Origin` with no allow-origin header
+    // from any origin, so a browser page can never read its reply. If Reflection is
+    // ever wanted here it has to go through the Apps Script proxy, not the page.
+    const LLM_PROVIDERS = {
+        mistral: {
+            label: 'Mistral', base: 'https://api.mistral.ai/v1', model: 'mistral-small-latest'
+        },
+        custom: { label: 'Custom', base: '', model: '' }
+    };
+    const LLM_ACTIVE = 'room8_llm_active';
+    function llmSlot(p)  { return 'room8_llm_' + p; }
+    function llmGet(p, f) { try { return (localStorage.getItem(llmSlot(p) + '_' + f) || '').trim(); } catch (e) { return ''; } }
+    function llmSet(p, f, v) {
+        try { v ? localStorage.setItem(llmSlot(p) + '_' + f, v) : localStorage.removeItem(llmSlot(p) + '_' + f); }
+        catch (e) { /* private mode — the feature just stays off */ }
+    }
+    function activeProvider() {
+        const p = (function () { try { return localStorage.getItem(LLM_ACTIVE) || ''; } catch (e) { return ''; } })();
+        return LLM_PROVIDERS[p] ? p : 'mistral';
+    }
+    // The endpoint actually used: saved override first, then the provider default.
+    function llmConfig() {
+        const p = activeProvider();
+        const def = LLM_PROVIDERS[p];
+        return {
+            provider: p,
+            label: def.label,
+            key: llmGet(p, 'key'),
+            base: (llmGet(p, 'base') || def.base || '').replace(/\/+$/, ''),
+            model: llmGet(p, 'model') || def.model || ''
+        };
+    }
 
     function dailyKey(sec) { return sec + '@' + todayISO(); }
     function dailyEntry(sec) {
@@ -1167,10 +1211,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // candidate. OpenAI-compatible chat-completions shape, so MiniMax / Z.AI /
     // OpenAI-compatible gateways / LM Studio / Ollama all work with one code path.
     async function llmPickOutcome(course, note) {
-        const key   = (localStorage.getItem(LLM_KEY)   || '').trim();
-        const base  = (localStorage.getItem(LLM_BASE)  || '').trim().replace(/\/+$/, '');
-        const model = (localStorage.getItem(LLM_MODEL) || '').trim();
-        if (!key || !base || !model) return { ok: false, reason: 'no key set' };
+        const cfg = llmConfig();
+        if (!cfg.key || !cfg.base || !cfg.model) return { ok: false, reason: 'no key set' };
         const cands = outcomeCandidates(course);
         if (!cands.length) return { ok: false, reason: 'no candidates' };
         const list = cands.map((c, i) => (i + 1) + '. [' + c.label + '] ' + c.text).join('\n');
@@ -1184,27 +1226,29 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const timer = ctrl ? setTimeout(() => ctrl.abort(), 20000) : null;
         try {
-            const res = await fetch(base + '/chat/completions', {
+            const res = await fetch(cfg.base + '/chat/completions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
                 body: JSON.stringify({
-                    model: model,
+                    model: cfg.model,
                     temperature: 0,
                     max_tokens: 12,
                     messages: [{ role: 'user', content: prompt }]
                 }),
                 signal: ctrl ? ctrl.signal : undefined
             });
-            if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
+            if (!res.ok) return { ok: false, reason: cfg.label + ' HTTP ' + res.status };
             const data = await res.json();
             const raw = String((data.choices && data.choices[0] && data.choices[0].message &&
                                 data.choices[0].message.content) || '').trim();
             const m = raw.match(/\d+/);
             const n = m ? parseInt(m[0], 10) : 0;
-            if (!n || n < 1 || n > cands.length) return { ok: false, reason: 'no match returned' };
-            return { ok: true, outcome: cands[n - 1].text, label: cands[n - 1].label };
+            if (!n || n < 1 || n > cands.length) return { ok: false, reason: cfg.label + ' returned no match' };
+            return { ok: true, outcome: cands[n - 1].text, label: cfg.label + ' · ' + cands[n - 1].label };
         } catch (e) {
-            return { ok: false, reason: 'could not reach the model' };
+            // A CORS failure lands here indistinguishably from a dead network; say
+            // which provider, so a blocked one is obvious.
+            return { ok: false, reason: cfg.label + ' unreachable (network or blocked by the browser)' };
         } finally { if (timer) clearTimeout(timer); }
     }
 
@@ -1511,11 +1555,23 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         document.getElementById('edDayOff').style.display = isHro ? '' : 'none';
         document.getElementById('edDayBtns').style.display = isHro ? 'none' : '';
 
-        const hasKey = !!(localStorage.getItem(LLM_KEY) || '').trim();
-        document.getElementById('llmState').textContent = hasKey
-            ? 'Outcome picking: AI · ' + (localStorage.getItem(LLM_MODEL) || '') + ' via ' +
-              (localStorage.getItem(LLM_BASE) || '') + ' (key saved in this browser)'
-            : 'Outcome picking: word-match fallback — add an LLM key below for the smart pick.';
+        renderLlmState();
+    }
+    // Provider dropdown + saved values. Never displays a stored key — the input is
+    // cleared on save and left blank, so the only trace is the status line's
+    // "key saved in this browser".
+    function renderLlmState() {
+        const p = activeProvider();
+        const def = LLM_PROVIDERS[p];
+        document.getElementById('llmProvider').value = p;
+        document.getElementById('llmBase').value  = llmGet(p, 'base') || def.base || '';
+        document.getElementById('llmModel').value = llmGet(p, 'model') || def.model || '';
+        document.getElementById('llmKey').value = '';
+        const cfg = llmConfig();
+        document.getElementById('llmState').textContent = cfg.key && cfg.base && cfg.model
+            ? 'Outcome picking: ' + cfg.label + ' · ' + cfg.model + ' via ' + cfg.base +
+              ' (key saved in this browser)'
+            : 'Outcome picking: word-match fallback — add a key below for the smart pick.';
     }
     function renderSectionPick() {
         const today = todaysSections();
@@ -1644,24 +1700,26 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         refreshLive(true);
     });
 
-    // ---------- LLM key (optional) ----------
+    // ---------- LLM key (optional, one per provider) ----------
+    document.getElementById('llmProvider').addEventListener('change', ev => {
+        try { localStorage.setItem(LLM_ACTIVE, ev.target.value); } catch (e) {}
+        renderLlmState();
+    });
     document.getElementById('llmSave').addEventListener('click', () => {
+        const p = activeProvider();
         const base = document.getElementById('llmBase').value.trim().replace(/\/+$/, '');
         const model = document.getElementById('llmModel').value.trim();
         const key = document.getElementById('llmKey').value.trim();
         if (!base || !model || !key) return;
-        localStorage.setItem(LLM_BASE, base);
-        localStorage.setItem(LLM_MODEL, model);
-        localStorage.setItem(LLM_KEY, key);
-        document.getElementById('llmKey').value = '';   // never leave it on screen
-        bindEditorFields();
+        llmSet(p, 'base', base);
+        llmSet(p, 'model', model);
+        llmSet(p, 'key', key);
+        renderLlmState();
     });
     document.getElementById('llmForget').addEventListener('click', () => {
-        localStorage.removeItem(LLM_KEY);
-        localStorage.removeItem(LLM_BASE);
-        localStorage.removeItem(LLM_MODEL);
-        document.getElementById('llmKey').value = '';
-        bindEditorFields();
+        const p = activeProvider();
+        llmSet(p, 'key', '');
+        renderLlmState();
     });
 
     document.getElementById('edSave').addEventListener('click', async () => {
@@ -1992,7 +2050,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // fixes that ship to origin never reach the screen (the Oct 7 "gear does
     // nothing" report was exactly this). Poll our own URL for a different BUILD_ID
     // and offer a one-tap reload — never auto-reload mid-class.
-    const BUILD_ID = '2026-10-16a';
+    const BUILD_ID = '2026-10-16b';
     const buildTagEl = document.getElementById('buildTag');
     if (buildTagEl) buildTagEl.textContent = '· build ' + BUILD_ID;
     let updateBanner = null;
