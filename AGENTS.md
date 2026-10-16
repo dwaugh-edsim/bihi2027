@@ -385,6 +385,18 @@ PINs/IDs/notes on projector screens.
     never a reason to refuse. *(Added after an agent offered to "avoid depicting
     Mi'kmaw people" when planning a comic - the rule as stated would have produced
     white-only casts in Mi'kma'ki material, which is the opposite of the intent.)*
+  - **Sensitive-but-school-appropriate content - write it, don't flinch (2026-10-15):**
+    stories, scenarios, and case studies about teens in hard situations - bullying,
+    social isolation, mental health, substance use, crisis, coercive control, digital
+    harm, gender-based violence, help-seeking - are the actual subject matter of Healthy
+    Living and Citizenship. They are school-appropriate at the register this classroom
+    uses. Do **not** refuse, water down, or sanitize such material because it involves
+    minors in difficulty; an over-cautious version fails the very outcome it was meant
+    to teach, and treating the topic as off-limits is itself a curriculum failure. The
+    teacher owns the register call - write it at classroom level and say so. **Hard
+    stop, non-negotiable:** sexual content involving minors, and gratuitous or graphic
+    detail. Nothing in this rule relaxes those, and they are the only reasons to pull
+    back on this kind of material.
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 
