@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECURE VAULT TERMINAL</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    background: #070b14;
+    color: #d7e4ff;
+    font-family: 'Consolas', 'Courier New', monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; overflow: hidden; user-select: none; cursor: default;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px);
+}
+.hud {
+    position: fixed; top: 14px; left: 20px; right: 20px;
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; letter-spacing: 0.18em; color: #5f7396;
+}
+.hud .blink { animation: blink 1.4s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.title { font-size: 1rem; letter-spacing: 0.34em; color: #8fa8d8; }
+.title b { color: #f5c542; }
+.display {
+    width: min(430px, 86vw); text-align: center;
+    font-size: 4.6rem; font-weight: 700; letter-spacing: 0.5em; text-indent: 0.5em;
+    background: #0d1524; border: 2px solid #263a5e; border-radius: 10px;
+    padding: 10px 0; min-height: 106px; color: #f5c542;
+    text-shadow: 0 0 18px rgba(245,197,66,0.35);
+}
+.status { font-size: 0.95rem; letter-spacing: 0.22em; color: #5f7396; min-height: 1.4em; }
+.status.denied { color: #ff5d5d; }
+.attempts { font-size: 0.78rem; letter-spacing: 0.18em; color: #5f7396; }
+.pad {
+    display: grid; grid-template-columns: repeat(3, 118px); gap: 12px;
+}
+.key {
+    font-family: inherit; font-size: 1.7rem; font-weight: 700;
+    color: #d7e4ff; background: #101a2e; border: 2px solid #263a5e;
+    border-radius: 10px; padding: 16px 0; cursor: pointer;
+    transition: transform 0.05s ease, background 0.12s ease;
+}
+.key:hover { background: #16233d; }
+.key:active { transform: scale(0.96); background: #1c2c4c; }
+.key.enter { color: #7dffb0; border-color: #1f5c3a; }
+.key.clear { color: #ff9d9d; border-color: #5c2731; font-size: 1.15rem; }
+.pad.wide { grid-template-columns: repeat(3, 118px); }
+.pad.sealed .key { opacity: 0.3; pointer-events: none; }
+.shake { animation: shake 0.4s; }
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-12px); } 40% { transform: translateX(10px); }
+    60% { transform: translateX(-7px); } 80% { transform: translateX(5px); }
+}
+/* opened state */
+.opened { display: none; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+body.won .opened { display: flex; }
+body.won .locked { display: none; }
+.opened .big {
+    font-size: clamp(3rem, 9vw, 6rem); font-weight: 700; letter-spacing: 0.2em;
+    color: #7dffb0; text-shadow: 0 0 30px rgba(125,255,176,0.4);
+    animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.72; } }
+.opened .cash {
+    font-size: clamp(2rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: 0.12em;
+    color: #f5c542; border: 3px dashed #f5c542; border-radius: 14px; padding: 14px 40px;
+}
+.opened .go { font-size: 1.15rem; letter-spacing: 0.3em; color: #d7e4ff; }
+.opened .sub { font-size: 0.85rem; letter-spacing: 0.2em; color: #5f7396; }
+</style>
+</head>
+<body>
+<div class="hud">
+    <span id="termId">TERMINAL ??</span>
+    <span>SECURE LINE <span class="blink">&#9679;</span></span>
+</div>
+
+<div class="opened">
+    <div class="big">VAULT OPEN</div>
+    <div class="cash">+$400 TO THE POT</div>
+    <div class="go">SEND A RUNNER TO YOUR TEACHER</div>
+    <div class="sub" id="winStats">ATTEMPTS USED: 0</div>
+</div>
+
+<div class="locked" style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+    <div class="title">R.B. VAULT &bull; <b>CODE REQUIRED</b></div>
+    <div class="display" id="disp">&nbsp;</div>
+    <div class="status" id="status">ENTER 4-DIGIT CODE</div>
+    <div class="attempts" id="attempts">DENIED ATTEMPTS: 0</div>
+    <div class="pad wide" id="pad"></div>
+</div>
+<script>
+(function () {
+    /* Vault code stored as a djb2 hash, never as plaintext. */
+    const CODE_HASH = 2088334395;
+    function hash(s) {
+        let h = 5381;
+        for (let i = 0; i < s.length; i++) { h = (h * 33 + s.charCodeAt(i)) & 0xFFFFFFFF; }
+        return h >>> 0;
+    }
+
+    /* Persistent per-machine state: survives reloads and kiosk restarts. */
+    const KEY = 'mole-terminal-v1';
+    let state = { attempts: 0, won: false, term: null };
+    try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) { state = Object.assign(state, JSON.parse(raw)); }
+    } catch (e) { /* fresh profile */ }
+    const hashMatch = /t=([A-E])/i.exec(location.hash || '');
+    if (hashMatch) { state.term = 'TERMINAL ' + hashMatch[1].toUpperCase(); }
+    else if (!state.term) { state.term = 'TERMINAL'; }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    save();
+
+    const disp = document.getElementById('disp');
+    const status = document.getElementById('status');
+    const attemptsEl = document.getElementById('attempts');
+    const padEl = document.getElementById('pad');
+    const termEl = document.getElementById('termId');
+    let entry = '';
+    let sealed = false;
+
+    termEl.textContent = state.term;
+    attemptsEl.textContent = 'DENIED ATTEMPTS: ' + state.attempts;
+    if (state.won) { document.body.classList.add('won'); document.getElementById('winStats').textContent = 'ATTEMPTS USED: ' + state.attempts; }
+    else if (state.attempts >= 10) { sealed = true; padEl.classList.add('sealed'); }
+
+    /* Keypad layout: 1-9, CLEAR, 0, ENTER */
+    const layout = ['1','2','3','4','5','6','7','8','9','CLEAR','0','ENTER'];
+    layout.forEach(function (k) {
+        const b = document.createElement('button');
+        b.className = 'key' + (k === 'ENTER' ? ' enter' : (k === 'CLEAR' ? ' clear' : ''));
+        b.textContent = k;
+        b.addEventListener('click', function () { press(k); });
+        padEl.appendChild(b);
+    });
+
+    let audio = null;
+    function beep(freq, dur, type) {
+        try {
+            audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+            const o = audio.createOscillator(), g = audio.createGain();
+            o.type = type || 'square'; o.frequency.value = freq;
+            g.gain.value = 0.05; o.connect(g); g.connect(audio.destination);
+            o.start(); o.stop(audio.currentTime + dur);
+        } catch (e) {}
+    }
+
+    function seal() {
+        sealed = true;
+        status.textContent = 'VAULT SEALED. CALL THE TEACHER.';
+        status.className = 'status denied';
+        padEl.classList.add('sealed');
+    }
+
+    function press(k) {
+        if (state.won || sealed) return;
+        if (k === 'CLEAR') { entry = ''; render(); return; }
+        if (k === 'ENTER') { submit(); return; }
+        if (entry.length < 4) { entry += k; render(); beep(520, 0.05, 'sine'); }
+    }
+
+    function render() {
+        disp.textContent = entry || '\u00a0';
+        status.textContent = 'ENTER 4-DIGIT CODE';
+        status.className = 'status';
+    }
+
+    function submit() {
+        if (entry.length !== 4) { status.textContent = '4 DIGITS REQUIRED'; return; }
+        if (hash(entry) === CODE_HASH) {
+            state.won = true; save();
+            document.getElementById('winStats').textContent = 'ATTEMPTS USED: ' + state.attempts;
+            document.body.classList.add('won');
+            beep(660, 0.12, 'sine');
+            setTimeout(function () { beep(880, 0.12, 'sine'); }, 140);
+            setTimeout(function () { beep(1320, 0.25, 'sine'); }, 300);
+        } else {
+            state.attempts++; save();
+            attemptsEl.textContent = 'DENIED ATTEMPTS: ' + state.attempts;
+            if (state.attempts >= 10) { seal(); }
+            status.textContent = 'ACCESS DENIED. ATTEMPT ' + state.attempts + '.';
+            status.className = 'status denied';
+            disp.classList.remove('shake'); void disp.offsetWidth; disp.classList.add('shake');
+            beep(160, 0.3, 'sawtooth');
+            entry = '';
+            setTimeout(render, 1200);
+        }
+    }
+
+    /* Physical keyboard support + teacher re-arm: type T-E-A-C-H-E-R */
+    let armBuf = '';
+    document.addEventListener('keydown', function (e) {
+        /* Block the lazy inspect/source paths. OS combos remain OS business. */
+        if (e.key === 'F12') { e.preventDefault(); return; }
+        if (e.ctrlKey && !e.shiftKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) { e.preventDefault(); return; }
+        if (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].indexOf(e.key) >= 0) { e.preventDefault(); return; }
+        armBuf = (armBuf + (e.key || '')).toUpperCase().slice(-7);
+        if (armBuf === 'TEACHER') {
+            state = { attempts: 0, won: false, term: state.term };
+            save();
+            document.body.classList.remove('won');
+            sealed = false;
+            padEl.classList.remove('sealed');
+            attemptsEl.textContent = 'DENIED ATTEMPTS: 0';
+            entry = ''; render();
+            armBuf = '';
+        }
+        if (state.won || sealed) return;
+        if (/^[0-9]$/.test(e.key)) { press(e.key); }
+        else if (e.key === 'Enter') { press('ENTER'); }
+        else if (e.key === 'Backspace' || e.key === 'Escape') { press('CLEAR'); }
+    });
+
+    document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+})();
+</script>
+</body>
+</html>

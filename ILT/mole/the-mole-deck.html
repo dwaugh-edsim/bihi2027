@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE MOLE: Grade 7 ILT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #ffffff;
+    --surface-subtle: #f8fafc;
+    --surface-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-dark: #cbd5e1;
+    --text-heading: #0f172a;
+    --text-body: #1e293b;
+    --text-muted: #64748b;
+    --text-faint: #94a3b8;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --red-alert: #dc2626;
+    --red-bg: #fef2f2;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background-color: var(--bg);
+    color: var(--text-body);
+    font-family: 'Inter', -apple-system, sans-serif;
+    width: 100vw; height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== TOP BAR ===== */
+header.top-bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    border-bottom: 2px solid var(--border);
+    padding: 10px 24px; flex-shrink: 0; background: #ffffff;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.meta-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; background: #f1f5f9; color: var(--text-heading);
+    padding: 5px 12px; border-radius: 4px; border: 1px solid var(--border-dark);
+    white-space: nowrap;
+}
+.meta-pill.highlight { background: var(--text-heading); color: #ffffff; border-color: var(--text-heading); }
+.pot-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem; font-weight: 800;
+    background: var(--amber-bg); color: var(--amber);
+    border: 2px solid var(--amber);
+    padding: 5px 14px; border-radius: 4px; white-space: nowrap;
+}
+.hud-center { display: flex; align-items: center; gap: 10px; }
+.timer-block { display: flex; align-items: center; gap: 8px; }
+.timer-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.7rem; font-weight: 800; color: var(--text-heading);
+    background: #ffffff; border: 2px solid var(--border-dark);
+    padding: 2px 14px; border-radius: 6px; min-width: 130px; text-align: center;
+}
+.timer-display.running { border-color: var(--green); color: var(--green); }
+.timer-display.warn { border-color: var(--amber); color: var(--amber); }
+.timer-display.done { border-color: var(--red-alert); color: var(--red-alert); }
+.tbtn {
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem;
+    background: #f8fafc; color: var(--text-heading);
+    border: 1px solid var(--border-dark);
+    padding: 8px 13px; border-radius: 6px; cursor: pointer; transition: all 0.12s ease;
+}
+.tbtn:hover { background: #e2e8f0; }
+.tbtn.go { background: var(--green); color: #ffffff; border-color: var(--green); }
+.tbtn.stop { background: var(--red-alert); color: #ffffff; border-color: var(--red-alert); }
+.tbtn.amber { background: var(--amber); color: #ffffff; border-color: var(--amber); }
+.kbd-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--text-muted); background: #f1f5f9;
+    padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);
+}
+
+/* ===== STAGE STRIP ===== */
+nav.stage-strip {
+    display: flex; gap: 4px; padding: 6px 20px;
+    border-bottom: 1px solid var(--border); overflow-x: auto; flex-shrink: 0;
+    background: #ffffff;
+}
+.stage-tab {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-muted); background: transparent;
+    border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;
+    white-space: nowrap; transition: all 0.1s ease;
+}
+.stage-tab:hover { color: var(--text-heading); background: #f1f5f9; }
+.stage-tab.active { background: var(--text-heading); color: #ffffff; }
+.stage-tab.done { color: var(--green); }
+.stage-tab .num { opacity: 0.6; margin-right: 4px; }
+
+/* ===== PANELS ===== */
+.stage-area { flex: 1; overflow-y: auto; padding: 28px 48px; }
+.panel { display: none; max-width: 1500px; margin: 0 auto; }
+.panel.active { display: block; animation: fadein 0.2s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.stage-kicker {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--amber);
+    margin-bottom: 6px;
+}
+h1.big-title {
+    font-family: 'Roboto Slab', serif; font-weight: 900;
+    font-size: clamp(3.2rem, 7.5vw, 6.5rem);
+    color: var(--text-heading); line-height: 1.02; margin-bottom: 18px;
+}
+h2.slide-title {
+    font-family: 'Roboto Slab', serif; font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: var(--text-heading); line-height: 1.08; margin-bottom: 20px;
+}
+ul.big-list { list-style: none; margin: 8px 0 18px 0; }
+ul.big-list li {
+    font-size: clamp(1.25rem, 2.1vw, 1.8rem); font-weight: 500;
+    color: var(--text-body); line-height: 1.4;
+    padding: 10px 0 10px 40px; position: relative;
+}
+ul.big-list li::before {
+    content: ''; position: absolute; left: 8px; top: 50%;
+    width: 14px; height: 14px; margin-top: -7px; border-radius: 50%;
+    background: var(--amber);
+}
+ul.big-list li b, ul.big-list li strong { color: var(--text-heading); font-weight: 800; }
+.tag-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+.tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 800;
+    padding: 8px 16px; border-radius: 6px; border: 2px solid var(--border-dark);
+    background: var(--surface-subtle); color: var(--text-heading);
+}
+.tag.money { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.tag.bad { border-color: var(--red-alert); color: var(--red-alert); background: var(--red-bg); }
+.tag.info { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+
+/* GO slide */
+.go-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 62vh; text-align: center; }
+.go-timer {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800;
+    font-size: clamp(5rem, 15vw, 11rem); line-height: 1;
+    color: var(--text-heading); margin: 10px 0 6px 0;
+}
+.go-timer.running { color: var(--green); }
+.go-timer.warn { color: var(--amber); }
+.go-timer.done { color: var(--red-alert); }
+.go-buttons { display: flex; gap: 10px; margin-top: 16px; }
+.bigbtn {
+    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem;
+    padding: 14px 26px; border-radius: 8px; cursor: pointer;
+    border: 2px solid var(--border-dark); background: #f8fafc; color: var(--text-heading);
+    transition: all 0.12s ease;
+}
+.bigbtn:hover { background: #e2e8f0; }
+.bigbtn.go { background: var(--green); border-color: var(--green); color: #fff; }
+.bigbtn.stop { background: var(--red-alert); border-color: var(--red-alert); color: #fff; }
+.pot-row { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; justify-content: center; }
+.pot-big {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.6rem); color: var(--amber);
+    background: var(--amber-bg); border: 3px solid var(--amber);
+    padding: 8px 30px; border-radius: 10px; margin-bottom: 8px;
+}
+
+/* teams + reveal */
+.team-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 900px; }
+.team-box {
+    border: 2px solid var(--border-dark); border-radius: 10px; padding: 16px 20px;
+    background: var(--surface-subtle);
+}
+.team-box .tnum {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;
+}
+.team-box .tname {
+    display: block; font-family: 'Roboto Slab', serif; font-weight: 800;
+    font-size: 1.6rem; color: var(--text-heading); outline: none; margin-top: 2px;
+    border-bottom: 2px dashed var(--border-dark); min-width: 220px; padding-bottom: 2px;
+}
+.reveal-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 66vh; text-align: center; }
+.reveal-name {
+    font-family: 'Roboto Slab', serif; font-weight: 900;
+    font-size: clamp(3.5rem, 10vw, 8rem); color: var(--red-alert);
+    outline: none; border-bottom: 4px dashed var(--border-dark); min-width: 420px;
+    padding: 0 20px 6px 20px;
+}
+.shroud {
+    position: fixed; inset: 0; background: var(--text-heading); z-index: 50;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.shroud span {
+    font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700;
+    color: #ffffff; letter-spacing: 0.2em; text-transform: uppercase;
+    border: 2px solid #ffffff; padding: 16px 30px; border-radius: 8px;
+}
+.hint-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700;
+    color: var(--text-muted); margin-top: 26px; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.card {
+    border: 2px solid var(--border); border-radius: 10px; padding: 18px 22px;
+    background: var(--surface-subtle);
+}
+.card h3 {
+    font-family: 'Roboto Slab', serif; font-size: 1.25rem; font-weight: 800;
+    color: var(--text-heading); margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+<header class="top-bar">
+    <div class="header-left">
+        <span class="meta-pill highlight">THE MOLE</span>
+        <span class="meta-pill">GRADE 7 ILT</span>
+    </div>
+    <div class="hud-center">
+        <span class="pot-pill">POT <span id="potTop">$1,000</span></span>
+        <span class="meta-pill" id="roundPill">CHALLENGE 1 OF 4</span>
+    </div>
+    <div class="timer-block">
+        <button class="tbtn" id="timerReset" title="Reset timer">RESET</button>
+        <div class="timer-display" id="timerDisplay">08:00</div>
+        <button class="tbtn go" id="timerToggle">START</button>
+        <span class="kbd-hint">SPACE = timer</span>
+        <span class="kbd-hint">ARROWS = slides</span>
+    </div>
+</header>
+<nav class="stage-strip" id="stageStrip"></nav>
+<main class="stage-area" id="stageArea">
+<div class="panel active" data-stage="0" data-round="1">
+    <div class="stage-kicker">GRADE 7 ILT &bull; A GAME OF TRUST AND SABOTAGE</div>
+    <h1 class="big-title">THE MOLE</h1>
+    <ul class="big-list">
+        <li>A stranger has offered <b>one student in this room</b> a secret job.</li>
+        <li>That student is <b>the Mole</b>. Their mission: quietly wreck every challenge.</li>
+        <li>Every challenge the class wins grows the pot. Every sabotage shrinks it.</li>
+        <li>Find the Mole. Save the pot. <b>Trust no one.</b></li>
+    </ul>
+</div>
+
+<div class="panel" data-stage="1" data-round="1">
+    <div class="stage-kicker">HOW IT WORKS</div>
+    <h2 class="slide-title">How to Win</h2>
+    <ul class="big-list">
+        <li>Four team challenges. Win them and the <b>pot grows</b>.</li>
+        <li>After each challenge: <b>60 seconds</b>. Write down who you think the Mole is. Fold it. Box it.</li>
+        <li>Every round you name the right person: <b>1 star</b>. Final accusation: <b>3 stars</b>.</li>
+        <li>Most stars at the end = <b>Mole Hunter champion</b>.</li>
+        <li>If the most <b>written final accusations</b> name the Mole, they are caught and the pot survives.</li>
+        <li>If anyone else gets more, the Mole walks free and the pot is lost.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag money">POT STARTS AT $1,000</span>
+        <span class="tag money">MAX POT $2,300</span>
+        <span class="tag bad">SABOTAGE = LOST BONUS MONEY &bull; DENIED CODE = -$150</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="2" data-round="1">
+    <div class="stage-kicker">PUBLIC INFORMATION &bull; EVERYONE SEES THIS</div>
+    <h2 class="slide-title">The Mole's Job</h2>
+    <ul class="big-list">
+        <li><b>MEMORY RUN:</b> as runner, bring back one wrong detail. Say it with confidence.</li>
+        <li><b>BLUEPRINT:</b> as describer, drop one part or swap two parts.</li>
+        <li><b>WALL OF LIES:</b> with the team pencil, mark one statement wrong.</li>
+        <li><b>CODE BREAK:</b> swap a digit on the sheet, or type a wrong code at the terminal.</li>
+        <li>Exactly <b>one sabotage per challenge</b>. And at least <b>one visible help act</b> every challenge. Blending is everything.</li>
+        <li>Lying is allowed. If accused: <b>look shocked</b>. Never confess before the reveal.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag bad">THE MOLE WINS IF THE FINAL VOTE MISSES</span>
+        <span class="tag info">WATCH FOR THE MOVES. TRUST NO ONE.</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="3" data-round="1">
+    <div class="stage-kicker">STEP ONE</div>
+    <h2 class="slide-title">The Draw</h2>
+    <ul class="big-list">
+        <li>You have just seen the job. The only secret: <b>which of you was hired</b>.</li>
+        <li>Everyone takes <b>one folded packet</b> from the box. Same size, same fold. No peeking early.</li>
+        <li>Open on your lap at the same time. Read it. Say nothing. Show nobody.</li>
+        <li>Every packet says <b>YOU ARE NOT THE MOLE</b>, except one.</li>
+        <li>One packet says <b>YOU HAVE BEEN HIRED</b>. That student starts the job immediately.</li>
+    </ul>
+    <div class="hint-line">Teacher: drop the HIRED packet in the box last, on top, toward your chosen student.</div>
+</div>
+
+<div class="panel" data-stage="4" data-round="1">
+    <div class="stage-kicker">STEP TWO</div>
+    <h2 class="slide-title">Teams</h2>
+    <ul class="big-list" style="margin-bottom:14px;">
+        <li>Count off by fives. Same number = same team. 23 students, 5 teams.</li>
+        <li>Sit with your team near your team computer. Pick a team name. Tell the teacher.</li>
+    </ul>
+    <div class="team-grid">
+        <div class="team-box"><span class="tnum">Team 1</span><span class="tname" contenteditable="true">Team 1</span></div>
+        <div class="team-box"><span class="tnum">Team 2</span><span class="tname" contenteditable="true">Team 2</span></div>
+        <div class="team-box"><span class="tnum">Team 3</span><span class="tname" contenteditable="true">Team 3</span></div>
+        <div class="team-box"><span class="tnum">Team 4</span><span class="tname" contenteditable="true">Team 4</span></div>
+        <div class="team-box"><span class="tnum">Team 5</span><span class="tname" contenteditable="true">Team 5</span></div>
+    </div>
+</div>
+<div class="panel" data-stage="5" data-round="1">
+    <div class="stage-kicker">CHALLENGE 1 OF 4</div>
+    <h2 class="slide-title">Memory Run</h2>
+    <ul class="big-list">
+        <li>The poster at the front shows <b>24 shapes</b>. It stays face down until the timer starts.</li>
+        <li><b>One runner at a time</b> per team. Ten second look at the poster, run back, tell your team what you saw.</li>
+        <li>Team fills in the grid: shape and colour for all 24 boxes.</li>
+        <li>Every team member runs at least once before anyone runs twice.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag money">16+ CORRECT = +$60/TEAM</span>
+        <span class="tag money">12+ CORRECT = +$30/TEAM</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="6" data-round="1" data-min="8">
+    <div class="go-wrap">
+        <div class="stage-kicker">CHALLENGE 1 &bull; MEMORY RUN</div>
+        <div class="pot-big" id="potGo1">$1,000</div>
+        <div class="go-timer">08:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+        <div class="pot-row">
+            <button class="bigbtn" onclick="addPot(300)">TOP TIER +$60/TEAM</button>
+            <button class="bigbtn" onclick="addPot(150)">MID TIER +$30/TEAM</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="7" data-round="2" data-min="1">
+    <div class="go-wrap">
+        <div class="stage-kicker">GUESS ROUND 1</div>
+        <h2 class="slide-title">Who is the Mole?</h2>
+        <ul class="big-list" style="text-align:left;">
+            <li><b>60 seconds.</b> Write one name on your slip.</li>
+            <li>Optional: one short reason. It helps you think.</li>
+            <li>Fold it. Silence. Slip box comes to you.</li>
+        </ul>
+        <div class="go-timer">01:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="8" data-round="2">
+    <div class="stage-kicker">CHALLENGE 2 OF 4</div>
+    <h2 class="slide-title">Back to Back Blueprint</h2>
+    <ul class="big-list">
+        <li>Split your team into pairs. Sit <b>back to back</b>.</li>
+        <li>One partner describes the picture on the card. The other draws it. No peeking, no pointing, no letters.</li>
+        <li><b>90 seconds</b> per picture, then swap roles with a new card.</li>
+        <li>A drawing is NAILED when it has <b>5 of the 6 parts</b> on the card.</li>
+        <li>Keep voices at table volume. The cards are shared between teams.</li>
+        <li>Never got to describe this round? A miscount as judge, or one dropped part as drawer, does the same job.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag money">2+ NAILED = +$60/TEAM &bull; 1 NAILED = +$30/TEAM</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="9" data-round="2" data-min="9">
+    <div class="go-wrap">
+        <div class="stage-kicker">CHALLENGE 2 &bull; BLUEPRINT</div>
+        <div class="pot-big" id="potGo2">$1,000</div>
+        <div class="go-timer">09:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+        <div class="pot-row">
+            <button class="bigbtn" onclick="addPot(300)">TOP TIER +$60/TEAM</button>
+            <button class="bigbtn" onclick="addPot(150)">MID TIER +$30/TEAM</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="10" data-round="3" data-min="1">
+    <div class="go-wrap">
+        <div class="stage-kicker">GUESS ROUND 2</div>
+        <h2 class="slide-title">Who is the Mole?</h2>
+        <ul class="big-list" style="text-align:left;">
+            <li><b>60 seconds.</b> Write one name on your slip.</li>
+            <li>Think: who was near the poster? Who described the shape wrong?</li>
+            <li>Fold it. Silence. Box.</li>
+        </ul>
+        <div class="go-timer">01:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="11" data-round="3">
+    <div class="stage-kicker">CHALLENGE 3 OF 4</div>
+    <h2 class="slide-title">The Wall of Lies</h2>
+    <ul class="big-list">
+        <li><b>Twelve statements</b> are posted around the walls. Six are true. Six are lies.</li>
+        <li>One runner at a time: read a statement, run back, team decides <b>T or F</b> on the sheet.</li>
+        <li>Take turns running. All twelve marked before the timer ends.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag money">9+ RIGHT = +$60/TEAM</span>
+        <span class="tag money">7+ RIGHT = +$30/TEAM</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="12" data-round="3" data-min="9">
+    <div class="go-wrap">
+        <div class="stage-kicker">CHALLENGE 3 &bull; THE WALL OF LIES</div>
+        <div class="pot-big" id="potGo3">$1,000</div>
+        <div class="go-timer">09:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+        <div class="pot-row">
+            <button class="bigbtn" onclick="addPot(300)">9+ RIGHT +$60/TEAM</button>
+            <button class="bigbtn" onclick="addPot(150)">7+ RIGHT +$30/TEAM</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="13" data-round="4" data-min="1">
+    <div class="go-wrap">
+        <div class="stage-kicker">GUESS ROUND 3</div>
+        <h2 class="slide-title">Who is the Mole?</h2>
+        <ul class="big-list" style="text-align:left;">
+            <li><b>60 seconds.</b> Write one name on your slip.</li>
+            <li>Think: who ran the wall? Whose pencil made the wrong mark?</li>
+            <li>Fold it. Silence. Box.</li>
+        </ul>
+        <div class="go-timer">01:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+    </div>
+</div>
+<div class="panel" data-stage="14" data-round="4">
+    <div class="stage-kicker">CHALLENGE 4 OF 4</div>
+    <h2 class="slide-title">Code Break</h2>
+    <ul class="big-list">
+        <li>Each team gets <b>4 secret strips: A, B, C, D</b>. Each strip hides <b>one digit</b>.</li>
+        <li>Solve all four. Line the digits up in strip order. That number is the <b>vault code</b>.</li>
+        <li>Send a runner to your team <b>TERMINAL</b>, the computer at your team spot.</li>
+        <li>Type the code into the terminal. <b>First vault opened wins $400</b> for the pot.</li>
+        <li>Wrong codes are not secret: the terminal counts every denied attempt. Choose carefully.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag info">4 DIGITS &bull; ORDER MATTERS</span>
+        <span class="tag money">FIRST VAULT OPEN = +$400</span>
+        <span class="tag bad">DENIED CODE = -$150 EACH</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="15" data-round="4" data-min="8">
+    <div class="go-wrap">
+        <div class="stage-kicker">CHALLENGE 4 &bull; CODE BREAK</div>
+        <div class="pot-big" id="potGo4">$1,000</div>
+        <div class="go-timer">08:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+        <div class="pot-row">
+            <button class="bigbtn" onclick="addPot(400)">VAULT OPENED +$400</button>
+            <button class="bigbtn stop" onclick="addPot(-150)">DENIED ATTEMPT -$150</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="16" data-round="4" data-min="1">
+    <div class="go-wrap">
+        <div class="stage-kicker">GUESS ROUND 4 &bull; LAST REGULAR GUESS</div>
+        <h2 class="slide-title">Who is the Mole?</h2>
+        <ul class="big-list" style="text-align:left;">
+            <li><b>60 seconds.</b> One name. Fold it. Box.</li>
+            <li>Last chance at a cheap star. The final vote is worth three.</li>
+        </ul>
+        <div class="go-timer">01:00</div>
+        <div class="go-buttons">
+            <button class="bigbtn go">START</button>
+            <button class="bigbtn">RESET</button>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="17" data-round="5">
+    <div class="stage-kicker">THE ENDGAME</div>
+    <h2 class="slide-title">The Final Accusation</h2>
+    <ul class="big-list">
+        <li>Fill in your <b>final accusation slip</b>: your name, one accused. Worth <b>3 stars</b>. Seal it in the box.</li>
+        <li>The <b>written slips decide it</b>: the Mole is caught only if the most slips name them. A tie counts as <b>escaped</b>.</li>
+        <li>Then everyone stands. On three, the whole class <b>points at the Mole</b>. Fingers are for drama. The box decides.</li>
+    </ul>
+    <div class="tag-row">
+        <span class="tag info">FINAL SLIP = 3 STARS</span>
+        <span class="tag bad">MOST WRITTEN SLIPS CATCH THE MOLE</span>
+    </div>
+</div>
+
+<div class="panel" data-stage="18" data-round="5">
+    <div class="stage-kicker">COUNT IT UP</div>
+    <h2 class="slide-title">The Tally</h2>
+    <div class="two-col">
+        <div class="card">
+            <h3>The Pot</h3>
+            <div class="pot-big" id="potTally" style="display:inline-block;">$1,000</div>
+            <p style="margin-top:10px; font-size:1.1rem; color:var(--text-muted);">This is what the class saved. The Mole tried to burn it.</p>
+        </div>
+        <div class="card">
+            <h3>The Stars</h3>
+            <ul class="big-list" style="margin:0;">
+                <li>Rounds 1 to 4 were scored quietly during the challenges. Recap the star sheet.</li>
+                <li><b>1 star</b> for every correct guess, all four rounds.</li>
+                <li><b>3 stars</b> for the correct final accusation.</li>
+                <li>Most stars wins <b>Mole Hunter champion</b>.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="panel" data-stage="19" data-round="5">
+    <div class="reveal-wrap">
+        <div class="stage-kicker">THE MOMENT OF TRUTH</div>
+        <h1 class="big-title" style="margin-bottom:6px;">THE MOLE IS...</h1>
+        <div class="reveal-name" id="revealName" contenteditable="true" spellcheck="false"></div>
+        <div class="hint-line">Click the shroud to reveal. Type the name. Read the room.</div>
+    </div>
+</div>
+
+<div class="panel" data-stage="20" data-round="5">
+    <div class="stage-kicker">CASE CLOSED</div>
+    <h2 class="slide-title">The Verdict</h2>
+    <div class="two-col">
+        <div class="card" style="border-color:var(--green); background:var(--green-bg);">
+            <h3 style="color:var(--green);">MOLE HUNTER CHAMPIONS</h3>
+            <div class="tname" contenteditable="true" spellcheck="false" style="font-family:'Roboto Slab',serif; font-weight:800; font-size:1.8rem; color:var(--text-heading); outline:none; border-bottom:2px dashed var(--border-dark); min-width:240px;">write names here</div>
+            <p style="margin-top:10px; font-size:1.05rem; color:var(--text-muted);">Most stars. Sharpest eyes in the room.</p>
+        </div>
+        <div class="card" style="border-color:var(--red-alert); background:var(--red-bg);">
+            <h3 style="color:var(--red-alert);">AND THE MOLE...</h3>
+            <ul class="big-list" style="margin:0;">
+                <li><b>Caught:</b> the pot survives. The class celebrates.</li>
+                <li><b>Escaped:</b> the pot is gone. The Mole takes a bow.</li>
+                <li>Either way: trust nobody next Friday.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</main>
+<div class="shroud" id="shroud"><span>CLICK TO REVEAL THE MOLE</span></div>
+<script>
+(function () {
+    const labels = ['WELCOME','RULES','THE JOB','THE DRAW','TEAMS',
+        'C1 RULES','C1 GO','GUESS 1',
+        'C2 RULES','C2 GO','GUESS 2',
+        'C3 RULES','C3 GO','GUESS 3',
+        'C4 RULES','C4 GO','GUESS 4',
+        'FINAL VOTE','TALLY','REVEAL','CHAMPIONS'];
+    const pills = ['THE MOLE','HOW TO WIN','THE MOLE JOB','THE DRAW','TEAMS',
+        'CHALLENGE 1 OF 4','CHALLENGE 1 OF 4','GUESS ROUND 1',
+        'CHALLENGE 2 OF 4','CHALLENGE 2 OF 4','GUESS ROUND 2',
+        'CHALLENGE 3 OF 4','CHALLENGE 3 OF 4','GUESS ROUND 3',
+        'CHALLENGE 4 OF 4','CHALLENGE 4 OF 4','GUESS ROUND 4',
+        'THE FINAL VOTE','THE TALLY','THE REVEAL','THE VERDICT'];
+
+    const panels = Array.from(document.querySelectorAll('.panel'));
+    const strip = document.getElementById('stageStrip');
+    const pillEl = document.getElementById('roundPill');
+    const shroud = document.getElementById('shroud');
+    const REVEAL_STAGE = 19;
+
+    let current = 0;
+
+    panels.forEach(function (p, i) {
+        const b = document.createElement('button');
+        b.className = 'stage-tab';
+        b.innerHTML = '<span class="num">' + (i + 1) + '</span>' + labels[i];
+        b.addEventListener('click', function () { show(i); });
+        strip.appendChild(b);
+    });
+    const tabs = Array.from(strip.children);
+
+    function fmt(s) {
+        const m = Math.floor(s / 60), r = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+    }
+
+    const topDisplay = document.getElementById('timerDisplay');
+    const toggleBtn = document.getElementById('timerToggle');
+    const resetBtn = document.getElementById('timerReset');
+
+    let remaining = 8 * 60, running = false, tick = null;
+
+    function renderTimer() {
+        const cls = remaining === 0 ? 'done' : (running ? (remaining <= 60 ? 'warn' : 'running') : '');
+        topDisplay.textContent = fmt(remaining);
+        topDisplay.className = 'timer-display' + (cls ? ' ' + cls : '');
+        document.querySelectorAll('.go-timer').forEach(function (el) {
+            el.textContent = fmt(remaining);
+            el.className = 'go-timer' + (cls ? ' ' + cls : '');
+        });
+        toggleBtn.textContent = running ? 'PAUSE' : 'START';
+        toggleBtn.className = 'tbtn ' + (running ? 'stop' : 'go');
+    }
+
+    function startTimer() {
+        if (remaining === 0 || running) return;
+        running = true;
+        clearInterval(tick);
+        tick = setInterval(function () {
+            remaining = Math.max(0, remaining - 1);
+            renderTimer();
+            if (remaining === 0) stopTimer();
+        }, 1000);
+        renderTimer();
+    }
+    function stopTimer() {
+        running = false;
+        clearInterval(tick);
+        renderTimer();
+    }
+    function resetTimer() {
+        stopTimer();
+        const p = panels[current];
+        const min = p ? parseInt(p.dataset.min || '0', 10) : 0;
+        remaining = min > 0 ? min * 60 : remaining;
+        renderTimer();
+    }
+
+    toggleBtn.addEventListener('click', function () { running ? stopTimer() : startTimer(); });
+    resetBtn.addEventListener('click', resetTimer);
+    document.querySelectorAll('.go-buttons .bigbtn.go').forEach(function (b) {
+        b.addEventListener('click', function () { running ? stopTimer() : startTimer(); });
+    });
+    document.querySelectorAll('.go-buttons .bigbtn:not(.go)').forEach(function (b) {
+        b.addEventListener('click', resetTimer);
+    });
+
+    function show(i) {
+        current = Math.max(0, Math.min(panels.length - 1, i));
+        panels.forEach(function (p, k) { p.classList.toggle('active', k === current); });
+        tabs.forEach(function (t, k) {
+            t.classList.toggle('active', k === current);
+            t.classList.toggle('done', k < current);
+        });
+        pillEl.textContent = pills[current] || '';
+        shroud.style.display = (current === REVEAL_STAGE) ? 'flex' : 'none';
+        document.getElementById('stageArea').scrollTop = 0;
+        stopTimer();
+        const min = parseInt(panels[current].dataset.min || '0', 10);
+        if (min > 0) { remaining = min * 60; renderTimer(); }
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.target && (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        /* After a mouse click a button keeps focus: blur it so SPACE never double-fires. */
+        if (document.activeElement && document.activeElement.tagName === 'BUTTON') { document.activeElement.blur(); }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); show(current - 1); }
+        else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); running ? stopTimer() : startTimer(); }
+        else if (e.key === 'r' || e.key === 'R') { resetTimer(); }
+    });
+
+    shroud.addEventListener('click', function () { shroud.style.display = 'none'; });
+
+    window.addPot = function (delta) {
+        window._pot = Math.max(0, (window._pot || 1000) + delta);
+        const txt = '$' + window._pot.toLocaleString('en-US');
+        document.querySelectorAll('#potTop, #potTally, .pot-big').forEach(function (el) { el.textContent = txt; });
+    };
+    window._pot = 1000;
+
+    show(0);
+    renderTimer();
+})();
+</script>
+</body>
+</html>

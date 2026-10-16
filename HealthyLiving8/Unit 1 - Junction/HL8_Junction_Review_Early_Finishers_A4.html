@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Junction Early-Finishers Review — A4, self-marked</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    @page { size: A4 portrait; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: #52525b; color: #000;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 16px 0 30px 0;
+    }
+    .print-bar {
+        margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
+        background: #18181b; color: #fff; border-radius: 8px; padding: 10px 18px;
+        font-size: .85rem; font-weight: 600;
+    }
+    .print-bar button {
+        font-family: 'Roboto Slab', serif; font-size: .95rem; font-weight: 800;
+        padding: 8px 20px; background: #2563eb; color: #fff; border: none;
+        border-radius: 6px; cursor: pointer;
+    }
+    .sheet {
+        width: 210mm; height: 297mm; background: #fff;
+        box-shadow: 0 6px 24px rgba(0,0,0,.35);
+        padding: 11mm 14mm 10mm 14mm; display: flex; flex-direction: column;
+        position: relative;
+    }
+    .sheet::after {
+        content: attr(data-side); position: absolute; bottom: 4mm; right: 6mm;
+        font-family: 'JetBrains Mono', monospace; font-size: 7pt; font-weight: 700;
+        letter-spacing: .12em; color: #9ca3af;
+    }
+    .q-header {
+        border-bottom: 2.5px solid #000; padding-bottom: 2.5mm; margin-bottom: 3mm;
+        display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .q-kicker {
+        font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .14em; color: #52525b;
+    }
+    .q-title { font-family: 'Roboto Slab', serif; font-size: 16pt; font-weight: 900; margin-top: 1.5mm; }
+    .q-tag {
+        font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; font-weight: 700;
+        background: #000; color: #fff; padding: 1mm 2.5mm; border-radius: 1.5mm; white-space: nowrap;
+    }
+    .ident { display: flex; gap: 4mm; font-size: 8.5pt; font-weight: 700; margin-bottom: 2.5mm; }
+    .ident span { border-bottom: 1px solid #000; flex: 1; }
+
+    .part {
+        font-family: 'Roboto Slab', serif; font-size: 10pt; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .06em;
+        background: #000; color: #fff; padding: 1.6mm 3mm; border-radius: 1.5mm;
+        margin: 2.6mm 0 2.2mm; display: flex; justify-content: space-between; align-items: center;
+    }
+    .part:first-of-type { margin-top: 0; }
+    .part em { font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 7.2pt; font-weight: 700; }
+
+    .q { font-size: 8.6pt; line-height: 1.4; margin-bottom: 1.8mm; }
+    .q .qn { font-weight: 800; }
+    .q + .tbox { margin-top: 1mm; }
+    .tbox { border: 1.4px solid #000; border-radius: 1.5mm; padding: 1.8mm 2.2mm; }
+    .tline { border-bottom: 1px solid #9ca3af; height: 6.4mm; }
+    .tline.short { height: 5.2mm; }
+
+    .given {
+        border: 1.4px dashed #52525b; border-radius: 1.5mm; padding: 2mm 2.5mm;
+        background: #f4f4f5; font-size: 8pt; line-height: 1.45; margin: 1mm 0 1.4mm;
+    }
+    .given b { font-family: 'JetBrains Mono', monospace; font-size: 7.4pt; text-transform: uppercase; letter-spacing: .05em; }
+    .given .bad { border-left: 3px solid #be123c; padding-left: 2.5mm; margin: 1.4mm 0; display: block; }
+    .given .bad:last-child { margin-bottom: 0; }
+
+    .check { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 5mm; font-size: 8pt; }
+    .check div { display: flex; align-items: center; gap: 1.6mm; font-weight: 700; }
+    .check i { width: 3.2mm; height: 3.2mm; border: 1.4px solid #000; border-radius: .6mm; display: inline-block; flex: 0 0 auto; }
+    .check small { font-weight: 500; color: #52525b; font-size: 7.2pt; }
+
+    .footnote {
+        font-family: 'JetBrains Mono', monospace; font-size: 6.8pt; font-weight: 600;
+        color: #52525b; text-transform: uppercase; letter-spacing: .08em;
+        margin-top: 2mm; border-top: 1px solid #e5e5e5; padding-top: 1.5mm;
+    }
+    .markbox {
+        margin-top: auto; display: flex; justify-content: space-between;
+        font-family: 'JetBrains Mono', monospace; font-size: 7.2pt; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .06em; color: #52525b;
+    }
+    .markbox div { border: 1.4px solid #000; border-radius: 1.5mm; padding: 1.3mm 2.6mm; color: #000; }
+
+    /* ── PRINT ── must stay the LAST rule in this stylesheet.
+       Without this block the #52525b page background and the sheet drop-shadow
+       both print, which frames every page in grey.                        */
+    @media print {
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        html, body { background: #fff !important; margin: 0; padding: 0; }
+        body { display: block; }
+        .print-bar { display: none !important; }
+        .sheet {
+            width: 210mm; height: 296.9mm; margin: 0; box-shadow: none;
+            page-break-after: always; break-after: page; page-break-inside: avoid;
+        }
+        .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+
+        /* This sheet is meant to be ONE page. Print-only compaction so the
+           spacing gives way instead of the content spilling onto a second sheet.
+           Screen view above is unchanged.                                    */
+        .sheet { padding: 9mm 12mm 8mm 12mm; }
+        .q-header { padding-bottom: 2mm; margin-bottom: 2.2mm; }
+        .q-title { font-size: 15pt; }
+        .ident { margin-bottom: 2mm; }
+        .part { padding: 1.3mm 2.6mm; margin: 2mm 0 1.6mm; }
+        .q { font-size: 8.3pt; line-height: 1.32; margin-bottom: 1.3mm; }
+        .tbox { padding: 1.4mm 1.9mm; }
+        .tline { height: 5.6mm; }
+        .tline.short { height: 4.6mm; }
+        .given { padding: 1.5mm 2mm; margin: .8mm 0 1.1mm; font-size: 7.8pt; line-height: 1.38; }
+        .check { gap: 1.1mm 4mm; font-size: 7.8pt; }
+        .footnote { margin-top: 1.5mm; padding-top: 1.2mm; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+    <span>🖨️ Print <strong>single-sided</strong> · 1 per student · <strong>self-marked</strong> · for students who finish first</span>
+    <button onclick="window.print()">Print A4</button>
+</div>
+
+<div class="sheet" data-side="JUNCTION REVIEW · EARLY FINISHERS">
+    <div class="q-header">
+        <div>
+            <div class="q-kicker">Junction &bull; Unit 1 &bull; Healthy Living 8</div>
+            <div class="q-title">Review While You Wait</div>
+        </div>
+        <span class="q-tag">5 TASKS &bull; SELF-MARKED</span>
+    </div>
+
+    <div class="ident">
+        NAME <span></span> &nbsp; CLASS <span style="flex:0 0 26mm;"></span> &nbsp; DATE <span style="flex:0 0 26mm;"></span>
+    </div>
+
+    <div class="part"><span>Part A — Get these three right</span><em>they are where most marks are lost</em></div>
+
+    <div class="q"><span class="qn">1.</span> <strong>The last straw, not the heaviest.</strong> In one sentence each, explain the difference. Then: Rae has three fires — the group chat, a project due Friday, and her parents splitting up. <strong>Which one tips her?</strong> Say why the other two don't.
+    <em>(Your answer must explain the <em>capacity</em>, not just the size of the problem.)</em></div>
+    <div class="tbox"><div class="tline"></div><div class="tline"></div><div class="tline"></div></div>
+
+    <div class="q" style="margin-top:2.4mm;"><span class="qn">2.</span> <strong>The Scroll trap.</strong> Two classmates marked <em>Scroll to Calm Down</em> as <strong>B — breaks the chain</strong>. Write the one sentence you would say to convince them it is <strong>F</strong>. <strong>Your sentence has to mention sleep or staying awake</strong> — that is the reasoning that works.
+    </div>
+    <div class="tbox"><div class="tline"></div><div class="tline"></div><div class="tline short"></div></div>
+
+    <div class="q" style="margin-top:2.4mm;"><span class="qn">3.</span> <strong>Why Exhibit 1's strategy stops working.</strong> Fight-or-flight was built for danger that <strong>stays on</strong> for seconds. Exhibit 2's problem stays on for days. Explain in two or three sentences why the 30-second pause is enough for Sam's group chat but not enough for the project. <strong>Use both words: short, and stays on.</strong>
+    </div>
+    <div class="tbox"><div class="tline"></div><div class="tline"></div></div>
+
+    <div class="part"><span>Part B — Be the script doctor</span><em>1 mark each &bull; rewrite it so it actually works</em></div>
+
+    <div class="q"><span class="qn">4.</span> Two people tried to help Rae. Both scripts are <strong>real ones from this class</strong>. Pick <strong>one</strong> and rewrite it using the three moves: <strong>validate → name the risk → come with her.</strong></div>
+
+    <div class="given">
+        <b>The two scripts</b>
+        <span class="bad"><strong>Script A</strong> — "I hear you but I think what your doing is wrong."</span>
+        <span class="bad"><strong>Script B</strong> — "You should stop. They're going to kick you out of the group anyway."</span>
+    </div>
+
+    <div class="q">Your rewritten script — write it the way you'd actually say it out loud:</div>
+    <div class="tbox"><div class="tline"></div><div class="tline"></div><div class="tline"></div></div>
+
+    <div class="q" style="margin-top:2mm;">Which of the three moves did the original script <strong>already have</strong>, and which were missing?</div>
+    <div class="tbox" style="margin-top:1mm;"><div class="tline short"></div></div>
+
+    <div class="part"><span>Part C — Rate yourself before the unit test</span><em>tick one box per row · be honest, it tells you what to review</em></div>
+
+    <div class="check">
+        <div><i></i> Amygdala vs prefrontal cortex <small>(I could explain the 30-second part)</small></div>
+        <div><i></i> Tipping point <small>(last straw, not heaviest)</small></div>
+        <div><i></i> The Sorter <small>(which moves feed the fire)</small></div>
+        <div><i></i> Unregulated + fentanyl <small>(what's in them, who's there)</small></div>
+        <div><i></i> Trusted adult <small>(why it's not betrayal)</small></div>
+        <div><i></i> The script <small>(the three moves, in order)</small></div>
+    </div>
+
+    <div class="q" style="margin-top:2.6mm;"><span class="qn">5.</span> Look at your ticks. <strong>Which ONE topic do you most want to go over again?</strong> Write it here — you'll get it back on this sheet.
+    </div>
+    <div class="tbox" style="margin-top:1mm;"><div class="tline short"></div></div>
+
+    <div class="footnote">HL8 Outcome 1 — decision-making &bull; healthy coping &bull; boundaries &bull; when to get help &bull; Mr. Waugh &bull; Room 8</div>
+
+    <div class="markbox">
+        <div>Part A &nbsp;____ / 3</div>
+        <div>Script fix &nbsp;____ / 2</div>
+        <div>TOTAL &nbsp;____ / 5</div>
+    </div>
+</div>
+
+</body>
+</html>

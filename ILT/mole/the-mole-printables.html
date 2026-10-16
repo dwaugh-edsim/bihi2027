@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>THE MOLE: Print Set</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
+.page {
+    width: 210mm; min-height: 297mm; background: #ffffff;
+    margin: 10px auto; padding: 12mm; position: relative;
+    page-break-after: always;
+}
+@media print {
+    body { background: #ffffff; }
+    /* 6mm padding (not the screen 12mm): @page 10mm margins leave 190mm of paper,
+       so 6mm padding yields a 178 x 265mm content box. That clears the 260mm
+       two-row card pages (blueprint / wall sheet / code strip) without resizing them. */
+    .page { margin: 0; width: auto; min-height: auto; padding: 6mm; }
+    .no-print { display: none !important; }
+    @page { size: A4; margin: 10mm; }
+}
+.page-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 700;
+    color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em;
+    position: absolute; top: 4mm; right: 6mm;
+}
+.cutline { border: none; border-top: 1px dashed #cbd5e1; margin: 0; }
+.print-note {
+    font-family: 'JetBrains Mono', monospace; font-size: 9pt; font-weight: 700;
+    color: #64748b; background: #f8fafc; border: 1px dashed #cbd5e1;
+    padding: 8px 14px; border-radius: 6px; margin: 0 auto 14px auto; max-width: 210mm;
+    text-align: center;
+}
+
+/* ===== FOLD DRAW (uniform quarter-page packets) ===== */
+.draw2x2 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; height: 252mm; }
+.drawcard {
+    border: 2px solid #cbd5e1; border-radius: 8px; padding: 5mm 6mm;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 2mm;
+}
+.drawcard .big { font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 15pt; color: #16a34a; line-height: 1.15; }
+.drawcard .small { font-size: 8.5pt; color: #64748b; line-height: 1.4; }
+.drawcard.hired { border: 3px solid #dc2626; background: #fef2f2; }
+.drawcard.hired .big { color: #dc2626; font-size: 14pt; }
+.drawcard .stamp {
+    font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; font-weight: 800;
+    color: #dc2626; border: 2px solid #dc2626; border-radius: 1.5mm;
+    padding: 1mm 2mm; transform: rotate(3deg); letter-spacing: 0.12em;
+}
+.drawcard.hired .story { font-size: 8.5pt; line-height: 1.4; color: #1e293b; }
+.drawcard.hired .story b { color: #dc2626; }
+.mv { border-collapse: collapse; width: 100%; margin: 1.5mm 0; }
+.mv td { border: 1px solid #e6b8b8; padding: 1.2mm 1.8mm; font-size: 7.5pt; line-height: 1.35; text-align: left; }
+.mv td.job { font-family: 'JetBrains Mono', monospace; font-weight: 800; white-space: nowrap; color: #d97706; font-size: 6.5pt; }
+.drawcard .rules { font-size: 7.5pt; line-height: 1.4; color: #1e293b; }
+.drawcard .win {
+    border: 2px dashed #dc2626; border-radius: 2mm; padding: 1.5mm 2mm;
+    font-size: 7.5pt; line-height: 1.35; background: #fff5f5;
+}
+.drawcard .win b { color: #dc2626; }
+.drawcard .shh {
+    font-family: 'JetBrains Mono', monospace; font-size: 6pt;
+    color: #94a3b8; letter-spacing: 0.1em;
+}
+.fold-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; font-weight: 700;
+    color: #94a3b8; text-align: center; margin-top: 3mm; letter-spacing: 0.08em;
+}
+
+/* ===== GUESS SLIPS ===== */
+.guess-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+.guess {
+    border: 2px solid #cbd5e1; border-radius: 8px; height: 26mm; padding: 3.5mm;
+}
+.guess .hd {
+    font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 800;
+    color: #d97706; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1.5mm;
+}
+.guess .lbl { font-size: 8.5pt; color: #64748b; }
+.guess .line { border-bottom: 1.5px solid #94a3b8; height: 6mm; margin-top: 1mm; }
+.guess .row2 { display: flex; gap: 3mm; margin-top: 1.5mm; }
+.guess .row2 div { flex: 1; }
+
+/* ===== FINAL ACCUSATION SLIPS ===== */
+/* 4 cols x 6 rows at 40mm = 255mm, fits the 265mm print content box with 10mm slack. */
+.acc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.acc {
+    border: 2px solid #dc2626; border-radius: 6px; padding: 3mm;
+    height: 40mm; display: flex; flex-direction: column;
+}
+.acc .ahd {
+    font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; font-weight: 800;
+    color: #dc2626; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1.5mm;
+}
+.acc .stars { color: #d97706; }
+.acc .albl { font-size: 7pt; color: #64748b; line-height: 1.2; }
+.acc .aline { border-bottom: 1.2px solid #94a3b8; height: 4.5mm; }
+.acc .afoot {
+    font-family: 'JetBrains Mono', monospace; font-size: 5.5pt; color: #94a3b8;
+    letter-spacing: 0.08em; margin-top: auto;
+}
+
+/* ===== MEMORY POSTER ===== */
+.poster-head { font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 16pt; color: #0f172a; text-align: center; margin-bottom: 2mm; }
+.poster-sub { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; color: #64748b; text-align: center; margin-bottom: 4mm; }
+.poster-grid { display: grid; grid-template-columns: 10mm repeat(6, 1fr); grid-auto-rows: 42mm; border: 2px solid #0f172a; }
+.poster-grid .corner { background: #f1f5f9; }
+.poster-grid .collabel, .poster-grid .rowlabel {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 11pt; color: #0f172a;
+    background: #f1f5f9;
+}
+.poster-grid .collabel { border-left: 1.5px solid #cbd5e1; }
+.poster-grid .rowlabel { border-top: 1.5px solid #cbd5e1; }
+.poster-grid .pcell { border-left: 1.5px solid #cbd5e1; border-top: 1.5px solid #cbd5e1; display: flex; align-items: center; justify-content: center; }
+.poster-grid svg { width: 22mm; height: 22mm; }
+
+/* ===== ANSWER GRID ===== */
+.ans-title { font-family: 'JetBrains Mono', monospace; font-size: 9pt; font-weight: 800; color: #0f172a; margin-bottom: 1.5mm; }
+.ans-grid { display: grid; grid-template-columns: 7mm repeat(6, 1fr); grid-auto-rows: 13mm; border: 1.5px solid #0f172a; }
+.ans-grid .corner, .ans-grid .collabel, .ans-grid .rowlabel {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 7pt; color: #64748b;
+    background: #f8fafc;
+}
+.ans-grid .collabel { border-left: 1px solid #cbd5e1; }
+.ans-grid .rowlabel { border-top: 1px solid #cbd5e1; }
+.ans-grid .acell { border-left: 1px solid #cbd5e1; border-top: 1px solid #cbd5e1; }
+.ans-note { font-size: 7.5pt; color: #64748b; margin-top: 1mm; }
+.ans-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }
+
+/* ===== BLUEPRINT CARDS ===== */
+.bq { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.bcard { border: 2px solid #0f172a; border-radius: 8px; padding: 4mm; display: flex; gap: 4mm; height: 128mm; }
+.bcard .pic { flex: 1.1; display: flex; align-items: center; justify-content: center; border: 1.5px dashed #cbd5e1; border-radius: 6px; }
+.bcard .pic svg { width: 92%; height: 92%; }
+.bcard .info { flex: 1; display: flex; flex-direction: column; }
+.bcard .bt { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 11pt; color: #d97706; letter-spacing: 0.08em; margin-bottom: 2mm; }
+.bcard ul { list-style: none; font-size: 9pt; line-height: 1.45; }
+.bcard ul li { padding-left: 6.5mm; position: relative; margin-bottom: 1.6mm; }
+.bcard ul li::before { content: ''; position: absolute; left: 0; top: 0.8mm; width: 3.6mm; height: 3.6mm; border: 1.5px solid #64748b; border-radius: 1mm; }
+.bcard .rule { margin-top: auto; font-size: 8pt; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 2mm; }
+
+/* ===== WALL OF LIES ===== */
+.wall2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.wall {
+    border: 3px solid #0f172a; border-radius: 10px; height: 118mm;
+    padding: 8mm; display: flex; flex-direction: column;
+}
+.wall .num {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 13pt;
+    color: #ffffff; background: #0f172a; align-self: flex-start;
+    padding: 2mm 4mm; border-radius: 4mm;
+}
+.wall .txt { font-family: 'Roboto Slab', serif; font-weight: 800; font-size: 15.5pt; line-height: 1.35; color: #0f172a; margin: auto 0; }
+.wall .foot { font-family: 'JetBrains Mono', monospace; font-size: 8pt; color: #94a3b8; letter-spacing: 0.1em; text-align: center; }
+
+/* ===== WALL ANSWER SHEET ===== */
+.wq { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.wsheet { border: 2px solid #0f172a; border-radius: 8px; padding: 4mm 5mm; height: 128mm; display: flex; flex-direction: column; }
+.wsheet .wt { font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 12pt; color: #0f172a; }
+.wsheet .wn { font-size: 8pt; color: #64748b; margin: 1mm 0 2mm 0; }
+.wsheet .team { display: flex; gap: 2mm; align-items: flex-end; margin-bottom: 2mm; font-size: 9pt; }
+.wsheet .team .fill { flex: 1; border-bottom: 1.5px solid #64748b; height: 5mm; }
+.wsheet table { border-collapse: collapse; width: 100%; flex: 1; }
+.wsheet td, .wsheet th { border: 1px solid #cbd5e1; font-size: 8pt; padding: 1.2mm 2mm; text-align: left; }
+.wsheet th { background: #f1f5f9; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; }
+.wsheet td.c, .wsheet th.c { width: 12mm; text-align: center; }
+
+/* ===== CODE STRIPS ===== */
+.sq { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.strip { border: 3px solid #d97706; border-radius: 8px; padding: 5mm; height: 128mm; display: flex; flex-direction: column; }
+.strip .st { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 12pt; color: #d97706; letter-spacing: 0.06em; }
+.strip .body { font-size: 10.5pt; line-height: 1.5; margin: 3mm 0; flex: 1; }
+.strip .quote { font-family: 'Roboto Slab', serif; font-weight: 800; font-size: 15pt; color: #0f172a; border: 1.5px dashed #cbd5e1; border-radius: 6px; padding: 3mm; text-align: center; margin: 3mm 0; }
+.strip .bigflip { text-align: center; font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 58pt; color: #0f172a; transform: rotate(180deg); margin: 8mm 0; }
+.strip .digit { border-top: 1.5px dashed #cbd5e1; padding-top: 2.5mm; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10pt; color: #64748b; }
+
+/* ===== TEACHER KEY ===== */
+.keypage { display: flex; flex-direction: column; gap: 6mm; }
+.keybox { border: 3px solid #dc2626; border-radius: 10px; padding: 6mm 8mm; background: #fff5f5; }
+.keybox h2 { font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 15pt; color: #dc2626; margin-bottom: 3mm; }
+.keybox table { border-collapse: collapse; width: 100%; margin-bottom: 3mm; }
+.keybox td, .keybox th { border: 1.5px solid #e6b8b8; font-size: 9.5pt; padding: 2mm 3mm; text-align: center; }
+.keybox th { background: #fbe9e9; }
+.keybox td.mono { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
+.keybox p { font-size: 9.5pt; line-height: 1.5; }
+
+/* ===== TERMINAL SIGNS ===== */
+.tsign2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.tsign {
+    border: 3px solid #0f172a; border-radius: 10px; height: 126mm;
+    padding: 6mm 5mm; background: #fffdf5;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2.2mm;
+}
+.tsign .tsec {
+    font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; font-weight: 800;
+    letter-spacing: 0.22em; color: #d97706;
+}
+.tsign .tword {
+    font-family: 'JetBrains Mono', monospace; font-size: 13pt; font-weight: 800;
+    letter-spacing: 0.34em; color: #0f172a; margin-top: 1mm;
+}
+.tsign .tletter {
+    font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 66pt;
+    line-height: 1; color: #0f172a;
+}
+.tsign .tbar { width: 55%; height: 2.5mm; background: #d97706; border-radius: 2mm; margin: 1mm 0; }
+.tsign ol { text-align: left; font-size: 9.5pt; line-height: 1.5; padding-left: 7mm; }
+.tsign ol li { margin-bottom: 1mm; }
+.tsign .tteam {
+    font-size: 9.5pt; font-weight: 600; color: #1e293b;
+    border: 1.5px dashed #94a3b8; border-radius: 2mm; padding: 2mm 4mm; width: 88%;
+}
+.tsign .twin {
+    margin-top: auto; width: 92%;
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 8.5pt;
+    color: #16a34a; background: #f0fdf4; border: 2px solid #16a34a;
+    border-radius: 2mm; padding: 2mm 2mm;
+}
+.tsign .trule {
+    font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #94a3b8; letter-spacing: 0.08em;
+}
+
+</style>
+</head>
+<body>
+<div class="print-note no-print">Print single-sided, A4, portrait. Cut where dashed. Pages 1 to 2: fold slip draw. Page 3: guess slips. Then the challenge sets follow in order.</div>
+
+<!--PAGE 1: MOLE ORDERS (4 identical hired cards) -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 1 &bull; MOLE ORDERS &bull; CUT ALL 4 &bull; EXACTLY ONE GOES IN THE BOX</div>
+    <div class="draw2x2">
+        <div class="drawcard hired">
+            <div class="stamp">TOP SECRET &bull; ONE READER ONLY</div>
+            <div class="big">YOU HAVE<br>BEEN HIRED</div>
+            <div class="story">You are <b>the Mole</b>. You saw the job on the board. Start now: <b>one sabotage per challenge, one visible help act every challenge, never confess.</b></div>
+            <div class="rules">The class has seen the same menu, so they know what to watch for. That is what makes you good. Be sneaky anyway.</div>
+            <div class="win"><b>YOU WIN:</b> the final accusation points more at anyone else than at you. Then the pot is lost forever.</div>
+            <div class="shh">DESTROY OR MEMORIZE. YOUR CHOICE.</div>
+        </div>
+        <div class="drawcard hired">
+            <div class="stamp">TOP SECRET &bull; ONE READER ONLY</div>
+            <div class="big">YOU HAVE<br>BEEN HIRED</div>
+            <div class="story">You are <b>the Mole</b>. You saw the job on the board. Start now: <b>one sabotage per challenge, one visible help act every challenge, never confess.</b></div>
+            <div class="rules">The class has seen the same menu, so they know what to watch for. That is what makes you good. Be sneaky anyway.</div>
+            <div class="win"><b>YOU WIN:</b> the final accusation points more at anyone else than at you. Then the pot is lost forever.</div>
+            <div class="shh">DESTROY OR MEMORIZE. YOUR CHOICE.</div>
+        </div>
+        <div class="drawcard hired">
+            <div class="stamp">TOP SECRET &bull; ONE READER ONLY</div>
+            <div class="big">YOU HAVE<br>BEEN HIRED</div>
+            <div class="story">You are <b>the Mole</b>. You saw the job on the board. Start now: <b>one sabotage per challenge, one visible help act every challenge, never confess.</b></div>
+            <div class="rules">The class has seen the same menu, so they know what to watch for. That is what makes you good. Be sneaky anyway.</div>
+            <div class="win"><b>YOU WIN:</b> the final accusation points more at anyone else than at you. Then the pot is lost forever.</div>
+            <div class="shh">DESTROY OR MEMORIZE. YOUR CHOICE.</div>
+        </div>
+        <div class="drawcard hired">
+            <div class="stamp">TOP SECRET &bull; ONE READER ONLY</div>
+            <div class="big">YOU HAVE<br>BEEN HIRED</div>
+            <div class="story">You are <b>the Mole</b>. You saw the job on the board. Start now: <b>one sabotage per challenge, one visible help act every challenge, never confess.</b></div>
+            <div class="rules">The class has seen the same menu, so they know what to watch for. That is what makes you good. Be sneaky anyway.</div>
+            <div class="win"><b>YOU WIN:</b> the final accusation points more at anyone else than at you. Then the pot is lost forever.</div>
+            <div class="shh">DESTROY OR MEMORIZE. YOUR CHOICE.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+<!--PAGE 2: DECOY PACKETS 1-4 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 2 &bull; DECOY PACKETS 1-4 &bull; CUT 4 &bull; FOLD TWICE, SAME AS THE ORDERS</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Your only job: play hard. Suspect everyone.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Probably. Prove it by winning.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">But would this packet tell you if you were?</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The Mole is reading a different packet. Watch everyone.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+
+<!--PAGE 3: DECOY PACKETS 5-8 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 3 &bull; DECOY PACKETS 5-8 &bull; CUT 4 &bull; FOLD TWICE</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Nothing to see here. Keep moving.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The pot needs you. Trust no one anyway.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Yet another completely ordinary packet.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Good luck. You will need it.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+
+<!--PAGE 4: DECOY PACKETS 9-12 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 4 &bull; DECOY PACKETS 9-12 &bull; CUT 4 &bull; FOLD TWICE</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Your only job: play hard. Suspect everyone.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Probably. Prove it by winning.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The Mole is reading a different packet. Watch everyone.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Nothing to see here. Keep moving.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+<!--PAGE 5: DECOY PACKETS 13-16 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 5 &bull; DECOY PACKETS 13-16 &bull; CUT 4 &bull; FOLD TWICE</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The pot needs you. Trust no one anyway.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Yet another completely ordinary packet.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Good luck. You will need it.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Your only job: play hard. Suspect everyone.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+
+<!--PAGE 6: DECOY PACKETS 17-20 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 6 &bull; DECOY PACKETS 17-20 &bull; CUT 4 &bull; FOLD TWICE</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Probably. Prove it by winning.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">But would this packet tell you if you were?</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The Mole is reading a different packet. Watch everyone.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Nothing to see here. Keep moving.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+
+<!--PAGE 7: DECOY PACKETS 21-24 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT 7 &bull; DECOY PACKETS 21-24 &bull; CUT 4 &bull; FOLD TWICE &bull; SPARES</div>
+    <div class="draw2x2">
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The pot needs you. Trust no one anyway.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Yet another completely ordinary packet.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">Good luck. You will need it.</div>
+        </div>
+        <div class="drawcard">
+            <div class="big">YOU ARE NOT<br>THE MOLE</div>
+            <div class="small">The Mole is watching you read this. Probably.</div>
+        </div>
+    </div>
+    <div class="fold-hint">FOLD TWICE: BOTTOM UP, THEN LEFT OVER. SAME SIZE AS EVERY OTHER PACKET IN THE BOX.</div>
+</div>
+<!--PAGE 8: GUESS SLIPS A -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; GUESS SLIPS A &bull; CUT ALL 15 &bull; PRINT SLIP PAGES TWICE = 120 SLIPS</div>
+    <div class="guess-grid">
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+    </div>
+</div>
+
+<!--PAGE 9: GUESS SLIPS B -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; GUESS SLIPS B &bull; CUT ALL 15 &bull; PRINT SLIP PAGES TWICE = 120 SLIPS</div>
+    <div class="guess-grid">
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+    </div>
+</div>
+<!--PAGE 10: GUESS SLIPS C -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; GUESS SLIPS C &bull; CUT ALL 15 &bull; PRINT SLIP PAGES TWICE = 120 SLIPS</div>
+    <div class="guess-grid">
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+    </div>
+</div>
+
+<!--PAGE 11: GUESS SLIPS D -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; GUESS SLIPS D &bull; CUT ALL 15 &bull; PRINT SLIP PAGES TWICE = 120 SLIPS</div>
+    <div class="guess-grid">
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+        <div class="guess"><div class="hd">THE MOLE IS...</div><div class="line"></div><div class="row2"><div><div class="lbl">your name</div><div class="line"></div></div><div><div class="lbl">round</div><div class="line"></div></div><div><div class="lbl">reason</div><div class="line"></div></div></div></div>
+    </div>
+</div>
+
+<!--PAGE 12: FINAL ACCUSATION SLIPS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; FINAL ACCUSATION SLIPS &bull; CUT ALL 24 &bull; ONE PER STUDENT &bull; PRINT 1</div>
+    <div class="acc-grid">
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+        <div class="acc"><div class="ahd">FINAL ACCUSATION <span class="stars">&bull; 3 STARS</span></div><div class="albl">your name</div><div class="aline"></div><div class="albl">I ACCUSE</div><div class="aline"></div><div class="albl">best clue</div><div class="aline"></div><div class="afoot">SEAL IN BOX</div></div>
+    </div>
+    <div class="fold-hint">USED ONCE, BY EVERYONE, AT THE FINAL VOTE &mdash; these are the 3-star slips</div>
+</div>
+
+<!--PAGE 13: MEMORY POSTER -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; MEMORY POSTER &bull; PRINT 1 &bull; KEEP FACE DOWN UNTIL C1</div>
+    <div class="poster-head">THE WALL OF SHAPES</div>
+    <div class="poster-sub">24 shapes &bull; remember colour AND shape &bull; face down until the challenge starts</div>
+    <div class="poster-grid" style="grid-template-rows: 10mm repeat(4, 44mm);">
+        <div class="corner"></div>
+        <div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+        <div class="rowlabel">1</div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 24.7 14.6 37 15.5 27.6 23.6 30.5 36 20 29.2 9.5 36 12.4 23.6 3 15.5 15.3 14.6Z" fill="#dc2626"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#2563eb"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 5 36 34 4 34Z" fill="#16a34a"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="3" fill="#eab308"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 37 20 20 37 3 20Z" fill="#ea580c"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 35C6 24 4 14 11 9C16 5.5 20 9 20 12C20 9 24 5.5 29 9C36 14 34 24 20 35Z" fill="#9333ea"/></svg></div>
+        <div class="rowlabel">2</div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 5 36 34 4 34Z" fill="#2563eb"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 24.7 14.6 37 15.5 27.6 23.6 30.5 36 20 29.2 9.5 36 12.4 23.6 3 15.5 15.3 14.6Z" fill="#16a34a"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#eab308"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 37 20 20 37 3 20Z" fill="#dc2626"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="3" fill="#9333ea"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 35C6 24 4 14 11 9C16 5.5 20 9 20 12C20 9 24 5.5 29 9C36 14 34 24 20 35Z" fill="#ea580c"/></svg></div>
+        <div class="rowlabel">3</div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 37 20 20 37 3 20Z" fill="#16a34a"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 35C6 24 4 14 11 9C16 5.5 20 9 20 12C20 9 24 5.5 29 9C36 14 34 24 20 35Z" fill="#eab308"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="3" fill="#dc2626"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 24.7 14.6 37 15.5 27.6 23.6 30.5 36 20 29.2 9.5 36 12.4 23.6 3 15.5 15.3 14.6Z" fill="#2563eb"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#ea580c"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 5 36 34 4 34Z" fill="#9333ea"/></svg></div>
+        <div class="rowlabel">4</div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 24.7 14.6 37 15.5 27.6 23.6 30.5 36 20 29.2 9.5 36 12.4 23.6 3 15.5 15.3 14.6Z" fill="#9333ea"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 35C6 24 4 14 11 9C16 5.5 20 9 20 12C20 9 24 5.5 29 9C36 14 34 24 20 35Z" fill="#dc2626"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#16a34a"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 3 37 20 20 37 3 20Z" fill="#eab308"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><path d="M20 5 36 34 4 34Z" fill="#ea580c"/></svg></div>
+        <div class="pcell"><svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="3" fill="#2563eb"/></svg></div>
+    </div>
+</div>
+
+<!--PAGE 14: MEMORY ANSWER GRIDS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; MEMORY GRIDS &bull; 6 GRIDS = 5 TEAMS + SPARE &bull; ONE PER TEAM</div>
+    <div class="ans-wrap">
+        <div><div class="ans-title">TEAM ______ &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+        <div><div class="ans-title">TEAM ______ &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+        <div><div class="ans-title">TEAM ______ &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+        <div><div class="ans-title">TEAM ______ &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+        <div><div class="ans-title">TEAM ______ &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+        <div><div class="ans-title">SPARE &bull; GRID</div>
+            <div class="ans-grid"><div class="corner"></div><div class="collabel">A</div><div class="collabel">B</div><div class="collabel">C</div><div class="collabel">D</div><div class="collabel">E</div><div class="collabel">F</div>
+            <div class="rowlabel">1</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">2</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">3</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div>
+            <div class="rowlabel">4</div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div><div class="acell"></div></div>
+            <div class="ans-note">Write colour + shape, e.g. red star.</div></div>
+    </div>
+</div>
+
+<!--PAGE 15: BLUEPRINT CARDS 1-4 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; BLUEPRINT CARDS 1-4 &bull; CUT 4 &bull; PRINT 2 TIMES = 16 CARDS</div>
+    <div class="bq">
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <rect x="40" y="25" width="20" height="45" fill="#2563eb"/>
+                <path d="M40 25 60 25 50 8Z" fill="#dc2626"/>
+                <circle cx="50" cy="40" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                <circle cx="50" cy="54" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                <path d="M42 70 46 84 50 70 54 84 58 70" fill="none" stroke="#ea580c" stroke-width="3.5" stroke-linejoin="round"/>
+                <path d="M80 14 82 19 87 19.5 83 23 84.3 28.3 80 25.4 75.7 28.3 77 23 73 19.5 78 19Z" fill="#eab308"/>
+                <rect x="22" y="86" width="56" height="6" fill="#94a3b8"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 1 &bull; ROCKET</div>
+                <ul>
+                    <li>Red triangle nose</li>
+                    <li>Blue rectangle body</li>
+                    <li>Two circle windows with dark outlines</li>
+                    <li>Orange zigzag flames under the body</li>
+                    <li>One yellow star beside the rocket</li>
+                    <li>Grey launch pad rectangle at the bottom</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <rect x="30" y="40" width="40" height="45" fill="#94a3b8"/>
+                <rect x="30" y="34" width="7" height="7" fill="#94a3b8"/>
+                <rect x="46.5" y="34" width="7" height="7" fill="#94a3b8"/>
+                <rect x="63" y="34" width="7" height="7" fill="#94a3b8"/>
+                <line x1="35" y1="34" x2="35" y2="16" stroke="#0f172a" stroke-width="2"/>
+                <path d="M35 16 49 20.5 35 25Z" fill="#dc2626"/>
+                <rect x="38" y="52" width="8" height="10" fill="#0f172a"/>
+                <rect x="54" y="52" width="8" height="10" fill="#0f172a"/>
+                <rect x="45" y="70" width="10" height="15" fill="#92400e"/>
+                <circle cx="82" cy="14" r="8" fill="#eab308"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 2 &bull; CASTLE</div>
+                <ul>
+                    <li>Big grey square base</li>
+                    <li>Three little squares along the roofline</li>
+                    <li>Red flag on a tall dark pole</li>
+                    <li>Two dark square windows</li>
+                    <li>Brown rectangle door</li>
+                    <li>Yellow circle sun in the corner</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <circle cx="50" cy="55" r="30" fill="#16a34a"/>
+                <path d="M30 32 36 12 44 30Z" fill="#9333ea"/>
+                <path d="M56 30 64 12 70 32Z" fill="#9333ea"/>
+                <circle cx="40" cy="48" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                <circle cx="40" cy="48" r="2.8" fill="#0f172a"/>
+                <circle cx="60" cy="50" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                <circle cx="60" cy="50" r="1.7" fill="#0f172a"/>
+                <path d="M36 70 41 64 46 70 51 64 56 70 61 64" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+                <line x1="44" y1="26" x2="42" y2="18" stroke="#0f172a" stroke-width="2"/>
+                <line x1="50" y1="25" x2="50" y2="16" stroke="#0f172a" stroke-width="2"/>
+                <line x1="56" y1="26" x2="58" y2="18" stroke="#0f172a" stroke-width="2"/>
+                <rect x="38" y="85" width="10" height="7" fill="#0f172a"/>
+                <rect x="52" y="85" width="10" height="7" fill="#0f172a"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 3 &bull; MONSTER FACE</div>
+                <ul>
+                    <li>Big green circle head</li>
+                    <li>Two purple triangle horns on top</li>
+                    <li>One big eye and one small eye</li>
+                    <li>Zigzag mouth</li>
+                    <li>Three straight hair lines between the horns</li>
+                    <li>Two small dark rectangle feet at the bottom</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <path d="M25 65 75 65 65 80 35 80Z" fill="#92400e"/>
+                <line x1="50" y1="65" x2="50" y2="18" stroke="#0f172a" stroke-width="2.5"/>
+                <path d="M53 22 53 60 78 60Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+                <path d="M50 18 60 21 50 24Z" fill="#dc2626"/>
+                <circle cx="20" cy="14" r="7" fill="#eab308"/>
+                <path d="M12 88 Q19 83 26 88 T40 88" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+                <path d="M58 88 Q65 83 72 88 T86 88" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 4 &bull; SAILBOAT</div>
+                <ul>
+                    <li>Brown boat shape at the bottom (wider on top)</li>
+                    <li>Tall dark mast in the middle</li>
+                    <li>White triangle sail on the right of the mast</li>
+                    <li>Tiny red flag at the top of the mast</li>
+                    <li>Yellow circle sun in the top left</li>
+                    <li>Two blue wavy water lines at the bottom</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--PAGE 16: BLUEPRINT CARDS 5-8 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; BLUEPRINT CARDS 5-8 &bull; CUT 4 &bull; PRINT 2 TIMES = 16 CARDS</div>
+    <div class="bq">
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <path d="M42 55 58 55 63 92 37 92Z" fill="#92400e"/>
+                <rect x="40" y="50" width="20" height="7" fill="#dc2626"/>
+                <circle cx="50" cy="34" r="14" fill="#f9a8d4"/>
+                <circle cx="50" cy="16" r="5" fill="#dc2626"/>
+                <path d="M50 8 50 2" stroke="#0f172a" stroke-width="2"/>
+                <path d="M20 30 Q26 24 32 30" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                <path d="M68 30 Q74 24 80 30" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 5 &bull; ICE CREAM</div>
+                <ul>
+                    <li>Brown triangle cone pointing down</li>
+                    <li>Red rectangle band where cone meets scoop</li>
+                    <li>Big pink circle scoop</li>
+                    <li>Small red circle cherry on top</li>
+                    <li>Short stem line above the cherry</li>
+                    <li>Two curved steam lines beside the scoop</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <rect x="30" y="35" width="40" height="32" fill="#94a3b8"/>
+                <rect x="38" y="44" width="9" height="9" fill="#0f172a"/>
+                <rect x="53" y="44" width="9" height="9" fill="#0f172a"/>
+                <rect x="36" y="67" width="28" height="22" fill="#64748b"/>
+                <line x1="50" y1="35" x2="50" y2="14" stroke="#0f172a" stroke-width="2.5"/>
+                <circle cx="50" cy="11" r="4" fill="#dc2626"/>
+                <rect x="16" y="40" width="9" height="24" fill="#94a3b8"/>
+                <rect x="75" y="40" width="9" height="24" fill="#94a3b8"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 6 &bull; ROBOT</div>
+                <ul>
+                    <li>Grey square head</li>
+                    <li>Two dark square eyes</li>
+                    <li>Antenna: dark line with a red circle on top</li>
+                    <li>Grey rectangle body below the head</li>
+                    <li>Two grey rectangle arms, one each side</li>
+                    <li>Dark rectangle legs at the bottom</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <path d="M32 60 68 60 60 92 40 92Z" fill="#ea580c"/>
+                <line x1="50" y1="60" x2="50" y2="42" stroke="#16a34a" stroke-width="3"/>
+                <circle cx="50" cy="30" r="8" fill="#facc15" stroke="#eab308" stroke-width="2"/>
+                <circle cx="50" cy="14" r="6" fill="#facc15"/>
+                <circle cx="64" cy="22" r="6" fill="#facc15"/>
+                <circle cx="36" cy="22" r="6" fill="#facc15"/>
+                <circle cx="22" cy="10" r="7" fill="#eab308"/>
+                <line x1="24" y1="96" x2="76" y2="96" stroke="#16a34a" stroke-width="3"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 7 &bull; FLOWER</div>
+                <ul>
+                    <li>Orange flower pot (wider at the top)</li>
+                    <li>Green stem line going up from the pot</li>
+                    <li>Big yellow circle in the middle of the flower</li>
+                    <li>Three smaller yellow circles around it as petals</li>
+                    <li>Sun circle in the top left corner</li>
+                    <li>Green ground line under the pot</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+        <div class="bcard">
+            <div class="pic"><svg viewBox="0 0 100 100">
+                <rect x="28" y="42" width="44" height="40" fill="#fbbf24"/>
+                <path d="M28 42 50 16 72 42Z" fill="#dc2626"/>
+                <rect x="44" y="60" width="12" height="22" fill="#92400e"/>
+                <rect x="34" y="50" width="10" height="10" fill="#0f172a"/>
+                <rect x="56" y="50" width="10" height="10" fill="#0f172a"/>
+                <rect x="58" y="20" width="8" height="14" fill="#64748b"/>
+                <circle cx="80" cy="12" r="7" fill="#eab308"/>
+            </svg></div>
+            <div class="info">
+                <div class="bt">CARD 8 &bull; HOUSE</div>
+                <ul>
+                    <li>Yellow square house</li>
+                    <li>Red triangle roof</li>
+                    <li>Brown rectangle door in the middle bottom</li>
+                    <li>Two dark square windows</li>
+                    <li>Grey chimney rectangle on the right roof slope</li>
+                    <li>Yellow circle sun in the top right corner</li>
+                </ul>
+                <div class="rule">6 parts. 5 of 6 = NAILED. 90 seconds. Back to back. No peeking, no pointing, no letters.</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--PAGE 17: WALL OF LIES 1-6 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; WALL OF LIES STATEMENTS 1-6 &bull; POST ON WALLS AROUND THE ROOM</div>
+    <div class="wall2">
+        <div class="wall"><div class="num">STATEMENT 1</div><div class="txt">A goldfish remembers things for only three seconds.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 2</div><div class="txt">An octopus has three hearts.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 3</div><div class="txt">Honey found in ancient Egyptian tombs is still safe to eat.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 4</div><div class="txt">Lightning never strikes the same place twice.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 5</div><div class="txt">One day on Venus lasts longer than one year on Venus.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 6</div><div class="txt">The average person swallows eight spiders in their sleep every year.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+    </div>
+</div>
+
+<!--PAGE 18: WALL OF LIES 7-12 -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; WALL OF LIES STATEMENTS 7-12 &bull; POST ON WALLS AROUND THE ROOM</div>
+    <div class="wall2">
+        <div class="wall"><div class="num">STATEMENT 7</div><div class="txt">Bats are blind.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 8</div><div class="txt">A group of flamingos is called a flamboyance.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 9</div><div class="txt">The Great Wall of China can be seen from the Moon with just your eyes.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 10</div><div class="txt">Wombat droppings are cube-shaped.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 11</div><div class="txt">Bananas count as berries, but strawberries do not.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+        <div class="wall"><div class="num">STATEMENT 12</div><div class="txt">Shaving makes hair grow back thicker and darker.</div><div class="foot">TRUE OR FALSE? &bull; THE MOLE</div></div>
+    </div>
+</div>
+<!--PAGE 19: WALL ANSWER SHEETS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; WALL ANSWER SHEETS &bull; CUT 4 &bull; PRINT 2 TIMES = 8 SHEETS &bull; 5 TEAMS + SPARES</div>
+    <div class="wq">
+        <div class="wsheet">
+            <div class="wt">WALL OF LIES &bull; TEAM SHEET</div>
+            <div class="wn">Circle T or F for each statement number.</div>
+            <div class="team">TEAM <span class="fill"></span></div>
+            <table>
+                <tr><th class="c">#</th><th>ABOUT</th><th class="c">T</th><th class="c">F</th></tr>
+                <tr><td class="c">1</td><td>goldfish</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">2</td><td>octopus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">3</td><td>honey</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">4</td><td>lightning</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">5</td><td>Venus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">6</td><td>spiders</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">7</td><td>bats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">8</td><td>flamingos</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">9</td><td>Great Wall</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">10</td><td>wombats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">11</td><td>bananas</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">12</td><td>shaving</td><td class="c"></td><td class="c"></td></tr>
+            </table>
+        </div>
+        <div class="wsheet">
+            <div class="wt">WALL OF LIES &bull; TEAM SHEET</div>
+            <div class="wn">Circle T or F for each statement number.</div>
+            <div class="team">TEAM <span class="fill"></span></div>
+            <table>
+                <tr><th class="c">#</th><th>ABOUT</th><th class="c">T</th><th class="c">F</th></tr>
+                <tr><td class="c">1</td><td>goldfish</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">2</td><td>octopus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">3</td><td>honey</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">4</td><td>lightning</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">5</td><td>Venus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">6</td><td>spiders</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">7</td><td>bats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">8</td><td>flamingos</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">9</td><td>Great Wall</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">10</td><td>wombats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">11</td><td>bananas</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">12</td><td>shaving</td><td class="c"></td><td class="c"></td></tr>
+            </table>
+        </div>
+        <div class="wsheet">
+            <div class="wt">WALL OF LIES &bull; TEAM SHEET</div>
+            <div class="wn">Circle T or F for each statement number.</div>
+            <div class="team">TEAM <span class="fill"></span></div>
+            <table>
+                <tr><th class="c">#</th><th>ABOUT</th><th class="c">T</th><th class="c">F</th></tr>
+                <tr><td class="c">1</td><td>goldfish</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">2</td><td>octopus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">3</td><td>honey</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">4</td><td>lightning</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">5</td><td>Venus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">6</td><td>spiders</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">7</td><td>bats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">8</td><td>flamingos</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">9</td><td>Great Wall</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">10</td><td>wombats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">11</td><td>bananas</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">12</td><td>shaving</td><td class="c"></td><td class="c"></td></tr>
+            </table>
+        </div>
+        <div class="wsheet">
+            <div class="wt">WALL OF LIES &bull; TEAM SHEET</div>
+            <div class="wn">Circle T or F for each statement number.</div>
+            <div class="team">TEAM <span class="fill"></span></div>
+            <table>
+                <tr><th class="c">#</th><th>ABOUT</th><th class="c">T</th><th class="c">F</th></tr>
+                <tr><td class="c">1</td><td>goldfish</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">2</td><td>octopus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">3</td><td>honey</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">4</td><td>lightning</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">5</td><td>Venus</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">6</td><td>spiders</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">7</td><td>bats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">8</td><td>flamingos</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">9</td><td>Great Wall</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">10</td><td>wombats</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">11</td><td>bananas</td><td class="c"></td><td class="c"></td></tr>
+                <tr><td class="c">12</td><td>shaving</td><td class="c"></td><td class="c"></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!--PAGE 20: CODE STRIPS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; CODE STRIPS A-D &bull; PRINT THIS PAGE 5 TIMES &bull; ONE STRIP SET PER TEAM</div>
+    <div class="sq">
+        <div class="strip">
+            <div class="st">STRIP A &bull; LETTER HUNT</div>
+            <div class="body">Count every letter <b>E</b> in the sentence below. Count only the sentence, not these instructions.</div>
+            <div class="quote">THE MOLE IS IN THIS ROOM.</div>
+            <div class="digit">YOUR DIGIT: _____</div>
+        </div>
+        <div class="strip">
+            <div class="st">STRIP B &bull; THE DIZZY NUMBER</div>
+            <div class="body">The number below is standing on its head. Flip this strip to read it properly.</div>
+            <div class="bigflip">9</div>
+            <div class="digit">YOUR DIGIT: _____</div>
+        </div>
+        <div class="strip">
+            <div class="st">STRIP C &bull; THE ODD RIDDLE</div>
+            <div class="body">I am an <b>odd</b> number.<br><br>I am bigger than the number of corners on a triangle.<br><br>I am smaller than the number of legs on a spider.<br><br>I am NOT five. What number am I?</div>
+            <div class="digit">YOUR DIGIT: _____</div>
+        </div>
+        <div class="strip">
+            <div class="st">STRIP D &bull; LETTER MATH</div>
+            <div class="body"><b>M</b> is the <b>13th</b> letter of the alphabet.<br><br>Add its two digits together: <b>1 + 3</b>.<br><br>That answer is your digit.</div>
+            <div class="digit">YOUR DIGIT: _____</div>
+        </div>
+    </div>
+</div>
+<!--PAGE 21: TEACHER KEY + TERMINAL CARDS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; TEACHER KEY &bull; DO NOT POST &bull; KEEP AT YOUR DESK</div>
+    <div class="keypage">
+        <div class="keybox">
+            <h2>ANSWER KEY</h2>
+            <table>
+                <tr><th>ITEM</th><th>KEY</th></tr>
+                <tr><td>Strip A (letter hunt)</td><td class="mono">2 &nbsp;(THE=1, MOLE=1)</td></tr>
+                <tr><td>Strip B (dizzy number)</td><td class="mono">9</td></tr>
+                <tr><td>Strip C (odd riddle)</td><td class="mono">7 &nbsp;(odd, over 3, under 8, not 5)</td></tr>
+                <tr><td>Strip D (letter math)</td><td class="mono">4 &nbsp;(1+3)</td></tr>
+                <tr><td><b>VAULT CODE</b> (A,B,C,D order)</td><td class="mono">2 9 7 4</td></tr>
+                <tr><td>Wall of Lies</td><td class="mono">1F 2T 3T 4F 5T 6F 7F 8T 9F 10T 11T 12F</td></tr>
+            </table>
+            <p><b>Memory poster key, row by row:</b><br>
+            Row 1: red star, blue circle, green triangle, yellow square, orange diamond, purple heart.<br>
+            Row 2: blue triangle, green star, yellow circle, red diamond, purple square, orange heart.<br>
+            Row 3: green diamond, yellow heart, red square, blue star, orange circle, purple triangle.<br>
+            Row 4: purple star, red heart, green circle, yellow diamond, orange triangle, blue square.</p>
+            <p style="margin-top:2mm;"><b>Blueprint judging:</b> a drawing counts as NAILED when it includes 5 of the 6 listed parts. Team bonus lands at 2+ nailed drawings.</p>
+        </div>
+        <div class="keybox">
+            <h2>TERMINALS: THE CHEAT SHEET</h2>
+            <table>
+                <tr><th>WHAT</th><th>HOW</th></tr>
+                <tr><td>Windows machine</td><td style="text-align:left;">Open <b>mole-terminal.html#t=A</b> (letter per sign), or kiosk mode:<br><b>start msedge --kiosk "file:///.../mole-terminal.html#t=A" --edge-kiosk-type=fullscreen</b></td></tr>
+                <tr><td>Chromebook</td><td style="text-align:left;">Open <b>mole-terminal.html#t=A</b> (letter per sign) from Files, then <b>F11</b> for fullscreen.</td></tr>
+                <tr><td>Wrong code</td><td style="text-align:left;">ACCESS DENIED + attempt count. The count <b>never resets</b>. At <b>10 denials the vault seals</b> until you type TEACHER.</td></tr>
+                <tr><td>Re-arm after class</td><td style="text-align:left;">Type <b>T E A C H E R</b> on the keyboard. Attempts and the open state reset. Same on all terminals.</td></tr>
+                <tr><td>The code is stored</td><td style="text-align:left;">As a hash, not text. View-source shows nothing useful.</td></tr>
+            </table>
+            <p><b>Evidence tip:</b> check each terminal's DENIED ATTEMPTS before the reveal. A terminal with 6+ denials either had a bad guesser or the Mole burning attempts.</p>
+        </div>
+    </div>
+</div>
+
+<!--PAGE 22: TERMINAL SIGNS -->
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; TERMINAL SIGNS A-B &bull; CUT 2 &bull; TAPE ABOVE SCREENS</div>
+    <div class="tsign2">
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">A</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">B</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+    </div>
+</div>
+
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; TERMINAL SIGNS C-D &bull; CUT 2 &bull; TAPE ABOVE SCREENS</div>
+    <div class="tsign2">
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">C</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">D</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+    </div>
+</div>
+
+<div class="page">
+    <div class="page-tag">MOLE KIT &bull; TERMINAL SIGNS E + SPARE &bull; CUT 2 &bull; TAPE ABOVE SCREENS</div>
+    <div class="tsign2">
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">E</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+        <div class="tsign">
+            <div class="tsec">SECURE VAULT ACCESS</div>
+            <div class="tword">TERMINAL</div>
+            <div class="tletter">?</div>
+            <div class="tbar"></div>
+            <ol>
+                <li>Open the file <b>mole-terminal.html</b></li>
+                <li>Press <b>F11</b> for fullscreen</li>
+                <li>Solve your strips, type the <b>4-digit code</b></li>
+                <li>Only enter codes you believe. Denials are public.</li>
+            </ol>
+            <div class="tteam">THIS TERMINAL BELONGS TO TEAM ____________</div>
+            <div class="twin">FIRST VAULT OPEN IN THE ROOM = +$400 TO THE POT</div>
+            <div class="trule">YOUR TEAM ONLY. DO NOT TOUCH OTHER TERMINALS.</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
