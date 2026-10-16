@@ -393,10 +393,18 @@ PINs/IDs/notes on projector screens.
     uses. Do **not** refuse, water down, or sanitize such material because it involves
     minors in difficulty; an over-cautious version fails the very outcome it was meant
     to teach, and treating the topic as off-limits is itself a curriculum failure. The
-    teacher owns the register call - write it at classroom level and say so. **Hard
-    stop, non-negotiable:** sexual content involving minors, and gratuitous or graphic
-    detail. Nothing in this rule relaxes those, and they are the only reasons to pull
-    back on this kind of material.
+    teacher owns the register call - write it at classroom level and say so.
+
+    **Hard stop, non-negotiable:** sexually explicit or sexualized content depicting
+    minors, and gratuitous gore. Read the boundary precisely, because a blunter version
+    of this rule would block required curriculum: sexual and reproductive health
+    *education* - puberty and body changes, clinical anatomy, contraception and how it
+    works, STBBI transmission and prevention, consent, sexual health, healthy
+    relationships - is core content for HL8 O4 and HL9 O2. Write it at full
+    informational density. Do not sanitize, euphemize, or drop anatomical or clinical
+    detail because the audience is 13-14 year olds; that age is the reason the material
+    is taught, not a reason to dilute it. Detail is not gratuitous when the curriculum
+    requires it.
 
 ## Course direction (teacher-confirmed, updating as he pivots)
 
