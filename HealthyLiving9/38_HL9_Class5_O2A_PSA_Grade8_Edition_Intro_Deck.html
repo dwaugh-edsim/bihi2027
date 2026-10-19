@@ -8,98 +8,132 @@
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-    :root { --bg:#0f172a; --panel:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8; --amber:#fef3c7; --gold:#fbbf24; }
+    :root {
+        --bg: #eceff2;             /* Warm light slate/paper (distinctly non-white) */
+        --panel: #ffffff;          /* Crisp white card surface */
+        --panel-subtle: #f8fafc;   /* Slightly tinted panel */
+        --line: #cbd5e1;           /* Slate rule */
+        --line-dark: #94a3b8;      /* Structural divider */
+        --text: #1e293b;           /* Dark slate body print */
+        --text-heading: #0f172a;   /* Near-black heading ink */
+        --muted: #475569;          /* High-contrast readable secondary */
+        --dim: #64748b;            /* Subdued metadata */
+        --brand: #b45309;          /* Deep amber/ochre accent */
+        --coral: #c2410c;          /* Warm terracotta accent */
+        --callout-bg: #fef3c7;     /* Soft warm highlight */
+        --callout-border: #fde68a; /* Warm border */
+    }
     * { box-sizing:border-box; margin:0; padding:0; }
     html,body { height:100%; }
     body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
 
-    .slide { position:absolute; inset:0; display:none; flex-direction:column; padding:5.5vh 6vw 9vh 6vw; }
+    .slide { position:absolute; inset:0; display:none; flex-direction:column; padding:5.2vh 6vw 8.8vh 6vw; background:var(--bg); }
     .slide.active { display:flex; }
-    .slide::after { content:""; position:fixed; left:0; right:0; bottom:0; height:5.2vh; background:var(--panel); border-top:1px solid var(--line); }
-    .footer { position:fixed; left:6vw; right:6vw; bottom:1.2vh; z-index:5; display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:max(11px,1.55vh); font-weight:700; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; }
-    .footer .gold { color:var(--gold); }
+    .slide::after { content:""; position:fixed; left:0; right:0; bottom:0; height:5.2vh; background:#ffffff; border-top:1.5px solid var(--line); }
+    
+    .footer { position:fixed; left:6vw; right:6vw; bottom:1.2vh; z-index:5; display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:max(11px,1.55vh); font-weight:700; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; }
+    .footer .brand { color:var(--brand); font-weight:800; }
 
-    .kicker { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.8vh); font-weight:800; letter-spacing:.14em; color:var(--gold); text-transform:uppercase; margin-bottom:2.2vh; }
-    h1 { font-family:'Roboto Slab',Georgia,serif; font-weight:900; font-size:max(34px,7.6vh); line-height:1.04; letter-spacing:-.015em; }
-    .sub { font-size:max(16px,2.9vh); color:var(--muted); margin-top:2vh; line-height:1.35; }
-    .sub strong { color:var(--text); }
+    .kicker { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.12em; color:var(--brand); text-transform:uppercase; margin-bottom:1.8vh; }
+    h1 { font-family:'Roboto Slab',Georgia,serif; font-weight:900; font-size:max(32px,7.2vh); line-height:1.06; letter-spacing:-.015em; color:var(--text-heading); }
+    .sub { font-size:max(15px,2.7vh); color:var(--muted); margin-top:1.6vh; line-height:1.38; }
+    .sub strong { color:var(--text-heading); }
 
-    .chips3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.6vw; margin-top:4.5vh; }
-    .chip3 { background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:10px; padding:2.6vh 1.4vw; }
-    .chip3 .n { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.7vh); font-weight:800; color:var(--gold); letter-spacing:.1em; }
-    .chip3 .t { font-family:'Roboto Slab',Georgia,serif; font-size:max(18px,3.1vh); font-weight:800; margin:.8vh 0 1vh 0; }
-    .chip3 .d { font-size:max(13px,2.1vh); color:var(--muted); line-height:1.4; }
-    .chip3 .d strong { color:var(--text); }
+    /* slide 1 3-step grid */
+    .chips3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.6vw; margin-top:4vh; }
+    .chip3 { background:var(--panel); border:1.5px solid var(--line); border-top:4px solid var(--brand); border-radius:10px; padding:2.6vh 1.4vw; box-shadow:0 4px 12px rgba(15,23,42,.04); }
+    .chip3 .n { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.7vh); font-weight:800; color:var(--brand); letter-spacing:.08em; }
+    .chip3 .t { font-family:'Roboto Slab',Georgia,serif; font-size:max(18px,3.1vh); font-weight:800; color:var(--text-heading); margin:.8vh 0 1vh 0; }
+    .chip3 .d { font-size:max(13px,2.1vh); color:var(--muted); line-height:1.42; }
+    .chip3 .d strong { color:var(--text-heading); }
 
-    .cols { display:grid; grid-template-columns:1.35fr 1fr; gap:2.4vw; margin-top:3.6vh; flex:1; min-height:0; }
-    .rowbar { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:1.9vh 1.4vw; margin-bottom:1.6vh; display:flex; align-items:baseline; gap:1.2vw; }
-    .rowbar .lab { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.09em; color:var(--gold); white-space:nowrap; }
-    .rowbar .txt { font-size:max(14px,2.4vh); line-height:1.35; color:var(--text); }
-    .rowbar .txt em { color:var(--muted); text-decoration:line-through; font-style:normal; }
-    .rail { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:2.4vh 1.4vw; align-self:start; }
-    .rail h3 { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.12em; color:var(--gold); text-transform:uppercase; margin-bottom:1.6vh; }
-    .rail li { list-style:none; font-size:max(14px,2.35vh); line-height:1.42; margin-bottom:1.3vh; padding-left:1.5em; position:relative; }
-    .rail li::before { content:"›"; position:absolute; left:0; color:var(--gold); font-weight:800; }
-    .rail li strong { color:var(--text); } .rail li { color:var(--muted); }
+    /* slide 2 layout */
+    .cols { display:grid; grid-template-columns:1.35fr 1fr; gap:2.2vw; margin-top:3.2vh; flex:1; min-height:0; }
+    .rowbar { background:var(--panel); border:1.5px solid var(--line); border-radius:10px; padding:1.8vh 1.4vw; margin-bottom:1.4vh; display:flex; align-items:baseline; gap:1.2vw; box-shadow:0 3px 8px rgba(15,23,42,.03); }
+    .rowbar .lab { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.65vh); font-weight:800; letter-spacing:.08em; color:var(--brand); white-space:nowrap; }
+    .rowbar .txt { font-size:max(13.5px,2.3vh); line-height:1.35; color:var(--text); }
+    .rowbar .txt del { color:var(--dim); text-decoration:line-through; font-weight:600; }
+    .rowbar .txt strong { color:var(--text-heading); }
+
+    .rail { background:var(--panel); border:1.5px solid var(--line); border-top:4px solid var(--coral); border-radius:10px; padding:2.4vh 1.4vw; align-self:start; box-shadow:0 4px 12px rgba(15,23,42,.04); }
+    .rail h3 { font-family:'JetBrains Mono',monospace; font-size:max(12px,1.75vh); font-weight:800; letter-spacing:.1em; color:var(--coral); text-transform:uppercase; margin-bottom:1.6vh; }
+    .rail li { list-style:none; font-size:max(13.5px,2.25vh); line-height:1.42; margin-bottom:1.4vh; padding-left:1.5em; position:relative; color:var(--muted); }
+    .rail li::before { content:"›"; position:absolute; left:0; color:var(--coral); font-weight:900; font-size:1.2em; line-height:1; }
+    .rail li strong { color:var(--text-heading); }
 
     /* slide 3 source shelf */
-    .shelf { display:grid; grid-template-columns:repeat(5,1fr); gap:1.2vw; margin-top:3.4vh; }
-    .src { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:2.2vh 1vw; text-align:left; }
-    .src .who { font-family:'Roboto Slab',Georgia,serif; font-size:max(15px,2.5vh); font-weight:800; line-height:1.2; }
-    .src .what { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); font-weight:700; color:var(--muted); margin-top:1vh; line-height:1.45; }
+    .shelf { display:grid; grid-template-columns:repeat(5,1fr); gap:1.2vw; margin-top:3.2vh; }
+    .src { background:var(--panel); border:1.5px solid var(--line); border-top:3px solid var(--brand); border-radius:10px; padding:2.2vh 1.1vw; text-align:left; box-shadow:0 4px 10px rgba(15,23,42,.03); }
+    .src .who { font-family:'Roboto Slab',Georgia,serif; font-size:max(15px,2.4vh); font-weight:800; line-height:1.2; color:var(--text-heading); }
+    .src .what { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.55vh); font-weight:700; color:var(--muted); margin-top:1.1vh; line-height:1.42; }
 
     /* slide 4 exemplar */
-    .ex { display:grid; grid-template-columns:1fr 1.25fr; gap:2.4vw; margin-top:3.4vh; flex:1; min-height:0; }
-    .wallcard { background:#f8fafc; color:#0f172a; border-radius:10px; padding:2.6vh 1.5vw; display:flex; flex-direction:column; }
-    .wallcard .lab { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); font-weight:800; letter-spacing:.1em; color:#64748b; text-transform:uppercase; }
-    .wallcard .claim { font-family:'Roboto Slab',Georgia,serif; font-size:max(16px,2.9vh); font-weight:800; line-height:1.3; margin-top:1.6vh; }
-    .wallcard .attrib { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); color:#64748b; margin-top:auto; padding-top:2vh; }
-    .psa { background:var(--panel); border:1px solid var(--line); border-top:4px solid var(--gold); border-radius:10px; padding:2.6vh 1.6vw; display:flex; flex-direction:column; gap:1.5vh; }
-    .psa .myth { color:var(--muted); font-size:max(13px,2.1vh); } .psa .myth em { text-decoration:line-through; font-style:normal; }
-    .psa .truth { font-family:'Roboto Slab',Georgia,serif; font-size:max(24px,4.6vh); font-weight:900; line-height:1.1; }
-    .psa .why { font-size:max(14px,2.35vh); color:var(--muted); line-height:1.4; }
-    .psa .why strong { color:var(--text); }
-    .psa .meta { font-family:'JetBrains Mono',monospace; font-size:max(11.5px,1.75vh); font-weight:700; color:var(--gold); letter-spacing:.04em; line-height:1.6; margin-top:auto; }
-    .notice { margin-top:2.2vh; background:rgba(251,191,36,.09); border:1px solid rgba(251,191,36,.4); border-radius:8px; padding:1.6vh 1.3vw; font-size:max(13px,2.2vh); }
-    .notice strong { color:var(--gold); }
+    .ex { display:grid; grid-template-columns:1fr 1.3fr; gap:2.2vw; margin-top:3vh; flex:1; min-height:0; }
+    .wallcard { background:#fefce8; color:#1c1917; border:1.5px solid #e2d9b6; border-radius:10px; padding:2.6vh 1.5vw; display:flex; flex-direction:column; box-shadow:0 4px 10px rgba(0,0,0,.04); }
+    .wallcard .lab { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.6vh); font-weight:800; letter-spacing:.08em; color:#854d0e; text-transform:uppercase; }
+    .wallcard .claim { font-family:'Roboto Slab',Georgia,serif; font-size:max(17px,3vh); font-weight:800; line-height:1.3; margin-top:1.8vh; color:#1c1917; }
+    .wallcard .attrib { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.55vh); color:#713f12; margin-top:auto; padding-top:2vh; }
 
-    .hint { position:fixed; right:1vw; top:1vh; z-index:6; font-family:'JetBrains Mono',monospace; font-size:max(10px,1.4vh); color:#475569; }
+    .psa { background:var(--panel); border:1.5px solid var(--line); border-top:4px solid var(--brand); border-radius:10px; padding:2.6vh 1.6vw; display:flex; flex-direction:column; gap:1.4vh; box-shadow:0 4px 12px rgba(15,23,42,.05); }
+    .psa .myth { color:var(--dim); font-size:max(13px,2.1vh); } 
+    .psa .myth del { text-decoration:line-through; font-weight:600; }
+    .psa .truth { font-family:'Roboto Slab',Georgia,serif; font-size:max(23px,4.3vh); font-weight:900; line-height:1.12; color:var(--text-heading); }
+    .psa .why { font-size:max(13.5px,2.25vh); color:var(--muted); line-height:1.42; }
+    .psa .why strong { color:var(--text-heading); }
+    .psa .meta { font-family:'JetBrains Mono',monospace; font-size:max(11px,1.65vh); font-weight:700; color:var(--brand); letter-spacing:.03em; line-height:1.55; margin-top:auto; background:var(--panel-subtle); padding:1.2vh 1vw; border-radius:6px; border:1px solid var(--line); }
+    
+    .notice { margin-top:2vh; background:var(--callout-bg); border:1.5px solid var(--callout-border); border-radius:8px; padding:1.5vh 1.3vw; font-size:max(13px,2.15vh); color:#78350f; }
+    .notice strong { color:#78350f; font-weight:800; }
+
+    .hint { position:fixed; right:1.2vw; top:1vh; z-index:6; font-family:'JetBrains Mono',monospace; font-size:max(10px,1.4vh); color:var(--dim); font-weight:600; }
 </style>
 </head>
 <body>
 
-<!-- SLIDE 1 · MISSION -->
+<!-- SLIDE 1 · THE ASSIGNMENT -->
 <section class="slide active">
-    <div class="kicker">HL9 · O2-A · The Output Assignment</div>
+    <div class="kicker">Room 8 · Healthy Living 9 · Outcome 2-A</div>
     <h1>Nobody Told Me.<br>Now you tell them.</h1>
-    <p class="sub">You are the grade 9s. The walls told you. Now you build the wall a <strong>grade 8 class</strong> could walk.</p>
-    <p class="sub" style="margin-top:1.2vh;"><strong>Today: walk 2 of 3.</strong> Your pick list: every verdict from the three walls, all 60, on the compendium handout.</p>
+    <p class="sub">You did the three room walks. You sorted the myths from what's physically real. Now you build the resource a <strong>Grade 8 student</strong> can actually use.</p>
+    <p class="sub" style="margin-top:1.2vh;">Pick from all three walks: <strong>Myth Trials</strong>, <strong>Nobody Told Me</strong>, and <strong>The Fine Print</strong> (all 60 claims are on your compendium sheet).</p>
     <div class="chips3">
-        <div class="chip3"><div class="n">01 · PICK</div><div class="t">Three facts</div><div class="d">From all three walls: Myth Trials, Nobody Told Me, STBBI. <strong>At least one DEPENDS</strong>, with its condition named.</div></div>
-        <div class="chip3"><div class="n">02 · VERIFY</div><div class="t">Check my work</div><div class="d">Every fact gets a <strong>legit source</strong> and one line on why it's legit. I built the walls. Check me anyway.</div></div>
-        <div class="chip3"><div class="n">03 · BUILD</div><div class="t">A PSA they get</div><div class="d"><strong>3 slides + 1 source slide</strong> in Google Slides, or a 3-panel poster. Age-appropriate for a grade 8.</div></div>
+        <div class="chip3">
+            <div class="n">01 · CHOOSE</div>
+            <div class="t">3 Facts</div>
+            <div class="d">Select three claims from your master compendium. <strong>At least one must be a DEPENDS card</strong>, with its exact condition written out.</div>
+        </div>
+        <div class="chip3">
+            <div class="n">02 · VERIFY</div>
+            <div class="t">Audit My Sources</div>
+            <div class="d">I wrote the wall cards — <strong>verify me anyway.</strong> Find a recognized medical source for every claim, and write one sentence explaining why that source is reliable.</div>
+        </div>
+        <div class="chip3">
+            <div class="n">03 · BUILD</div>
+            <div class="t">Grade 8 Delivery</div>
+            <div class="d"><strong>3 content slides + 1 source slide</strong> in Google Slides (or a physical 3-panel display). Direct, clinical, and written for an 8th grader reading it alone.</div>
+        </div>
     </div>
 </section>
 
 <!-- SLIDE 2 · THE BUILD -->
 <section class="slide">
-    <div class="kicker">02 · The Build</div>
-    <h1>Anatomy of a fact slide</h1>
+    <div class="kicker">Slide Anatomy · What Goes on the Card</div>
+    <h1>Building a clear fact slide</h1>
     <div class="cols">
         <div>
-            <div class="rowbar"><span class="lab">THE MYTH</span><span class="txt"><em>&ldquo;Can't you just hold it in?&rdquo;</em>, small, struck, at the top.</span></div>
-            <div class="rowbar"><span class="lab">THE TRUTH</span><span class="txt"><strong>The headline.</strong> The biggest thing on the slide, never the question.</span></div>
-            <div class="rowbar"><span class="lab">THE CONDITION</span><span class="txt">DEPENDS fact? <strong>Name it in one line</strong>: which bumps, which type, how new.</span></div>
-            <div class="rowbar"><span class="lab">WHERE TO GO</span><span class="txt"><strong>811 · Youth Health Centre · clinic</strong>, and none of it needs a parent's permission.</span></div>
-            <div class="rowbar"><span class="lab">WHY IT MATTERS</span><span class="txt">One line: <strong>what changes for a grade 8 who knows this.</strong> If the honest answer is nothing, pick a different fact.</span></div>
+            <div class="rowbar"><span class="lab">THE MYTH</span><span class="txt"><del>&ldquo;Can't you just hold it in?&rdquo;</del> Small, struck through, at the very top. The myth never gets to be the headline.</span></div>
+            <div class="rowbar"><span class="lab">THE TRUTH</span><span class="txt"><strong>The main headline.</strong> Bold, direct, and declarative. State what is physically true before explaining the details.</span></div>
+            <div class="rowbar"><span class="lab">THE CONDITION</span><span class="txt">For DEPENDS cards, <strong>name the condition in one line</strong>: which bumps, which type, or how long it's been there.</span></div>
+            <div class="rowbar"><span class="lab">THE CLINIC</span><span class="txt"><strong>811 · Youth Health Centre · Sexual Health Clinic.</strong> Confidential, free, and no parental permission required in Nova Scotia.</span></div>
+            <div class="rowbar"><span class="lab">WHY IT MATTERS</span><span class="txt"><strong>What actually changes for a Grade 8 who reads this?</strong> If the honest answer is nothing, put the card back and pick a better one.</span></div>
         </div>
         <div class="rail">
             <h3>The Grade 8 Test</h3>
             <ul>
-                <li>A grade 8 reads it <strong>alone and gets it.</strong></li>
-                <li>Keep the clinical term, <strong>add the plain words</strong> beside it.</li>
-                <li><strong>Headline the truth.</strong> No shock, no scare, no come-on.</li>
-                <li><strong>Need-to-know, not trivia.</strong> Say what changes for a grade 8 who knows it.</li>
+                <li>An 8th grader must be able to read it <strong>alone and completely understand it</strong>.</li>
+                <li><strong>Keep the clinical anatomical terms</strong> — just place the plain everyday words right beside them.</li>
+                <li><strong>Lead with the truth.</strong> No shock value, no scare tactics, and no moralizing.</li>
+                <li><strong>Need-to-know, not trivia.</strong> Give them information that kills unnecessary panic and prevents harm.</li>
             </ul>
         </div>
     </div>
@@ -107,42 +141,65 @@
 
 <!-- SLIDE 3 · THE VERIFY -->
 <section class="slide">
-    <div class="kicker">03 · The Verify</div>
+    <div class="kicker">Source Audit · Verifying Medical Claims</div>
     <h1>I built those walls.<br>Verify me anyway.</h1>
-    <p class="sub">Class 3 you audited <strong>where information comes from.</strong> This time the source is me: same audit, new target.</p>
+    <p class="sub">Earlier this unit, we audited where online health claims originate. This time the source is me: same standard, new target.</p>
     <div class="shelf">
-        <div class="src"><div class="who">811 Nova Scotia</div><div class="what">NS Health, registered nurses, 24/7</div></div>
-        <div class="src"><div class="who">KidsHealth.org</div><div class="what">Nemours, pediatric hospital network</div></div>
-        <div class="src"><div class="who">SexandU.ca</div><div class="what">Canada's obstetricians &amp; gynecologists</div></div>
-        <div class="src"><div class="who">Canada.ca/health</div><div class="what">Public Health Agency of Canada</div></div>
-        <div class="src"><div class="who">IWK Health</div><div class="what">Maritime children's &amp; women's hospital</div></div>
+        <div class="src">
+            <div class="who">811 Nova Scotia</div>
+            <div class="what">NS Health registered nurses; confidential telephone triage 24/7</div>
+        </div>
+        <div class="src">
+            <div class="who">KidsHealth.org</div>
+            <div class="what">Nemours Children's Health; peer-reviewed pediatric network</div>
+        </div>
+        <div class="src">
+            <div class="who">SexandU.ca</div>
+            <div class="what">Society of Obstetricians and Gynaecologists of Canada (SOGC)</div>
+        </div>
+        <div class="src">
+            <div class="who">Canada.ca / Health</div>
+            <div class="what">Public Health Agency of Canada; clinical guidelines and surveillance</div>
+        </div>
+        <div class="src">
+            <div class="who">IWK Health</div>
+            <div class="what">Maritime pediatric &amp; women's clinical hospital network</div>
+        </div>
     </div>
-    <p class="sub" style="margin-top:2.6vh;">Each fact slide names its source <strong>+ one line: why is this source legit?</strong> &nbsp;Can't find it? <strong>Ask me: I'll show you where it lives.</strong></p>
+    <p class="sub" style="margin-top:2.6vh;">Every fact slide must name its primary source <strong>plus one clear sentence: why is this source legit?</strong> &nbsp;Can't track down the source? <strong>Ask me: I'll show you where it lives.</strong></p>
 </section>
 
 <!-- SLIDE 4 · THE EXEMPLAR -->
 <section class="slide">
-    <div class="kicker">04 · Worked Example · from Walk 1, Myth Trials</div>
-    <h1 style="font-size:max(26px,5.2vh);">The wall card becomes the PSA</h1>
+    <div class="kicker">Worked Model · From Wall Card to Finished PSA</div>
+    <h1 style="font-size:max(25px,5.2vh);">How the wall card turns into a PSA</h1>
     <div class="ex">
         <div class="wallcard">
-            <div class="lab">The wall · Walk 1, Myth Trials · card 03</div>
+            <div class="lab">Original Wall Card · Walk 1 (Myth Trials) · Card 03</div>
             <div class="claim">&ldquo;You can pick up an STI from a toilet seat.&rdquo;</div>
-            <div class="attrib">Source: overheard in the washroom</div>
+            <div class="attrib">Claim origin: Overheard in the junior high washroom</div>
         </div>
         <div class="psa">
-            <div class="myth"><em>&ldquo;Watch out for public toilet seats.&rdquo;</em></div>
-            <div class="truth">Toilet seats don't give you STIs.</div>
-            <div class="why"><strong>Every STI travels by sexual contact</strong>, skin to skin or fluid to fluid. A toilet seat is not how any of them travel. Wipe it if you want, sit if you don't: <strong>the seat was never the risk.</strong></div>
-            <div class="meta">WHERE: 811 · Youth Health Centre · clinic<br>SOURCE: KidsHealth.org, by Nemours pediatricians<br>WHY IT MATTERS: kills a fear grade 8s actually carry, without false comfort</div>
+            <div class="myth"><del>&ldquo;Watch out for public toilet seats.&rdquo;</del></div>
+            <div class="truth">Toilet seats do not transmit STIs.</div>
+            <div class="why"><strong>Every sexually transmitted infection requires direct sexual contact</strong> — skin-to-skin or fluid-to-fluid. STIs cannot survive or reproduce on cold, non-porous surfaces. Wipe the seat down if you want, sit down if you don't: <strong>the seat was never the risk.</strong></div>
+            <div class="meta">
+                WHERE TO GO: 811 · School Youth Health Centre · Local Clinic<br>
+                PRIMARY SOURCE: KidsHealth.org (Nemours Pediatric Health System)<br>
+                WHY IT MATTERS: Kills a persistent junior high fear without false reassurance.
+            </div>
         </div>
     </div>
-    <div class="notice"><strong>Notice:</strong> the headline is the truth. The myth never makes the headline: it goes small and struck at the top.</div>
-    <div style="margin-top:2vh; font-family:'JetBrains Mono',monospace; font-size:max(10.5px,1.55vh); font-weight:700; letter-spacing:.03em; color:var(--muted); line-height:1.5;">NS HL9 OUTCOMES &nbsp;&middot;&nbsp; 2: analyse ways to care for one's own sexual and reproductive health &nbsp;&middot;&nbsp; 3: investigate ways to access health resources that support health and well-being &nbsp;&middot;&nbsp; 4: develop communication skills for healthy relationships</div>
+    <div class="notice"><strong>Notice the rule in action:</strong> The headline is the medical truth. The myth is small and struck through at the top so it never gets anchored in memory.</div>
+    <div style="margin-top:2vh; font-family:'JetBrains Mono',monospace; font-size:max(10.5px,1.55vh); font-weight:700; letter-spacing:.03em; color:var(--muted); line-height:1.5;">NS HEALTHY LIVING 9 &nbsp;&middot;&nbsp; Outcome 2: Sexual &amp; Reproductive Health &nbsp;&middot;&nbsp; Outcome 3: Health Resource Access &nbsp;&middot;&nbsp; Outcome 4: Communication Skills</div>
 </section>
 
-<div class="hint">← → to move · F fullscreen</div>
-<div class="footer"><span>PSA · <span class="gold">grade 9s tell grade 8s</span></span><span>pairs · today: walk 2 of 3 · due before Quiz 2</span><span id="ctr">01 / 04</span></div>
+<div class="hint">← → to move &middot; F for fullscreen</div>
+<div class="footer">
+    <span>PSA Build &middot; <span class="brand">Grade 9s Tell Grade 8s</span></span>
+    <span>In Pairs &middot; 3 Content Slides + 1 Source Slide</span>
+    <span id="ctr">01 / 04</span>
+</div>
 
 <script>
     var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
