@@ -418,6 +418,18 @@
             color: var(--text-heading);
         }
         .btn-nav:hover { background: var(--bg-page); border-color: var(--text-heading); }
+
+        /* Blank screen overlay for PPT clicker B/W/. keys */
+        .blank-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000000;
+            display: none;
+            z-index: 99999;
+            cursor: pointer;
+        }
+        .blank-screen.white { background: #ffffff; }
+        .blank-screen.on { display: block; }
     </style>
 </head>
 <body>
@@ -862,12 +874,14 @@
             <button class="btn-nav" onclick="nextSlide()">Next &rarr;</button>
         </div>
         <div>
-            <span>Use Left &amp; Right Arrow Keys to Navigate &bull; Room 8 Master Deck</span>
+            <span>PPT Remote Enabled (&larr; &rarr; / PageUp/Dn &bull; B/. to Blackout &bull; F5 Fullscreen)</span>
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--primary);">
             CIT9-CASE-01 (11 BEATS &bull; NARRATIVE EDITION)
         </div>
     </footer>
+
+    <div class="blank-screen" id="blankScreen" onclick="dismissBlank()" title="Click or press any key to dismiss"></div>
 
     <script>
         let currentSlide = 1;
@@ -995,19 +1009,104 @@
             }
         }
 
+        /* ==================== PPT PRESENTER REMOTE CONTROLS ====================
+           Tuned for standard presenter clickers (Logitech R400/R800, Kensington, DinoFire, Norwii).
+           Clickers send:
+             - Next: PageDown, ArrowRight, ArrowDown, Space, Enter, 'n'/'N'
+             - Prev: PageUp, ArrowLeft, ArrowUp, Backspace, 'p'/'P'
+             - Blackout screen: 'b'/'B' or '.' (period)
+             - Fullscreen: F5, 'f'/'F', or Escape
+           Slide 7 (Translation Contest) steps through blanks before advancing slide!
+        */
+        function toggleBlank(white) {
+            const el = document.getElementById('blankScreen');
+            if (!el) return;
+            const wantWhite = !!white;
+            const isOn = el.classList.contains('on');
+            const isWhite = el.classList.contains('white');
+            if (isOn && isWhite === wantWhite) {
+                el.classList.remove('on', 'white');
+            } else {
+                el.classList.toggle('white', wantWhite);
+                el.classList.add('on');
+            }
+        }
+
+        function dismissBlank() {
+            const el = document.getElementById('blankScreen');
+            if (el && el.classList.contains('on')) {
+                el.classList.remove('on', 'white');
+                return true;
+            }
+            return false;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        function advanceOrReveal() {
+            if (dismissBlank()) return;
+
+            // On Slide 7: Remote Next button steps through Blanks 1, 2, 3 before advancing to Slide 8
+            if (currentSlide === 7 && translationStep < 3) {
+                applyTranslationStep(translationStep + 1);
+                return;
+            }
+            nextSlide();
+        }
+
+        function retreatOrHide() {
+            if (dismissBlank()) return;
+
+            // On Slide 7: Remote Prev button steps back through blanks before retreating to Slide 6
+            if (currentSlide === 7 && translationStep > 0) {
+                applyTranslationStep(translationStep - 1);
+                return;
+            }
+            prevSlide();
+        }
+
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-                nextSlide();
-            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                prevSlide();
-            } else if (e.key === 'ArrowDown' || e.key === 'Enter') {
-                if (currentSlide === 7) {
-                    revealNextTranslation();
+            const k = e.key;
+            const isBlankOn = document.getElementById('blankScreen')?.classList.contains('on');
+
+            // 1. ADVANCE / NEXT (PPT Clicker Forward, PageDown, Right, Down, Space, Enter, N)
+            if (k === 'PageDown' || k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'Spacebar' || k === 'Enter' || k === 'n' || k === 'N') {
+                e.preventDefault();
+                advanceOrReveal();
+            }
+            // 2. RETREAT / PREVIOUS (PPT Clicker Back, PageUp, Left, Up, Backspace, P)
+            else if (k === 'PageUp' || k === 'ArrowLeft' || k === 'ArrowUp' || k === 'Backspace' || k === 'p' || k === 'P') {
+                e.preventDefault();
+                retreatOrHide();
+            }
+            // 3. BLACK SCREEN / WHITE SCREEN (Logitech/Kensington standard B or . button)
+            else if (k === 'b' || k === 'B' || k === '.' || k === 'w' || k === 'W') {
+                e.preventDefault();
+                toggleBlank(k === 'w' || k === 'W');
+            }
+            // 4. FULLSCREEN / SLIDESHOW (F5 / F or Escape)
+            else if (k === 'F5' || k === 'f' || k === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            } else if (k === 'Escape') {
+                if (isBlankOn) {
+                    e.preventDefault();
+                    dismissBlank();
+                } else if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
                 }
-            } else if (e.key === 'ArrowUp') {
-                if (currentSlide === 7 && translationStep > 0) {
-                    applyTranslationStep(translationStep - 1);
-                }
+            }
+            // 5. DIRECT NUMBER KEYS (1-9)
+            else if (!isNaN(parseInt(k)) && parseInt(k) >= 1 && parseInt(k) <= 9) {
+                showSlide(parseInt(k));
             }
         });
     </script>
