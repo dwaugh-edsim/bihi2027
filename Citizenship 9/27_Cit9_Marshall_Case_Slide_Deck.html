@@ -257,6 +257,33 @@
             padding: 0 4px;
         }
 
+        .mystery-tag {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1.5px dashed #cbd5e1;
+            padding: 1px 7px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            font-weight: 600;
+        }
+
+        .btn-reveal-action {
+            background: #0284c7;
+            color: #ffffff;
+            border: 1px solid #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .btn-reveal-action:hover {
+            background: #0369a1;
+        }
+
         /* Bottom Controls Strip */
         footer {
             background: #ffffff;
@@ -426,19 +453,37 @@
             </div>
             <div class="slide-content" style="flex-direction: column;">
                 <div class="treaty-quote-box">
-                    &ldquo;Saving only unto the said tribe the free liberty of Hunting &amp; Fishing <span class="treaty-blank">? BLANK 1 ?</span>... And that a <span class="treaty-blank">? BLANK 2 ?</span> shall be established at Fort Edward or elsewhere, for furnishing the Indians with <span class="treaty-blank">? BLANK 3 ?</span> in Exchange for their Peltry and other commodities.&rdquo;
+                    &ldquo;Saving only unto the said tribe the free liberty of Hunting &amp; Fishing <span class="treaty-blank" id="treaty-quote-blank-1">? BLANK 1 ?</span>... And that a <span class="treaty-blank" id="treaty-quote-blank-2">? BLANK 2 ?</span> shall be established at Fort Edward or elsewhere, for furnishing the Indians with <span class="treaty-blank" id="treaty-quote-blank-3">? BLANK 3 ?</span> in Exchange for their Peltry and other commodities.&rdquo;
                     <div style="font-size: 0.88rem; text-align: right; color: #78350f; font-family: 'Source Sans 3', sans-serif; margin-top: 5px; font-weight: 700;">
                         &mdash; Treaty of Peace and Friendship, Signed 1760 at Windsor / Fort Edward
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.8vw; flex: 1;">
-                    <div class="card-panel">
-                        <h3>The Translation Clues</h3>
-                        <ul>
-                            <li><strong>Blank 1:</strong> How were they allowed to harvest? &rarr; <span class="treaty-word-focus">&ldquo;as usual&rdquo;</span> (no royal permits or seasons).</li>
-                            <li><strong>Blank 2:</strong> What was built? &rarr; A <span class="treaty-word-focus">&ldquo;Truckhouse&rdquo;</span> (Crown trading post—not a truck stop!).</li>
-                            <li><strong>Blank 3:</strong> What did they get? &rarr; <span class="treaty-word-focus">&ldquo;necessaries&rdquo;</span> (food, clothes, shelter).</li>
+                    <div class="card-panel" id="translation-clues-box" style="cursor: pointer;" onclick="handleCluesBoxClick(event)" title="Click to reveal answers or press Down Arrow">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6vh;">
+                            <h3 style="margin: 0;">The Translation Clues</h3>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" id="btn-reveal-next" class="btn-reveal-action" onclick="revealNextTranslation(event)">Reveal Next (&darr;)</button>
+                                <button type="button" id="btn-reveal-all" class="btn-reveal-action" style="background: #475569;" onclick="revealAllTranslations(event)">Reveal All</button>
+                            </div>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.2vw;">
+                            <li style="margin-bottom: 0.8vh;" id="clue-row-1">
+                                <strong>Blank 1:</strong> How were they allowed to harvest?
+                                <span class="blank-unrevealed" id="clue-unrev-1">&rarr; <span class="mystery-tag">❓ [Partner Guess]</span></span>
+                                <span class="blank-revealed" id="clue-rev-1" style="display: none;">&rarr; <span class="treaty-word-focus">&ldquo;as usual&rdquo;</span> (no royal permits or seasons).</span>
+                            </li>
+                            <li style="margin-bottom: 0.8vh;" id="clue-row-2">
+                                <strong>Blank 2:</strong> What was built?
+                                <span class="blank-unrevealed" id="clue-unrev-2">&rarr; <span class="mystery-tag">❓ [Partner Guess]</span></span>
+                                <span class="blank-revealed" id="clue-rev-2" style="display: none;">&rarr; A <span class="treaty-word-focus">&ldquo;Truckhouse&rdquo;</span> (Crown trading post—not a truck stop!).</span>
+                            </li>
+                            <li style="margin-bottom: 0.8vh;" id="clue-row-3">
+                                <strong>Blank 3:</strong> What did they get?
+                                <span class="blank-unrevealed" id="clue-unrev-3">&rarr; <span class="mystery-tag">❓ [Partner Guess]</span></span>
+                                <span class="blank-revealed" id="clue-rev-3" style="display: none;">&rarr; <span class="treaty-word-focus">&ldquo;necessaries&rdquo;</span> (food, clothes, shelter).</span>
+                            </li>
                         </ul>
                     </div>
                     <div class="card-panel" style="background: var(--amber-bg); border-color: var(--amber-border);">
@@ -453,7 +498,7 @@
             </div>
             <div class="slide-prompt-box">
                 <span class="prompt-label">TRANSLATION CONTEST</span>
-                <span class="prompt-text">Fill in the 3 blanks in Case 4. Did the Mi'kmaq surrender land? (Check the box on your sheet).</span>
+                <span class="prompt-text">Fill in the 3 blanks in Case 4. (Press &darr; or click clues to reveal answers). Did the Mi'kmaq surrender land? (Check the box on your sheet).</span>
             </div>
         </div>
 
@@ -566,11 +611,107 @@
             if (currentSlide > 1) showSlide(currentSlide - 1);
         }
 
+        // ==================== SLIDE 4 TRANSLATION REVEAL ====================
+        let translationStep = 0; // 0 = none, 1 = blank 1, 2 = blank 2, 3 = all 3
+
+        const translationData = [
+            {
+                quoteId: 'treaty-quote-blank-1',
+                unrevId: 'clue-unrev-1',
+                revId: 'clue-rev-1',
+                revealedHtml: '<span class="treaty-word-focus">&ldquo;as usual&rdquo;</span>',
+                defaultHtml: '? BLANK 1 ?'
+            },
+            {
+                quoteId: 'treaty-quote-blank-2',
+                unrevId: 'clue-unrev-2',
+                revId: 'clue-rev-2',
+                revealedHtml: '<span class="treaty-word-focus">&ldquo;Truckhouse&rdquo;</span>',
+                defaultHtml: '? BLANK 2 ?'
+            },
+            {
+                quoteId: 'treaty-quote-blank-3',
+                unrevId: 'clue-unrev-3',
+                revId: 'clue-rev-3',
+                revealedHtml: '<span class="treaty-word-focus">&ldquo;necessaries&rdquo;</span>',
+                defaultHtml: '? BLANK 3 ?'
+            }
+        ];
+
+        function applyTranslationStep(step) {
+            translationStep = step;
+            if (translationStep < 0) translationStep = 0;
+            if (translationStep > 3) translationStep = 3;
+
+            for (let i = 0; i < translationData.length; i++) {
+                const item = translationData[i];
+                const quoteEl = document.getElementById(item.quoteId);
+                const unrevEl = document.getElementById(item.unrevId);
+                const revEl = document.getElementById(item.revId);
+
+                if (i < translationStep) {
+                    if (quoteEl) quoteEl.innerHTML = item.revealedHtml;
+                    if (unrevEl) unrevEl.style.display = 'none';
+                    if (revEl) revEl.style.display = 'inline';
+                } else {
+                    if (quoteEl) quoteEl.innerHTML = item.defaultHtml;
+                    if (unrevEl) unrevEl.style.display = 'inline';
+                    if (revEl) revEl.style.display = 'none';
+                }
+            }
+
+            const btnNext = document.getElementById('btn-reveal-next');
+            const btnAll = document.getElementById('btn-reveal-all');
+            if (btnNext) {
+                if (translationStep === 0) {
+                    btnNext.innerHTML = 'Reveal Next (&darr;)';
+                } else if (translationStep < 3) {
+                    btnNext.innerHTML = `Reveal Blank ${translationStep + 1} (&darr;)`;
+                } else {
+                    btnNext.innerHTML = 'Reset / Hide (&uarr;)';
+                }
+            }
+            if (btnAll) {
+                btnAll.innerHTML = (translationStep === 3) ? 'Hide All' : 'Reveal All';
+            }
+        }
+
+        function revealNextTranslation(e) {
+            if (e) e.stopPropagation();
+            if (translationStep < 3) {
+                applyTranslationStep(translationStep + 1);
+            } else {
+                applyTranslationStep(0);
+            }
+        }
+
+        function revealAllTranslations(e) {
+            if (e) e.stopPropagation();
+            if (translationStep === 3) {
+                applyTranslationStep(0);
+            } else {
+                applyTranslationStep(3);
+            }
+        }
+
+        function handleCluesBoxClick(e) {
+            if (e && e.target && e.target.tagName.toLowerCase() === 'button') return;
+            revealNextTranslation(e);
+        }
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
                 nextSlide();
             } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
                 prevSlide();
+            } else if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                if (currentSlide === 4) {
+                    revealNextTranslation();
+                }
+            } else if (e.key === 'ArrowUp') {
+                if (currentSlide === 4 && translationStep > 0) {
+                    applyTranslationStep(translationStep - 1);
+                }
             }
         });
     </script>
