@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>THE MOLE: Game Control Briefing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
+.page {
+    width: 210mm; min-height: 297mm; background: #ffffff;
+    margin: 10px auto; padding: 12mm; position: relative;
+    page-break-after: always;
+}
+@media print {
+    body { background: #ffffff; }
+    /* @page 10mm margins leave 190x277mm of paper; 6mm padding gives a
+       178 x 265mm content box. Nothing on a page may exceed 265mm. */
+    .page { margin: 0; width: auto; min-height: auto; padding: 6mm; }
+    .page:last-child { page-break-after: auto; }
+    .no-print { display: none !important; }
+    @page { size: A4; margin: 10mm; }
+}
+
+/* ===== HEADER ===== */
+.ops-head { border-bottom: 3px solid #0f172a; padding-bottom: 2mm; margin-bottom: 2.5mm; }
+.ops-head h1 {
+    font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 18pt;
+    color: #0f172a; line-height: 1.1;
+}
+.ops-head .sub {
+    font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; font-weight: 700;
+    color: #b45309; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1.2mm;
+}
+.ops-head .stamp {
+    float: right; text-align: right; font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt; font-weight: 800; color: #dc2626; letter-spacing: 0.06em;
+    border: 2px solid #dc2626; border-radius: 2mm; padding: 1.5mm 2.5mm; transform: rotate(-2deg);
+    margin-top: 0.5mm;
+}
+
+/* ===== BOXES ===== */
+.box { border: 2px solid #0f172a; border-radius: 8px; padding: 2.5mm 3.5mm; margin-bottom: 2.5mm; }
+.box > h2 {
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5pt; font-weight: 800;
+    color: #0f172a; letter-spacing: 0.06em; margin-bottom: 1.8mm; text-transform: uppercase;
+}
+.box > h2 .n {
+    display: inline-block; background: #0f172a; color: #fff; border-radius: 1.5mm;
+    padding: 0.4mm 1.8mm; margin-right: 2mm; font-size: 9pt;
+}
+.box.amber { border-color: #d97706; }
+.box.amber > h2 { color: #b45309; }
+.box.red { border-color: #dc2626; background: #fff5f5; }
+.box.red > h2 { color: #dc2626; }
+.box ul { list-style: none; }
+.box li { position: relative; padding-left: 4.6mm; margin-bottom: 1mm; font-size: 8.5pt; line-height: 1.3; }
+.box li::before {
+    content: ''; position: absolute; left: 0.6mm; top: 1.4mm; width: 2.2mm; height: 2.2mm;
+    background: #64748b; border-radius: 0.5mm;
+}
+.box li b { color: #0f172a; }
+
+/* ===== CLOCK TABLE ===== */
+table.clock { border-collapse: collapse; width: 100%; }
+table.clock th {
+    background: #0f172a; color: #ffffff; font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt; font-weight: 800; letter-spacing: 0.06em; text-align: left;
+    padding: 1.2mm 1.6mm; border: 1px solid #0f172a;
+}
+table.clock td { border: 1px solid #cbd5e1; font-size: 7.8pt; padding: 0.85mm 1.6mm; line-height: 1.18; vertical-align: top; }
+table.clock td.t {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 7.3pt;
+    color: #b45309; white-space: nowrap; width: 11mm;
+}
+table.clock td.tab {
+    font-family: 'JetBrains Mono', monospace; font-size: 6.8pt; color: #64748b; width: 16mm;
+}
+table.clock td.you { font-weight: 600; color: #0f172a; }
+table.clock tr.hi td { background: #fffbeb; }
+table.clock tr.hi td.you { color: #b45309; }
+table.clock td.tick { text-align: center; width: 12mm; }
+table.clock td.tick span {
+    display: inline-block; width: 3.4mm; height: 3.4mm; border: 1.4px solid #0f172a;
+    border-radius: 1mm; vertical-align: middle;
+}
+table.clock td.term {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 8.5pt;
+    color: #0f172a; text-align: center; width: 11mm;
+}
+table.clock td.url { font-family: 'JetBrains Mono', monospace; font-size: 7.2pt; color: #b45309; }
+table.clock td.who { color: #64748b; font-size: 7.8pt; }
+
+/* ===== CHECKLIST ===== */
+.chk { display: flex; gap: 2.4mm; align-items: flex-start; margin-bottom: 1.3mm; }
+.chk .bx {
+    flex: 0 0 auto; width: 3.4mm; height: 3.4mm; border: 1.4px solid #0f172a;
+    border-radius: 1mm; margin-top: 0.4mm;
+}
+.chk .tx { font-size: 8.2pt; line-height: 1.25; }
+.chk .tx b { font-family: 'JetBrains Mono', monospace; font-size: 8.2pt; color: #0f172a; }
+.chk .tx .pg {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-weight: 800;
+    font-size: 7.2pt; color: #ffffff; background: #0f172a;
+    border-radius: 1.5mm; padding: 0.3mm 1.3mm; margin-right: 1.2mm;
+}
+.chk .tx .pg.rep { background: #b45309; }
+.chk .tx .cnt { color: #64748b; font-size: 7.8pt; }
+
+/* ===== WARNING ===== */
+.warn { border: 2.5px solid #dc2626; border-radius: 8px; background: #fff5f5; padding: 2.5mm 3.5mm; margin-bottom: 2.5mm; }
+.warn h3 {
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5pt; font-weight: 800;
+    color: #dc2626; letter-spacing: 0.06em; margin-bottom: 1.2mm;
+}
+.warn p { font-size: 8.2pt; line-height: 1.35; }
+.warn b { color: #dc2626; }
+
+/* ===== ROLE CARDS ===== */
+.role { border: 2px solid #0f172a; border-radius: 8px; margin-bottom: 2.2mm; overflow: hidden; }
+.role .rh {
+    background: #0f172a; color: #ffffff; padding: 1.4mm 3mm;
+    display: flex; align-items: baseline; gap: 2.5mm;
+}
+.role .rh .rn {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 7.8pt;
+    background: #d97706; color: #0f172a; border-radius: 1.5mm; padding: 0.4mm 1.8mm;
+    letter-spacing: 0.06em;
+}
+.role .rh .rt { font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 11.5pt; }
+.role .rh .rp {
+    font-family: 'JetBrains Mono', monospace; font-size: 7.2pt; color: #94a3b8;
+    margin-left: auto; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.role .rb { padding: 2mm 3mm; }
+.role .rb ul { list-style: none; }
+.role .rb li { position: relative; padding-left: 4.6mm; margin-bottom: 1mm; font-size: 8.2pt; line-height: 1.25; }
+.role .rb li::before {
+    content: ''; position: absolute; left: 0.6mm; top: 1.2mm; width: 2.2mm; height: 2.2mm;
+    background: #d97706; border-radius: 0.5mm;
+}
+.role .rb li b { color: #0f172a; }
+.role .rb li .do { color: #b45309; font-weight: 700; }
+.kbd {
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 7.8pt;
+    background: #f1f5f9; border: 1.4px solid #0f172a; border-bottom-width: 2.2px;
+    border-radius: 1.5mm; padding: 0.2mm 1.3mm; color: #0f172a; white-space: nowrap;
+}
+
+/* ===== NEVER STRIP ===== */
+.never { border: 2.5px solid #dc2626; border-radius: 8px; background: #fff5f5; padding: 2.5mm 3.5mm; margin-bottom: 2.5mm; }
+.never h3 {
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5pt; font-weight: 800;
+    color: #dc2626; letter-spacing: 0.1em; margin-bottom: 1.8mm;
+}
+.never .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6mm 6mm; }
+.never .cols div { font-size: 8.2pt; line-height: 1.25; padding-left: 4.6mm; position: relative; }
+.never .cols div::before {
+    content: 'X'; position: absolute; left: 0; top: 0.2mm; color: #dc2626; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace; font-size: 8pt;
+}
+.never b { color: #dc2626; }
+
+/* ===== QUICK REFERENCE ===== */
+.quick { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 6mm; }
+.quick div { font-size: 8.2pt; line-height: 1.25; }
+.quick span {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-weight: 800;
+    font-size: 7.2pt; color: #0f172a; letter-spacing: 0.06em; margin-right: 1.8mm;
+}
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1: THE BRIEF ================= -->
+<div class="page">
+    <div class="ops-head">
+        <div class="stamp">STUDENT OPS<br>DO NOT POST</div>
+        <h1>THE MOLE &mdash; GAME CONTROL BRIEFING</h1>
+        <div class="sub">Game Control Team &bull; you run the engine behind the game</div>
+    </div>
+
+    <div class="box">
+        <h2><span class="n">1</span>The game in 60 seconds</h2>
+        <ul>
+            <li>Everyone is a <b>Hunter</b> except <b>one student: the Mole</b>, hiding inside a team. They sabotage their own team once per challenge and never confess.</li>
+            <li>Four team challenges: <b>Memory Run</b>, <b>Blueprint</b>, <b>Wall of Lies</b>, <b>Code Break</b>. Every win grows a shared class pot. Every sabotage shrinks it.</li>
+            <li>After <b>every</b> challenge, each student writes <b>one</b> secret guess of who the Mole is and drops it in the box. <b>Four guess rounds</b>, no feedback between them.</li>
+            <li>The end is one <b>final accusation slip</b> each. The name with the most slips wins &mdash; if it is the Mole, the class keeps the pot; if not, the pot is lost.</li>
+            <li>You run the <b>deck</b>, the <b>pot</b> and the <b>box</b>. You do not play a challenge, do not help a team, and never hint at who the Mole is.</li>
+        </ul>
+    </div>
+
+    <div class="box amber">
+        <h2><span class="n">2</span>The clock &mdash; what happens and what you do</h2>
+        <table class="clock">
+            <thead><tr><th>TIME</th><th>DECK TAB</th><th>WHAT HAPPENS</th><th>YOUR MOVE</th></tr></thead>
+            <tbody>
+                <tr><td class="t">0:00</td><td class="tab">1&ndash;2</td><td>Welcome, rules, pot</td><td class="you">Tech: open the deck. Banker: write <b>$1,000</b> on the board.</td></tr>
+                <tr><td class="t">0:03</td><td class="tab">3</td><td>The Mole's job (public)</td><td class="you">Nothing. Let the teacher talk.</td></tr>
+                <tr class="hi"><td class="t">0:05</td><td class="tab">4</td><td><b>THE DRAW</b></td><td class="you">Box: box goes round. One packet each, opened on the lap, read silently.</td></tr>
+                <tr><td class="t">0:07</td><td class="tab">5</td><td>Teams</td><td class="you">Tech: type the 5 team names in. Box: write team names on the terminal signs.</td></tr>
+                <tr class="hi"><td class="t">0:09</td><td class="tab">6&ndash;7</td><td><b>C1 MEMORY RUN</b> (8:00)</td><td class="you">Tech: <b>SPACE</b> to start. Poster stays face down until the timer starts. Banker: pot.</td></tr>
+                <tr><td class="t">0:17</td><td class="tab">8</td><td>GUESS 1 (60s)</td><td class="you">Box: 60 seconds, one slip each, folded, in the box.</td></tr>
+                <tr class="hi"><td class="t">0:19</td><td class="tab">9&ndash;10</td><td><b>C2 BLUEPRINT</b> (9:00)</td><td class="you">Tech: <b>SPACE</b>. Banker: pot.</td></tr>
+                <tr><td class="t">0:28</td><td class="tab">11</td><td>GUESS 2 (60s)</td><td class="you">Box: round 2.</td></tr>
+                <tr class="hi"><td class="t">0:30</td><td class="tab">12&ndash;13</td><td><b>C3 WALL OF LIES</b> (9:00)</td><td class="you">Tech: <b>SPACE</b>. Banker: pot. Statements are on the room walls.</td></tr>
+                <tr><td class="t">0:39</td><td class="tab">14</td><td>GUESS 3 (60s)</td><td class="you">Box: round 3.</td></tr>
+                <tr class="hi"><td class="t">0:41</td><td class="tab">15&ndash;16</td><td><b>C4 CODE BREAK</b> (8:00)</td><td class="you">Tech: <b>SPACE</b>. Banker: pot. Watch the terminals for denials.</td></tr>
+                <tr><td class="t">0:49</td><td class="tab">17</td><td>GUESS 4 (60s)</td><td class="you">Box: round 4 &mdash; the last cheap star. Do not skip it.</td></tr>
+                <tr class="hi"><td class="t">0:51</td><td class="tab">18</td><td><b>FINAL VOTE</b></td><td class="you">Box: hand out the accusation slips, collect every one, keep them sealed.</td></tr>
+                <tr><td class="t">0:54</td><td class="tab">19</td><td>Tally</td><td class="you">Box: help the teacher count. The most votes wins. A tie = the Mole escaped.</td></tr>
+                <tr class="hi"><td class="t">0:56</td><td class="tab">20</td><td><b>REVEAL</b></td><td class="you">Tech: click the shroud, then type the Mole's name.</td></tr>
+                <tr><td class="t">0:58</td><td class="tab">21</td><td>Champions</td><td class="you">Banker: if the Mole escaped, strike the pot off the board.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="box">
+        <h2><span class="n">3</span>The pot &mdash; nobody touches it without the teacher</h2>
+        <ul>
+            <li>Start at <b>$1,000</b> on the whiteboard before class begins. Each challenge's GO slide has pot buttons &mdash; <b>press one only when the teacher calls a tier</b>, and the Banker writes the new total on the board so screen and board always match.</li>
+            <li><b>TOP TIER</b> adds <b>$300</b> (5 teams &times; $60) &bull; <b>MID TIER</b> adds <b>$150</b> (5 &times; $30) &bull; <b>VAULT OPENED</b> adds <b>$400</b> once &bull; <b>DENIED ATTEMPT</b> subtracts <b>$150</b> (Code Break, teacher calls it).</li>
+            <li>Maximum pot is <b>$2,300</b>. If the Mole escapes, the pot is lost.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ================= PAGE 2: THE KIT AUDIT ================= -->
+<div class="page">
+    <div class="ops-head">
+        <h1>BEFORE CLASS &mdash; AUDIT THE KIT</h1>
+        <div class="sub">Tick every line during prep &bull; flag anything missing to the teacher immediately</div>
+    </div>
+
+    <div class="warn">
+        <h3>&#9888; COUNT IT BEFORE YOU CUT IT</h3>
+        <p>Each student needs <b>1 packet</b> (exactly one is the HIRED card) + <b>4 guess slips</b> + <b>1 accusation slip</b>. The print set gives <b>25 packets</b> (1 hired + 24 decoys), <b>120 guess slips</b>, <b>24 accusation slips</b>.<br>
+        <b>For a class of 28 you are 3 packets and 4 accusation slips short:</b> print <b>page 2</b> and <b>page 12</b> once more and cut the extras. Guess slips are fine (28 &times; 4 = 112).</p>
+    </div>
+
+    <div class="box">
+        <h2><span class="n">4</span>Printed materials &mdash; tick when cut and ready</h2>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGE 1</span><b>1 HIRED card</b> folded (3 spares). Fold every packet the same way: <b>bottom up, then left over</b>, so none is recognisable by shape.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGES 2&ndash;7</span><b>24 decoy packets</b>, cut and folded identically. <span class="cnt">Need 27 for a class of 28 &mdash; see the count box above.</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg rep">PAGES 8&ndash;11 &times;2</span><b>120 guess slips</b> <span class="cnt">(60 per pass, print the slip pages twice). Split into 4 stacks, one per round.</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGE 12</span><b>24 final accusation slips</b> <span class="cnt">(the 3-star slips). Need 28 for a class of 28.</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGE 13</span><b>1 Memory Poster</b>, left <b>face down</b> until Challenge 1 starts.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGE 14</span><b>6 answer grids</b> <span class="cnt">(5 teams + 1 spare).</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg rep">PAGES 15&ndash;16 &times;2</span><b>16 blueprint cards</b> <span class="cnt">(8 per run, print twice; about 3 per team).</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGES 17&ndash;18</span><b>12 Wall of Lies statements</b>, taped around the room, spread wide.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg rep">PAGE 19 &times;2</span><b>8 wall answer sheets</b> <span class="cnt">(4 per run, print twice; 5 teams + spares).</span></span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg rep">PAGE 20 &times;5</span><b>5 code strip sets</b> (strips A&ndash;D in each), one set per team.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><span class="pg">PAGES 22&ndash;24</span><b>Terminal signs A&ndash;E</b>, one taped above each of the 5 screens.</span></div>
+    </div>
+
+    <div class="box amber">
+        <h2><span class="n">5</span>Physical supplies &amp; terminal map</h2>
+        <div class="chk"><span class="bx"></span><span class="tx"><b>A box or hat</b> for the draw and for collecting guess slips.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><b>Pencils and scrap paper</b> for every student, plus a whiteboard and marker for the pot.</span></div>
+        <div class="chk"><span class="bx"></span><span class="tx"><b>5 computers or laptops.</b> Each screen's address must carry the letter of the sign above it, or the screen just says TERMINAL and contradicts its sign.</span></div>
+        <table class="clock" style="margin-top:2mm;">
+            <thead><tr><th>SIGN</th><th>OPEN THIS ADDRESS</th><th>TEAM ON THIS SCREEN</th><th>CHECKED</th></tr></thead>
+            <tbody>
+                <tr><td class="term">A</td><td class="url">mole-terminal.html#t=A</td><td class="who">TEAM ______________</td><td class="tick"><span></span></td></tr>
+                <tr><td class="term">B</td><td class="url">mole-terminal.html#t=B</td><td class="who">TEAM ______________</td><td class="tick"><span></span></td></tr>
+                <tr><td class="term">C</td><td class="url">mole-terminal.html#t=C</td><td class="who">TEAM ______________</td><td class="tick"><span></span></td></tr>
+                <tr><td class="term">D</td><td class="url">mole-terminal.html#t=D</td><td class="who">TEAM ______________</td><td class="tick"><span></span></td></tr>
+                <tr><td class="term">E</td><td class="url">mole-terminal.html#t=E</td><td class="who">TEAM ______________</td><td class="tick"><span></span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="box red">
+        <h2><span class="n">6</span>If something goes wrong</h2>
+        <ul>
+            <li><b>Wrong kid pulls the HIRED card:</b> if nobody has read yet, swap in a decoy and deal again. Once someone has read, tell the teacher instead.</li>
+            <li><b>A student refuses the Mole job:</b> tell the teacher quietly. No announcement, no scene.</li>
+            <li><b>A terminal shows the wrong letter:</b> reopen it with the right <b>#t=</b> letter in the address.</li>
+            <li><b>Timer wrong or slide skipped:</b> <span class="kbd">R</span> resets the timer, the arrow keys walk back.</li>
+            <li><b>Not sure?</b> Do nothing and ask the teacher. Never guess.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ================= PAGE 3: YOUR JOB ================= -->
+<div class="page">
+    <div class="ops-head">
+        <h1>YOUR JOB &mdash; FIND YOUR ROLE</h1>
+        <div class="sub">Split the three jobs between you before class &bull; one of you may cover two</div>
+    </div>
+
+    <div class="role">
+        <div class="rh"><span class="rn">ROLE 1</span><span class="rt">TECH &amp; TIMER</span><span class="rp">projector computer</span></div>
+        <div class="rb">
+            <ul>
+                <li>Open <b>the-mole-deck.html</b> and leave it on the projector. Nothing else on that screen.</li>
+                <li><span class="kbd">&rarr;</span> <span class="kbd">&larr;</span> (or <span class="kbd">&uarr;</span> <span class="kbd">&darr;</span>) move between slides. <span class="kbd">SPACE</span> starts and pauses a timer. <span class="kbd">R</span> resets it.</li>
+                <li>On the <b>TEAMS</b> slide, type in the five team names.</li>
+                <li>Press a <b>pot button only when the teacher calls the tier</b>, then say the number out loud so the Banker can write it on the board.</li>
+                <li>On the <b>REVEAL</b> slide, click the shroud, then type the Mole's name the teacher gives you.</li>
+                <li class="do">Do not skip ahead, do not restart a timer mid-challenge, do not press a button the teacher did not ask for.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="role">
+        <div class="rh"><span class="rn">ROLE 2</span><span class="rt">BANKER &amp; POT MASTER</span><span class="rp">front whiteboard</span></div>
+        <div class="rb">
+            <ul>
+                <li>Write <b>$1,000</b> on the board before class starts. That is the pot.</li>
+                <li>When the teacher calls a tier, the Tech presses the button and <b>you write the new total</b>. Screen and board must always show the same number.</li>
+                <li>You are also the <b>terminal watcher</b> in Code Break. Every wrong code flashes <b>ACCESS DENIED</b> and counts. <b>Note who is burning attempts and who is not</b> &mdash; that is evidence for the teacher.</li>
+                <li>At the end: Mole caught, the class keeps the pot. Mole escaped, <b>strike the pot off the board</b>.</li>
+                <li class="do">Do not add money the teacher did not call. The pot is the class's real money.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="role">
+        <div class="rh"><span class="rn">ROLE 3</span><span class="rt">BOX &amp; SLIPS</span><span class="rp">the ballot box</span></div>
+        <div class="rb">
+            <ul>
+                <li><b>Before the draw:</b> check every packet is folded the same way. Load the decoys; the <b>HIRED card goes in last, on top</b>.</li>
+                <li><b>The draw:</b> pass the box round. Each student takes <b>one</b> packet, opens it on their lap, reads it, and says <b>nothing</b>. Nobody talks about their packet, ever.</li>
+                <li><b>Guess rounds 1&ndash;4:</b> 60 seconds, box out, <b>one slip each, folded, in the box</b>. Timer is on the deck. No names out loud, no reactions, no feedback between rounds.</li>
+                <li>The teacher keeps the slips and hands the box back <b>empty</b> for the next round.</li>
+                <li><b>Final vote:</b> hand out the accusation slips, collect every one, keep them sealed, hand them to the teacher for the count.</li>
+                <li class="do">Never open, straighten or read a slip. Never let a student see inside the box or another slip.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="role">
+        <div class="rh"><span class="rn">ROLE 4</span><span class="rt">RUNNER</span><span class="rp">if there are four of you</span></div>
+        <div class="rb">
+            <ul>
+                <li>Carry the box and hand slips to the teacher. Tap the Tech on the shoulder at <b>one minute left</b> on every timer.</li>
+                <li>Hand out the paper for each challenge: grids, blueprint cards, wall answer sheets, code strips.</li>
+                <li class="do">If there are only three of you, you are not needed &mdash; do not invent a job.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="never">
+        <h3>NEVER &mdash; NO EXCEPTIONS</h3>
+        <div class="cols">
+            <div>Tell anyone what your packet said, or that you know who the Mole is.</div>
+            <div>Let a student see inside the box, or another person's slip.</div>
+            <div>Give a team a hint, a look, or a helpful silence.</div>
+            <div>Press a pot button the teacher did not call.</div>
+            <div>Open, sort or read a slip before the teacher opens it.</div>
+            <div>Let a slip out of your hands before the tally.</div>
+            <div>Say who burned the terminal attempts &mdash; the teacher's call.</div>
+            <div>Announce that a student is the Mole before the reveal.</div>
+        </div>
+    </div>
+
+    <div class="box">
+        <h2><span class="n">7</span>Quick answers</h2>
+        <div class="quick">
+            <div><span>CHALLENGES</span>4 &mdash; Memory Run, Blueprint, Wall of Lies, Code Break</div>
+            <div><span>GUESS ROUNDS</span>4 &mdash; one after every challenge</div>
+            <div><span>TEAMS</span>5</div>
+            <div><span>POT</span>starts at $1,000, maximum $2,300</div>
+            <div><span>CLASS WINS IF</span>the most final accusation slips name the Mole. A tie = the Mole escaped.</div>
+            <div><span>WRONG CODE</span>flashes ACCESS DENIED and counts against that team</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -13,7 +13,8 @@ for slips, and 5 computers (4 Windows + 1 Chromebook is fine).
 | File | What it is |
 |---|---|
 | `the-mole-deck.html` | Projector deck: story, rules, challenges, timers, pot HUD, final vote, reveal. Arrows change slides, SPACE runs the timer. |
-| `the-mole-printables.html` | A4 print set, 24 pages. Print single-sided, cut where dashed. |
+| `the-mole-printables.html` | A4 print set, 24 pages. Print single-sided, cut where dashed. Prints on a black-and-white printer. |
+| `the-mole-ops-briefing.html` | A4 print set, 3 pages, for the student Game Control team (3-4 students). Contains no answers. |
 | `mole-terminal.html` | The vault app. One copy on each team computer. Any browser. |
 
 ## The hour
@@ -48,7 +49,7 @@ is a cross-check rather than the only source.
 | 2-7 Decoy packets | 1 each | 24 decoys, folded the same size as the hired card |
 | 8-11 Guess slips A-D | 2 each | 60 per pass, 120 total: 4 rounds x 23 + spares |
 | 12 Final accusation slips | 1 | 24 slips, one per student. The 3-star vote |
-| 13 Memory poster | 1 | Face down until C1 starts |
+| 13 Memory poster | 1 | Face down until C1 starts. Prints black and white: the six colours are ink patterns and the key is printed on the poster itself |
 | 14 Memory grids | 1 | 6 grids on the page |
 | 15-16 Blueprint cards | 2 each | 16 cards, about 3 per team |
 | 17-18 Wall statements 1-12 | 1 each | Post around the room |
@@ -56,6 +57,13 @@ is a cross-check rather than the only source.
 | 20 Code strips | 5 | One 4-strip set per team |
 | 21 Teacher key | 1 | Answers + terminal cheat sheet. Do not post |
 | 22-24 Terminal signs A-E | 1 each | 5 signs + 1 spare, tape above the screens |
+| Ops briefing | 1 | 3 pages for the student ops team. Hand them out before class |
+
+**Class size:** the print set covers up to **24 students** - 25 packets (1 hired + 24
+decoys), 24 final accusation slips, 120 guess slips. For a class of 28, print
+**page 2** and **page 12** a second time and cut 3 more decoys and 4 more accusation
+slips; the guess slips already cover 4 rounds for 28. Page 2 of the ops briefing turns
+this into a tick-box check before class starts.
 
 ## Terminals (5 minutes of setup)
 

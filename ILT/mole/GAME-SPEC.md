@@ -46,12 +46,15 @@ table below is a cross-check rather than the only instruction.
 | 21 | Teacher key + terminal cheat sheet | 1 | Host desk, never posted |
 | 22-24 | Terminal signs A-E with team fill-line | 1 each | Tape above screens |
 
+**Class-size ceiling:** the print set supports a class of up to **24**. It yields 25 packets (1 hired + 24 decoys), 24 final accusation slips and 120 guess slips (60 per pass, printed twice). For a class of 28, print **page 2** and **page 12** a second time and cut the extra 3 decoys and 4 accusation slips; the guess slips already cover 28 x 4 = 112. The student ops briefing states this as a pre-class count check.
+
 ### 4.2 Digital
 
 | File | Role |
 |---|---|
 | the-mole-deck.html | Projector deck: 21 stages, rules, challenge GO slides with timers and pot buttons, guess rounds, final vote, tally, reveal shroud, verdict |
 | mole-terminal.html | The vault app, one copy on each of 5 computers (4 Windows + 1 Chromebook). Keypad, ACCESS DENIED attempt counter that persists across reloads, vault-open celebration |
+| the-mole-ops-briefing.html | 3 A4 sheets for the student Game Control team (3-4 students): page 1 the brief + run of show + pot, page 2 the kit audit + terminal map, page 3 the role cards. Contains no answers, so it is safe to hand to students |
 
 ### 4.3 Non-print physical
 
@@ -206,7 +209,7 @@ The host never clicks -$150 on suspicion. Attribution of C1-C3 errors is designe
 
 ## 14. Open issues (for review)
 
-1. A4 print fit: RESOLVED 2026-10-16. Print padding dropped to 6mm inside `@media print`, so the content box is 178 x 265mm and the two-row 128mm card pages (blueprint, wall sheet, code strip) now fit with 5mm to spare. The 12 wall statements still spill onto a second sheet by design (they are cut apart anyway).
+1. A4 print fit: RESOLVED 2026-10-16, re-verified and fully closed 2026-10-20. Print padding is 6mm inside `@media print`, so the content box is 178 x 265mm. The 12 wall statements no longer spill onto a second sheet: the card dropped from 118mm to 82mm so three rows of two fit (3 x 82 + 2 x 6 = 258mm). The file now renders as exactly 24 sheets for 24 pages, with and without the Google Fonts link loaded.
 2. Sabotage economics (section 10): the -$150 attribution rule is a tuning knob. Alternative designs: (a) deny-only deductions as built, (b) flat -150 per challenge regardless of detection, which requires the host to accept unattributable clicks, (c) remove the buttons entirely and let bonuses carry all damage.
 3. Role distribution: only 1 of 23 students is the Mole. Mitigated by draw secrecy and the hunt being the collective fun; a second-agent variant (double agent feeding false clues) exists as a future option.
 4. Timing: challenge lengths assume 23 students in 5 teams; larger classes need about +1 minute per challenge.
