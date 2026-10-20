@@ -79,8 +79,6 @@
         justify-content: space-between;
         align-items: center;
         gap: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border-bottom: 2px solid var(--border-subtle);
         box-shadow: inset 0 -3px 0 0 #ffffff, inset 0 -5px 0 0 var(--border-card), 0 2px 8px rgba(0,0,0,0.04);
         flex-shrink: 0;
     }
@@ -395,7 +393,7 @@
     }
 
     .slot-pip {
-        width: 17px;
+        width: 18px;
         height: 17px;
         border-radius: 4px;
         border: 1.5px dashed #cbd5e1;
@@ -404,7 +402,7 @@
         align-items: center;
         justify-content: center;
         font-family: var(--font-mono);
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         font-weight: 800;
         color: #94a3b8;
         transition: all 0.15s ease;
@@ -472,6 +470,90 @@
         padding: 1px 4px;
         border-radius: 3px;
         color: var(--text-main);
+    }
+
+    /* Group Size Selector in Modal */
+    .group-size-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 12px;
+        background: var(--bg-page);
+        padding: 4px;
+        border-radius: 8px;
+        border: 1.5px solid var(--border-card);
+    }
+
+    .g-btn {
+        flex: 1;
+        padding: 7px 10px;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        background: transparent;
+        transition: all 0.15s ease;
+        text-align: center;
+    }
+
+    .g-btn:hover {
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--text-main);
+    }
+
+    .g-btn.active {
+        background: #ffffff;
+        color: var(--text-heading);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-card);
+    }
+
+    .badge-group-type {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .badge-group-type.solo {
+        background: var(--purple-bg);
+        color: var(--purple);
+        border: 1px solid var(--purple-border);
+    }
+
+    .badge-group-type.pair {
+        background: var(--blue-bg);
+        color: var(--blue);
+        border: 1px solid var(--blue-border);
+    }
+
+    .badge-group-type.trio {
+        background: var(--amber-bg);
+        color: var(--amber);
+        border: 1px solid var(--amber-border);
+    }
+
+    .btn-edit {
+        background: var(--blue-bg);
+        color: var(--blue);
+        border: 1px solid var(--blue-border);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-right: 4px;
+    }
+
+    .btn-edit:hover {
+        background: var(--blue);
+        color: #ffffff;
     }
 
     /* Modals & Popovers */
@@ -576,17 +658,11 @@
         color: var(--text-heading);
     }
 
-    .form-row-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
     input[type="text"], select {
         width: 100%;
         padding: 8px 10px;
         font-family: var(--font-body);
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         border: 1.5px solid var(--border-card);
         border-radius: 6px;
         background: #ffffff;
@@ -602,7 +678,7 @@
     .validation-box {
         padding: 10px 14px;
         border-radius: 6px;
-        margin: 14px 0;
+        margin: 14px 0 4px 0;
         font-size: 0.84rem;
         font-weight: 600;
         display: flex;
@@ -723,21 +799,21 @@
         <span class="badge-room">ROOM 8</span>
         <div class="title-group">
             <h1>HL9 O2-A: Sixty Verdicts PSA Sign-up Board</h1>
-            <p>Select 3 facts per pair · <strong>Minimum 1 DEPENDS verdict</strong> · Capacity: Max 4 pairs per claim</p>
+            <p>Solo (2 claims) · Pair (3 claims) · Trio (5 claims) · <strong>Minimum 1 DEPENDS</strong> · Capacity: Max 4 groups per claim</p>
         </div>
     </div>
 
     <!-- Section Switcher -->
     <div class="section-selector" id="sectionSelector">
-        <button class="sec-btn" data-sec="901-HL" onclick="switchSection('901-HL')">901-HL</button>
-        <button class="sec-btn active" data-sec="902-HL" onclick="switchSection('902-HL')">902-HL</button>
+        <button class="sec-btn active" data-sec="901-HL" onclick="switchSection('901-HL')">901-HL</button>
+        <button class="sec-btn" data-sec="902-HL" onclick="switchSection('902-HL')">902-HL</button>
         <button class="sec-btn" data-sec="903-HL" onclick="switchSection('903-HL')">903-HL</button>
     </div>
 
     <!-- Telemetry Stats -->
     <div class="telemetry-strip">
         <div class="stat-chip">
-            <span>Pairs:</span>
+            <span>Groups:</span>
             <span class="val" id="telemetryPairs">0</span>
         </div>
         <div class="stat-chip">
@@ -753,10 +829,10 @@
     <!-- Actions -->
     <div style="display: flex; align-items: center; gap: 8px;">
         <button class="btn-action" onclick="openRegisterModal()">
-            <span>+</span> Sign Up Pair
+            <span>+</span> Sign Up Group
         </button>
         <button class="btn-secondary" onclick="openLedgerModal()">
-            📋 Pairs Ledger
+            📋 Groups Ledger
         </button>
         <button class="btn-secondary" onclick="openDataModal()">
             ⚙ Data / Export
@@ -809,10 +885,10 @@
 <!-- Bottom Status Strip -->
 <footer class="status-strip">
     <div>
-        <strong>Classroom Protocol:</strong> Sign up in pairs before starting Google Slides or Canva. Every slot locks at exactly 4 pairs.
+        <strong>Classroom Protocol:</strong> Solo groups complete 2 claims; Pairs complete 3 claims; Trios complete 5 claims. Every claim locks at exactly 4 groups.
     </div>
     <div class="keys">
-        Shortcuts: <kbd>N</kbd> New Pair &nbsp;|&nbsp; <kbd>L</kbd> Ledger &nbsp;|&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Section &nbsp;|&nbsp; <kbd>F</kbd> Fullscreen
+        Shortcuts: <kbd>N</kbd> New Group &nbsp;|&nbsp; <kbd>L</kbd> Ledger &nbsp;|&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Section &nbsp;|&nbsp; <kbd>F</kbd> Fullscreen
     </div>
 </footer>
 
@@ -823,86 +899,113 @@
     <div class="tt-pairs" id="ttPairs">Slots open: 4 / 4</div>
 </div>
 
-<!-- MODAL 1: Register Pair -->
+<!-- MODAL 1: Register Group (Solo, Pair, or Trio) -->
 <div class="modal-overlay" id="registerModal">
     <div class="modal-card">
         <div class="modal-head">
-            <h2>Sign Up Student Pair (<span id="modalSecTitle">902-HL</span>)</h2>
+            <h2 id="modalHeadTitle">Sign Up Group (<span id="modalSecTitle">901-HL</span>)</h2>
             <button class="btn-close" onclick="closeModal('registerModal')">&times;</button>
         </div>
         <div class="modal-body">
+            <!-- Group Size Selector -->
+            <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:5px; color:var(--text-heading);">Group Size</label>
+            <div class="group-size-tabs" id="groupSizeTabs">
+                <button type="button" class="g-btn" data-size="1" onclick="setGroupSize(1)">Solo (1 student · 2 claims)</button>
+                <button type="button" class="g-btn active" data-size="2" onclick="setGroupSize(2)">Pair (2 students · 3 claims)</button>
+                <button type="button" class="g-btn" data-size="3" onclick="setGroupSize(3)">Trio (3 students · 5 claims)</button>
+            </div>
+
+            <!-- Student Inputs Grid -->
             <div class="form-group">
-                <label>Pair Members</label>
-                <div class="form-row-2">
-                    <div>
+                <label id="studentsLabel">Group Members</label>
+                <div id="studentInputsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div id="wrapStudent1">
                         <input type="text" id="inputStudent1" placeholder="Student 1 Name" list="rosterList1" oninput="updatePairValidation()">
                         <datalist id="rosterList1"></datalist>
                     </div>
-                    <div>
-                        <input type="text" id="inputStudent2" placeholder="Student 2 Name (or leave blank if solo)" list="rosterList2" oninput="updatePairValidation()">
+                    <div id="wrapStudent2">
+                        <input type="text" id="inputStudent2" placeholder="Student 2 Name" list="rosterList2" oninput="updatePairValidation()">
                         <datalist id="rosterList2"></datalist>
+                    </div>
+                    <div id="wrapStudent3" style="display:none; grid-column:span 2;">
+                        <input type="text" id="inputStudent3" placeholder="Student 3 Name" list="rosterList3" oninput="updatePairValidation()">
+                        <datalist id="rosterList3"></datalist>
                     </div>
                 </div>
             </div>
 
+            <!-- Selected Claims Grid -->
             <div class="form-group">
-                <label>Selected Claims (3 required · must include at least 1 DEPENDS)</label>
+                <label id="claimsReqLabel">Selected Claims (3 required for Pair · must include at least 1 DEPENDS)</label>
                 
-                <div style="margin-bottom:8px;">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 1:</span>
+                <div style="margin-bottom:8px;" id="wrapClaim1">
+                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 1:</span>
                     <select id="selectClaim1" onchange="updatePairValidation()">
                         <option value="">-- Choose first claim --</option>
                     </select>
                 </div>
 
-                <div style="margin-bottom:8px;">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 2:</span>
+                <div style="margin-bottom:8px;" id="wrapClaim2">
+                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 2:</span>
                     <select id="selectClaim2" onchange="updatePairValidation()">
                         <option value="">-- Choose second claim --</option>
                     </select>
                 </div>
 
-                <div style="margin-bottom:8px;">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 3:</span>
+                <div style="margin-bottom:8px;" id="wrapClaim3">
+                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 3:</span>
                     <select id="selectClaim3" onchange="updatePairValidation()">
                         <option value="">-- Choose third claim --</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:8px; display:none;" id="wrapClaim4">
+                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 4:</span>
+                    <select id="selectClaim4" onchange="updatePairValidation()">
+                        <option value="">-- Choose fourth claim --</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:8px; display:none;" id="wrapClaim5">
+                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 5:</span>
+                    <select id="selectClaim5" onchange="updatePairValidation()">
+                        <option value="">-- Choose fifth claim --</option>
                     </select>
                 </div>
             </div>
 
             <div class="validation-box warn" id="pairValidationBox">
-                <span>⚠️ Select both students and all 3 claims to proceed.</span>
+                <span>⚠️ Enter student names and select claims to proceed.</span>
             </div>
         </div>
         <div class="modal-foot">
             <button class="btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
-            <button class="btn-action" id="btnSubmitPair" onclick="submitPairSignup()" disabled>Confirm Pair Sign-up</button>
+            <button class="btn-action" id="btnSubmitPair" onclick="submitPairSignup()" disabled>Confirm Sign-up</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL 2: Pairs Ledger -->
+<!-- MODAL 2: Groups Ledger -->
 <div class="modal-overlay" id="ledgerModal">
-    <div class="modal-card" style="max-width:850px;">
+    <div class="modal-card" style="max-width:880px;">
         <div class="modal-head">
-            <h2>Registered Pairs Ledger (<span id="ledgerSecTitle">902-HL</span>)</h2>
+            <h2>Registered Groups Ledger (<span id="ledgerSecTitle">901-HL</span>)</h2>
             <button class="btn-close" onclick="closeModal('ledgerModal')">&times;</button>
         </div>
         <div class="modal-body">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span style="font-size:0.85rem; color:var(--text-muted);" id="ledgerSummaryText">0 pairs currently registered</span>
+                <span style="font-size:0.85rem; color:var(--text-muted);" id="ledgerSummaryText">0 groups currently registered</span>
                 <button class="btn-secondary" style="font-size:0.76rem;" onclick="copyLedgerText()">📋 Copy Plain Text List</button>
             </div>
             <table class="ledger-table">
                 <thead>
                     <tr>
-                        <th style="width:50px;">Pair #</th>
-                        <th style="width:160px;">Students</th>
-                        <th>Claim 1</th>
-                        <th>Claim 2</th>
-                        <th>Claim 3</th>
-                        <th style="width:70px;">DEPENDS?</th>
-                        <th style="width:60px;">Action</th>
+                        <th style="width:36px;">#</th>
+                        <th style="width:65px;">Type</th>
+                        <th style="width:170px;">Students</th>
+                        <th>Assigned Claims</th>
+                        <th style="width:75px;">DEPENDS?</th>
+                        <th style="width:115px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="ledgerTableBody">
@@ -940,7 +1043,7 @@
                 <hr style="border:none; border-top:1px solid var(--border-subtle); margin:6px 0;">
 
                 <button class="btn-secondary" style="justify-content:flex-start; padding:10px 14px;" onclick="copyGoogleClassroomReport()">
-                    📄 Copy Classroom Summary Report (<span id="exportSecSpan">902-HL</span>)
+                    📄 Copy Classroom Summary Report (<span id="exportSecSpan">901-HL</span>)
                 </button>
 
                 <hr style="border:none; border-top:1px solid var(--border-subtle); margin:6px 0;">
@@ -1032,18 +1135,57 @@ const CLAIMS_DATA = [
 ];
 
 const MAX_PAIRS_PER_CLAIM = 4;
-let currentSection = "902-HL";
+let currentSection = "901-HL";
+let currentGroupSize = 2; // 1 = Solo (2 claims), 2 = Pair (3 claims), 3 = Trio (5 claims)
+let editingGroupId = null;
+
+// Initial Seed Data for 901-HL (as recorded in class)
+const DEFAULT_SEEDS = {
+    "901-HL": [
+        { id: "seed_901_1", type: "pair", students: "Clara Beach & Madeleine Tretiak", student1: "Clara Beach", student2: "Madeleine Tretiak", student3: "", claimIds: ["w1_10", "w2_08", "w3_19"] },
+        { id: "seed_901_2", type: "pair", students: "Brielle Fifield & Adie Rent", student1: "Brielle Fifield", student2: "Adie Rent", student3: "", claimIds: ["w3_20", "w3_10", "w3_15"] },
+        { id: "seed_901_3", type: "pair", students: "Lauren Latham & Cameo Smith", student1: "Lauren Latham", student2: "Cameo Smith", student3: "", claimIds: ["w1_10", "w2_05", "w2_08"] },
+        { id: "seed_901_4", type: "solo", students: "Isaac Nguyen", student1: "Isaac Nguyen", student2: "", student3: "", claimIds: ["w2_02", "w2_20"] },
+        { id: "seed_901_5", type: "pair", students: "Drew Jarvis & Nolan Cheney", student1: "Drew Jarvis", student2: "Nolan Cheney", student3: "", claimIds: ["w2_15", "w3_10", "w1_05"] },
+        { id: "seed_901_6", type: "pair", students: "Nova Bray & Tess Bonin-Townsend", student1: "Nova Bray", student2: "Tess Bonin-Townsend", student3: "", claimIds: ["w1_05", "w2_19", "w2_01"] },
+        { id: "seed_901_7", type: "pair", students: "Doun Kwak & Benjamin Legaarden", student1: "Doun Kwak", student2: "Benjamin Legaarden", student3: "", claimIds: ["w2_13", "w2_17", "w2_20"] },
+        { id: "seed_901_8", type: "solo", students: "Aurelia Moore", student1: "Aurelia Moore", student2: "", student3: "", claimIds: ["w1_06", "w2_13"] },
+        { id: "seed_901_9", type: "pair", students: "Finn Grace & Justin Alamo MacLennan", student1: "Finn Grace", student2: "Justin Alamo MacLennan", student3: "", claimIds: ["w3_02", "w3_04", "w3_20"] },
+        { id: "seed_901_10", type: "pair", students: "Duncan Mattatall & Aiden Henderson", student1: "Duncan Mattatall", student2: "Aiden Henderson", student3: "", claimIds: ["w1_05", "w2_20", "w3_15"] },
+        { id: "seed_901_11", type: "solo", students: "Olivia Doherty", student1: "Olivia Doherty", student2: "", student3: "", claimIds: ["w1_08", "w2_07"] },
+        { id: "seed_901_12", type: "pair", students: "Marty Purcell & Avery Peters", student1: "Marty Purcell", student2: "Avery Peters", student3: "", claimIds: ["w1_05", "w3_10", "w3_14"] }
+    ],
+    "902-HL": [],
+    "903-HL": []
+};
 
 // Storage Key Helper
 function getStorageKey(sec) {
     return "hl9_o2a_psa_signups_" + sec;
 }
 
-// Load Signups for Section
+// Load Signups for Section (with seed support)
 function loadSectionSignups(sec) {
     try {
         const raw = localStorage.getItem(getStorageKey(sec));
-        return raw ? JSON.parse(raw) : [];
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            // Normalize legacy entries
+            parsed.forEach(p => {
+                if (!p.type) {
+                    if (p.claimIds && p.claimIds.length === 2) p.type = "solo";
+                    else if (p.claimIds && p.claimIds.length === 5) p.type = "trio";
+                    else if (p.student1 && p.student1 === p.student2) p.type = "solo";
+                    else if (p.students && p.students.includes("(Solo)")) p.type = "solo";
+                    else p.type = "pair";
+                }
+            });
+            return parsed;
+        } else if (DEFAULT_SEEDS[sec] && DEFAULT_SEEDS[sec].length > 0) {
+            saveSectionSignups(sec, DEFAULT_SEEDS[sec]);
+            return DEFAULT_SEEDS[sec];
+        }
+        return [];
     } catch(e) {
         console.error("Failed to load signups:", e);
         return [];
@@ -1072,10 +1214,12 @@ function renderBoard() {
     signups.forEach((pair, pairIdx) => {
         (pair.claimIds || []).forEach(cid => {
             if (claimUsage[cid]) {
+                const groupType = pair.type || "pair";
                 claimUsage[cid].push({
-                    pairIndex: pairIdx + 1,
+                    groupIndex: pairIdx + 1,
                     students: pair.students,
-                    pairLabel: pair.students || ("Pair " + (pairIdx + 1))
+                    groupType: groupType,
+                    groupLabel: `${pair.students} [${groupType.toUpperCase()}]`
                 });
             }
         });
@@ -1119,9 +1263,10 @@ function renderBoard() {
                 slotsHtml = `<div class="slots-cluster">`;
                 for (let i = 0; i < MAX_PAIRS_PER_CLAIM; i++) {
                     if (i < count) {
-                        const pair = assigned[i];
-                        const colorClass = (pair.pairIndex % 4 === 1) ? "p-amber" : (pair.pairIndex % 4 === 2) ? "p-purple" : (pair.pairIndex % 4 === 3) ? "p-coral" : "";
-                        slotsHtml += `<span class="slot-pip filled ${colorClass}" title="${pair.pairLabel}">P${pair.pairIndex}</span>`;
+                        const grp = assigned[i];
+                        const colorClass = (grp.groupType === "solo") ? "p-purple" : (grp.groupType === "trio") ? "p-amber" : (grp.groupIndex % 2 === 0 ? "p-coral" : "");
+                        const pipLabel = (grp.groupType === "solo") ? `S${grp.groupIndex}` : (grp.groupType === "trio") ? `T${grp.groupIndex}` : `P${grp.groupIndex}`;
+                        slotsHtml += `<span class="slot-pip filled ${colorClass}" title="${grp.groupLabel}">${pipLabel}</span>`;
                     } else {
                         slotsHtml += `<span class="slot-pip"></span>`;
                     }
@@ -1173,47 +1318,96 @@ function switchSection(sec) {
 function populateRosterLists() {
     const list1 = document.getElementById("rosterList1");
     const list2 = document.getElementById("rosterList2");
+    const list3 = document.getElementById("rosterList3");
     list1.innerHTML = "";
     list2.innerHTML = "";
+    if (list3) list3.innerHTML = "";
 
     if (window.MASTER_ROSTER_DATA && Array.isArray(window.MASTER_ROSTER_DATA)) {
-        // Derive homeroom number from section (e.g. 902 from 902-HL)
         const hr = currentSection.split("-")[0];
         const sectionStudents = window.MASTER_ROSTER_DATA.filter(s => s.homeroom === hr);
 
         sectionStudents.forEach(st => {
             const formatted = `${st.first_name} ${st.last_name}`;
-            const opt1 = document.createElement("option");
-            opt1.value = formatted;
-            list1.appendChild(opt1);
-
-            const opt2 = document.createElement("option");
-            opt2.value = formatted;
-            list2.appendChild(opt2);
+            const opt1 = document.createElement("option"); opt1.value = formatted; list1.appendChild(opt1);
+            const opt2 = document.createElement("option"); opt2.value = formatted; list2.appendChild(opt2);
+            if (list3) { const opt3 = document.createElement("option"); opt3.value = formatted; list3.appendChild(opt3); }
         });
     }
 }
 
 /* ========================================================================
-   5. REGISTER PAIR MODAL LOGIC
+   5. GROUP SIZE SWITCHING & REGISTRATION MODAL
    ======================================================================== */
-function openRegisterModal(preselectClaimId) {
-    document.getElementById("inputStudent1").value = "";
-    document.getElementById("inputStudent2").value = "";
+function setGroupSize(size) {
+    currentGroupSize = size;
+    document.querySelectorAll(".g-btn").forEach(btn => {
+        btn.classList.toggle("active", parseInt(btn.getAttribute("data-size")) === size);
+    });
+
+    const sGrid = document.getElementById("studentInputsGrid");
+    const wrapS2 = document.getElementById("wrapStudent2");
+    const wrapS3 = document.getElementById("wrapStudent3");
+
+    const wrapC3 = document.getElementById("wrapClaim3");
+    const wrapC4 = document.getElementById("wrapClaim4");
+    const wrapC5 = document.getElementById("wrapClaim5");
+    const claimsReqLabel = document.getElementById("claimsReqLabel");
+
+    if (size === 1) { // Solo (2 claims)
+        sGrid.style.gridTemplateColumns = "1fr";
+        wrapS2.style.display = "none";
+        wrapS3.style.display = "none";
+
+        wrapC3.style.display = "none";
+        wrapC4.style.display = "none";
+        wrapC5.style.display = "none";
+
+        claimsReqLabel.textContent = "Selected Claims (2 required for Solo · must include at least 1 DEPENDS)";
+    } else if (size === 2) { // Pair (3 claims)
+        sGrid.style.gridTemplateColumns = "1fr 1fr";
+        wrapS2.style.display = "block";
+        wrapS3.style.display = "none";
+
+        wrapC3.style.display = "block";
+        wrapC4.style.display = "none";
+        wrapC5.style.display = "none";
+
+        claimsReqLabel.textContent = "Selected Claims (3 required for Pair · must include at least 1 DEPENDS)";
+    } else if (size === 3) { // Trio (5 claims)
+        sGrid.style.gridTemplateColumns = "1fr 1fr 1fr";
+        wrapS2.style.display = "block";
+        wrapS3.style.display = "block";
+        wrapS3.style.gridColumn = "auto";
+
+        wrapC3.style.display = "block";
+        wrapC4.style.display = "block";
+        wrapC5.style.display = "block";
+
+        claimsReqLabel.textContent = "Selected Claims (5 required for Trio · must include at least 1 DEPENDS)";
+    }
+
+    updatePairValidation();
+}
+
+function openRegisterModal(preselectClaimId, editGroup) {
+    editingGroupId = editGroup ? editGroup.id : null;
+    document.getElementById("modalHeadTitle").innerHTML = editGroup ? `Edit Group Sign-up (<span id="modalSecTitle">${currentSection}</span>)` : `Sign Up Group (<span id="modalSecTitle">${currentSection}</span>)`;
 
     const signups = loadSectionSignups(currentSection);
 
-    // Compute live claim counts
+    // Compute live claim counts (excluding current group if editing)
     const claimUsage = {};
     CLAIMS_DATA.forEach(c => { claimUsage[c.id] = 0; });
     signups.forEach(p => {
+        if (editingGroupId && p.id === editingGroupId) return; // skip self
         (p.claimIds || []).forEach(cid => {
             if (claimUsage[cid] !== undefined) claimUsage[cid]++;
         });
     });
 
-    // Populate Claim Selects
-    ["selectClaim1", "selectClaim2", "selectClaim3"].forEach((selectId, idx) => {
+    // Populate all 5 select dropdowns
+    ["selectClaim1", "selectClaim2", "selectClaim3", "selectClaim4", "selectClaim5"].forEach((selectId, idx) => {
         const select = document.getElementById(selectId);
         select.innerHTML = `<option value="">-- Choose Claim ${idx + 1} --</option>`;
 
@@ -1238,8 +1432,33 @@ function openRegisterModal(preselectClaimId) {
         select.value = "";
     });
 
-    if (preselectClaimId) {
-        document.getElementById("selectClaim1").value = preselectClaimId;
+    if (editGroup) {
+        const size = editGroup.type === "solo" ? 1 : editGroup.type === "trio" ? 3 : 2;
+        setGroupSize(size);
+
+        document.getElementById("inputStudent1").value = editGroup.student1 || "";
+        document.getElementById("inputStudent2").value = editGroup.student2 || "";
+        document.getElementById("inputStudent3").value = editGroup.student3 || "";
+
+        const cIds = editGroup.claimIds || [];
+        if (cIds[0]) document.getElementById("selectClaim1").value = cIds[0];
+        if (cIds[1]) document.getElementById("selectClaim2").value = cIds[1];
+        if (cIds[2]) document.getElementById("selectClaim3").value = cIds[2];
+        if (cIds[3]) document.getElementById("selectClaim4").value = cIds[3];
+        if (cIds[4]) document.getElementById("selectClaim5").value = cIds[4];
+
+        document.getElementById("btnSubmitPair").textContent = "Save Changes";
+    } else {
+        setGroupSize(2); // default pair
+        document.getElementById("inputStudent1").value = "";
+        document.getElementById("inputStudent2").value = "";
+        document.getElementById("inputStudent3").value = "";
+
+        if (preselectClaimId) {
+            document.getElementById("selectClaim1").value = preselectClaimId;
+        }
+
+        document.getElementById("btnSubmitPair").textContent = "Confirm Sign-up";
     }
 
     updatePairValidation();
@@ -1249,34 +1468,60 @@ function openRegisterModal(preselectClaimId) {
 function updatePairValidation() {
     const s1 = document.getElementById("inputStudent1").value.trim();
     const s2 = document.getElementById("inputStudent2").value.trim();
+    const s3 = document.getElementById("inputStudent3").value.trim();
+
     const c1 = document.getElementById("selectClaim1").value;
     const c2 = document.getElementById("selectClaim2").value;
     const c3 = document.getElementById("selectClaim3").value;
+    const c4 = document.getElementById("selectClaim4").value;
+    const c5 = document.getElementById("selectClaim5").value;
 
     const vBox = document.getElementById("pairValidationBox");
     const submitBtn = document.getElementById("btnSubmitPair");
 
-    if (!s1) {
-        vBox.className = "validation-box warn";
-        vBox.innerHTML = "<span>⚠️ Please enter Student 1 name.</span>";
-        submitBtn.disabled = true;
-        return;
+    // Student names check based on currentGroupSize
+    if (currentGroupSize === 1) {
+        if (!s1) {
+            vBox.className = "validation-box warn";
+            vBox.innerHTML = "<span>⚠️ Please enter the student's name.</span>";
+            submitBtn.disabled = true;
+            return;
+        }
+    } else if (currentGroupSize === 2) {
+        if (!s1 || !s2) {
+            vBox.className = "validation-box warn";
+            vBox.innerHTML = "<span>⚠️ Please enter both students' names for a pair.</span>";
+            submitBtn.disabled = true;
+            return;
+        }
+    } else if (currentGroupSize === 3) {
+        if (!s1 || !s2 || !s3) {
+            vBox.className = "validation-box warn";
+            vBox.innerHTML = "<span>⚠️ Please enter all three students' names for a trio.</span>";
+            submitBtn.disabled = true;
+            return;
+        }
     }
 
-    const picks = [c1, c2, c3].filter(Boolean);
+    // Required picks count based on size
+    const requiredCount = currentGroupSize === 1 ? 2 : currentGroupSize === 3 ? 5 : 3;
+    let picks = [];
+    if (currentGroupSize === 1) picks = [c1, c2].filter(Boolean);
+    else if (currentGroupSize === 2) picks = [c1, c2, c3].filter(Boolean);
+    else if (currentGroupSize === 3) picks = [c1, c2, c3, c4, c5].filter(Boolean);
 
-    if (picks.length < 3) {
+    if (picks.length < requiredCount) {
         vBox.className = "validation-box warn";
-        vBox.innerHTML = `<span>⚠️ Selected ${picks.length} of 3 claims. All 3 must be selected.</span>`;
+        vBox.innerHTML = `<span>⚠️ Selected ${picks.length} of ${requiredCount} claims. All ${requiredCount} must be selected.</span>`;
         submitBtn.disabled = true;
         return;
     }
 
     // Check duplicates
     const unique = new Set(picks);
-    if (unique.size < 3) {
+    if (unique.size < requiredCount) {
         vBox.className = "validation-box error";
-        vBox.innerHTML = "<span>❌ You cannot select the same claim twice. Pick 3 distinct claims.</span>";
+        vBox.innerHTML = "<span>❌ You cannot select the same claim twice. All claims must be distinct.</span>";
         submitBtn.disabled = true;
         return;
     }
@@ -1287,7 +1532,7 @@ function updatePairValidation() {
 
     if (dependsPicks.length === 0) {
         vBox.className = "validation-box warn";
-        vBox.innerHTML = "<span>⚠️ Requirement missing: At least ONE of your 3 claims must have a DEPENDS verdict.</span>";
+        vBox.innerHTML = "<span>⚠️ Requirement missing: At least ONE claim must have a DEPENDS verdict.</span>";
         submitBtn.disabled = true;
         return;
     }
@@ -1295,49 +1540,92 @@ function updatePairValidation() {
     // All clear!
     vBox.className = "validation-box ok";
     const depStr = dependsPicks.map(d => `Walk ${d.walk} #${d.numStr}`).join(", ");
-    vBox.innerHTML = `<span>✅ All rules satisfied! Includes DEPENDS: <strong>${depStr}</strong>. Ready to register.</span>`;
+    vBox.innerHTML = `<span>✅ All rules satisfied! Includes DEPENDS: <strong>${depStr}</strong>. Ready to save.</span>`;
     submitBtn.disabled = false;
 }
 
 function submitPairSignup() {
     const s1 = document.getElementById("inputStudent1").value.trim();
     const s2 = document.getElementById("inputStudent2").value.trim();
-    const c1 = document.getElementById("selectClaim1").value;
-    const c2 = document.getElementById("selectClaim2").value;
-    const c3 = document.getElementById("selectClaim3").value;
+    const s3 = document.getElementById("inputStudent3").value.trim();
 
-    if (!s1 || !c1 || !c2 || !c3) return;
+    let picks = [];
+    let studentLabel = "";
+    let type = "pair";
 
-    const studentLabel = s2 ? `${s1} & ${s2}` : `${s1} (Solo)`;
+    if (currentGroupSize === 1) {
+        type = "solo";
+        studentLabel = s1;
+        picks = [
+            document.getElementById("selectClaim1").value,
+            document.getElementById("selectClaim2").value
+        ];
+    } else if (currentGroupSize === 2) {
+        type = "pair";
+        studentLabel = `${s1} & ${s2}`;
+        picks = [
+            document.getElementById("selectClaim1").value,
+            document.getElementById("selectClaim2").value,
+            document.getElementById("selectClaim3").value
+        ];
+    } else if (currentGroupSize === 3) {
+        type = "trio";
+        studentLabel = `${s1}, ${s2} & ${s3}`;
+        picks = [
+            document.getElementById("selectClaim1").value,
+            document.getElementById("selectClaim2").value,
+            document.getElementById("selectClaim3").value,
+            document.getElementById("selectClaim4").value,
+            document.getElementById("selectClaim5").value
+        ];
+    }
 
-    const signups = loadSectionSignups(currentSection);
+    if (!s1 || picks.some(p => !p)) return;
 
-    // Double check capacity
+    let signups = loadSectionSignups(currentSection);
+
+    // Check capacity (exclude self if editing)
     const claimUsage = {};
     CLAIMS_DATA.forEach(c => { claimUsage[c.id] = 0; });
     signups.forEach(p => {
+        if (editingGroupId && p.id === editingGroupId) return;
         (p.claimIds || []).forEach(cid => {
             if (claimUsage[cid] !== undefined) claimUsage[cid]++;
         });
     });
 
-    for (let cid of [c1, c2, c3]) {
+    for (let cid of picks) {
         if (claimUsage[cid] >= MAX_PAIRS_PER_CLAIM) {
             alert("One of the selected claims just reached full capacity (4/4). Please select an open claim.");
-            openRegisterModal();
             return;
         }
     }
 
-    // Add new pair
-    signups.push({
-        id: "pair_" + Date.now(),
-        date: new Date().toISOString(),
-        students: studentLabel,
-        student1: s1,
-        student2: s2,
-        claimIds: [c1, c2, c3]
-    });
+    if (editingGroupId) {
+        const idx = signups.findIndex(p => p.id === editingGroupId);
+        if (idx !== -1) {
+            signups[idx] = {
+                ...signups[idx],
+                type: type,
+                students: studentLabel,
+                student1: s1,
+                student2: s2,
+                student3: s3,
+                claimIds: picks
+            };
+        }
+    } else {
+        signups.push({
+            id: "group_" + Date.now(),
+            date: new Date().toISOString(),
+            type: type,
+            students: studentLabel,
+            student1: s1,
+            student2: s2,
+            student3: s3,
+            claimIds: picks
+        });
+    }
 
     saveSectionSignups(currentSection, signups);
     closeModal("registerModal");
@@ -1345,17 +1633,25 @@ function submitPairSignup() {
 }
 
 /* ========================================================================
-   6. PAIRS LEDGER MODAL
+   6. GROUPS LEDGER MODAL WITH EDIT SUPPORT
    ======================================================================== */
+function editGroup(groupId) {
+    const signups = loadSectionSignups(currentSection);
+    const grp = signups.find(p => p.id === groupId);
+    if (!grp) return;
+    closeModal("ledgerModal");
+    openRegisterModal(null, grp);
+}
+
 function openLedgerModal() {
     const signups = loadSectionSignups(currentSection);
     const tbody = document.getElementById("ledgerTableBody");
     tbody.innerHTML = "";
 
-    document.getElementById("ledgerSummaryText").textContent = `${signups.length} pairs registered in ${currentSection}`;
+    document.getElementById("ledgerSummaryText").textContent = `${signups.length} groups registered in ${currentSection}`;
 
     if (signups.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">No pairs registered yet for ${currentSection}. Click "+ Sign Up Pair" to begin.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:var(--text-muted);">No groups registered yet for ${currentSection}. Click "+ Sign Up Group" to begin.</td></tr>`;
     } else {
         signups.forEach((pair, idx) => {
             const tr = document.createElement("tr");
@@ -1363,17 +1659,27 @@ function openLedgerModal() {
             const claims = (pair.claimIds || []).map(cid => CLAIMS_DATA.find(c => c.id === cid));
             const hasDepends = claims.some(c => c && c.verdict === "DEPENDS");
 
-            const claimCells = claims.map(c => {
-                if (!c) return "<td>-</td>";
-                return `<td><strong>W${c.walk} #${c.numStr}</strong> [${c.verdict}] <span style="color:var(--text-muted); font-size:0.75rem;">${escapeHtml(c.text.substring(0, 36))}...</span></td>`;
+            const typeLabel = pair.type === "solo" ? "Solo" : pair.type === "trio" ? "Trio" : "Pair";
+            const typeClass = pair.type || "pair";
+
+            const claimBadges = claims.map(c => {
+                if (!c) return `<span class="verdict-chip">-</span>`;
+                const depClass = c.verdict === "DEPENDS" ? "style=\"background:var(--amber-bg); color:var(--amber); border-color:var(--amber-border); font-weight:800;\"" : "";
+                return `<span style="display:inline-block; margin:2px 3px 2px 0; padding:2px 6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem; background:#ffffff;" ${depClass}>
+                    <strong>W${c.walk} #${c.numStr}</strong> [${c.verdict}]
+                </span>`;
             }).join("");
 
             tr.innerHTML = `
                 <td style="font-family:var(--font-mono); font-weight:700;">#${idx + 1}</td>
+                <td><span class="badge-group-type ${typeClass}">${typeLabel}</span></td>
                 <td><strong>${escapeHtml(pair.students)}</strong></td>
-                ${claimCells}
+                <td>${claimBadges}</td>
                 <td>${hasDepends ? '<span style="color:var(--emerald); font-weight:700;">✅ YES</span>' : '<span style="color:var(--coral-dark); font-weight:700;">❌ NO</span>'}</td>
-                <td><button class="btn-delete" onclick="deletePair('${pair.id}')">Remove</button></td>
+                <td>
+                    <button class="btn-edit" onclick="editGroup('${pair.id}')">Edit</button>
+                    <button class="btn-delete" onclick="deletePair('${pair.id}')">Remove</button>
+                </td>
             `;
 
             tbody.appendChild(tr);
@@ -1384,7 +1690,7 @@ function openLedgerModal() {
 }
 
 function deletePair(pairId) {
-    if (!confirm("Are you sure you want to remove this pair's sign-up?")) return;
+    if (!confirm("Are you sure you want to remove this group's sign-up?")) return;
     let signups = loadSectionSignups(currentSection);
     signups = signups.filter(p => p.id !== pairId);
     saveSectionSignups(currentSection, signups);
@@ -1395,26 +1701,28 @@ function deletePair(pairId) {
 function copyLedgerText() {
     const signups = loadSectionSignups(currentSection);
     if (signups.length === 0) {
-        alert("No pairs registered to copy.");
+        alert("No groups registered to copy.");
         return;
     }
 
-    let text = `ROOM 8: HL9 O2-A PSA SIGN-UPS (${currentSection})\nDate: ${new Date().toLocaleDateString()}\n\n`;
+    let text = `ROOM 8: HL9 O2-A PSA SIGN-UPS (${currentSection})\nDate: ${new Date().toLocaleDateString()}\nRules: Solo = 2 claims | Pair = 3 claims | Trio = 5 claims | Min 1 DEPENDS\n\n`;
 
     signups.forEach((p, idx) => {
+        const typeLabel = p.type === "solo" ? "Solo" : p.type === "trio" ? "Trio" : "Pair";
         const claims = (p.claimIds || []).map(cid => {
             const c = CLAIMS_DATA.find(item => item.id === cid);
             return c ? `Walk ${c.walk} #${c.numStr} [${c.verdict}]: "${c.text}"` : cid;
         });
 
-        text += `Pair ${idx + 1}: ${p.students}\n`;
-        text += `  • Fact A: ${claims[0] || 'N/A'}\n`;
-        text += `  • Fact B: ${claims[1] || 'N/A'}\n`;
-        text += `  • Fact C: ${claims[2] || 'N/A'}\n\n`;
+        text += `Group ${idx + 1} [${typeLabel}]: ${p.students}\n`;
+        claims.forEach((cText, cIdx) => {
+            text += `  • Fact ${String.fromCharCode(65 + cIdx)}: ${cText}\n`;
+        });
+        text += `\n`;
     });
 
     navigator.clipboard.writeText(text).then(() => {
-        alert(`Copied ${signups.length} pairs to clipboard!`);
+        alert(`Copied ${signups.length} groups to clipboard!`);
     });
 }
 
@@ -1426,21 +1734,21 @@ function openClaimDetail(claim, assigned) {
     const isFull = count >= MAX_PAIRS_PER_CLAIM;
 
     let msg = `Walk ${claim.walk}: ${claim.walkName}\nCard #${claim.numStr} [${claim.verdict}]\n\n"${claim.text}"\n\n`;
-    msg += `Assigned Pairs (${count}/${MAX_PAIRS_PER_CLAIM}):\n`;
+    msg += `Assigned Groups (${count}/${MAX_PAIRS_PER_CLAIM}):\n`;
     if (count === 0) {
         msg += "  (None currently assigned)\n";
     } else {
         assigned.forEach((p, i) => {
-            msg += `  ${i + 1}. ${p.pairLabel}\n`;
+            msg += `  ${i + 1}. ${p.groupLabel}\n`;
         });
     }
 
     if (!isFull) {
-        if (confirm(msg + "\nWould you like to register a pair for this claim now?")) {
+        if (confirm(msg + "\nWould you like to register a group for this claim now?")) {
             openRegisterModal(claim.id);
         }
     } else {
-        alert(msg + "\nThis claim is at full capacity (4 of 4 pairs).");
+        alert(msg + "\nThis claim is at full capacity (4 of 4 groups).");
     }
 }
 
@@ -1499,19 +1807,20 @@ function importJsonFile(event) {
 function copyGoogleClassroomReport() {
     const signups = loadSectionSignups(currentSection);
     let md = `### HL9 O2-A PSA Sign-up Ledger: Section ${currentSection}\n\n`;
-    md += `*Maximum 4 pairs per claim. Every pair must complete at least 1 DEPENDS claim.*\n\n`;
+    md += `*Capacity: Max 4 groups per claim. Solo: 2 claims | Pair: 3 claims | Trio: 5 claims. Every group must complete at least 1 DEPENDS claim.*\n\n`;
 
     if (signups.length === 0) {
         md += `*No sign-ups recorded yet.*\n`;
     } else {
-        md += `| Pair # | Students | Claim 1 | Claim 2 | Claim 3 |\n`;
-        md += `| :---: | :--- | :--- | :--- | :--- |\n`;
+        md += `| # | Group | Students | Claims |\n`;
+        md += `| :---: | :---: | :--- | :--- |\n`;
         signups.forEach((p, idx) => {
+            const typeLabel = p.type === "solo" ? "Solo" : p.type === "trio" ? "Trio" : "Pair";
             const cList = (p.claimIds || []).map(cid => {
                 const c = CLAIMS_DATA.find(item => item.id === cid);
                 return c ? `W${c.walk} #${c.numStr} (${c.verdict})` : cid;
             });
-            md += `| ${idx + 1} | ${p.students} | ${cList[0] || '-'} | ${cList[1] || '-'} | ${cList[2] || '-'} |\n`;
+            md += `| ${idx + 1} | ${typeLabel} | ${p.students} | ${cList.join(", ")} |\n`;
         });
     }
 
@@ -1521,7 +1830,7 @@ function copyGoogleClassroomReport() {
 }
 
 function clearCurrentSection() {
-    if (confirm(`WARNING: This will permanently delete all pair sign-ups for section ${currentSection}. Proceed?`)) {
+    if (confirm(`WARNING: This will permanently delete all group sign-ups for section ${currentSection}. Proceed?`)) {
         saveSectionSignups(currentSection, []);
         renderBoard();
         closeModal("dataModal");
@@ -1542,10 +1851,10 @@ function showTooltip(e, claim, assigned) {
 
     const count = assigned.length;
     if (count >= MAX_PAIRS_PER_CLAIM) {
-        ttPairs.textContent = `Capacity: 4 / 4 FULL (No more pairs allowed)`;
+        ttPairs.textContent = `Capacity: 4 / 4 FULL (No more groups allowed)`;
         ttPairs.style.color = "#f43f5e";
     } else {
-        const pairsList = assigned.map(p => p.pairLabel).join(", ");
+        const pairsList = assigned.map(p => p.groupLabel).join(", ");
         ttPairs.textContent = `Assigned (${count}/4): ${pairsList || "None yet"}`;
         ttPairs.style.color = "#38bdf8";
     }
@@ -1623,7 +1932,6 @@ window.addEventListener("keydown", (e) => {
 
 // Initialization
 window.addEventListener("DOMContentLoaded", () => {
-    // Check URL parameters for section (e.g. ?section=901-HL)
     const params = new URLSearchParams(window.location.search);
     const secParam = params.get("section");
     if (secParam && ["901-HL", "902-HL", "903-HL"].includes(secParam)) {
