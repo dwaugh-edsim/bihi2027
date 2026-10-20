@@ -15,16 +15,22 @@ body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
 @media print {
     body { background: #ffffff; }
     /* 6mm padding (not the screen 12mm): @page 10mm margins leave 190mm of paper,
-       so 6mm padding yields a 178 x 265mm content box. That clears the 260mm
-       two-row card pages (blueprint / wall sheet / code strip) without resizing them. */
+       so 6mm padding yields a 178 x 265mm content box. Every page's content must
+       stay under 265mm or the browser splits it onto a second sheet. Budgets:
+       fold draw 258mm / guess slips 186mm / accusation 261mm / poster 204mm /
+       answer grids 156mm / blueprint 260mm / wall of lies 258mm / wall sheet 260mm /
+       code strips 260mm / teacher key 241mm / terminal signs 127mm. */
     .page { margin: 0; width: auto; min-height: auto; padding: 6mm; }
+    /* no trailing blank sheet after the last page */
+    .page:last-child { page-break-after: auto; }
     .no-print { display: none !important; }
     @page { size: A4; margin: 10mm; }
 }
 .page-tag {
     font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 700;
     color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em;
-    position: absolute; top: 4mm; right: 6mm;
+    /* Sits above the 6mm content edge so it never crosses a card's border. */
+    position: absolute; top: 1.5mm; right: 6mm;
 }
 .cutline { border: none; border-top: 1px dashed #cbd5e1; margin: 0; }
 .print-note {
@@ -73,16 +79,21 @@ body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
 /* ===== GUESS SLIPS ===== */
 .guess-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
 .guess {
-    border: 2px solid #cbd5e1; border-radius: 8px; height: 26mm; padding: 3.5mm;
+    /* 34mm: the label/line stack inside needs 30.7mm, so 26mm pushed the
+       "reason" rule outside the card border. */
+    border: 2px solid #cbd5e1; border-radius: 8px; height: 34mm; padding: 3.5mm;
 }
 .guess .hd {
     font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 800;
     color: #d97706; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1.5mm;
 }
-.guess .lbl { font-size: 8.5pt; color: #64748b; }
+.guess .lbl { font-size: 8pt; color: #64748b; }
 .guess .line { border-bottom: 1.5px solid #94a3b8; height: 6mm; margin-top: 1mm; }
 .guess .row2 { display: flex; gap: 3mm; margin-top: 1.5mm; }
 .guess .row2 div { flex: 1; }
+/* "your name" is the longest label: without the extra width it wrapped to two
+   lines and its rule dropped below the "round" and "reason" rules. */
+.guess .row2 div:first-child { flex: 1.35; }
 
 /* ===== FINAL ACCUSATION SLIPS ===== */
 /* 4 cols x 6 rows at 40mm = 255mm, fits the 265mm print content box with 10mm slack. */
@@ -147,7 +158,10 @@ body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
 /* ===== WALL OF LIES ===== */
 .wall2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
 .wall {
-    border: 3px solid #0f172a; border-radius: 10px; height: 118mm;
+    /* 6 statements per sheet = 3 rows of 2. 3 x 82mm + 2 x 6mm gap = 258mm,
+       inside the 265mm content box. 118mm (2 rows) pushed rows 3 onto a second
+       sheet and cut statements 5 and 6 in half. */
+    border: 3px solid #0f172a; border-radius: 10px; height: 82mm;
     padding: 8mm; display: flex; flex-direction: column;
 }
 .wall .num {
@@ -192,7 +206,7 @@ body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
 /* ===== TERMINAL SIGNS ===== */
 .tsign2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
 .tsign {
-    border: 3px solid #0f172a; border-radius: 10px; height: 126mm;
+    border: 3px solid #0f172a; border-radius: 10px; height: 130mm;
     padding: 6mm 5mm; background: #fffdf5;
     display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2.2mm;
 }
@@ -205,8 +219,10 @@ body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f1f5f9; }
     letter-spacing: 0.34em; color: #0f172a; margin-top: 1mm;
 }
 .tsign .tletter {
+    /* 1.3: Roboto Slab's ascent+descent is ~1.25em, so a 1em line box let the
+       letter's box push into the bar below it. */
     font-family: 'Roboto Slab', serif; font-weight: 900; font-size: 66pt;
-    line-height: 1; color: #0f172a;
+    line-height: 1.3; color: #0f172a;
 }
 .tsign .tbar { width: 55%; height: 2.5mm; background: #d97706; border-radius: 2mm; margin: 1mm 0; }
 .tsign ol { text-align: left; font-size: 9.5pt; line-height: 1.5; padding-left: 7mm; }
