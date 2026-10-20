@@ -37,7 +37,7 @@ table below is a cross-check rather than the only instruction.
 | 2-7 | Decoy packets, 24 quarter-page cards | 1 each | The Draw |
 | 8-11 | Guess slips, 15-up, 60 per pass | 2 each (120 slips) | Guess rounds |
 | 12 | Final accusation slips, 24-up, 3-star vote | 1 | Final vote |
-| 13 | Memory poster, 24 coloured shapes in a 6x4 grid, lettered A-F and numbered 1-4 | 1 | Challenge 1 |
+| 13 | Memory poster, 24 shapes in a 6x4 grid, lettered A-F and numbered 1-4, filled with black-and-white ink patterns (colour key printed on it) | 1 | Challenge 1 |
 | 14 | Memory answer grids, 6 blank grids | 1 | Challenge 1 |
 | 15-16 | Blueprint cards, 8 compound pictures with 6-part checklists | 2 each (16 cards) | Challenge 2 |
 | 17-18 | Wall statements 1-12, half-page posters | 1 each | Challenge 3 |
@@ -71,6 +71,7 @@ table below is a cross-check rather than the only instruction.
 - Vault code: 2974, entered in strip order A, B, C, D. First correct entry on any terminal pays +$400. The code exists in the terminal only as a djb2 hash (2088334395); re-arm by typing TEACHER.
 - Wall of Lies: 1 false, 2 true, 3 true, 4 false, 5 true, 6 false, 7 false, 8 true, 9 false, 10 true, 11 true, 12 false.
 - Memory poster (row: cells): Row 1: red star, blue circle, green triangle, yellow square, orange diamond, purple heart. Row 2: blue triangle, green star, yellow circle, red diamond, purple square, orange heart. Row 3: green diamond, yellow heart, red square, blue star, orange circle, purple triangle. Row 4: purple star, red heart, green circle, yellow diamond, orange triangle, blue square.
+  - The poster prints **black and white** — the six colours are ink patterns, not hues, so it survives a mono printer. Pattern = colour: RED = solid, BLUE = diagonal, GREEN = horizontal lines, YELLOW = dots, ORANGE = vertical lines, PURPLE = checkerboard. A key (pattern swatch + colour name) sits on the poster itself and on the answer-grid page, so teams still report colour names.
 
 ## 6. The Mole's public contract
 
@@ -121,7 +122,7 @@ Controls: arrow keys change stages, SPACE runs the stage timer, R resets it, pot
 ### Challenge 1: MEMORY RUN (8 min)
 
 - Materials: poster face-down at the front; one answer grid and pencil per team.
-- Play: the poster flips when the stage timer starts. One runner per team at a time: 10-second look at the poster, run back, report from memory. Team fills all 24 grid cells as colour + shape ("red star", cell D2). Every team member runs once before anyone runs twice.
+- Play: the poster flips when the stage timer starts. One runner per team at a time: 10-second look at the poster, run back, report from memory. Team fills all 24 grid cells as colour + shape ("red star", cell D2) — reading the colour off the pattern key, since the poster is printed in black and white. Every team member runs once before anyone runs twice.
 - Scoring: host checks each grid against the key. 16+ correct = +$300. 12-15 = +$150. Below 12 = $0. Scores are announced per team.
 - Mole vector: as runner, report one wrong detail confidently.
 - Evidence produced: public per-team scores; a sabotaged team lands one tier lower.
