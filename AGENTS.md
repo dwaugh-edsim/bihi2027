@@ -438,3 +438,118 @@ PINs/IDs/notes on projector screens.
   Antigravity). The class-by-class numbering in the outlines/CALENDAR files is drifting
   from classroom reality — trust the Class Log's actual entries and the teacher's word
   over the planning docs, and don't reintroduce dropped lessons.
+
+<!-- BEGIN SHARED-CONTEXT (generated from bihipri-27/.agents/workspace/SHARED-CONTEXT.md - do not edit inside) -->
+## Shared workspace protocol — Mavis and Zcode
+
+Dave runs two AI agents over the same two repos from one workspace folder:
+**Mavis** (this runtime) and **Zcode** (Z.ai). Both of you can read and write both
+repos, both of you can push, and either of you can start a session at any time.
+This block is the shared contract between you. It is injected into every
+`AGENTS.md` in the workspace from
+`bihipri-27/.agents/workspace/SHARED-CONTEXT.md` — **do not edit inside the
+`SHARED-CONTEXT` markers**, your edits there are overwritten by `refresh`.
+
+### 1. Read the plan before you work
+
+All paths are relative to the workspace root (the folder that holds `bihi2027/`
+and `bihipri-27/`).
+
+| File | What it answers |
+|---|---|
+| `bihipri-27/.agents/workspace/WORKSPACE-MAP.md` | What is where. Which clone is canonical. Which folder a given kind of file belongs in. |
+| `bihipri-27/.agents/workspace/STATE-OF-WORK.md` | What is in flight right now, what is owed, what is blocked. |
+| `bihipri-27/.agents/workspace/COLLABORATION.md` | The working agreement: how we divide work, how a handoff happens, what never changes. |
+
+If you are the session that gets here first, read all three. They are the
+organizational plan; this block is only the contract for using it.
+
+### 2. Two repos, one workspace
+
+- **`bihi2027/`** — **PUBLIC.** Student-facing only: assignments, slide decks,
+  dashboards, projector tools, the runtime client assets they load. Deployed to
+  GitHub Pages from `main`. This is the repo Dave and the school see.
+- **`bihipri-27/`** — **PRIVATE.** Everything not student-facing: curriculum
+  planning, answer keys, test banks, teacher facilitation notes, audits,
+  tooling, roster data, and this shared plan. Its folders mirror the public
+  repo with a `-priv` suffix.
+
+**Never move private content into the public repo, and never let public content
+disappear into the private one.** If you are unsure which side a file belongs
+on, it is private until proven otherwise.
+
+### 3. Only two folders are writable
+
+`bihi2027/` and `bihipri-27/` at the workspace root are the **canonical
+clones**. Every other git clone under the workspace root
+(`dwaugh-edsim_*`, `copilot-worktrees`, `*-seating-push`, …) is a **stale fork or
+scratch folder**. Work written there is invisible to the other machine and to
+the school. Check `WORKSPACE-MAP.md` → *Clone inventory* before you start; if
+your session's working directory is not one of the two canonical folders, stop
+and move.
+
+### 4. The session loop
+
+Run these with the script below; it resolves its own paths, so any working
+directory works.
+
+```bash
+# 1. orient - what is in flight, what did the other agent leave half-done
+python bihipri-27/tools-priv/sync_shared_context.py status
+
+# 2. reserve - so the other agent does not edit the same tree
+python bihipri-27/tools-priv/sync_shared_context.py claim "<area>" --agent mavis --note "what you are doing"
+
+# 3. work
+
+# 4. release
+python bihipri-27/tools-priv/sync_shared_context.py release "<area>" --agent mavis
+
+# 5. commit + push, then confirm the work will actually reach the other machine
+python bihipri-27/tools-priv/sync_shared_context.py check
+python bihi2027/scripts/sync_check.py
+```
+
+`claim` and `release` need `--agent mavis`, `--agent zcode`, or `--agent dave`.
+An area is a path or a short label (`Student_System/Class_Startup.html`,
+`HL8 junction marking`). If the other agent already holds an overlapping area,
+`claim` refuses and tells you — coordinate rather than fight over the file.
+
+### 5. Rules that hold for every session, every agent
+
+1. **Only committed and pushed work travels.** A file reaches the school machine
+   only if it is in a canonical clone, not ignored by that repo's `.gitignore`,
+   and committed **and** pushed. `sync_check.py` is the authority on this; run it
+   before you close a session.
+2. **Check the other machine's work before you start.** `git pull` first. The
+   other harness may have moved since the last session.
+3. **Never write student PII into the public repo** — no pins, IDs, usernames,
+   full legal first names, or teacher notes. Names plus class only. Private
+   roster data stays in `bihipri-27/Private_Student_Data-priv/` and server-side.
+4. **Do not put planning docs, answer keys, audits, or tooling in the public
+   repo.** They belong in `bihipri-27/` (the public repo ignores `tools/`,
+   `audit/`, `curriculum-planning/`, `system-maintenance/`, `data/sheets/` — a
+   file dropped there is never published *and* never travels).
+5. **Leave the workspace cleaner than you found it.** Commit your work, update
+   the board, release your claim.
+6. **Do not re-read a scan sheet twice** — repeat passes hallucinate. One
+   machine pass per sheet, `[?]` on uncertain readings.
+7. **When the live system contradicts the repo, suspect a hidden branch first**
+   (demo routing, fail-closed gates, caching), not a human error.
+8. **Dave's word beats a planning document.** If a doc and Dave disagree, the
+   doc is stale — fix the doc.
+
+### 6. Commands
+
+| Command | What it does |
+|---|---|
+| `sync_shared_context.py status` | Live board, both repos' git state, claims, warnings. |
+| `sync_shared_context.py refresh` | Regenerate this shared block everywhere, the board's repo facts, the clone map, and sync skills into the workspace skill root. |
+| `sync_shared_context.py check` | Validate everything; exit 1 if something needs attention. |
+| `sync_shared_context.py claim "<area>" --agent <who>` | Reserve an area. |
+| `sync_shared_context.py release "<area>" --agent <who>` | Release an area. |
+| `bihi2027/scripts/sync_check.py` | "Will this work be at school?" — the travel check. |
+
+Paths above are relative to the workspace root. From inside `bihi2027/` the
+private script is at `../bihipri-27/tools-priv/sync_shared_context.py`.
+<!-- END SHARED-CONTEXT -->

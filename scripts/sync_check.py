@@ -118,6 +118,21 @@ def check(repo, label, required):
     untracked = [f for f in untracked if not is_noise(f)]
     ignored = [f for f in ignored if not is_noise(f)]
 
+    # Tracked files with uncommitted changes (staged or not). These are just as
+    # lost as untracked ones, and used to be invisible here — a modified page
+    # would pass the check and still never reach the school machine.
+    modified = [f for f in (git(repo, 'diff', '--name-only', 'HEAD') or [])
+                if not is_noise(f)]
+
+    if modified:
+        print('   %s %d tracked file(s) have UNCOMMITTED changes — they will NOT travel:' % (BAD, len(modified)))
+        for f in modified[:12]:
+            print('        %s' % f)
+        if len(modified) > 12:
+            print('        … and %d more' % (len(modified) - 12))
+        print('        fix:  git add <file> && git commit && git push')
+        problems += len(modified)
+
     if untracked:
         print('   %s %d file(s) exist here but are NOT COMMITTED — they will NOT travel:' % (BAD, len(untracked)))
         for f in untracked[:12]:
