@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room 8 LCD: HL9 O2-A PSA Electronic Sign-up Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-page: #f0f2f5;
+        --bg-surface: #ffffff;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f8fafc;
+
+        --border-card: #d5dbe3;
+        --border-subtle: #e5e9f0;
+        --border-highlight: #ed786a;
+
+        --text-main: #1e2530;
+        --text-heading: #181f2b;
+        --text-muted: #475569;
+        --text-dim: #64748b;
+
+        --coral: #ed786a;
+        --coral-hover: #fd887a;
+        --coral-dark: #d65b4c;
+        --coral-bg: #fff1f0;
+        --coral-border: #fecdd3;
+
+        --blue: #1d4ed8;
+        --blue-bg: #eff6ff;
+        --blue-border: #bfdbfe;
+
+        --emerald: #15803d;
+        --emerald-bg: #dcfce7;
+        --emerald-border: #86efac;
+
+        --amber: #b45309;
+        --amber-bg: #fef3c7;
+        --amber-border: #fde68a;
+
+        --purple: #6d28d9;
+        --purple-bg: #f5f3ff;
+        --purple-border: #ddd6fe;
+
+        --font-heading: 'Arvo', Georgia, serif;
+        --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        user-select: none;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 10px 14px;
+    }
+
+    /* Masthead */
+    .masthead {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-card);
+        border-radius: 10px;
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-bottom: 2px solid var(--border-subtle);
+        box-shadow: inset 0 -3px 0 0 #ffffff, inset 0 -5px 0 0 var(--border-card), 0 2px 8px rgba(0,0,0,0.04);
+        flex-shrink: 0;
+    }
+
+    .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .badge-room {
+        background: var(--coral);
+        color: #ffffff;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        padding: 4px 10px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
+        white-space: nowrap;
+    }
+
+    .title-group h1 {
+        font-family: var(--font-heading);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+    }
+
+    .title-group p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-top: 2px;
+    }
+
+    .title-group p strong {
+        color: var(--amber);
+    }
+
+    /* Section Selector */
+    .section-selector {
+        display: flex;
+        align-items: center;
+        background: var(--bg-page);
+        border: 1.5px solid var(--border-card);
+        border-radius: 8px;
+        padding: 3px;
+        gap: 4px;
+    }
+
+    .sec-btn {
+        background: transparent;
+        border: none;
+        padding: 5px 14px;
+        border-radius: 6px;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .sec-btn:hover {
+        color: var(--text-main);
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .sec-btn.active {
+        background: var(--text-heading);
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Telemetry Counters */
+    .telemetry-strip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-main);
+        white-space: nowrap;
+    }
+
+    .stat-chip .val {
+        font-family: var(--font-mono);
+        color: var(--blue);
+        font-size: 0.9rem;
+    }
+
+    .stat-chip.alert .val {
+        color: var(--coral-dark);
+    }
+
+    /* Top Action Buttons */
+    .btn-action {
+        background: var(--coral);
+        color: #ffffff;
+        border: 1.5px solid var(--coral-dark);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 6px rgba(237, 120, 106, 0.25);
+        white-space: nowrap;
+    }
+
+    .btn-action:hover {
+        background: var(--coral-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: #ffffff;
+        color: var(--text-main);
+        border: 1.5px solid var(--border-card);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-page);
+        border-color: var(--text-muted);
+    }
+
+    /* Board Columns Layout */
+    .board-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 8px;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .wall-col {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-card);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .wall-header {
+        padding: 6px 10px;
+        background: #f8fafc;
+        border-bottom: 2px solid var(--border-card);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .wall-title {
+        font-family: var(--font-heading);
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .wall-tag {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: var(--border-subtle);
+        color: var(--text-muted);
+    }
+
+    .wall-stat {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-dim);
+    }
+
+    /* 20 Rows Grid Inside Each Column */
+    .wall-rows {
+        display: grid;
+        grid-template-rows: repeat(20, 1fr);
+        flex: 1 1 auto;
+        min-height: 0;
+        gap: 1px;
+        background: var(--border-subtle);
+    }
+
+    .claim-row {
+        background: var(--bg-surface);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8px;
+        gap: 8px;
+        font-size: 0.74rem;
+        cursor: pointer;
+        transition: background 0.12s ease;
+        line-height: 1.15;
+    }
+
+    .claim-row:hover {
+        background: #f1f5f9;
+    }
+
+    .claim-row.is-full {
+        background: #f8fafc;
+    }
+
+    .claim-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .claim-num {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--text-dim);
+        width: 22px;
+        flex-shrink: 0;
+    }
+
+    .verdict-chip {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 800;
+        padding: 2px 4px;
+        border-radius: 3px;
+        letter-spacing: 0.03em;
+        width: 58px;
+        text-align: center;
+        flex-shrink: 0;
+        border: 1px solid transparent;
+    }
+
+    .verdict-chip.TRUE {
+        background: var(--emerald-bg);
+        color: var(--emerald);
+        border-color: var(--emerald-border);
+    }
+
+    .verdict-chip.FALSE {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+
+    .verdict-chip.DEPENDS {
+        background: var(--amber-bg);
+        color: var(--amber);
+        border-color: var(--amber-border);
+        font-weight: 900;
+    }
+
+    .claim-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 0.73rem;
+    }
+
+    .claim-row.is-full .claim-text {
+        color: var(--text-muted);
+    }
+
+    /* Slots Pill */
+    .slots-cluster {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+    }
+
+    .slot-pip {
+        width: 17px;
+        height: 17px;
+        border-radius: 4px;
+        border: 1.5px dashed #cbd5e1;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 800;
+        color: #94a3b8;
+        transition: all 0.15s ease;
+    }
+
+    .slot-pip.filled {
+        border: 1.5px solid var(--blue);
+        background: var(--blue-bg);
+        color: var(--blue);
+    }
+
+    .slot-pip.filled.p-amber {
+        border-color: var(--amber);
+        background: var(--amber-bg);
+        color: var(--amber);
+    }
+
+    .slot-pip.filled.p-purple {
+        border-color: var(--purple);
+        background: var(--purple-bg);
+        color: var(--purple);
+    }
+
+    .slot-pip.filled.p-coral {
+        border-color: var(--coral-dark);
+        background: var(--coral-bg);
+        color: var(--coral-dark);
+    }
+
+    .badge-full {
+        background: #0f172a;
+        color: #ffffff;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 800;
+        padding: 2px 5px;
+        border-radius: 3px;
+        letter-spacing: 0.05em;
+    }
+
+    /* Bottom Status Strip */
+    .status-strip {
+        margin-top: 6px;
+        background: var(--bg-surface);
+        border: 1.5px solid var(--border-card);
+        border-radius: 6px;
+        padding: 4px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    .status-strip .keys {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--text-dim);
+    }
+
+    .status-strip kbd {
+        background: var(--bg-page);
+        border: 1px solid #cbd5e1;
+        padding: 1px 4px;
+        border-radius: 3px;
+        color: var(--text-main);
+    }
+
+    /* Modals & Popovers */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(2px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+    }
+
+    .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-card {
+        background: #ffffff;
+        border: 2px solid var(--text-heading);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 680px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        animation: popUp 0.18s ease-out;
+    }
+
+    @keyframes popUp {
+        from { transform: scale(0.96); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-head {
+        padding: 12px 18px;
+        background: #f8fafc;
+        border-bottom: 2px solid var(--border-card);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-head h2 {
+        font-family: var(--font-heading);
+        font-size: 1.15rem;
+        color: var(--text-heading);
+    }
+
+    .btn-close {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--text-muted);
+        line-height: 1;
+        padding: 4px;
+    }
+
+    .btn-close:hover {
+        color: var(--text-heading);
+    }
+
+    .modal-body {
+        padding: 18px 20px;
+        overflow-y: auto;
+        font-size: 0.9rem;
+    }
+
+    .modal-foot {
+        padding: 12px 18px;
+        background: #f8fafc;
+        border-top: 1.5px solid var(--border-card);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 5px;
+        color: var(--text-heading);
+    }
+
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    input[type="text"], select {
+        width: 100%;
+        padding: 8px 10px;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        border: 1.5px solid var(--border-card);
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--text-main);
+        outline: none;
+    }
+
+    input[type="text"]:focus, select:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+    }
+
+    .validation-box {
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin: 14px 0;
+        font-size: 0.84rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .validation-box.warn {
+        background: var(--amber-bg);
+        border: 1.5px solid var(--amber-border);
+        color: var(--amber);
+    }
+
+    .validation-box.ok {
+        background: var(--emerald-bg);
+        border: 1.5px solid var(--emerald-border);
+        color: var(--emerald);
+    }
+
+    .validation-box.error {
+        background: var(--coral-bg);
+        border: 1.5px solid var(--coral-border);
+        color: var(--coral-dark);
+    }
+
+    /* Ledger Table */
+    .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+    }
+
+    .ledger-table th, .ledger-table td {
+        border: 1px solid var(--border-card);
+        padding: 6px 8px;
+        text-align: left;
+    }
+
+    .ledger-table th {
+        background: #f1f5f9;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--text-heading);
+    }
+
+    .ledger-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .btn-delete {
+        background: var(--coral-bg);
+        color: var(--coral-dark);
+        border: 1px solid var(--coral-border);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: var(--coral);
+        color: #ffffff;
+    }
+
+    /* Tooltip */
+    .claim-tooltip {
+        position: fixed;
+        background: #0f172a;
+        color: #ffffff;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        max-width: 380px;
+        pointer-events: none;
+        z-index: 200;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        display: none;
+        line-height: 1.3;
+    }
+
+    .claim-tooltip .tt-head {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    .claim-tooltip .tt-pairs {
+        margin-top: 6px;
+        padding-top: 5px;
+        border-top: 1px solid #334155;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: #38bdf8;
+    }
+
+    @media (max-height: 750px) {
+        html, body {
+            overflow: auto;
+            height: auto;
+        }
+        .board-container {
+            min-height: 720px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="masthead">
+    <div class="brand-block">
+        <span class="badge-room">ROOM 8</span>
+        <div class="title-group">
+            <h1>HL9 O2-A: Sixty Verdicts PSA Sign-up Board</h1>
+            <p>Select 3 facts per pair · <strong>Minimum 1 DEPENDS verdict</strong> · Capacity: Max 4 pairs per claim</p>
+        </div>
+    </div>
+
+    <!-- Section Switcher -->
+    <div class="section-selector" id="sectionSelector">
+        <button class="sec-btn" data-sec="901-HL" onclick="switchSection('901-HL')">901-HL</button>
+        <button class="sec-btn active" data-sec="902-HL" onclick="switchSection('902-HL')">902-HL</button>
+        <button class="sec-btn" data-sec="903-HL" onclick="switchSection('903-HL')">903-HL</button>
+    </div>
+
+    <!-- Telemetry Stats -->
+    <div class="telemetry-strip">
+        <div class="stat-chip">
+            <span>Pairs:</span>
+            <span class="val" id="telemetryPairs">0</span>
+        </div>
+        <div class="stat-chip">
+            <span>Claims Used:</span>
+            <span class="val" id="telemetryUsed">0 / 60</span>
+        </div>
+        <div class="stat-chip alert">
+            <span>Capped (4/4):</span>
+            <span class="val" id="telemetryFull">0</span>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button class="btn-action" onclick="openRegisterModal()">
+            <span>+</span> Sign Up Pair
+        </button>
+        <button class="btn-secondary" onclick="openLedgerModal()">
+            📋 Pairs Ledger
+        </button>
+        <button class="btn-secondary" onclick="openDataModal()">
+            ⚙ Data / Export
+        </button>
+        <button class="btn-secondary" onclick="toggleFullscreen()" title="Toggle Fullscreen (F)">
+            ⛶
+        </button>
+    </div>
+</header>
+
+<!-- Main Board (3 Columns for 3 Walls, 20 Rows each) -->
+<main class="board-container" id="boardContainer">
+    <!-- Walk 1 Column -->
+    <section class="wall-col" id="colWalk1">
+        <div class="wall-header">
+            <div class="wall-title">
+                <span class="wall-tag">WALK 1</span>
+                <span>Myth Trials</span>
+            </div>
+            <div class="wall-stat" id="statWalk1">0/20 in use · 0 full</div>
+        </div>
+        <div class="wall-rows" id="rowsWalk1"></div>
+    </section>
+
+    <!-- Walk 2 Column -->
+    <section class="wall-col" id="colWalk2">
+        <div class="wall-header">
+            <div class="wall-title">
+                <span class="wall-tag">WALK 2</span>
+                <span>Nobody Told Me</span>
+            </div>
+            <div class="wall-stat" id="statWalk2">0/20 in use · 0 full</div>
+        </div>
+        <div class="wall-rows" id="rowsWalk2"></div>
+    </section>
+
+    <!-- Walk 3 Column -->
+    <section class="wall-col" id="colWalk3">
+        <div class="wall-header">
+            <div class="wall-title">
+                <span class="wall-tag">WALK 3</span>
+                <span>The Fine Print</span>
+            </div>
+            <div class="wall-stat" id="statWalk3">0/20 in use · 0 full</div>
+        </div>
+        <div class="wall-rows" id="rowsWalk3"></div>
+    </section>
+</main>
+
+<!-- Bottom Status Strip -->
+<footer class="status-strip">
+    <div>
+        <strong>Classroom Protocol:</strong> Sign up in pairs before starting Google Slides or Canva. Every slot locks at exactly 4 pairs.
+    </div>
+    <div class="keys">
+        Shortcuts: <kbd>N</kbd> New Pair &nbsp;|&nbsp; <kbd>L</kbd> Ledger &nbsp;|&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Section &nbsp;|&nbsp; <kbd>F</kbd> Fullscreen
+    </div>
+</footer>
+
+<!-- Tooltip Container -->
+<div class="claim-tooltip" id="claimTooltip">
+    <div class="tt-head" id="ttHead">Walk 1 · Card #01</div>
+    <div id="ttBody">Statement text here</div>
+    <div class="tt-pairs" id="ttPairs">Slots open: 4 / 4</div>
+</div>
+
+<!-- MODAL 1: Register Pair -->
+<div class="modal-overlay" id="registerModal">
+    <div class="modal-card">
+        <div class="modal-head">
+            <h2>Sign Up Student Pair (<span id="modalSecTitle">902-HL</span>)</h2>
+            <button class="btn-close" onclick="closeModal('registerModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Pair Members</label>
+                <div class="form-row-2">
+                    <div>
+                        <input type="text" id="inputStudent1" placeholder="Student 1 Name" list="rosterList1" oninput="updatePairValidation()">
+                        <datalist id="rosterList1"></datalist>
+                    </div>
+                    <div>
+                        <input type="text" id="inputStudent2" placeholder="Student 2 Name (or leave blank if solo)" list="rosterList2" oninput="updatePairValidation()">
+                        <datalist id="rosterList2"></datalist>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Selected Claims (3 required · must include at least 1 DEPENDS)</label>
+                
+                <div style="margin-bottom:8px;">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 1:</span>
+                    <select id="selectClaim1" onchange="updatePairValidation()">
+                        <option value="">-- Choose first claim --</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 2:</span>
+                    <select id="selectClaim2" onchange="updatePairValidation()">
+                        <option value="">-- Choose second claim --</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); font-family:var(--font-mono);">CLAIM 3:</span>
+                    <select id="selectClaim3" onchange="updatePairValidation()">
+                        <option value="">-- Choose third claim --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="validation-box warn" id="pairValidationBox">
+                <span>⚠️ Select both students and all 3 claims to proceed.</span>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
+            <button class="btn-action" id="btnSubmitPair" onclick="submitPairSignup()" disabled>Confirm Pair Sign-up</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: Pairs Ledger -->
+<div class="modal-overlay" id="ledgerModal">
+    <div class="modal-card" style="max-width:850px;">
+        <div class="modal-head">
+            <h2>Registered Pairs Ledger (<span id="ledgerSecTitle">902-HL</span>)</h2>
+            <button class="btn-close" onclick="closeModal('ledgerModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-size:0.85rem; color:var(--text-muted);" id="ledgerSummaryText">0 pairs currently registered</span>
+                <button class="btn-secondary" style="font-size:0.76rem;" onclick="copyLedgerText()">📋 Copy Plain Text List</button>
+            </div>
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">Pair #</th>
+                        <th style="width:160px;">Students</th>
+                        <th>Claim 1</th>
+                        <th>Claim 2</th>
+                        <th>Claim 3</th>
+                        <th style="width:70px;">DEPENDS?</th>
+                        <th style="width:60px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-secondary" onclick="closeModal('ledgerModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 3: Data / Export -->
+<div class="modal-overlay" id="dataModal">
+    <div class="modal-card">
+        <div class="modal-head">
+            <h2>Data Backup and Export Options</h2>
+            <button class="btn-close" onclick="closeModal('dataModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:12px; font-size:0.85rem; color:var(--text-muted);">
+                Sign-up selections are stored automatically in this browser. Use these options to back up or transfer data to another computer.
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-secondary" style="justify-content:flex-start; padding:10px 14px;" onclick="exportJsonFile()">
+                    💾 Download JSON Backup for All Sections
+                </button>
+                <button class="btn-secondary" style="justify-content:flex-start; padding:10px 14px;" onclick="document.getElementById('importFileInput').click()">
+                    📂 Import JSON Backup File
+                </button>
+                <input type="file" id="importFileInput" style="display:none;" accept=".json" onchange="importJsonFile(event)">
+                
+                <hr style="border:none; border-top:1px solid var(--border-subtle); margin:6px 0;">
+
+                <button class="btn-secondary" style="justify-content:flex-start; padding:10px 14px;" onclick="copyGoogleClassroomReport()">
+                    📄 Copy Classroom Summary Report (<span id="exportSecSpan">902-HL</span>)
+                </button>
+
+                <hr style="border:none; border-top:1px solid var(--border-subtle); margin:6px 0;">
+
+                <button class="btn-delete" style="padding:10px 14px; text-align:left;" onclick="clearCurrentSection()">
+                    ⚠️ Clear All Sign-ups for Current Section
+                </button>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-secondary" onclick="closeModal('dataModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Optional Roster Data Script for Student Auto-Complete -->
+<script src="../Student_System/students_roster_data.js"></script>
+
+<script>
+/* ========================================================================
+   1. DATA DEFINITIONS (60 Claims from Compendium)
+   ======================================================================== */
+const CLAIMS_DATA = [
+    // Walk 1: Myth Trials
+    { id: "w1_01", walk: 1, walkName: "Myth Trials", num: 1, numStr: "01", text: "You can usually tell if someone has an STI by looking at them.", verdict: "FALSE" },
+    { id: "w1_02", walk: 1, walkName: "Myth Trials", num: 2, numStr: "02", text: "It's nearly impossible to get pregnant during your period.", verdict: "DEPENDS" },
+    { id: "w1_03", walk: 1, walkName: "Myth Trials", num: 3, numStr: "03", text: "You can pick up an STI from a toilet seat.", verdict: "FALSE" },
+    { id: "w1_04", walk: 1, walkName: "Myth Trials", num: 4, numStr: "04", text: "You can't get pregnant if they pull out before they finish.", verdict: "FALSE" },
+    { id: "w1_05", walk: 1, walkName: "Myth Trials", num: 5, numStr: "05", text: "Condoms are 98% effective at preventing pregnancy.", verdict: "DEPENDS" },
+    { id: "w1_06", walk: 1, walkName: "Myth Trials", num: 6, numStr: "06", text: "If your partner freezes and doesn't say no, that's still consent.", verdict: "FALSE" },
+    { id: "w1_07", walk: 1, walkName: "Myth Trials", num: 7, numStr: "07", text: "You can get an STI from oral sex.", verdict: "TRUE" },
+    { id: "w1_08", walk: 1, walkName: "Myth Trials", num: 8, numStr: "08", text: "Wearing two condoms at once gives you extra protection.", verdict: "FALSE" },
+    { id: "w1_09", walk: 1, walkName: "Myth Trials", num: 9, numStr: "09", text: "The birth control pill protects you from STIs.", verdict: "FALSE" },
+    { id: "w1_10", walk: 1, walkName: "Myth Trials", num: 10, numStr: "10", text: "Birth control makes you gain weight.", verdict: "DEPENDS" },
+    { id: "w1_11", walk: 1, walkName: "Myth Trials", num: 11, numStr: "11", text: "If you're under 16, you need your parents' permission to get tested for an STI in Nova Scotia.", verdict: "FALSE" },
+    { id: "w1_12", walk: 1, walkName: "Myth Trials", num: 12, numStr: "12", text: "If you're both in a committed, monogamous relationship, there's no reason to get tested.", verdict: "FALSE" },
+    { id: "w1_13", walk: 1, walkName: "Myth Trials", num: 13, numStr: "13", text: "If someone was tested a month ago and was clear, you don't need to worry.", verdict: "DEPENDS" },
+    { id: "w1_14", walk: 1, walkName: "Myth Trials", num: 14, numStr: "14", text: "There is a vaccine for some STIs.", verdict: "TRUE" },
+    { id: "w1_15", walk: 1, walkName: "Myth Trials", num: 15, numStr: "15", text: "Nova Scotia has the 3rd highest rate of sexual exploitation in Canada.", verdict: "FALSE" },
+    { id: "w1_16", walk: 1, walkName: "Myth Trials", num: 16, numStr: "16", text: "If the morning-after pill doesn't work within a few hours, it's not going to work at all.", verdict: "DEPENDS" },
+    { id: "w1_17", walk: 1, walkName: "Myth Trials", num: 17, numStr: "17", text: "Sexual assaults usually happen when a stranger attacks someone walking alone at night.", verdict: "FALSE" },
+    { id: "w1_18", walk: 1, walkName: "Myth Trials", num: 18, numStr: "18", text: "Antibiotics can cure chlamydia and gonorrhea.", verdict: "TRUE" },
+    { id: "w1_19", walk: 1, walkName: "Myth Trials", num: 19, numStr: "19", text: "HIV usually results in death by AIDS.", verdict: "FALSE" },
+    { id: "w1_20", walk: 1, walkName: "Myth Trials", num: 20, numStr: "20", text: "Someone who is drunk can't give consent.", verdict: "FALSE" },
+
+    // Walk 2: Nobody Told Me
+    { id: "w2_01", walk: 2, walkName: "Nobody Told Me", num: 1, numStr: "01", text: "Clear or whitish fluid in underwear is normally just the body washing itself clean.", verdict: "TRUE" },
+    { id: "w2_02", walk: 2, walkName: "Nobody Told Me", num: 2, numStr: "02", text: "If you have a foreskin, you should just wash the outside like normal skin and leave it alone.", verdict: "DEPENDS" },
+    { id: "w2_03", walk: 2, walkName: "Nobody Told Me", num: 3, numStr: "03", text: "The parts of female anatomy you can see from the outside are the vagina.", verdict: "FALSE" },
+    { id: "w2_04", walk: 2, walkName: "Nobody Told Me", num: 4, numStr: "04", text: "Sudden, severe pain in a testicle is something you tough out and see if it settles.", verdict: "FALSE" },
+    { id: "w2_05", walk: 2, walkName: "Nobody Told Me", num: 5, numStr: "05", text: "A person can pee with a tampon in because urine exits from a completely separate opening.", verdict: "TRUE" },
+    { id: "w2_06", walk: 2, walkName: "Nobody Told Me", num: 6, numStr: "06", text: "Period pain bad enough to make you miss school is just something you push through.", verdict: "FALSE" },
+    { id: "w2_07", walk: 2, walkName: "Nobody Told Me", num: 7, numStr: "07", text: "Small bumps around the head of the penis mean you caught an infection.", verdict: "DEPENDS" },
+    { id: "w2_08", walk: 2, walkName: "Nobody Told Me", num: 8, numStr: "08", text: "As long as it isn't leaking, a tampon is fine to leave in all day.", verdict: "FALSE" },
+    { id: "w2_09", walk: 2, walkName: "Nobody Told Me", num: 9, numStr: "09", text: "It's completely normal for one testicle to hang lower than the other.", verdict: "TRUE" },
+    { id: "w2_10", walk: 2, walkName: "Nobody Told Me", num: 10, numStr: "10", text: "Soaking through a pad or tampon every hour for several hours is still a normal period.", verdict: "FALSE" },
+    { id: "w2_11", walk: 2, walkName: "Nobody Told Me", num: 11, numStr: "11", text: "If one breast is bigger than the other, that's worth getting checked.", verdict: "FALSE" },
+    { id: "w2_12", walk: 2, walkName: "Nobody Told Me", num: 12, numStr: "12", text: "Wet dreams are a normal part of puberty and mean nothing is wrong.", verdict: "TRUE" },
+    { id: "w2_13", walk: 2, walkName: "Nobody Told Me", num: 13, numStr: "13", text: "A period that skips a month or shows up at odd times means something's wrong.", verdict: "DEPENDS" },
+    { id: "w2_14", walk: 2, walkName: "Nobody Told Me", num: 14, numStr: "14", text: "Vulvas come in a huge range of shapes, sizes and colours, and every one of them is normal.", verdict: "TRUE" },
+    { id: "w2_15", walk: 2, walkName: "Nobody Told Me", num: 15, numStr: "15", text: "If the foreskin gets stuck behind the head and starts to swell, it's safe to wait a couple of days.", verdict: "FALSE" },
+    { id: "w2_16", walk: 2, walkName: "Nobody Told Me", num: 16, numStr: "16", text: "Someone having a period can just hold the flow in until they get to a bathroom, like peeing.", verdict: "FALSE" },
+    { id: "w2_17", walk: 2, walkName: "Nobody Told Me", num: 17, numStr: "17", text: "The clitoris and the penis are built from the exact same biological tissue blueprint.", verdict: "TRUE" },
+    { id: "w2_18", walk: 2, walkName: "Nobody Told Me", num: 18, numStr: "18", text: "During puberty, erections can show up at random times for no reason at all.", verdict: "TRUE" },
+    { id: "w2_19", walk: 2, walkName: "Nobody Told Me", num: 19, numStr: "19", text: "Every female body has a solid skin seal over the vagina that breaks and bleeds the first time they have sex.", verdict: "FALSE" },
+    { id: "w2_20", walk: 2, walkName: "Nobody Told Me", num: 20, numStr: "20", text: "An adult erect penis has to be at least 6 inches long to be considered normal size.", verdict: "FALSE" },
+
+    // Walk 3: The Fine Print
+    { id: "w3_01", walk: 3, walkName: "The Fine Print", num: 1, numStr: "01", text: "Most people with chlamydia never notice a single symptom.", verdict: "TRUE" },
+    { id: "w3_02", walk: 3, walkName: "The Fine Print", num: 2, numStr: "02", text: "A sore that heals on its own means the infection healed too.", verdict: "FALSE" },
+    { id: "w3_03", walk: 3, walkName: "The Fine Print", num: 3, numStr: "03", text: "A cold sore can spread herpes somewhere other than a mouth, even when it's healed.", verdict: "TRUE" },
+    { id: "w3_04", walk: 3, walkName: "The Fine Print", num: 4, numStr: "04", text: "A razor that looks clean is safe to share with a housemate.", verdict: "DEPENDS" },
+    { id: "w3_05", walk: 3, walkName: "The Fine Print", num: 5, numStr: "05", text: "You're about to get intimate. You remember protection. Your partner pulls a condom from his wallet. You're good.", verdict: "FALSE" },
+    { id: "w3_06", walk: 3, walkName: "The Fine Print", num: 6, numStr: "06", text: "Most STI testing is a pee cup and a blood draw, not a swab “down there”.", verdict: "TRUE" },
+    { id: "w3_07", walk: 3, walkName: "The Fine Print", num: 7, numStr: "07", text: "HIV, the virus that can develop into AIDS, can pass from one person to another through any body fluid.", verdict: "DEPENDS" },
+    { id: "w3_08", walk: 3, walkName: "The Fine Print", num: 8, numStr: "08", text: "You have to ask for an STI test by name; it does not come included with a routine check-up.", verdict: "TRUE" },
+    { id: "w3_09", walk: 3, walkName: "The Fine Print", num: 9, numStr: "09", text: "Testicular cancer mostly happens to older men, generally over 40.", verdict: "FALSE" },
+    { id: "w3_10", walk: 3, walkName: "The Fine Print", num: 10, numStr: "10", text: "Chocolate gives you acne.", verdict: "FALSE" },
+    { id: "w3_11", walk: 3, walkName: "The Fine Print", num: 11, numStr: "11", text: "Peeing after sex lowers your chance of catching an STI.", verdict: "DEPENDS" },
+    { id: "w3_12", walk: 3, walkName: "The Fine Print", num: 12, numStr: "12", text: "Exercise can genuinely take the edge off period pain.", verdict: "TRUE" },
+    { id: "w3_13", walk: 3, walkName: "The Fine Print", num: 13, numStr: "13", text: "A vagina returns to its normal shape after sex, no matter how many partners a person has had.", verdict: "TRUE" },
+    { id: "w3_14", walk: 3, walkName: "The Fine Print", num: 14, numStr: "14", text: "The ache sometimes called “blue balls”, the pressure that builds when arousal doesn't end in ejaculation, means real damage has been done.", verdict: "FALSE" },
+    { id: "w3_15", walk: 3, walkName: "The Fine Print", num: 15, numStr: "15", text: "Sex usually hurts the first time.", verdict: "FALSE" },
+    { id: "w3_16", walk: 3, walkName: "The Fine Print", num: 16, numStr: "16", text: "Half of people have had sex by their 16th birthday.", verdict: "FALSE" },
+    { id: "w3_17", walk: 3, walkName: "The Fine Print", num: 17, numStr: "17", text: "American teens start sex younger than Dutch teens, which is why the US teen pregnancy rate is so much higher.", verdict: "FALSE" },
+    { id: "w3_18", walk: 3, walkName: "The Fine Print", num: 18, numStr: "18", text: "The Halifax Sexual Health Centre mainly just hands out condoms.", verdict: "FALSE" },
+    { id: "w3_19", walk: 3, walkName: "The Fine Print", num: 19, numStr: "19", text: "In Nova Scotia a 15-year-old can get birth control confidentially, without involving family.", verdict: "TRUE" },
+    { id: "w3_20", walk: 3, walkName: "The Fine Print", num: 20, numStr: "20", text: "A grade 10 student, 15, has a 20-year-old girlfriend at DAL. If anything sexual happens, she could get into legal trouble.", verdict: "DEPENDS" }
+];
+
+const MAX_PAIRS_PER_CLAIM = 4;
+let currentSection = "902-HL";
+
+// Storage Key Helper
+function getStorageKey(sec) {
+    return "hl9_o2a_psa_signups_" + sec;
+}
+
+// Load Signups for Section
+function loadSectionSignups(sec) {
+    try {
+        const raw = localStorage.getItem(getStorageKey(sec));
+        return raw ? JSON.parse(raw) : [];
+    } catch(e) {
+        console.error("Failed to load signups:", e);
+        return [];
+    }
+}
+
+// Save Signups for Section
+function saveSectionSignups(sec, list) {
+    try {
+        localStorage.setItem(getStorageKey(sec), JSON.stringify(list));
+    } catch(e) {
+        console.error("Failed to save signups:", e);
+    }
+}
+
+/* ========================================================================
+   2. RENDERING THE BOARD
+   ======================================================================== */
+function renderBoard() {
+    const signups = loadSectionSignups(currentSection);
+
+    // Calculate claim counts
+    const claimUsage = {};
+    CLAIMS_DATA.forEach(c => { claimUsage[c.id] = []; });
+
+    signups.forEach((pair, pairIdx) => {
+        (pair.claimIds || []).forEach(cid => {
+            if (claimUsage[cid]) {
+                claimUsage[cid].push({
+                    pairIndex: pairIdx + 1,
+                    students: pair.students,
+                    pairLabel: pair.students || ("Pair " + (pairIdx + 1))
+                });
+            }
+        });
+    });
+
+    let totalClaimsUsed = 0;
+    let totalCapped = 0;
+
+    // Render 3 Columns
+    [1, 2, 3].forEach(walkNum => {
+        const rowsContainer = document.getElementById("rowsWalk" + walkNum);
+        rowsContainer.innerHTML = "";
+        const walkClaims = CLAIMS_DATA.filter(c => c.walk === walkNum);
+        
+        let walkUsed = 0;
+        let walkFull = 0;
+
+        walkClaims.forEach(claim => {
+            const assigned = claimUsage[claim.id] || [];
+            const count = assigned.length;
+            const isFull = count >= MAX_PAIRS_PER_CLAIM;
+
+            if (count > 0) totalClaimsUsed++;
+            if (count > 0) walkUsed++;
+            if (isFull) {
+                totalCapped++;
+                walkFull++;
+            }
+
+            const row = document.createElement("div");
+            row.className = "claim-row" + (isFull ? " is-full" : "");
+            row.onclick = () => openClaimDetail(claim, assigned);
+            row.onmouseenter = (e) => showTooltip(e, claim, assigned);
+            row.onmouseleave = hideTooltip;
+
+            // Slots Cluster
+            let slotsHtml = "";
+            if (isFull) {
+                slotsHtml = `<span class="badge-full">4/4 FULL</span>`;
+            } else {
+                slotsHtml = `<div class="slots-cluster">`;
+                for (let i = 0; i < MAX_PAIRS_PER_CLAIM; i++) {
+                    if (i < count) {
+                        const pair = assigned[i];
+                        const colorClass = (pair.pairIndex % 4 === 1) ? "p-amber" : (pair.pairIndex % 4 === 2) ? "p-purple" : (pair.pairIndex % 4 === 3) ? "p-coral" : "";
+                        slotsHtml += `<span class="slot-pip filled ${colorClass}" title="${pair.pairLabel}">P${pair.pairIndex}</span>`;
+                    } else {
+                        slotsHtml += `<span class="slot-pip"></span>`;
+                    }
+                }
+                slotsHtml += `</div>`;
+            }
+
+            row.innerHTML = `
+                <div class="claim-left">
+                    <span class="claim-num">#${claim.numStr}</span>
+                    <span class="verdict-chip ${claim.verdict}">${claim.verdict}</span>
+                    <span class="claim-text" title="${escapeHtml(claim.text)}">${escapeHtml(claim.text)}</span>
+                </div>
+                ${slotsHtml}
+            `;
+
+            rowsContainer.appendChild(row);
+        });
+
+        // Update column header stats
+        document.getElementById("statWalk" + walkNum).textContent = `${walkUsed}/20 in use · ${walkFull} full`;
+    });
+
+    // Update Telemetry Header
+    document.getElementById("telemetryPairs").textContent = signups.length;
+    document.getElementById("telemetryUsed").textContent = `${totalClaimsUsed} / 60`;
+    document.getElementById("telemetryFull").textContent = totalCapped;
+}
+
+/* ========================================================================
+   3. SECTION SWITCHING
+   ======================================================================== */
+function switchSection(sec) {
+    currentSection = sec;
+    document.querySelectorAll(".sec-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-sec") === sec);
+    });
+    document.getElementById("modalSecTitle").textContent = sec;
+    document.getElementById("ledgerSecTitle").textContent = sec;
+    document.getElementById("exportSecSpan").textContent = sec;
+
+    populateRosterLists();
+    renderBoard();
+}
+
+/* ========================================================================
+   4. ROSTER INTEGRATION
+   ======================================================================== */
+function populateRosterLists() {
+    const list1 = document.getElementById("rosterList1");
+    const list2 = document.getElementById("rosterList2");
+    list1.innerHTML = "";
+    list2.innerHTML = "";
+
+    if (window.MASTER_ROSTER_DATA && Array.isArray(window.MASTER_ROSTER_DATA)) {
+        // Derive homeroom number from section (e.g. 902 from 902-HL)
+        const hr = currentSection.split("-")[0];
+        const sectionStudents = window.MASTER_ROSTER_DATA.filter(s => s.homeroom === hr);
+
+        sectionStudents.forEach(st => {
+            const formatted = `${st.first_name} ${st.last_name}`;
+            const opt1 = document.createElement("option");
+            opt1.value = formatted;
+            list1.appendChild(opt1);
+
+            const opt2 = document.createElement("option");
+            opt2.value = formatted;
+            list2.appendChild(opt2);
+        });
+    }
+}
+
+/* ========================================================================
+   5. REGISTER PAIR MODAL LOGIC
+   ======================================================================== */
+function openRegisterModal(preselectClaimId) {
+    document.getElementById("inputStudent1").value = "";
+    document.getElementById("inputStudent2").value = "";
+
+    const signups = loadSectionSignups(currentSection);
+
+    // Compute live claim counts
+    const claimUsage = {};
+    CLAIMS_DATA.forEach(c => { claimUsage[c.id] = 0; });
+    signups.forEach(p => {
+        (p.claimIds || []).forEach(cid => {
+            if (claimUsage[cid] !== undefined) claimUsage[cid]++;
+        });
+    });
+
+    // Populate Claim Selects
+    ["selectClaim1", "selectClaim2", "selectClaim3"].forEach((selectId, idx) => {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">-- Choose Claim ${idx + 1} --</option>`;
+
+        [1, 2, 3].forEach(w => {
+            const grp = document.createElement("optgroup");
+            grp.label = w === 1 ? "Walk 1: Myth Trials" : w === 2 ? "Walk 2: Nobody Told Me" : "Walk 3: The Fine Print";
+
+            CLAIMS_DATA.filter(c => c.walk === w).forEach(c => {
+                const count = claimUsage[c.id] || 0;
+                const isFull = count >= MAX_PAIRS_PER_CLAIM;
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.textContent = `[#${c.numStr} ${c.verdict}] ${c.text.substring(0, 52)}... (${count}/${MAX_PAIRS_PER_CLAIM}${isFull ? " FULL" : ""})`;
+                if (isFull) {
+                    opt.disabled = true;
+                }
+                grp.appendChild(opt);
+            });
+            select.appendChild(grp);
+        });
+
+        select.value = "";
+    });
+
+    if (preselectClaimId) {
+        document.getElementById("selectClaim1").value = preselectClaimId;
+    }
+
+    updatePairValidation();
+    openModal("registerModal");
+}
+
+function updatePairValidation() {
+    const s1 = document.getElementById("inputStudent1").value.trim();
+    const s2 = document.getElementById("inputStudent2").value.trim();
+    const c1 = document.getElementById("selectClaim1").value;
+    const c2 = document.getElementById("selectClaim2").value;
+    const c3 = document.getElementById("selectClaim3").value;
+
+    const vBox = document.getElementById("pairValidationBox");
+    const submitBtn = document.getElementById("btnSubmitPair");
+
+    if (!s1) {
+        vBox.className = "validation-box warn";
+        vBox.innerHTML = "<span>⚠️ Please enter Student 1 name.</span>";
+        submitBtn.disabled = true;
+        return;
+    }
+
+    const picks = [c1, c2, c3].filter(Boolean);
+
+    if (picks.length < 3) {
+        vBox.className = "validation-box warn";
+        vBox.innerHTML = `<span>⚠️ Selected ${picks.length} of 3 claims. All 3 must be selected.</span>`;
+        submitBtn.disabled = true;
+        return;
+    }
+
+    // Check duplicates
+    const unique = new Set(picks);
+    if (unique.size < 3) {
+        vBox.className = "validation-box error";
+        vBox.innerHTML = "<span>❌ You cannot select the same claim twice. Pick 3 distinct claims.</span>";
+        submitBtn.disabled = true;
+        return;
+    }
+
+    // Check DEPENDS requirement
+    const claimObjects = picks.map(id => CLAIMS_DATA.find(c => c.id === id));
+    const dependsPicks = claimObjects.filter(c => c && c.verdict === "DEPENDS");
+
+    if (dependsPicks.length === 0) {
+        vBox.className = "validation-box warn";
+        vBox.innerHTML = "<span>⚠️ Requirement missing: At least ONE of your 3 claims must have a DEPENDS verdict.</span>";
+        submitBtn.disabled = true;
+        return;
+    }
+
+    // All clear!
+    vBox.className = "validation-box ok";
+    const depStr = dependsPicks.map(d => `Walk ${d.walk} #${d.numStr}`).join(", ");
+    vBox.innerHTML = `<span>✅ All rules satisfied! Includes DEPENDS: <strong>${depStr}</strong>. Ready to register.</span>`;
+    submitBtn.disabled = false;
+}
+
+function submitPairSignup() {
+    const s1 = document.getElementById("inputStudent1").value.trim();
+    const s2 = document.getElementById("inputStudent2").value.trim();
+    const c1 = document.getElementById("selectClaim1").value;
+    const c2 = document.getElementById("selectClaim2").value;
+    const c3 = document.getElementById("selectClaim3").value;
+
+    if (!s1 || !c1 || !c2 || !c3) return;
+
+    const studentLabel = s2 ? `${s1} & ${s2}` : `${s1} (Solo)`;
+
+    const signups = loadSectionSignups(currentSection);
+
+    // Double check capacity
+    const claimUsage = {};
+    CLAIMS_DATA.forEach(c => { claimUsage[c.id] = 0; });
+    signups.forEach(p => {
+        (p.claimIds || []).forEach(cid => {
+            if (claimUsage[cid] !== undefined) claimUsage[cid]++;
+        });
+    });
+
+    for (let cid of [c1, c2, c3]) {
+        if (claimUsage[cid] >= MAX_PAIRS_PER_CLAIM) {
+            alert("One of the selected claims just reached full capacity (4/4). Please select an open claim.");
+            openRegisterModal();
+            return;
+        }
+    }
+
+    // Add new pair
+    signups.push({
+        id: "pair_" + Date.now(),
+        date: new Date().toISOString(),
+        students: studentLabel,
+        student1: s1,
+        student2: s2,
+        claimIds: [c1, c2, c3]
+    });
+
+    saveSectionSignups(currentSection, signups);
+    closeModal("registerModal");
+    renderBoard();
+}
+
+/* ========================================================================
+   6. PAIRS LEDGER MODAL
+   ======================================================================== */
+function openLedgerModal() {
+    const signups = loadSectionSignups(currentSection);
+    const tbody = document.getElementById("ledgerTableBody");
+    tbody.innerHTML = "";
+
+    document.getElementById("ledgerSummaryText").textContent = `${signups.length} pairs registered in ${currentSection}`;
+
+    if (signups.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">No pairs registered yet for ${currentSection}. Click "+ Sign Up Pair" to begin.</td></tr>`;
+    } else {
+        signups.forEach((pair, idx) => {
+            const tr = document.createElement("tr");
+
+            const claims = (pair.claimIds || []).map(cid => CLAIMS_DATA.find(c => c.id === cid));
+            const hasDepends = claims.some(c => c && c.verdict === "DEPENDS");
+
+            const claimCells = claims.map(c => {
+                if (!c) return "<td>-</td>";
+                return `<td><strong>W${c.walk} #${c.numStr}</strong> [${c.verdict}] <span style="color:var(--text-muted); font-size:0.75rem;">${escapeHtml(c.text.substring(0, 36))}...</span></td>`;
+            }).join("");
+
+            tr.innerHTML = `
+                <td style="font-family:var(--font-mono); font-weight:700;">#${idx + 1}</td>
+                <td><strong>${escapeHtml(pair.students)}</strong></td>
+                ${claimCells}
+                <td>${hasDepends ? '<span style="color:var(--emerald); font-weight:700;">✅ YES</span>' : '<span style="color:var(--coral-dark); font-weight:700;">❌ NO</span>'}</td>
+                <td><button class="btn-delete" onclick="deletePair('${pair.id}')">Remove</button></td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    openModal("ledgerModal");
+}
+
+function deletePair(pairId) {
+    if (!confirm("Are you sure you want to remove this pair's sign-up?")) return;
+    let signups = loadSectionSignups(currentSection);
+    signups = signups.filter(p => p.id !== pairId);
+    saveSectionSignups(currentSection, signups);
+    openLedgerModal();
+    renderBoard();
+}
+
+function copyLedgerText() {
+    const signups = loadSectionSignups(currentSection);
+    if (signups.length === 0) {
+        alert("No pairs registered to copy.");
+        return;
+    }
+
+    let text = `ROOM 8: HL9 O2-A PSA SIGN-UPS (${currentSection})\nDate: ${new Date().toLocaleDateString()}\n\n`;
+
+    signups.forEach((p, idx) => {
+        const claims = (p.claimIds || []).map(cid => {
+            const c = CLAIMS_DATA.find(item => item.id === cid);
+            return c ? `Walk ${c.walk} #${c.numStr} [${c.verdict}]: "${c.text}"` : cid;
+        });
+
+        text += `Pair ${idx + 1}: ${p.students}\n`;
+        text += `  • Fact A: ${claims[0] || 'N/A'}\n`;
+        text += `  • Fact B: ${claims[1] || 'N/A'}\n`;
+        text += `  • Fact C: ${claims[2] || 'N/A'}\n\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+        alert(`Copied ${signups.length} pairs to clipboard!`);
+    });
+}
+
+/* ========================================================================
+   7. CLAIM INSPECTOR / QUICK DETAIL
+   ======================================================================== */
+function openClaimDetail(claim, assigned) {
+    const count = assigned.length;
+    const isFull = count >= MAX_PAIRS_PER_CLAIM;
+
+    let msg = `Walk ${claim.walk}: ${claim.walkName}\nCard #${claim.numStr} [${claim.verdict}]\n\n"${claim.text}"\n\n`;
+    msg += `Assigned Pairs (${count}/${MAX_PAIRS_PER_CLAIM}):\n`;
+    if (count === 0) {
+        msg += "  (None currently assigned)\n";
+    } else {
+        assigned.forEach((p, i) => {
+            msg += `  ${i + 1}. ${p.pairLabel}\n`;
+        });
+    }
+
+    if (!isFull) {
+        if (confirm(msg + "\nWould you like to register a pair for this claim now?")) {
+            openRegisterModal(claim.id);
+        }
+    } else {
+        alert(msg + "\nThis claim is at full capacity (4 of 4 pairs).");
+    }
+}
+
+/* ========================================================================
+   8. DATA BACKUP AND EXPORT
+   ======================================================================== */
+function openDataModal() {
+    openModal("dataModal");
+}
+
+function exportJsonFile() {
+    const data = {
+        meta: "Room 8 HL9 O2-A Signups Export",
+        exportedAt: new Date().toISOString(),
+        sections: {
+            "901-HL": loadSectionSignups("901-HL"),
+            "902-HL": loadSectionSignups("902-HL"),
+            "903-HL": loadSectionSignups("903-HL")
+        }
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `HL9_O2A_Signups_Backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importJsonFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.sections) {
+                if (data.sections["901-HL"]) saveSectionSignups("901-HL", data.sections["901-HL"]);
+                if (data.sections["902-HL"]) saveSectionSignups("902-HL", data.sections["902-HL"]);
+                if (data.sections["903-HL"]) saveSectionSignups("903-HL", data.sections["903-HL"]);
+                alert("Sign-up data successfully restored for all sections!");
+                closeModal("dataModal");
+                renderBoard();
+            } else {
+                alert("Invalid file format. Could not find sections data.");
+            }
+        } catch(err) {
+            alert("Error parsing JSON file: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function copyGoogleClassroomReport() {
+    const signups = loadSectionSignups(currentSection);
+    let md = `### HL9 O2-A PSA Sign-up Ledger: Section ${currentSection}\n\n`;
+    md += `*Maximum 4 pairs per claim. Every pair must complete at least 1 DEPENDS claim.*\n\n`;
+
+    if (signups.length === 0) {
+        md += `*No sign-ups recorded yet.*\n`;
+    } else {
+        md += `| Pair # | Students | Claim 1 | Claim 2 | Claim 3 |\n`;
+        md += `| :---: | :--- | :--- | :--- | :--- |\n`;
+        signups.forEach((p, idx) => {
+            const cList = (p.claimIds || []).map(cid => {
+                const c = CLAIMS_DATA.find(item => item.id === cid);
+                return c ? `W${c.walk} #${c.numStr} (${c.verdict})` : cid;
+            });
+            md += `| ${idx + 1} | ${p.students} | ${cList[0] || '-'} | ${cList[1] || '-'} | ${cList[2] || '-'} |\n`;
+        });
+    }
+
+    navigator.clipboard.writeText(md).then(() => {
+        alert("Classroom Markdown summary copied to clipboard!");
+    });
+}
+
+function clearCurrentSection() {
+    if (confirm(`WARNING: This will permanently delete all pair sign-ups for section ${currentSection}. Proceed?`)) {
+        saveSectionSignups(currentSection, []);
+        renderBoard();
+        closeModal("dataModal");
+    }
+}
+
+/* ========================================================================
+   9. TOOLTIP & FULLSCREEN HELPERS
+   ======================================================================== */
+const tooltip = document.getElementById("claimTooltip");
+const ttHead = document.getElementById("ttHead");
+const ttBody = document.getElementById("ttBody");
+const ttPairs = document.getElementById("ttPairs");
+
+function showTooltip(e, claim, assigned) {
+    ttHead.textContent = `Walk ${claim.walk}: ${claim.walkName} · Card #${claim.numStr} [${claim.verdict}]`;
+    ttBody.textContent = `"${claim.text}"`;
+
+    const count = assigned.length;
+    if (count >= MAX_PAIRS_PER_CLAIM) {
+        ttPairs.textContent = `Capacity: 4 / 4 FULL (No more pairs allowed)`;
+        ttPairs.style.color = "#f43f5e";
+    } else {
+        const pairsList = assigned.map(p => p.pairLabel).join(", ");
+        ttPairs.textContent = `Assigned (${count}/4): ${pairsList || "None yet"}`;
+        ttPairs.style.color = "#38bdf8";
+    }
+
+    tooltip.style.display = "block";
+    positionTooltip(e);
+}
+
+function positionTooltip(e) {
+    const x = e.clientX + 14;
+    const y = e.clientY + 14;
+    tooltip.style.left = Math.min(x, window.innerWidth - 400) + "px";
+    tooltip.style.top = Math.min(y, window.innerHeight - 150) + "px";
+}
+
+function hideTooltip() {
+    tooltip.style.display = "none";
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.add("open");
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error("Fullscreen error:", err);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
+function escapeHtml(text) {
+    return (text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/* ========================================================================
+   10. KEYBOARD SHORTCUTS
+   ======================================================================== */
+window.addEventListener("keydown", (e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") {
+        if (e.key === "Escape") {
+            closeModal("registerModal");
+            closeModal("ledgerModal");
+            closeModal("dataModal");
+        }
+        return;
+    }
+
+    if (e.key === "Escape") {
+        closeModal("registerModal");
+        closeModal("ledgerModal");
+        closeModal("dataModal");
+    } else if (e.key === "n" || e.key === "N" || e.key === "+") {
+        openRegisterModal();
+    } else if (e.key === "l" || e.key === "L") {
+        openLedgerModal();
+    } else if (e.key === "1") {
+        switchSection("901-HL");
+    } else if (e.key === "2") {
+        switchSection("902-HL");
+    } else if (e.key === "3") {
+        switchSection("903-HL");
+    } else if (e.key === "f" || e.key === "F") {
+        toggleFullscreen();
+    }
+});
+
+// Initialization
+window.addEventListener("DOMContentLoaded", () => {
+    // Check URL parameters for section (e.g. ?section=901-HL)
+    const params = new URLSearchParams(window.location.search);
+    const secParam = params.get("section");
+    if (secParam && ["901-HL", "902-HL", "903-HL"].includes(secParam)) {
+        currentSection = secParam;
+    }
+
+    switchSection(currentSection);
+});
+</script>
+
+</body>
+</html>
