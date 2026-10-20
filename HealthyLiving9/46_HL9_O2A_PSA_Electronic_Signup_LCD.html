@@ -799,7 +799,7 @@
         <span class="badge-room">ROOM 8</span>
         <div class="title-group">
             <h1>HL9 O2-A: Sixty Verdicts PSA Sign-up Board</h1>
-            <p>Solo (2 claims) · Pair (3 claims) · Trio (5 claims) · <strong>Minimum 1 DEPENDS</strong> · Capacity: Max 4 groups per claim</p>
+            <p>Solo (2 claims) · Pair (3 claims) · Trio (5 claims) · <strong>Minimum 1 DEPENDS</strong> · <span id="mastheadCapacity">Capacity: Max 4 groups per claim</span></p>
         </div>
     </div>
 
@@ -821,7 +821,7 @@
             <span class="val" id="telemetryUsed">0 / 60</span>
         </div>
         <div class="stat-chip alert">
-            <span>Capped (4/4):</span>
+            <span id="telemetryCapLabel">Locked (4/4):</span>
             <span class="val" id="telemetryFull">0</span>
         </div>
     </div>
@@ -885,7 +885,7 @@
 <!-- Bottom Status Strip -->
 <footer class="status-strip">
     <div>
-        <strong>Classroom Protocol:</strong> Solo groups complete 2 claims; Pairs complete 3 claims; Trios complete 5 claims. Every claim locks at exactly 4 groups.
+        <strong>Classroom Protocol:</strong> Solo groups complete 2 claims; Pairs complete 3 claims; Trios complete 5 claims. <span id="statusStripCapacity">Every claim locks at exactly 4 groups.</span>
     </div>
     <div class="keys">
         Shortcuts: <kbd>N</kbd> New Group &nbsp;|&nbsp; <kbd>L</kbd> Ledger &nbsp;|&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Section &nbsp;|&nbsp; <kbd>F</kbd> Fullscreen
@@ -1138,7 +1138,11 @@ const CLAIMS_DATA = [
     { id: "w3_20", walk: 3, walkName: "The Fine Print", num: 20, numStr: "20", text: "A grade 10 student, 15, has a 20-year-old girlfriend at DAL. If anything sexual happens, she could get into legal trouble.", verdict: "DEPENDS" }
 ];
 
-const MAX_PAIRS_PER_CLAIM = 4;
+// Capacity per claim: 4 for 901-HL, 2 for 902-HL and 903-HL
+function getMaxPairsPerClaim(sec) {
+    const s = sec || currentSection;
+    return s === "901-HL" ? 4 : 2;
+}
 let currentSection = "901-HL";
 let currentGroupSize = 2; // 1 = Solo (2 claims), 2 = Pair (3 claims), 3 = Trio (5 claims)
 let editingGroupId = null;
@@ -1241,6 +1245,7 @@ function saveSectionSignups(sec, list) {
    2. RENDERING THE BOARD
    ======================================================================== */
 function renderBoard() {
+    const maxCap = getMaxPairsPerClaim(currentSection);
     const signups = loadSectionSignups(currentSection);
 
     // Calculate claim counts
@@ -1276,7 +1281,7 @@ function renderBoard() {
         walkClaims.forEach(claim => {
             const assigned = claimUsage[claim.id] || [];
             const count = assigned.length;
-            const isFull = count >= MAX_PAIRS_PER_CLAIM;
+            const isFull = count >= maxCap;
 
             if (count > 0) totalClaimsUsed++;
             if (count > 0) walkUsed++;
@@ -1294,10 +1299,10 @@ function renderBoard() {
             // Slots Cluster
             let slotsHtml = "";
             if (isFull) {
-                slotsHtml = `<span class="badge-full">4/4 FULL</span>`;
+                slotsHtml = `<span class="badge-full">${count}/${maxCap} FULL</span>`;
             } else {
                 slotsHtml = `<div class="slots-cluster">`;
-                for (let i = 0; i < MAX_PAIRS_PER_CLAIM; i++) {
+                for (let i = 0; i < maxCap; i++) {
                     if (i < count) {
                         const grp = assigned[i];
                         const colorClass = (grp.groupType === "solo") ? "p-purple" : (grp.groupType === "trio") ? "p-amber" : (grp.groupIndex % 2 === 0 ? "p-coral" : "");
@@ -1343,6 +1348,20 @@ function switchSection(sec) {
     document.getElementById("modalSecTitle").textContent = sec;
     document.getElementById("ledgerSecTitle").textContent = sec;
     document.getElementById("exportSecSpan").textContent = sec;
+
+    const maxCap = getMaxPairsPerClaim(sec);
+    const mastheadCapacity = document.getElementById("mastheadCapacity");
+    if (mastheadCapacity) {
+        mastheadCapacity.textContent = `Capacity: Max ${maxCap} groups per claim`;
+    }
+    const statusStripCapacity = document.getElementById("statusStripCapacity");
+    if (statusStripCapacity) {
+        statusStripCapacity.textContent = `Every claim locks at exactly ${maxCap} groups.`;
+    }
+    const telemetryCapLabel = document.getElementById("telemetryCapLabel");
+    if (telemetryCapLabel) {
+        telemetryCapLabel.textContent = `Locked (${maxCap}/${maxCap}):`;
+    }
 
     populateRosterLists();
     renderBoard();
@@ -1442,6 +1461,8 @@ function openRegisterModal(preselectClaimId, editGroup) {
         });
     });
 
+    const maxCap = getMaxPairsPerClaim(currentSection);
+
     // Populate all 5 select dropdowns
     ["selectClaim1", "selectClaim2", "selectClaim3", "selectClaim4", "selectClaim5"].forEach((selectId, idx) => {
         const select = document.getElementById(selectId);
@@ -1453,10 +1474,10 @@ function openRegisterModal(preselectClaimId, editGroup) {
 
             CLAIMS_DATA.filter(c => c.walk === w).forEach(c => {
                 const count = claimUsage[c.id] || 0;
-                const isFull = count >= MAX_PAIRS_PER_CLAIM;
+                const isFull = count >= maxCap;
                 const opt = document.createElement("option");
                 opt.value = c.id;
-                opt.textContent = `[#${c.numStr} ${c.verdict}] ${c.text.substring(0, 52)}... (${count}/${MAX_PAIRS_PER_CLAIM}${isFull ? " FULL" : ""})`;
+                opt.textContent = `[#${c.numStr} ${c.verdict}] ${c.text.substring(0, 52)}... (${count}/${maxCap}${isFull ? " FULL" : ""})`;
                 if (isFull) {
                     opt.disabled = true;
                 }
@@ -1630,9 +1651,10 @@ function submitPairSignup() {
         });
     });
 
+    const maxCap = getMaxPairsPerClaim(currentSection);
     for (let cid of picks) {
-        if (claimUsage[cid] >= MAX_PAIRS_PER_CLAIM) {
-            alert("One of the selected claims just reached full capacity (4/4). Please select an open claim.");
+        if (claimUsage[cid] >= maxCap) {
+            alert(`One of the selected claims just reached full capacity (${maxCap}/${maxCap}). Please select an open claim.`);
             return;
         }
     }
@@ -1735,13 +1757,14 @@ function deletePair(pairId) {
 }
 
 function copyLedgerText() {
+    const maxCap = getMaxPairsPerClaim(currentSection);
     const signups = loadSectionSignups(currentSection);
     if (signups.length === 0) {
         alert("No groups registered to copy.");
         return;
     }
 
-    let text = `ROOM 8: HL9 O2-A PSA SIGN-UPS (${currentSection})\nDate: ${new Date().toLocaleDateString()}\nRules: Solo = 2 claims | Pair = 3 claims | Trio = 5 claims | Min 1 DEPENDS\n\n`;
+    let text = `ROOM 8: HL9 O2-A PSA SIGN-UPS (${currentSection})\nDate: ${new Date().toLocaleDateString()}\nRules: Max ${maxCap} per claim | Solo = 2 claims | Pair = 3 claims | Trio = 5 claims | Min 1 DEPENDS\n\n`;
 
     signups.forEach((p, idx) => {
         const typeLabel = p.type === "solo" ? "Solo" : p.type === "trio" ? "Trio" : "Pair";
@@ -1766,11 +1789,12 @@ function copyLedgerText() {
    7. CLAIM INSPECTOR / QUICK DETAIL
    ======================================================================== */
 function openClaimDetail(claim, assigned) {
+    const maxCap = getMaxPairsPerClaim(currentSection);
     const count = assigned.length;
-    const isFull = count >= MAX_PAIRS_PER_CLAIM;
+    const isFull = count >= maxCap;
 
     let msg = `Walk ${claim.walk}: ${claim.walkName}\nCard #${claim.numStr} [${claim.verdict}]\n\n"${claim.text}"\n\n`;
-    msg += `Assigned Groups (${count}/${MAX_PAIRS_PER_CLAIM}):\n`;
+    msg += `Assigned Groups (${count}/${maxCap}):\n`;
     if (count === 0) {
         msg += "  (None currently assigned)\n";
     } else {
@@ -1784,7 +1808,7 @@ function openClaimDetail(claim, assigned) {
             openRegisterModal(claim.id);
         }
     } else {
-        alert(msg + "\nThis claim is at full capacity (4 of 4 groups).");
+        alert(msg + `\nThis claim is at full capacity (${maxCap} of ${maxCap} groups).`);
     }
 }
 
@@ -1841,9 +1865,10 @@ function importJsonFile(event) {
 }
 
 function copyGoogleClassroomReport() {
+    const maxCap = getMaxPairsPerClaim(currentSection);
     const signups = loadSectionSignups(currentSection);
     let md = `### HL9 O2-A PSA Sign-up Ledger: Section ${currentSection}\n\n`;
-    md += `*Capacity: Max 4 groups per claim. Solo: 2 claims | Pair: 3 claims | Trio: 5 claims. Every group must complete at least 1 DEPENDS claim.*\n\n`;
+    md += `*Capacity: Max ${maxCap} groups per claim. Solo: 2 claims | Pair: 3 claims | Trio: 5 claims. Every group must complete at least 1 DEPENDS claim.*\n\n`;
 
     if (signups.length === 0) {
         md += `*No sign-ups recorded yet.*\n`;
@@ -1893,16 +1918,17 @@ const ttBody = document.getElementById("ttBody");
 const ttPairs = document.getElementById("ttPairs");
 
 function showTooltip(e, claim, assigned) {
+    const maxCap = getMaxPairsPerClaim(currentSection);
     ttHead.textContent = `Walk ${claim.walk}: ${claim.walkName} · Card #${claim.numStr} [${claim.verdict}]`;
     ttBody.textContent = `"${claim.text}"`;
 
     const count = assigned.length;
-    if (count >= MAX_PAIRS_PER_CLAIM) {
-        ttPairs.textContent = `Capacity: 4 / 4 FULL (No more groups allowed)`;
+    if (count >= maxCap) {
+        ttPairs.textContent = `Capacity: ${maxCap} / ${maxCap} FULL (No more groups allowed)`;
         ttPairs.style.color = "#f43f5e";
     } else {
         const pairsList = assigned.map(p => p.groupLabel).join(", ");
-        ttPairs.textContent = `Assigned (${count}/4): ${pairsList || "None yet"}`;
+        ttPairs.textContent = `Assigned (${count}/${maxCap}): ${pairsList || "None yet"}`;
         ttPairs.style.color = "#38bdf8";
     }
 
