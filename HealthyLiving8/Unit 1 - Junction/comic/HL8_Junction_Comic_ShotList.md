@@ -198,4 +198,4 @@ msedge --headless=new --no-sandbox --user-data-dir="$profile" `
 
 Then assert `len(PdfReader('out.pdf').pages) == 15`.
 
-> Note: two of the neighbouring exhibits in this unit — `HL8_Junction_Ex2_TippingPoint_A4.html` and `HL8_Junction_Quiz_Ex1_Ex2_A4.html` — each declare 2 sheets but print 3 pages, i.e. they have this same overflow problem. `Ex1_GroupChat` and `Ex3_HeavySecret` both print a correct 2 pages.
+> Note: `HL8_Junction_Ex2_TippingPoint_A4.html` still declares 2 sheets but prints 3 pages. Its cause is different from an overflow bug — sheet 1 is a ~340 mm prose story page, so it cannot be fixed by tightening spacing; the story has to be split or cut. `HL8_Junction_Review_Ex1_Ex2_A4.html` (formerly `HL8_Junction_Quiz_Ex1_Ex2_A4.html`, renamed 2026-10-20 now that the paper is a review) prints a correct 2 pages, as do `Ex1_GroupChat` and `Ex3_HeavySecret`.
