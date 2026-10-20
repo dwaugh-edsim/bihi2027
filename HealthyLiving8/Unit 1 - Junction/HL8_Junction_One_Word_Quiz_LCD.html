@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room 8 LCD : Junction Review Sprint : One-Word Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-page: #f0f2f5;
+        --bg-surface: #ffffff;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f8fafc;
+
+        --border-card: #d5dbe3;
+        --border-subtle: #e5e9f0;
+        --border-highlight: #ed786a;
+
+        --text-main: #1e2530;
+        --text-heading: #181f2b;
+        --text-muted: #475569;
+        --text-dim: #64748b;
+
+        --coral: #ed786a;
+        --coral-hover: #fd887a;
+        --coral-dark: #d65b4c;
+        --coral-bg: #fff1f0;
+        --coral-border: #fecdd3;
+
+        --blue: #1d4ed8;
+        --blue-bg: #eff6ff;
+        --blue-border: #bfdbfe;
+
+        --emerald: #15803d;
+        --emerald-bg: #dcfce7;
+        --emerald-border: #86efac;
+
+        --amber: #b45309;
+        --amber-bg: #fef3c7;
+        --amber-border: #fde68a;
+
+        --purple: #6d28d9;
+        --purple-bg: #f5f3ff;
+        --purple-border: #ddd6fe;
+
+        --font-heading: 'Arvo', Georgia, serif;
+        --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        user-select: none;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 16px 24px;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Black screen blackout mode (B key) */
+    body.blackout {
+        background-color: #000000 !important;
+    }
+
+    body.blackout * {
+        visibility: hidden !important;
+    }
+
+    /* Top Progress Bar Segment Strip */
+    .progress-strip {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .progress-seg {
+        height: 6px;
+        background: #cbd5e1;
+        border-radius: 3px;
+        transition: all 0.25s ease;
+    }
+
+    .progress-seg.active {
+        background: var(--coral);
+        box-shadow: 0 0 8px rgba(237, 120, 106, 0.6);
+    }
+
+    .progress-seg.completed {
+        background: var(--blue);
+    }
+
+    /* Header Bar */
+    header {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .badge-room {
+        background: var(--coral);
+        color: #ffffff;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: 0.82rem;
+        padding: 3px 10px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .badge-unit {
+        background: var(--blue-bg);
+        color: var(--blue);
+        border: 1px solid var(--blue-border);
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 3px 10px;
+        border-radius: 4px;
+    }
+
+    .header-title {
+        font-family: var(--font-heading);
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-heading);
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .counter-badge {
+        font-family: var(--font-mono);
+        font-size: 1.05rem;
+        font-weight: 800;
+        background: var(--bg-page);
+        color: var(--text-heading);
+        border: 1px solid var(--border-card);
+        padding: 4px 14px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+    }
+
+    .control-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .control-btn:hover {
+        border-color: var(--coral);
+        color: var(--coral-dark);
+        background: var(--bg-card-hover);
+    }
+
+    /* Main Slide Stage */
+    main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0;
+        position: relative;
+    }
+
+    .stage-card {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-card);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 1380px;
+        height: 100%;
+        max-height: 680px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 44px 56px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Double rule styling */
+    .stage-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--coral), var(--blue));
+    }
+
+    .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        animation: fadeInSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInSlide {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topic-pill {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 8px;
+        background: var(--coral-bg);
+        color: var(--coral-dark);
+        border: 1px solid var(--coral-border);
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 0.92rem;
+        padding: 5px 14px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 24px;
+    }
+
+    .q-number-kicker {
+        font-family: var(--font-mono);
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--blue);
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+
+    .q-text {
+        font-family: var(--font-heading);
+        font-size: 2.75rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        line-height: 1.35;
+        letter-spacing: -0.3px;
+        text-shadow: 0.03em 0.04em 0 rgba(0, 0, 0, 0.04);
+        max-width: 1220px;
+    }
+
+    .q-directive {
+        margin-top: 32px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        background: #f8fafc;
+        border: 1px solid var(--border-subtle);
+        padding: 8px 18px;
+        border-radius: 8px;
+        align-self: flex-start;
+    }
+
+    .q-directive strong {
+        color: var(--coral-dark);
+        font-family: var(--font-mono);
+    }
+
+    /* Intro & Outro Special Slides */
+    .intro-slide, .outro-slide {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+        gap: 16px;
+    }
+
+    .hero-kicker {
+        font-family: var(--font-mono);
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--coral);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .hero-title {
+        font-family: var(--font-heading);
+        font-size: 3.6rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        line-height: 1.2;
+    }
+
+    .hero-desc {
+        font-size: 1.4rem;
+        color: var(--text-muted);
+        max-width: 820px;
+        line-height: 1.45;
+    }
+
+    .hero-action {
+        margin-top: 24px;
+        background: var(--blue-bg);
+        border: 2px dashed var(--blue);
+        color: var(--blue);
+        padding: 12px 28px;
+        border-radius: 10px;
+        font-family: var(--font-mono);
+        font-size: 1.25rem;
+        font-weight: 800;
+        animation: pulseBorder 1.8s infinite alternate;
+    }
+
+    @keyframes pulseBorder {
+        from { transform: scale(1); box-shadow: 0 0 0 rgba(29, 78, 216, 0.1); }
+        to { transform: scale(1.02); box-shadow: 0 0 16px rgba(29, 78, 216, 0.25); }
+    }
+
+    /* Footer Toolbar */
+    footer {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 8px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .nav-hints {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    kbd {
+        background: var(--bg-page);
+        border: 1px solid var(--border-card);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        border-radius: 4px;
+        padding: 2px 7px;
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-heading);
+    }
+
+    .hint-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+</style>
+</head>
+<body>
+
+    <!-- Top Segmented Progress Bar -->
+    <div class="progress-strip" id="progressStrip">
+        <!-- 10 segments injected by JS -->
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-left">
+            <span class="badge-room">Room 8</span>
+            <span class="badge-unit">HL8 : Unit 1</span>
+            <span class="header-title">Junction Review Sprint : One-Word Quiz</span>
+        </div>
+        <div class="header-right">
+            <div class="counter-badge" id="slideIndicator">SLIDE 0 / 10</div>
+            <button class="control-btn" id="prevBtn" title="Previous Question (Left Arrow / Page Up)">
+                <span>&larr; Prev</span>
+            </button>
+            <button class="control-btn" id="nextBtn" title="Next Question (Right Arrow / Space / Clicker)">
+                <span>Next &rarr;</span>
+            </button>
+            <button class="control-btn" id="fullscreenBtn" title="Fullscreen (F)">
+                <span>Fullscreen</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Question Stage -->
+    <main id="mainStage">
+        <div class="stage-card">
+            <div class="slide-content" id="slideContent">
+                <!-- Dynamically rendered slide content -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Controls & Remote Shortcuts -->
+    <footer>
+        <div class="nav-hints">
+            <div class="hint-item"><kbd>Remote Click</kbd> <span>Next Question</span></div>
+            <div class="hint-item"><kbd>&rarr;</kbd> or <kbd>Space</kbd> <span>Advance</span></div>
+            <div class="hint-item"><kbd>&larr;</kbd> <span>Back</span></div>
+            <div class="hint-item"><kbd>1-0</kbd> <span>Jump Q1-Q10</span></div>
+            <div class="hint-item"><kbd>B</kbd> <span>Blackout Screen</span></div>
+            <div class="hint-item"><kbd>F</kbd> <span>Fullscreen</span></div>
+        </div>
+        <div class="nav-hints">
+            <span style="font-weight: 700; color: var(--coral-dark);">Strictly 1 word per answer &bull; Answers never shown on screen</span>
+        </div>
+    </footer>
+
+<script>
+// Quiz Question Data
+// Strictly zero emdashes in any string or directive.
+const QUESTIONS = [
+    {
+        num: 1,
+        topic: "Exhibit 1 : Brain Mechanics",
+        question: 'Which part of the brain acts like an automatic "smoke detector," triggering fast emotional reactions before you can think?',
+        directive: "Write exactly ONE word on Line 1"
+    },
+    {
+        num: 2,
+        topic: "Exhibit 1 : Brain Mechanics",
+        question: 'Which part of the brain acts like the "strategist," making calm, deliberate decisions but taking about 30 seconds to boot up?',
+        directive: "Write exactly ONE word on Line 2"
+    },
+    {
+        num: 3,
+        topic: "Exhibit 1 : Emergency Reflex",
+        question: "What automatic survival reflex causes your heart to pound, chest to tighten, and palms to sweat during a sudden alarm moment?",
+        directive: "Write exactly ONE word on Line 3"
+    },
+    {
+        num: 4,
+        topic: "Exhibit 1 : Calming Strategy",
+        question: "What calming technique uses a 30-second pause or the 5-4-3-2-1 sensory exercise to let your thinking brain take control?",
+        directive: "Write exactly ONE word on Line 4"
+    },
+    {
+        num: 5,
+        topic: "Exhibit 1 : The Group Chat Fire",
+        question: "Does posting an angry midnight text in Jayden's 40-person chat break the chain or feed the fire?",
+        directive: "Write exactly ONE word on Line 5"
+    },
+    {
+        num: 6,
+        topic: "Exhibit 2 : Stress Capacity",
+        question: "What term describes the moment when one final stressor lands on a student whose emotional capacity is already completely full?",
+        directive: "Write exactly ONE word on Line 6"
+    },
+    {
+        num: 7,
+        topic: "Exhibit 2 : Communication Styles",
+        question: "What communication style involves stating your limits clearly and calmly, standing up for yourself without attacking or staying silent? (Starts with A)",
+        directive: "Write exactly ONE word on Line 7"
+    },
+    {
+        num: 8,
+        topic: "Exhibit 2 : Communication Styles",
+        question: 'What communication style involves saying "sure, no problem," taking on everyone else's burden, and suffering quietly?',
+        directive: "Write exactly ONE word on Line 8"
+    },
+    {
+        num: 9,
+        topic: "Exhibit 2 : Emergency Triage",
+        question: "What emergency medical concept means ranking problems so you tackle the single most urgent fire first while letting others wait?",
+        directive: "Write exactly ONE word on Line 9"
+    },
+    {
+        num: 10,
+        topic: "Exhibit 3 : Heavy Secret & Safety",
+        question: "When a friend reveals a life-threatening plan, who must Sam always bring into the situation rather than going alone?",
+        directive: "Write exactly ONE word on Line 10"
+    }
+];
+
+// Current Slide Index:
+// 0 = Intro Slide
+// 1..10 = Questions 1..10
+// 11 = Outro / Finished Slide
+let currentIndex = 0;
+const totalSlides = QUESTIONS.length + 1; // 0 to 11
+
+// Build top progress segments
+const progressStrip = document.getElementById("progressStrip");
+for (let i = 1; i <= 10; i++) {
+    const seg = document.createElement("div");
+    seg.className = "progress-seg";
+    seg.id = `seg-${i}`;
+    progressStrip.appendChild(seg);
+}
+
+function updateProgress() {
+    for (let i = 1; i <= 10; i++) {
+        const seg = document.getElementById(`seg-${i}`);
+        seg.classList.remove("active", "completed");
+        if (i < currentIndex) {
+            seg.classList.add("completed");
+        } else if (i === currentIndex) {
+            seg.classList.add("active");
+        }
+    }
+}
+
+function renderSlide() {
+    const container = document.getElementById("slideContent");
+    const indicator = document.getElementById("slideIndicator");
+
+    if (currentIndex === 0) {
+        indicator.textContent = "READY TO START";
+        container.innerHTML = `
+            <div class="intro-slide">
+                <div class="hero-kicker">Room 8 &bull; Healthy Living 8</div>
+                <div class="hero-title">Junction Review Sprint</div>
+                <div class="hero-desc">10 Fast Questions &bull; One-Word Answers &bull; Write your answer on your slip as each question appears.</div>
+                <div class="hero-action">CLICK OR PRESS SPACE / REMOTE TO BEGIN QUESTION 1 &rarr;</div>
+            </div>
+        `;
+    } else if (currentIndex >= 1 && currentIndex <= 10) {
+        const q = QUESTIONS[currentIndex - 1];
+        indicator.textContent = `QUESTION ${currentIndex} OF 10`;
+        container.innerHTML = `
+            <div class="topic-pill">${q.topic}</div>
+            <div class="q-number-kicker">QUESTION ${q.num} OF 10</div>
+            <div class="q-text">${q.question}</div>
+            <div class="q-directive">
+                <span>Directives:</span>
+                <strong>${q.directive}</strong>
+            </div>
+        `;
+    } else {
+        indicator.textContent = "FINISHED";
+        container.innerHTML = `
+            <div class="outro-slide">
+                <div class="hero-kicker">Sprint Complete</div>
+                <div class="hero-title">All 10 Questions Finished</div>
+                <div class="hero-desc">Pencils down. Review your 10 one-word answers, write your name on your slip, and pass it to the collection bin.</div>
+                <div class="hero-action" style="border-color: var(--emerald); color: var(--emerald); background: var(--emerald-bg);">
+                    GREAT JOB CLASS 802
+                </div>
+            </div>
+        `;
+    }
+
+    updateProgress();
+}
+
+function nextSlide() {
+    if (currentIndex < 11) {
+        currentIndex++;
+        renderSlide();
+    }
+}
+
+function prevSlide() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderSlide();
+    }
+}
+
+function jumpTo(qNum) {
+    if (qNum >= 0 && qNum <= 11) {
+        currentIndex = qNum;
+        renderSlide();
+    }
+}
+
+// Click anywhere on main stage advances to next question (remote clicker behavior)
+document.getElementById("mainStage").addEventListener("click", () => {
+    nextSlide();
+});
+
+document.getElementById("nextBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    nextSlide();
+});
+
+document.getElementById("prevBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    prevSlide();
+});
+
+// Fullscreen
+document.getElementById("fullscreenBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+// Keyboard & Remote Control Handler
+window.addEventListener("keydown", (e) => {
+    // Standard PPT clicker and keyboard keys
+    switch (e.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+        case "PageDown":
+        case " ":
+        case "Enter":
+            e.preventDefault();
+            nextSlide();
+            break;
+
+        case "ArrowLeft":
+        case "ArrowUp":
+        case "PageUp":
+        case "Backspace":
+            e.preventDefault();
+            prevSlide();
+            break;
+
+        case "Home":
+            e.preventDefault();
+            jumpTo(0);
+            break;
+
+        case "End":
+            e.preventDefault();
+            jumpTo(11);
+            break;
+
+        case "b":
+        case "B":
+        case ".":
+            // PowerPoint standard blackout key
+            document.body.classList.toggle("blackout");
+            break;
+
+        case "f":
+        case "F":
+            document.getElementById("fullscreenBtn").click();
+            break;
+
+        // Number keys 1-9 and 0 (for Q10)
+        case "1": jumpTo(1); break;
+        case "2": jumpTo(2); break;
+        case "3": jumpTo(3); break;
+        case "4": jumpTo(4); break;
+        case "5": jumpTo(5); break;
+        case "6": jumpTo(6); break;
+        case "7": jumpTo(7); break;
+        case "8": jumpTo(8); break;
+        case "9": jumpTo(9); break;
+        case "0": jumpTo(10); break;
+    }
+});
+
+// Initial Render
+renderSlide();
+</script>
+</body>
+</html>
