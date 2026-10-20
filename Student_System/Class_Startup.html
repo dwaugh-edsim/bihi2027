@@ -15,6 +15,13 @@
   Daily system:
   - "Last class (date · #n)" comes from the section's newest Class_Log entry — log the
     class (tracker, Sheet app, or curl) and tomorrow's slide shows it automatically.
+  - Oct 20 2026: the seating popup's "✎ Edit Plan ↗" pointed at ../seating-plan-v2.html,
+    a file that has never existed in this repo — a 404 on the live site, so the button
+    read as dead. It now opens Seating_Editor.html (the chart that actually writes the
+    sp2_ keys this popup reads). Also: a standalone ES5 watchdog script now sits above
+    the main one, so a main script that dies before finishing init (data file didn't
+    load, browser too old for the syntax) says so on screen instead of leaving every
+    button silently dead.
   - Oct 16 2026: the ⚙ editor's "Today's class note" (or the `d` key) writes ONE dated
     Class_Log row for the section — upsert on date+section, `next` left empty so the
     agenda/plan is untouched. That kills the "stale weeks-old Last class line", and once
@@ -785,7 +792,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             <h2>Seating · <span id="seatClass" class="mono"></span></h2>
             <span class="src" id="seatSource"></span>
             <span class="spacer"></span>
-            <a href="../seating-plan-v2.html" target="_blank" class="tool-btn" style="text-decoration:none;margin-right:8px;" title="Open editable seating chart in new tab">✎ Edit Plan ↗</a>
+            <a href="Seating_Editor.html" target="_blank" class="tool-btn" style="text-decoration:none;margin-right:8px;" title="Open editable seating chart in new tab">✎ Edit Plan ↗</a>
             <button class="tool-btn" id="seatClose">✕ Close (Esc)</button>
         </div>
 
@@ -945,6 +952,84 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     <button id="staleHide" style="background:var(--bg-page);color:var(--text-muted);">Dismiss</button>
 </div>
 
+<script>
+/* Standalone watchdog — plain ES5, zero dependencies, parsed before everything
+   else on the page. Every other self-check (the stale-page banner, the BUILD_ID
+   poll) lives inside the main script below, so those die with it; this one has
+   to stand alone. When the main script never finishes starting (a data file
+   that failed to load, a screen whose browser is too old to parse the script,
+   any crash during init), the board looks normal but every button is dead —
+   this says what happened instead of leaving silence. */
+(function () {
+    window.__R8_BOARD_OK = false;
+    var bootErr = '';
+    window.addEventListener('error', function (e) {
+        if (window.__R8_BOARD_OK) return;
+        if (e && e.message) bootErr = String(e.message);
+    });
+    function say(msg) {
+        var w = document.getElementById('staleWarn');
+        if (!w) return;
+        var m = w.querySelector('.msg');
+        if (m) m.textContent = msg;
+        w.classList.add('show');
+        // The main script normally wires the banner's buttons; wire them here
+        // too, because when this banner fires for real the main script may be
+        // dead. Duplicate wiring is harmless: reload twice is one reload.
+        var r = document.getElementById('staleReload');
+        var h = document.getElementById('staleHide');
+        if (r && !r.getAttribute('data-watchdog')) {
+            r.setAttribute('data-watchdog', '1');
+            r.addEventListener('click', function () { location.reload(); });
+        }
+        if (h && !h.getAttribute('data-watchdog')) {
+            h.setAttribute('data-watchdog', '1');
+            h.addEventListener('click', function () {
+                var b = document.getElementById('staleWarn');
+                if (b) b.classList.remove('show');
+            });
+        }
+    }
+    function missingData() {
+        var miss = [];
+        if (!window.CLASS_LOG_MEETINGS || !window.CLASS_LOG_MEETINGS.sections) miss.push('meeting times');
+        if (!window.CLASS_LOG_LESSON_MAPS) miss.push('lesson maps');
+        if (!window.COURSE_ASSIGNMENTS) miss.push('assignments');
+        if (!window.DISPLAY_INSTRUCTIONS) miss.push('do-now instructions');
+        if (!window.CLASS_LOG_SEED) miss.push('seed data');
+        return miss;
+    }
+    function diagnose() {
+        var miss = missingData();
+        if (miss.length) {
+            say('⚠ The board\u2019s data files did not load (' + miss.join(', ') +
+                '); the screen can\u2019t show classes until they do. Check the network, then reload.');
+            return;
+        }
+        if (window.__R8_BOARD_OK) return;
+        if (bootErr) {
+            say('⚠ The board\u2019s script failed to start (' + bootErr +
+                '). Reload to retry; if it keeps failing, this screen\u2019s browser is too old for the board.');
+        } else {
+            say('⚠ The board did not finish starting. Reload to retry.');
+        }
+    }
+    function arm() {
+        var b = document.getElementById('editBtn');
+        // A dead board must answer a ⚙ press instantly, not on the timer.
+        if (b) b.addEventListener('click', function () {
+            if (!window.__R8_BOARD_OK) diagnose();
+        });
+        setTimeout(diagnose, 3000);
+    }
+    if (document.readyState === 'loading' && document.addEventListener) {
+        document.addEventListener('DOMContentLoaded', arm);
+    } else {
+        arm();
+    }
+})();
+</script>
+
 <script src="class_log_meetings_data.js?v=2"></script>
 <script src="class_log_lesson_maps.js?v=2"></script>
 <script src="assignments_data.js?v=3"></script>
@@ -958,7 +1043,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
 <script>
 (function () {
     'use strict';
-    const MEET = window.CLASS_LOG_MEETINGS.sections;
+    const MEET = (window.CLASS_LOG_MEETINGS && window.CLASS_LOG_MEETINGS.sections) || {};
     const MAPS = window.CLASS_LOG_LESSON_MAPS || {};
     const ASSIGN = window.COURSE_ASSIGNMENTS || {};
     const INSTRUCTIONS = window.DISPLAY_INSTRUCTIONS || {};
@@ -987,6 +1072,11 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     let current = null;
     let manualPick = false; // teacher picked a section — stop auto-switching
     const PIN_KEY = 'room8_class_log_pin';
+    // A locked-down projector browser can switch localStorage off entirely; the
+    // direct reads/writes in this file go through these, so a blocked store costs
+    // a forgotten preference instead of a dead click handler.
+    function storeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function storeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
     // ---------- date / period helpers ----------
     function todayISO() {
@@ -1045,7 +1135,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             }
         }
         if (upcoming) return upcoming;
-        const remembered = localStorage.getItem('room8_slide_section');
+        const remembered = storeGet('room8_slide_section');
         if (remembered && MEET[remembered]) return remembered;
         return todaysSections()[0] || ORDER[0];
     }
@@ -1596,7 +1686,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (opts && opts.manual) manualPick = true;
         // an explicit pick always wins over the `h` homeroom override
         forceHomeroom = false;
-        localStorage.setItem('room8_slide_section', sec);
+        storeSet('room8_slide_section', sec);
         render();
     }
     // Which Class_Slide row the ⚙ editor is editing: the homeroom's while the
@@ -1645,12 +1735,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
             classNo: (plans[sec] && plans[sec].classNo) || '',
             did: note, next: ''
         };
-        let pin = localStorage.getItem(PIN_KEY) || '';
+        let pin = storeGet(PIN_KEY) || '';
         let res = await StudentAPI.submitClassLog(entry, pin);
         if (res && /PIN/i.test(res.message || '')) {
             const entered = prompt('Teacher PIN:');
             if (entered === null) { st.textContent = 'Cancelled.'; return; }
-            localStorage.setItem(PIN_KEY, entered);
+            storeSet(PIN_KEY, entered);
             res = await StudentAPI.submitClassLog(entry, entered);
         }
         if (!(res && (res.status === 'class_log_saved' || res.status === 'class_log_updated' ||
@@ -1685,7 +1775,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         if (res2 && /PIN/i.test(res2.message || '')) {
             const entered = prompt('Teacher PIN:');
             if (entered === null) { st.textContent = 'Note saved; outcome not written.'; return; }
-            localStorage.setItem(PIN_KEY, entered);
+            storeSet(PIN_KEY, entered);
             res2 = await StudentAPI.setClassSlide(dkey, '', '', outcome, entered);
         }
         if (res2 && (res2.status === 'class_slide_set' || res2.status === 'submitted_no_cors')) {
@@ -1730,12 +1820,12 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const outcome = document.getElementById('edOutcome').value.trim();
         statusEl.style.color = 'var(--emerald)';
         statusEl.textContent = 'Saving…';
-        let pin = localStorage.getItem(PIN_KEY) || '';
+        let pin = storeGet(PIN_KEY) || '';
         let res = await StudentAPI.setClassSlide(sec, title, announcements, outcome, pin);
         if (res && /PIN/i.test(res.message || '')) {
             const entered = prompt('Teacher PIN:');
             if (entered === null) { statusEl.textContent = 'Cancelled.'; return; }
-            localStorage.setItem(PIN_KEY, entered);
+            storeSet(PIN_KEY, entered);
             res = await StudentAPI.setClassSlide(sec, title, announcements, outcome, entered);
         }
         if (res && (res.status === 'class_slide_set' || res.status === 'submitted_no_cors')) {
@@ -1762,7 +1852,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     document.getElementById('edClear').addEventListener('click', async () => {
         const statusEl = document.getElementById('edStatus');
         const sec = editorKey();
-        let pin = localStorage.getItem(PIN_KEY) || '';
+        let pin = storeGet(PIN_KEY) || '';
         let res = await StudentAPI.setClassSlide(sec, '', '', '', pin);
         if (res && /PIN/i.test(res.message || '')) {
             const entered = prompt('Teacher PIN:');
@@ -1827,8 +1917,8 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         const seating = window.CLASS_SEATING || {};
         const hr = (seating.homeroomOf || {})[section] || section.replace(/-(CIT|HL|HE)$/, '');
         let source = 'roster', seats = {};
-        // 1. check v2 localStorage from seating-plan-v2.html
-        let ls2 = localStorage.getItem('sp2_' + hr);
+        // 1. check v2 localStorage from Seating_Editor.html
+        let ls2 = storeGet('sp2_' + hr);
         if (ls2 && isLegacyPlanCopy(hr, ls2)) {
             try { localStorage.removeItem('sp2_' + hr); ls2 = null; } catch(e){}
         }
@@ -1849,7 +1939,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
         }
         // 2. check legacy localStorage if v2 not present
         if (!Object.keys(seats).length) {
-            const ls = localStorage.getItem('sp_' + hr);
+            const ls = storeGet('sp_' + hr);
             if (ls) {
                 try {
                     const parsed = JSON.parse(ls);
@@ -2053,7 +2143,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // fixes that ship to origin never reach the screen (the Oct 7 "gear does
     // nothing" report was exactly this). Poll our own URL for a different BUILD_ID
     // and offer a one-tap reload — never auto-reload mid-class.
-    const BUILD_ID = '2026-10-16c';
+    const BUILD_ID = '2026-10-20a';
     const buildTagEl = document.getElementById('buildTag');
     if (buildTagEl) buildTagEl.textContent = '· build ' + BUILD_ID;
     let updateBanner = null;
@@ -2080,6 +2170,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; color: var(--te
     // ?seats=1 deep link: open the seating popup immediately on load
     if (new URLSearchParams(location.search).get('seats')) toggleSeats(true);
     refreshLive(true);
+    window.__R8_BOARD_OK = true;  // watchdog: init finished — disarm the boot banner
 })();
 </script>
 </body>
