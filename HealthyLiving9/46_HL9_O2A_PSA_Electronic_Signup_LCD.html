@@ -1046,6 +1046,10 @@
                     📄 Copy Classroom Summary Report (<span id="exportSecSpan">901-HL</span>)
                 </button>
 
+                <button class="btn-secondary" style="justify-content:flex-start; padding:10px 14px;" onclick="restoreDefaultSeed('901-HL')">
+                    🔄 Reset Section 901-HL to Clean 15-Group Seed (Solos at 2 Claims)
+                </button>
+
                 <hr style="border:none; border-top:1px solid var(--border-subtle); margin:6px 0;">
 
                 <button class="btn-delete" style="padding:10px 14px; text-align:left;" onclick="clearCurrentSection()">
@@ -1153,7 +1157,10 @@ const DEFAULT_SEEDS = {
         { id: "seed_901_9", type: "pair", students: "Finn Grace & Justin Alamo MacLennan", student1: "Finn Grace", student2: "Justin Alamo MacLennan", student3: "", claimIds: ["w3_02", "w3_04", "w3_20"] },
         { id: "seed_901_10", type: "pair", students: "Duncan Mattatall & Aiden Henderson", student1: "Duncan Mattatall", student2: "Aiden Henderson", student3: "", claimIds: ["w1_05", "w2_20", "w3_15"] },
         { id: "seed_901_11", type: "solo", students: "Olivia Doherty", student1: "Olivia Doherty", student2: "", student3: "", claimIds: ["w1_08", "w2_07"] },
-        { id: "seed_901_12", type: "pair", students: "Marty Purcell & Avery Peters", student1: "Marty Purcell", student2: "Avery Peters", student3: "", claimIds: ["w1_05", "w3_10", "w3_14"] }
+        { id: "seed_901_12", type: "pair", students: "Marty Purcell & Avery Peters", student1: "Marty Purcell", student2: "Avery Peters", student3: "", claimIds: ["w1_05", "w3_10", "w3_14"] },
+        { id: "seed_901_13", type: "solo", students: "Trenton Johnson", student1: "Trenton Johnson", student2: "", student3: "", claimIds: ["w2_11", "w3_20"] },
+        { id: "seed_901_14", type: "solo", students: "Anastasia Sparks", student1: "Anastasia Sparks", student2: "", student3: "", claimIds: ["w1_11", "w1_13"] },
+        { id: "seed_901_15", type: "solo", students: "Danielle Pritchard", student1: "Danielle Pritchard", student2: "", student3: "", claimIds: ["w3_18", "w3_04"] }
     ],
     "902-HL": [],
     "903-HL": []
@@ -1164,22 +1171,51 @@ function getStorageKey(sec) {
     return "hl9_o2a_psa_signups_" + sec;
 }
 
-// Load Signups for Section (with seed support)
+// Load Signups for Section (with automatic normalization for solos)
 function loadSectionSignups(sec) {
     try {
         const raw = localStorage.getItem(getStorageKey(sec));
         if (raw) {
             const parsed = JSON.parse(raw);
-            // Normalize legacy entries
+            let changed = false;
+
+            // Normalize legacy entries and auto-clean tricked solos
             parsed.forEach(p => {
-                if (!p.type) {
+                const isDupeSolo = (p.student1 && p.student1 === p.student2);
+                const hasSoloTag = (p.students && p.students.includes("(Solo)"));
+
+                if (isDupeSolo || hasSoloTag) {
+                    p.type = "solo";
+                    p.student2 = "";
+                    p.student3 = "";
+                    if (isDupeSolo) {
+                        p.students = p.student1;
+                    } else if (hasSoloTag) {
+                        p.students = p.students.replace(/\s*\(Solo\)\s*/i, "").trim();
+                        p.student1 = p.students;
+                    }
+                    changed = true;
+
+                    // Trim dummy 3rd claim for known tricked solos if still holding 3 claims
+                    if (p.claimIds && p.claimIds.length === 3) {
+                        if (p.students.includes("Isaac Nguyen")) { p.claimIds = ["w2_02", "w2_20"]; changed = true; }
+                        else if (p.students.includes("Aurelia Moore")) { p.claimIds = ["w1_06", "w2_13"]; changed = true; }
+                        else if (p.students.includes("Olivia Doherty")) { p.claimIds = ["w1_08", "w2_07"]; changed = true; }
+                        else if (p.students.includes("Trenton Johnson")) { p.claimIds = ["w2_11", "w3_20"]; changed = true; }
+                        else if (p.students.includes("Anastasia Sparks")) { p.claimIds = ["w1_11", "w1_13"]; changed = true; }
+                        else if (p.students.includes("Danielle Pritchard")) { p.claimIds = ["w3_18", "w3_04"]; changed = true; }
+                    }
+                } else if (!p.type) {
                     if (p.claimIds && p.claimIds.length === 2) p.type = "solo";
                     else if (p.claimIds && p.claimIds.length === 5) p.type = "trio";
-                    else if (p.student1 && p.student1 === p.student2) p.type = "solo";
-                    else if (p.students && p.students.includes("(Solo)")) p.type = "solo";
                     else p.type = "pair";
+                    changed = true;
                 }
             });
+
+            if (changed) {
+                saveSectionSignups(sec, parsed);
+            }
             return parsed;
         } else if (DEFAULT_SEEDS[sec] && DEFAULT_SEEDS[sec].length > 0) {
             saveSectionSignups(sec, DEFAULT_SEEDS[sec]);
@@ -1834,6 +1870,17 @@ function clearCurrentSection() {
         saveSectionSignups(currentSection, []);
         renderBoard();
         closeModal("dataModal");
+    }
+}
+
+function restoreDefaultSeed(sec) {
+    if (confirm(`Reset section ${sec} to the clean 15-group class seed (solos at 2 claims)?`)) {
+        saveSectionSignups(sec, DEFAULT_SEEDS[sec]);
+        if (currentSection === sec) {
+            renderBoard();
+        }
+        closeModal("dataModal");
+        alert(`Section ${sec} restored with all 15 groups cleanly registered!`);
     }
 }
 
