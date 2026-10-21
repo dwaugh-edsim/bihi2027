@@ -331,6 +331,14 @@ PINs/IDs/notes on projector screens.
 ## Repo conventions
 
 - Everything is standalone zero-dependency HTML/JS (GitHub Pages site). No build step.
+- **PRINTABLES GO OUT IN BLACK AND WHITE.** The paper is a mono printer — colour is
+  for LCD/projector screens only. Nothing in a printed document may carry meaning in
+  hue: on mono, blue/amber/green collapse to near-identical greys. Use pattern, label
+  or weight instead (the house system uses a solid bar / diagonal hatch / horizontal
+  stripes for its three callout kinds). Also: `#fafafa` does not reproduce on a mono
+  laser — use `#f0f0f0` for panels and `#d9d9d9` for table header fills.
+  The shared A4 document system lives in `Student_System/doc_theme.css` with templates
+  in `doc-templates/` — build new printables on it rather than re-implementing a look.
 - Projector displays follow `.agents/rules/classroom_displays_strongly_typed.md`.
 - **Student names in anything an LLM or a screenshot sees → first name + last TWO initials**
   (`Jordan Th.`, `Doun Kw.`). This is the agreed standard for: agent/tool output, probe
