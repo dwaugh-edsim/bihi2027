@@ -44,14 +44,14 @@ window.CLASS_LOG_SEED = {
     ],
     "plans": {
         "901-CIT": {
-            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket\nQuick quiz\nNext unit: Soldiers",
+            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c\nQuick quiz\nNext unit: Soldiers",
             "classNo": "9",
-            "updated": "2026-10-21T15:57:00.000Z"
+            "updated": "2026-10-21T16:05:00.000Z"
         },
         "902-CIT": {
-            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket\nQuick quiz\nNext unit: Soldiers",
+            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c\nQuick quiz\nNext unit: Soldiers",
             "classNo": "9",
-            "updated": "2026-10-21T15:57:00.000Z"
+            "updated": "2026-10-21T16:05:00.000Z"
         },
         "903-CIT": {
             "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",

@@ -52,7 +52,7 @@ window.DISPLAY_INSTRUCTIONS = {
         heading: "Today's Agenda",
         steps: [
             "Indigenous issues review (migration theories, Donald Marshall)",
-            "Blooket",
+            "Blooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c",
             "Quick quiz",
             "Next unit: Soldiers"
         ]
@@ -83,7 +83,7 @@ window.DISPLAY_INSTRUCTIONS = {
         heading: "Today's Agenda",
         steps: [
             "Indigenous issues review (migration theories, Donald Marshall)",
-            "Blooket",
+            "Blooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c",
             "Quick quiz",
             "Next unit: Soldiers"
         ]
