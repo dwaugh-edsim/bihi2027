@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎃 Room 8 Horror Soundboard — Halloween MIDI Spookstation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel:wght@600;900&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #07040a;
+      --bg-card: rgba(22, 12, 33, 0.75);
+      --bg-card-hover: rgba(45, 20, 68, 0.85);
+      --border-card: rgba(147, 51, 234, 0.25);
+      --accent-purple: #9333ea;
+      --accent-neon-green: #22c55e;
+      --accent-slime: #4ade80;
+      --accent-pumpkin: #f97316;
+      --accent-blood: #dc2626;
+      --text-main: #f3e8ff;
+      --text-muted: #a855f7;
+      --glow-green: 0 0 25px rgba(34, 197, 94, 0.6), inset 0 0 15px rgba(34, 197, 94, 0.3);
+      --glow-blood: 0 0 30px rgba(220, 38, 38, 0.7), inset 0 0 15px rgba(220, 38, 38, 0.4);
+      --glow-pumpkin: 0 0 25px rgba(249, 115, 22, 0.6), inset 0 0 15px rgba(249, 115, 22, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #1c0a2e 0%, #0c0514 55%, #050208 100%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Ambient fog background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(147, 51, 234, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+      animation: eerieFog 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes eerieFog {
+      0% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05) translate(-10px, 10px); }
+      100% { opacity: 0.6; transform: scale(0.98) translate(15px, -8px); }
+    }
+
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 1.25rem 2rem 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+      backdrop-filter: blur(12px);
+      background: rgba(10, 5, 18, 0.65);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-icon {
+      font-size: 2.8rem;
+      filter: drop-shadow(0 0 12px var(--accent-pumpkin));
+      animation: skullFloat 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes skullFloat {
+      from { transform: translateY(0px) rotate(-3deg); }
+      to { transform: translateY(-5px) rotate(4deg); }
+    }
+
+    .brand-title {
+      font-family: 'Creepster', cursive;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      color: #ffedd5;
+      text-shadow: 0 0 12px rgba(249, 115, 22, 0.8), 0 0 25px rgba(220, 38, 38, 0.5);
+      line-height: 1;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: #c084fc;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Status indicators & global controls */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background: rgba(30, 16, 45, 0.8);
+      border: 1px solid rgba(147, 51, 234, 0.4);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #e9d5ff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #eab308;
+      box-shadow: 0 0 8px #eab308;
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.active {
+      background: var(--accent-slime);
+      box-shadow: 0 0 10px var(--accent-slime);
+      animation: pulseGreen 1.5s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.8; }
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(25, 12, 38, 0.7);
+      padding: 0.35rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid rgba(147, 51, 234, 0.25);
+    }
+
+    .ctrl-group label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #c084fc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    select, button {
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select {
+      background: #19092b;
+      color: #f3e8ff;
+      border: 1px solid rgba(147, 51, 234, 0.4);
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .toggle-btn {
+      background: #230d3a;
+      color: #d8b4fe;
+      border: 1px solid rgba(147, 51, 234, 0.4);
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-btn:hover {
+      background: #3b1660;
+      color: #ffffff;
+      border-color: var(--accent-purple);
+    }
+
+    .toggle-btn.active {
+      background: var(--accent-purple);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(147, 51, 234, 0.5);
+    }
+
+    /* Master Panic Button */
+    .panic-btn {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #ef4444;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: pulsePanic 2s infinite;
+    }
+
+    .panic-btn:hover {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      transform: scale(1.04);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+    }
+
+    .panic-btn:active {
+      transform: scale(0.96);
+    }
+
+    @keyframes pulsePanic {
+      0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.85); }
+    }
+
+    /* Visualizer & Visual Banner */
+    .sub-banner {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 2rem;
+      background: rgba(14, 7, 24, 0.5);
+      border-bottom: 1px solid rgba(147, 51, 234, 0.15);
+      gap: 1rem;
+    }
+
+    .live-visualizer-container {
+      flex: 1;
+      height: 38px;
+      background: rgba(8, 4, 14, 0.6);
+      border-radius: 8px;
+      border: 1px solid rgba(147, 51, 234, 0.2);
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas#audioVisualizer {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .banner-tips {
+      font-size: 0.82rem;
+      color: #c084fc;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffedd5;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Soundboard Grid */
+    main {
+      flex: 1;
+      position: relative;
+      z-index: 5;
+      padding: 1.5rem 2rem;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* Individual Sound Card */
+    .sound-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .sound-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .sound-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(168, 85, 247, 0.6);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .sound-card:hover::before {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent, var(--accent-slime), transparent);
+    }
+
+    /* Active triggering state (Pulsing glowing card) */
+    .sound-card.playing {
+      transform: scale(0.97) translateY(-2px);
+      background: rgba(36, 14, 56, 0.95);
+      border-color: var(--accent-slime);
+      box-shadow: var(--glow-green);
+    }
+
+    .sound-card.playing.blood-style {
+      border-color: var(--accent-blood);
+      box-shadow: var(--glow-blood);
+    }
+
+    .sound-card.playing.pumpkin-style {
+      border-color: var(--accent-pumpkin);
+      box-shadow: var(--glow-pumpkin);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+      line-height: 1;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .sound-card.playing .card-icon {
+      transform: scale(1.3) rotate(-8deg);
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #faf5ff;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.78rem;
+      color: #c084fc;
+      margin-top: 3px;
+    }
+
+    /* Trigger Badges (MIDI Key + QWERTY) */
+    .card-triggers {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .midi-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #4c1d95, #6b21a8);
+      color: #f5d0fe;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid rgba(216, 180, 254, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.5px;
+    }
+
+    .sound-card.playing .midi-pill {
+      background: var(--accent-slime);
+      color: #052e16;
+      border-color: #86efac;
+      font-weight: 800;
+    }
+
+    .qwerty-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #a855f7;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(147, 51, 234, 0.25);
+    }
+
+    /* Card Progress & Controls */
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-top: 1px solid rgba(147, 51, 234, 0.15);
+      padding-top: 0.75rem;
+    }
+
+    .progress-bar-container {
+      flex: 1;
+      height: 6px;
+      background: rgba(10, 5, 18, 0.8);
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-slime), var(--accent-neon-green));
+      border-radius: 9999px;
+      transition: width 0.1s linear;
+    }
+
+    .sound-card.blood-style .progress-bar-fill {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .sound-card.pumpkin-style .progress-bar-fill {
+      background: linear-gradient(90deg, #f97316, #fb923c);
+    }
+
+    .loop-toggle {
+      background: transparent;
+      color: #7e22ce;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid transparent;
+    }
+
+    .loop-toggle:hover {
+      color: #d8b4fe;
+      background: rgba(147, 51, 234, 0.2);
+    }
+
+    .loop-toggle.active {
+      color: var(--accent-slime);
+      border-color: rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.15);
+      font-weight: 700;
+    }
+
+    /* Virtual Interactive Piano Keyboard across footer */
+    .keyboard-tray {
+      position: relative;
+      z-index: 10;
+      background: rgba(10, 5, 18, 0.85);
+      border-top: 1px solid rgba(147, 51, 234, 0.25);
+      padding: 0.75rem 2rem 1.25rem;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tray-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tray-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #c084fc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .piano-wrapper {
+      position: relative;
+      height: 95px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .piano-keys {
+      position: relative;
+      height: 90px;
+      display: inline-flex;
+    }
+
+    .piano-key {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 6px;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.05s, box-shadow 0.1s;
+    }
+
+    .piano-key.white {
+      width: 44px;
+      height: 90px;
+      background: linear-gradient(180deg, #f3f4f6 0%, #d1d5db 100%);
+      border: 1px solid #4b5563;
+      border-radius: 0 0 5px 5px;
+      z-index: 1;
+      color: #1f2937;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .piano-key.white:hover {
+      background: #e5e7eb;
+    }
+
+    .piano-key.white.active {
+      background: var(--accent-slime);
+      color: #064e3b;
+      box-shadow: inset 0 0 10px #15803d, 0 0 15px var(--accent-slime);
+      transform: translateY(2px);
+    }
+
+    .piano-key.white.has-sample {
+      border-bottom: 5px solid var(--accent-purple);
+    }
+
+    .piano-key.black {
+      width: 26px;
+      height: 56px;
+      background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+      border: 1px solid #030712;
+      border-radius: 0 0 4px 4px;
+      margin-left: -13px;
+      margin-right: -13px;
+      z-index: 2;
+      color: #9ca3af;
+      font-size: 0.58rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .piano-key.black:hover {
+      background: #374151;
+    }
+
+    .piano-key.black.active {
+      background: var(--accent-blood);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-blood);
+      transform: translateY(2px);
+    }
+
+    .piano-key.black.has-sample {
+      border-bottom: 4px solid var(--accent-pumpkin);
+    }
+
+    .key-sample-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      margin-bottom: 2px;
+    }
+
+    .piano-key.active .key-sample-dot {
+      background: #ffffff;
+      transform: scale(1.4);
+    }
+
+    /* Modal / Help overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 2, 7, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #150924;
+      border: 1px solid rgba(147, 51, 234, 0.4);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 620px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(147, 51, 234, 0.3);
+      position: relative;
+    }
+
+    .modal-title {
+      font-family: 'Creepster', cursive;
+      font-size: 2.2rem;
+      color: #fed7aa;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px rgba(249, 115, 22, 0.7);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: transparent;
+      color: #c084fc;
+      font-size: 1.5rem;
+    }
+
+    .modal-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e9d5ff;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-content code {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-slime);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .brand-title {
+        font-size: 2rem;
+      }
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+      .sub-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0.5rem 1rem;
+      }
+      .keyboard-tray {
+        padding: 0.5rem 1rem;
+      }
+      .piano-key.white {
+        width: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header with Brand & Controls -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">💀</div>
+      <div>
+        <h1 class="brand-title">HALLOWEEN SPOOKSTATION</h1>
+        <div class="brand-subtitle">
+          <span>ROOM 8 HORROR SAMPLER</span>
+          <span>•</span>
+          <span id="triggerModeLabel">POLYPHONIC</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-bar">
+      <!-- MIDI Connection Pill -->
+      <div class="status-pill" id="midiStatusPill" title="Plug in a USB MIDI Keyboard to trigger sounds!">
+        <div class="status-dot" id="midiStatusDot"></div>
+        <span id="midiStatusText">Checking USB MIDI...</span>
+      </div>
+
+      <!-- Mapping Style: Chromatic vs White Keys -->
+      <div class="ctrl-group">
+        <label for="mappingMode">Map Mode</label>
+        <select id="mappingMode">
+          <option value="white_keys">White Keys Only (Kid Friendly)</option>
+          <option value="chromatic">Chromatic (All White + Black)</option>
+        </select>
+      </div>
+
+      <!-- Base Octave / Root Note -->
+      <div class="ctrl-group">
+        <label for="baseOctave">Base Key</label>
+        <select id="baseOctave">
+          <option value="36">C2 (Low)</option>
+          <option value="48" selected>C3 (Default)</option>
+          <option value="60">C4 (Middle C)</option>
+          <option value="72">C5 (High)</option>
+        </select>
+      </div>
+
+      <!-- Solo / Cut Mode Toggle -->
+      <button class="toggle-btn" id="cutModeToggle" title="When active, starting a new sound cuts off the previous ones">
+        <span>⚡</span> Cut Mode
+      </button>
+
+      <!-- Panic / Kill All Sounds Button -->
+      <button class="panic-btn" id="panicBtn" title="Silence all playing sounds immediately (Spacebar)">
+        <span>🛑</span> SILENCE ALL (SPACE)
+      </button>
+
+      <!-- Help / Instructions Modal Button -->
+      <button class="toggle-btn" id="helpBtn">
+        <span>ℹ️</span> Guide
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button class="toggle-btn" id="fullscreenBtn" title="Toggle Fullscreen (F11)">
+        <span>⛶</span> Fullscreen
+      </button>
+    </div>
+  </header>
+
+  <!-- Live Visualizer & Status Strip -->
+  <div class="sub-banner">
+    <div class="live-visualizer-container">
+      <canvas id="audioVisualizer"></canvas>
+    </div>
+    <div class="banner-tips">
+      <span>🎹 Keys mapped: <b id="mappedRangeLabel" style="color:var(--accent-slime)">C3 – D4</b></span>
+      <span>|</span>
+      <span>⌨️ Test with <span class="key-badge">1</span>–<span class="key-badge">9</span>, <span class="key-badge">0</span>, <span class="key-badge">-</span>, <span class="key-badge">=</span></span>
+      <span>|</span>
+      <span>🔊 Master Vol: <input type="range" id="masterVol" min="0" max="1.5" step="0.05" value="1.0" style="vertical-align:middle; width:70px;"></span>
+    </div>
+  </div>
+
+  <!-- Sound Cards Grid -->
+  <main>
+    <div class="grid-container" id="cardsGrid">
+      <!-- 12 Cards dynamically rendered by JavaScript -->
+    </div>
+  </main>
+
+  <!-- Interactive Piano Keyboard Tray -->
+  <footer class="keyboard-tray">
+    <div class="tray-header">
+      <div class="tray-title">
+        <span>🎹 VIRTUAL KEYBOARD MONITOR</span>
+        <span style="font-size:0.75rem; color:#a855f7;">(Click or hit physical MIDI keys to test)</span>
+      </div>
+      <div style="font-size:0.78rem; font-family:'JetBrains Mono', monospace; color:#86efac;" id="lastMidiEvent">
+        Waiting for input...
+      </div>
+    </div>
+    <div class="piano-wrapper">
+      <div class="piano-keys" id="pianoKeysContainer">
+        <!-- Rendered by JS: 2.5 to 3 octaves with active indicators -->
+      </div>
+    </div>
+  </footer>
+
+  <!-- Help & Instructions Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-box">
+      <button class="modal-close" id="closeHelpModal">✕</button>
+      <h2 class="modal-title">🎃 How to Use Your Spookstation</h2>
+      <div class="modal-content">
+        <p><b>1. Plug in your USB MIDI Keyboard:</b> Plug your keyboard into the computer (Mac, PC, or Chromebook). Chrome will recognize it automatically. If prompted, click <code>Allow</code> for MIDI device access.</p>
+        <p><b>2. Kid-Friendly White Keys Mode:</b> By default, the 12 horror samples are mapped consecutively across the <b>white keys</b> starting at <b>C3</b>. That means the trick-or-treater can just tap down the row of white keys without worrying about black keys!</p>
+        <p><b>3. Chromatic Mode:</b> If you want both black and white keys mapped consecutively, switch the dropdown to <i>Chromatic</i>.</p>
+        <p><b>4. Emergency Panic Key:</b> Press <b>SPACEBAR</b> or tap the big red <b>SILENCE ALL</b> button anytime a tiny trick-or-treater gets scared and you need instant silence.</p>
+        <p><b>5. Computer Keyboard Fallback:</b> No MIDI keyboard plugged in yet? Press number keys <code>1</code> through <code>9</code>, <code>0</code>, <code>-</code>, and <code>=</code> on your laptop keyboard!</p>
+        <p><b>6. Ambient Loops:</b> Click the <code>🔁 Loop</code> button on long tracks like <i>Creepy Wind</i> or <i>Ghostly Apparition</i> to keep background atmosphere playing while triggering screams overtop.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. Sound Catalog Definition (The 12 Halloween Samples) ---
+    const SAMPLES_DATA = [
+      {
+        id: "hello",
+        name: "Horror Hello",
+        desc: "Creepy whispering greeting",
+        icon: "👁️",
+        style: "pumpkin-style",
+        file: "samples/alesiadavina-halloween-horror-voice-hello-vol-006-165220.mp3",
+        qwerty: "1"
+      },
+      {
+        id: "impact",
+        name: "Jumpscare Slam",
+        desc: "Heavy sudden door impact",
+        icon: "⚡",
+        style: "blood-style",
+        file: "samples/charlie_raven-halloween-impact-05-93808.mp3",
+        qwerty: "2"
+      },
+      {
+        id: "banshee",
+        name: "Banshee Scream",
+        desc: "Piercing demonic scream",
+        icon: "😱",
+        style: "blood-style",
+        file: "samples/dragon-studio-banshee-screaming-sound-effect-312864.mp3",
+        qwerty: "3"
+      },
+      {
+        id: "witch",
+        name: "Wicked Witch",
+        desc: "Cackling hag laugh",
+        icon: "🧙‍♀️",
+        style: "green-style",
+        file: "samples/freesound_community-witch-103635.mp3",
+        qwerty: "4"
+      },
+      {
+        id: "sinister",
+        name: "Sinister Laugh",
+        desc: "Deep maniacal villain laugh",
+        icon: "😈",
+        style: "pumpkin-style",
+        file: "samples/alex_jauk-sinister-laugh-428209.mp3",
+        qwerty: "5"
+      },
+      {
+        id: "zombie",
+        name: "Zombie Screech",
+        desc: "Snarling undead shriek",
+        icon: "🧟",
+        style: "blood-style",
+        file: "samples/dragon-studio-zombie-screech-sound-effect-312865.mp3",
+        qwerty: "6"
+      },
+      {
+        id: "ghost_whisper",
+        name: "Ghost Whisper",
+        desc: "Chilling nearby spectral voice",
+        icon: "👻",
+        style: "green-style",
+        file: "samples/dragon-studio-creepy-ghost-whisper-410564.mp3",
+        qwerty: "7"
+      },
+      {
+        id: "wolf_howl",
+        name: "Werewolf Howl",
+        desc: "Lone full moon howl",
+        icon: "🐺",
+        style: "pumpkin-style",
+        file: "samples/dragon-studio-halloween-wolf-howling-410542.mp3",
+        qwerty: "8"
+      },
+      {
+        id: "pack_howl",
+        name: "Pack Howl",
+        desc: "Distant pack echoing in woods",
+        icon: "🌕",
+        style: "pumpkin-style",
+        file: "samples/dragon-studio-spooky-wolf-howl-410547.mp3",
+        qwerty: "9"
+      },
+      {
+        id: "creepy_wind",
+        name: "Creepy Wind",
+        desc: "Howling desolate gale",
+        icon: "🌪️",
+        style: "green-style",
+        file: "samples/dragon-studio-creepy-wind-410541.mp3",
+        qwerty: "0"
+      },
+      {
+        id: "dark_ambience",
+        name: "Scary Ambience",
+        desc: "Unsettling haunted drone",
+        icon: "🕯️",
+        style: "green-style",
+        file: "samples/dragon-studio-scary-sound-410559.mp3",
+        qwerty: "-"
+      },
+      {
+        id: "apparition",
+        name: "Ghost Apparition",
+        desc: "Eerie supernatural presence",
+        icon: "🌫️",
+        style: "green-style",
+        file: "samples/mollyroselee-made-in-firefly-distant-eerie-sound-of-a-ghostly-apparition-581352.mp3",
+        qwerty: "="
+      }
+    ];
+
+    // --- 2. State & Audio Engine ---
+    let audioCtx = null;
+    let masterGain = null;
+    let analyser = null;
+    const soundBuffers = new Map(); // id -> AudioBuffer
+    const activeSources = new Map(); // id -> { sourceNode, gainNode, startTime, duration }
+    const loopSettings = new Map(); // id -> boolean
+    let cutMode = false;
+    let baseMidiRoot = 48; // C3
+    let mappingMode = "white_keys"; // 'white_keys' or 'chromatic'
+    let midiNoteToSampleMap = new Map(); // midiNote -> sampleIndex
+    let qwertyToSampleMap = new Map(); // key -> sampleIndex
+
+    // Musical note names helper
+    const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    function midiToNoteName(midi) {
+      const note = NOTE_NAMES[midi % 12];
+      const oct = Math.floor(midi / 12) - 1;
+      return `${note}${oct}`;
+    }
+
+    // White key MIDI notes starting from base note
+    function getWhiteKeyMidiNotes(startMidi, count) {
+      const whiteNotes = [];
+      let current = startMidi;
+      while (whiteNotes.length < count) {
+        const semitone = current % 12;
+        // White key semitones: 0=C, 2=D, 4=E, 5=F, 7=G, 9=A, 11=B
+        if ([0, 2, 4, 5, 7, 9, 11].includes(semitone)) {
+          whiteNotes.push(current);
+        }
+        current++;
+      }
+      return whiteNotes;
+    }
+
+    // --- 3. Audio Context & Dual-Engine Fallback ---
+    const html5AudioElements = new Map(); // id -> HTMLAudioElement
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContextClass();
+          masterGain = audioCtx.createGain();
+          masterGain.gain.value = parseFloat(document.getElementById("masterVol").value);
+
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 64;
+
+          masterGain.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          startVisualizer();
+        } catch (e) {
+          console.warn("Web Audio Context not available, using HTML5 Audio:", e);
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    // Preload sounds: tries Web Audio API first; falls back to HTML5 Audio for file:/// protocol
+    async function loadAllSounds() {
+      ensureAudioContext();
+
+      for (const sample of SAMPLES_DATA) {
+        // Pre-create HTML5 audio element for instant fallback
+        const audioEl = new Audio();
+        audioEl.src = sample.file;
+        audioEl.preload = "auto";
+        html5AudioElements.set(sample.id, audioEl);
+
+        try {
+          const resp = await fetch(sample.file);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const arrayBuf = await resp.arrayBuffer();
+          const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+          soundBuffers.set(sample.id, audioBuf);
+          console.log(`[Soundboard WebAudio] Loaded: ${sample.name}`);
+        } catch (err) {
+          console.log(`[Soundboard HTML5 Fallback] Using native audio for ${sample.name}`);
+        }
+      }
+    }
+
+    // --- 4. Rebuild Keyboard Mappings ---
+    function updateKeyMappings() {
+      midiNoteToSampleMap.clear();
+      qwertyToSampleMap.clear();
+
+      let assignedMidiNotes = [];
+      if (mappingMode === "white_keys") {
+        assignedMidiNotes = getWhiteKeyMidiNotes(baseMidiRoot, SAMPLES_DATA.length);
+      } else {
+        // Chromatic
+        for (let i = 0; i < SAMPLES_DATA.length; i++) {
+          assignedMidiNotes.push(baseMidiRoot + i);
+        }
+      }
+
+      for (let i = 0; i < SAMPLES_DATA.length; i++) {
+        const midi = assignedMidiNotes[i];
+        midiNoteToSampleMap.set(midi, i);
+        qwertyToSampleMap.set(SAMPLES_DATA[i].qwerty.toLowerCase(), i);
+
+        // Update card label
+        const cardMidiEl = document.getElementById(`card-midi-${SAMPLES_DATA[i].id}`);
+        if (cardMidiEl) {
+          cardMidiEl.textContent = midiToNoteName(midi);
+        }
+      }
+
+      const firstNote = midiToNoteName(assignedMidiNotes[0]);
+      const lastNote = midiToNoteName(assignedMidiNotes[assignedMidiNotes.length - 1]);
+      document.getElementById("mappedRangeLabel").textContent = `${firstNote} – ${lastNote}`;
+
+      renderVirtualPiano();
+    }
+
+    // --- 5. Sound Playback Engine (Dual WebAudio / HTML5) ---
+    function playSample(index) {
+      if (index < 0 || index >= SAMPLES_DATA.length) return;
+      ensureAudioContext();
+
+      const sample = SAMPLES_DATA[index];
+      const buffer = soundBuffers.get(sample.id);
+      const isLooped = !!loopSettings.get(sample.id);
+
+      // If cut mode is ON, stop other active non-looping sounds
+      if (cutMode) {
+        activeSources.forEach((entry, id) => {
+          if (!loopSettings.get(id)) {
+            stopSample(id);
+          }
+        });
+        html5AudioElements.forEach((el, id) => {
+          if (id !== sample.id && !loopSettings.get(id)) {
+            el.pause();
+            el.currentTime = 0;
+            const cardEl = document.getElementById(`card-${id}`);
+            if (cardEl) cardEl.classList.remove("playing");
+          }
+        });
+      }
+
+      // Stop previous instance of this same sample
+      stopSample(sample.id);
+
+      const cardEl = document.getElementById(`card-${sample.id}`);
+      const progFillEl = document.getElementById(`prog-fill-${sample.id}`);
+
+      if (buffer && audioCtx) {
+        // High performance Web Audio pipeline
+        const sourceNode = audioCtx.createBufferSource();
+        sourceNode.buffer = buffer;
+        sourceNode.loop = isLooped;
+
+        const sampleGain = audioCtx.createGain();
+        sampleGain.gain.value = 1.0;
+
+        sourceNode.connect(sampleGain);
+        sampleGain.connect(masterGain);
+
+        const startTime = audioCtx.currentTime;
+        const duration = buffer.duration;
+        sourceNode.start(0);
+
+        activeSources.set(sample.id, {
+          sourceNode,
+          gainNode: sampleGain,
+          startTime,
+          duration,
+          cardEl,
+          progressFillEl: progFillEl
+        });
+
+        sourceNode.onended = () => {
+          if (!loopSettings.get(sample.id)) {
+            stopSample(sample.id);
+          }
+        };
+      } else {
+        // HTML5 Audio Fallback (guaranteed to work on local file:// URLs)
+        const audioEl = html5AudioElements.get(sample.id);
+        if (audioEl) {
+          audioEl.currentTime = 0;
+          audioEl.loop = isLooped;
+          const volEl = document.getElementById("masterVol");
+          audioEl.volume = volEl ? Math.min(1.0, parseFloat(volEl.value)) : 1.0;
+          audioEl.play().catch(e => console.log("Audio autoplay prevented:", e));
+
+          audioEl.onended = () => {
+            if (!audioEl.loop) {
+              stopSample(sample.id);
+            }
+          };
+          audioEl.ontimeupdate = () => {
+            if (audioEl.duration && progFillEl) {
+              const pct = (audioEl.currentTime / audioEl.duration) * 100;
+              progFillEl.style.width = `${pct}%`;
+            }
+          };
+        }
+      }
+
+      // Visual feedback
+      if (cardEl) cardEl.classList.add("playing");
+      highlightPianoKey(getMidiForSample(index), true);
+    }
+
+    function stopSample(id) {
+      // 1. Web Audio stop
+      const active = activeSources.get(id);
+      if (active) {
+        try {
+          active.sourceNode.stop();
+          active.sourceNode.disconnect();
+        } catch (e) {}
+        if (active.cardEl) active.cardEl.classList.remove("playing");
+        if (active.progressFillEl) active.progressFillEl.style.width = "0%";
+        activeSources.delete(id);
+      }
+
+      // 2. HTML5 Audio stop
+      const audioEl = html5AudioElements.get(id);
+      if (audioEl) {
+        audioEl.pause();
+        audioEl.currentTime = 0;
+      }
+
+      const cardEl = document.getElementById(`card-${id}`);
+      if (cardEl) cardEl.classList.remove("playing");
+      const progFillEl = document.getElementById(`prog-fill-${id}`);
+      if (progFillEl) progFillEl.style.width = "0%";
+    }
+
+    function silenceAll() {
+      // Silence Web Audio sources
+      activeSources.forEach((_, id) => stopSample(id));
+      // Silence HTML5 Audio sources
+      html5AudioElements.forEach((el, id) => {
+        el.pause();
+        el.currentTime = 0;
+        const cardEl = document.getElementById(`card-${id}`);
+        if (cardEl) cardEl.classList.remove("playing");
+        const progFill = document.getElementById(`prog-fill-${id}`);
+        if (progFill) progFill.style.width = "0%";
+      });
+      document.querySelectorAll(".piano-key").forEach(k => k.classList.remove("active"));
+    }
+
+    function getMidiForSample(index) {
+      for (const [midi, idx] of midiNoteToSampleMap.entries()) {
+        if (idx === index) return midi;
+      }
+      return null;
+    }
+
+    // --- 6. Render UI Components ---
+    function renderSoundCards() {
+      const grid = document.getElementById("cardsGrid");
+      grid.innerHTML = "";
+
+      SAMPLES_DATA.forEach((s, idx) => {
+        const card = document.createElement("div");
+        card.className = `sound-card ${s.style}`;
+        card.id = `card-${s.id}`;
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-meta">
+              <span class="card-icon">${s.icon}</span>
+              <div class="card-title-group">
+                <span class="card-name">${s.name}</span>
+                <span class="card-desc">${s.desc}</span>
+              </div>
+            </div>
+            <div class="card-triggers">
+              <span class="midi-pill" id="card-midi-${s.id}">--</span>
+              <span class="qwerty-hint">Key [${s.qwerty}]</span>
+            </div>
+          </div>
+
+          <div class="card-bottom">
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" id="prog-fill-${s.id}"></div>
+            </div>
+            <button class="loop-toggle" id="loop-btn-${s.id}" title="Toggle looping track">
+              🔁 Loop
+            </button>
+          </div>
+        `;
+
+        // Click card to trigger
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".loop-toggle")) return;
+          playSample(idx);
+        });
+
+        // Loop button click
+        const loopBtn = card.querySelector(`#loop-btn-${s.id}`);
+        loopBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isLooped = !loopSettings.get(s.id);
+          loopSettings.set(s.id, isLooped);
+          loopBtn.classList.toggle("active", isLooped);
+
+          // Update currently playing instance if any
+          const active = activeSources.get(s.id);
+          if (active) {
+            active.sourceNode.loop = isLooped;
+          }
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Render Virtual Piano (C2 to C6)
+    function renderVirtualPiano() {
+      const container = document.getElementById("pianoKeysContainer");
+      container.innerHTML = "";
+
+      const startMidi = 36; // C2
+      const endMidi = 72;   // C5
+      const whiteNotes = [];
+
+      for (let m = startMidi; m <= endMidi; m++) {
+        const semitone = m % 12;
+        const isWhite = [0, 2, 4, 5, 7, 9, 11].includes(semitone);
+        const hasSample = midiNoteToSampleMap.has(m);
+
+        const key = document.createElement("div");
+        key.className = `piano-key ${isWhite ? "white" : "black"} ${hasSample ? "has-sample" : ""}`;
+        key.dataset.midi = m;
+        key.id = `pk-${m}`;
+
+        if (hasSample) {
+          const sampleIdx = midiNoteToSampleMap.get(m);
+          key.title = `${midiToNoteName(m)}: ${SAMPLES_DATA[sampleIdx].name}`;
+        } else {
+          key.title = midiToNoteName(m);
+        }
+
+        if (isWhite) {
+          key.innerHTML = `
+            ${hasSample ? `<div class="key-sample-dot"></div>` : ""}
+            <span>${midiToNoteName(m)}</span>
+          `;
+        } else {
+          key.innerHTML = hasSample ? `<div class="key-sample-dot"></div>` : "";
+        }
+
+        key.addEventListener("mousedown", () => {
+          triggerMidiNote(m, 100);
+        });
+
+        container.appendChild(key);
+      }
+    }
+
+    function highlightPianoKey(midi, isPlaying) {
+      if (midi === null) return;
+      const keyEl = document.getElementById(`pk-${midi}`);
+      if (keyEl) {
+        if (isPlaying) {
+          keyEl.classList.add("active");
+        } else {
+          keyEl.classList.remove("active");
+        }
+      }
+    }
+
+    // --- 7. MIDI & Keyboard Event Handlers ---
+    function triggerMidiNote(note, velocity = 100) {
+      const noteName = midiToNoteName(note);
+      document.getElementById("lastMidiEvent").textContent = `MIDI Note: ${noteName} (${note}) Vel: ${velocity}`;
+
+      if (velocity > 0) {
+        highlightPianoKey(note, true);
+        if (midiNoteToSampleMap.has(note)) {
+          const sampleIdx = midiNoteToSampleMap.get(note);
+          playSample(sampleIdx);
+        }
+      } else {
+        highlightPianoKey(note, false);
+      }
+    }
+
+    // Connect to Web MIDI API
+    function initWebMidi() {
+      const statusPill = document.getElementById("midiStatusPill");
+      const statusDot = document.getElementById("midiStatusDot");
+      const statusText = document.getElementById("midiStatusText");
+
+      if (!navigator.requestMIDIAccess) {
+        statusText.textContent = "Web MIDI not supported (Use Chrome/Edge/Brave)";
+        return;
+      }
+
+      navigator.requestMIDIAccess({ sysex: false })
+        .then((midiAccess) => {
+          function checkInputs() {
+            const inputs = Array.from(midiAccess.inputs.values());
+            if (inputs.length > 0) {
+              const names = inputs.map(i => i.name || "MIDI Keyboard").join(", ");
+              statusDot.className = "status-dot active";
+              statusText.textContent = `🟢 Connected: ${names}`;
+              statusPill.title = `Receiving notes from: ${names}`;
+            } else {
+              statusDot.className = "status-dot";
+              statusText.textContent = "Waiting for USB MIDI Keyboard...";
+              statusPill.title = "Plug your USB MIDI keyboard in — it will connect automatically!";
+            }
+          }
+
+          function attachListeners() {
+            for (const input of midiAccess.inputs.values()) {
+              input.onmidimessage = onMidiMessage;
+            }
+          }
+
+          midiAccess.onstatechange = (e) => {
+            console.log(`MIDI State Change: ${e.port.name} -> ${e.port.state}`);
+            checkInputs();
+            attachListeners();
+          };
+
+          checkInputs();
+          attachListeners();
+        })
+        .catch((err) => {
+          console.warn("MIDI Access Denied or Error:", err);
+          statusText.textContent = "MIDI Permission Denied (Click page & retry)";
+        });
+    }
+
+    function onMidiMessage(event) {
+      const [status, note, velocity] = event.data;
+      const command = status >> 4;
+
+      // Note On is command 9
+      if (command === 9) {
+        if (velocity > 0) {
+          triggerMidiNote(note, velocity);
+        } else {
+          // Note on with velocity 0 is Note Off
+          triggerMidiNote(note, 0);
+        }
+      } else if (command === 8) {
+        // Note Off
+        triggerMidiNote(note, 0);
+      }
+    }
+
+    // Computer Keyboard (QWERTY) fallback & Spacebar Panic
+    window.addEventListener("keydown", (e) => {
+      // Spacebar is instant panic kill switch
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        silenceAll();
+        return;
+      }
+
+      // Check if mapped to a sample
+      const key = e.key.toLowerCase();
+      if (qwertyToSampleMap.has(key)) {
+        e.preventDefault();
+        const sampleIdx = qwertyToSampleMap.get(key);
+        playSample(sampleIdx);
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      const key = e.key.toLowerCase();
+      if (qwertyToSampleMap.has(key)) {
+        const sampleIdx = qwertyToSampleMap.get(key);
+        const midi = getMidiForSample(sampleIdx);
+        highlightPianoKey(midi, false);
+      }
+    });
+
+    // --- 8. Animation Loop (Progress Bars & Visualizer) ---
+    function runUiLoop() {
+      if (audioCtx) {
+        const now = audioCtx.currentTime;
+        activeSources.forEach((active, id) => {
+          if (active.duration > 0 && active.progressFillEl) {
+            const elapsed = now - active.startTime;
+            const pct = Math.min(100, Math.max(0, (elapsed / active.duration) * 100));
+            active.progressFillEl.style.width = `${pct}%`;
+          }
+        });
+      }
+      requestAnimationFrame(runUiLoop);
+    }
+
+    // Audio Visualizer Canvas
+    function startVisualizer() {
+      const canvas = document.getElementById("audioVisualizer");
+      const ctx = canvas.getContext("2d");
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 1.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          // Gradient from purple/crimson to slime green
+          const hue = 120 + (dataArray[i] / 255) * 60;
+          ctx.fillStyle = `hsl(${hue}, 90%, 55%)`;
+          ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+          x += barWidth;
+        }
+      }
+      draw();
+    }
+
+    // --- 9. DOM Event Bindings & Init ---
+    document.addEventListener("DOMContentLoaded", () => {
+      renderSoundCards();
+      updateKeyMappings();
+      loadAllSounds();
+      initWebMidi();
+      runUiLoop();
+
+      // Controls setup
+      document.getElementById("panicBtn").addEventListener("click", silenceAll);
+
+      document.getElementById("mappingMode").addEventListener("change", (e) => {
+        mappingMode = e.target.value;
+        updateKeyMappings();
+      });
+
+      document.getElementById("baseOctave").addEventListener("change", (e) => {
+        baseMidiRoot = parseInt(e.target.value, 10);
+        updateKeyMappings();
+      });
+
+      document.getElementById("cutModeToggle").addEventListener("click", function() {
+        cutMode = !cutMode;
+        this.classList.toggle("active", cutMode);
+        document.getElementById("triggerModeLabel").textContent = cutMode ? "CUT / SOLO" : "POLYPHONIC";
+      });
+
+      document.getElementById("masterVol").addEventListener("input", (e) => {
+        if (masterGain) {
+          masterGain.gain.value = parseFloat(e.target.value);
+        }
+      });
+
+      document.getElementById("fullscreenBtn").addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      // Help Modal
+      const modal = document.getElementById("helpModal");
+      document.getElementById("helpBtn").addEventListener("click", () => modal.classList.add("open"));
+      document.getElementById("closeHelpModal").addEventListener("click", () => modal.classList.remove("open"));
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("open");
+      });
+
+      // User gesture audio unlock
+      window.addEventListener("click", ensureAudioContext, { once: true });
+      window.addEventListener("keydown", ensureAudioContext, { once: true });
+    });
+  </script>
+</body>
+</html>
