@@ -182,33 +182,36 @@ Paste this block verbatim into the hand-off prompt, after the layout-directives 
 LAYOUT DIRECTIVES — apply exactly.
 
 Typography:
-  Title (Heading 1): Open Sans Condensed, 20pt, bold, #1C2622, title case (not all caps).
-                      Bottom border: 2.5pt solid #1C2622. Space after: 4pt.
-  Section (Heading 2): JetBrains Mono, 9pt, bold, ALL CAPS, letter-spaced ~0.9pt, #006376.
-                        Bottom border: 1.2pt solid #1C2622. Space before: 14pt, after: 4pt.
-  Question/label: Open Sans Condensed, 11pt, bold, #1C2622. Space before: 10pt, after: 3pt.
-  Body text: Open Sans, 10.5pt, #3D4A44, line spacing 1.15, space after 5pt.
-  Points / labels / source lines / answer keys: JetBrains Mono, 7.5pt, bold, ALL CAPS,
-                        #C2410C for point values, #6B7A73 for source and key lines.
-  Never use a font other than these three. Never use a colour other than these five.
+  Title (Heading 1): Roboto Slab, 16pt, weight 900, #000000, title case.
+                      Bottom border: 2.5pt solid #000000. Space after: 4pt.
+  Section (Heading 2): Roboto Slab, 11pt, weight 800, ALL CAPS, letter-spaced ~0.6pt,
+                      WHITE text on a solid #000000 paragraph shading.
+                      Space before: 14pt, after: 4pt.
+  Question/label: Inter, 10.5pt, bold, #000000. Space before: 10pt, after: 3pt.
+  Body text: Inter, 10.5pt, #18181B, line spacing 1.15, space after 5pt.
+  Points / labels / source lines / answer keys: JetBrains Mono, 7pt, bold, ALL CAPS.
+                      Points in #2563EB. Source and key lines in #52525B.
+  Never use a font other than these three. Never use a colour other than these seven.
 
 Colour palette:
-  ink #1C2622   body #3D4A44   muted #6B7A73   teal #006376   warm #C2410C   green #166534
+  ink #000000   body #18181B   muted #52525B   blue #2563EB   amber #FBBF24
+  green #047857   panel #FAFAFA
 
 Blocks:
-  Response areas: single-cell table, full width, 1pt solid #1C2622 border, label the row
-                   "Your response:" in Open Sans Condensed 11pt bold #1C2622, then leave
-                   at least 3 empty lines of space beneath it.
+  Response areas: single-cell table, full width, 1.4pt solid #000000 border, label the row
+                   "Your response:" in Inter 10.5pt bold #000000, then leave at least
+                   3 empty lines of space beneath it.
   Callouts (the "what a strong answer looks like" box, the word bank, any note):
-                   single-cell table with a 4pt left border and a 1pt #1C2622 border on the
-                   other three sides. Background #E5F2F5 for teal callouts, #FFF7ED for warm,
-                   #F0FDF4 for green. Heading line in JetBrains Mono 7.5pt bold, ALL CAPS,
-                   in the matching accent colour. Body inside in Open Sans 10.5pt.
-  Checklist: bulleted list, each item beginning with an empty box character (☐) in #006376.
-  Word bank: a two-column table, term in Open Sans Condensed 11pt bold, meaning in
-                   Open Sans 10.5pt, header row shaded #EEF2F0 in JetBrains Mono 7.5pt bold.
-  Source line: final paragraph, JetBrains Mono 7pt bold, #6B7A73, top border dashed #6B7A73,
-                   beginning with "WHERE THESE FACTS COME FROM:" in #006376.
+                   single-cell table with a 5pt left border in the accent colour and a
+                   1.4pt #000000 border on the other three sides. Background #FAFAFA.
+                   Left border and heading line: #2563EB for a note, #FBBF24 for a tip,
+                   #047857 for the exemplar. Heading line in JetBrains Mono 7pt bold,
+                   ALL CAPS. Body inside in Inter 10.5pt.
+  Checklist: bulleted list, each item beginning with an empty box character (☐) in #2563EB.
+  Word bank: a two-column table, term in Inter bold, meaning in Inter 10.5pt,
+                   header row shaded #FAFAFA in JetBrains Mono 7pt bold, ALL CAPS.
+  Source line: final paragraph, JetBrains Mono 7pt bold, #52525B, top border #E5E5E5,
+                   beginning with "WHERE THESE FACTS COME FROM:" in #2563EB.
 
 Pagination:
   Keep the intro block, the first question and its response area together on page 1.
@@ -218,8 +221,10 @@ Pagination:
 
 **Why the printables and the Doc now match.** The theme in `Student_System/doc_theme.css`
 and the directives above are the same system expressed twice — once in CSS for the A4
-printables, once in words for the Docs Gemini renders. When one changes, change the other,
-or a task that moves between paper and Classroom will visibly change identity.
+printables, once in words for the Docs Gemini renders. Both carry the house look:
+Roboto Slab headings, Inter body, JetBrains Mono labels, black rules, zinc neutrals,
+blue accents. When one changes, change the other, or a task that moves between paper
+and Classroom will visibly change identity.
 
 ### Post-render check (teacher, ~1 minute)
 
