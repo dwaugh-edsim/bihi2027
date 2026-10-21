@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 8 LCD: Treaty Docket Briefing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --surface: #ffffff;
+            --border-card: #cbd5e1;
+            --border-dark: #334155;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #475569;
+            --primary: #1e3a8a;
+            --coral: #dc2626;
+            --blue: #2563eb;
+            --blue-bg: #eff6ff;
+            --amber: #b45309;
+            --amber-bg: #fffbeb;
+            --amber-border: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.4vh 2vw 2.2vh;
+        }
+
+        /* Top Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--border-dark);
+            padding-bottom: 0.8vh;
+        }
+
+        .title-group h1 {
+            font-family: 'Arvo', Georgia, serif;
+            font-size: clamp(1.4rem, 2.2vw, 2rem);
+            font-weight: 700;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .badge-court {
+            background: #0f172a;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.65rem, 0.85vw, 0.82rem);
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+            vertical-align: middle;
+        }
+
+        .subtitle {
+            font-size: clamp(0.85rem, 1.05vw, 1rem);
+            color: var(--primary);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .meta-stamp {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.75rem, 0.9vw, 0.88rem);
+            color: var(--text-muted);
+            line-height: 1.35;
+            font-weight: 700;
+        }
+
+        /* Mission Hook Banner */
+        .mission-banner {
+            background: #ffffff;
+            border-left: 5px solid var(--primary);
+            border-top: 1px solid var(--border-card);
+            border-right: 1px solid var(--border-card);
+            border-bottom: 1px solid var(--border-card);
+            padding: 0.8vh 1.4vw;
+            border-radius: 0 6px 6px 0;
+            margin: 0.9vh 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .mission-text {
+            font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .mission-sub {
+            font-size: clamp(0.8rem, 0.95vw, 0.92rem);
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* 4 Step Cards Grid */
+        .grid-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.1vw;
+            flex: 1;
+            min-height: 0;
+            align-items: stretch;
+            margin: 0.6vh 0 1vh;
+        }
+
+        .step-card {
+            background: #ffffff;
+            border: 1.5px solid var(--border-card);
+            border-radius: 6px;
+            padding: 1.2vh 1vw 1vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid var(--border-card);
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+        }
+
+        .step-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.72rem, 0.82vw, 0.85rem);
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.04em;
+        }
+
+        .step-pts {
+            background: #f1f5f9;
+            color: var(--text-heading);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.65rem, 0.72vw, 0.75rem);
+            font-weight: 800;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid var(--border-card);
+        }
+
+        .step-title {
+            font-family: 'Arvo', Georgia, serif;
+            font-size: clamp(0.95rem, 1.15vw, 1.15rem);
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+            line-height: 1.25;
+        }
+
+        .step-body {
+            font-size: clamp(0.82rem, 0.95vw, 0.95rem);
+            color: var(--text-body);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .step-body ul {
+            padding-left: 16px;
+            margin-top: 4px;
+        }
+
+        .step-body li {
+            margin-bottom: 5px;
+        }
+
+        /* Discussion Cue Callout Banners */
+        .tag-callout {
+            background: var(--amber-bg);
+            border: 1.5px solid var(--amber-border);
+            padding: 6px 8px;
+            font-size: clamp(0.75rem, 0.88vw, 0.88rem);
+            font-weight: 700;
+            color: var(--amber);
+            border-radius: 4px;
+            margin-top: 6px;
+            line-height: 1.3;
+        }
+
+        .tag-callout.spar {
+            background: var(--blue-bg);
+            border-color: var(--blue);
+            color: #1e40af;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 2px;
+            background: #b45309;
+            color: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .tag-callout.spar .tag-badge {
+            background: #2563eb;
+        }
+
+        /* Bottom Rules Strip */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border: 1.5px solid var(--border-card);
+            padding: 0.8vh 1.4vw;
+            border-radius: 6px;
+            font-size: clamp(0.78rem, 0.9vw, 0.92rem);
+            font-weight: 700;
+            color: var(--text-heading);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .rule-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rule-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="title-group">
+            <h1>CITIZENSHIP 9 <span class="badge-court">LEGAL DOCKET BRIEFING</span></h1>
+            <div class="subtitle">Unit 2: Peace and Friendship Treaties &bull; Document ID: CIT9-TR10</div>
+        </div>
+        <div class="meta-stamp">
+            ROOM 8 &bull; MR. WAUGH<br>
+            <span style="color: var(--coral); font-weight: 800;">NEXT CLASS: COURTROOM TRIAL</span>
+        </div>
+    </header>
+
+    <div class="mission-banner">
+        <div class="mission-text">
+            &ldquo;Today: Compile your evidence docket. Next class: Room 8 becomes a Constitutional Courtroom.&rdquo;
+        </div>
+        <div class="mission-sub">
+            The arguments on your docket today are your ammunition at the podium next class.
+        </div>
+    </div>
+
+    <div class="grid-steps">
+        <!-- BOX 1 -->
+        <div class="step-card">
+            <div>
+                <div class="step-header">
+                    <span class="step-num">BOX 1 &bull; SIDE A</span>
+                    <span class="step-pts">4 PTS</span>
+                </div>
+                <div class="step-title">The 1760 Promise</div>
+                <div class="step-body">
+                    <ul>
+                        <li>Circle: <strong>"as usual"</strong> &amp; <strong>"Truckhouse"</strong></li>
+                        <li><strong>Step 2:</strong> What 2 specific things did the British Crown guarantee?</li>
+                        <li><strong>Step 3:</strong> Mi'kma'ki is <strong>unceded</strong> (never sold). Why does that matter today?</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-callout">
+                <span class="tag-badge">PARTNER TALK 💬 (1 MIN)</span><br>
+                If no land was ever sold, who holds inherent rights under Room 8?
+            </div>
+        </div>
+
+        <!-- BOX 2 -->
+        <div class="step-card">
+            <div>
+                <div class="step-header">
+                    <span class="step-num">BOX 2 &bull; SIDE A</span>
+                    <span class="step-pts">4 PTS</span>
+                </div>
+                <div class="step-title">Worldview Collision</div>
+                <div class="step-body">
+                    <ul>
+                        <li><strong>Left Seat (Harvester):</strong> Inherent right (Netukulimk); community sustenance; no federal permit needed.</li>
+                        <li><strong>Right Seat (DFO Officer):</strong> Federal conservation, closed seasons, and quotas must protect stock for all.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-callout spar">
+                <span class="tag-badge">PARTNER SPAR 💬 (2 MIN)</span><br>
+                Left Seat vs. Right Seat: Who has the legal authority to set the rules?
+            </div>
+        </div>
+
+        <!-- BOX 3 -->
+        <div class="step-card">
+            <div>
+                <div class="step-header">
+                    <span class="step-num">BOX 3 &bull; SIDE B</span>
+                    <span class="step-pts">4 PTS</span>
+                </div>
+                <div class="step-title">The Marshall Precedent</div>
+                <div class="step-body">
+                    <ul>
+                        <li><strong>1999:</strong> Supreme Court confirms 1760 treaty protects <strong>Moderate Livelihood</strong>.</li>
+                        <li><strong>1999 Burnt Church &amp; 2020 St. Mary's Bay:</strong> Conflicts ignite over undefined rules.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-callout">
+                <span class="tag-badge">PARTNER TALK 💬 (1 MIN)</span><br>
+                What exact dollar income is a "moderate livelihood" today? $40k? $80k?
+            </div>
+        </div>
+
+        <!-- BOX 4 -->
+        <div class="step-card">
+            <div>
+                <div class="step-header">
+                    <span class="step-num">BOX 4 &bull; SIDE B</span>
+                    <span class="step-pts">6 PTS</span>
+                </div>
+                <div class="step-title">Civic Synthesis</div>
+                <div class="step-body">
+                    <ul>
+                        <li><em>&ldquo;We Are All Treaty People.&rdquo;</em></li>
+                        <li><strong>Part A:</strong> 1 right or benefit non-Indigenous citizens enjoy from peaceful treaty coexistence.</li>
+                        <li><strong>Part B:</strong> 1 active civic responsibility you carry.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-callout">
+                <span class="tag-badge">PARTNER TALK 💬 (1 MIN)</span><br>
+                Dinner Reality Check: What do we receive from treaties &amp; what do we owe?
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="rule-pill">
+            <div class="rule-dot"></div>
+            <span>Dark pen or pencil (ADF scanned at the bell)</span>
+        </div>
+        <div class="rule-pill" style="color: var(--primary);">
+            <span>Core Reduced Pathway: Boxes 1 &amp; 3</span>
+        </div>
+        <div class="rule-pill" style="color: var(--coral);">
+            <span>Hand in to Mr. Waugh at the door</span>
+        </div>
+    </footer>
+
+</body>
+</html>

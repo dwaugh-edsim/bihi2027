@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9: The Man, The Eels & The Treaty (5-Beat Multimedia Tribunal)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700;800&family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --surface: #ffffff;
+            --text-heading: #0f172a;
+            --text-body: #1e293b;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --red: #b91c1c;
+            --red-bg: #fef2f2;
+            --amber: #b45309;
+            --amber-bg: #fffbeb;
+            --amber-border: #fde68a;
+            --emerald: #047857;
+            --emerald-bg: #ecfdf5;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            background: var(--bg-page);
+            color: var(--text-body);
+            font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 2px solid var(--text-heading);
+            padding: 0.9vh 2.5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h1 {
+            font-family: 'Arvo', Georgia, serif;
+            font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+
+        .badge-case {
+            background: var(--primary);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .slide-indicator {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stage {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            padding: 1.8vh 2.5vw 1.2vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 1.5vh;
+            left: 2.5vw;
+            right: 2.5vw;
+            bottom: 1vh;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 2.2vh 2.5vw;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .slide-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .slide-headline {
+            font-family: 'Arvo', Georgia, serif;
+            font-size: clamp(1.4rem, 2.1vw, 2rem);
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.2;
+            margin-bottom: 1.2vh;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            gap: 2vw;
+            align-items: stretch;
+            min-height: 0;
+        }
+
+        .card-panel {
+            flex: 1;
+            background: var(--bg-page);
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            padding: 1.6vh 1.8vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-panel h3 {
+            font-family: 'Arvo', Georgia, serif;
+            font-size: clamp(1.05rem, 1.25vw, 1.25rem);
+            color: var(--text-heading);
+            margin-bottom: 1vh;
+            border-bottom: 1.5px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .card-panel ul {
+            padding-left: 18px;
+            font-size: clamp(0.98rem, 1.15vw, 1.15rem);
+            line-height: 1.6;
+            color: var(--text-body);
+        }
+
+        .fact-highlight {
+            background: #ffffff;
+            border-left: 4px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 0 4px 4px 0;
+            font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+            font-weight: 600;
+            margin-top: 12px;
+            color: var(--text-heading);
+        }
+
+        .video-cue-badge {
+            background: #0f172a;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .photo-card {
+            flex: 0.95;
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            padding: 1vh 1vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .photo-frame {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #0f172a;
+            border-radius: 4px;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-caption {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            line-height: 1.35;
+        }
+
+        /* Callout Prompt Box */
+        .slide-prompt-box {
+            background: var(--amber-bg);
+            border: 2px solid var(--amber-border);
+            border-radius: 6px;
+            padding: 1.1vh 1.6vw;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 1.2vh;
+        }
+
+        .prompt-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            background: var(--amber);
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .prompt-text {
+            font-size: clamp(0.95rem, 1.15vw, 1.18rem);
+            font-weight: 700;
+            color: #78350f;
+            flex: 1;
+            line-height: 1.35;
+        }
+
+        .deck-outcome-strip {
+            background: #0f172a;
+            border-top: 2px solid #1e293b;
+            padding: 0.6vh 2.5vw;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: clamp(0.75rem, 0.9vw, 0.86rem);
+            flex-shrink: 0;
+        }
+
+        .deck-outcome-strip .outcome-badge {
+            background: var(--amber);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 3px;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .deck-outcome-strip .outcome-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #93c5fd;
+            white-space: nowrap;
+        }
+
+        .deck-outcome-strip .outcome-text {
+            color: #f1f5f9;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        footer {
+            background: #ffffff;
+            border-top: 1.5px solid var(--border);
+            padding: 0.6vh 2.5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            color: var(--text-heading);
+        }
+        .btn-nav:hover { background: var(--bg-page); border-color: var(--text-heading); }
+
+        .blank-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000000;
+            display: none;
+            z-index: 99999;
+            cursor: pointer;
+        }
+        .blank-screen.white { background: #ffffff; }
+        .blank-screen.on { display: block; }
+    
+        /* Embedded Video Player Component */
+        .video-card {
+            flex: 0.88;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .video-frame {
+            flex: 1;
+            min-height: 0;
+            background: #000000;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-frame video {
+            width: 100%;
+            height: 100%;
+            max-height: 52vh;
+            object-fit: contain;
+            border-radius: 4px;
+            background: #000000;
+        }
+
+        .video-caption {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-play-video {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-play-video:hover {
+            background: #172554;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <span class="badge-case">CASE CRUCIBLE</span>
+            <h1>Citizenship 9 • Donald Marshall Jr., The Treaties &amp; Modern Clashes</h1>
+        </div>
+        <div class="slide-indicator">
+            <span id="slide-num">COVER PAGE</span>
+        </div>
+    </header>
+
+    <div class="stage">
+
+        <!-- ==================== SLIDE 1 (COVER) ==================== -->
+        <div class="slide active" id="slide-1" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+            <div>
+                <div class="slide-tag" style="color: var(--red); letter-spacing: 0.12em;">CASE CRUCIBLE &bull; CITIZENSHIP 9 &bull; UNIT 2</div>
+                <div class="slide-headline" style="font-size: clamp(2.2rem, 3.4vw, 3.4rem); margin-bottom: 0.4vh; color: #0f172a; text-transform: uppercase;">
+                    JUSTICE DENIED
+                </div>
+                <div style="font-size: clamp(1rem, 1.25vw, 1.3rem); font-weight: 600; color: #475569; margin-bottom: 1.2vh;">
+                    The Donald Marshall Jr. Story &bull; 5-Beat Multimedia Judicial Tribunal
+                </div>
+            </div>
+
+            <div class="slide-content" style="gap: 2vw;">
+                <!-- Left Card: 1971 Teaser -->
+                <div class="card-panel" style="flex: 1; border-top: 4px solid var(--red); background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.04); justify-content: space-between;">
+                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 1vh;">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; background: var(--red-bg); color: var(--red); border: 1px solid #fca5a5; padding: 2px 8px; border-radius: 4px;">ACT I &bull; 1971</span>
+                        <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-heading);">The Sydney Frame-Up</span>
+                    </div>
+                    <div style="display: flex; gap: 14px; align-items: center;">
+                        <div style="width: 135px; height: 165px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;">
+                            <img src="marshall_arrest_1971.jpg" alt="17-year-old Donald Marshall Jr." style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <ul style="font-size: clamp(0.92rem, 1.08vw, 1.12rem); line-height: 1.55; margin: 0; padding-left: 14px;">
+                            <li>A midnight murder in Wentworth Park.</li>
+                            <li>A 17-year-old boy walks into Sydney Police to report the killer and get medical help.</li>
+                            <li>Hours later, he is put in handcuffs and charged with murder.</li>
+                        </ul>
+                    </div>
+                    <div class="fact-highlight" style="border-left-color: var(--red); margin-top: auto; font-size: 0.92rem; font-weight: 700;">
+                        How does a reporting witness end up facing life in prison?
+                    </div>
+                </div>
+
+                <!-- Right Card: 1993-2026 Teaser -->
+                <div class="card-panel" style="flex: 1; border-top: 4px solid var(--primary); background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.04); justify-content: space-between;">
+                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 1vh;">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; background: var(--primary-light); color: var(--primary); border: 1px solid #93c5fd; padding: 2px 8px; border-radius: 4px;">ACT II &bull; 1993–2026</span>
+                        <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-heading);">The Treaty Battles</span>
+                    </div>
+                    <div style="display: flex; gap: 14px; align-items: center;">
+                        <div style="width: 135px; height: 165px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;">
+                            <img src="marshall_exoneration_1989.jpg" alt="Donald Marshall Jr." style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <ul style="font-size: clamp(0.92rem, 1.08vw, 1.12rem); line-height: 1.55; margin: 0; padding-left: 14px;">
+                            <li>463 lbs of eels seized by armed federal officers.</li>
+                            <li>Marshall defends himself with a 233-year-old piece of parchment signed in 1760.</li>
+                            <li>Triggers modern lobster conflicts in 2020 and sovereign cannabis raids today.</li>
+                        </ul>
+                    </div>
+                    <div class="fact-highlight" style="border-left-color: var(--primary); margin-top: auto; font-size: 0.92rem; font-weight: 700;">
+                        Can an 18th-century treaty beat modern federal and provincial laws?
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-prompt-box" style="background: #ffffff; border-color: #334155;">
+                <span class="prompt-label" style="background: #0f172a;">CLASSROOM STARTUP</span>
+                <span class="prompt-text" style="color: #0f172a;">Take your seat &bull; Keep your Judicial Brief face-down &bull; Press [Next &rarr; / Clicker] to open Beat 1</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 2: BEAT 1 (1971 MURDER & FRAME-UP) ==================== -->
+        <div class="slide" id="slide-2">
+            <div>
+                <div class="slide-tag">BEAT 1 &bull; WENTWORTH PARK &bull; MAY 1971</div>
+                <div class="slide-headline">The Murder &amp; The Wrongful Conviction</div>
+            </div>
+            <div class="slide-content">
+                <div class="video-card">
+                    <div class="video-frame">
+                        <video id="video-beat-1" playsinline controls preload="metadata" poster="marshall_arrest_1971.jpg">
+                            <source src="Framed_for_Seeking_Help.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-caption">
+                        <button type="button" class="btn-play-video" onclick="togglePlayVideo('video-beat-1')">
+                            <span id="btn-icon-1">&#9654;</span> <span id="btn-text-1">Play Case Video (1:22)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-panel" style="flex: 1.25; background: var(--red-bg); border-color: #fca5a5;">
+                    <div class="video-cue-badge">&#9654; CASE FILE 1 &bull; VIDEO INQUEST (1:22)</div>
+                    <h3 style="color: var(--red);">The Anatomy of a Frame-Up</h3>
+                    <ul>
+                        <li><strong>The Crime:</strong> Sandy Seale fatally stabbed in Wentworth Park by Roy Ebsary; Donald slashed trying to defend him.</li>
+                        <li><strong>Police Tunnel Vision:</strong> Donald walked in to report the murder; detectives immediately targeted the 17-year-old Mi'kmaw witness instead.</li>
+                        <li><strong>Fabricated Testimony:</strong> Police intimidated teen bystanders into signing false statements claiming they saw Donald do it.</li>
+                        <li><strong>The Stolen Youth:</strong> All-white jury convicts Donald in minutes; spends 11 years (ages 17–28) in maximum security.</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--red);">
+                        The real killer walked free on the streets of Nova Scotia for over a decade.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">CASE 1 &bull; YOUR BRIEF</span>
+                <span class="prompt-text">Turn to your partner (3 min): What caused police to lock onto Marshall instead of investigating Roy Ebsary? Ink Case 1!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 3: BEAT 2 (1989 MARSHALL INQUIRY) ==================== -->
+        <div class="slide" id="slide-3">
+            <div>
+                <div class="slide-tag">BEAT 2 &bull; THE ROYAL COMMISSION &bull; 1989</div>
+                <div class="slide-headline">The Marshall Inquiry: Systemic Racism Exposed</div>
+            </div>
+            <div class="slide-content">
+                <div class="video-card">
+                    <div class="video-frame">
+                        <video id="video-beat-2" playsinline controls preload="metadata" poster="marshall_exoneration_1989.jpg">
+                            <source src="Putting_the_Justice_System_on_Trial.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-caption">
+                        <button type="button" class="btn-play-video" onclick="togglePlayVideo('video-beat-2')">
+                            <span id="btn-icon-2">&#9654;</span> <span id="btn-text-2">Play Case Video (1:29)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-panel" style="flex: 1.25;">
+                    <div class="video-cue-badge">&#9654; CASE FILE 2 &bull; VIDEO INQUEST (1:29)</div>
+                    <h3>"The Justice System Failed Him at Every Step"</h3>
+                    <ul>
+                        <li><strong>1982 Release:</strong> Key witness recanted; Ebsary's daughter reported her father's confession. Marshall freed after 11 years.</li>
+                        <li><strong>The Cover-Up:</strong> Appeal court blamed Donald, calling him "the author of his own misfortune." Outrage forced a Royal Commission.</li>
+                        <li><strong>The 1989 Inquiry Verdict:</strong> Concluded police, Crown prosecutors, judges, and government failed Marshall due to systemic racism.</li>
+                        <li><strong>Lasting Legal Reform:</strong> Created Nova Scotia's Public Prosecution Service and laid the direct foundation for <strong>Gladue Rights (1999)</strong>.</li>
+                    </ul>
+                    <div class="fact-highlight">
+                        Gladue Principle: Judges are legally mandated to consider colonial trauma and restorative alternatives before jailing Indigenous people.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">CASE 2 &bull; YOUR BRIEF</span>
+                <span class="prompt-text">Partner Inquest (3 min): What systemic failure did the Royal Commission uncover, and what legal reform came out of it? Ink Case 2!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 4: BEAT 3 (1993 EELS: LAWS VS TREATIES) ==================== -->
+        <div class="slide" id="slide-4">
+            <div>
+                <div class="slide-tag">BEAT 3 &bull; POMQUET HARBOUR &bull; AUGUST 1993</div>
+                <div class="slide-headline">The Eels: Federal Fisheries Act vs. 1760 Treaty</div>
+            </div>
+            <div class="slide-content">
+                <div class="video-card">
+                    <div class="video-frame">
+                        <video id="video-beat-3" playsinline controls preload="metadata">
+                            <source src="The_Eel_Catch_That_Challenged_Canada.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-caption">
+                        <button type="button" class="btn-play-video" onclick="togglePlayVideo('video-beat-3')">
+                            <span id="btn-icon-3">&#9654;</span> <span id="btn-text-3">Play Case Video (1:15)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-panel" style="flex: 1.25;">
+                    <div class="video-cue-badge">&#9654; CASE FILE 3 &bull; VIDEO INQUEST (1:15)</div>
+                    <h3>Statute Law vs. Constitutional Treaty</h3>
+                    <ul>
+                        <li><strong>The Ambush:</strong> Donald harvested 463 lbs of eels ($787.10) for groceries. Armed DFO officers seized boat, nets, and catch.</li>
+                        <li><strong>Federal Charges:</strong> Fishing out of season, without licence, with illegal net under the *Fisheries Act*.</li>
+                        <li><strong>Crown Argument:</strong> <em>"Fisheries Act applies universally. No citizen has special harvesting rights."</em></li>
+                        <li><strong>The 1760 Treaty:</strong> Guarantees harvesting <em>"as usual"</em> and a <em>"Truckhouse"</em> to trade for <em>"necessaries"</em>. Section 35 makes treaties supreme law!</li>
+                    </ul>
+                    <div class="fact-highlight">
+                        Does a modern federal regulation erase an 18th-century constitutional promise?
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">ROOM VOTE &bull; CASE 3</span>
+                <span class="prompt-text">ROOM SPLIT VOTE: Did Donald Marshall Jr. break the law? Cast your vote: [ ] YES (Fisheries Act) vs. [ ] NO (1760 Treaty), and ink your best reason!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 5: BEAT 4 (1999 DECISION & LIVELIHOOD) ==================== -->
+        <div class="slide" id="slide-5">
+            <div>
+                <div class="slide-tag">BEAT 4 &bull; SUPREME COURT OF CANADA &bull; SEPT 17, 1999</div>
+                <div class="slide-headline">The 1999 Legal Decision: R. v. Marshall</div>
+            </div>
+            <div class="slide-content">
+                <div class="video-card">
+                    <div class="video-frame">
+                        <video id="video-beat-4" playsinline controls preload="metadata">
+                            <source src="The_Blank_Check_of_Moderate_Livelihood.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-caption">
+                        <button type="button" class="btn-play-video" onclick="togglePlayVideo('video-beat-4')">
+                            <span id="btn-icon-4">&#9654;</span> <span id="btn-text-4">Play Case Video (1:08)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-panel" style="flex: 1.25;">
+                    <div class="video-cue-badge">&#9654; CASE FILE 4 &bull; VIDEO INQUEST (1:08)</div>
+                    <h3 style="color: var(--emerald);">The Acquittal &amp; The Blank Rule</h3>
+                    <ul>
+                        <li><strong>Constitutional Victory:</strong> Donald Marshall Jr. ACQUITTED. Treaties are supreme law under Section 35.</li>
+                        <li><strong>Moderate Livelihood:</strong> Inherent right to trade resources for basic necessities (food, clothing, housing).</li>
+                        <li><strong>Unceded Territory:</strong> Confirms the Mi'kmaq never lost a war or surrendered land to the Crown.</li>
+                        <li><strong>The Fatal Flaw:</strong> The Supreme Court left the numbers blank—no dollar cap, no trap quota, no defined seasons.</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--red);">
+                        Because Ottawa stalled and never negotiated rules, a massive legal vacuum was born.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">CASE 4 &bull; YOUR BRIEF</span>
+                <span class="prompt-text">Check [X] NO (Unceded Land) on Case 4, and ink why leaving "moderate livelihood" undefined created a legal time-bomb!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 6: BEAT 5 (MODERN CONSEQUENCES) ==================== -->
+        <div class="slide" id="slide-6">
+            <div>
+                <div class="slide-tag">BEAT 5 &bull; MODERN CONSEQUENCES &bull; 2020–2026</div>
+                <div class="slide-headline">How a Blank Rule Sparked Today's Conflicts</div>
+            </div>
+            <div class="slide-content">
+                <div class="video-card">
+                    <div class="video-frame">
+                        <video id="video-beat-5" playsinline controls preload="metadata">
+                            <source src="How_a_Blank_Rule_Sparked_the_Lobster_Riots.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-caption">
+                        <button type="button" class="btn-play-video" onclick="togglePlayVideo('video-beat-5')">
+                            <span id="btn-icon-5">&#9654;</span> <span id="btn-text-5">Play Case Video (1:25)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-panel" style="flex: 1.25;">
+                    <div class="video-cue-badge">&#9654; CASE FILE 5 &bull; VIDEO INQUEST (1:25)</div>
+                    <h3>From St. Mary's Bay to Sovereign Cannabis</h3>
+                    <ul>
+                        <li><strong>The 1999 Blank:</strong> Supreme Court confirmed a "moderate livelihood," but left dollar limits, trap counts, and seasons blank.</li>
+                        <li><strong>2020 St. Mary's Bay:</strong> Sipekne'katik launched its own treaty lobster fishery; commercial fleets blockaded wharves and burned a lobster pound in Pubnico.</li>
+                        <li><strong>2025–26 Sovereign Cannabis:</strong> Mi'kmaw trading posts operate on unceded land under the 1760 Truckhouse clause; RCMP tactical raids seize cash and product.</li>
+                    </ul>
+                    <div class="fact-highlight">
+                        Both modern disputes trace directly back to the 20-year legal vacuum from the Marshall decision.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">CASE 5 &bull; YOUR BRIEF</span>
+                <span class="prompt-text">Choose ONE modern dispute: (A) Lobster Riots OR (B) Sovereign Cannabis. How does it connect back to Donald Marshall Jr.? Ink Case 5!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 7: BEAT 5B (2025-26 CANNABIS RAIDS) ==================== -->
+        <div class="slide" id="slide-7">
+            <div>
+                <div class="slide-tag">BEAT 5 &bull; MODERN CONSEQUENCE #2 &bull; 2025–2026</div>
+                <div class="slide-headline">The Sovereign Cannabis Raids in Nova Scotia</div>
+            </div>
+            <div class="slide-content">
+                <div class="card-panel" style="background: var(--primary-light); border-color: #93c5fd;">
+                    <div class="video-cue-badge">&#9654; PLAY NOTEBOOKLM VIDEO 5 (PART B)</div>
+                    <h3 style="color: var(--primary);">Trading Posts on Unceded Territory</h3>
+                    <ul>
+                        <li>Dozens of storefront dispensaries operate along Nova Scotia corridors (Millbrook, Sipekne'katik).</li>
+                        <li>They do not carry NSLC permits and fly the Mi'kmaw Grand Council flag.</li>
+                        <li><strong>The Sovereign Argument:</strong> Under the 1760 Treaty Truckhouse clause, the Mi'kmaq have an inherent right to trade commodities on unceded land. Cannabis is just the modern eel!</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--primary);">
+                        "If Donald Marshall had the right to sell eels, we have the right to trade modern commodities."
+                    </div>
+                </div>
+                <div class="card-panel" style="background: var(--red-bg); border-color: #fca5a5;">
+                    <h3 style="color: var(--red);">The RCMP Tactical Crackdown</h3>
+                    <ul>
+                        <li><strong>Crown &amp; Province Argument:</strong> The federal <em>Cannabis Act</em> is a criminal public health law that applies to everyone equally.</li>
+                        <li>Armed RCMP officers execute tactical raids, seize cash and product, and lay criminal charges.</li>
+                        <li>Shops frequently reopen within 48 hours, setting up the next Supreme Court battle.</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--red);">
+                        The exact same clash: Does modern statute law override an 18th-century treaty covenant?
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box">
+                <span class="prompt-label">MODERN CONSEQUENCES &bull; CASE 5</span>
+                <span class="prompt-text">If choosing (B) Cannabis: How does trading cannabis on unceded land trace back to the 1760 Truckhouse clause? Complete Case 5!</span>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 8: CIVIC SYNTHESIS ==================== -->
+        <div class="slide" id="slide-8">
+            <div>
+                <div class="slide-tag">DEBRIEF &bull; ROOM 8 &bull; BICENTENNIAL JUNIOR HIGH</div>
+                <div class="slide-headline">&ldquo;We Are All Treaty People&rdquo;</div>
+            </div>
+            <div class="slide-content">
+                <div class="card-panel" style="background: var(--primary-light); border-color: #93c5fd;">
+                    <h3 style="color: var(--primary);">What Citizens in Nova Scotia Receive</h3>
+                    <ul>
+                        <li>The Mi'kmaq never lost a war of conquest and never surrendered land.</li>
+                        <li><strong>The Peace Treaties are the legal reason non-Indigenous citizens can live, work, and own property peacefully in Nova Scotia today.</strong></li>
+                        <li>Treaties are not special privileges for Indigenous people; they are the legal peace pact for all of us.</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--primary);">
+                        Without the 1760 Treaty, non-Indigenous presence has no legal peace agreement.
+                    </div>
+                </div>
+                <div class="card-panel" style="background: var(--amber-bg); border-color: var(--amber-border);">
+                    <h3 style="color: var(--amber);">What Treaty Partners Owe</h3>
+                    <ul>
+                        <li><strong>Holding Government Accountable:</strong> Demanding that Ottawa honor Crown treaty covenants rather than stalling for decades.</li>
+                        <li><strong>Respecting Inherent Rights:</strong> Recognizing that treaty harvesting is constitutionally protected supreme law.</li>
+                        <li><strong>Active Reconciliation:</strong> Learning true history and building honest relationships on unceded land.</li>
+                    </ul>
+                    <div class="fact-highlight" style="border-left-color: var(--amber);">
+                        Reconciliation is an active civic duty, not an optional gesture.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-prompt-box" style="background: #ffffff; border-color: #0f172a;">
+                <span class="prompt-label" style="background: #0f172a;">FINAL TRIBUNAL CHECK</span>
+                <span class="prompt-text" style="color: #0f172a;">Make sure all 5 Cases are completed &bull; Hand your Judicial Brief in at the door as you exit!</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="deck-outcome-strip">
+        <span class="outcome-badge">LEARNING OUTCOME</span>
+        <span class="outcome-code">CIT9 &bull; U2B</span>
+        <span class="outcome-text">Learners will evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people.</span>
+    </div>
+
+    <footer>
+        <div class="nav-buttons">
+            <button class="btn-nav" onclick="prevSlide()">&larr; Previous</button>
+            <button class="btn-nav" onclick="nextSlide()">Next &rarr;</button>
+        </div>
+        <div>
+            <span>PPT Remote Enabled (&larr; &rarr; / PageUp/Dn &bull; B/. Blackout &bull; F5 Fullscreen)</span>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--primary);">
+            CIT9-TRIBUNAL-5B (8 SLIDES &bull; COVER + 5 BEATS + DEBRIEF)
+        </div>
+    </footer>
+
+    <div class="blank-screen" id="blankScreen" onclick="dismissBlank()" title="Click or press any key to dismiss"></div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        function pauseAllVideos() {
+            const videos = document.querySelectorAll('video');
+            videos.forEach(v => {
+                if (!v.paused) {
+                    v.pause();
+                }
+            });
+            // Reset button states
+            for (let i = 1; i <= 5; i++) {
+                const icon = document.getElementById('btn-icon-' + i);
+                const txt = document.getElementById('btn-text-' + i);
+                if (icon) icon.innerHTML = '&#9654;';
+                if (txt) {
+                    if (i === 1) txt.textContent = 'Play Case Video (1:22)';
+                    if (i === 2) txt.textContent = 'Play Case Video (1:30)';
+                    if (i === 3) txt.textContent = 'Play Case Video (1:15)';
+                    if (i === 4) txt.textContent = 'Play Case Video (1:08)';
+                    if (i === 5) txt.textContent = 'Play Case Video (1:25)';
+                }
+            }
+        }
+
+        function togglePlayVideo(id) {
+            const v = document.getElementById(id);
+            if (!v) return;
+            const num = id.replace('video-beat-', '');
+            const icon = document.getElementById('btn-icon-' + num);
+            const txt = document.getElementById('btn-text-' + num);
+
+            if (v.paused) {
+                pauseAllVideos();
+                v.play();
+                if (icon) icon.innerHTML = '&#10074;&#10074;';
+                if (txt) txt.textContent = 'Pause Video';
+            } else {
+                v.pause();
+                if (icon) icon.innerHTML = '&#9654;';
+                if (txt) {
+                    if (num === '1') txt.textContent = 'Resume Video (1:22)';
+                    if (num === '2') txt.textContent = 'Resume Video (1:30)';
+                    if (num === '3') txt.textContent = 'Resume Video (1:15)';
+                    if (num === '4') txt.textContent = 'Resume Video (1:08)';
+                    if (num === '5') txt.textContent = 'Resume Video (1:25)';
+                }
+            }
+        }
+
+        function showSlide(n) {
+            pauseAllVideos();
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            for (let i = 1; i <= totalSlides; i++) {
+                const el = document.getElementById('slide-' + i);
+                if (el) el.classList.remove('active');
+            }
+
+            const activeEl = document.getElementById('slide-' + currentSlide);
+            if (activeEl) activeEl.classList.add('active');
+
+            if (currentSlide === 1) {
+                document.getElementById('slide-num').textContent = `COVER PAGE`;
+            } else {
+                document.getElementById('slide-num').textContent = `SLIDE ${currentSlide} OF ${totalSlides}`;
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) showSlide(currentSlide - 1);
+        }
+
+        function toggleArrestPhoto(el) {
+            if (el.src.includes('marshall_arrest_1971_bw.png')) {
+                el.src = 'marshall_arrest_1971.jpg';
+                el.title = 'Click to switch to Black & White archival print';
+            } else {
+                el.src = 'marshall_arrest_1971_bw.png';
+                el.title = 'Click to switch to Color archival photograph';
+            }
+        }
+
+        function toggleBlank(white) {
+            const el = document.getElementById('blankScreen');
+            if (!el) return;
+            const wantWhite = !!white;
+            const isOn = el.classList.contains('on');
+            const isWhite = el.classList.contains('white');
+            if (isOn && isWhite === wantWhite) {
+                el.classList.remove('on', 'white');
+            } else {
+                el.classList.toggle('white', wantWhite);
+                el.classList.add('on');
+            }
+        }
+
+        function dismissBlank() {
+            const el = document.getElementById('blankScreen');
+            if (el && el.classList.contains('on')) {
+                el.classList.remove('on', 'white');
+                return true;
+            }
+            return false;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        function advanceOrReveal() {
+            if (dismissBlank()) return;
+            nextSlide();
+        }
+
+        function retreatOrHide() {
+            if (dismissBlank()) return;
+            prevSlide();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const k = e.key;
+            const isBlankOn = document.getElementById('blankScreen')?.classList.contains('on');
+
+            // Press 'V' or 'v' to toggle video playback on current slide
+            if (k === 'v' || k === 'V') {
+                e.preventDefault();
+                if (currentSlide === 2) togglePlayVideo('video-beat-1');
+                if (currentSlide === 3) togglePlayVideo('video-beat-2');
+                if (currentSlide === 4) togglePlayVideo('video-beat-3');
+                if (currentSlide === 5) togglePlayVideo('video-beat-4');
+                if (currentSlide === 6) togglePlayVideo('video-beat-5');
+                return;
+            }
+
+            if (k === 'PageDown' || k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'Spacebar' || k === 'Enter' || k === 'n' || k === 'N') {
+                e.preventDefault();
+                advanceOrReveal();
+            } else if (k === 'PageUp' || k === 'ArrowLeft' || k === 'ArrowUp' || k === 'Backspace' || k === 'p' || k === 'P') {
+                e.preventDefault();
+                retreatOrHide();
+            } else if (k === 'b' || k === 'B' || k === '.' || k === 'w' || k === 'W') {
+                e.preventDefault();
+                toggleBlank(k === 'w' || k === 'W');
+            } else if (k === 'F5' || k === 'f' || k === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            } else if (k === 'Escape') {
+                if (isBlankOn) {
+                    e.preventDefault();
+                    dismissBlank();
+                } else if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            } else if (!isNaN(parseInt(k)) && parseInt(k) >= 1 && parseInt(k) <= 8) {
+                showSlide(parseInt(k));
+            }
+        });
+    </script>
+</body>
+</html>
