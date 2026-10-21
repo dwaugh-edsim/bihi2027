@@ -44,14 +44,14 @@ window.CLASS_LOG_SEED = {
     ],
     "plans": {
         "901-CIT": {
-            "note": "Territorial Acknowledgement & the case briefing\nEvidence room walk: 10 case files around the room\nDetective pairs: log clues and deliver your verdict",
-            "classNo": "8",
-            "updated": "2026-10-14T13:00:00.000Z"
+            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket\nQuick quiz\nNext unit: Soldiers",
+            "classNo": "9",
+            "updated": "2026-10-21T15:57:00.000Z"
         },
         "902-CIT": {
-            "note": "HL9: Two news stories\nThe 60 second speech",
-            "classNo": "6",
-            "updated": "2026-10-07T14:30:00.000Z"
+            "note": "Indigenous issues review (migration theories, Donald Marshall)\nBlooket\nQuick quiz\nNext unit: Soldiers",
+            "classNo": "9",
+            "updated": "2026-10-21T15:57:00.000Z"
         },
         "903-CIT": {
             "note": "Checkpoint Review & Blooket Sprint\nQuiz #1: NS/Canada Geography & 3 Levels of Government\nContinue Real Issues Case File #1 (The Rent We Pay)",
@@ -92,10 +92,10 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-09-23T08:30:00.000Z"
         },
         "901-CIT": {
-            "title": "Mi'kmaq were here first. But where did they come from?",
+            "title": "Indigenous Issues Review & Soldiers",
             "announcements": "",
             "outcome": "Learners will evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people.",
-            "updated": "2026-10-14T13:00:00.000Z"
+            "updated": "2026-10-21T15:57:00.000Z"
         },
         "901-HL": {
             "title": "Nobody Told Me 3/3",
@@ -104,10 +104,10 @@ window.CLASS_LOG_SEED = {
             "updated": "2026-10-14T13:00:00.000Z"
         },
         "902-CIT": {
-            "title": "The 60 Second Speech",
+            "title": "Indigenous Issues Review & Soldiers",
             "announcements": "",
-            "outcome": "Learners will investigate the structure, operation, and selection of government in Canada, including federal, provincial, territorial, indigenous, and municipal government models.",
-            "updated": "2026-10-07T14:30:00.000Z"
+            "outcome": "Learners will evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people.",
+            "updated": "2026-10-21T15:57:00.000Z"
         },
         "802-HE": {
             "title": "Junction Launch — Sam's World",

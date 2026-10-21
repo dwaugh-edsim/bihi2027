@@ -1004,9 +1004,10 @@ const StudentAPI = {
     },
 
     // ============ CLASS LOG (teacher's "what we did / what's next" tracker) ============
+    CLASS_LOG_URL: 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec',
 
     async getClassLog(courseKey = 'HL9') {
-        const url = this.getScriptUrl(courseKey);
+        const url = this.CLASS_LOG_URL || this.getScriptUrl(courseKey);
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
                 const res = await fetch(`${url}?action=get_class_log`, { cache: 'no-store' });
@@ -1069,7 +1070,7 @@ const StudentAPI = {
     },
 
     async _classLogPost(payload, courseKey) {
-        const url = this.getScriptUrl(courseKey);
+        const url = this.CLASS_LOG_URL || this.getScriptUrl(courseKey);
         const payloadStr = JSON.stringify(payload);
         try {
             const res = await fetch(url, {

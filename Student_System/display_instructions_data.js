@@ -49,8 +49,12 @@ window.DISPLAY_INSTRUCTIONS = {
         note: "Blank copies are at the front of the room. (804 is exempt from Junction 2.)"
     },
     "901-CIT": {
+        heading: "Today's Agenda",
         steps: [
-            "Mi'kmaq were here first. But where did they come from?"
+            "Indigenous issues review (migration theories, Donald Marshall)",
+            "Blooket",
+            "Quick quiz",
+            "Next unit: Soldiers"
         ]
     },
     "901-HL": {
@@ -76,12 +80,13 @@ window.DISPLAY_INSTRUCTIONS = {
         ]
     },
     "902-CIT": {
+        heading: "Today's Agenda",
         steps: [
-            "Finish your assignments so Mr. Waugh can mark them over the long weekend."
+            "Indigenous issues review (migration theories, Donald Marshall)",
+            "Blooket",
+            "Quick quiz",
+            "Next unit: Soldiers"
         ]
-        // Owed lists (Citizenship quiz / Sleep Audit / Numbeo) removed Oct 9 at
-        // Mr. Waugh's request — the live sheet plan for this section still carries
-        // the stale Numbeo steps; clear those in the Class Log tracker.
     },
 
     // ── Mon Oct 5, afternoon (carried — these sections don't meet Oct 7) ───
