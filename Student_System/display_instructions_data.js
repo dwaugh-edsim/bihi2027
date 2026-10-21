@@ -53,7 +53,16 @@ window.DISPLAY_INSTRUCTIONS = {
         steps: [
             "Indigenous issues review (migration theories, Donald Marshall)",
             "Blooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c",
-            "Quick quiz",
+            "Quick quiz: https://dwaugh-edsim.github.io/bihi2027/Citizenship%209/treaties-oct26/Cit9_Treaties_Marshall_10Q_Projector_Deck.html",
+            "Next unit: Soldiers"
+        ]
+    },
+    "902-CIT": {
+        heading: "Today's Agenda",
+        steps: [
+            "Indigenous issues review (migration theories, Donald Marshall)",
+            "Blooket: https://dashboard.blooket.com/set/6ad8ded795bda003d2b5131c",
+            "Quick quiz: https://dwaugh-edsim.github.io/bihi2027/Citizenship%209/treaties-oct26/Cit9_Treaties_Marshall_10Q_Projector_Deck.html",
             "Next unit: Soldiers"
         ]
     },
