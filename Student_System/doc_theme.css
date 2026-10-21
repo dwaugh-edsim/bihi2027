@@ -1,0 +1,421 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   ROOM 8 — SHARED DOCUMENT THEME  ·  v1.0
+   ────────────────────────────────────────────────────────────────────────────
+   The house design system for A4 student documents (handouts, study sheets,
+   quizzes, worksheets, case files).
+
+   WHY THIS FILE EXISTS
+   Before it, every A4 printable in this repo invented its own palette, its own
+   type scale and its own page geometry. The result was three design systems
+   running side by side and a repo that read as "getting old". This is the one
+   that replaces them.
+
+   It carries the newest house look — the teal / ink / warm system built for the
+   Germs & Outbreaks unit (HL8 Unit 2) — combined with the millimetre-exact
+   sheet geometry and the quiz components (sec-head slabs, option grids, tick
+   boxes, fill-in rules) that already proved themselves on paper.
+
+   HOW TO USE
+   Link it from the document's head with a stylesheet link whose href points at
+   Student_System/doc_theme.css, for example href="../../Student_System/doc_theme.css".
+   Keep the depth correct relative to the file. To produce a portable
+   single-file copy, run the inliner in the private repo:
+       python ../bihipri-27/tools-priv/build_doc_template.py --inline [file.html]
+
+   Load the fonts in the document head (not here, so a page can change them):
+   a Google Fonts stylesheet link for JetBrains Mono, Open Sans Condensed and
+   Open Sans - see any template in doc-templates/ for the exact href.
+
+   TYPE SYSTEM
+     Open Sans ............ body text, tables, callouts
+     Open Sans Condensed .. headlines, section heads, titles
+     JetBrains Mono ....... kickers, labels, table headers, point values,
+                            source lines — always uppercase, always tracked out
+
+   PRINT GEOMETRY
+     One .sheet == one A4 page. 210 x 297 mm, padding 12/13 mm, and the page
+     itself has NO margin so the sheet owns the full sheet. Content that
+     overflows pushes onto a second physical page — always check the printed
+     page count against the sheets you declared.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* colour */
+  --ink: #1c2622;
+  --body: #3d4a44;
+  --muted: #6b7a73;
+  --rule: #1c2622;          /* rules are full-strength ink, not grey */
+  --hair: #c9d2cd;          /* the only hairline in the system */
+  --teal: #006376;
+  --teal-dark: #004b5a;
+  --teal-tint: #e5f2f5;
+  --warm: #c2410c;
+  --warm-tint: #fff7ed;
+  --good: #166534;
+  --good-tint: #f0fdf4;
+  --paper: #ffffff;
+  --desk: #52525b;          /* the screen backdrop behind a sheet */
+
+  /* type */
+  --f-body: 'Open Sans', system-ui, -apple-system, sans-serif;
+  --f-head: 'Open Sans Condensed', 'Open Sans', sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* page */
+  --sheet-w: 210mm;
+  --sheet-h: 297mm;
+  --pad-x: 13mm;
+  --pad-y: 12mm;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: var(--f-body);
+  color: var(--ink);
+  background: var(--desk);
+  line-height: 1.4;
+  font-size: 10pt;
+  padding: 18px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   TOOLBAR — screen only. Never prints.
+   ──────────────────────────────────────────────────────────────────────────── */
+.toolbar {
+  width: var(--sheet-w);
+  background: var(--ink);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8.5pt;
+}
+.toolbar .note { color: #cfd8d3; line-height: 1.35; }
+.toolbar .note b { color: #fff; }
+.toolbar button {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 4px;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 8.5pt;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.toolbar button:hover { background: var(--teal-dark); }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   SHEET — one A4 page
+   ──────────────────────────────────────────────────────────────────────────── */
+.sheet {
+  width: var(--sheet-w);
+  min-height: var(--sheet-h);
+  background: var(--paper);
+  padding: var(--pad-y) var(--pad-x);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+}
+.sheet:last-of-type { page-break-after: auto; break-after: auto; margin-bottom: 0; }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   PAGE HEAD — title block + identity block, one heavy rule underneath
+   ──────────────────────────────────────────────────────────────────────────── */
+.head { border-bottom: 2.5px solid var(--rule); padding-bottom: 6px; margin-bottom: 9px; }
+.head-top {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--f-mono); font-size: 6.6pt; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 3px;
+}
+.head-main { display: flex; justify-content: space-between; align-items: flex-end; gap: 10mm; }
+.head h1 {
+  font-family: var(--f-head);
+  font-size: 19pt; font-weight: 700; line-height: 1.05; color: var(--ink);
+  letter-spacing: -.01em;
+}
+.head .sub {
+  font-size: 8.2pt; color: var(--body); font-weight: 600; margin-top: 3px; line-height: 1.3;
+}
+.head .meta { text-align: right; font-size: 7.4pt; color: var(--body); flex: 0 0 auto; }
+.head .meta .row { margin-bottom: 3px; white-space: nowrap; }
+.head .meta .row b {
+  font-family: var(--f-mono); font-size: 6.2pt; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
+  margin-right: 4px;
+}
+.head .meta .fill {
+  display: inline-block; border-bottom: 1.2px solid var(--rule);
+  min-width: 26mm; height: 1em;
+}
+
+/* a tag pill that can sit in the head or the toolbar */
+.tag {
+  font-family: var(--f-mono); font-size: 6.4pt; font-weight: 800;
+  letter-spacing: .07em; text-transform: uppercase;
+  border: 1.4px solid var(--rule); border-radius: 3px;
+  background: #eef2f0; color: var(--ink); padding: 2px 7px; white-space: nowrap;
+}
+.tag.teal { background: var(--teal-tint); border-color: var(--teal); color: var(--teal-dark); }
+.tag.warm { background: var(--warm-tint); border-color: var(--warm); color: var(--warm); }
+.tag.good { background: var(--good-tint); border-color: var(--good); color: var(--good); }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   SECTION HEADS — the workhorse. A slab with a colour-coded left rule.
+   ──────────────────────────────────────────────────────────────────────────── */
+.sec-head {
+  font-family: var(--f-mono);
+  font-size: 8pt; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
+  background: #eef2f0;
+  border: 1.4px solid var(--rule);
+  border-left: 4px solid var(--teal);
+  padding: 4px 8px;
+  margin: 8px 0 5px;
+  display: flex; justify-content: space-between; align-items: center; gap: 6mm;
+}
+.sec-head .pts { color: var(--warm); white-space: nowrap; }
+.sec-head.warm { border-left-color: var(--warm); }
+.sec-head.good { border-left-color: var(--good); }
+.sec-head.ink  { border-left-color: var(--ink); }
+
+/* plain subsection heading (no slab) */
+h3 {
+  font-family: var(--f-head); font-size: 11pt; font-weight: 700;
+  color: var(--ink); margin: 9px 0 3px;
+}
+h4 {
+  font-family: var(--f-mono); font-size: 7pt; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--teal);
+  border-bottom: 1.2px solid var(--rule); padding-bottom: 3px; margin: 11px 0 6px;
+}
+
+p { margin: 0 0 5px; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+.lead { font-size: 9.4pt; color: var(--body); margin-bottom: 7px; }
+.small { font-size: 8pt; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--f-mono); }
+.center { text-align: center; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+
+/* pronunciation / science-word label */
+.say {
+  font-family: var(--f-mono); font-size: 6.8pt; font-weight: 700;
+  color: var(--muted); display: block; margin-top: 1px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   TABLES
+   ──────────────────────────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; margin: 0 0 7px; }
+th, td { border: 1.2px solid var(--rule); padding: 4px 7px; font-size: 8.4pt; text-align: left; vertical-align: top; }
+th {
+  font-family: var(--f-mono); font-size: 6.4pt; font-weight: 800;
+  letter-spacing: .05em; text-transform: uppercase; background: #eef2f0;
+  color: var(--ink);
+}
+tbody tr:nth-child(even) td { background: #f7f9f8; }
+td.num, th.num { font-family: var(--f-mono); font-weight: 700; text-align: center; }
+table.plain th, table.plain td { border: none; }
+table.plain th { background: none; padding-left: 0; }
+table.tight th, table.tight td { padding: 3px 6px; font-size: 8pt; }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   CALLOUTS — three kinds, one shape
+   ──────────────────────────────────────────────────────────────────────────── */
+.tip, .note, .exemplar {
+  border: 1.4px solid var(--rule);
+  border-radius: 6px;
+  padding: 7px 10px;
+  margin: 7px 0;
+  font-size: 8.6pt;
+  line-height: 1.4;
+}
+.tip    { background: #f5f8f6; border-left: 4px solid var(--warm); }
+.note   { background: var(--teal-tint); border-left: 4px solid var(--teal); }
+.exemplar { background: var(--good-tint); border-left: 4px solid var(--good); }
+.tip .h, .note .h, .exemplar .h {
+  font-family: var(--f-mono); font-size: 6.8pt; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase; margin-bottom: 3px;
+}
+.tip .h { color: var(--warm); }
+.note .h { color: var(--teal-dark); }
+.exemplar .h { color: var(--good); }
+.tip p, .note p, .exemplar p { margin: 0 0 4px; }
+.tip p:last-child, .note p:last-child, .exemplar p:last-child { margin-bottom: 0; }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   QUESTIONS
+   Note: .q is a list that carries NO native marker — the number is written
+   out as <span class="qn">n.</span> so it can be restarts, lettered, or
+   dropped entirely (exit tickets reuse "1." on purpose). If you add a plain
+   <ol class="q"> without a .qn span, it will print unnumbered.
+   ──────────────────────────────────────────────────────────────────────────── */
+.q { margin: 0 0 8px; padding-left: 5.2mm; list-style: none; }
+.q > li { margin-bottom: 5px; font-size: 8.8pt; }
+.q > li:last-child { margin-bottom: 0; }
+.q .qn { font-family: var(--f-mono); font-weight: 800; color: var(--teal); margin-right: 3px; }
+.q .hint { color: var(--muted); font-size: 8pt; display: block; margin-top: 1px; }
+
+/* multiple choice: option grid + tick box */
+.opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 8mm; margin: 3px 0 6px; }
+.opts.one { grid-template-columns: 1fr; }
+.opts.three { grid-template-columns: repeat(3, 1fr); }
+.opts.four { grid-template-columns: repeat(4, 1fr); }
+.opt { font-size: 8.2pt; font-weight: 600; display: flex; gap: 2mm; align-items: flex-start; line-height: 1.35; }
+.opt .box {
+  display: inline-block; width: 3.2mm; height: 3.2mm;
+  border: 1.3px solid var(--rule); border-radius: .5mm;
+  flex: 0 0 auto; margin-top: .2mm;
+}
+
+/* a plain inline answer rule */
+.fill-line {
+  display: inline-block; border-bottom: 1.2px solid var(--rule);
+  min-width: 28mm; height: 1em;
+}
+.fill-line.short { min-width: 16mm; }
+.fill-line.long { min-width: 52mm; }
+
+/* writing lines for worksheets */
+.lines { margin: 4px 0 8px; }
+.lines .l {
+  border-bottom: 1px solid var(--hair); height: 7.4mm;
+}
+.lines .l.thick { border-bottom-color: var(--rule); height: 8.4mm; }
+
+/* checkbox list */
+.checks { margin: 3px 0 6px; padding: 0; list-style: none; }
+.checks li {
+  display: flex; gap: 2.2mm; align-items: flex-start;
+  font-size: 8.4pt; margin-bottom: 2.5px;
+}
+.checks li .box {
+  display: inline-block; width: 3.2mm; height: 3.2mm;
+  border: 1.3px solid var(--rule); border-radius: .5mm;
+  flex: 0 0 auto; margin-top: .2mm;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   CASE FILE — evidence cards for document-based activities
+   ──────────────────────────────────────────────────────────────────────────── */
+.case-title {
+  font-family: var(--f-head); font-size: 21pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .02em; line-height: 1;
+  color: var(--paper); background: var(--ink);
+  padding: 7px 11px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8mm;
+}
+.case-title .stamp {
+  font-family: var(--f-mono); font-size: 7pt; font-weight: 800;
+  letter-spacing: .12em; color: #9fb3ab; white-space: nowrap;
+}
+
+/* an evidence card that reads as a document stapled to the case */
+.evidence {
+  border: 1.4px solid var(--rule);
+  border-radius: 5px;
+  margin: 0 0 7px;
+  overflow: hidden;
+}
+.evidence .ev-head {
+  font-family: var(--f-mono); font-size: 6.4pt; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase;
+  background: var(--teal-tint); color: var(--teal-dark);
+  border-bottom: 1.4px solid var(--rule);
+  padding: 3px 8px;
+  display: flex; justify-content: space-between; gap: 6mm;
+}
+.evidence .ev-head .no { color: var(--warm); }
+.evidence .ev-body { padding: 7px 9px; font-size: 8.6pt; line-height: 1.45; }
+.evidence .ev-body p { margin: 0 0 5px; }
+.evidence .ev-body p:last-child { margin-bottom: 0; }
+.evidence .ev-body .quote {
+  font-style: italic; border-left: 2.5px solid var(--teal);
+  padding-left: 7px; color: var(--body);
+}
+.evidence.warm .ev-head { background: var(--warm-tint); color: var(--warm); }
+.evidence.ink .ev-head { background: #eef2f0; color: var(--ink); }
+
+/* two-column layout for a case brief */
+.case-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.case-cols.three { grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+.case-cols > * { margin-bottom: 0; }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   ANSWER KEY / SOURCES — the footer furniture of every document
+   ──────────────────────────────────────────────────────────────────────────── */
+.key {
+  font-family: var(--f-mono); font-size: 6.6pt; font-weight: 700;
+  color: var(--muted); line-height: 1.55;
+  border-top: 1px dashed var(--muted); padding-top: 5px; margin-top: 7px;
+}
+.key strong { color: var(--teal); }
+
+.src {
+  font-family: var(--f-mono); font-size: 6.2pt; font-weight: 700;
+  color: var(--muted); line-height: 1.5;
+  border-top: 1px dashed var(--muted); padding-top: 5px; margin-top: 9px;
+}
+.src strong { color: var(--teal); }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   PAGE FOOT — pinned to the bottom of a sheet
+   ──────────────────────────────────────────────────────────────────────────── */
+.sheet-foot {
+  margin-top: auto;
+  padding-top: 6px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-top: 1.2px solid var(--rule);
+  font-family: var(--f-mono); font-size: 6.2pt; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+}
+.sheet-foot .right { text-align: right; }
+
+/* a signature / sign-off strip */
+.signoff {
+  display: flex; gap: 8mm; align-items: flex-end;
+  border: 1.4px solid var(--rule); border-radius: 6px;
+  padding: 7px 10px; margin-top: 9px;
+  font-size: 8pt;
+}
+.signoff .line { flex: 1; border-bottom: 1.2px solid var(--rule); height: 1.5em; }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   PRINT
+   ──────────────────────────────────────────────────────────────────────────── */
+@page { size: A4 portrait; margin: 0; }
+
+@media print {
+  html, body { background: #fff; padding: 0; margin: 0; }
+  body { display: block; }
+  .toolbar { display: none !important; }
+  .sheet {
+    width: var(--sheet-w);
+    min-height: var(--sheet-h);
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+  .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+  a[href]::after { content: none; }
+}
