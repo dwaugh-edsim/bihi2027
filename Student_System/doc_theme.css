@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════════════
-   ROOM 8 — SHARED DOCUMENT THEME  ·  v1.1
+   ROOM 8 — SHARED DOCUMENT THEME  ·  v1.2
    ────────────────────────────────────────────────────────────────────────────
    The house design system for A4 student documents (handouts, study sheets,
    quizzes, worksheets, case files).
@@ -12,8 +12,7 @@
      body .......... Inter
      labels ........ JetBrains Mono, uppercase, heavy letter-spacing
      rules ......... pure black, full strength
-     neutrals ...... zinc (#52525b / #9ca3af / #fafafa / #e5e5e5)
-     accents ....... #2563eb blue, #fbbf24 amber, #047857 green
+     neutrals ...... zinc greys
      the sheet ..... exactly 210 x 297 mm, padding 11/14/10/14 mm
 
    That system is the one behind the Junction A4 set (Oct 15-16), the HL9 quiz
@@ -21,12 +20,30 @@
    moved to a different palette - teal / ink / warm with Open Sans Condensed.
    That second direction is kept here as a switchable variant; see PALETTES.
 
+   PRINTED IN BLACK AND WHITE
+   These go on paper, and the paper is black and white. So NOTHING in this
+   theme may depend on colour to carry meaning.
+
+     - the three callouts are told apart by a BAR PATTERN (solid / diagonal
+       hatch / horizontal stripes), not by a hue. In mono they are still
+       three different things.
+     - every callout also carries an uppercase label saying what it is.
+     - table headers are a mid grey fill, not a colour fill.
+     - panels are a light grey that a mono laser actually reproduces.
+       (#fafafa does not print; #f0f0f0 does.)
+     - the only saturated colour left is the toolbar's Print button, and the
+       toolbar never prints.
+
+   Colour is still here for SCREEN use - the LCD projector, a browser, the
+   germs palette variant - but on paper it is decoration or nothing at all.
+
    PALETTES
      default ................ the house system above
      <html data-palette="germs">
                             teal #006376 / ink #1c2622 / warm #c2410c, Open Sans
-                            body, Open Sans Condensed headings, soft #d8d5cb rules.
-                            Set the attribute on <html> to use it.
+                            body, Open Sans Condensed headings, soft rules. Better
+                            on a screen; on paper it prints the same as the
+                            default because nothing structural changed.
 
    HOW TO USE
    Link it from the document's head with a stylesheet link whose href points at
@@ -47,19 +64,19 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* colour — the house system */
+  /* colour — greyscale-first. These are chosen to survive a mono laser. */
   --ink: #000000;
   --body: #18181b;
   --muted: #52525b;
-  --faint: #9ca3af;
-  --rule: #000000;          /* rules are pure black, full strength */
-  --hair: #e5e5e5;          /* the only hairline in the system */
-  --blue: #2563eb;
-  --amber: #fbbf24;
-  --green: #047857;
-  --panel: #fafafa;         /* the one tint, for callout bodies */
+  --faint: #8c8c8c;        /* hairline weight that actually prints */
+  --rule: #000000;         /* rules are pure black, full strength */
+  --hair: #d4d4d4;
+  --panel: #f0f0f0;        /* callout body — light enough to print, dark
+                              enough to be visible (#fafafa vanishes) */
+  --head-fill: #d9d9d9;    /* table header fill */
+  --blue: #2563eb;         /* screen only: the Print button */
   --paper: #ffffff;
-  --desk: #52525b;          /* the screen backdrop behind a sheet */
+  --desk: #52525b;         /* the screen backdrop behind a sheet */
 
   /* type */
   --f-body: 'Inter', -apple-system, sans-serif;
@@ -74,10 +91,8 @@
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   PALETTE VARIANTS
+   PALETTE VARIANTS — for screen use. Paper output is identical.
    ──────────────────────────────────────────────────────────────────────────── */
-
-/* The Germs & Outbreaks direction: teal / ink / warm, Open Sans, soft rules. */
 html[data-palette="germs"] {
   --ink: #1c2622;
   --body: #3d4a44;
@@ -85,10 +100,8 @@ html[data-palette="germs"] {
   --faint: #9fb3ab;
   --rule: #1c2622;
   --hair: #d8d5cb;
-  --blue: #006376;
-  --amber: #c2410c;
-  --green: #166534;
   --panel: #fffdf8;
+  --head-fill: #eef2f0;
   --f-body: 'Open Sans', system-ui, sans-serif;
   --f-head: 'Open Sans Condensed', 'Open Sans', sans-serif;
 }
@@ -127,7 +140,7 @@ body {
   margin-bottom: 12px;
 }
 .toolbar .note { color: #d4d4d8; line-height: 1.35; }
-.toolbar .note b { color: var(--amber); font-weight: 800; }
+.toolbar .note b { color: #fff; font-weight: 800; }
 .toolbar button {
   font-family: var(--f-head);
   font-weight: 800;
@@ -159,7 +172,7 @@ body {
 }
 .sheet:last-of-type { page-break-after: auto; break-after: auto; margin-bottom: 0; }
 
-/* the page marker, bottom right, the way the Junction sheets do it */
+/* the page marker, bottom right */
 .sheet::after {
   content: attr(data-side);
   position: absolute;
@@ -211,16 +224,15 @@ body {
 .ident { display: flex; gap: 4mm; font-size: 8.5pt; font-weight: 700; margin-bottom: 2.4mm; }
 .ident span { border-bottom: 1px solid var(--rule); flex: 1; }
 
-/* a tag pill */
+/* a tag pill — inverted black on white, legible in mono */
 .tag {
   font-family: var(--f-mono); font-size: 6.8pt; font-weight: 700;
   letter-spacing: .1em; text-transform: uppercase;
   background: var(--rule); color: #fff;
+  border: 1px solid var(--rule);
   border-radius: 1.5mm; padding: 1mm 2.5mm; white-space: nowrap;
 }
-.tag.blue { background: var(--blue); }
-.tag.amber { background: var(--amber); color: var(--ink); }
-.tag.green { background: var(--green); }
+.tag.outline { background: none; color: var(--rule); }
 
 /* ────────────────────────────────────────────────────────────────────────────
    SECTION HEADS — a black slab. The strongest element on the page.
@@ -239,9 +251,6 @@ body {
   font-family: var(--f-mono); font-style: normal;
   font-size: 7pt; font-weight: 700; letter-spacing: .08em;
 }
-.sec-head.blue { background: var(--blue); }
-.sec-head.amber { background: var(--amber); color: var(--ink); }
-.sec-head.green { background: var(--green); }
 .sec-head.ghost {
   background: none; color: var(--rule);
   border: 1.6px solid var(--rule);
@@ -285,7 +294,7 @@ th, td { border: 1.4px solid var(--rule); padding: 1.8mm 2.2mm; font-size: 8.4pt
 th {
   font-family: var(--f-mono); font-size: 6.6pt; font-weight: 800;
   letter-spacing: .1em; text-transform: uppercase;
-  background: var(--panel); color: var(--ink);
+  background: var(--head-fill); color: var(--ink);
   border-bottom-width: 2px;
 }
 tbody tr:nth-child(even) td { background: var(--panel); }
@@ -295,29 +304,43 @@ table.plain th { background: none; padding-left: 0; }
 table.tight th, table.tight td { padding: 1.4mm 2mm; font-size: 8pt; }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   CALLOUTS — one shape, three accents
+   CALLOUTS — three kinds, told apart by BAR PATTERN, not by hue.
+   In black and white these are still three different things:
+       .note      solid bar
+       .tip       diagonal hatch
+       .exemplar  horizontal stripes
+   Each one also carries an uppercase label saying what it is.
    ──────────────────────────────────────────────────────────────────────────── */
 .tip, .note, .exemplar {
-  border: 1.6px solid var(--rule);
-  border-left: 5px solid var(--rule);
-  border-radius: 2mm;
-  padding: 2.6mm 3.2mm;
+  border: 1.2pt solid var(--rule);
+  border-radius: 1.5mm;
+  padding: 2.6mm 3.2mm 2.6mm 4.6mm;
   margin: 0 0 3mm;
   font-size: 8.6pt;
   line-height: 1.5;
   background: var(--panel);
+  position: relative;
 }
-.note { border-left-color: var(--blue); }
-.tip { border-left-color: var(--amber); }
-.exemplar { border-left-color: var(--green); }
+.tip::before, .note::before, .exemplar::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3mm;
+}
+.note::before { background: var(--rule); }
+.tip::before {
+  background: repeating-linear-gradient(45deg,
+    var(--rule) 0 1.1pt, transparent 1.1pt 2.8pt);
+}
+.exemplar::before {
+  background: repeating-linear-gradient(0deg,
+    var(--rule) 0 1.2pt, transparent 1.2pt 5pt);
+}
 .tip .h, .note .h, .exemplar .h {
   font-family: var(--f-mono); font-size: 6.8pt; font-weight: 800;
   letter-spacing: .14em; text-transform: uppercase; margin-bottom: 1mm;
-  display: block;
+  display: block; color: var(--ink);
 }
-.tip .h { color: var(--amber); }
-.note .h { color: var(--blue); }
-.exemplar .h { color: var(--green); }
 .tip p, .note p, .exemplar p { margin: 0 0 1.4mm; }
 .tip p:last-child, .note p:last-child, .exemplar p:last-child { margin-bottom: 0; }
 
@@ -378,16 +401,16 @@ table.tight th, table.tight td { padding: 1.4mm 2mm; font-size: 8pt; }
   color: var(--muted); line-height: 1.55;
   border-top: 1px solid var(--hair); padding-top: 1.5mm; margin-top: 2mm;
 }
-.key strong { color: var(--blue); }
+.key strong { color: var(--ink); }
 
 .src {
   font-family: var(--f-mono); font-size: 6.4pt; font-weight: 600;
   color: var(--muted); line-height: 1.5;
   border-top: 1px solid var(--hair); padding-top: 1.5mm; margin-top: 2mm;
 }
-.src strong { color: var(--blue); }
+.src strong { color: var(--ink); }
 
-/* the mark box, pinned to the bottom of a sheet */
+/* the footer, pinned to the bottom of a sheet */
 .sheet-foot {
   margin-top: auto;
   padding-top: 1.5mm;
@@ -408,7 +431,7 @@ table.tight th, table.tight td { padding: 1.4mm 2mm; font-size: 8pt; }
 .signoff .line { flex: 1; border-bottom: 1px solid var(--rule); height: 1.5em; }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   CASE FILE — evidence cards for document-based activities
+   CASE FILE — evidence cards, told apart by bar pattern like the callouts
    ──────────────────────────────────────────────────────────────────────────── */
 .case-title {
   font-family: var(--f-head); font-size: 19pt; font-weight: 900;
@@ -423,31 +446,45 @@ table.tight th, table.tight td { padding: 1.4mm 2mm; font-size: 8pt; }
 }
 
 .evidence {
-  border: 1.6px solid var(--rule);
-  border-left: 5px solid var(--rule);
-  border-radius: 2mm;
+  border: 1.4px solid var(--rule);
+  border-radius: 1.5mm;
   margin: 0 0 3mm;
   background: var(--panel);
   overflow: hidden;
+  position: relative;
+  padding-left: 4.4mm;
+}
+.evidence::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3mm;
+}
+.evidence::before { background: var(--rule); }
+.evidence.amber::before {
+  background: repeating-linear-gradient(45deg,
+    var(--rule) 0 1.1pt, transparent 1.1pt 2.8pt);
+}
+.evidence.blue::before {
+  background: repeating-linear-gradient(0deg,
+    var(--rule) 0 1pt, transparent 1pt 2.6pt);
 }
 .evidence .ev-head {
   font-family: var(--f-mono); font-size: 6.6pt; font-weight: 800;
   letter-spacing: .14em; text-transform: uppercase;
-  color: var(--muted);
-  padding: 1.2mm 3.2mm;
+  color: var(--ink);
+  padding: 1.4mm 3.2mm;
+  border-bottom: 1px solid var(--rule);
   display: flex; justify-content: space-between; gap: 6mm;
 }
-.evidence .ev-head .no { color: var(--amber); }
-.evidence .ev-body { padding: 0 3.2mm 2.6mm; font-size: 8.6pt; line-height: 1.5; }
+.evidence .ev-head .no { color: var(--muted); }
+.evidence .ev-body { padding: 2.4mm 3.2mm 2.6mm; font-size: 8.6pt; line-height: 1.5; }
 .evidence .ev-body p { margin: 0 0 1.4mm; }
 .evidence .ev-body p:last-child { margin-bottom: 0; }
 .evidence .ev-body .quote {
-  font-style: italic; border-left: 2.5px solid var(--blue);
+  font-style: italic; border-left: 2.5px solid var(--rule);
   padding-left: 3mm; color: var(--body);
 }
-.evidence.blue { border-left-color: var(--blue); }
-.evidence.amber { border-left-color: var(--amber); }
-.evidence.green { border-left-color: var(--green); }
 
 .case-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
 .case-cols.three { grid-template-columns: repeat(3, 1fr); gap: 4mm; }

@@ -197,13 +197,18 @@ Colour palette:
   ink #000000   body #18181B   muted #52525B   blue #2563EB   amber #FBBF24
   green #047857   panel #FAFAFA
 
+  Colour is for SCREEN reading only. Students do print these, and the paper is
+  black and white. So the structure must carry the meaning on its own: every
+  callout keeps its uppercase label and its 5pt left border, and nothing is
+  distinguished by hue alone.
+
 Blocks:
   Response areas: single-cell table, full width, 1.4pt solid #000000 border, label the row
                    "Your response:" in Inter 10.5pt bold #000000, then leave at least
                    3 empty lines of space beneath it.
   Callouts (the "what a strong answer looks like" box, the word bank, any note):
-                   single-cell table with a 5pt left border in the accent colour and a
-                   1.4pt #000000 border on the other three sides. Background #FAFAFA.
+                   single-cell table with a 5pt left border and a 1.4pt #000000 border on the
+                   other three sides. Background #FAFAFA.
                    Left border and heading line: #2563EB for a note, #FBBF24 for a tip,
                    #047857 for the exemplar. Heading line in JetBrains Mono 7pt bold,
                    ALL CAPS. Body inside in Inter 10.5pt.

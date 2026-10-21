@@ -61,6 +61,33 @@ Always check: the number of printed pages must equal the number of `.sheet` bloc
 chrome --headless --no-pdf-header-footer --print-to-pdf=out.pdf "file:///path/to/doc.html"
 ```
 
+## Printed in black and white
+
+**These go on paper, and the paper is black and white.** Nothing in the theme may
+depend on colour to carry meaning.
+
+- The three callouts are told apart by a **bar pattern**, not a hue:
+  `.note` = solid bar, `.tip` = diagonal hatch, `.exemplar` = horizontal stripes.
+  In mono they are still three different things.
+- Every callout also carries an uppercase label saying what it is.
+- Table headers are a mid grey fill (`#d9d9d9`), not a colour fill.
+- Panels are `#f0f0f0`, not `#fafafa` — the latter does not reproduce on a mono
+  laser, the former does.
+- Hairlines are `#d4d4d4` / `#8c8c8c`, not pale greys that vanish.
+- The only saturated colour left is the toolbar's Print button, and the toolbar
+  never prints.
+
+Colour still exists for **screen** use — the LCD projector, a browser, and the
+`germs` palette variant — but on paper it is decoration or nothing at all.
+
+To check a change before you print it, render the PDF and flatten it to greyscale:
+
+```bash
+chrome --headless --no-pdf-header-footer --print-to-pdf=out.pdf "file:///path/to/doc.html"
+python -c "import pypdfium2 as p; d=p.PdfDocument('out.pdf'); \
+  d[0].render(scale=1.45).to_pil().convert('L').save('mono.png')"
+```
+
 ## Components
 
 | class | what it does |
@@ -69,10 +96,10 @@ chrome --headless --no-pdf-header-footer --print-to-pdf=out.pdf "file:///path/to
 | `.toolbar` | the screen-only bar with the Print button |
 | `.head` / `.head-top` / `.head-main` / `.meta` / `.fill` | the title block and the name/class/date rules |
 | `.ident` | a row of long rules to write a name on |
-| `.tag` | a small pill — add `.blue`, `.amber` or `.green` |
-| `.sec-head` | the black section slab; `.pts` carries the points; `.blue` / `.amber` / `.green` recolour the slab, `.ghost` outlines it instead |
+| `.tag` | a small inverted pill (black on white) — add `.outline` for the lighter one |
+| `.sec-head` | the black section slab; `.pts` carries the points; `.ghost` outlines it instead of filling it |
 | `h3` / `h4` | subheading / small mono heading |
-| `.note` / `.tip` / `.exemplar` | the three callouts — blue, amber, green |
+| `.note` / `.tip` / `.exemplar` | the three callouts — solid bar, diagonal hatch, horizontal stripes |
 | `.say` | a pronunciation or science-word label |
 | `.q` / `.qn` | questions. **`.q` prints no native marker** — write the number out as `<span class="qn">1.</span>` so it can be restarted or lettered |
 | `.opts` | option grid; `.one`, `.three`, `.four` change the column count |
@@ -84,7 +111,7 @@ chrome --headless --no-pdf-header-footer --print-to-pdf=out.pdf "file:///path/to
 | `.src` | where the facts came from |
 | `.sheet-foot` | the footer, pinned to the bottom of the sheet |
 | `.signoff` | the name-and-sign strip |
-| `.case-title` / `.evidence` / `.ev-head` / `.ev-body` | the case-file furniture; `.blue` / `.amber` / `.green` recolour the evidence rule |
+| `.case-title` / `.evidence` / `.ev-head` / `.ev-body` | the case-file furniture; `.amber` / `.blue` change the evidence bar to a hatch or stripes |
 | `.case-cols` | two- or three-column layout on a case brief |
 
 ## Palettes
@@ -100,6 +127,9 @@ Same components, same geometry, different palette and type — teal `#006376` /
 ink `#1c2622` / warm `#c2410c`, Open Sans body, Open Sans Condensed headings,
 soft `#d8d5cb` rules instead of hard black.
 
+That variant is for **screen** reading. On paper it prints the same as the
+default, because nothing structural depends on the palette.
+
 ## House rules that apply to every document
 
 - **Plain words.** A grade 8 reader should be able to read a paragraph aloud without
@@ -108,4 +138,5 @@ soft `#d8d5cb` rules instead of hard black.
 - **Chunked.** Short sections with their own point value, so a student can finish one and
   move on.
 - **Say where the facts came from.** Every document ends with a `.src` line.
-- **Print in colour.** The callout colours carry meaning, not decoration.
+- **Print in black and white.** The bar patterns and the labels carry the meaning, not
+  colour. Nothing on the page should need a colour printer to be understood.
