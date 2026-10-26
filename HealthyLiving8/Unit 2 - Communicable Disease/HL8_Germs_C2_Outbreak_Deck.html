@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL8 Germs Class 2: Breaking the Chain & The School Outbreak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Open+Sans+Condensed:wght@700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-page: #f2f5f3;
+        --surface: #ffffff;
+        --border: #e0e5e2;
+        --text-heading: #2d3832;
+        --text-body: #55625b;
+        --text-muted: #8b9990;
+        --primary: #006376;
+        --primary-dark: #004b5a;
+        --primary-light: #e5f2f5;
+        --accent-warm: #c2410c;
+        --accent-warm-bg: #fff7ed;
+        --good: #166534;
+        --good-bg: #f0fdf4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: 'Open Sans', sans-serif; background: var(--bg-page); color: var(--text-body); overflow: hidden; }
+
+    .slide { position: absolute; inset: 0; display: none; flex-direction: column; padding: 5.4vh 6vw 9.4vh 6vw; background: var(--bg-page); }
+    .slide.active { display: flex; }
+
+    .kicker { font-family: 'JetBrains Mono', monospace; font-size: max(12px, 1.8vh); font-weight: 800; letter-spacing: .14em; color: var(--primary); text-transform: uppercase; margin-bottom: 1.4vh; }
+    h1 { font-family: 'Open Sans Condensed', 'Open Sans', sans-serif; font-weight: 700; font-size: max(34px, 7.8vh); line-height: 1.02; color: var(--text-heading); letter-spacing: -.01em; }
+    h2 { font-family: 'Open Sans Condensed', 'Open Sans', sans-serif; font-weight: 700; font-size: max(26px, 5.2vh); line-height: 1.05; color: var(--text-heading); }
+    .sub { font-size: max(15px, 2.45vh); color: var(--text-body); margin-top: 1.6vh; line-height: 1.45; max-width: 68ch; }
+    .sub strong, .bigfact strong { color: var(--text-heading); }
+
+    .bigfact { background: var(--surface); border: 1.5px solid var(--border); border-left: 6px solid var(--primary); border-radius: 10px; padding: 2vh 2vw; margin-top: 2vh; font-size: max(15px, 2.5vh); line-height: 1.5; max-width: 78ch; }
+
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; margin-top: 2vh; flex: 1; min-height: 0; }
+    .card { background: var(--surface); border: 1.5px solid var(--border); border-top: 5px solid var(--primary); border-radius: 10px; padding: 2vh 1.6vw; display: flex; flex-direction: column; }
+    .card.warm { border-top-color: var(--accent-warm); }
+    .card .name { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; font-size: max(22px, 3.8vh); color: var(--text-heading); line-height: 1.1; }
+    .card .sci { font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.6vh); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: .6vh; }
+    .card ul { list-style: none; margin-top: 1.2vh; }
+    .card li { font-size: max(13px, 1.95vh); line-height: 1.42; margin-bottom: 0.9vh; padding-left: 1.3em; position: relative; }
+    .card li::before { content: "\203A"; position: absolute; left: 0; color: var(--primary); font-weight: 900; }
+    .card.warm li::before { color: var(--accent-warm); }
+    .card li strong { color: var(--text-heading); }
+
+    /* Media Split Layouts */
+    .split-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.4vw; margin-top: 1.8vh; flex: 1; min-height: 0; align-items: stretch; }
+    .media-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 1.5vh 1.4vw; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+    .media-card img { max-width: 100%; max-height: 48vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .media-caption { font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.5vh); font-weight: 700; color: var(--text-muted); margin-top: 1vh; text-align: center; }
+    .media-caption strong { color: var(--primary); }
+
+    .srcline { position: absolute; left: 6vw; right: 6vw; bottom: 5.2vh; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--text-muted); letter-spacing: .02em; }
+    .srcline strong { color: var(--primary); }
+
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.3vw; margin-top: 2vh; flex: 1; min-height: 0; }
+    .portal-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 1.8vh 1.3vw; display: flex; flex-direction: column; }
+    .portal-box .p-num { display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: max(14px, 2.5vh); color: #fff; background: var(--primary); border-radius: 7px; min-width: 1.6em; height: 1.6em; }
+    .portal-box .p-title { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; font-size: max(18px, 3.2vh); color: var(--text-heading); margin-top: 1vh; }
+    .portal-box .p-desc { font-size: max(12px, 1.85vh); line-height: 1.4; margin-top: 0.8vh; }
+    .portal-box .p-def { font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--primary); margin-top: auto; padding-top: 0.8vh; border-top: 1px dashed var(--border); }
+
+    .teaser { margin-top: 2.2vh; background: var(--accent-warm-bg); border: 1.5px solid var(--accent-warm); border-radius: 10px; padding: 2vh 1.8vw; font-size: max(15px, 2.5vh); line-height: 1.5; max-width: 74ch; color: #7c2d12; }
+    .teaser strong { color: #9a3412; }
+
+    .srcslide ul { list-style: none; margin-top: 2.2vh; max-width: 74ch; }
+    .srcslide li { background: var(--surface); border: 1.5px solid var(--border); border-left: 5px solid var(--primary); border-radius: 8px; padding: 1.6vh 1.4vw; margin-bottom: 1.2vh; font-size: max(13px, 2vh); line-height: 1.45; }
+    .srcslide li strong { color: var(--text-heading); }
+    .srcslide li .why { display: block; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--text-muted); margin-top: .4vh; }
+
+    .footer { position: fixed; left: 6vw; right: 6vw; bottom: 1.4vh; z-index: 5; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.6vh); font-weight: 700; letter-spacing: .05em; color: var(--text-muted); text-transform: uppercase; }
+    .footer .brand { color: var(--primary); font-weight: 800; }
+    .hint { position: fixed; right: 1.2vw; top: 1vh; z-index: 6; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.4vh); color: var(--text-muted); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: TITLE -->
+<section class="slide">
+    <div class="kicker">Healthy Living 8 &middot; Germs &amp; Outbreaks &middot; Class 2 of 4</div>
+    <h1>Breaking the Chain</h1>
+    <p class="sub">How pathogens find a way into the human body, how immune memory works, and how to stop a school outbreak in its tracks.</p>
+    <div class="bigfact">Last class, we mapped how germs <strong>travel</strong>. Today, we answer the vital question: <strong>how do they get inside, and how do we break the chain before people get sick?</strong></div>
+    <div class="bigfact" style="border-left-color: var(--accent-warm);">Case Study on deck: <strong>Maple Ridge Middle School</strong>. 400 students. By Friday afternoon, <strong>55 kids are home sick</strong>. You have the floor plan, the timeline, and the symptom data. Your job is to solve it.</div>
+    <p class="sub" style="margin-top:1.8vh;">Pencils ready. Case File 2 Worksheet will be completed alongside today's briefing.</p>
+</section>
+
+<!-- SLIDE 2: ENTRY PORTALS & THE HAND BRIDGE -->
+<section class="slide">
+    <div class="kicker">The Four Entry Gates</div>
+    <h2>Travelling is not enough: germs need a way in</h2>
+    <div class="grid-4">
+        <div class="portal-box">
+            <div class="p-num">1</div>
+            <div class="p-title">The Mouth</div>
+            <div class="p-desc">Ingesting contaminated food or water, chewing on pens, or touching lips after touching shared surfaces.</div>
+            <div class="p-def">FOOD POISONING &bull; NOROVIRUS</div>
+        </div>
+        <div class="portal-box">
+            <div class="p-num">2</div>
+            <div class="p-title">The Nose</div>
+            <div class="p-desc">Inhaling floating respiratory droplets or using fingers to rub the nasal membrane.</div>
+            <div class="p-def">COLD &bull; FLU &bull; COVID-19</div>
+        </div>
+        <div class="portal-box">
+            <div class="p-num">3</div>
+            <div class="p-title">The Eyes</div>
+            <div class="p-desc">Rubbing tired eyes or adjusting contact lenses with unwashed fingers. Thin mucous membrane.</div>
+            <div class="p-def">PINK EYE (CONJUNCTIVITIS)</div>
+        </div>
+        <div class="portal-box">
+            <div class="p-num">4</div>
+            <div class="p-title">Broken Skin</div>
+            <div class="p-desc">Scrapes, cuts, hangnails, or insect bites that breach the physical skin barrier.</div>
+            <div class="p-def">STAPH &bull; TETANUS &bull; LYME</div>
+        </div>
+    </div>
+    <div class="bigfact" style="margin-top:2.2vh; border-left-color: var(--accent-warm);">
+        <strong>The Hand Bridge:</strong> Your skin is a solid protective fortress. Germs cannot crawl through unbroken skin. But your <strong>hands act as double agents</strong>: they pick up pathogens from surfaces (Route 3) and deliver them directly to your eyes, nose, or mouth.
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Infection Prevention and Control Guidelines</div>
+</section>
+
+<!-- SLIDE 3: THE CHAIN OF INFECTION -->
+<section class="slide">
+    <div class="kicker">Epidemiology Core Concept</div>
+    <h2>The Chain of Infection: Break any link to stop the disease</h2>
+    <div class="split-layout">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+            <div class="card" style="margin-top:0;">
+                <div class="name">The 6 Connected Links</div>
+                <div class="sci">an outbreak requires all six</div>
+                <ul>
+                    <li><strong>1. Pathogen:</strong> The bacteria, virus, or parasite.</li>
+                    <li><strong>2. Reservoir:</strong> Where it lives (people, water, cafeteria food).</li>
+                    <li><strong>3. Portal of Exit:</strong> How it escapes (cough, vomit, stool).</li>
+                    <li><strong>4. Transmission Route:</strong> How it travels (airborne, contact, vector).</li>
+                    <li><strong>5. Portal of Entry:</strong> How it enters (mouth, nose, eyes, cuts).</li>
+                    <li><strong>6. Susceptible Host:</strong> A person with no immunity or defense.</li>
+                </ul>
+            </div>
+            <div class="bigfact" style="border-left-color: var(--good); margin-top:1.6vh;">
+                <strong>The Golden Rule of Prevention:</strong> You do NOT have to eliminate every germ on Earth. If you snap <strong>just one link</strong>, the spread stops cold.
+            </div>
+        </div>
+        <div class="media-card">
+            <img src="assets/chain_of_infection.jpg" alt="Chain of Infection Diagram">
+            <div class="media-caption">The 6 Links: Breaking any single arrow prevents transmission.</div>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Centers for Disease Control and Prevention &middot; Health Canada Public Health Principles</div>
+</section>
+
+<!-- SLIDE 4: THE SCIENCE OF SOAP VS SANITIZER -->
+<section class="slide">
+    <div class="kicker">Molecular Weaponry</div>
+    <h2>Why 20 seconds of soap beats a quick squirt of sanitizer</h2>
+    <div class="duo">
+        <div class="card">
+            <div class="name">Soap &amp; Running Water</div>
+            <div class="sci">physical destruction + mechanical rinse</div>
+            <ul>
+                <li><strong>Pin-shaped molecules:</strong> Soap has a water-loving head and a grease-loving (lipid) tail.</li>
+                <li><strong>Prying membranes apart:</strong> The lipid tail wedges into the fatty protective envelope of viruses and bacteria, ripping them open.</li>
+                <li><strong>Friction &amp; Flush:</strong> 20 seconds of scrubbing lifts trapped dirt and rinses germs completely down the drain.</li>
+                <li><strong>Kills norovirus:</strong> Essential for gastrointestinal school outbreaks!</li>
+            </ul>
+        </div>
+        <div class="card warm">
+            <div class="name">Alcohol Hand Sanitizer</div>
+            <div class="sci">useful shortcut with major blindspots</div>
+            <ul>
+                <li><strong>Denatures proteins:</strong> High-proof alcohol (60% to 70%) coagulates bacterial proteins and enveloped viruses (like flu and COVID).</li>
+                <li><strong>Useless on dirty/greasy hands:</strong> Organic grime and food oil shield germs from the alcohol.</li>
+                <li><strong>Fails against Norovirus:</strong> Norovirus has a tough protein capsid without a lipid coat. Sanitizer does NOT reliably kill it.</li>
+                <li><strong>Rule of thumb:</strong> Sanitizer is for clean hands on the go; soap is for real outbreaks and meals.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Canadian Centre for Occupational Health and Safety (CCOHS)</div>
+</section>
+
+<!-- SLIDE 5: VACCINES VS ANTIBIOTICS -->
+<section class="slide">
+    <div class="kicker">Medical Science Distinction</div>
+    <h2>Vaccines vs. Antibiotics: Training vs. Treatment</h2>
+    <div class="split-layout">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+            <div class="card" style="margin-top:0;">
+                <div class="name">Vaccines (Immune Training)</div>
+                <div class="sci">preventative &bull; works on viruses and bacteria</div>
+                <p style="font-size:max(13px, 2vh); line-height:1.45; margin-top:0.8vh;">
+                    Introduces a harmless antigen (inactivated germ or protein blueprint). Your immune system practices, builds specific <strong>antibodies</strong>, and creates <strong>memory cells</strong>. When the real germ invades months later, your defenses wipe it out before you feel sick.
+                </p>
+            </div>
+            <div class="card warm" style="margin-top:1.6vh;">
+                <div class="name">Antibiotics (Chemical Weapons)</div>
+                <div class="sci">post-infection cure &bull; strictly for bacteria</div>
+                <p style="font-size:max(13px, 2vh); line-height:1.45; margin-top:0.8vh;">
+                    Chemicals (like penicillin) that destroy cell walls or halt protein synthesis in living bacteria. They do <strong>zero damage to viruses</strong> because viruses do not have cellular structures.
+                </p>
+            </div>
+        </div>
+        <div class="media-card">
+            <img src="assets/vaccine_vs_antibiotic.jpg" alt="Vaccine vs Antibiotic Scientific Comparison">
+            <div class="media-caption"><strong>Vaccines</strong> build lasting memory antibodies; <strong>Antibiotics</strong> attack bacterial cells directly.</div>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Immunize Canada &middot; Nova Scotia Department of Health and Wellness</div>
+</section>
+
+<!-- SLIDE 6: COMMUNITY IMMUNITY (HERD IMMUNITY) -->
+<section class="slide">
+    <div class="kicker">Protecting the Vulnerable</div>
+    <h2>Community Immunity: The human firewall</h2>
+    <div class="bigfact">
+        Some students cannot receive certain vaccines due to <strong>chemotherapy, organ transplants, or severe autoimmune disorders</strong>. How do we keep them alive and safe in a 400-student school?
+    </div>
+    <div class="duo" style="margin-top:2vh;">
+        <div class="card">
+            <div class="name">Low Vaccination Rate (&lt; 70%)</div>
+            <div class="sci">easy transmission chains</div>
+            <p style="font-size:max(13px,2.05vh); line-height:1.48; margin-top:1vh;">
+                When fewer people are vaccinated, an infected student easily encounters susceptible peers. The pathogen leaps rapidly through classrooms, inevitably reaching the medically vulnerable student.
+            </p>
+        </div>
+        <div class="card" style="border-top-color: var(--good);">
+            <div class="name">High Community Immunity (&gt; 90%)</div>
+            <div class="sci">dead-end walls for pathogens</div>
+            <p style="font-size:max(13px,2.05vh); line-height:1.48; margin-top:1vh;">
+                When 90% or more of the student body is immune, the virus bumps into dead ends everywhere it turns. The transmission chain dissolves before it can touch the unprotected individual.
+            </p>
+        </div>
+    </div>
+    <div class="bigfact" style="border-left-color: var(--good); margin-top:2vh;">
+        <strong>Measles requires a 95% community threshold</strong> because it is so hyper-infectious (airborne droplets hang for up to 2 hours). Getting vaccinated is both personal protection and civic duty.
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Canadian Paediatric Society</div>
+</section>
+
+<!-- SLIDE 7: CASE BRIEFING - MAPLE RIDGE OUTBREAK -->
+<section class="slide">
+    <div class="kicker">Case File 2 &middot; Outbreak Investigation</div>
+    <h2>Maple Ridge Middle School: The 55-Student Surge</h2>
+    <div class="bigfact" style="border-left-color: var(--accent-warm);">
+        <strong>The Scenario:</strong> Maple Ridge Middle School houses <strong>400 students</strong> across Grades 7, 8, and 9. It is late October. Over five school days, a sudden illness sweeps the building.
+    </div>
+    <div class="split-layout">
+        <div class="card" style="margin-top:0;">
+            <div class="name">Daily Absence Tracker</div>
+            <div class="sci">confirmed illness call-ins</div>
+            <ul>
+                <li><strong>Monday:</strong> 3 students absent (all Grade 8 West Wing).</li>
+                <li><strong>Tuesday:</strong> 7 students absent (5 West Wing, 2 Cafeteria crew).</li>
+                <li><strong>Wednesday:</strong> 18 students absent (spread into Grade 7 East Wing).</li>
+                <li><strong>Thursday:</strong> 34 students absent (multiple teacher call-ins).</li>
+                <li><strong>Friday:</strong> <strong>55 students absent</strong> (over 13% of the entire school population).</li>
+            </ul>
+        </div>
+        <div class="card warm" style="margin-top:0;">
+            <div class="name">Primary Symptoms Logged by Office</div>
+            <div class="sci">nurse clinic & parent reports</div>
+            <ul>
+                <li><strong>88% report:</strong> Sudden nausea, severe vomiting, watery diarrhea, and abdominal cramping.</li>
+                <li><strong>45% report:</strong> Low-grade fever and mild headache.</li>
+                <li><strong>Under 5% report:</strong> Cough, congestion, or sore throat.</li>
+                <li><strong>Duration:</strong> Violent symptoms last 24 to 48 hours, followed by extreme fatigue.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Outbreak simulation based on standard NS Health School GI Outbreak protocols</div>
+</section>
+
+<!-- SLIDE 8: EPIDEMIOLOGICAL MAP & CURVE -->
+<section class="slide">
+    <div class="kicker">Data Visualizer</div>
+    <h2>Epidemic Curve &amp; Building Floor Plan</h2>
+    <div class="split-layout">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+            <div class="card" style="margin-top:0;">
+                <div class="name">Investigation Hotspots</div>
+                <div class="sci">where sick students crossed paths</div>
+                <ul>
+                    <li><strong>West Wing (Grade 8):</strong> 18 absences. Ground zero.</li>
+                    <li><strong>East Wing (Grade 7):</strong> 12 absences.</li>
+                    <li><strong>North Wing (Grade 9):</strong> 8 absences.</li>
+                    <li><strong>Common Areas:</strong> Cafeteria lunch line &amp; shared Computer Lab.</li>
+                </ul>
+            </div>
+            <div class="bigfact" style="border-left-color: var(--accent-warm); margin-top:1.6vh;">
+                <strong>Key Clue:</strong> On Wednesday afternoon, a student threw up in the West Wing hallway near the water fountain. The custodian mopped it with standard detergent, but classes walked through the corridor 10 minutes later.
+            </div>
+        </div>
+        <div class="media-card">
+            <img src="assets/school_outbreak_map.jpg" alt="Maple Ridge Middle School Outbreak Map and Epidemic Curve">
+            <div class="media-caption">Maple Ridge Floor Plan &bull; 5-Day Epidemic Curve (3 &rarr; 7 &rarr; 18 &rarr; 34 &rarr; 55)</div>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Simulated Public Health Case Analysis &middot; Nova Scotia Health / 811</div>
+</section>
+
+<!-- SLIDE 9: ANALYZING THE EVIDENCE -->
+<section class="slide">
+    <div class="kicker">Deduction Time</div>
+    <h2>Who is the culprit? Bacteria or virus?</h2>
+    <div class="duo">
+        <div class="card">
+            <div class="name">Candidate A: Influenza Virus</div>
+            <div class="sci">respiratory transmission</div>
+            <ul>
+                <li>Causes high fever, dry cough, body chills, sore throat.</li>
+                <li>Incubation period: 1 to 4 days.</li>
+                <li>Spreads primarily through airborne droplets when coughing.</li>
+                <li><em>Does this match the 88% vomiting and zero cough data?</em></li>
+            </ul>
+        </div>
+        <div class="card warm">
+            <div class="name">Candidate B: Norovirus (GI Bug)</div>
+            <div class="sci">fecal-oral & surface contact</div>
+            <ul>
+                <li>Causes explosive vomiting, watery diarrhea, stomach cramps.</li>
+                <li>Incubation period: 12 to 24 hours (rapid doubling rate).</li>
+                <li>Spreads via aerosolized vomit particles and lingering surface contamination.</li>
+                <li><strong>Extremely contagious:</strong> As few as 18 virus particles can infect a healthy person.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="bigfact" style="border-left-color: var(--primary); margin-top:2vh;">
+        <strong>Verdict:</strong> This is classic <strong>Norovirus</strong> (a viral gastroenteritis outbreak). Prescribing penicillin to these 55 students would be completely useless and cause stomach upset.
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Norovirus Fact Sheet</div>
+</section>
+
+<!-- SLIDE 10: BREAKING THE LINKS - THE 4 TRIAGE ACTIONS -->
+<section class="slide">
+    <div class="kicker">The Response Protocol</div>
+    <h2>How to break the chain before Monday morning</h2>
+    <div class="grid-4">
+        <div class="portal-box" style="border-top: 4px solid var(--accent-warm);">
+            <div class="p-num" style="background:var(--accent-warm);">1</div>
+            <div class="p-title">The 48-Hour Rule</div>
+            <div class="p-desc">Sick students and staff must stay home until <strong>48 full hours after the last episode of vomiting or diarrhea</strong>. Norovirus sheds heavily even after you feel better.</div>
+            <div class="p-def">BREAKS LINK 2: RESERVOIR</div>
+        </div>
+        <div class="portal-box" style="border-top: 4px solid var(--primary);">
+            <div class="p-num">2</div>
+            <div class="p-title">Hospital-Grade Bleach</div>
+            <div class="p-desc">Custodial staff wipe down doorknobs, desks, keyboards, and water taps with <strong>chlorine bleach solution</strong> (1:50 dilution). Alcohol wipes will not kill norovirus.</div>
+            <div class="p-def">BREAKS LINK 4: TRANSMISSION</div>
+        </div>
+        <div class="portal-box" style="border-top: 4px solid var(--good);">
+            <div class="p-num" style="background:var(--good);">3</div>
+            <div class="p-title">Supervised Soap Washing</div>
+            <div class="p-desc">Mandatory 20-second handwashing with warm water and soap before entering the cafeteria or touching food. No reliance on pocket sanitizers.</div>
+            <div class="p-def">BREAKS LINK 5: ENTRY PORTAL</div>
+        </div>
+        <div class="portal-box" style="border-top: 4px solid #475569;">
+            <div class="p-num" style="background:#475569;">4</div>
+            <div class="p-title">Public Health Notice</div>
+            <div class="p-desc">Clear communication sent to all 400 homes detailing hydration, oral electrolyte signs, and when to call 811 rather than flooding the ER.</div>
+            <div class="p-def">BREAKS LINK 6: HOST CARE</div>
+        </div>
+    </div>
+    <div class="srcline"><strong>SOURCE:</strong> Nova Scotia Health &middot; Communicable Disease Control Manual</div>
+</section>
+
+<!-- SLIDE 11: SOURCES LIST -->
+<section class="slide srcslide">
+    <div class="kicker">Where This Information Comes From</div>
+    <h2>The sources list</h2>
+    <ul>
+        <li><strong>Public Health Agency of Canada (canada.ca)</strong>: Norovirus prevention, hand hygiene evidence, and outbreak response guidelines.
+            <span class="why">the official federal guidance on school gastrointestinal outbreaks</span></li>
+        <li><strong>Nova Scotia Health &amp; 811</strong>: Communicable disease reporting thresholds and school quarantine guidelines.
+            <span class="why">provincial protocols for schools reporting &gt;10% absenteeism</span></li>
+        <li><strong>Immunize Canada (immunize.ca)</strong>: Vaccine mechanism, antibody memory formation, and community immunity thresholds.
+            <span class="why">evidence-based national coalition for immunization education</span></li>
+        <li><strong>From the Ground Up: Health Resource 8, Theme 2</strong>: Communicable disease prevention in adolescent school environments.
+            <span class="why">Nova Scotia Department of Education Grade 8 health curriculum reference text</span></li>
+    </ul>
+    <p class="sub" style="margin-top:1.6vh;">Every question on today's Case File 2 Worksheet is backed by verified public health data.</p>
+</section>
+
+<!-- SLIDE 12: TEASER FOR CLASS 3 -->
+<section class="slide">
+    <div class="kicker">Coming Next Class</div>
+    <h2>Class 3: The Superbug Threat</h2>
+    <div class="bigfact">
+        In 1945, when accepting his Nobel Prize, Alexander Fleming gave a chilling warning: <strong>"The time may come when penicillin can be bought by anyone in the shops. Then the ignorant man may easily underdose himself and by exposing his microbes to non-lethal quantities of the drug, make them resistant."</strong>
+    </div>
+    <div class="teaser">
+        <strong>Next class:</strong> When medicines stop working. We investigate <strong>MRSA</strong> and antibiotic-resistant superbugs: how bacteria trade defensive genes like Pokémon cards, why farm animals get fed antibiotics, and why hospitals are racing against the clock.
+    </div>
+    <p class="sub" style="margin-top:2vh;">Complete your Case File 2 Worksheet today. Study Sheet 2 goes home tonight.</p>
+</section>
+
+<div class="hint">&larr; &rarr; to move &middot; F for fullscreen</div>
+<div class="footer">
+    <span>HL8 &middot; <span class="brand">Germs &amp; Outbreaks</span> &middot; Class 2 of 4</span>
+    <span>Breaking the Chain &middot; The School Outbreak &middot; Sources Cited</span>
+    <span id="ctr">01 / 12</span>
+</div>
+
+<script>
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var i = 0;
+    function show(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach(function(s, k) { s.classList.toggle('active', k === i); });
+        var totalStr = (slides.length < 10 ? '0' : '') + slides.length;
+        var curStr = ('0' + (i + 1)).slice(-2);
+        document.getElementById('ctr').textContent = curStr + ' / ' + totalStr;
+        if (history.replaceState) {
+            history.replaceState(null, null, '#' + (i + 1));
+        }
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { show(i + 1); e.preventDefault(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+        else if (e.key === 'Home') { show(0); }
+        else if (e.key === 'End') { show(slides.length - 1); }
+        else if (e.key === 'f' || e.key === 'F') {
+            if (document.fullscreenElement) { document.exitFullscreen(); } else { document.documentElement.requestFullscreen(); }
+        }
+    });
+    document.addEventListener('click', function(e) {
+        if (e.clientX > window.innerWidth * 0.3) { show(i + 1); } else { show(i - 1); }
+    });
+
+    var hash = parseInt(window.location.hash.replace('#', ''), 10);
+    show(isNaN(hash) ? 0 : hash - 1);
+</script>
+</body>
+</html>
