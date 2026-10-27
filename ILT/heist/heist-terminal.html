@@ -104,9 +104,9 @@ body.won .locked { display: none; }
         return h >>> 0;
     }
 
-    /* Support #A through #G, #t=A, ?t=A, or default */
-    const hashStr = (location.hash || '') + (location.search || '');
-    const termMatch = /(?:t=|#)([A-G])/i.exec(hashStr);
+    window.addEventListener('hashchange', function () { location.reload(); });
+    const hashStr = (location.hash || '') + ' ' + (location.search || '');
+    const termMatch = /(?:t=|#|team=|terminal=|station=|\b)([A-G])\b/i.exec(hashStr) || /#([A-G])/i.exec(hashStr);
     const termLetter = termMatch ? termMatch[1].toUpperCase() : 'A';
     const termLabel = 'TERMINAL ' + termLetter;
 

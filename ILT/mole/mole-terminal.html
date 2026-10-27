@@ -103,8 +103,9 @@ body.won .locked { display: none; }
         return h >>> 0;
     }
 
-    const hashStr = (location.hash || '') + (location.search || '');
-    const hashMatch = /(?:t=|#)([A-G])/i.exec(hashStr);
+    window.addEventListener('hashchange', function () { location.reload(); });
+    const hashStr = (location.hash || '') + ' ' + (location.search || '');
+    const hashMatch = /(?:t=|#|team=|terminal=|station=|\b)([A-G])\b/i.exec(hashStr) || /#([A-G])/i.exec(hashStr);
     const termLetter = hashMatch ? hashMatch[1].toUpperCase() : 'A';
     const KEY = 'mole-terminal-v2-' + termLetter;
     let state = { attempts: 0, won: false, term: 'TERMINAL ' + termLetter };
@@ -209,6 +210,7 @@ body.won .locked { display: none; }
             attemptsEl.textContent = 'DENIED ATTEMPTS: 0';
             entry = ''; render();
             armBuf = '';
+        }
         if (e.key === 'f' || e.key === 'F') {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(function(){});
