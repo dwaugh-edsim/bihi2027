@@ -103,16 +103,16 @@ body.won .locked { display: none; }
         return h >>> 0;
     }
 
-    /* Persistent per-machine state: survives reloads and kiosk restarts. */
-    const KEY = 'mole-terminal-v1';
-    let state = { attempts: 0, won: false, term: null };
+    const hashStr = (location.hash || '') + (location.search || '');
+    const hashMatch = /(?:t=|#)([A-G])/i.exec(hashStr);
+    const termLetter = hashMatch ? hashMatch[1].toUpperCase() : 'A';
+    const KEY = 'mole-terminal-v2-' + termLetter;
+    let state = { attempts: 0, won: false, term: 'TERMINAL ' + termLetter };
     try {
         const raw = localStorage.getItem(KEY);
         if (raw) { state = Object.assign(state, JSON.parse(raw)); }
     } catch (e) { /* fresh profile */ }
-    const hashMatch = /t=([A-E])/i.exec(location.hash || '');
-    if (hashMatch) { state.term = 'TERMINAL ' + hashMatch[1].toUpperCase(); }
-    else if (!state.term) { state.term = 'TERMINAL'; }
+    state.term = 'TERMINAL ' + termLetter;
     function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
     save();
 
