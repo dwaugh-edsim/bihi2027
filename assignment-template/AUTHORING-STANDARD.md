@@ -217,6 +217,11 @@ Blocks:
                    header row shaded #FAFAFA in JetBrains Mono 7pt bold, ALL CAPS.
   Source line: final paragraph, JetBrains Mono 7pt bold, #52525B, top border #E5E5E5,
                    beginning with "WHERE THESE FACTS COME FROM:" in #2563EB.
+  Footer line: every printable page must include a subtle footer (.sheet-foot) carrying:
+               left: course/unit and document title,
+               center: School Board AI disclosure note in italics (6pt Inter italic):
+                       "made with GLM5.3, Minimax 3 and Gemini",
+               right: page indicator or document type.
 
 Pagination:
   Keep the intro block, the first question and its response area together on page 1.
