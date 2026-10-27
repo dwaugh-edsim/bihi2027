@@ -410,6 +410,137 @@
         to { transform: scale(1.02); box-shadow: 0 0 16px rgba(29, 78, 216, 0.25); }
     }
 
+    /* Class Opener Slide (Today board) */
+    .opener-slide {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 14px;
+    }
+
+    .opener-band {
+        background: #1e3a6e;
+        border-bottom: 6px solid #d4a017;
+        border-radius: 10px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 22px;
+    }
+
+    .opener-crest {
+        background: #ffffff;
+        border: 3px solid #d4a017;
+        border-radius: 50%;
+        color: #1e3a6e;
+        font-family: var(--font-heading);
+        font-size: 1.7rem;
+        font-weight: 700;
+        width: 54px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .opener-school {
+        font-family: var(--font-heading);
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .opener-date {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 1.15rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 7px;
+        padding: 7px 16px;
+        white-space: nowrap;
+    }
+
+    .opener-class {
+        font-family: var(--font-heading);
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--text-heading);
+        text-align: center;
+        line-height: 1.05;
+        margin-top: 2px;
+    }
+
+    .opener-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 4px auto 0 auto;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .opener-list li {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        background: var(--bg-card);
+        border: 2px solid var(--border-card);
+        border-left: 10px solid #1e3a6e;
+        border-radius: 12px;
+        padding: 12px 26px;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-heading);
+    }
+
+    .opener-list .opener-icon {
+        font-size: 2.2rem;
+        flex-shrink: 0;
+    }
+
+    .opener-stamp {
+        align-self: flex-end;
+        transform: rotate(-7deg);
+        border: 4px solid var(--coral-dark);
+        border-radius: 10px;
+        color: var(--coral-dark);
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 6px 16px;
+        margin: -44px 10px 0 0;
+        opacity: 0.85;
+        text-align: center;
+        line-height: 1.35;
+    }
+
+    .opener-outcome {
+        margin-top: auto;
+        background: var(--bg-page);
+        border: 1px solid var(--border-card);
+        border-left: 8px solid #1e3a6e;
+        border-radius: 10px;
+        padding: 13px 20px;
+        font-size: 1.25rem;
+        line-height: 1.45;
+        color: var(--text-main);
+    }
+
+    .opener-outcome strong { color: var(--text-heading); }
+
+    .opener-outcome-tag {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        color: var(--blue);
+        white-space: nowrap;
+    }
+
     /* Outro Slide */
     .outro-slide {
         display: flex;
@@ -611,6 +742,21 @@
     </footer>
 
 <script>
+// ==== EDIT TODAY'S OPENER BOARD HERE (first slide) ====
+// date: "" = today's date is filled in automatically.
+// klass: change per class (902 Citizenship 9 etc.); the stamp derives from it.
+const OPENER = {
+    school: "Bicentennial Junior High School",
+    date: "",
+    klass: "901 Citizenship 9",
+    agenda: [
+        { icon: "\u{1F4CB}", text: "First Nations Quiz" },
+        { icon: "\u{1F33A}", text: "Remembrance Day / War Review" }
+    ],
+    outcome: "Learners will evaluate key changes in the citizenship rights of Mi'kmaw and other traditionally disempowered people",
+    outcomeTag: "CIT9 U2B"
+};
+
 // Quiz Question Data - Exactly 10 questions, NO answers
 // Properly escaped strings and clean topic mappings
 const QUESTIONS = [
@@ -678,11 +824,12 @@ const QUESTIONS = [
 
 // Navigation State
 // currentIndex:
+// -2 = Class Opener (Today board)
 // -1 = Question Board Grid View
 //  0 = Intro Slide
 //  1..10 = Question Slides
 // 11 = Finished Slide
-let currentIndex = 0;
+let currentIndex = -2;
 let previousIndexBeforeGrid = 0;
 const viewedQuestions = new Set();
 
@@ -719,7 +866,41 @@ function renderSlide() {
     const indicator = document.getElementById("slideIndicator");
     const gridBtn = document.getElementById("gridToggleBtn");
 
-    if (currentIndex === -1) {
+    if (currentIndex === -2) {
+        // Class Opener (Today board)
+        indicator.textContent = "TODAY'S BOARD";
+        gridBtn.classList.remove("active-mode");
+        gridBtn.innerHTML = "<span>&#9638; Question Board</span>";
+
+        let agendaHtml = "";
+        OPENER.agenda.forEach(item => {
+            agendaHtml += `<li><span class="opener-icon">${item.icon}</span><span>${item.text}</span></li>`;
+        });
+        const stampTop = OPENER.klass.split(" ")[0] + " CZ-9";
+        const dateText = OPENER.date || (function () {
+            const d = new Date();
+            const mons = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return mons[d.getMonth()] + " " + d.getDate() + " " + d.getFullYear();
+        })();
+
+        container.innerHTML = `
+            <div class="opener-slide">
+                <div class="opener-band">
+                    <div class="opener-crest">B</div>
+                    <div class="opener-school">${OPENER.school}</div>
+                    <div class="opener-date">Date: ${dateText}</div>
+                </div>
+                <div class="opener-class">${OPENER.klass}</div>
+                <ul class="opener-list">${agendaHtml}</ul>
+                <div class="opener-stamp">${stampTop}<br>Citizenship 9</div>
+                <div class="opener-outcome">
+                    <strong>Learning Outcome:</strong> ${OPENER.outcome}
+                    <span class="opener-outcome-tag">(${OPENER.outcomeTag})</span>
+                </div>
+                <div class="advance-hint"><span>[Click / Remote / Space]</span> &bull; Show the quiz &rarr;</div>
+            </div>
+        `;
+    } else if (currentIndex === -1) {
         // Question Board / Grid View
         indicator.textContent = "QUESTION BOARD";
         gridBtn.classList.add("active-mode");
@@ -824,7 +1005,12 @@ function renderSlide() {
 
 function nextSlide() {
     if (currentIndex === -1) {
-        currentIndex = (previousIndexBeforeGrid >= 1 && previousIndexBeforeGrid <= 10) ? previousIndexBeforeGrid : 1;
+        currentIndex = (previousIndexBeforeGrid >= -2 && previousIndexBeforeGrid <= 10) ? previousIndexBeforeGrid : 1;
+        renderSlide();
+        return;
+    }
+    if (currentIndex === -2) {
+        currentIndex = 0;
         renderSlide();
         return;
     }
@@ -836,7 +1022,12 @@ function nextSlide() {
 
 function prevSlide() {
     if (currentIndex === -1) {
-        currentIndex = (previousIndexBeforeGrid >= 1 && previousIndexBeforeGrid <= 10) ? previousIndexBeforeGrid : 1;
+        currentIndex = (previousIndexBeforeGrid >= -2 && previousIndexBeforeGrid <= 10) ? previousIndexBeforeGrid : 1;
+        renderSlide();
+        return;
+    }
+    if (currentIndex === 0) {
+        currentIndex = -2;
         renderSlide();
         return;
     }
@@ -855,7 +1046,7 @@ function goToQuestion(num) {
 
 function toggleGridView() {
     if (currentIndex === -1) {
-        currentIndex = (previousIndexBeforeGrid >= 0 && previousIndexBeforeGrid <= 11) ? previousIndexBeforeGrid : 1;
+        currentIndex = (previousIndexBeforeGrid >= -2 && previousIndexBeforeGrid <= 11) ? previousIndexBeforeGrid : 1;
     } else {
         previousIndexBeforeGrid = currentIndex;
         currentIndex = -1;
@@ -939,7 +1130,7 @@ document.addEventListener("keydown", (e) => {
         prevSlide();
     } else if (e.key === "Home") {
         e.preventDefault();
-        currentIndex = 0;
+        currentIndex = -2;
         renderSlide();
     } else if (e.key === "End") {
         e.preventDefault();
