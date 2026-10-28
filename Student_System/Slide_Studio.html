@@ -702,25 +702,25 @@ Open the Google Classroom template and start Paragraph 1</textarea>
       </div>
     </div>
 
-    <!-- 4. GENERATE WITH GEMINI / OPENROUTER -->
+    <!-- 4. GENERATE WITH OPENROUTER (QWEN 2.1 TURBO) / GEMINI -->
     <div class="card">
-      <div class="card-title"><span>4 &middot; AI Image Generator (Gemini / OpenRouter)</span><span id="keyStatus">Key saved locally</span></div>
+      <div class="card-title"><span>4 &middot; AI Image Generator (Qwen 2.1 Turbo / Gemini)</span><span id="keyStatus">Key saved locally</span></div>
       <div class="field-row">
         <div class="field" style="margin:0">
           <label for="providerSel">Provider</label>
           <select id="providerSel">
+            <option value="openrouter" selected>OpenRouter (Qwen 2.1 Turbo)</option>
             <option value="gemini">Google Gemini API (Direct)</option>
-            <option value="openrouter">OpenRouter (Gemini Image)</option>
           </select>
         </div>
         <div class="field" style="margin:0">
           <label for="modelInp">Image Model</label>
-          <input type="text" id="modelInp" value="gemini-2.5-flash-image">
+          <input type="text" id="modelInp" value="qwen/qwen-image-2.1-turbo">
         </div>
       </div>
       <div class="field" style="margin-top:8px">
         <label for="apiKeyInp">API Key <span class="hint">saved only in this browser's localStorage</span></label>
-        <input type="password" id="apiKeyInp" placeholder="Paste Gemini or OpenRouter API key...">
+        <input type="password" id="apiKeyInp" placeholder="Paste OpenRouter (sk-or-v1-...) or Gemini API key...">
       </div>
       <div class="btn-row" style="margin-top:10px">
         <button type="button" class="btn primary" id="genFullBtn" onclick="generateAiImage(false)">&#10024; Generate Full AI Slide</button>
@@ -1385,30 +1385,56 @@ async function generateAiImage(blankFrameOnly) {
         }
       }
     } else {
-      // OpenRouter
-      var orResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + key
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [{ role: "user", content: prompt }],
-          modalities: ["image", "text"]
-        })
-      });
-      var orData = await orResp.json();
-      if (!orResp.ok) {
-        throw new Error((orData.error && orData.error.message) || ("HTTP " + orResp.status));
-      }
-      var msg = orData.choices && orData.choices[0] && orData.choices[0].message;
-      if (msg && msg.images && msg.images[0] && msg.images[0].image_url) {
-        dataUrl = msg.images[0].image_url.url || msg.images[0].image_url;
-      } else if (msg && Array.isArray(msg.content)) {
-        for (var i = 0; i < msg.content.length; i++) {
-          if (msg.content[i].type === "image_url" && msg.content[i].image_url) {
-            dataUrl = msg.content[i].image_url.url || msg.content[i].image_url;
+      // OpenRouter: use /api/v1/images/generations for dedicated image models like qwen/qwen-image-2.1-turbo
+      if (model.indexOf("gemini") === -1) {
+        var imgResp = await fetch("https://openrouter.ai/api/v1/images/generations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify({
+            model: model,
+            prompt: prompt,
+            size: "1792x1024",
+            aspect_ratio: "16:9"
+          })
+        });
+        var imgData = await imgResp.json();
+        if (!imgResp.ok) {
+          throw new Error((imgData.error && imgData.error.message) || ("HTTP " + imgResp.status));
+        }
+        var item = (imgData.data && imgData.data[0]) || {};
+        if (item.b64_json) {
+          dataUrl = "data:image/png;base64," + item.b64_json;
+        } else if (item.url) {
+          dataUrl = item.url;
+        }
+      } else {
+        var orResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [{ role: "user", content: prompt }],
+            modalities: ["image", "text"]
+          })
+        });
+        var orData = await orResp.json();
+        if (!orResp.ok) {
+          throw new Error((orData.error && orData.error.message) || ("HTTP " + orResp.status));
+        }
+        var msg = orData.choices && orData.choices[0] && orData.choices[0].message;
+        if (msg && msg.images && msg.images[0] && msg.images[0].image_url) {
+          dataUrl = msg.images[0].image_url.url || msg.images[0].image_url;
+        } else if (msg && Array.isArray(msg.content)) {
+          for (var i = 0; i < msg.content.length; i++) {
+            if (msg.content[i].type === "image_url" && msg.content[i].image_url) {
+              dataUrl = msg.content[i].image_url.url || msg.content[i].image_url;
+            }
           }
         }
       }
@@ -1543,7 +1569,7 @@ function toast(msg) {
 
   // Restore saved provider/key
   try {
-    var savedProv = localStorage.getItem("r8_slide_studio_provider") || "gemini";
+    var savedProv = localStorage.getItem("r8_slide_studio_provider") || "openrouter";
     document.getElementById("providerSel").value = savedProv;
     var savedModel = localStorage.getItem("r8_slide_studio_model");
     if (savedModel) document.getElementById("modelInp").value = savedModel;
@@ -1554,7 +1580,7 @@ function toast(msg) {
   document.getElementById("providerSel").addEventListener("change", function() {
     var p = this.value;
     document.getElementById("modelInp").value = (p === "openrouter")
-      ? "google/gemini-2.5-flash-image-preview"
+      ? "qwen/qwen-image-2.1-turbo"
       : "gemini-2.5-flash-image";
     try {
       document.getElementById("apiKeyInp").value = localStorage.getItem("r8_slide_studio_key_" + p) || "";
@@ -1628,3 +1654,4 @@ function toast(msg) {
 </script>
 </body>
 </html>
+
