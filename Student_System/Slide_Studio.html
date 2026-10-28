@@ -1246,17 +1246,16 @@ function buildGeminiPrompt(blankFrameOnly) {
     ].join("\n\n");
   }
 
-  var bulletBlock = lines.map(function(l) { return "  • " + l; }).join("\n");
+  var bulletBlock = lines.map(function(l) { return "- " + l; }).join("\n");
   var promptLines = [
-    "Create a 16:9 widescreen, richly illustrated classroom projector slide with crisp, large, 100% legible typography spelled exactly as written below.",
-    "VISUAL THEME & ART DIRECTION:\n" + artDirection,
-    "EXACT TEXT & 4-TIER LAYOUT STRUCTURE (spell every word accurately, zero typos):",
-    "1. TOP HEADER:\n   - Small school title: \"Bicentennial Junior High School\"\n   - Large bold main title: \"" + courseTitle + "\"",
-    "2. CENTER MAIN BOARD (headed with a banner reading \"Today's Work\"):\n" + bulletBlock,
-    "3. LOWER FRAMED BOX (headed \"Learning Outcomes:\"):\n   \"" + outcomeStr + "\"",
-    "4. BOTTOM FOOTER BANNER:\n   \"Date: " + dateStr + "\"" + (extraNote ? ("\n   Small reminder strip underneath: \"-> " + extraNote + "\"") : "")
+    "A 16:9 widescreen illustrated classroom presentation slide.",
+    "Theme: " + artDirection,
+    "Top Header Text: \"Bicentennial Junior High School\" and large bold title \"" + courseTitle + "\".",
+    "Center Parchment Board titled \"Today's Work\" with bullet points written in bold legible letters:\n" + bulletBlock,
+    "Lower Framed Box titled \"Learning Outcomes:\" reading:\n\"" + outcomeStr + "\"",
+    "Bottom Banner reading: \"Date: " + dateStr + "\"" + (extraNote ? (" and a small note below: \"" + extraNote + "\"") : "") + "."
   ];
-  return promptLines.join("\n\n");
+  return promptLines.join("\n");
 }
 
 function renderLiveSlide() {
@@ -1347,8 +1346,8 @@ async function generateAiImage(blankFrameOnly) {
   }
   try {
     localStorage.setItem("r8_slide_studio_key_" + provider, key);
-    localStorage.setItem("r8_slide_studio_provider", provider);
-    localStorage.setItem("r8_slide_studio_model", model);
+    localStorage.setItem("r8_slide_studio_provider_v2", provider);
+    localStorage.setItem("r8_slide_studio_model_v2", model);
   } catch (e) {}
 
   var prompt = buildGeminiPrompt(blankFrameOnly);
@@ -1567,12 +1566,12 @@ function toast(msg) {
 (function init() {
   document.getElementById("dateInp").value = formatTodayDate();
 
-  // Restore saved provider/key
+  // Restore saved provider/key (default to OpenRouter + qwen/qwen-image-2.1-turbo)
   try {
-    var savedProv = localStorage.getItem("r8_slide_studio_provider") || "openrouter";
+    var savedProv = localStorage.getItem("r8_slide_studio_provider_v2") || "openrouter";
     document.getElementById("providerSel").value = savedProv;
-    var savedModel = localStorage.getItem("r8_slide_studio_model");
-    if (savedModel) document.getElementById("modelInp").value = savedModel;
+    var savedModel = localStorage.getItem("r8_slide_studio_model_v2") || "qwen/qwen-image-2.1-turbo";
+    document.getElementById("modelInp").value = savedModel;
     var savedKey = localStorage.getItem("r8_slide_studio_key_" + savedProv) || "";
     document.getElementById("apiKeyInp").value = savedKey;
   } catch (e) {}
