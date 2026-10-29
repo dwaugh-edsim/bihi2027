@@ -18,6 +18,53 @@
   color: var(--color-text-muted);
 }
 
+.genre-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block: var(--space-6) var(--space-7);
+  padding: 0.35rem;
+  background: var(--ink-900);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+}
+
+.genre-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.55rem 1.15rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: rgb(244 239 230 / 0.7);
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.genre-filter__btn:hover {
+  color: var(--paper-50);
+  background: rgb(244 239 230 / 0.06);
+}
+
+.genre-filter__btn.is-active {
+  color: var(--ink-950);
+  background: var(--orange-500);
+  font-weight: 600;
+}
+
+.genre-filter__count {
+  font-size: 0.6875rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 0.22);
+  color: inherit;
+}
+
 .slate {
   display: grid;
   gap: clamp(3.5rem, 6vw, 5.5rem);
@@ -28,12 +75,17 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
   column-gap: var(--gutter);
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.show.is-filtered-out {
+  display: none !important;
 }
 
 .show__media {
   grid-column: 1 / span 7;
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9; /* Broadcast widescreen standard - prevents left/right crop of 16:9 graphics */
   overflow: hidden;
   background: var(--ink-800);
   border-radius: var(--radius-sm);
@@ -49,7 +101,14 @@
 }
 
 .show:hover .show__media img {
-  transform: scale(1.035);
+  transform: scale(1.025);
+}
+
+/* Key art with titles baked into the left edge must never lose the 'M's to crop */
+.show__media--title-left img,
+.show__media img[src*="mega-marine-machines"] {
+  object-position: left center !important;
+  transform-origin: left center !important;
 }
 
 .show__body {
