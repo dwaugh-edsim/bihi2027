@@ -21,7 +21,6 @@ window.MASTER_ROSTER_DATA = [
   {"homeroom": "801", "grade": 8, "first_name": "Juliet", "last_name": "Miller", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "801", "grade": 8, "first_name": "Samuel", "last_name": "Miller", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "801", "grade": 8, "first_name": "Shaviah", "last_name": "O'Brien", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
-  {"homeroom": "801", "grade": 8, "first_name": "Artem", "last_name": "Palamarchuk", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "801", "grade": 8, "first_name": "Alex", "last_name": "Ramazanov", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "801", "grade": 8, "first_name": "Samuel", "last_name": "Santos", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "801", "grade": 8, "first_name": "Sydney", "last_name": "Sawyer-Patterson", "courses": ["HL 8"], "course_label": "Healthy Living 8"},

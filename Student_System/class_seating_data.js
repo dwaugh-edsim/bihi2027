@@ -38,7 +38,7 @@
 // still pending; re-tag against v4 when done.
 
 window.CLASS_SEATING = {
-    version: 6,
+    version: 7,
     totalDesks: 29,
     homeroomOf: {
         "902-CIT": "902", "902-HL": "902", "902-HOMEROOM": "902",
@@ -144,7 +144,7 @@ window.CLASS_SEATING = {
             }
         },
         "801": {
-            updated: "2026-10-30-survey-v1",
+            updated: "2026-10-30-survey-v2-artem-out",
             seats: {
                 "1": "Alex R.",
                 "2": "Jason D.",
@@ -173,8 +173,7 @@ window.CLASS_SEATING = {
                 "25": "Talia D.",
                 "26": "Mae'ijah D.",
                 "27": "Jayden L.",
-                "28": "Martin V.",
-                "29": "Artem P."
+                "28": "Martin V."
             }
         },
         "802": {
@@ -350,17 +349,17 @@ window.CLASS_SEATING = {
             }
         },
         "801": {
-            // the 2026-10-06 plan just replaced in snapshots — a browser-saved copy
-            // equal to this is stale and is auto-dropped by the slide
+            // the 2026-10-30-survey-v1 plan before Artem P. removal - a browser-saved
+            // copy equal to this is stale and is auto-dropped by the slide
             seats: {
-                "1": "Alex R.", "2": "Samuel Mil", "3": "Martin V.", "4": "Zephyr G.",
-                "5": "Samuel Mac", "6": "Ruby C.", "7": "Kenzie K.", "8": "Julia T.",
-                "9": "Ainslie M.", "10": "Juliet M.", "11": "Ruby M.", "12": "Talia D.",
-                "13": "Samuel S.", "14": "Jaela L.", "15": "Nehemiah S.", "16": "Jason D.",
-                "17": "Fiona S.", "18": "Marieke M.", "19": "Steven E.", "20": "Shaviah O.",
-                "21": "James T.", "22": "Samuel H.", "23": "Jayden L.", "24": "Sydney S.",
-                "25": "Alex W.", "26": "Nikolas S.", "27": "Trey L.", "28": "Artem P.",
-                "29": "Mae'ijah D."
+                "1": "Alex R.", "2": "Jason D.", "3": "Steven E.", "4": "Samuel Mil",
+                "5": "Samuel H.", "6": "Sydney S.", "7": "Jaela L.", "8": "James T.",
+                "9": "Trey L.", "10": "Ruby C.", "11": "Kenzie K.", "12": "Samuel S.",
+                "13": "Zephyr G.", "14": "Samuel Mac", "15": "Nikolas S.", "16": "Nehemiah S.",
+                "17": "Ainslie M.", "18": "Juliet M.", "19": "Fiona S.", "20": "Marieke M.",
+                "21": "Ruby M.", "22": "Shaviah O.", "23": "Julia T.", "24": "Alex W.",
+                "25": "Talia D.", "26": "Mae'ijah D.", "27": "Jayden L.", "28": "Martin V.",
+                "29": "Artem P."
             }
         },
         "802": {
