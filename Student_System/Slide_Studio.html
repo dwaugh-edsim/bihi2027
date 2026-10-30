@@ -655,7 +655,7 @@ body.projector-mode .slide-viewport {
     <div class="card">
       <div class="card-title">
         <span>2 &middot; Today's Work &amp; Learning Outcome</span>
-        <span class="match-badge" id="outcomeMatchBadge">Auto-matched</span>
+        <span class="match-badge" id="outcomeMatchBadge" onclick="forceLlmOutcomePick()" style="cursor:pointer" title="Click to re-pick outcome with qwen3.8-flash">Auto-matched</span>
       </div>
       <div class="field">
         <label for="workInp">Today's Work <span class="hint">1 line = 1 bullet point</span></label>
@@ -664,7 +664,7 @@ Option A (family story) or Option B (21 local Maritimers)
 Open the Google Classroom template and start Paragraph 1</textarea>
       </div>
       <div class="field">
-        <label for="outcomeSel">Curriculum Outcome <span class="hint">auto-picks as you type, or choose manually</span></label>
+        <label for="outcomeSel">Curriculum Outcome <span class="hint">picked by qwen3.8-flash, or choose manually</span></label>
         <select id="outcomeSel"></select>
       </div>
       <div class="field">
@@ -1190,6 +1190,18 @@ function formatTodayDate() {
   return d.getDate() + " " + mons[d.getMonth()] + " " + d.getFullYear();
 }
 
+var OUTCOME_TEXT_MODEL = "qwen3.8-flash";
+var _llmOutcomeTimer = null;
+var _outcomeReqSeq = 0;
+var _manualOutcomeLocked = false;
+var _lastLlmPickedSig = "";
+
+function currentOutcomeSig() {
+  var course = document.getElementById("courseSel").value;
+  var work = (document.getElementById("workInp").value || "").trim();
+  return course + "::" + work;
+}
+
 function populateOutcomes() {
   var course = document.getElementById("courseSel").value;
   var sel = document.getElementById("outcomeSel");
@@ -1201,43 +1213,181 @@ function populateOutcomes() {
     opt.textContent = list[i].label + " - " + list[i].text.slice(0, 58) + "...";
     sel.appendChild(opt);
   }
+  _manualOutcomeLocked = false;
   autoPickOutcome();
 }
 
-function autoPickOutcome() {
-  var course = document.getElementById("courseSel").value;
-  var work = (document.getElementById("workInp").value || "").toLowerCase();
+function keywordPickOutcomeOnly(course, workLower) {
   var list = OUTCOMES[course] || [];
-  if (!list.length) return;
-
+  if (!list.length) return null;
   var best = list[0];
   var bestScore = 0;
   for (var i = 0; i < list.length; i++) {
     var item = list[i];
     var score = 0;
     for (var k = 0; k < item.kw.length; k++) {
-      if (work.indexOf(item.kw[k]) > -1) score += 2;
+      if (workLower.indexOf(item.kw[k]) > -1) score += 2;
     }
     if (score > bestScore) {
       bestScore = score;
       best = item;
     }
   }
-  document.getElementById("outcomeSel").value = best.code;
-  document.getElementById("outcomeText").value = best.text;
+  return { item: best, score: bestScore };
+}
+
+function autoPickOutcome() {
+  _manualOutcomeLocked = false;
+  var course = document.getElementById("courseSel").value;
+  var rawWork = (document.getElementById("workInp").value || "").trim();
+  var kwRes = keywordPickOutcomeOnly(course, rawWork.toLowerCase());
+  if (!kwRes) return;
+
+  document.getElementById("outcomeSel").value = kwRes.item.code;
+  document.getElementById("outcomeText").value = kwRes.item.text;
   var badge = document.getElementById("outcomeMatchBadge");
-  badge.textContent = bestScore > 0 ? ("Auto-matched: " + best.code) : ("Default: " + best.code);
+  badge.style.background = "#dcfce7";
+  badge.style.color = "#15803d";
+  badge.textContent = kwRes.score > 0 ? ("Keyword: " + kwRes.item.code) : ("Default: " + kwRes.item.code);
   syncAll();
+
+  clearTimeout(_llmOutcomeTimer);
+  var list = OUTCOMES[course] || [];
+  if (list.length > 1 && rawWork.length >= 3 && localBridgeState.online && localBridgeState.hasKey) {
+    badge.style.background = "#e0f2fe";
+    badge.style.color = "#0369a1";
+    badge.textContent = "⏳ " + OUTCOME_TEXT_MODEL + "...";
+    _llmOutcomeTimer = setTimeout(function() {
+      pickOutcomeWithLlmNow();
+    }, 550);
+  }
+}
+
+async function pickOutcomeWithLlmNow() {
+  clearTimeout(_llmOutcomeTimer);
+  var course = document.getElementById("courseSel").value;
+  var rawWork = (document.getElementById("workInp").value || "").trim();
+  var list = OUTCOMES[course] || [];
+  var badge = document.getElementById("outcomeMatchBadge");
+  if (!list.length || !rawWork) return;
+  if (list.length === 1) {
+    _lastLlmPickedSig = currentOutcomeSig();
+    badge.style.background = "#dcfce7";
+    badge.style.color = "#15803d";
+    badge.textContent = "Default: " + list[0].code;
+    return;
+  }
+  if (!localBridgeState.online || !localBridgeState.hasKey) return;
+
+  var mySeq = ++_outcomeReqSeq;
+  var sigAtStart = currentOutcomeSig();
+  badge.style.background = "#e0f2fe";
+  badge.style.color = "#0369a1";
+  badge.textContent = "⏳ " + OUTCOME_TEXT_MODEL + "...";
+
+  var allowedCodes = list.map(function(o) { return o.code; }).join(", ");
+  var candLines = list.map(function(o) {
+    return "- " + o.code + " (" + o.label + "): " + o.text;
+  }).join("\n");
+
+  var baseUrl = (document.getElementById("baseUrlInp").value || DEFAULT_MAAS_BASE).trim();
+  try {
+    var resp = await fetch(LOCAL_BRIDGE_URL + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OUTCOME_TEXT_MODEL,
+        baseUrl: baseUrl,
+        temperature: 0,
+        enable_thinking: false,
+        messages: [
+          {
+            role: "system",
+            content: "You select the single best-matching Nova Scotia curriculum outcome code for a junior high teacher's daily board agenda. Allowed outcome codes: [" + allowedCodes + "]. Pick ONLY one code from that list (never return the course name). Reply with strict JSON only: {\"code\":\"...\"}"
+          },
+          {
+            role: "user",
+            content: "Subject: " + courseLabelFor(course) + "\nToday's Work:\n" + rawWork + "\n\nCandidate Outcomes:\n" + candLines
+          }
+        ]
+      })
+    });
+    var data = await resp.json();
+    if (mySeq !== _outcomeReqSeq || _manualOutcomeLocked) return;
+    if (!resp.ok || !data.ok) throw new Error(data.error || ("HTTP " + resp.status));
+
+    var rawReply = (data.content || "").trim();
+    var pickedCode = "";
+    try {
+      var cleaned = rawReply.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+      var parsed = JSON.parse(cleaned);
+      pickedCode = (parsed.code || "").trim();
+    } catch (pe) {
+      var m = rawReply.match(/"code"\s*:\s*"([^"]+)"/i);
+      if (m) pickedCode = m[1].trim();
+    }
+
+    var matchedItem = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].code.toUpperCase() === pickedCode.toUpperCase()) {
+        matchedItem = list[i];
+        break;
+      }
+    }
+    if (!matchedItem) {
+      for (var j = 0; j < list.length; j++) {
+        if (rawReply.toUpperCase().indexOf(list[j].code.toUpperCase()) > -1) {
+          matchedItem = list[j];
+          break;
+        }
+      }
+    }
+
+    if (matchedItem) {
+      document.getElementById("outcomeSel").value = matchedItem.code;
+      document.getElementById("outcomeText").value = matchedItem.text;
+      _lastLlmPickedSig = sigAtStart;
+      badge.style.background = "#dcfce7";
+      badge.style.color = "#15803d";
+      badge.textContent = "✨ " + OUTCOME_TEXT_MODEL + ": " + matchedItem.code;
+      syncAll();
+    } else {
+      badge.style.background = "#fef3c7";
+      badge.style.color = "#92400e";
+      badge.textContent = "Keyword fallback: " + document.getElementById("outcomeSel").value;
+    }
+  } catch (err) {
+    if (mySeq !== _outcomeReqSeq) return;
+    badge.style.background = "#fef3c7";
+    badge.style.color = "#92400e";
+    badge.textContent = "Keyword fallback: " + document.getElementById("outcomeSel").value;
+  }
+}
+
+function forceLlmOutcomePick() {
+  _manualOutcomeLocked = false;
+  if (!localBridgeState.online || !localBridgeState.hasKey) {
+    toast("Local MaaS bridge not active; using keyword outcome match.");
+    autoPickOutcome();
+    return;
+  }
+  pickOutcomeWithLlmNow();
 }
 
 function onManualOutcomeChange() {
+  _manualOutcomeLocked = true;
+  clearTimeout(_llmOutcomeTimer);
+  _outcomeReqSeq++;
   var course = document.getElementById("courseSel").value;
   var code = document.getElementById("outcomeSel").value;
   var list = OUTCOMES[course] || [];
   for (var i = 0; i < list.length; i++) {
     if (list[i].code === code) {
       document.getElementById("outcomeText").value = list[i].text;
-      document.getElementById("outcomeMatchBadge").textContent = "Selected: " + code;
+      var badge = document.getElementById("outcomeMatchBadge");
+      badge.style.background = "#e2e8f0";
+      badge.style.color = "#334155";
+      badge.textContent = "Manual: " + code;
       break;
     }
   }
@@ -1459,6 +1609,9 @@ async function checkLocalBridge() {
       badge.style.background = "#dcfce7";
       badge.style.color = "#15803d";
       keyInp.placeholder = "Stored locally" + (data.keyHint ? (" (" + data.keyHint + ")") : "") + " - paste only to replace";
+      if (!_manualOutcomeLocked && _lastLlmPickedSig !== currentOutcomeSig()) {
+        pickOutcomeWithLlmNow();
+      }
     } else {
       badge.textContent = "Paste MaaS Key";
       badge.style.background = "#fef3c7";
@@ -1515,10 +1668,16 @@ async function generateAiImage(blankFrameOnly) {
     }
   } catch (e) {}
 
-  var prompt = buildGeminiPrompt(blankFrameOnly);
   var btn = document.getElementById(blankFrameOnly ? "genBgBtn" : "genFullBtn");
   var origLabel = btn.innerHTML;
   btn.disabled = true;
+
+  if (!blankFrameOnly && !_manualOutcomeLocked && localBridgeState.online && localBridgeState.hasKey && _lastLlmPickedSig !== currentOutcomeSig()) {
+    btn.textContent = "⏳ Matching outcome (qwen3.8-flash)...";
+    await pickOutcomeWithLlmNow();
+  }
+
+  var prompt = buildGeminiPrompt(blankFrameOnly);
   btn.textContent = provider === "maas" ? "⏳ Generating 1080p (~12-25s)..." : "⏳ Generating (~8-12s)...";
 
   try {
