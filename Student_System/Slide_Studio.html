@@ -612,7 +612,7 @@ body.projector-mode .slide-viewport {
   </div>
   <div class="header-actions">
     <button class="btn" onclick="openGemModal()">&#128142; Gemini Gem Setup Pack</button>
-    <button class="btn emerald" onclick="copyPrompt()">&#128203; Copy Gemini Image Prompt</button>
+    <button class="btn emerald" onclick="copyPrompt()">&#128203; Copy Image Prompt</button>
     <button class="btn dark" onclick="toggleProjectorMode()">&#128250; Project Fullscreen (F)</button>
   </div>
 </header>
@@ -702,32 +702,56 @@ Open the Google Classroom template and start Paragraph 1</textarea>
       </div>
     </div>
 
-    <!-- 4. GENERATE WITH OPENROUTER (QWEN 2.1 TURBO) / GEMINI -->
+    <!-- 4. GENERATE WITH ALIBABA MODEL STUDIO (QWEN 3.0 PRO / WAN 2.7) -->
     <div class="card">
-      <div class="card-title"><span>4 &middot; AI Image Generator (Qwen 2.1 Turbo / Gemini)</span><span id="keyStatus">Key saved locally</span></div>
+      <div class="card-title">
+        <span>4 &middot; AI Image Engine (Qwen 3.0 &amp; Wan 2.7)</span>
+        <span class="match-badge" id="keyStatus" style="background:#e2e8f0;color:#334155">Checking local key...</span>
+      </div>
       <div class="field-row">
         <div class="field" style="margin:0">
-          <label for="providerSel">Provider</label>
+          <label for="providerSel">Engine / Provider</label>
           <select id="providerSel">
-            <option value="openrouter" selected>OpenRouter (Qwen 2.1 Turbo)</option>
+            <option value="maas" selected>Alibaba MaaS (Qwen / Wan)</option>
+            <option value="openrouter">OpenRouter</option>
             <option value="gemini">Google Gemini API (Direct)</option>
           </select>
         </div>
         <div class="field" style="margin:0">
-          <label for="modelInp">Image Model</label>
-          <input type="text" id="modelInp" value="qwen/qwen-image-2.1-turbo">
+          <label for="modelSel">Image Model</label>
+          <select id="modelSel">
+            <option value="qwen-image-3.0-pro" selected>Qwen &middot; qwen-image-3.0-pro</option>
+            <option value="wan2.7-image-pro">Wan &middot; wan2.7-image-pro</option>
+            <option value="wan2.7-image">Wan &middot; wan2.7-image</option>
+          </select>
         </div>
       </div>
-      <div class="field" style="margin-top:8px">
-        <label for="apiKeyInp">API Key <span class="hint">saved only in this browser's localStorage</span></label>
-        <input type="password" id="apiKeyInp" placeholder="Paste OpenRouter (sk-or-v1-...) or Gemini API key...">
+      <div class="field" id="customModelField" style="display:none;margin-top:8px;margin-bottom:0">
+        <label for="modelInp">Custom Model ID</label>
+        <input type="text" id="modelInp" value="qwen-image-3.0-pro">
       </div>
+      <details id="endpointDetails" style="margin-top:8px;font-size:0.78rem;color:var(--muted)">
+        <summary style="cursor:pointer;font-weight:700;color:var(--ink);user-select:none">Endpoint &amp; Local Key Settings</summary>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+          <div class="field" style="margin:0" id="baseUrlField">
+            <label for="baseUrlInp">MaaS Base URL <span class="hint">bridged via 127.0.0.1:8791</span></label>
+            <input type="text" id="baseUrlInp" value="https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1">
+          </div>
+          <div class="field" style="margin:0">
+            <label for="apiKeyInp">API Key <span class="hint" id="apiKeyHint">local machine config outside git</span></label>
+            <input type="password" id="apiKeyInp" placeholder="Stored locally on this machine (paste only to replace)...">
+          </div>
+          <div id="bridgeHelpNote" style="display:none;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;padding:7px 9px;border-radius:7px;font-size:0.74rem;line-height:1.4">
+            <b>Local bridge offline:</b> Run <code>%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\Room8_Slide_Studio_Bridge.vbs</code> (auto-starts at Windows login) so browser requests can reach Alibaba MaaS without CORS blocks.
+          </div>
+        </div>
+      </details>
       <div class="btn-row" style="margin-top:10px">
         <button type="button" class="btn primary" id="genFullBtn" onclick="generateAiImage(false)">&#10024; Generate Full AI Slide</button>
         <button type="button" class="btn" id="genBgBtn" onclick="generateAiImage(true)" title="Generates the illustrated theme background WITHOUT text and puts it behind the Live Editable Slide">&#128444;&#65039; AI Frame + Live Text</button>
       </div>
       <div class="field" style="margin-top:10px">
-        <label for="promptPreview">Assembled Gemini Image Prompt <span class="hint"><a href="#" onclick="copyPrompt();return false;" style="color:var(--blue)">Copy to clipboard</a></span></label>
+        <label for="promptPreview">Assembled Image Prompt <span class="hint"><a href="#" onclick="copyPrompt();return false;" style="color:var(--blue)">Copy to clipboard</a></span></label>
         <textarea id="promptPreview" class="prompt-box" rows="5"></textarea>
       </div>
     </div>
@@ -797,7 +821,7 @@ Open the Google Classroom template and start Paragraph 1</textarea>
         <img id="aiResultImg" alt="Generated Class Slide" style="display:none">
         <div class="ai-placeholder" id="aiPlaceholder">
           <h3>Ready to Generate Your Full AI Slide</h3>
-          <p>Click <b>"✨ Generate Full AI Slide"</b> on the left to render with Gemini's image generator, or click <b>"📋 Copy Gemini Image Prompt"</b> to paste into Gemini Chat (or load a saved PNG with <b>"📂 Load Image"</b>).</p>
+          <p>Click <b>"✨ Generate Full AI Slide"</b> on the left to render a 1080p slide with <b>Qwen Image 3.0 Pro</b> or <b>Wan 2.7 Image</b>, or click <b>"📋 Copy Image Prompt"</b> (or load a saved PNG with <b>"📂 Load Image"</b>).</p>
         </div>
       </div>
 
@@ -809,7 +833,7 @@ Open the Google Classroom template and start Paragraph 1</textarea>
 <div class="gem-modal" id="gemModal">
   <div class="gem-modal-card">
     <div class="gem-modal-head">
-      <strong style="font-family:'Roboto Slab',serif;font-size:1.05rem">&#128142; Bicentennial Junior High — Gemini Gem System Instructions</strong>
+      <strong style="font-family:'Roboto Slab',serif;font-size:1.05rem">&#128142; Bicentennial Junior High: Gemini Gem System Instructions</strong>
       <button class="btn" onclick="closeGemModal()" style="padding:4px 10px">Close &times;</button>
     </div>
     <div class="gem-modal-body">
@@ -1174,7 +1198,7 @@ function populateOutcomes() {
   for (var i = 0; i < list.length; i++) {
     var opt = document.createElement("option");
     opt.value = list[i].code;
-    opt.textContent = list[i].label + " — " + list[i].text.slice(0, 58) + "...";
+    opt.textContent = list[i].label + " - " + list[i].text.slice(0, 58) + "...";
     sel.appendChild(opt);
   }
   autoPickOutcome();
@@ -1335,32 +1359,192 @@ function syncAll() {
 }
 
 /* ============================================================================
-   4. DIRECT GEMINI / OPENROUTER IMAGE GENERATION API CALL
+   4. ALIBABA MAAS (LOCAL BRIDGE) / OPENROUTER / GEMINI IMAGE ENGINE
    ============================================================================ */
+var LOCAL_BRIDGE_URL = "http://127.0.0.1:8791";
+var DEFAULT_MAAS_BASE = "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1";
+
+var PROVIDER_MODELS = {
+  "maas": [
+    { id: "qwen-image-3.0-pro", label: "Qwen · qwen-image-3.0-pro" },
+    { id: "wan2.7-image-pro", label: "Wan · wan2.7-image-pro" },
+    { id: "wan2.7-image", label: "Wan · wan2.7-image" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ],
+  "openrouter": [
+    { id: "qwen/qwen-image-2.1-turbo", label: "Qwen · qwen-image-2.1-turbo" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ],
+  "gemini": [
+    { id: "gemini-2.5-flash-image", label: "Gemini · gemini-2.5-flash-image" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ]
+};
+
+var localBridgeState = { online: false, hasKey: false, keyHint: "" };
+
+function populateModelSelect(provider, preferredModel) {
+  var sel = document.getElementById("modelSel");
+  var customField = document.getElementById("customModelField");
+  var customInp = document.getElementById("modelInp");
+  var list = PROVIDER_MODELS[provider] || PROVIDER_MODELS.maas;
+  sel.innerHTML = "";
+  var matched = false;
+  for (var i = 0; i < list.length; i++) {
+    var opt = document.createElement("option");
+    opt.value = list[i].id;
+    opt.textContent = list[i].label;
+    if (preferredModel && list[i].id === preferredModel) {
+      opt.selected = true;
+      matched = true;
+    }
+    sel.appendChild(opt);
+  }
+  if (preferredModel && !matched) {
+    sel.value = "__custom__";
+    customInp.value = preferredModel;
+    customField.style.display = "flex";
+  } else {
+    if (!preferredModel && list[0]) sel.value = list[0].id;
+    customInp.value = sel.value === "__custom__" ? customInp.value : sel.value;
+    customField.style.display = (sel.value === "__custom__") ? "flex" : "none";
+  }
+}
+
+function getSelectedModel() {
+  var selVal = document.getElementById("modelSel").value;
+  if (selVal === "__custom__") {
+    return (document.getElementById("modelInp").value || "").trim();
+  }
+  return selVal;
+}
+
+async function checkLocalBridge() {
+  var provider = document.getElementById("providerSel").value;
+  var badge = document.getElementById("keyStatus");
+  var baseField = document.getElementById("baseUrlField");
+  var helpNote = document.getElementById("bridgeHelpNote");
+  var keyInp = document.getElementById("apiKeyInp");
+  var keyHintEl = document.getElementById("apiKeyHint");
+
+  if (provider !== "maas") {
+    baseField.style.display = "none";
+    helpNote.style.display = "none";
+    keyHintEl.textContent = "saved only in this browser's localStorage";
+    keyInp.placeholder = provider === "openrouter" ? "Paste OpenRouter (sk-or-v1-...) key..." : "Paste Gemini API key...";
+    var hasLocalKey = !!(keyInp.value || "").trim();
+    badge.textContent = hasLocalKey ? "Browser Key Set" : "Paste Key Below";
+    badge.style.background = hasLocalKey ? "#dcfce7" : "#fef3c7";
+    badge.style.color = hasLocalKey ? "#15803d" : "#92400e";
+    return;
+  }
+
+  baseField.style.display = "flex";
+  keyHintEl.textContent = "stored in %LOCALAPPDATA%\\Room8 (outside git)";
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function() { ctrl.abort(); }, 2500);
+    var resp = await fetch(LOCAL_BRIDGE_URL + "/health", { signal: ctrl.signal });
+    clearTimeout(timer);
+    var data = await resp.json();
+    localBridgeState.online = !!data.ok;
+    localBridgeState.hasKey = !!data.hasKey;
+    localBridgeState.keyHint = data.keyHint || "";
+    helpNote.style.display = "none";
+    if (data.baseUrl && !document.getElementById("baseUrlInp").dataset.dirty) {
+      document.getElementById("baseUrlInp").value = data.baseUrl;
+    }
+    if (data.hasKey) {
+      badge.textContent = "Local Key Ready" + (data.keyHint ? (" (" + data.keyHint + ")") : "");
+      badge.style.background = "#dcfce7";
+      badge.style.color = "#15803d";
+      keyInp.placeholder = "Stored locally" + (data.keyHint ? (" (" + data.keyHint + ")") : "") + " - paste only to replace";
+    } else {
+      badge.textContent = "Paste MaaS Key";
+      badge.style.background = "#fef3c7";
+      badge.style.color = "#92400e";
+      keyInp.placeholder = "Paste Alibaba MaaS API key (sk-sp-...)";
+      document.getElementById("endpointDetails").open = true;
+    }
+  } catch (e) {
+    localBridgeState = { online: false, hasKey: false, keyHint: "" };
+    badge.textContent = "Bridge Offline";
+    badge.style.background = "#fef3c7";
+    badge.style.color = "#92400e";
+    helpNote.style.display = "block";
+    document.getElementById("endpointDetails").open = true;
+  }
+}
+
 async function generateAiImage(blankFrameOnly) {
   var key = (document.getElementById("apiKeyInp").value || "").trim();
   var provider = document.getElementById("providerSel").value;
-  var model = (document.getElementById("modelInp").value || "").trim();
-  if (!key) {
-    toast("Paste your Gemini API key (or OpenRouter key) in Box 4 first, or click 'Copy Gemini Image Prompt' to paste into Gemini Chat.");
+  var model = getSelectedModel();
+  var baseUrl = (document.getElementById("baseUrlInp").value || DEFAULT_MAAS_BASE).trim();
+
+  if (provider === "maas") {
+    if (!localBridgeState.online) {
+      await checkLocalBridge();
+    }
+    if (!localBridgeState.online) {
+      toast("Local MaaS bridge is offline. Start Room8_Slide_Studio_Bridge.vbs (see Endpoint & Local Key Settings).");
+      document.getElementById("endpointDetails").open = true;
+      return;
+    }
+    if (!localBridgeState.hasKey && !key) {
+      toast("Paste your Alibaba MaaS key in Endpoint & Local Key Settings first.");
+      document.getElementById("endpointDetails").open = true;
+      document.getElementById("apiKeyInp").focus();
+      return;
+    }
+  } else if (!key) {
+    toast("Paste your API key in Endpoint & Local Key Settings first, or click 'Copy Image Prompt'.");
+    document.getElementById("endpointDetails").open = true;
     document.getElementById("apiKeyInp").focus();
     return;
   }
+
   try {
-    localStorage.setItem("r8_slide_studio_key_" + provider, key);
-    localStorage.setItem("r8_slide_studio_provider_v2", provider);
-    localStorage.setItem("r8_slide_studio_model_v2", model);
+    if (provider !== "maas" && key) {
+      localStorage.setItem("r8_slide_studio_key_" + provider, key);
+    }
+    localStorage.setItem("r8_slide_studio_provider_v3", provider);
+    localStorage.setItem("r8_slide_studio_model_v3", model);
+    if (provider === "maas") {
+      localStorage.setItem("r8_slide_studio_maas_base_v3", baseUrl);
+    }
   } catch (e) {}
 
   var prompt = buildGeminiPrompt(blankFrameOnly);
   var btn = document.getElementById(blankFrameOnly ? "genBgBtn" : "genFullBtn");
   var origLabel = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = "⏳ Generating (~8-12s)...";
+  btn.textContent = provider === "maas" ? "⏳ Generating 1080p (~12-25s)..." : "⏳ Generating (~8-12s)...";
 
   try {
     var dataUrl = null;
-    if (provider === "gemini") {
+    if (provider === "maas") {
+      var mResp = await fetch(LOCAL_BRIDGE_URL + "/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: model,
+          prompt: prompt,
+          size: "1920*1080",
+          baseUrl: baseUrl,
+          apiKey: key
+        })
+      });
+      var mData = await mResp.json();
+      if (!mResp.ok || !mData.ok) {
+        throw new Error(mData.error || ("HTTP " + mResp.status));
+      }
+      dataUrl = mData.dataUrl;
+      if (key) {
+        document.getElementById("apiKeyInp").value = "";
+        checkLocalBridge();
+      }
+    } else if (provider === "gemini") {
       var url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
       var resp = await fetch(url, {
         method: "POST",
@@ -1386,7 +1570,6 @@ async function generateAiImage(blankFrameOnly) {
         }
       }
     } else {
-      // OpenRouter: use /api/v1/images/generations for dedicated image models like qwen/qwen-image-2.1-turbo
       if (model.indexOf("gemini") === -1) {
         var imgResp = await fetch("https://openrouter.ai/api/v1/images/generations", {
           method: "POST",
@@ -1442,14 +1625,14 @@ async function generateAiImage(blankFrameOnly) {
     }
 
     if (!dataUrl) {
-      throw new Error("Model replied without an image payload. Check that the model name supports image output (e.g. gemini-2.5-flash-image).");
+      throw new Error("Model replied without an image payload. Check that the selected model supports image output.");
     }
 
     if (blankFrameOnly) {
       customBgDataUrl = dataUrl;
       setStageMode("live");
       renderLiveSlide();
-      toast("✨ Applied AI-generated frame behind your Live Editable Slide!");
+      toast("✨ Applied AI-generated frame (" + model + ") behind your Live Editable Slide!");
     } else {
       var img = document.getElementById("aiResultImg");
       img.src = dataUrl;
@@ -1457,7 +1640,7 @@ async function generateAiImage(blankFrameOnly) {
       document.getElementById("aiPlaceholder").style.display = "none";
       document.getElementById("downloadAiBtn").style.display = "inline-flex";
       setStageMode("ai");
-      toast("✨ Generated full AI slide!");
+      toast("✨ Generated 1080p AI slide with " + model + "!");
     }
   } catch (err) {
     toast("Error: " + err.message);
@@ -1499,7 +1682,7 @@ function downloadAiImage() {
 function copyPrompt() {
   var txt = document.getElementById("promptPreview").value;
   navigator.clipboard.writeText(txt).then(function() {
-    toast("📋 Copied Gemini Image Prompt! Paste it straight into gemini.google.com.");
+    toast("📋 Copied Image Prompt to clipboard!");
   });
 }
 
@@ -1577,24 +1760,54 @@ function toast(msg) {
 (function init() {
   document.getElementById("dateInp").value = formatTodayDate();
 
-  // Restore saved provider/key (default to OpenRouter + qwen/qwen-image-2.1-turbo)
+  var initProv = "maas";
+  var initModel = "qwen-image-3.0-pro";
   try {
-    var savedProv = localStorage.getItem("r8_slide_studio_provider_v2") || "openrouter";
-    document.getElementById("providerSel").value = savedProv;
-    var savedModel = localStorage.getItem("r8_slide_studio_model_v2") || "qwen/qwen-image-2.1-turbo";
-    document.getElementById("modelInp").value = savedModel;
-    var savedKey = localStorage.getItem("r8_slide_studio_key_" + savedProv) || "";
-    document.getElementById("apiKeyInp").value = savedKey;
+    initProv = localStorage.getItem("r8_slide_studio_provider_v3") || "maas";
+    initModel = localStorage.getItem("r8_slide_studio_model_v3") || "qwen-image-3.0-pro";
+    var savedBase = localStorage.getItem("r8_slide_studio_maas_base_v3");
+    if (savedBase) document.getElementById("baseUrlInp").value = savedBase;
+    document.getElementById("providerSel").value = initProv;
+    if (initProv !== "maas") {
+      document.getElementById("apiKeyInp").value = localStorage.getItem("r8_slide_studio_key_" + initProv) || "";
+    }
   } catch (e) {}
+
+  populateModelSelect(initProv, initModel);
+  checkLocalBridge();
 
   document.getElementById("providerSel").addEventListener("change", function() {
     var p = this.value;
-    document.getElementById("modelInp").value = (p === "openrouter")
-      ? "qwen/qwen-image-2.1-turbo"
-      : "gemini-2.5-flash-image";
+    populateModelSelect(p, "");
     try {
-      document.getElementById("apiKeyInp").value = localStorage.getItem("r8_slide_studio_key_" + p) || "";
+      document.getElementById("apiKeyInp").value = (p === "maas") ? "" : (localStorage.getItem("r8_slide_studio_key_" + p) || "");
     } catch (e) {}
+    checkLocalBridge();
+  });
+
+  document.getElementById("modelSel").addEventListener("change", function() {
+    var v = this.value;
+    var cf = document.getElementById("customModelField");
+    if (v === "__custom__") {
+      cf.style.display = "flex";
+      document.getElementById("modelInp").focus();
+    } else {
+      cf.style.display = "none";
+      document.getElementById("modelInp").value = v;
+    }
+    try {
+      localStorage.setItem("r8_slide_studio_model_v3", getSelectedModel());
+    } catch (e) {}
+  });
+
+  document.getElementById("baseUrlInp").addEventListener("input", function() {
+    this.dataset.dirty = "1";
+  });
+
+  document.getElementById("apiKeyInp").addEventListener("input", function() {
+    if (document.getElementById("providerSel").value !== "maas") {
+      checkLocalBridge();
+    }
   });
 
   document.getElementById("courseSel").addEventListener("change", function() {
