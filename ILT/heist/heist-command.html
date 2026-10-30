@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R.B. VAULT // CENTRAL COMMAND OPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-page: #f0f2f5;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+    --border-card: #d5dbe3;
+    --border-subtle: #e5e9f0;
+    --border-highlight: #ed786a;
+
+    --text-main: #1e2530;
+    --text-heading: #181f2b;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+
+    --coral: #ed786a;
+    --coral-hover: #fd887a;
+    --coral-dark: #d65b4c;
+    --coral-bg: #fff1f0;
+    --coral-border: #fecdd3;
+
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+
+    --emerald: #15803d;
+    --emerald-bg: #dcfce7;
+    --emerald-border: #86efac;
+
+    --amber: #b45309;
+    --amber-bg: #fef3c7;
+    --amber-border: #fde68a;
+
+    --purple: #6d28d9;
+    --purple-bg: #f5f3ff;
+    --purple-border: #ddd6fe;
+
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --red-border: #fca5a5;
+
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    width: 100vw; height: 100vh; overflow: hidden;
+    background: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    user-select: none;
+}
+
+.bg-watermark {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url('heist-blueprint-bg.jpg');
+    background-size: cover; background-position: center;
+    opacity: 0.14; pointer-events: none;
+}
+body.vault-bg .bg-watermark {
+    background-image: url('heist-vault-bg.jpg');
+    opacity: 0.16;
+}
+
+.app-shell {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    width: 100vw; height: 100vh;
+}
+
+.double-rule-bottom {
+    border-bottom: 2px solid var(--border-subtle);
+    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+}
+
+/* TOP COMMAND BAR */
+header.cmd-bar {
+    background: rgba(255, 255, 255, 0.97);
+    padding: 8px 20px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.brand-cluster { display: flex; align-items: center; gap: 10px; }
+.badge-room {
+    background: var(--coral);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    padding: 5px 12px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
+    white-space: nowrap;
+}
+.phase-pill {
+    font-family: var(--font-mono);
+    font-weight: 800; font-size: 0.82rem;
+    color: var(--blue); background: var(--blue-bg);
+    border: 1.5px solid var(--blue-border);
+    padding: 5px 11px; border-radius: 6px;
+    letter-spacing: 0.04em; white-space: nowrap;
+}
+
+/* TIMERS IN TOP BAR */
+.timers-cluster { display: flex; align-items: center; gap: 10px; }
+.clock-box {
+    display: flex; align-items: center; gap: 7px;
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 8px; padding: 3px 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+.clock-label {
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800;
+    color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.clock-digits {
+    font-family: var(--font-mono); font-size: 1.45rem; font-weight: 800;
+    color: var(--text-heading); min-width: 72px; text-align: center;
+}
+.clock-box.running { border-color: var(--emerald); background: var(--emerald-bg); }
+.clock-box.running .clock-digits { color: var(--emerald); }
+.clock-box.warn { border-color: var(--amber); background: var(--amber-bg); }
+.clock-box.warn .clock-digits { color: var(--amber); }
+.clock-box.urgent { border-color: var(--red); background: var(--red-bg); animation: pulseFast 0.6s infinite; }
+.clock-box.urgent .clock-digits { color: var(--red); }
+@keyframes pulseFast { 50% { transform: scale(1.03); } }
+
+.btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.82rem;
+    color: var(--text-heading); background: #ffffff;
+    border: 1.5px solid var(--border-card); border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; transition: all 0.12s ease;
+    white-space: nowrap;
+}
+.btn:hover { background: var(--bg-card-hover); border-color: #94a3b8; }
+.btn.coral { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
+.btn.coral:hover { background: var(--coral-hover); }
+.btn.emerald { background: var(--emerald); color: #ffffff; border-color: var(--emerald); }
+.btn.emerald:hover { background: #166534; }
+.btn.blue { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+.btn.amber { background: var(--amber); color: #ffffff; border-color: var(--amber); }
+.btn.purple { background: var(--purple); color: #ffffff; border-color: var(--purple); }
+.btn-xs { font-family: var(--font-mono); font-size: 0.72rem; padding: 3px 7px; }
+
+.ops-cluster { display: flex; align-items: center; gap: 7px; }
+
+/* STAGE JUMP STRIP + NODE MEMORY TRACKER */
+nav.node-strip {
+    background: rgba(255,255,255,0.92);
+    border-bottom: 1px solid var(--border-card);
+    padding: 6px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.stage-tabs { display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; }
+.stab {
+    font-family: var(--font-mono); font-size: 0.73rem; font-weight: 800;
+    color: var(--text-muted); background: #f8fafc;
+    border: 1.5px solid var(--border-card); border-radius: 5px;
+    padding: 4px 10px; cursor: pointer;
+}
+.stab:hover { color: var(--text-heading); background: #e2e8f0; }
+.stab.active {
+    background: var(--text-heading); color: #ffffff; border-color: var(--text-heading);
+}
+.node-leds { display: flex; align-items: center; gap: 8px; }
+.node-chip {
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800;
+    padding: 4px 9px; border-radius: 5px;
+    border: 1.5px solid var(--border-card); background: #f8fafc; color: var(--text-dim);
+}
+.node-chip.half { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
+.node-chip.locked { background: var(--emerald-bg); color: var(--emerald); border-color: var(--emerald-border); }
+
+/* MAIN CENTER WORKSPACE */
+main.stage-main {
+    padding: 14px 22px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    overflow: hidden; min-height: 0;
+}
+.stage-card {
+    width: 100%; max-width: 1380px; height: 100%;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1.5px solid var(--border-card);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(24, 31, 43, 0.06);
+    padding: 18px 26px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    overflow: hidden;
+}
+
+/* BRIEFING LAYOUT */
+.brief-head h1 {
+    font-family: var(--font-heading); font-weight: 700; font-size: 2.1rem;
+    color: var(--text-heading);
+    text-shadow: 0.04em 0.06em 0 rgba(0, 0, 0, 0.08);
+}
+.brief-head p { font-size: 1.12rem; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+.brief-grid {
+    display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px;
+    margin: 12px 0; flex: 1; min-height: 0; align-items: stretch;
+}
+.role-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.role-card {
+    background: #f8fafc; border: 1.5px solid var(--border-card);
+    border-left: 5px solid var(--blue);
+    border-radius: 8px; padding: 11px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.role-card:nth-child(2) { border-left-color: var(--purple); }
+.role-card:nth-child(3) { border-left-color: var(--amber); }
+.role-card:nth-child(4) { border-left-color: var(--emerald); }
+.role-tag { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--blue); }
+.role-card:nth-child(2) .role-tag { color: var(--purple); }
+.role-card:nth-child(3) .role-tag { color: var(--amber); }
+.role-card:nth-child(4) .role-tag { color: var(--emerald); }
+.role-title { font-family: var(--font-heading); font-size: 1.2rem; color: var(--text-heading); margin: 3px 0; }
+.role-desc { font-size: 0.98rem; color: var(--text-muted); line-height: 1.3; font-weight: 600; }
+
+.rules-panel {
+    background: var(--coral-bg); border: 1.5px solid var(--coral-border);
+    border-radius: 8px; padding: 14px 18px;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.rules-panel h3 {
+    font-family: var(--font-heading); font-size: 1.18rem; color: var(--coral-dark);
+    margin-bottom: 6px;
+}
+.rules-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.rules-list li {
+    font-size: 1rem; font-weight: 600; color: var(--text-heading); line-height: 1.32;
+    padding-left: 18px; position: relative;
+}
+.rules-list li::before {
+    content: ">"; position: absolute; left: 0; top: 0;
+    font-family: var(--font-mono); font-weight: 800; color: var(--coral-dark);
+}
+.setup-strip {
+    background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 6px;
+    padding: 7px 12px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+
+/* QUESTION VIEW */
+.q-meta-bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    border-bottom: 1.5px solid var(--border-subtle); padding-bottom: 10px;
+}
+.q-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pill {
+    font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800;
+    padding: 4px 11px; border-radius: 5px; border: 1.5px solid;
+}
+.pill.cat { background: var(--coral-bg); color: var(--coral-dark); border-color: var(--coral-border); }
+.pill.num { background: #f8fafc; color: var(--text-heading); border-color: var(--border-card); }
+.pill.role { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
+.pill.sig { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+
+.q-prompt {
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: clamp(1.55rem, 2.35vw, 2.25rem);
+    line-height: 1.28; color: var(--text-heading);
+    text-shadow: 0.03em 0.04em 0 rgba(0,0,0,0.05);
+    margin: 10px 0;
+}
+
+.options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin: 4px 0;
+}
+.opt-card {
+    display: flex; align-items: center; gap: 14px;
+    background: #f8fafc; border: 2px solid var(--border-card);
+    border-radius: 9px; padding: 13px 16px;
+    transition: all 0.15s ease;
+}
+.opt-finger {
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 8px; background: var(--text-heading); color: #ffffff;
+    font-family: var(--font-mono); font-size: 1.55rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+}
+.opt-text {
+    font-size: clamp(1.18rem, 1.65vw, 1.52rem);
+    font-weight: 700; color: var(--text-heading); line-height: 1.2;
+}
+.opt-card.correct {
+    background: var(--emerald-bg); border-color: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.18);
+}
+.opt-card.correct .opt-finger { background: var(--emerald); }
+.opt-card.dimmed { opacity: 0.42; }
+
+.answer-bar {
+    min-height: 54px;
+    background: #f8fafc; border: 1.5px solid var(--border-subtle);
+    border-radius: 8px; padding: 8px 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.answer-note {
+    font-size: 1rem; font-weight: 600; color: var(--text-muted);
+}
+.answer-note b { color: var(--emerald); font-family: var(--font-mono); }
+.award-strip { display: flex; align-items: center; gap: 6px; }
+.award-lbl { font-family: var(--font-mono); font-size: 0.76rem; font-weight: 800; color: var(--text-dim); }
+.award-btn {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.85rem;
+    padding: 6px 12px; border-radius: 6px;
+    border: 2px solid var(--border-card); background: #ffffff; color: var(--text-heading);
+    cursor: pointer; transition: all 0.12s ease;
+}
+.award-btn:hover { border-color: var(--emerald); }
+.award-btn.awarded {
+    background: var(--emerald); color: #ffffff; border-color: var(--emerald);
+}
+
+/* CLUE & CHECKSUM VIEW */
+.clue-stage {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 14px; padding: 8px 24px;
+}
+.clue-box {
+    width: 100%; max-width: 1040px;
+    background: var(--amber-bg); border: 2.5px solid var(--amber);
+    border-radius: 12px; padding: 24px 32px;
+    box-shadow: 0 6px 20px rgba(180, 83, 9, 0.1);
+}
+.clue-box.locked-box {
+    background: #f8fafc; border-color: var(--border-card); border-style: dashed;
+    box-shadow: none;
+}
+.clue-box.wiped-box {
+    background: var(--emerald-bg); border-color: var(--emerald);
+    box-shadow: none;
+}
+.clue-puzzle {
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: clamp(1.65rem, 2.6vw, 2.45rem);
+    color: var(--text-heading); line-height: 1.32;
+}
+.clue-sub {
+    font-size: 1.12rem; font-weight: 700; color: var(--amber); margin-top: 10px;
+}
+.mem-bar-wrap {
+    width: 100%; max-width: 760px; height: 12px;
+    background: #e2e8f0; border-radius: 999px; overflow: hidden;
+    border: 1px solid var(--border-card);
+}
+.mem-bar-fill {
+    height: 100%; width: 100%; background: var(--coral);
+    transition: width 0.25s linear;
+}
+
+/* STAGE FOOTER CONTROLS */
+.stage-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding-top: 10px; border-top: 1.5px solid var(--border-subtle);
+}
+.kbd-legend {
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-dim); font-weight: 700;
+}
+.nav-btns { display: flex; align-items: center; gap: 8px; }
+.btn-lg { font-size: 0.95rem; padding: 8px 18px; font-weight: 800; }
+
+/* 5-POD TRACKER DOCK (ALWAYS VISIBLE AT BOTTOM) */
+footer.pod-dock {
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 2px solid var(--border-card);
+    padding: 8px 20px 10px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+}
+.pod-card {
+    background: #ffffff; border: 2px solid var(--border-card);
+    border-radius: 8px; padding: 7px 11px;
+    display: flex; flex-direction: column; gap: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: all 0.15s ease;
+}
+.pod-card.unlocked {
+    background: var(--emerald-bg); border-color: var(--emerald);
+    box-shadow: 0 0 0 2px rgba(21,128,61,0.2);
+}
+.pod-card.sealed {
+    background: var(--red-bg); border-color: var(--red); opacity: 0.85;
+}
+.pod-top { display: flex; justify-content: space-between; align-items: center; }
+.pod-id {
+    font-family: var(--font-heading); font-weight: 700; font-size: 1rem;
+    color: var(--text-heading); display: flex; align-items: center; gap: 6px;
+}
+.pod-term {
+    font-family: var(--font-mono); font-size: 0.74rem; font-weight: 800;
+    background: var(--text-heading); color: #ffffff;
+    padding: 2px 6px; border-radius: 4px;
+}
+.pod-card.unlocked .pod-term { background: var(--emerald); }
+.pod-pts {
+    font-family: var(--font-mono); font-weight: 800; font-size: 1.05rem; color: var(--blue);
+}
+.pod-mid {
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    background: #f8fafc; border: 1px solid var(--border-subtle);
+    border-radius: 6px; padding: 4px 8px;
+}
+.pod-stat-lbl { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800; color: var(--text-dim); }
+.hack-count {
+    font-family: var(--font-mono); font-size: 0.95rem; font-weight: 800; color: var(--amber);
+}
+.denial-count {
+    font-family: var(--font-mono); font-size: 0.82rem; font-weight: 800; color: var(--text-muted);
+}
+.denial-count.high { color: var(--red); }
+
+.pod-controls {
+    display: flex; justify-content: space-between; align-items: center; gap: 4px;
+}
+.pbtn {
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800;
+    background: #f8fafc; color: var(--text-heading);
+    border: 1px solid var(--border-card); border-radius: 4px;
+    padding: 3px 6px; cursor: pointer;
+}
+.pbtn:hover { background: #e2e8f0; }
+.pbtn.win-btn {
+    background: var(--emerald-bg); color: var(--emerald); border-color: var(--emerald-border);
+}
+.pod-card.unlocked .pbtn.win-btn {
+    background: var(--emerald); color: #ffffff;
+}
+
+/* DEBRIEF VIEW */
+.debrief-grid {
+    display: grid; grid-template-columns: 1fr 1.15fr; gap: 18px; flex: 1; min-height: 0; margin: 10px 0;
+}
+.standings-list { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+.standing-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8fafc; border: 1.5px solid var(--border-card);
+    border-radius: 8px; padding: 9px 14px; font-weight: 700;
+}
+.standing-row.winner { background: var(--emerald-bg); border-color: var(--emerald); }
+.audit-list { display: flex; flex-direction: column; gap: 7px; justify-content: center; }
+.audit-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: #f8fafc; border: 1.5px solid var(--border-card);
+    border-radius: 7px; padding: 7px 12px;
+}
+.audit-val {
+    font-family: var(--font-mono); font-weight: 800; font-size: 1rem;
+    padding: 3px 10px; border-radius: 5px;
+    background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border);
+    cursor: pointer;
+}
+.audit-val.revealed {
+    background: var(--emerald-bg); color: var(--emerald); border-color: var(--emerald);
+}
+
+/* MODAL OVERLAYS: LAUNCH GATE + 15s BREACH WINDOW + FINGERS CALL */
+.overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(24, 31, 43, 0.72);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+}
+.overlay.show { display: flex; }
+.modal-card {
+    background: #ffffff; border: 3px solid var(--coral);
+    border-radius: 14px; padding: 28px 36px; max-width: 820px; width: 100%;
+    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.modal-card h2 {
+    font-family: var(--font-heading); font-size: 2.3rem; color: var(--text-heading);
+    margin-bottom: 8px;
+}
+.breach-big-clock {
+    font-family: var(--font-mono); font-size: 5.2rem; font-weight: 800;
+    color: var(--coral-dark); margin: 10px 0;
+}
+.breach-pod-spend {
+    display: flex; justify-content: center; gap: 10px; margin: 14px 0; flex-wrap: wrap;
+}
+.fingers-banner {
+    position: fixed; top: 76px; left: 50%; transform: translateX(-50%);
+    z-index: 40; background: var(--coral); color: #ffffff;
+    font-family: var(--font-heading); font-size: 1.7rem; font-weight: 700;
+    padding: 10px 30px; border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(214, 91, 76, 0.45);
+    display: none;
+}
+.fingers-banner.show { display: block; animation: pulseFast 0.45s infinite; }
+</style>
+</head>
+<body>
+<div class="bg-watermark"></div>
+
+<!-- INITIAL AUDIO & TEACHER LAUNCH SPLASH -->
+<div class="overlay show" id="launchOverlay">
+    <div class="modal-card">
+        <div class="badge-room" style="display:inline-block; margin-bottom:12px;">ROOM 8 // HACKER OPERATIONS CENTER</div>
+        <h2>R.B. VAULT: CENTRAL COMMAND</h2>
+        <p style="font-size:1.12rem; color:var(--text-muted); font-weight:600; margin:8px 0 18px;">
+            5 Pods of 4 Agents &bull; 4 Decryption Rounds &bull; Live Chromebook Breach Windows
+        </p>
+        <div style="background:#f8fafc; border:1.5px solid var(--border-card); border-radius:8px; padding:12px 16px; text-align:left; margin-bottom:18px; font-size:0.95rem; color:var(--text-main); line-height:1.45;">
+            <b>Pod Chromebook Setup (2 mins):</b> Open <code>heist-terminal.html#A</code> through <code>#E</code> on the 5 pod Chromebooks and press <code>F</code> for fullscreen (type <code>TEACHER</code> on any Chromebook to reset its 0/10 counter).
+        </div>
+        <div style="display:flex; justify-content:center; gap:12px;">
+            <button class="btn coral btn-lg" id="btnLaunchOps">INITIALIZE CENTRAL COMMAND (START AUDIO &amp; CLOCK)</button>
+            <button class="btn btn-lg" id="btnResetSaved">FRESH SESSION RESET</button>
+        </div>
+    </div>
+</div>
+
+<!-- SYNCHRONIZED 15-SECOND BREACH WINDOW MODAL -->
+<div class="overlay" id="breachOverlay">
+    <div class="modal-card" style="border-color:var(--emerald);">
+        <div class="pill cat" style="display:inline-block; margin-bottom:8px;">AUTHORIZED CHROMEBOOK BREACH WINDOW</div>
+        <h2 id="breachTitle">PUNCH ONE 4-DIGIT CODE NOW!</h2>
+        <p style="font-size:1.15rem; font-weight:700; color:var(--text-muted);">
+            Authorized pods ONLY: open lid from 45 deg &rarr; type ONE code &rarr; press ENTER &rarr; hands off!
+        </p>
+        <div class="breach-big-clock" id="breachDigits">15</div>
+        <p style="font-family:var(--font-mono); font-size:0.82rem; font-weight:800; color:var(--text-dim);">
+            CLICK A POD BELOW TO DEDUCT 1 HACK TOKEN (+ LOG 1 DENIED ATTEMPT IF MISSED):
+        </p>
+        <div class="breach-pod-spend" id="breachPodBtns"></div>
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:12px;">
+            <button class="btn emerald btn-lg" id="btnBreachRestart">RESTART 15s</button>
+            <button class="btn btn-lg" id="btnBreachClose">CLOSE WINDOW (LIDS TO 45 DEG)</button>
+        </div>
+    </div>
+</div>
+
+<div class="fingers-banner" id="fingersBanner">3... 2... 1... FINGERS UP!</div>
+
+<div class="app-shell">
+    <!-- TOP BAR -->
+    <header class="cmd-bar double-rule-bottom">
+        <div class="brand-cluster">
+            <span class="badge-room">ROOM 8 // OPS</span>
+            <span class="phase-pill" id="phasePill">PHASE 0 // BRIEFING</span>
+        </div>
+
+        <div class="timers-cluster">
+            <div class="clock-box" id="masterClockBox" title="60-Minute Heist Master Clock">
+                <span class="clock-label">HEIST</span>
+                <span class="clock-digits" id="masterClock">60:00</span>
+                <button class="btn btn-xs" id="btnMasterToggle">START</button>
+                <button class="btn btn-xs" id="btnMasterMinus" title="-1 minute">-1m</button>
+                <button class="btn btn-xs" id="btnMasterPlus" title="+1 minute">+1m</button>
+            </div>
+
+            <div class="clock-box" id="stageClockBox" title="Question / Memory / Huddle Timer">
+                <span class="clock-label" id="stageClockLbl">HUDDLE</span>
+                <span class="clock-digits" id="stageClock">00:20</span>
+                <button class="btn btn-xs coral" id="btnStageToggle">GO (T)</button>
+                <button class="btn btn-xs" data-preset="20" data-lbl="HUDDLE">20s</button>
+                <button class="btn btn-xs" data-preset="25" data-lbl="MEMORY">25s</button>
+                <button class="btn btn-xs" data-preset="90" data-lbl="SUM-22">90s</button>
+            </div>
+        </div>
+
+        <div class="ops-cluster">
+            <button class="btn emerald" id="btnOpenBreach" title="Open 15-second Chromebook Breach Window (Shortcut: B)">BREACH WINDOW (B)</button>
+            <button class="btn btn-xs" id="btnSfx">SFX: ON</button>
+            <button class="btn btn-xs" id="btnFullscreen" title="Shortcut: F">FULLSCREEN (F)</button>
+            <button class="btn btn-xs" id="btnTopReset" title="Reset all scores and clues">RESET</button>
+        </div>
+    </header>
+
+    <!-- STAGE NAV + 4 NODE STATUS STRIP -->
+    <nav class="node-strip">
+        <div class="stage-tabs" id="stageTabs"></div>
+        <div class="node-leds" id="nodeLeds"></div>
+    </nav>
+
+    <!-- CENTER STAGE -->
+    <main class="stage-main">
+        <div class="stage-card" id="stageCard"></div>
+    </main>
+
+    <!-- 5-POD LIVE SCOREBOARD DOCK -->
+    <footer class="pod-dock" id="podDock"></footer>
+</div>
+
+<script>
+(function () {
+    const PAYLOAD_B64 = "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bWEYajcmJjorGTcqbXVtCmRlayIaOj0aPB0gOFYsZ3NzZmNwcSMbIDlZJAwnATs6PjdwdW97FGhnJDY5Djc2PDttdxhqBC42OjtwYXBjb29LISIINDEhJHFob20MXy0rPXNmbXxzcCwuORpyZWsEHQMUHxsJCm8UaGc4cW5vcgQ6JiwlGCkrID41I3A7MzxvP10rMSg9Mzo8MiBjbyVXOiwzPDo7MT9yPzo9USQ2aTo6bzknIW8qNF07ZTo8dCYkczEuIW1LKyQnczUjPTwhO29+CnhlLTYzPTU2IW8uP1c9Ky1zPTsjNj4pbytXOmUtMjooNSFtbWNtGic1PSB2dXAIcAggLExqaWlxByE/JCtvIDpUamlpcRc9PzA9KyYhXWppaXETPTUqcjggIV5qGGVzdi4+IHB1b3wUaGcnPCAqcmlybQgiWTw2aXs1ITRzIScqKEhhZSEyIipwJDsrKm1QJzcgKTshJDI+bz84SCEpOnMyICJzIi4hIkopKCAwdDk5IDsgIW1PICwlNnQoIjIoJiEqFmo4ZXMvbSQqIiptdxhqNDw2Jzs5PDxtY20aOC0oIDFtanNwHQAYdgxle3N7YHAdHQsKbQpobQ0aEwYEc2BmbWEYajcmJjorGTcqbXVtCmRlayIaOj0aPB0gOFYsZ3NzZ2NwcSMbIDlZJAwnATs6PjdwdW97FGhnJDY5Djc2PDttdxhqBC42OjtwYXBjb29LISIINDEhJHFob20MXy0rPXNmbXxzcCwuORpyZWscFxtwYGJvAwJqDWdlc3Y+cmlybQ0oXic3LHMkKj8jPipvJFZoCyYhICdwEj8qPSRbKWU8IDErcCMnIj8mUSY2ZXMgJzVzPT0mKlEmJCVzHi4zOH8gaGBUKSs9NiYhI3M7IW8ESi0pKD0wbzE9Nm8cLlc8KSg9MG8nNiAqby5ZOjMsN3QgJSdyICltTyAkPXMiKjc2Ji4tIV13Z2VzdiAgJyFtdW1jahUmJzU7PzYhbWNtGhwwOz09PyNxfm9tDlkqJyg0MTxyf3JtDShdPDZrDnhvcjI8PG13GHppaXE6ICQ2cHVvb3AnKSU8Iyo0fj06O21MPTcnOiQ8cCQ7OydtXyQqPjo6KHAwPS4jPhghKzo6MCpwJDc9Km1MICBpPCYmNzo8LiNtSzgqJjgtbzwyPDsqP1Y7a2sueG8rcSY2Pyga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";
+    const XKEY = "ROOM8HEISTOPS";
+    function decodeSteps() {
+        const bin = atob(PAYLOAD_B64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) {
+            bytes[i] = bin.charCodeAt(i) ^ XKEY.charCodeAt(i % XKEY.length);
+        }
+        return JSON.parse(new TextDecoder().decode(bytes));
+    }
+    const STEPS = decodeSteps();
+
+    const POD_IDS = ["A", "B", "C", "D", "E"];
+    const STORE_KEY = "room8_heist_central_cmd_v1";
+
+    function freshState() {
+        const pods = {};
+        POD_IDS.forEach(function (id) {
+            pods[id] = {
+                id: id,
+                pts: 0,
+                correctCount: 0,
+                hacksEarned: 0,
+                hacksSpent: 0,
+                denials: 0,
+                unlocked: false,
+                unlockOrder: 0
+            };
+        });
+        return {
+            stepIdx: 0,
+            masterSec: 3600,
+            masterRunning: false,
+            sfx: true,
+            pods: pods,
+            qRevealed: {},
+            qAwarded: {},
+            clueState: {},
+            overrideShown: false,
+            auditRevealed: {}
+        };
+    }
+
+    let S = freshState();
+    try {
+        const saved = localStorage.getItem(STORE_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.pods && typeof parsed.stepIdx === "number") {
+                S = Object.assign(freshState(), parsed);
+                S.masterRunning = false;
+            }
+        }
+    } catch (e) {}
+
+    function save() {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {}
+    }
+
+    /* WEB AUDIO SYNTH */
+    let audioCtx = null;
+    function ensureAudio() {
+        try {
+            audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === "suspended") audioCtx.resume();
+        } catch (e) {}
+    }
+    function tone(freq, dur, type, vol, delay) {
+        if (!S.sfx) return;
+        try {
+            ensureAudio();
+            const t0 = audioCtx.currentTime + (delay || 0);
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = type || "sine";
+            o.frequency.setValueAtTime(freq, t0);
+            g.gain.setValueAtTime(vol || 0.06, t0);
+            g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(t0); o.stop(t0 + dur);
+        } catch (e) {}
+    }
+    function sfxTick() { tone(740, 0.045, "sine", 0.04); }
+    function sfxCountFinal() { tone(880, 0.12, "triangle", 0.08); }
+    function sfxShowFingers() {
+        tone(587, 0.12, "sawtooth", 0.08, 0);
+        tone(880, 0.28, "sawtooth", 0.09, 0.12);
+    }
+    function sfxReveal() {
+        tone(523, 0.1, "sine", 0.07, 0);
+        tone(659, 0.16, "sine", 0.07, 0.09);
+    }
+    function sfxClueOpen() {
+        tone(440, 0.1, "triangle", 0.07, 0);
+        tone(554, 0.1, "triangle", 0.07, 0.1);
+        tone(659, 0.2, "triangle", 0.08, 0.2);
+    }
+    function sfxWipe() {
+        tone(300, 0.18, "sawtooth", 0.06, 0);
+        tone(190, 0.22, "sawtooth", 0.06, 0.12);
+    }
+    function sfxWin() {
+        tone(660, 0.13, "sine", 0.09, 0);
+        tone(880, 0.13, "sine", 0.09, 0.14);
+        tone(1320, 0.32, "sine", 0.1, 0.28);
+    }
+
+    function fmtClock(sec) {
+        const s = Math.max(0, Math.floor(sec));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
+    }
+
+    /* MASTER 60-MIN CLOCK */
+    const masterClockEl = document.getElementById("masterClock");
+    const masterBoxEl = document.getElementById("masterClockBox");
+    const btnMasterToggle = document.getElementById("btnMasterToggle");
+    function renderMasterClock() {
+        masterClockEl.textContent = fmtClock(S.masterSec);
+        btnMasterToggle.textContent = S.masterRunning ? "PAUSE" : "START";
+        masterBoxEl.className = "clock-box" + (S.masterRunning ? (S.masterSec <= 300 ? " urgent" : (S.masterSec <= 600 ? " warn" : " running")) : "");
+    }
+    setInterval(function () {
+        if (S.masterRunning && S.masterSec > 0) {
+            S.masterSec--;
+            renderMasterClock();
+            if (S.masterSec % 10 === 0) save();
+        }
+    }, 1000);
+
+    btnMasterToggle.addEventListener("click", function () {
+        ensureAudio();
+        S.masterRunning = !S.masterRunning;
+        save(); renderMasterClock();
+    });
+    document.getElementById("btnMasterMinus").addEventListener("click", function () {
+        S.masterSec = Math.max(0, S.masterSec - 60); save(); renderMasterClock();
+    });
+    document.getElementById("btnMasterPlus").addEventListener("click", function () {
+        S.masterSec += 60; save(); renderMasterClock();
+    });
+
+    /* STAGE ACTION TIMER + CLUE AUTO-WIPE */
+    let stageSec = 20;
+    let stageTotal = 20;
+    let stageRunning = false;
+    let stageMode = "HUDDLE";
+    let activeMemClueKey = null;
+
+    const stageClockEl = document.getElementById("stageClock");
+    const stageClockLbl = document.getElementById("stageClockLbl");
+    const stageBoxEl = document.getElementById("stageClockBox");
+    const btnStageToggle = document.getElementById("btnStageToggle");
+    const fingersBanner = document.getElementById("fingersBanner");
+
+    function setStageTimer(sec, lbl, autoStart, memClueKey) {
+        stageSec = sec;
+        stageTotal = sec;
+        stageMode = lbl || "HUDDLE";
+        activeMemClueKey = memClueKey || null;
+        stageRunning = !!autoStart;
+        fingersBanner.classList.remove("show");
+        renderStageClock();
+    }
+
+    function renderStageClock() {
+        stageClockLbl.textContent = stageMode;
+        stageClockEl.textContent = fmtClock(stageSec);
+        btnStageToggle.textContent = stageRunning ? "PAUSE (T)" : "GO (T)";
+        stageBoxEl.className = "clock-box" + (stageRunning ? (stageSec <= 3 ? " urgent" : (stageSec <= 7 ? " warn" : " running")) : "");
+        const bar = document.getElementById("memBarFill");
+        if (bar && stageTotal > 0) {
+            bar.style.width = Math.max(0, (stageSec / stageTotal) * 100) + "%";
+        }
+    }
+
+    setInterval(function () {
+        if (!stageRunning) return;
+        if (stageSec > 0) {
+            stageSec--;
+            if (stageMode === "HUDDLE" && stageSec > 0 && stageSec <= 3) {
+                sfxCountFinal();
+                fingersBanner.textContent = stageSec + "... GET FINGERS READY!";
+                fingersBanner.classList.add("show");
+            } else if (stageSec > 3) {
+                sfxTick();
+            }
+            renderStageClock();
+            if (stageSec === 0) {
+                stageRunning = false;
+                if (stageMode === "HUDDLE") {
+                    sfxShowFingers();
+                    fingersBanner.textContent = "SHOW FINGERS NOW! (1 - 2 - 3 - 4)";
+                    fingersBanner.classList.add("show");
+                    setTimeout(function () { fingersBanner.classList.remove("show"); }, 3600);
+                } else if (activeMemClueKey && S.clueState[activeMemClueKey] === "open") {
+                    S.clueState[activeMemClueKey] = "wiped";
+                    sfxWipe();
+                    save();
+                    renderAll();
+                } else {
+                    sfxShowFingers();
+                }
+                renderStageClock();
+            }
+        }
+    }, 1000);
+
+    btnStageToggle.addEventListener("click", function () {
+        ensureAudio();
+        if (stageSec === 0) stageSec = stageTotal || 20;
+        stageRunning = !stageRunning;
+        if (!stageRunning) fingersBanner.classList.remove("show");
+        renderStageClock();
+    });
+
+    document.querySelectorAll("[data-preset]").forEach(function (b) {
+        b.addEventListener("click", function () {
+            ensureAudio();
+            setStageTimer(parseInt(b.getAttribute("data-preset"), 10), b.getAttribute("data-lbl"), true, null);
+        });
+    });
+
+    /* 15-SECOND BREACH WINDOW OVERLAY */
+    let breachSec = 15;
+    let breachTimer = null;
+    const breachOverlay = document.getElementById("breachOverlay");
+    const breachDigits = document.getElementById("breachDigits");
+    const breachPodBtns = document.getElementById("breachPodBtns");
+
+    function availableHacks(p) {
+        return Math.max(0, p.hacksEarned - p.hacksSpent);
+    }
+
+    function renderBreachPods() {
+        breachPodBtns.innerHTML = "";
+        POD_IDS.forEach(function (id) {
+            const p = S.pods[id];
+            const avail = availableHacks(p);
+            const wrap = document.createElement("div");
+            wrap.style.cssText = "background:#f8fafc; border:1.5px solid var(--border-card); border-radius:8px; padding:8px 12px; display:flex; flex-direction:column; gap:6px; min-width:132px;";
+            wrap.innerHTML =
+                '<div style="font-family:var(--font-mono); font-weight:800; font-size:0.9rem;">POD ' + id + ' &bull; ' + avail + ' HACKS</div>' +
+                '<div style="display:flex; gap:5px; justify-content:center;">' +
+                '<button class="pbtn" data-bspend="' + id + '">MISSED (-1 HACK)</button>' +
+                '<button class="pbtn win-btn" data-bwin="' + id + '">' + (p.unlocked ? 'UNLOCKED!' : 'CRACKED!') + '</button>' +
+                '</div>';
+            breachPodBtns.appendChild(wrap);
+        });
+        breachPodBtns.querySelectorAll("[data-bspend]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                const id = btn.getAttribute("data-bspend");
+                const p = S.pods[id];
+                if (availableHacks(p) > 0) p.hacksSpent++;
+                if (p.denials < 10) p.denials++;
+                sfxWipe();
+                save(); renderPods(); renderBreachPods();
+            });
+        });
+        breachPodBtns.querySelectorAll("[data-bwin]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                const id = btn.getAttribute("data-bwin");
+                togglePodWin(id);
+                renderBreachPods();
+            });
+        });
+    }
+
+    function openBreachWindow() {
+        ensureAudio();
+        stageRunning = false;
+        renderStageClock();
+        breachSec = 15;
+        breachDigits.textContent = "15";
+        document.getElementById("breachTitle").textContent = "PUNCH ONE 4-DIGIT CODE NOW!";
+        renderBreachPods();
+        breachOverlay.classList.add("show");
+        sfxClueOpen();
+        clearInterval(breachTimer);
+        breachTimer = setInterval(function () {
+            if (breachSec > 0) {
+                breachSec--;
+                breachDigits.textContent = breachSec > 0 ? String(breachSec) : "HANDS OFF!";
+                if (breachSec > 0 && breachSec <= 3) sfxCountFinal();
+                else if (breachSec > 3) sfxTick();
+                if (breachSec === 0) {
+                    document.getElementById("breachTitle").textContent = "TIME UP - LIDS BACK TO 45 DEGREES!";
+                    sfxShowFingers();
+                    clearInterval(breachTimer);
+                }
+            }
+        }, 1000);
+    }
+
+    function closeBreachWindow() {
+        clearInterval(breachTimer);
+        breachOverlay.classList.remove("show");
+    }
+
+    document.getElementById("btnOpenBreach").addEventListener("click", openBreachWindow);
+    document.getElementById("btnBreachRestart").addEventListener("click", openBreachWindow);
+    document.getElementById("btnBreachClose").addEventListener("click", closeBreachWindow);
+
+    /* STAGE TABS & NODE LEDS */
+    const TAB_DEFS = [
+        { label: "0. BRIEFING", matchRound: 0 },
+        { label: "R1: DIGIT 1", matchRound: 1 },
+        { label: "R2: DIGIT 2", matchRound: 2 },
+        { label: "R3: DIGIT 3", matchRound: 3 },
+        { label: "R4: DIGIT 4", matchRound: 4 },
+        { label: "R5: BREACH", matchRound: 5 },
+        { label: "6. DEBRIEF", matchRound: 6 }
+    ];
+
+    function jumpToRound(rIdx) {
+        const idx = STEPS.findIndex(function (st) { return st.roundIdx === rIdx; });
+        if (idx >= 0) {
+            goStep(idx);
+        }
+    }
+
+    function goStep(idx) {
+        if (idx < 0 || idx >= STEPS.length) return;
+        S.stepIdx = idx;
+        fingersBanner.classList.remove("show");
+        const st = STEPS[S.stepIdx];
+        document.body.classList.toggle("vault-bg", st.roundIdx >= 5);
+        if (st.type === "question") {
+            setStageTimer(st.isRapid ? 15 : 20, "HUDDLE", false, null);
+        } else if (st.type === "clue") {
+            setStageTimer(25, "MEMORY", false, st.clueKey);
+        } else if (st.type === "checksum") {
+            setStageTimer(90, "SUM-22", false, null);
+        } else {
+            setStageTimer(60, "STAGE", false, null);
+        }
+        save();
+        renderAll();
+    }
+
+    function renderTopNav() {
+        const st = STEPS[S.stepIdx];
+        document.getElementById("phasePill").textContent = st.phase;
+
+        const tabsEl = document.getElementById("stageTabs");
+        tabsEl.innerHTML = "";
+        TAB_DEFS.forEach(function (t) {
+            const b = document.createElement("button");
+            b.className = "stab" + (st.roundIdx === t.matchRound ? " active" : "");
+            b.textContent = t.label;
+            b.addEventListener("click", function () { jumpToRound(t.matchRound); });
+            tabsEl.appendChild(b);
+        });
+
+        const ledsEl = document.getElementById("nodeLeds");
+        ledsEl.innerHTML = "";
+        for (let n = 1; n <= 4; n++) {
+            const aDone = S.clueState[n + "A"] === "wiped" || S.clueState[n + "A"] === "open";
+            const bDone = S.clueState[n + "B"] === "wiped" || S.clueState[n + "B"] === "open";
+            const chip = document.createElement("span");
+            chip.className = "node-chip" + (bDone ? " locked" : (aDone ? " half" : ""));
+            chip.textContent = "D" + n + " (AG" + n + "): " + (bDone ? "2 CANDIDATES IN MEMORY" : (aDone ? "4 CANDIDATES" : "ENCRYPTED"));
+            ledsEl.appendChild(chip);
+        }
+    }
+
+    /* POD SCOREBOARD LOGIC */
+    function awardQuestionToPod(stepIdx, podId) {
+        if (!S.qAwarded[stepIdx]) S.qAwarded[stepIdx] = {};
+        const p = S.pods[podId];
+        const st = STEPS[stepIdx];
+        const already = !!S.qAwarded[stepIdx][podId];
+        if (!already) {
+            S.qAwarded[stepIdx][podId] = true;
+            p.pts += 100;
+            p.correctCount += 1;
+            if (st && st.isRapid) {
+                p.hacksEarned += 1;
+                sfxClueOpen();
+            } else {
+                const earnedFromRounds = Math.floor(p.correctCount / 3);
+                if (earnedFromRounds > p.hacksEarned) {
+                    p.hacksEarned = earnedFromRounds;
+                    sfxClueOpen();
+                } else {
+                    sfxTick();
+                }
+            }
+        } else {
+            const wasMultipleOf3 = (p.correctCount > 0 && p.correctCount % 3 === 0);
+            delete S.qAwarded[stepIdx][podId];
+            p.pts = Math.max(0, p.pts - 100);
+            p.correctCount = Math.max(0, p.correctCount - 1);
+            if (st && st.isRapid) {
+                p.hacksEarned = Math.max(0, p.hacksEarned - 1);
+            } else if (wasMultipleOf3) {
+                p.hacksEarned = Math.max(0, p.hacksEarned - 1);
+            }
+        }
+        save();
+        renderAll();
+    }
+
+    function togglePodWin(podId) {
+        const p = S.pods[podId];
+        if (!p.unlocked) {
+            let maxOrder = 0;
+            POD_IDS.forEach(function (k) { if (S.pods[k].unlockOrder > maxOrder) maxOrder = S.pods[k].unlockOrder; });
+            p.unlocked = true;
+            p.unlockOrder = maxOrder + 1;
+            sfxWin();
+        } else {
+            p.unlocked = false;
+            p.unlockOrder = 0;
+        }
+        save();
+        renderAll();
+    }
+
+    function renderPods() {
+        const dock = document.getElementById("podDock");
+        dock.innerHTML = "";
+        POD_IDS.forEach(function (id, idx) {
+            const p = S.pods[id];
+            const avail = availableHacks(p);
+            const card = document.createElement("div");
+            card.className = "pod-card" + (p.unlocked ? " unlocked" : (p.denials >= 10 ? " sealed" : ""));
+            const rankBadge = p.unlocked ? " [#" + p.unlockOrder + " UNLOCKED]" : (p.denials >= 10 ? " [SEALED]" : "");
+            card.innerHTML =
+                '<div class="pod-top">' +
+                    '<div class="pod-id"><span class="pod-term">#' + id + '</span> POD ' + id + '<span style="font-size:0.74rem; color:var(--emerald);">' + rankBadge + '</span></div>' +
+                    '<div class="pod-pts">' + p.pts + ' PTS</div>' +
+                '</div>' +
+                '<div class="pod-mid">' +
+                    '<div><span class="pod-stat-lbl">HACK TOKENS: </span><span class="hack-count">' + avail + '</span></div>' +
+                    '<div><span class="pod-stat-lbl">DENIED: </span><span class="denial-count' + (p.denials >= 7 ? ' high' : '') + '">' + p.denials + '/10</span></div>' +
+                '</div>' +
+                '<div class="pod-controls">' +
+                    '<button class="pbtn" data-act="pts+" data-pod="' + id + '" title="Add 100 pts">+100</button>' +
+                    '<button class="pbtn" data-act="pts-" data-pod="' + id + '" title="Penalty -100 pts">-100</button>' +
+                    '<button class="pbtn" data-act="hack+" data-pod="' + id + '" title="Grant +1 Hack Token">+HACK</button>' +
+                    '<button class="pbtn" data-act="usehack" data-pod="' + id + '" title="Spend 1 Hack + 1 Denial">-HACK</button>' +
+                    '<button class="pbtn win-btn" data-act="win" data-pod="' + id + '" title="Mark Vault Unlocked (Key ' + (idx + 1) + ' awards Q)">' + (p.unlocked ? 'OPEN!' : 'WIN') + '</button>' +
+                '</div>';
+            dock.appendChild(card);
+        });
+
+        dock.querySelectorAll("[data-act]").forEach(function (b) {
+            b.addEventListener("click", function () {
+                const id = b.getAttribute("data-pod");
+                const act = b.getAttribute("data-act");
+                const p = S.pods[id];
+                if (act === "pts+") { p.pts += 100; }
+                else if (act === "pts-") { p.pts = Math.max(0, p.pts - 100); }
+                else if (act === "hack+") { p.hacksEarned += 1; }
+                else if (act === "usehack") {
+                    if (availableHacks(p) > 0) p.hacksSpent += 1;
+                    if (p.denials < 10) p.denials += 1;
+                }
+                else if (act === "win") { togglePodWin(id); return; }
+                save(); renderPods();
+            });
+        });
+    }
+
+    /* MAIN STAGE RENDERER */
+    function renderStage() {
+        const card = document.getElementById("stageCard");
+        const st = STEPS[S.stepIdx];
+
+        if (st.type === "briefing") {
+            card.innerHTML =
+                '<div class="brief-head">' +
+                    '<h1>' + st.title + '</h1>' +
+                    '<p>' + st.subtitle + '</p>' +
+                '</div>' +
+                '<div class="brief-grid">' +
+                    '<div class="role-grid">' +
+                        '<div class="role-card"><span class="role-tag">ROUND 1 SPECIALIST</span><div class="role-title">AGENT 1 &rarr; DIGIT 1</div><div class="role-desc">Memorizes Digit 1 clues AND raises fingers for Pod in Round 1.</div></div>' +
+                        '<div class="role-card"><span class="role-tag">ROUND 2 SPECIALIST</span><div class="role-title">AGENT 2 &rarr; DIGIT 2</div><div class="role-desc">Memorizes Digit 2 clues AND raises fingers for Pod in Round 2.</div></div>' +
+                        '<div class="role-card"><span class="role-tag">ROUND 3 SPECIALIST</span><div class="role-title">AGENT 3 &rarr; DIGIT 3</div><div class="role-desc">Memorizes Digit 3 clues AND raises fingers for Pod in Round 3.</div></div>' +
+                        '<div class="role-card"><span class="role-tag">ROUND 4 SPECIALIST</span><div class="role-title">AGENT 4 &rarr; DIGIT 4</div><div class="role-desc">Memorizes Digit 4 clues AND raises fingers for Pod in Round 4.</div></div>' +
+                    '</div>' +
+                    '<div class="rules-panel">' +
+                        '<h3>OPERATING RULES (READ BEFORE CLOCK STARTS)</h3>' +
+                        '<ul class="rules-list">' +
+                            '<li><b>LIDS AT 45 DEGREES:</b> Hands OFF Chromebooks unless a Breach Window is live and your pod spends an Authorized Hack Token.</li>' +
+                            '<li><b>ZERO PAPER OR PENS:</b> Clues wipe off this screen after 25 seconds. Every digit lives strictly inside your 4 Agents&rsquo; heads!</li>' +
+                            '<li><b>COLD VAULT HARDWARE:</b> Your Chromebook gives NO Wordle color hints. Only ACCESS DENIED (max 10/10 before permanent seal) or VAULT UNLOCKED.</li>' +
+                            '<li><b>EARNING HACK TOKENS:</b> Hold fist to chest, then show 1, 2, 3, or 4 fingers on the buzzer! Every 3 correct answers in Rounds 1-4 = +1 Hack Token.</li>' +
+                        '</ul>' +
+                        '<div class="setup-strip"><span>Terminals: <b>heist-terminal.html#A</b> to <b>#E</b> (Press F)</span><span>10 Denials = Permanent Lockout</span></div>' +
+                    '</div>' +
+                '</div>' +
+                footerHtml("Press RIGHT ARROW to launch Round 1 Trivia");
+            bindFooterNav();
+            return;
+        }
+
+        if (st.type === "question") {
+            const rev = !!S.qRevealed[S.stepIdx];
+            const awardedMap = S.qAwarded[S.stepIdx] || {};
+            let optsHtml = "";
+            st.opts.forEach(function (txt, idx) {
+                const num = idx + 1;
+                const cls = rev ? (num === st.ans ? "opt-card correct" : "opt-card dimmed") : "opt-card";
+                optsHtml +=
+                    '<div class="' + cls + '">' +
+                        '<div class="opt-finger">' + num + '</div>' +
+                        '<div class="opt-text">' + txt + '</div>' +
+                    '</div>';
+            });
+
+            let awardHtml = "";
+            if (rev) {
+                let btns = "";
+                POD_IDS.forEach(function (id, i) {
+                    const on = !!awardedMap[id];
+                    btns += '<button class="award-btn' + (on ? ' awarded' : '') + '" data-qaward="' + id + '">' +
+                            (on ? 'POD ' + id + ' +100' : '+ POD ' + id + ' (' + (i + 1) + ')') + '</button>';
+                });
+                awardHtml =
+                    '<div class="answer-note"><b>ANSWER [' + st.ans + ']</b> &bull; ' + st.note + '</div>' +
+                    '<div class="award-strip"><span class="award-lbl">' + (st.isRapid ? 'AWARD +100 &amp; +1 LIVE HACK:' : 'AWARD CORRECT PODS:') + '</span>' + btns + '</div>';
+            } else {
+                awardHtml =
+                    '<div class="answer-note">Pods huddle quietly &rarr; Fist on chest &rarr; Show <b>1, 2, 3, or 4 fingers</b> on the countdown!</div>' +
+                    '<div class="award-strip">' +
+                        '<button class="btn blue" id="btnStartHuddle">' + (st.isRapid ? 'START 15s HUDDLE (T)' : 'START 20s HUDDLE (T)') + '</button>' +
+                        '<button class="btn coral" id="btnRevealAns">REVEAL ANSWER (R)</button>' +
+                    '</div>';
+            }
+
+            card.innerHTML =
+                '<div class="q-meta-bar">' +
+                    '<div class="q-badges">' +
+                        '<span class="pill cat">' + st.cat + '</span>' +
+                        '<span class="pill num">QUESTION ' + st.qNumInRound + ' OF ' + st.qTotalInRound + '</span>' +
+                        '<span class="pill role">MEMORY: ' + st.memAgent.toUpperCase() + '</span>' +
+                        '<span class="pill sig">FINGER SIGNALER: ' + st.sigAgent.toUpperCase() + '</span>' +
+                    '</div>' +
+                    (st.isRapid ? '<button class="btn emerald" id="btnQuickBreach">OPEN 15s BREACH WINDOW (B)</button>' : '') +
+                '</div>' +
+                '<div class="q-prompt">' + st.q + '</div>' +
+                '<div class="options-grid">' + optsHtml + '</div>' +
+                '<div class="answer-bar">' + awardHtml + '</div>' +
+                footerHtml("Shortcuts: [T] Huddle Timer  [R] Reveal Answer  [1-5] Toggle Pod A-E Correct  [B] 15s Breach Window");
+
+            const bh = document.getElementById("btnStartHuddle");
+            if (bh) bh.addEventListener("click", function () {
+                ensureAudio();
+                setStageTimer(st.isRapid ? 15 : 20, "HUDDLE", true, null);
+            });
+            const br = document.getElementById("btnRevealAns");
+            if (br) br.addEventListener("click", function () {
+                revealCurrentQuestion();
+            });
+            const bqb = document.getElementById("btnQuickBreach");
+            if (bqb) bqb.addEventListener("click", openBreachWindow);
+
+            card.querySelectorAll("[data-qaward]").forEach(function (b) {
+                b.addEventListener("click", function () {
+                    awardQuestionToPod(S.stepIdx, b.getAttribute("data-qaward"));
+                });
+            });
+            bindFooterNav();
+            return;
+        }
+
+        if (st.type === "clue") {
+            const cState = S.clueState[st.clueKey] || "locked";
+            let bodyHtml = "";
+            if (cState === "locked") {
+                bodyHtml =
+                    '<div class="clue-box locked-box">' +
+                        '<div class="pill role" style="display:inline-block; margin-bottom:12px;">' + st.code + ' &bull; ' + st.agent + '</div>' +
+                        '<div class="clue-puzzle">ENCRYPTED DIGIT CLUE READY FOR TRANSMISSION</div>' +
+                        '<div class="clue-sub" style="color:var(--text-muted);">Check room: ZERO pens or paper on desks. Once opened, this clue self-wipes in 25 seconds!</div>' +
+                    '</div>' +
+                    '<button class="btn coral btn-lg" id="btnDecryptClue">DECRYPT CLUE - START 25s MEMORY WINDOW (R)</button>';
+            } else if (cState === "open") {
+                bodyHtml =
+                    '<div class="clue-box">' +
+                        '<div class="pill role" style="display:inline-block; margin-bottom:10px;">' + st.code + ' &bull; ' + st.agent + '</div>' +
+                        '<div class="clue-puzzle">' + st.puzzle + '</div>' +
+                        '<div class="clue-sub">' + st.prompt + '</div>' +
+                    '</div>' +
+                    '<div class="mem-bar-wrap"><div class="mem-bar-fill" id="memBarFill"></div></div>' +
+                    '<button class="btn amber btn-lg" id="btnWipeClue">WIPE FROM SCREEN NOW - LOCK IN MEMORY (W)</button>';
+            } else {
+                bodyHtml =
+                    '<div class="clue-box wiped-box">' +
+                        '<div class="pill num" style="display:inline-block; margin-bottom:10px;">SCREEN TRANSMISSION PURGED</div>' +
+                        '<div class="clue-puzzle">[CLASSIFIED // HELD IN ' + st.agent.toUpperCase() + ' MEMORY]</div>' +
+                        '<div class="clue-sub" style="color:var(--emerald);">Digits wiped from Central Command. Do NOT forget your numbers!</div>' +
+                    '</div>' +
+                    '<button class="btn" id="btnReflashClue">TEACHER RE-FLASH (10s)</button>';
+            }
+
+            card.innerHTML =
+                '<div class="q-meta-bar">' +
+                    '<div class="q-badges">' +
+                        '<span class="pill cat">' + st.title + '</span>' +
+                        '<span class="pill role">' + st.agent + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="clue-stage">' + bodyHtml + '</div>' +
+                footerHtml("Shortcuts: [R] Decrypt Clue (25s)  [W] Wipe Screen Immediately  [Right Arrow] Continue");
+
+            const bd = document.getElementById("btnDecryptClue");
+            if (bd) bd.addEventListener("click", function () { openCurrentClue(25); });
+            const bw = document.getElementById("btnWipeClue");
+            if (bw) bw.addEventListener("click", wipeCurrentClue);
+            const brf = document.getElementById("btnReflashClue");
+            if (brf) brf.addEventListener("click", function () { openCurrentClue(10); });
+            bindFooterNav();
+            return;
+        }
+
+        if (st.type === "checksum") {
+            const cOpen = S.clueState["CHECKSUM"] === "open";
+            let inner = "";
+            if (!cOpen) {
+                inner =
+                    '<div class="clue-box locked-box">' +
+                        '<div class="pill cat" style="display:inline-block; margin-bottom:10px;">' + st.code + '</div>' +
+                        '<div class="clue-puzzle">ALL 4 NODES CAPTURED (2 x 2 x 2 x 2 = 16 POSSIBLE CODES)</div>' +
+                        '<div class="clue-sub" style="color:var(--text-muted);">16 combinations is STILL risky for a 10-attempt vault. Unlock the Master Checksum to cut 16 codes down to 4!</div>' +
+                    '</div>' +
+                    '<button class="btn coral btn-lg" id="btnUnlockChecksum">UNLOCK MASTER CHECKSUM + START 90s MENTAL HUDDLE (R)</button>';
+            } else {
+                inner =
+                    '<div class="clue-box">' +
+                        '<div class="pill cat" style="display:inline-block; margin-bottom:8px;">' + st.code + '</div>' +
+                        '<div class="clue-puzzle">' + st.puzzle + '</div>' +
+                        '<div class="clue-sub">' + st.prompt + '</div>' +
+                        (S.overrideShown ? '<div style="margin-top:12px; padding-top:10px; border-top:1.5px dashed var(--amber); font-weight:800; font-size:1.18rem; color:var(--coral-dark);">' + st.overridePuzzle + '</div>' : '') +
+                    '</div>' +
+                    '<div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">' +
+                        '<button class="btn emerald btn-lg" id="btnChecksumBreach">OPEN 15s BREACH WINDOW FOR BANKED TOKENS (B)</button>' +
+                        (!S.overrideShown ? '<button class="btn" id="btnShowOverride" title="Optional final-3-minute hint if trailing pods need a lifeline">FINAL-MINUTE OVERRIDE CLUE (OPTIONAL)</button>' : '') +
+                    '</div>';
+            }
+
+            card.innerHTML =
+                '<div class="q-meta-bar"><div class="q-badges"><span class="pill cat">FINAL BREACH ASSEMBLY</span><span class="pill role">ALL 4 AGENTS COMBINE MEMORY</span></div></div>' +
+                '<div class="clue-stage">' + inner + '</div>' +
+                footerHtml("After initial Banked Token shot, press RIGHT ARROW for Rapid-Fire Live Breach Trivia!");
+
+            const buc = document.getElementById("btnUnlockChecksum");
+            if (buc) buc.addEventListener("click", function () {
+                ensureAudio();
+                S.clueState["CHECKSUM"] = "open";
+                sfxClueOpen();
+                setStageTimer(90, "SUM-22", true, null);
+                save(); renderAll();
+            });
+            const bcb = document.getElementById("btnChecksumBreach");
+            if (bcb) bcb.addEventListener("click", openBreachWindow);
+            const bso = document.getElementById("btnShowOverride");
+            if (bso) bso.addEventListener("click", function () {
+                S.overrideShown = true;
+                sfxClueOpen();
+                save(); renderAll();
+            });
+            bindFooterNav();
+            return;
+        }
+
+        if (st.type === "debrief") {
+            const sorted = POD_IDS.map(function (id) { return S.pods[id]; }).slice().sort(function (a, b) {
+                if (a.unlocked && !b.unlocked) return -1;
+                if (!a.unlocked && b.unlocked) return 1;
+                if (a.unlocked && b.unlocked && a.unlockOrder !== b.unlockOrder) return a.unlockOrder - b.unlockOrder;
+                if (a.denials !== b.denials) return a.denials - b.denials;
+                return b.pts - a.pts;
+            });
+            const unlockedTotal = sorted.filter(function (p) { return p.unlocked; }).length;
+
+            let standHtml = "";
+            sorted.forEach(function (p, i) {
+                standHtml +=
+                    '<div class="standing-row' + (p.unlocked ? ' winner' : '') + '">' +
+                        '<span>#' + (i + 1) + ' &bull; POD ' + p.id + (p.unlocked ? ' (VAULT UNLOCKED #' + p.unlockOrder + ')' : (p.denials >= 10 ? ' (VAULT SEALED)' : ' (LOCKED)')) + '</span>' +
+                        '<span style="font-family:var(--font-mono);">' + p.pts + ' PTS &bull; ' + p.denials + ' DENIED</span>' +
+                    '</div>';
+            });
+
+            let auditHtml = "";
+            st.audit.forEach(function (row, idx) {
+                const shown = !!S.auditRevealed[idx];
+                auditHtml +=
+                    '<div class="audit-row">' +
+                        '<div><b style="font-family:var(--font-mono); font-size:0.86rem;">' + row.label + ':</b> <span style="font-size:0.9rem; color:var(--text-muted);">' + row.rule + '</span></div>' +
+                        '<span class="audit-val' + (shown ? ' revealed' : '') + '" data-audit="' + idx + '">' + (shown ? row.res : 'CLICK TO REVEAL') + '</span>' +
+                    '</div>';
+            });
+
+            card.innerHTML =
+                '<div class="brief-head" style="display:flex; justify-content:space-between; align-items:center;">' +
+                    '<div><h1>' + st.title + '</h1><p>Class Co-Op Extraction: ' + unlockedTotal + ' of 5 Vaults Cracked</p></div>' +
+                    '<button class="btn emerald" id="btnRevealAllAudit">REVEAL FULL DECRYPTION CHAIN</button>' +
+                '</div>' +
+                '<div class="debrief-grid">' +
+                    '<div class="standings-list">' + standHtml + '</div>' +
+                    '<div class="audit-list">' + auditHtml + '</div>' +
+                '</div>' +
+                footerHtml("Memory Audit Bonus: Ask each Agent 1-4 to recite their pair BEFORE clicking Reveal!");
+
+            card.querySelectorAll("[data-audit]").forEach(function (el) {
+                el.addEventListener("click", function () {
+                    const k = el.getAttribute("data-audit");
+                    S.auditRevealed[k] = !S.auditRevealed[k];
+                    sfxReveal();
+                    save(); renderStage();
+                });
+            });
+            const bra = document.getElementById("btnRevealAllAudit");
+            if (bra) bra.addEventListener("click", function () {
+                st.audit.forEach(function (_, idx) { S.auditRevealed[idx] = true; });
+                sfxWin();
+                save(); renderStage();
+            });
+            bindFooterNav();
+        }
+    }
+
+    function footerHtml(hint) {
+        return (
+            '<div class="stage-foot">' +
+                '<span class="kbd-legend">' + hint + '</span>' +
+                '<div class="nav-btns">' +
+                    '<button class="btn btn-lg" id="btnPrevStep"' + (S.stepIdx === 0 ? ' disabled' : '') + '>&larr; PREV</button>' +
+                    '<span style="font-family:var(--font-mono); font-size:0.82rem; font-weight:800; color:var(--text-muted);">' + (S.stepIdx + 1) + ' / ' + STEPS.length + '</span>' +
+                    '<button class="btn coral btn-lg" id="btnNextStep"' + (S.stepIdx === STEPS.length - 1 ? ' disabled' : '') + '>NEXT &rarr;</button>' +
+                '</div>' +
+            '</div>'
+        );
+    }
+
+    function bindFooterNav() {
+        const bp = document.getElementById("btnPrevStep");
+        const bn = document.getElementById("btnNextStep");
+        if (bp) bp.addEventListener("click", function () { goStep(S.stepIdx - 1); });
+        if (bn) bn.addEventListener("click", function () { goStep(S.stepIdx + 1); });
+    }
+
+    function revealCurrentQuestion() {
+        const st = STEPS[S.stepIdx];
+        if (!st || st.type !== "question") return;
+        ensureAudio();
+        stageRunning = false;
+        fingersBanner.classList.remove("show");
+        S.qRevealed[S.stepIdx] = true;
+        sfxReveal();
+        save();
+        renderAll();
+    }
+
+    function openCurrentClue(sec) {
+        const st = STEPS[S.stepIdx];
+        if (!st || st.type !== "clue") return;
+        ensureAudio();
+        S.clueState[st.clueKey] = "open";
+        sfxClueOpen();
+        setStageTimer(sec || 25, "MEMORY", true, st.clueKey);
+        save();
+        renderAll();
+    }
+
+    function wipeCurrentClue() {
+        const st = STEPS[S.stepIdx];
+        if (!st || st.type !== "clue") return;
+        stageRunning = false;
+        S.clueState[st.clueKey] = "wiped";
+        sfxWipe();
+        save();
+        renderAll();
+    }
+
+    function renderAll() {
+        renderMasterClock();
+        renderStageClock();
+        renderTopNav();
+        renderStage();
+        renderPods();
+    }
+
+    /* TOP BUTTONS & KEYBOARD CONTROLS */
+    document.getElementById("btnLaunchOps").addEventListener("click", function () {
+        ensureAudio();
+        document.getElementById("launchOverlay").classList.remove("show");
+        if (!S.masterRunning) {
+            S.masterRunning = true;
+            save();
+            renderMasterClock();
+        }
+        sfxClueOpen();
+    });
+
+    document.getElementById("btnResetSaved").addEventListener("click", function () {
+        ensureAudio();
+        localStorage.removeItem(STORE_KEY);
+        S = freshState();
+        document.getElementById("launchOverlay").classList.remove("show");
+        goStep(0);
+    });
+
+    document.getElementById("btnSfx").addEventListener("click", function () {
+        S.sfx = !S.sfx;
+        document.getElementById("btnSfx").textContent = S.sfx ? "SFX: ON" : "SFX: OFF";
+        save();
+    });
+
+    function toggleFull() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function () {});
+        } else {
+            document.exitFullscreen().catch(function () {});
+        }
+    }
+    document.getElementById("btnFullscreen").addEventListener("click", toggleFull);
+    document.getElementById("btnTopReset").addEventListener("click", function () {
+        if (window.confirm("Reset all pod scores, timers, and clues for a fresh game?")) {
+            localStorage.removeItem(STORE_KEY);
+            S = freshState();
+            goStep(0);
+        }
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "F12") { e.preventDefault(); return; }
+        if (e.ctrlKey && !e.shiftKey && ["u","U","s","S"].indexOf(e.key) >= 0) { e.preventDefault(); return; }
+        if (document.getElementById("launchOverlay").classList.contains("show")) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                document.getElementById("btnLaunchOps").click();
+            }
+            return;
+        }
+        if (breachOverlay.classList.contains("show")) {
+            if (e.key === "Escape" || e.key === "b" || e.key === "B") {
+                e.preventDefault();
+                closeBreachWindow();
+            }
+            return;
+        }
+        if (e.key === "ArrowRight") { e.preventDefault(); goStep(S.stepIdx + 1); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); goStep(S.stepIdx - 1); }
+        else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFull(); }
+        else if (e.key === "b" || e.key === "B") { e.preventDefault(); openBreachWindow(); }
+        else if (e.key === "t" || e.key === "T") { e.preventDefault(); btnStageToggle.click(); }
+        else if (e.key === "r" || e.key === "R") {
+            e.preventDefault();
+            const st = STEPS[S.stepIdx];
+            if (st.type === "question") revealCurrentQuestion();
+            else if (st.type === "clue") openCurrentClue(25);
+            else if (st.type === "checksum" && S.clueState["CHECKSUM"] !== "open") {
+                const b = document.getElementById("btnUnlockChecksum");
+                if (b) b.click();
+            }
+        }
+        else if (e.key === "w" || e.key === "W") {
+            e.preventDefault();
+            wipeCurrentClue();
+        }
+        else if (["1","2","3","4","5"].indexOf(e.key) >= 0) {
+            const st = STEPS[S.stepIdx];
+            if (st && st.type === "question" && S.qRevealed[S.stepIdx]) {
+                e.preventDefault();
+                const podId = POD_IDS[parseInt(e.key, 10) - 1];
+                awardQuestionToPod(S.stepIdx, podId);
+            }
+        }
+    });
+
+    document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+    document.getElementById("btnSfx").textContent = S.sfx ? "SFX: ON" : "SFX: OFF";
+    renderAll();
+})();
+</script>
+</body>
+</html>
