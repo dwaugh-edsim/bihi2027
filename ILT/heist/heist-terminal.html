@@ -14,15 +14,72 @@ body {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px; overflow: hidden; user-select: none; cursor: default;
     background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px);
+    transition: background-color 0.35s ease;
+}
+body.standby {
+    background-color: #020408;
+    background-image: none;
 }
 .hud {
     position: fixed; top: 14px; left: 20px; right: 20px;
     display: flex; justify-content: space-between;
     font-size: 0.85rem; letter-spacing: 0.18em; color: #5f7396;
+    transition: opacity 0.3s ease;
 }
+body.standby .hud { opacity: 0.32; }
 .hud .term-tag { color: #f5c542; font-weight: 700; }
+body.standby .hud .term-tag { color: #64748b; }
 .hud .blink { animation: blink 1.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
+
+/* Powered-down standby screen */
+.standby-panel {
+    display: none; flex-direction: column; align-items: center; gap: 18px;
+    text-align: center; padding: 24px;
+}
+body.standby .standby-panel { display: flex; }
+body.standby .locked, body.standby .opened { display: none !important; }
+
+.power-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 0.85rem; letter-spacing: 0.28em; color: #64748b;
+    border: 1px solid #1e293b; border-radius: 999px;
+    padding: 7px 18px; background: #070b12;
+}
+.power-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #dc2626; box-shadow: 0 0 8px rgba(220,38,38,0.6);
+    animation: slowPulse 2.6s ease-in-out infinite;
+}
+@keyframes slowPulse { 50% { opacity: 0.25; } }
+
+.standby-title {
+    font-size: clamp(1.3rem, 3.2vw, 1.9rem);
+    letter-spacing: 0.26em; color: #475569; font-weight: 700;
+}
+.standby-sub {
+    font-size: 0.92rem; letter-spacing: 0.18em; color: #64748b;
+    max-width: 520px; line-height: 1.6;
+}
+.wake-slots {
+    display: flex; gap: 14px; margin: 6px 0;
+}
+.wake-slot {
+    width: 66px; height: 78px;
+    border: 2px solid #1e293b; border-radius: 8px;
+    background: #060a12; color: #94a3b8;
+    font-size: 2.3rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.wake-slot.filled {
+    border-color: #3b5278; color: #f5c542;
+}
+.wake-msg {
+    font-size: 0.82rem; letter-spacing: 0.22em; color: #334155; min-height: 1.3em;
+}
+.wake-msg.err { color: #ef4444; }
+
+/* Active vault terminal */
 .title { font-size: 1rem; letter-spacing: 0.34em; color: #8fa8d8; }
 .title b { color: #f5c542; }
 .display {
@@ -74,10 +131,22 @@ body.won .locked { display: none; }
 .opened .sub { font-size: 0.95rem; letter-spacing: 0.2em; color: #8fa8d8; font-weight: 700; }
 </style>
 </head>
-<body>
+<body class="standby">
 <div class="hud">
-    <span id="termId">TERMINAL ??</span>
-    <span>SECURE LINE <span class="blink">&#9679;</span></span>
+    <span id="termId" title="Click for Fullscreen" style="cursor:pointer;">TERMINAL ??</span>
+    <span id="lineStatus">OFFLINE // STANDBY</span>
+</div>
+
+<div class="standby-panel">
+    <div class="power-pill"><span class="power-dot"></span> TERMINAL POWERED DOWN</div>
+    <div class="standby-title">SYSTEM SLEEP // HANDS OFF</div>
+    <div class="standby-sub">DO NOT TOUCH KEYBOARD. WAIT FOR CHIEF WAUGH TO ISSUE THE 3-LETTER WAKE CODE.</div>
+    <div class="wake-slots" id="wakeSlots">
+        <div class="wake-slot">_</div>
+        <div class="wake-slot">_</div>
+        <div class="wake-slot">_</div>
+    </div>
+    <div class="wake-msg" id="wakeMsg">AWAITING 3-LETTER AUTHORIZATION CODE</div>
 </div>
 
 <div class="opened">
@@ -96,8 +165,8 @@ body.won .locked { display: none; }
 </div>
 <script>
 (function () {
-    /* Vault code stored as djb2 hash: 2088334395 ("2974") */
     const CODE_HASH = 2088334395;
+    const WAKE_HASH = 193457770;
     function hash(s) {
         let h = 5381;
         for (let i = 0; i < s.length; i++) { h = (h * 33 + s.charCodeAt(i)) & 0xFFFFFFFF; }
@@ -110,9 +179,8 @@ body.won .locked { display: none; }
     const termLetter = termMatch ? termMatch[1].toUpperCase() : 'A';
     const termLabel = 'TERMINAL ' + termLetter;
 
-    /* Persistent per-terminal state: isolated so testing on 1 computer doesn't overwrite */
-    const KEY = 'heist-terminal-v2-' + termLetter;
-    let state = { attempts: 0, won: false, term: termLabel };
+    const KEY = 'heist-terminal-v3-' + termLetter;
+    let state = { armed: false, attempts: 0, won: false, term: termLabel };
     try {
         const raw = localStorage.getItem(KEY);
         if (raw) { state = Object.assign(state, JSON.parse(raw)); }
@@ -126,19 +194,55 @@ body.won .locked { display: none; }
     const attemptsEl = document.getElementById('attempts');
     const padEl = document.getElementById('pad');
     const termEl = document.getElementById('termId');
+    const lineStatusEl = document.getElementById('lineStatus');
+    const wakeSlotsEl = document.getElementById('wakeSlots');
+    const wakeMsgEl = document.getElementById('wakeMsg');
+
     let entry = '';
+    let wakeEntry = '';
+    let wakeLocked = false;
     let sealed = false;
 
     termEl.innerHTML = '<span class="term-tag">' + state.term + '</span>';
-    attemptsEl.textContent = 'DENIED ATTEMPTS: ' + state.attempts + ' / 10';
-    if (state.won) {
-        document.body.classList.add('won');
-        document.getElementById('winStats').textContent = 'TOTAL ATTEMPTS USED: ' + (state.attempts + 1);
-    } else if (state.attempts >= 10) {
-        sealed = true;
-        padEl.classList.add('sealed');
-        status.textContent = 'TERMINAL LOCKED OUT (10/10 DENIED)';
-        status.className = 'status denied';
+    termEl.addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(){});
+        }
+    });
+
+    function applyPowerState() {
+        if (state.armed) {
+            document.body.classList.remove('standby');
+            lineStatusEl.innerHTML = 'SECURE LINE <span class="blink">&#9679;</span>';
+        } else {
+            document.body.classList.add('standby');
+            lineStatusEl.textContent = 'OFFLINE // STANDBY';
+        }
+        attemptsEl.textContent = 'DENIED ATTEMPTS: ' + state.attempts + ' / 10';
+        if (state.won) {
+            document.body.classList.add('won');
+            document.getElementById('winStats').textContent = 'TOTAL ATTEMPTS USED: ' + (state.attempts + 1);
+        } else {
+            document.body.classList.remove('won');
+            if (state.attempts >= 10) {
+                sealed = true;
+                padEl.classList.add('sealed');
+                status.textContent = 'TERMINAL LOCKED OUT (10/10 DENIED)';
+                status.className = 'status denied';
+            } else {
+                sealed = false;
+                padEl.classList.remove('sealed');
+            }
+        }
+    }
+
+    function renderWakeSlots() {
+        const slots = wakeSlotsEl.children;
+        for (let i = 0; i < 3; i++) {
+            const ch = wakeEntry[i] || '_';
+            slots[i].textContent = ch;
+            slots[i].className = 'wake-slot' + (wakeEntry[i] ? ' filled' : '');
+        }
     }
 
     /* Keypad layout: 1-9, CLEAR, 0, ENTER */
@@ -155,6 +259,7 @@ body.won .locked { display: none; }
     function beep(freq, dur, type) {
         try {
             audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+            if (audio.state === 'suspended') audio.resume();
             const o = audio.createOscillator(), g = audio.createGain();
             o.type = type || 'square'; o.frequency.value = freq;
             g.gain.value = 0.05; o.connect(g); g.connect(audio.destination);
@@ -170,7 +275,7 @@ body.won .locked { display: none; }
     }
 
     function press(k) {
-        if (state.won || sealed) return;
+        if (!state.armed || state.won || sealed) return;
         if (k === 'CLEAR') { entry = ''; render(); return; }
         if (k === 'ENTER') { submit(); return; }
         if (entry.length < 4) { entry += k; render(); beep(520, 0.05, 'sine'); }
@@ -204,31 +309,81 @@ body.won .locked { display: none; }
         }
     }
 
-    /* Physical keyboard support + teacher re-arm: type T-E-A-C-H-E-R */
+    function handleWakeChar(letter) {
+        if (wakeLocked || state.armed) return;
+        if (wakeEntry.length < 3) {
+            wakeEntry += letter;
+            renderWakeSlots();
+            beep(340, 0.04, 'sine');
+        }
+        if (wakeEntry.length === 3) {
+            if (hash(wakeEntry) === WAKE_HASH) {
+                state.armed = true;
+                save();
+                wakeEntry = '';
+                renderWakeSlots();
+                beep(330, 0.1, 'sine');
+                setTimeout(function () { beep(494, 0.1, 'sine'); }, 110);
+                setTimeout(function () { beep(660, 0.22, 'sine'); }, 220);
+                applyPowerState();
+            } else {
+                wakeLocked = true;
+                wakeMsgEl.textContent = 'STANDBY LOCKED - WAIT FOR COMMAND CODE';
+                wakeMsgEl.className = 'wake-msg err';
+                wakeSlotsEl.classList.remove('shake'); void wakeSlotsEl.offsetWidth; wakeSlotsEl.classList.add('shake');
+                beep(120, 0.22, 'sawtooth');
+                setTimeout(function () {
+                    wakeEntry = '';
+                    wakeLocked = false;
+                    renderWakeSlots();
+                    wakeMsgEl.textContent = 'AWAITING 3-LETTER AUTHORIZATION CODE';
+                    wakeMsgEl.className = 'wake-msg';
+                }, 950);
+            }
+        }
+    }
+
+    /* Physical keyboard support + teacher reset: type T-E-A-C-H-E-R */
     let armBuf = '';
     document.addEventListener('keydown', function (e) {
         if (e.key === 'F12') { e.preventDefault(); return; }
-        if (e.ctrlKey && !e.shiftKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) { e.preventDefault(); return; }
+        if (e.ctrlKey && !e.shiftKey && ['u','U','s','S','p','P'].indexOf(e.key) >= 0) { e.preventDefault(); return; }
         if (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].indexOf(e.key) >= 0) { e.preventDefault(); return; }
-        armBuf = (armBuf + (e.key || '')).toUpperCase().slice(-7);
-        if (armBuf === 'TEACHER') {
-            state = { attempts: 0, won: false, term: state.term };
-            save();
-            document.body.classList.remove('won');
-            sealed = false;
-            padEl.classList.remove('sealed');
-            attemptsEl.textContent = 'DENIED ATTEMPTS: 0 / 10';
-            entry = ''; render();
-            armBuf = '';
+
+        if (e.key && e.key.length === 1) {
+            armBuf = (armBuf + e.key.toUpperCase()).slice(-7);
+            if (armBuf === 'TEACHER') {
+                state = { armed: false, attempts: 0, won: false, term: state.term };
+                save();
+                entry = '';
+                wakeEntry = '';
+                renderWakeSlots();
+                render();
+                applyPowerState();
+                armBuf = '';
+                return;
+            }
         }
-        if (e.key === 'f' || e.key === 'F') {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function(){});
-            } else {
-                document.exitFullscreen().catch(function(){});
+
+        if ((e.key === 'f' || e.key === 'F') && e.shiftKey) {
+            if (document.fullscreenElement) document.exitFullscreen().catch(function(){});
+            return;
+        }
+        if ((e.key === 'f' || e.key === 'F') && !document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(){});
+            if (!state.armed && wakeEntry.length === 0) return;
+        }
+
+        if (!state.armed) {
+            if (e.key === 'Backspace' || e.key === 'Escape') {
+                wakeEntry = '';
+                renderWakeSlots();
+            } else if (/^[a-zA-Z]$/.test(e.key)) {
+                handleWakeChar(e.key.toUpperCase());
             }
             return;
         }
+
         if (state.won || sealed) return;
         if (/^[0-9]$/.test(e.key)) { press(e.key); }
         else if (e.key === 'Enter') { press('ENTER'); }
@@ -236,6 +391,9 @@ body.won .locked { display: none; }
     });
 
     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+    applyPowerState();
+    renderWakeSlots();
 })();
 </script>
 </body>
