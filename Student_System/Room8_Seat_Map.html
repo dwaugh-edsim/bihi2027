@@ -897,37 +897,38 @@ var DATA = {
     "num": "801",
     "color": "#2563eb",
     "bg": "#eff6ff",
+    "planVer": "2026-10-30-survey-v1",
     "order": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],
     "desks": {
       "1": {"name": "Alex R.", "empty": false},
-      "2": {"name": "Samuel Mil", "empty": false},
-      "3": {"name": "Martin V.", "empty": false},
-      "4": {"name": "Zephyr G.", "empty": false},
-      "5": {"name": "Samuel Mac", "empty": false},
-      "6": {"name": "Ruby C.", "empty": false},
-      "7": {"name": "Kenzie K.", "empty": false},
-      "8": {"name": "Julia T.", "empty": false},
-      "9": {"name": "Ainslie M.", "empty": false},
-      "10": {"name": "Juliet M.", "empty": false},
-      "11": {"name": "Ruby M.", "empty": false},
-      "12": {"name": "Talia D.", "empty": false},
-      "13": {"name": "Samuel S.", "empty": false},
-      "14": {"name": "Jaela L.", "empty": false},
-      "15": {"name": "Nehemiah S.", "empty": false},
-      "16": {"name": "Jason D.", "empty": false},
-      "17": {"name": "Fiona S.", "empty": false},
-      "18": {"name": "Marieke M.", "empty": false},
-      "19": {"name": "Steven E.", "empty": false},
-      "20": {"name": "Shaviah O.", "empty": false},
-      "21": {"name": "James T.", "empty": false},
-      "22": {"name": "Samuel H.", "empty": false},
-      "23": {"name": "Jayden L.", "empty": false},
-      "24": {"name": "Sydney S.", "empty": false},
-      "25": {"name": "Alex W.", "empty": false},
-      "26": {"name": "Nikolas S.", "empty": false},
-      "27": {"name": "Trey L.", "empty": false},
-      "28": {"name": "Artem P.", "empty": false},
-      "29": {"name": "Mae'ijah D.", "empty": false}
+      "2": {"name": "Jason D.", "empty": false},
+      "3": {"name": "Steven E.", "empty": false},
+      "4": {"name": "Samuel Mil", "empty": false},
+      "5": {"name": "Samuel H.", "empty": false},
+      "6": {"name": "Sydney S.", "empty": false},
+      "7": {"name": "Jaela L.", "empty": false},
+      "8": {"name": "James T.", "empty": false},
+      "9": {"name": "Trey L.", "empty": false},
+      "10": {"name": "Ruby C.", "empty": false},
+      "11": {"name": "Kenzie K.", "empty": false},
+      "12": {"name": "Samuel S.", "empty": false},
+      "13": {"name": "Zephyr G.", "empty": false},
+      "14": {"name": "Samuel Mac", "empty": false},
+      "15": {"name": "Nikolas S.", "empty": false},
+      "16": {"name": "Nehemiah S.", "empty": false},
+      "17": {"name": "Ainslie M.", "empty": false},
+      "18": {"name": "Juliet M.", "empty": false},
+      "19": {"name": "Fiona S.", "empty": false},
+      "20": {"name": "Marieke M.", "empty": false},
+      "21": {"name": "Ruby M.", "empty": false},
+      "22": {"name": "Shaviah O.", "empty": false},
+      "23": {"name": "Julia T.", "empty": false},
+      "24": {"name": "Alex W.", "empty": false},
+      "25": {"name": "Talia D.", "empty": false},
+      "26": {"name": "Mae'ijah D.", "empty": false},
+      "27": {"name": "Jayden L.", "empty": false},
+      "28": {"name": "Martin V.", "empty": false},
+      "29": {"name": "Artem P.", "empty": false}
     }
   },
   "g802": {
@@ -1467,6 +1468,7 @@ function downloadHtmlFile() {
     }
     baked[g].order = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29];
     baked[g].desks = newDesks;
+    if (baked[g].planVer) baked[g].planVer = "baked-" + new Date().toISOString().slice(0,19);
   }
   var clone = document.documentElement.cloneNode(true);
   var bps = clone.querySelectorAll(".blueprint, .tray");
@@ -1560,6 +1562,15 @@ document.addEventListener("keydown", function(e) {
 /* Initial render */
 (function init() {
   for (var g in DATA) {
+    if (DATA[g].planVer) {
+      try {
+        if (localStorage.getItem("r8seat_ver_" + g) !== DATA[g].planVer) {
+          localStorage.removeItem("r8seat_" + g);
+          localStorage.removeItem("r8seat_meta_" + g);
+          localStorage.setItem("r8seat_ver_" + g, DATA[g].planVer);
+        }
+      } catch (e) {}
+    }
     render(g);
     syncSp2(g);
   }
