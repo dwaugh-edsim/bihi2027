@@ -271,7 +271,7 @@ body {
   align-items: stretch;
 }
 .row-label {
-  width: 96px;
+  width: 104px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -294,6 +294,7 @@ body {
   color: var(--muted);
   font-family: 'JetBrains Mono', monospace;
   margin-top: 2px;
+  line-height: 1.35;
 }
 
 .clusters {
@@ -301,9 +302,11 @@ body {
   display: flex;
   gap: 12px;
   align-items: stretch;
+  min-width: 0;
 }
 .cluster {
   flex: var(--pod-size, 2);
+  min-width: 0;
   display: flex;
   gap: 7px;
   border: 1.5px solid #cbd5e1;
@@ -311,6 +314,10 @@ body {
   padding: 7px;
   background: #f8fafc;
   align-items: stretch;
+}
+.cluster.solo {
+  border-color: #94a3b8;
+  background: #eef2f6;
 }
 .cluster.trio {
   border-color: #94a3b8;
@@ -430,15 +437,14 @@ body {
 
 .desk .nm {
   display: block;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 800;
   color: var(--ink);
   margin-top: 10px;
   line-height: 1.15;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
   padding: 0 2px;
 }
 
@@ -608,7 +614,7 @@ body.lcd-mode .row-block {
   min-height: 0;
 }
 body.lcd-mode .row-label {
-  width: 118px;
+  width: 124px;
 }
 body.lcd-mode .row-label span {
   font-size: 1.15rem;
@@ -634,9 +640,10 @@ body.lcd-mode .desk .sn {
   left: 8px;
 }
 body.lcd-mode .desk .nm {
-  font-size: clamp(1.02rem, 1.45vw, 1.48rem);
+  font-size: clamp(0.92rem, 1.16vw, 1.26rem);
   font-weight: 900;
   margin-top: 12px;
+  line-height: 1.18;
   letter-spacing: -0.01em;
 }
 body.lcd-mode .desk.empty {
@@ -727,7 +734,7 @@ body.flipped .cluster {
       <h1>Room 8 &middot; Seating Chart &amp; Class LCD Map</h1>
       <div class="sub">All 7 homerooms &middot; 29 desks &middot; blueprint v5 &middot; click/drag to swap, click &times; on a desk to remove a name, or launch Class LCD View</div>
     </div>
-    <div class="spec">
+    <div class="spec" id="topSpec">
       ROW 1 (front) &nbsp;2&middot;2&middot;3&middot;2&middot;2 = 11<br>
       ROW 2 (middle) &nbsp;2&middot;2&middot;3&middot;2&middot;2 = 11<br>
       BACK ROW &nbsp;2&middot;3&middot;2 = 7 + Teacher Desk
@@ -1037,11 +1044,36 @@ var DATA = {
 };
 /*__DATA_END__*/
 
-var NEW_ROWS = [
+var DEFAULT_ROWS = [
   ["Row 1 · Front", [2, 2, 3, 2, 2]],
   ["Row 2 · Middle", [2, 2, 3, 2, 2]],
   ["Back Row", [2, 3, 2]]
 ];
+
+var GROUP_ROWS = {
+  "g801": [
+    ["Row 1 · Front", [1, 2, 2, 2, 2, 2]],
+    ["Row 2 · Middle", [1, 2, 2, 2, 2, 2]],
+    ["Back Row", [2, 3, 2]]
+  ]
+};
+
+function rowsOf(g) {
+  return (DATA[g] && DATA[g].rows) || GROUP_ROWS[g] || DEFAULT_ROWS;
+}
+
+function updateTopSpec(g) {
+  var el = document.getElementById("topSpec");
+  if (!el) return;
+  var rows = rowsOf(g);
+  var r1 = rows[0][1], r2 = rows[1][1], r3 = rows[2][1];
+  var sum = function(arr) { var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s; };
+  var tag = GROUP_ROWS[g] ? " (" + DATA[g].num + " custom)" : "";
+  el.innerHTML =
+    "ROW 1 (front)" + tag + " &nbsp;" + r1.join("&middot;") + " = " + sum(r1) + "<br>" +
+    "ROW 2 (middle)" + tag + " &nbsp;" + r2.join("&middot;") + " = " + sum(r2) + "<br>" +
+    "BACK ROW &nbsp;" + r3.join("&middot;") + " = " + sum(r3) + " + Teacher Desk";
+}
 
 var current = "g902";
 var sel = null; // { type: 'desk', g, sn, pos } or { type: 'pool', g, name }
@@ -1138,25 +1170,28 @@ function updateCounts(g) {
 }
 
 function render(g) {
-  var D = DATA[g], order = orderOf(g), host = document.getElementById("bp-" + g);
+  var D = DATA[g], order = orderOf(g), rows = rowsOf(g), host = document.getElementById("bp-" + g);
   if (g === current) {
     document.documentElement.style.setProperty("--group-c", D.color);
     document.documentElement.style.setProperty("--group-bg", D.bg || "#f8fafc");
+    updateTopSpec(g);
   }
   updateCounts(g);
 
   var html = '<div class="front-banner">\u2b06 Front of Room &middot; Whiteboard &amp; Projector Screen \u2b06</div>';
   html += '<div class="rows-container">';
   var p = 0;
-  for (var r = 0; r < NEW_ROWS.length; r++) {
-    var label = NEW_ROWS[r][0], clusters = NEW_ROWS[r][1], total = 0;
+  for (var r = 0; r < rows.length; r++) {
+    var label = rows[r][0], clusters = rows[r][1], total = 0;
     for (var c = 0; c < clusters.length; c++) total += clusters[c];
+    var patStr = clusters.join("\u00b7");
     html += '<div class="row-block" style="--group-c:' + D.color + '">' +
-            '<div class="row-label"><span>' + label + '</span><em>' + total + ' desks</em></div>' +
+            '<div class="row-label"><span>' + label + '</span><em>' + total + ' desks<br>' + patStr + '</em></div>' +
             '<div class="clusters">';
     for (var c2 = 0; c2 < clusters.length; c2++) {
       var podSize = clusters[c2];
-      html += '<div class="cluster' + (podSize === 3 ? ' trio' : '') + '" style="--pod-size:' + podSize + '">';
+      var podCls = podSize === 3 ? ' trio' : (podSize === 1 ? ' solo' : '');
+      html += '<div class="cluster' + podCls + '" style="--pod-size:' + podSize + '">';
       for (var k = 0; k < podSize; k++) {
         var sn = order[p];
         var posNum = p + 1;
@@ -1178,7 +1213,7 @@ function render(g) {
       }
       html += '</div>';
     }
-    if (r === NEW_ROWS.length - 1) {
+    if (r === rows.length - 1) {
       html += '<div class="teacher-pod"><div class="t-title">Mr. Waugh</div><div class="t-sub">Teacher Desk</div></div>';
     }
     html += '</div></div>';
@@ -1231,7 +1266,7 @@ function renderTray(g) {
       } else {
         sel = { type: "pool", g: g, name: uname };
         render(g);
-        toast("Selected " + uname + " \u2014 click any desk to seat them.");
+        toast("Selected " + uname + " - click any desk to seat them.");
       }
     });
   }
@@ -1433,7 +1468,10 @@ function downloadHtmlFile() {
     baked[g].order = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29];
     baked[g].desks = newDesks;
   }
-  var html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  var clone = document.documentElement.cloneNode(true);
+  var bps = clone.querySelectorAll(".blueprint, .tray");
+  for (var i = 0; i < bps.length; i++) bps[i].innerHTML = "";
+  var html = "<!DOCTYPE html>\n" + clone.outerHTML;
   var replacement = "/*__DATA_START__*/\nvar DATA = " + JSON.stringify(baked, null, 2) + ";\n/*__DATA_END__*/";
   html = html.replace(/\/\*__DATA_START__\*\/[\s\S]*?\/\*__DATA_END__\*\//, replacement);
   var blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -1522,7 +1560,7 @@ document.addEventListener("keydown", function(e) {
 /* Initial render */
 (function init() {
   for (var g in DATA) {
-    updateCounts(g);
+    render(g);
     syncSp2(g);
   }
   var savedTab = null;
@@ -1540,4 +1578,3 @@ document.addEventListener("keydown", function(e) {
 </script>
 </body>
 </html>
-
