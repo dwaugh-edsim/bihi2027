@@ -514,6 +514,56 @@
         }
         .check-box svg { width: 11px; height: 11px; stroke: var(--special); stroke-width: 3.5; }
 
+        /* ── Notices card & edit box ── */
+        .notices-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .notices-list li {
+            position: relative;
+            padding-left: 18px;
+            font-size: 0.95rem;
+            line-height: 1.38;
+            color: var(--ink-body);
+            font-weight: 600;
+        }
+        .notices-list li::before {
+            content: "•";
+            position: absolute;
+            left: 3px;
+            top: -1px;
+            color: var(--accent);
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+        .notices-list li strong {
+            color: var(--ink);
+            font-weight: 800;
+        }
+        #noticesTextarea {
+            width: 100%;
+            flex: 1;
+            min-height: 80px;
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.38;
+            padding: 7px 10px;
+            border-radius: var(--card-radius);
+            border: 1.5px solid var(--accent);
+            background: var(--surface);
+            color: var(--ink);
+            outline: none;
+            resize: none;
+        }
+        #noticesTextarea:focus {
+            box-shadow: 0 0 0 2px var(--accent-border);
+        }
+
         /* ── Class codes ── */
         .code-box {
             background: var(--surface-alt);
@@ -926,6 +976,9 @@
         <select class="day-select" id="cycleDaySelect" onchange="changeCycleDay(this.value)">
             <!-- options are generated from the live cycle calendar at load -->
         </select>
+        <button class="btn btn-ghost" onclick="toggleNoticesEdit()" id="btnTopNotices" title="Edit Today's Morning Notices (Shortcut: N)">
+            <svg><use href="#i-chat"></use></svg> <span id="btnTopNoticesLabel">Notices</span>
+        </button>
         <button class="btn btn-ghost" onclick="toggleTheme()" id="btnTheme">
             <svg><use href="#i-moon"></use></svg> <span id="btnThemeLabel">Dark Room</span>
         </button>
@@ -1025,7 +1078,7 @@
             <div class="card grow" style="border-top:4px solid var(--special);">
                 <div class="card-tag" style="display:flex; align-items:center; gap:7px;">
                     <svg style="width:14px;height:14px;stroke:var(--special);" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clipboard"></use></svg>
-                    Morning Homeroom Routine &bull; 8:55 – 9:05 AM
+                    Morning Homeroom Routine &bull; 8:55 &ndash; 9:05 AM
                 </div>
                 <div style="margin-top:4px;">
                     <div class="check-row">
@@ -1041,30 +1094,48 @@
                         <div><strong>Attendance &amp; O Canada:</strong> be seated by 8:55 AM for morning announcements.</div>
                     </div>
                 </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:auto; padding-top:6px; border-top:1px dashed var(--rule-dark); font-size:0.75rem; color:var(--ink-muted);">
+                    <span style="font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:0.65rem; color:var(--ink-dim);">Classroom:</span>
+                    <span>Citizenship 902: <strong style="font-family:var(--font-mono); color:var(--ink);">nng3ni7w</strong></span>
+                    <span>&bull;</span>
+                    <span>Healthy Living 902: <strong style="font-family:var(--font-mono); color:var(--ink);">fcmhesnt</strong></span>
+                </div>
             </div>
 
-            <div class="card grow" style="border-top:4px solid var(--accent);">
-                <div class="card-tag" style="display:flex; align-items:center; gap:7px;">
-                    <svg style="width:14px;height:14px;stroke:var(--accent-dark);" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-key"></use></svg>
-                    902 Google Classroom Codes
-                </div>
-                <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
-                    <div class="code-box" id="codeBox-CIT">
-                        <div>
-                            <div class="code-label">Citizenship 902</div>
-                            <div class="code-value">nng3ni7w</div>
-                        </div>
-                        <span class="code-today hidden" id="codeToday-CIT">Today</span>
+            <div class="card grow" id="noticesCard" style="border-top:4px solid var(--accent); position:relative;">
+                <div class="card-head">
+                    <div class="card-tag" style="display:flex; align-items:center; gap:7px;">
+                        <svg style="width:14px;height:14px;stroke:var(--accent-dark);" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chat"></use></svg>
+                        Today's Notices &bull; Morning Announcements
                     </div>
-                    <div class="code-box" id="codeBox-HL">
-                        <div>
-                            <div class="code-label">Healthy Living 902</div>
-                            <div class="code-value">fcmhesnt</div>
-                        </div>
-                        <span class="code-today hidden" id="codeToday-HL">Today</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span id="noticesSaveBadge" style="font-size:0.7rem; font-weight:700; color:var(--special); opacity:0; transition:opacity 0.2s;">&check; Saved</span>
+                        <button type="button" class="btn btn-ghost" id="editNoticesBtn" onclick="toggleNoticesEdit()" style="padding:2px 8px; font-size:0.68rem;" title="Edit today's notices (Shortcut: N)">&#9998; Edit</button>
                     </div>
                 </div>
-                <div class="card-source">Homeroom teacher: Mr. Waugh &bull; Room 8</div>
+
+                <!-- View Mode -->
+                <div id="noticesViewBox" style="margin-top:6px; flex:1; display:flex; flex-direction:column; justify-content:center; cursor:pointer;" onclick="toggleNoticesEdit(true)" title="Click to edit notices">
+                    <ul id="noticesList" class="notices-list">
+                        <li>Bring in your Take Your Kid to Work form.</li>
+                        <li>Be in Room 8 by 8:55 - before O Canada.</li>
+                    </ul>
+                </div>
+
+                <!-- Edit Mode (hidden by default) -->
+                <div id="noticesEditBox" class="hidden" style="margin-top:6px; flex:1; display:flex; flex-direction:column; gap:8px;">
+                    <textarea id="noticesTextarea" rows="4" placeholder="Enter today's notices (one per line)..." title="Press Ctrl+Enter to save, Escape to cancel"></textarea>
+                    <div style="display:flex; gap:8px; justify-content:flex-end; align-items:center;">
+                        <button type="button" class="btn btn-ghost" onclick="resetNoticesToSeed()" style="margin-right:auto; font-size:0.7rem;" title="Reset notices to seed file">&#8634; Reset to Seed</button>
+                        <button type="button" class="btn btn-ghost" onclick="cancelNoticesEdit()" style="font-size:0.7rem;">Cancel</button>
+                        <button type="button" class="btn btn-coral" onclick="saveNoticesEdit()" style="font-size:0.7rem;">&check; Save Notices</button>
+                    </div>
+                </div>
+
+                <div class="card-source" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Homeroom teacher: Mr. Waugh &bull; Room 8</span>
+                    <span style="font-size:0.62rem; color:var(--ink-dim); text-transform:none;">Press <strong>N</strong> or click box to edit</span>
+                </div>
             </div>
         </div>
     </section>
@@ -1390,6 +1461,7 @@
 </footer>
 
 <script src="homeroom_902_schedule_data.js"></script>
+<script src="homeroom_902_notices.js"></script>
 <script>
 /* ═════════════════════════════════════════════════════════════════════════
    1-2 · SUBJECT PROFILES + 10-DAY CYCLE MATRIX
@@ -1848,6 +1920,119 @@ function prevSlide() { goToSlide(currentIdx - 1 < 0 ? totalSlides - 1 : currentI
 /* ══════════════════════════════════════════════════════════
    12 · CHROME CONTROLS
    ══════════════════════════════════════════════════════════ */
+
+/* ??????????????????????????????????????????????????????????
+   14 ? TODAY'S NOTICES & MORNING ANNOUNCEMENTS (EDITABLE)
+   ?????????????????????????????????????????????????????????? */
+const NOTICES_STORAGE_KEY = 'room8_902_notices_text';
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getInitialNotices() {
+    let saved = null;
+    try { saved = localStorage.getItem(NOTICES_STORAGE_KEY); } catch (e) {}
+    if (saved !== null && saved.trim() !== '') {
+        return saved.split('\n').map(s => s.trim().replace(/^[-*\u2022]\s*/, '')).filter(Boolean);
+    }
+    if (window.HOMEROOM_902_NOTICES && Array.isArray(window.HOMEROOM_902_NOTICES.announcements)) {
+        return window.HOMEROOM_902_NOTICES.announcements.slice();
+    }
+    return [
+        'Bring in your Take Your Kid to Work form.',
+        'Be in Room 8 by 8:55 - before O Canada.'
+    ];
+}
+
+function renderNotices() {
+    const listEl = document.getElementById('noticesList');
+    if (!listEl) return;
+    const items = getInitialNotices();
+    if (!items.length) {
+        listEl.innerHTML = '<li style="color:var(--ink-dim); font-style:italic; padding-left:0;">No announcements posted for today. Click Edit to add notices.</li>';
+        return;
+    }
+    listEl.innerHTML = items.map(txt => {
+        const clean = escHtml(txt).replace(/[\u2014\u2013]|&mdash;|&ndash;/g, ' - ');
+        return `<li>${clean}</li>`;
+    }).join('');
+}
+
+function toggleNoticesEdit(open) {
+    const viewBox = document.getElementById('noticesViewBox');
+    const editBox = document.getElementById('noticesEditBox');
+    const textarea = document.getElementById('noticesTextarea');
+    const btn = document.getElementById('editNoticesBtn');
+    const topBtn = document.getElementById('btnTopNoticesLabel');
+    if (!viewBox || !editBox || !textarea) return;
+
+    const isEditing = !editBox.classList.contains('hidden');
+    const shouldOpen = (open !== undefined) ? open : !isEditing;
+
+    if (shouldOpen) {
+        const items = getInitialNotices();
+        textarea.value = items.join('\n');
+        viewBox.classList.add('hidden');
+        editBox.classList.remove('hidden');
+        if (btn) btn.innerHTML = '&#10005; Close';
+        if (topBtn) topBtn.textContent = 'Close';
+        textarea.onkeydown = (evt) => {
+            if ((evt.ctrlKey || evt.metaKey) && evt.key === 'Enter') {
+                evt.preventDefault();
+                saveNoticesEdit();
+            } else if (evt.key === 'Escape') {
+                evt.preventDefault();
+                cancelNoticesEdit();
+            }
+        };
+        setTimeout(() => { textarea.focus(); textarea.select(); }, 50);
+    } else {
+        editBox.classList.add('hidden');
+        viewBox.classList.remove('hidden');
+        if (btn) btn.innerHTML = '&#9998; Edit';
+        if (topBtn) topBtn.textContent = 'Notices';
+    }
+}
+
+function saveNoticesEdit() {
+    const textarea = document.getElementById('noticesTextarea');
+    if (!textarea) return;
+    const lines = textarea.value.split('\n')
+        .map(s => s.trim().replace(/^[-*\u2022]\s*/, ''))
+        .filter(Boolean);
+    const cleaned = lines.join('\n');
+    try {
+        localStorage.setItem(NOTICES_STORAGE_KEY, cleaned);
+    } catch (e) {}
+    renderNotices();
+    toggleNoticesEdit(false);
+    flashNoticesSaved();
+}
+
+function cancelNoticesEdit() {
+    toggleNoticesEdit(false);
+}
+
+function resetNoticesToSeed() {
+    if (!confirm('Reset notices to the default seed from homeroom_902_notices.js?')) return;
+    try { localStorage.removeItem(NOTICES_STORAGE_KEY); } catch (e) {}
+    renderNotices();
+    toggleNoticesEdit(false);
+    flashNoticesSaved('Reset to seed');
+}
+
+function flashNoticesSaved(msg) {
+    const badge = document.getElementById('noticesSaveBadge');
+    if (!badge) return;
+    badge.textContent = msg ? ('\u2713 ' + msg) : '\u2713 Saved';
+    badge.style.opacity = '1';
+    clearTimeout(badge._h);
+    badge._h = setTimeout(() => { badge.style.opacity = '0'; }, 2200);
+}
+
+try { renderNotices(); } catch(e) {}
+
 function toggleTheme() {
     document.body.classList.toggle('dark-room');
     const isDark = document.body.classList.contains('dark-room');
@@ -1875,10 +2060,12 @@ function toggleFullscreen() {
 }
 
 document.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); nextSlide(); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prevSlide(); }
     else if (e.key.toLowerCase() === 'f') { e.preventDefault(); toggleFullscreen(); }
     else if (e.key.toLowerCase() === 'p') { e.preventDefault(); toggleTheme(); }
+    else if (e.key.toLowerCase() === 'n') { e.preventDefault(); toggleNoticesEdit(); }
 });
 
 /* ══════════════════════════════════════════════════════════
@@ -1909,6 +2096,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateSlide();
     updateLiveClock();
     setInterval(updateLiveClock, 1000);
+    renderNotices();
 });
 </script>
 </body>
