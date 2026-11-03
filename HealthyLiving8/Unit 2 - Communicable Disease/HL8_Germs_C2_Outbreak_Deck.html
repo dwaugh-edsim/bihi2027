@@ -3,433 +3,1189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HL8 Germs Class 2: Breaking the Chain & The School Outbreak</title>
+<title>HL8 Germs Class 2: Case 55 &amp; Stopping a School Outbreak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Open+Sans+Condensed:wght@700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg-page: #f2f5f3;
-        --surface: #ffffff;
-        --border: #e0e5e2;
-        --text-heading: #2d3832;
-        --text-body: #55625b;
-        --text-muted: #8b9990;
-        --primary: #006376;
-        --primary-dark: #004b5a;
-        --primary-light: #e5f2f5;
-        --accent-warm: #c2410c;
-        --accent-warm-bg: #fff7ed;
-        --good: #166534;
-        --good-bg: #f0fdf4;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body { font-family: 'Open Sans', sans-serif; background: var(--bg-page); color: var(--text-body); overflow: hidden; }
+        /* Strongly Typed High-Contrast Projector Light Palette */
+        --bg-page: #f0f2f5;
+        --bg-surface: #ffffff;
+        --bg-card: #ffffff;
+        --bg-subtle: #f8fafc;
 
-    .slide { position: absolute; inset: 0; display: none; flex-direction: column; padding: 5.4vh 6vw 9.4vh 6vw; background: var(--bg-page); }
+        --border-card: #cbd5e1;
+        --border-subtle: #e2e8f0;
+        --border-highlight: #ed786a;
+
+        --text-main: #1e2530;
+        --text-heading: #181f2b;
+        --text-muted: #475569;
+        --text-dim: #64748b;
+
+        --coral: #ed786a;
+        --coral-dark: #c84b3c;
+        --coral-bg: #fff1f0;
+        --coral-border: #fecdd3;
+
+        --teal: #0f766e;
+        --teal-dark: #115e59;
+        --teal-bg: #f0fdfa;
+        --teal-border: #99f6e4;
+
+        --blue: #1d4ed8;
+        --blue-bg: #eff6ff;
+        --blue-border: #bfdbfe;
+
+        --emerald: #15803d;
+        --emerald-bg: #dcfce7;
+        --emerald-border: #86efac;
+
+        --amber: #b45309;
+        --amber-bg: #fef3c7;
+        --amber-border: #fde68a;
+
+        --purple: #6d28d9;
+        --purple-bg: #f5f3ff;
+        --purple-border: #ddd6fe;
+
+        --font-heading: 'Arvo', Georgia, serif;
+        --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg-page); color: var(--text-main); font-family: var(--font-body); }
+
+    /* Top Strongly Typed Header Bar */
+    .deck-topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6.4vh;
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-subtle);
+        box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 4.2vw;
+        z-index: 10;
+    }
+    .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 1vw;
+    }
+    .badge-room {
+        background: var(--coral);
+        color: #ffffff;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: max(13px, 1.75vh);
+        border-radius: 6px;
+        padding: 0.4vh 0.8vw;
+        letter-spacing: 0.4px;
+        box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
+    }
+    .topbar-unit {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: max(12px, 1.65vh);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .sheet-pill {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: max(12px, 1.65vh);
+        padding: 0.45vh 0.9vw;
+        border-radius: 999px;
+        border: 1.5px solid var(--teal-border);
+        background: var(--teal-bg);
+        color: var(--teal-dark);
+        letter-spacing: 0.04em;
+    }
+    .sheet-pill.mystery {
+        background: var(--coral-bg);
+        border-color: var(--coral-border);
+        color: var(--coral-dark);
+    }
+    .sheet-pill.solo {
+        background: var(--amber-bg);
+        border-color: var(--amber-border);
+        color: var(--amber);
+    }
+    .sheet-pill.reveal {
+        background: var(--emerald-bg);
+        border-color: var(--emerald-border);
+        color: var(--emerald);
+    }
+
+    /* Slide Canvas */
+    .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        padding: 8.0vh 3.4vw 6.4vh 3.4vw;
+        background: var(--bg-page);
+    }
     .slide.active { display: flex; }
 
-    .kicker { font-family: 'JetBrains Mono', monospace; font-size: max(12px, 1.8vh); font-weight: 800; letter-spacing: .14em; color: var(--primary); text-transform: uppercase; margin-bottom: 1.4vh; }
-    h1 { font-family: 'Open Sans Condensed', 'Open Sans', sans-serif; font-weight: 700; font-size: max(34px, 7.8vh); line-height: 1.02; color: var(--text-heading); letter-spacing: -.01em; }
-    h2 { font-family: 'Open Sans Condensed', 'Open Sans', sans-serif; font-weight: 700; font-size: max(26px, 5.2vh); line-height: 1.05; color: var(--text-heading); }
-    .sub { font-size: max(15px, 2.45vh); color: var(--text-body); margin-top: 1.6vh; line-height: 1.45; max-width: 68ch; }
-    .sub strong, .bigfact strong { color: var(--text-heading); }
+    .slide-head {
+        margin-bottom: 1.5vh;
+    }
+    .kicker {
+        font-family: var(--font-mono);
+        font-size: max(13px, 1.8vh);
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: var(--coral-dark);
+        text-transform: uppercase;
+        margin-bottom: 0.5vh;
+    }
+    .kicker.teal { color: var(--teal); }
+    .kicker.blue { color: var(--blue); }
+    .kicker.emerald { color: var(--emerald); }
 
-    .bigfact { background: var(--surface); border: 1.5px solid var(--border); border-left: 6px solid var(--primary); border-radius: 10px; padding: 2vh 2vw; margin-top: 2vh; font-size: max(15px, 2.5vh); line-height: 1.5; max-width: 78ch; }
+    h1 {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: max(30px, 4.9vh);
+        line-height: 1.08;
+        color: var(--text-heading);
+        text-shadow: 0.04em 0.06em 0 rgba(0, 0, 0, 0.06);
+    }
+    h2 {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: max(26px, 4.35vh);
+        line-height: 1.1;
+        color: var(--text-heading);
+        text-shadow: 0.03em 0.05em 0 rgba(0, 0, 0, 0.05);
+    }
+    .lead {
+        font-size: max(16px, 2.35vh);
+        color: var(--text-muted);
+        line-height: 1.4;
+        margin-top: 0.8vh;
+        max-width: 82ch;
+    }
+    .lead strong { color: var(--text-heading); }
 
-    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; margin-top: 2vh; flex: 1; min-height: 0; }
-    .card { background: var(--surface); border: 1.5px solid var(--border); border-top: 5px solid var(--primary); border-radius: 10px; padding: 2vh 1.6vw; display: flex; flex-direction: column; }
-    .card.warm { border-top-color: var(--accent-warm); }
-    .card .name { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; font-size: max(22px, 3.8vh); color: var(--text-heading); line-height: 1.1; }
-    .card .sci { font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.6vh); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: .6vh; }
-    .card ul { list-style: none; margin-top: 1.2vh; }
-    .card li { font-size: max(13px, 1.95vh); line-height: 1.42; margin-bottom: 0.9vh; padding-left: 1.3em; position: relative; }
-    .card li::before { content: "\203A"; position: absolute; left: 0; color: var(--primary); font-weight: 900; }
-    .card.warm li::before { color: var(--accent-warm); }
-    .card li strong { color: var(--text-heading); }
+    /* Main Split Grid (Used Across Slides for Image + Structured Content) */
+    .main-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.8vw;
+        flex: 1;
+        min-height: 0;
+        align-items: stretch;
+    }
+    .main-split.img-left {
+        grid-template-columns: 1fr 1fr;
+    }
+    .main-split.wide-img {
+        grid-template-columns: 0.94fr 1.06fr;
+    }
 
-    /* Media Split Layouts */
-    .split-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.4vw; margin-top: 1.8vh; flex: 1; min-height: 0; align-items: stretch; }
-    .media-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 1.5vh 1.4vw; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-    .media-card img { max-width: 100%; max-height: 48vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-    .media-caption { font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.5vh); font-weight: 700; color: var(--text-muted); margin-top: 1vh; text-align: center; }
-    .media-caption strong { color: var(--primary); }
+    .col-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8vh;
+        justify-content: center;
+        min-height: 0;
+    }
 
-    .srcline { position: absolute; left: 6vw; right: 6vw; bottom: 5.2vh; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--text-muted); letter-spacing: .02em; }
-    .srcline strong { color: var(--primary); }
+    /* Visual / Image Panel */
+    .visual-frame {
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-radius: 12px;
+        padding: 1.3vh 1vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(24, 31, 43, 0.06);
+        overflow: hidden;
+        min-height: 0;
+        cursor: zoom-in;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .visual-frame:hover {
+        border-color: var(--coral);
+        box-shadow: 0 6px 18px rgba(24, 31, 43, 0.1);
+    }
+    .visual-frame img {
+        width: 100%;
+        height: 100%;
+        max-height: 62vh;
+        object-fit: contain;
+        border-radius: 8px;
+        min-height: 0;
+        background: transparent;
+    }
+    .visual-frame.cover img {
+        object-fit: cover;
+    }
+    .visual-cap {
+        font-family: var(--font-mono);
+        font-size: max(12px, 1.65vh);
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-top: 0.9vh;
+        text-align: center;
+        line-height: 1.3;
+        flex-shrink: 0;
+    }
+    .visual-cap strong { color: var(--teal-dark); }
 
-    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.3vw; margin-top: 2vh; flex: 1; min-height: 0; }
-    .portal-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 1.8vh 1.3vw; display: flex; flex-direction: column; }
-    .portal-box .p-num { display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: max(14px, 2.5vh); color: #fff; background: var(--primary); border-radius: 7px; min-width: 1.6em; height: 1.6em; }
-    .portal-box .p-title { font-family: 'Open Sans Condensed', sans-serif; font-weight: 700; font-size: max(18px, 3.2vh); color: var(--text-heading); margin-top: 1vh; }
-    .portal-box .p-desc { font-size: max(12px, 1.85vh); line-height: 1.4; margin-top: 0.8vh; }
-    .portal-box .p-def { font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--primary); margin-top: auto; padding-top: 0.8vh; border-top: 1px dashed var(--border); }
+    /* Crisp Strongly Typed Cards */
+    .st-card {
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-top: 5px solid var(--teal);
+        border-radius: 10px;
+        padding: 2.0vh 1.5vw;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .st-card.coral { border-top-color: var(--coral-dark); }
+    .st-card.amber { border-top-color: var(--amber); }
+    .st-card.blue { border-top-color: var(--blue); }
+    .st-card.emerald { border-top-color: var(--emerald); }
+    .st-card.purple { border-top-color: var(--purple); }
 
-    .teaser { margin-top: 2.2vh; background: var(--accent-warm-bg); border: 1.5px solid var(--accent-warm); border-radius: 10px; padding: 2vh 1.8vw; font-size: max(15px, 2.5vh); line-height: 1.5; max-width: 74ch; color: #7c2d12; }
-    .teaser strong { color: #9a3412; }
+    .card-tag {
+        font-family: var(--font-mono);
+        font-size: max(12px, 1.62vh);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--teal);
+        margin-bottom: 0.45vh;
+    }
+    .st-card.coral .card-tag { color: var(--coral-dark); }
+    .st-card.amber .card-tag { color: var(--amber); }
+    .st-card.blue .card-tag { color: var(--blue); }
+    .st-card.emerald .card-tag { color: var(--emerald); }
 
-    .srcslide ul { list-style: none; margin-top: 2.2vh; max-width: 74ch; }
-    .srcslide li { background: var(--surface); border: 1.5px solid var(--border); border-left: 5px solid var(--primary); border-radius: 8px; padding: 1.6vh 1.4vw; margin-bottom: 1.2vh; font-size: max(13px, 2vh); line-height: 1.45; }
-    .srcslide li strong { color: var(--text-heading); }
-    .srcslide li .why { display: block; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.5vh); font-weight: 700; color: var(--text-muted); margin-top: .4vh; }
+    .card-title {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: max(20px, 3.05vh);
+        color: var(--text-heading);
+        line-height: 1.18;
+        margin-bottom: 1.0vh;
+    }
 
-    .footer { position: fixed; left: 6vw; right: 6vw; bottom: 1.4vh; z-index: 5; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: max(11px, 1.6vh); font-weight: 700; letter-spacing: .05em; color: var(--text-muted); text-transform: uppercase; }
-    .footer .brand { color: var(--primary); font-weight: 800; }
-    .hint { position: fixed; right: 1.2vw; top: 1vh; z-index: 6; font-family: 'JetBrains Mono', monospace; font-size: max(10px, 1.4vh); color: var(--text-muted); font-weight: 600; }
+    .st-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.95vh;
+    }
+    .st-list li {
+        font-size: max(16px, 2.38vh);
+        line-height: 1.38;
+        color: var(--text-main);
+        padding-left: 1.25em;
+        position: relative;
+    }
+    .st-list li::before {
+        content: "\25B8";
+        position: absolute;
+        left: 0;
+        color: var(--teal);
+        font-weight: 800;
+    }
+    .st-card.coral .st-list li::before { color: var(--coral-dark); }
+    .st-card.amber .st-list li::before { color: var(--amber); }
+    .st-card.blue .st-list li::before { color: var(--blue); }
+    .st-card.emerald .st-list li::before { color: var(--emerald); }
+
+    /* Outbreak Escalation Strip (Slide 1) */
+    .surge-track {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.7vw;
+    }
+    .surge-day {
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-radius: 9px;
+        padding: 1.1vh 0.6vw;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+    .surge-day .d-lbl {
+        font-family: var(--font-mono);
+        font-size: max(11px, 1.45vh);
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+    .surge-day .d-num {
+        font-family: var(--font-heading);
+        font-size: max(22px, 3.6vh);
+        font-weight: 700;
+        color: var(--text-heading);
+        line-height: 1.1;
+        margin: 0.3vh 0;
+    }
+    .surge-day .d-sub {
+        font-size: max(11px, 1.45vh);
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+    .surge-day.alert {
+        background: var(--coral-bg);
+        border: 2px solid var(--coral-dark);
+    }
+    .surge-day.alert .d-lbl,
+    .surge-day.alert .d-num,
+    .surge-day.alert .d-sub {
+        color: var(--coral-dark);
+    }
+
+    /* Callout Banners */
+    .callout {
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-left: 6px solid var(--teal);
+        border-radius: 9px;
+        padding: 1.5vh 1.3vw;
+        font-size: max(15.5px, 2.28vh);
+        line-height: 1.4;
+        color: var(--text-main);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .callout.coral {
+        background: var(--coral-bg);
+        border-color: var(--coral-border);
+        border-left-color: var(--coral-dark);
+    }
+    .callout.amber {
+        background: var(--amber-bg);
+        border-color: var(--amber-border);
+        border-left-color: var(--amber);
+    }
+    .callout.emerald {
+        background: var(--emerald-bg);
+        border-color: var(--emerald-border);
+        border-left-color: var(--emerald);
+    }
+    .callout.blue {
+        background: var(--blue-bg);
+        border-color: var(--blue-border);
+        border-left-color: var(--blue);
+    }
+    .callout strong { color: var(--text-heading); }
+
+    /* Compact 2x2 Grid for Entry Gates & Reveal */
+    .mini-grid-2x2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5vh 1.1vw;
+        flex: 1;
+    }
+    .gate-tile {
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-card);
+        border-top: 4px solid var(--teal);
+        border-radius: 9px;
+        padding: 1.7vh 1.25vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .gate-tile.g2 { border-top-color: var(--blue); }
+    .gate-tile.g3 { border-top-color: var(--amber); }
+    .gate-tile.g4 { border-top-color: var(--coral-dark); }
+    .gate-tile .gt-head {
+        display: flex;
+        align-items: center;
+        gap: 0.6vw;
+        margin-bottom: 0.65vh;
+    }
+    .gate-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: max(13px, 1.8vh);
+        background: var(--teal);
+        color: #fff;
+        width: 1.7em;
+        height: 1.7em;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .gate-tile.g2 .gate-num { background: var(--blue); }
+    .gate-tile.g3 .gate-num { background: var(--amber); }
+    .gate-tile.g4 .gate-num { background: var(--coral-dark); }
+    .gate-name {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: max(18px, 2.68vh);
+        color: var(--text-heading);
+    }
+    .gate-body {
+        font-size: max(15.5px, 2.25vh);
+        line-height: 1.38;
+        color: var(--text-main);
+    }
+    .gate-ex {
+        font-family: var(--font-mono);
+        font-size: max(11.5px, 1.58vh);
+        font-weight: 800;
+        color: var(--text-muted);
+        margin-top: 0.8vh;
+        padding-top: 0.6vh;
+        border-top: 1px dashed var(--border-card);
+    }
+
+    /* Two-column internal subgrid (Slide 9 Suspect Files) */
+    .duo-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1vw;
+        align-items: stretch;
+    }
+    .duo-cards .st-card {
+        justify-content: flex-start;
+        padding: 1.8vh 1.2vw;
+    }
+    .duo-cards .card-title {
+        font-size: max(18px, 2.75vh);
+    }
+    .duo-cards .st-list li {
+        font-size: max(14.5px, 2.1vh);
+        line-height: 1.35;
+    }
+
+    /* Teacher Stop Gate Banner (Slide 10) */
+    .stop-gate {
+        background: #181f2b;
+        color: #ffffff;
+        border-radius: 10px;
+        padding: 1.5vh 1.4vw;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.2vw;
+        font-family: var(--font-mono);
+        font-size: max(12px, 1.75vh);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        border-left: 6px solid var(--coral);
+    }
+    .stop-gate span.warn { color: #fda4af; }
+
+    /* Footer */
+    .deck-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 5.2vh;
+        background: var(--bg-surface);
+        border-top: 1.5px solid var(--border-card);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 4.2vw;
+        font-family: var(--font-mono);
+        font-size: max(11px, 1.5vh);
+        font-weight: 700;
+        color: var(--text-muted);
+        z-index: 10;
+    }
+    .deck-footer .src-tag strong { color: var(--teal-dark); }
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.8vw;
+    }
+    .nav-btn {
+        background: var(--bg-subtle);
+        border: 1px solid var(--border-card);
+        border-radius: 5px;
+        padding: 0.3vh 0.6vw;
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: max(11px, 1.45vh);
+        color: var(--text-heading);
+        cursor: pointer;
+    }
+    .nav-btn:hover { background: #e2e8f0; }
+
+    /* Fullscreen Lightbox Modal for Zooming Any Slide Image */
+    .lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.92);
+        z-index: 100;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4vh 4vw;
+        cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+        max-width: 92vw;
+        max-height: 84vh;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        background: #ffffff;
+    }
+    .lightbox-cap {
+        margin-top: 1.6vh;
+        color: #f8fafc;
+        font-family: var(--font-mono);
+        font-size: max(13px, 1.8vh);
+        font-weight: 700;
+        text-align: center;
+    }
 </style>
 </head>
 <body>
 
-<!-- SLIDE 1: TITLE -->
-<section class="slide">
-    <div class="kicker">Healthy Living 8 &middot; Germs &amp; Outbreaks &middot; Class 2 of 4</div>
-    <h1>Breaking the Chain</h1>
-    <p class="sub">How pathogens find a way into the human body, how immune memory works, and how to stop a school outbreak in its tracks.</p>
-    <div class="bigfact">Last class, we mapped how germs <strong>travel</strong>. Today, we answer the vital question: <strong>how do they get inside, and how do we break the chain before people get sick?</strong></div>
-    <div class="bigfact" style="border-left-color: var(--accent-warm);">Case Study on deck: <strong>Centennial Junior High</strong>. 400 students. By Friday afternoon, <strong>55 kids are home sick</strong>. You have the floor plan, the timeline, and the symptom data. Your job is to solve it.</div>
-    <p class="sub" style="margin-top:1.8vh;">Pencils ready. Case File 2 Worksheet will be completed alongside today's briefing.</p>
-</section>
-
-<!-- SLIDE 2: ENTRY PORTALS & THE HAND BRIDGE -->
-<section class="slide">
-    <div class="kicker">The Four Entry Gates</div>
-    <h2>Travelling is not enough: germs need a way in</h2>
-    <div class="grid-4">
-        <div class="portal-box">
-            <div class="p-num">1</div>
-            <div class="p-title">The Mouth</div>
-            <div class="p-desc">Ingesting contaminated food or water, chewing on pens, or touching lips after touching shared surfaces.</div>
-            <div class="p-def">FOOD POISONING &bull; NOROVIRUS</div>
-        </div>
-        <div class="portal-box">
-            <div class="p-num">2</div>
-            <div class="p-title">The Nose</div>
-            <div class="p-desc">Inhaling floating respiratory droplets or using fingers to rub the nasal membrane.</div>
-            <div class="p-def">COLD &bull; FLU &bull; COVID-19</div>
-        </div>
-        <div class="portal-box">
-            <div class="p-num">3</div>
-            <div class="p-title">The Eyes</div>
-            <div class="p-desc">Rubbing tired eyes or adjusting contact lenses with unwashed fingers. Thin mucous membrane.</div>
-            <div class="p-def">PINK EYE (CONJUNCTIVITIS)</div>
-        </div>
-        <div class="portal-box">
-            <div class="p-num">4</div>
-            <div class="p-title">Broken Skin</div>
-            <div class="p-desc">Scrapes, cuts, hangnails, or insect bites that breach the physical skin barrier.</div>
-            <div class="p-def">STAPH &bull; TETANUS &bull; LYME</div>
-        </div>
+<!-- TOP BAR -->
+<header class="deck-topbar">
+    <div class="topbar-left">
+        <span class="badge-room">Room 8 &middot; HL8</span>
+        <span class="topbar-unit" id="phaseLabel">Act I &middot; The Outbreak Mystery</span>
     </div>
-    <div class="bigfact" style="margin-top:2.2vh; border-left-color: var(--accent-warm);">
-        <strong>The Hand Bridge:</strong> Your skin is a solid protective fortress. Germs cannot crawl through unbroken skin. But your <strong>hands act as double agents</strong>: they pick up pathogens from surfaces (Route 3) and deliver them directly to your eyes, nose, or mouth.
-    </div>
-    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Infection Prevention and Control Guidelines</div>
-</section>
+    <span class="sheet-pill mystery" id="sheetPill">CASE 55 BRIEFING &middot; PENCILS READY</span>
+</header>
 
-<!-- SLIDE 3: THE CHAIN OF INFECTION -->
-<section class="slide">
-    <div class="kicker">Epidemiology Core Concept</div>
-    <h2>The Chain of Infection: Break any link to stop the disease</h2>
-    <div class="split-layout">
-        <div style="display:flex; flex-direction:column; justify-content:center;">
-            <div class="card" style="margin-top:0;">
-                <div class="name">The 6 Connected Links</div>
-                <div class="sci">an outbreak requires all six</div>
-                <ul>
-                    <li><strong>1. Pathogen:</strong> The bacteria, virus, or parasite.</li>
-                    <li><strong>2. Reservoir:</strong> Where it lives (people, water, cafeteria food).</li>
-                    <li><strong>3. Portal of Exit:</strong> How it escapes (cough, vomit, stool).</li>
-                    <li><strong>4. Transmission Route:</strong> How it travels (airborne, contact, vector).</li>
-                    <li><strong>5. Portal of Entry:</strong> How it enters (mouth, nose, eyes, cuts).</li>
-                    <li><strong>6. Susceptible Host:</strong> A person with no immunity or defense.</li>
+<!-- =======================================================================
+     SLIDE 1: COLD OPEN — THE MYSTERY AT CENTENNIAL JUNIOR HIGH
+     ======================================================================= -->
+<section class="slide active" data-phase="Act I · The Outbreak Mystery" data-pill="🕵️ COLD OPEN · CASE 55 MYSTERY" data-pill-class="mystery" data-src="Simulated Nova Scotia Health School Outbreak Investigation · Case 55">
+    <div class="slide-head">
+        <div class="kicker">Case File 55 &middot; Friday, 3:15 PM &middot; Centennial Junior High</div>
+        <h1>55 Kids Out Sick by Friday. What Hit Centennial Junior High?</h1>
+    </div>
+
+    <div class="main-split">
+        <div class="col-stack">
+            <div class="surge-track">
+                <div class="surge-day">
+                    <div class="d-lbl">Mon</div>
+                    <div class="d-num">3</div>
+                    <div class="d-sub">Gr. 8 West</div>
+                </div>
+                <div class="surge-day">
+                    <div class="d-lbl">Tue</div>
+                    <div class="d-num">7</div>
+                    <div class="d-sub">+ Cafeteria</div>
+                </div>
+                <div class="surge-day">
+                    <div class="d-lbl">Wed</div>
+                    <div class="d-num">18</div>
+                    <div class="d-sub">Hits Gr. 7</div>
+                </div>
+                <div class="surge-day">
+                    <div class="d-lbl">Thu</div>
+                    <div class="d-num">34</div>
+                    <div class="d-sub">All 3 Grades</div>
+                </div>
+                <div class="surge-day alert">
+                    <div class="d-lbl">Fri</div>
+                    <div class="d-num">55</div>
+                    <div class="d-sub">14% of School!</div>
+                </div>
+            </div>
+
+            <div class="st-card coral">
+                <div class="card-tag">Incoming Dispatch &middot; 400 Students Total</div>
+                <div class="card-title">Phones are ringing off the hook in the main office</div>
+                <ul class="st-list">
+                    <li>By Friday afternoon, <strong>nearly 1 in every 7 students</strong> at Centennial Junior High is home sick.</li>
+                    <li>Worried parents are calling clinics asking for <strong>penicillin</strong> (antibiotics).</li>
+                    <li>One classmate in the building is undergoing <strong>cancer treatment</strong> with a weakened immune system.</li>
+                    <li>The principal needs answers and a <strong>Monday Morning Game Plan</strong> before the doors reopen.</li>
                 </ul>
             </div>
-            <div class="bigfact" style="border-left-color: var(--good); margin-top:1.6vh;">
-                <strong>The Golden Rule of Prevention:</strong> You do NOT have to eliminate every germ on Earth. If you snap <strong>just one link</strong>, the spread stops cold.
+
+            <div class="callout amber">
+                <strong>Your Job Today:</strong> First, examine the crime scene clues. Next, build your <strong>Page 1 Outbreak Toolkit</strong> with your desk partner. Then solve <strong>Case 55 solo on Page 2</strong>.
             </div>
         </div>
-        <div class="media-card">
-            <img src="assets/chain_of_infection.jpg" alt="Chain of Infection Diagram">
-            <div class="media-caption">The 6 Links: Breaking any single arrow prevents transmission.</div>
+
+        <div class="visual-frame cover" onclick="openZoom(event, this)">
+            <img src="assets/c2_mystery_hallway_ducks.jpg" alt="Quiet Centennial Junior High locker hallway with miniature resin ducks on locker shelves">
+            <div class="visual-cap"><strong>Centennial Junior High:</strong> Empty lockers by Friday bell, and tiny resin ducks everywhere. (Click image to zoom)</div>
         </div>
     </div>
-    <div class="srcline"><strong>SOURCE:</strong> Centers for Disease Control and Prevention &middot; Health Canada Public Health Principles</div>
 </section>
 
-<!-- SLIDE 4: THE SCIENCE OF SOAP VS SANITIZER -->
-<section class="slide">
-    <div class="kicker">Molecular Weaponry</div>
-    <h2>Why 20 seconds of soap beats a quick squirt of sanitizer</h2>
-    <div class="duo">
-        <div class="card">
-            <div class="name">Soap &amp; Running Water</div>
-            <div class="sci">physical destruction + mechanical rinse</div>
-            <ul>
-                <li><strong>Pin-shaped molecules:</strong> Soap has a water-loving head and a grease-loving (lipid) tail.</li>
-                <li><strong>Prying membranes apart:</strong> The lipid tail wedges into the fatty protective envelope of viruses and bacteria, ripping them open.</li>
-                <li><strong>Friction &amp; Flush:</strong> 20 seconds of scrubbing lifts trapped dirt and rinses germs completely down the drain.</li>
-                <li><strong>Kills norovirus:</strong> Essential for gastrointestinal school outbreaks!</li>
-            </ul>
-        </div>
-        <div class="card warm">
-            <div class="name">Alcohol Hand Sanitizer</div>
-            <div class="sci">useful shortcut with major blindspots</div>
-            <ul>
-                <li><strong>Denatures proteins:</strong> High-proof alcohol (60% to 70%) coagulates bacterial proteins and enveloped viruses (like flu and COVID).</li>
-                <li><strong>Useless on dirty/greasy hands:</strong> Organic grime and food oil shield germs from the alcohol.</li>
-                <li><strong>Fails against Norovirus:</strong> Norovirus has a tough protein capsid without a lipid coat. Sanitizer does NOT reliably kill it.</li>
-                <li><strong>Rule of thumb:</strong> Sanitizer is for clean hands on the go; soap is for real outbreaks and meals.</li>
-            </ul>
-        </div>
+<!-- =======================================================================
+     SLIDE 2: THE CRIME SCENE — FLOOR PLAN & SYMPTOM LOG
+     ======================================================================= -->
+<section class="slide" data-phase="Act I · The Outbreak Mystery" data-pill="🗺️ EVIDENCE BOARD · FLOOR PLAN &amp; SYMPTOMS" data-pill-class="mystery" data-src="Nova Scotia Health &amp; 811 · School Absenteeism &gt;10% Outbreak Triggers">
+    <div class="slide-head">
+        <div class="kicker">Evidence Board &middot; Where &amp; How It Hit</div>
+        <h2>Look at the symptoms and the building map</h2>
     </div>
-    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Canadian Centre for Occupational Health and Safety (CCOHS)</div>
-</section>
 
-<!-- SLIDE 5: VACCINES VS ANTIBIOTICS -->
-<section class="slide">
-    <div class="kicker">Medical Science Distinction</div>
-    <h2>Vaccines vs. Antibiotics: Training vs. Treatment</h2>
-    <div class="split-layout">
-        <div style="display:flex; flex-direction:column; justify-content:center;">
-            <div class="card" style="margin-top:0;">
-                <div class="name">Vaccines (Immune Training)</div>
-                <div class="sci">preventative &bull; works on viruses and bacteria</div>
-                <p style="font-size:max(13px, 2vh); line-height:1.45; margin-top:0.8vh;">
-                    Introduces a harmless antigen (inactivated germ or protein blueprint). Your immune system practices, builds specific <strong>antibodies</strong>, and creates <strong>memory cells</strong>. When the real germ invades months later, your defenses wipe it out before you feel sick.
-                </p>
-            </div>
-            <div class="card warm" style="margin-top:1.6vh;">
-                <div class="name">Antibiotics (Chemical Weapons)</div>
-                <div class="sci">post-infection cure &bull; strictly for bacteria</div>
-                <p style="font-size:max(13px, 2vh); line-height:1.45; margin-top:0.8vh;">
-                    Chemicals (like penicillin) that destroy cell walls or halt protein synthesis in living bacteria. They do <strong>zero damage to viruses</strong> because viruses do not have cellular structures.
-                </p>
-            </div>
-        </div>
-        <div class="media-card">
-            <img src="assets/vaccine_vs_antibiotic.jpg" alt="Vaccine vs Antibiotic Scientific Comparison">
-            <div class="media-caption"><strong>Vaccines</strong> build lasting memory antibodies; <strong>Antibiotics</strong> attack bacterial cells directly.</div>
-        </div>
-    </div>
-    <div class="srcline"><strong>SOURCE:</strong> Immunize Canada &middot; Nova Scotia Department of Health and Wellness</div>
-</section>
-
-<!-- SLIDE 6: COMMUNITY IMMUNITY (HERD IMMUNITY) -->
-<section class="slide">
-    <div class="kicker">Protecting the Vulnerable</div>
-    <h2>Community Immunity: The human firewall</h2>
-    <div class="bigfact">
-        Some students cannot receive certain vaccines due to <strong>chemotherapy, organ transplants, or severe autoimmune disorders</strong>. How do we keep them alive and safe in a 400-student school?
-    </div>
-    <div class="duo" style="margin-top:2vh;">
-        <div class="card">
-            <div class="name">Low Vaccination Rate (&lt; 70%)</div>
-            <div class="sci">easy transmission chains</div>
-            <p style="font-size:max(13px,2.05vh); line-height:1.48; margin-top:1vh;">
-                When fewer people are vaccinated, an infected student easily encounters susceptible peers. The pathogen leaps rapidly through classrooms, inevitably reaching the medically vulnerable student.
-            </p>
-        </div>
-        <div class="card" style="border-top-color: var(--good);">
-            <div class="name">High Community Immunity (&gt; 90%)</div>
-            <div class="sci">dead-end walls for pathogens</div>
-            <p style="font-size:max(13px,2.05vh); line-height:1.48; margin-top:1vh;">
-                When 90% or more of the student body is immune, the virus bumps into dead ends everywhere it turns. The transmission chain dissolves before it can touch the unprotected individual.
-            </p>
-        </div>
-    </div>
-    <div class="bigfact" style="border-left-color: var(--good); margin-top:2vh;">
-        <strong>Measles requires a 95% community threshold</strong> because it is so hyper-infectious (airborne droplets hang for up to 2 hours). Getting vaccinated is both personal protection and civic duty.
-    </div>
-    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Canadian Paediatric Society</div>
-</section>
-
-<!-- SLIDE 7: CASE BRIEFING - CENTENNIAL JUNIOR HIGH OUTBREAK -->
-<section class="slide">
-    <div class="kicker">Case File 2 &middot; Outbreak Investigation</div>
-    <h2>Centennial Junior High: The 55-Student Surge</h2>
-    <div class="bigfact" style="border-left-color: var(--accent-warm);">
-        <strong>The Scenario:</strong> Centennial Junior High houses <strong>400 students</strong> across Grades 7, 8, and 9. It is late October. Over five school days, a sudden illness sweeps the building.
-    </div>
-    <div class="split-layout">
-        <div class="card" style="margin-top:0;">
-            <div class="name">Daily Absence Tracker</div>
-            <div class="sci">confirmed illness call-ins</div>
-            <ul>
-                <li><strong>Monday:</strong> 3 students absent (all Grade 8 West Wing).</li>
-                <li><strong>Tuesday:</strong> 7 students absent (5 West Wing, 2 Cafeteria crew).</li>
-                <li><strong>Wednesday:</strong> 18 students absent (spread into Grade 7 East Wing).</li>
-                <li><strong>Thursday:</strong> 34 students absent (multiple teacher call-ins).</li>
-                <li><strong>Friday:</strong> <strong>55 students absent</strong> (over 13% of the entire school population).</li>
-            </ul>
-        </div>
-        <div class="card warm" style="margin-top:0;">
-            <div class="name">Primary Symptoms Logged by Office</div>
-            <div class="sci">nurse clinic & parent reports</div>
-            <ul>
-                <li><strong>88% report:</strong> Sudden nausea, severe vomiting, watery diarrhea, and abdominal cramping.</li>
-                <li><strong>45% report:</strong> Low-grade fever and mild headache.</li>
-                <li><strong>Under 5% report:</strong> Cough, congestion, or sore throat.</li>
-                <li><strong>Duration:</strong> Violent symptoms last 24 to 48 hours, followed by extreme fatigue.</li>
-            </ul>
-        </div>
-    </div>
-    <div class="srcline"><strong>SOURCE:</strong> Outbreak simulation based on standard NS Health School GI Outbreak protocols</div>
-</section>
-
-<!-- SLIDE 8: EPIDEMIOLOGICAL MAP & CURVE -->
-<section class="slide">
-    <div class="kicker">Data Visualizer</div>
-    <h2>Epidemic Curve &amp; Building Floor Plan</h2>
-    <div class="split-layout">
-        <div style="display:flex; flex-direction:column; justify-content:center;">
-            <div class="card" style="margin-top:0;">
-                <div class="name">Investigation Hotspots</div>
-                <div class="sci">where sick students crossed paths</div>
-                <ul>
-                    <li><strong>West Wing (Grade 8):</strong> 18 absences. Ground zero.</li>
-                    <li><strong>East Wing (Grade 7) &amp; North Wing (Grade 9):</strong> 20 absences (heavy resin-duck trading crowd).</li>
-                    <li><strong>Common Areas:</strong> Cafeteria lunch line &amp; shared Computer Lab.</li>
+    <div class="main-split wide-img">
+        <div class="col-stack">
+            <div class="st-card coral">
+                <div class="card-tag">Office Call-In Log &middot; What Parents Reported</div>
+                <div class="card-title">Symptom Profile (55 Sick Students)</div>
+                <ul class="st-list">
+                    <li><strong>88% report:</strong> Sudden stomach cramps, vomiting, and watery diarrhea.</li>
+                    <li><strong>45% report:</strong> Mild, low-grade fever and headache.</li>
+                    <li><strong>Under 5% report:</strong> Cough, sore throat, or stuffy nose.</li>
+                    <li><strong>Recovery clock:</strong> Most start feeling better after <strong>24 to 48 hours</strong>.</li>
                 </ul>
             </div>
-            <div class="bigfact" style="border-left-color: var(--accent-warm); margin-top:1.6vh;">
-                <strong>Two Key Clues:</strong> (1) On Wednesday afternoon, a student threw up near the Grade 8 fountain and it was mopped with plain floor soap. (2) Students across all three grades have been trading <strong>small resin ducks</strong> hand-to-hand at lockers and right before eating lunch!
+
+            <div class="st-card">
+                <div class="card-tag">Hotspot Trace &middot; Crossing Paths</div>
+                <div class="card-title">Where Sick Students Clustered</div>
+                <ul class="st-list">
+                    <li><strong>Grade 8 West Wing (18 cases):</strong> Ground zero on Monday morning.</li>
+                    <li><strong>Grade 7 East (12) &amp; Grade 9 North (8):</strong> Separate wings, yet hit hard by Wednesday!</li>
+                    <li><strong>Shared Zones:</strong> Cafeteria lunch line (<strong>9</strong>) &amp; Computer Lab (<strong>5</strong>).</li>
+                </ul>
             </div>
         </div>
-        <div class="media-card">
-            <img src="assets/school_outbreak_map.jpg" alt="Centennial Junior High Outbreak Map and Epidemic Curve">
-            <div class="media-caption">Centennial Junior High Floor Plan &bull; 5-Day Epidemic Curve (3 &rarr; 7 &rarr; 18 &rarr; 34 &rarr; 55)</div>
+
+        <div class="visual-frame contain" onclick="openZoom(event, this)">
+            <img src="assets/school_outbreak_map.jpg" alt="Centennial Junior High Floor Plan and 5-Day Epidemic Curve">
+            <div class="visual-cap"><strong>Floor Plan &amp; 5-Day Surge:</strong> Notice how separate grade wings still got hit fast. (Click to zoom)</div>
         </div>
     </div>
-    <div class="srcline"><strong>SOURCE:</strong> Simulated Public Health Case Analysis &middot; Nova Scotia Health / 811</div>
 </section>
 
-<!-- SLIDE 9: ANALYZING THE EVIDENCE -->
-<section class="slide">
-    <div class="kicker">Deduction Time</div>
-    <h2>Who is the culprit? Bacteria or virus?</h2>
-    <div class="duo">
-        <div class="card">
-            <div class="name">Candidate A: Influenza Virus</div>
-            <div class="sci">respiratory transmission</div>
-            <ul>
-                <li>Causes high fever, dry cough, body chills, sore throat.</li>
-                <li>Incubation period: 1 to 4 days.</li>
-                <li>Spreads primarily through airborne droplets when coughing.</li>
-                <li><em>Does this match the 88% vomiting and zero cough data?</em></li>
-            </ul>
+<!-- =======================================================================
+     SLIDE 3: THE TWO STRANGE CLUES — HALLWAY SPILL & RESIN DUCKS
+     ======================================================================= -->
+<section class="slide" data-phase="Act I · The Outbreak Mystery" data-pill="🦆 TWO KEY CLUES · HOLD THESE IN MIND" data-pill-class="mystery" data-src="Public Health Agency of Canada · Environmental Surface Survival of Pathogens">
+    <div class="slide-head">
+        <div class="kicker">Detective Interviews &middot; What Happened Wednesday?</div>
+        <h2>Two clues explain how this germ jumped across all three grades</h2>
+    </div>
+
+    <div class="main-split img-left">
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_clue_fountain_ducks.jpg" alt="Split illustration: hallway drinking fountain mopped with plain water and students trading tiny resin ducks before lunch">
+            <div class="visual-cap"><strong>Left:</strong> Wednesday's hallway fountain cleanup &middot; <strong>Right:</strong> Centennial's locker duck-trading craze</div>
         </div>
-        <div class="card warm">
-            <div class="name">Candidate B: Norovirus (GI Bug)</div>
-            <div class="sci">fecal-oral & surface contact</div>
-            <ul>
-                <li>Causes explosive vomiting, watery diarrhea, stomach cramps.</li>
-                <li>Incubation period: 12 to 24 hours (rapid doubling rate).</li>
-                <li>Spreads via aerosolized vomit particles and lingering surface contamination.</li>
-                <li><strong>Extremely contagious:</strong> As few as 18 virus particles can infect a healthy person.</li>
-            </ul>
+
+        <div class="col-stack">
+            <div class="st-card amber">
+                <div class="card-tag">Clue #1 &middot; Wednesday Afternoon, West Wing</div>
+                <div class="card-title">The Water Fountain Spill</div>
+                <ul class="st-list">
+                    <li>A student suddenly threw up near the <strong>Grade 8 hallway drinking fountain</strong>.</li>
+                    <li>Throwing up launches <strong>microscopic droplets</strong> into the air and onto nearby taps and tiles.</li>
+                    <li>It was mopped up fast using <strong>plain warm water and regular floor soap</strong>, not bleach.</li>
+                </ul>
+            </div>
+
+            <div class="st-card coral">
+                <div class="card-tag">Clue #2 &middot; All Week at Lockers</div>
+                <div class="card-title">The Resin Duck Trading Craze</div>
+                <ul class="st-list">
+                    <li>Students across <strong>Grades 7, 8, and 9</strong> have been trading tiny plastic <strong>resin ducks</strong> hand-to-hand all day.</li>
+                    <li>Most trades happen at lockers <strong>right before walking into the cafeteria to eat lunch</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="callout">
+                <strong>Hold onto both clues!</strong> To prove what happened on Page 2, let's unlock the science on <strong>Page 1</strong> first (you may work with your desk partner on Page 1).
+            </div>
         </div>
     </div>
-    <div class="bigfact" style="border-left-color: var(--primary); margin-top:2vh;">
-        <strong>Verdict:</strong> This is classic <strong>Norovirus</strong> (a viral gastroenteritis outbreak). Prescribing penicillin to these 55 students would be completely useless and cause stomach upset.
-    </div>
-    <div class="srcline"><strong>SOURCE:</strong> Public Health Agency of Canada &middot; Norovirus Fact Sheet</div>
 </section>
 
-<!-- SLIDE 10: BREAKING THE LINKS - THE 4 TRIAGE ACTIONS -->
-<section class="slide">
-    <div class="kicker">The Response Protocol</div>
-    <h2>How to break the chain before Monday morning</h2>
-    <div class="grid-4">
-        <div class="portal-box" style="border-top: 4px solid var(--accent-warm);">
-            <div class="p-num" style="background:var(--accent-warm);">1</div>
-            <div class="p-title">The 48-Hour Rule</div>
-            <div class="p-desc">Sick students and staff must stay home until <strong>48 full hours after the last episode of vomiting or diarrhea</strong>. Norovirus sheds heavily even after you feel better.</div>
-            <div class="p-def">BREAKS LINK 2: RESERVOIR</div>
+<!-- =======================================================================
+     SLIDE 4: TOOL 1 — THE 4 ENTRY GATES (SUPPORTS PAGE 1, PART A TABLE)
+     ======================================================================= -->
+<section class="slide" data-phase="Act II · Outbreak Toolkit (Page 1)" data-pill="📄 PAGE 1 · PART A TABLE (PARTNERS OK)" data-pill-class="" data-src="Public Health Agency of Canada · Infection Prevention &amp; Control">
+    <div class="slide-head">
+        <div class="kicker teal">Toolkit 1 &middot; How Germs Get Inside</div>
+        <h2>Travelling isn't enough: germs need a doorway into the body</h2>
+    </div>
+
+    <div class="main-split">
+        <div class="col-stack">
+            <div class="mini-grid-2x2">
+                <div class="gate-tile">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">1</span><span class="gate-name">Mouth</span></div>
+                        <div class="gate-body">Swallowing germs on food, water, snacks, chewed pens, or unwashed fingers.</div>
+                    </div>
+                    <div class="gate-ex">STOMACH VIRUSES &bull; FOOD POISONING</div>
+                </div>
+                <div class="gate-tile g2">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">2</span><span class="gate-name">Nose</span></div>
+                        <div class="gate-body">Breathing in tiny droplets floating in the air after someone coughs or sneezes nearby.</div>
+                    </div>
+                    <div class="gate-ex">FLU &bull; COLDS &bull; COVID-19 (VIRUSES)</div>
+                </div>
+                <div class="gate-tile g3">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">3</span><span class="gate-name">Eyes</span></div>
+                        <div class="gate-body">Rubbing tired or itchy eyes with fingers that just touched shared keyboards or desks.</div>
+                    </div>
+                    <div class="gate-ex">PINK EYE &bull; COLD VIRUSES</div>
+                </div>
+                <div class="gate-tile g4">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">4</span><span class="gate-name">Cuts or Scrapes</span></div>
+                        <div class="gate-body">Open skin scrapes, cuts, hangnails, or bug bites let germs slip past your skin barrier.</div>
+                    </div>
+                    <div class="gate-ex">SKIN BACTERIA (STAPH / STREP)</div>
+                </div>
+            </div>
+
+            <div class="callout blue">
+                <strong>Class 1 Refresher for Column 3:</strong> <strong>Viruses</strong> (tiny genetic shells) cause colds, flu, COVID, and stomach bugs. <strong>Bacteria</strong> (living single cells) cause strep throat, food poisoning, and infected floor-burn scrapes!
+            </div>
         </div>
-        <div class="portal-box" style="border-top: 4px solid var(--primary);">
-            <div class="p-num">2</div>
-            <div class="p-title">Hospital-Grade Bleach</div>
-            <div class="p-desc">Custodial staff wipe down doorknobs, desks, keyboards, and water taps with <strong>chlorine bleach solution</strong> (1:50 dilution). Alcohol wipes will not kill norovirus.</div>
-            <div class="p-def">BREAKS LINK 4: TRANSMISSION</div>
-        </div>
-        <div class="portal-box" style="border-top: 4px solid var(--good);">
-            <div class="p-num" style="background:var(--good);">3</div>
-            <div class="p-title">Soap Wash &amp; Duck Pause</div>
-            <div class="p-desc">Pause hand-to-hand resin duck trading during the outbreak, wash existing ducks, and require 20-second soap handwashing before eating in the cafeteria.</div>
-            <div class="p-def">STOPS HAND-TO-MOUTH SPREAD</div>
-        </div>
-        <div class="portal-box" style="border-top: 4px solid #475569;">
-            <div class="p-num" style="background:#475569;">4</div>
-            <div class="p-title">Public Health Notice</div>
-            <div class="p-desc">Clear communication sent to all 400 homes detailing hydration, oral electrolyte signs, and when to call 811 rather than flooding the ER.</div>
-            <div class="p-def">BREAKS LINK 6: HOST CARE</div>
+
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_four_entry_gates.jpg" alt="Four-panel illustration showing germs entering via mouth, nose, eyes, and open knee scrape">
+            <div class="visual-cap"><strong>The 4 Entry Doorways:</strong> Match each everyday school moment in Part A to its doorway &amp; germ type.</div>
         </div>
     </div>
-    <div class="srcline"><strong>SOURCE:</strong> Nova Scotia Health &middot; Communicable Disease Control Manual</div>
 </section>
 
-<!-- SLIDE 11: SOURCES LIST -->
-<section class="slide srcslide">
-    <div class="kicker">Where This Information Comes From</div>
-    <h2>The sources list</h2>
-    <ul>
-        <li><strong>Public Health Agency of Canada (canada.ca)</strong>: Norovirus prevention, hand hygiene evidence, and outbreak response guidelines.
-            <span class="why">the official federal guidance on school gastrointestinal outbreaks</span></li>
-        <li><strong>Nova Scotia Health &amp; 811</strong>: Communicable disease reporting thresholds and school quarantine guidelines.
-            <span class="why">provincial protocols for schools reporting &gt;10% absenteeism</span></li>
-        <li><strong>Immunize Canada (immunize.ca)</strong>: Vaccine mechanism, antibody memory formation, and community immunity thresholds.
-            <span class="why">evidence-based national coalition for immunization education</span></li>
-        <li><strong>From the Ground Up: Health Resource 8, Theme 2</strong>: Communicable disease prevention in adolescent school environments.
-            <span class="why">Nova Scotia Department of Education Grade 8 health curriculum reference text</span></li>
-    </ul>
-    <p class="sub" style="margin-top:1.6vh;">Every question on today's Case File 2 Worksheet is backed by verified public health data.</p>
-</section>
-
-<!-- SLIDE 12: TEASER FOR CLASS 3 -->
-<section class="slide">
-    <div class="kicker">Coming Next Class</div>
-    <h2>Class 3: The Superbug Threat</h2>
-    <div class="bigfact">
-        In 1945, when accepting his Nobel Prize, Alexander Fleming gave a chilling warning: <strong>"The time may come when penicillin can be bought by anyone in the shops. Then the ignorant man may easily underdose himself and by exposing his microbes to non-lethal quantities of the drug, make them resistant."</strong>
+<!-- =======================================================================
+     SLIDE 5: TOOL 2 — HANDS AS DOUBLE AGENTS (SUPPORTS PAGE 1, PART A #5)
+     ======================================================================= -->
+<section class="slide" data-phase="Act II · Outbreak Toolkit (Page 1)" data-pill="📄 PAGE 1 · PART A #5 (PARTNERS OK)" data-pill-class="" data-src="Public Health Agency of Canada · Hand Hygiene Guidelines">
+    <div class="slide-head">
+        <div class="kicker teal">Toolkit 2 &middot; The Skin Paradox</div>
+        <h2>If germs can't soak through skin, how do hands make us sick?</h2>
     </div>
-    <div class="teaser">
-        <strong>Next class:</strong> When medicines stop working. We investigate <strong>MRSA</strong> and antibiotic-resistant superbugs: how bacteria trade defensive genes like Pokémon cards, why farm animals get fed antibiotics, and why hospitals are racing against the clock.
+
+    <div class="main-split img-left">
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_hands_double_agent.jpg" alt="Unbroken skin blocking germs like a brick wall while fingertips pick up microbes from surfaces and carry them to food">
+            <div class="visual-cap"><strong>Unbroken Skin = Locked Wall</strong> &middot; <strong>Fingertips = Delivery Bridge</strong></div>
+        </div>
+
+        <div class="col-stack">
+            <div class="st-card emerald">
+                <div class="card-tag">Fact 1 &middot; Your Built-In Armor</div>
+                <div class="card-title">Healthy, Unbroken Skin Blocks Germs</div>
+                <ul class="st-list">
+                    <li>Unbroken skin on your palms and fingers is waterproof, tightly packed armor.</li>
+                    <li>Viruses and bacteria sitting on your palm <strong>cannot soak through healthy skin</strong> into your blood.</li>
+                </ul>
+            </div>
+
+            <div class="st-card coral">
+                <div class="card-tag">Fact 2 &middot; Why Unwashed Hands Still Spread Outbreaks</div>
+                <div class="card-title">Think Through the Journey for Question #5</div>
+                <ul class="st-list">
+                    <li>Teenagers touch shared surfaces (door handles, keyboards, taps, traded items) dozens of times an hour.</li>
+                    <li>And the average person touches their <strong>eyes, nose, mouth, or food over 20 times an hour</strong> without noticing!</li>
+                </ul>
+            </div>
+
+            <div class="callout amber">
+                <strong>On Page 1, Question #5:</strong> Put those two pieces together in your own words to explain the <strong>two steps</strong> of how hands get germs inside your body.
+            </div>
+        </div>
     </div>
-    <p class="sub" style="margin-top:2vh;">Complete your Case File 2 Worksheet today. Study Sheet 2 goes home tonight.</p>
 </section>
 
-<div class="hint">&larr; &rarr; to move &middot; F for fullscreen</div>
-<div class="footer">
-    <span>HL8 &middot; <span class="brand">Germs &amp; Outbreaks</span> &middot; Class 2 of 4</span>
-    <span>Breaking the Chain &middot; The School Outbreak &middot; Sources Cited</span>
-    <span id="ctr">01 / 12</span>
+<!-- =======================================================================
+     SLIDE 6: TOOL 3 — SOAP VS. HAND SANITIZER (SUPPORTS PAGE 1, PART B #6)
+     ======================================================================= -->
+<section class="slide" data-phase="Act II · Outbreak Toolkit (Page 1)" data-pill="📄 PAGE 1 · PART B #6 (PARTNERS OK)" data-pill-class="" data-src="Public Health Agency of Canada &amp; CCOHS · Soap vs. Alcohol Sanitizer on Norovirus">
+    <div class="slide-head">
+        <div class="kicker teal">Toolkit 3 &middot; Choosing the Right Weapon</div>
+        <h2>Why stomach viruses laugh at hand sanitizer (and lose to soap)</h2>
+    </div>
+
+    <div class="main-split">
+        <div class="col-stack">
+            <div class="st-card emerald">
+                <div class="card-tag">20 Seconds at the Sink</div>
+                <div class="card-title">Warm Water + Soap</div>
+                <ul class="st-list">
+                    <li><strong>Lifts grease &amp; grime:</strong> Soap molecules pry oil, dirt, and trapped microbes loose from skin creases.</li>
+                    <li><strong>Rinses them away:</strong> Rubbing for 20 seconds under running water physically washes tough virus shells <strong>straight down the drain</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="st-card coral">
+                <div class="card-tag">Convenient Backup &middot; Big Blind Spot</div>
+                <div class="card-title">Alcohol Hand Sanitizer (60% to 70%)</div>
+                <ul class="st-list">
+                    <li>Works well on <strong>flu and COVID viruses</strong> (which have a soft, fatty outer coat that alcohol dissolves) when hands look clean.</li>
+                    <li><strong>Blocked by dirt &amp; food oil:</strong> Greasy fingers shield germs from alcohol.</li>
+                    <li><strong>Fails on Norovirus:</strong> Stomach viruses have a <strong>rock-hard protein shell</strong> with no fatty coat, so alcohol gel leaves them alive on your fingers!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_soap_vs_sanitizer.jpg" alt="Comparison showing soap and running water washing spiky stomach viruses down the drain while alcohol gel bounces off their tough shell">
+            <div class="visual-cap"><strong>Soap + Water</strong> flushes tough stomach viruses down the drain; <strong>alcohol gel</strong> leaves them behind.</div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 7: TOOL 4 — VACCINES VS. ANTIBIOTICS (SUPPORTS PAGE 1, PART B CHART)
+     ======================================================================= -->
+<section class="slide" data-phase="Act II · Outbreak Toolkit (Page 1)" data-pill="📄 PAGE 1 · PART B CHART (PARTNERS OK)" data-pill-class="" data-src="Immunize Canada &amp; Nova Scotia Health · Immunization vs. Antimicrobial Treatment">
+    <div class="slide-head">
+        <div class="kicker blue">Toolkit 4 &middot; Two Totally Different Tools</div>
+        <h2>Vaccines train your defenses early; antibiotics fight bacteria after</h2>
+    </div>
+
+    <div class="main-split img-left">
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_vaccine_vs_antibiotic_clean.jpg" alt="Left: Vaccine training white blood cells to make Y-shaped antibodies. Right: Antibiotic cracking open a bacterium while a virus is unaffected.">
+            <div class="visual-cap"><strong>Left:</strong> Immune training ahead of time &middot; <strong>Right:</strong> Medicine that breaks bacterial cells only</div>
+        </div>
+
+        <div class="col-stack">
+            <div class="st-card blue">
+                <div class="card-tag">Shots / Immunization &middot; BEFORE You Get Sick</div>
+                <div class="card-title">Vaccines (Immune System Training)</div>
+                <ul class="st-list">
+                    <li>Shows your body a <strong>harmless germ piece or blueprint</strong> so white blood cells build <strong>antibodies and memory cells</strong> ahead of time.</li>
+                    <li>Can protect against specific <strong>viruses OR bacteria</strong> (measles, flu, HPV, tetanus).</li>
+                    <li>High vaccination rates build <strong>community immunity</strong> around vulnerable people.</li>
+                </ul>
+            </div>
+
+            <div class="st-card amber">
+                <div class="card-tag">Prescription Medicine &middot; AFTER Bacterial Infection</div>
+                <div class="card-title">Antibiotics (e.g., Penicillin)</div>
+                <ul class="st-list">
+                    <li>Medicine that kills <strong>living bacteria</strong> or stops them from multiplying (like strep throat or an infected cut).</li>
+                    <li>Fights <strong>BACTERIA ONLY</strong>: viruses have no cell wall or machinery for antibiotics to attack, so it does <strong>nothing at all to viruses</strong>.</li>
+                    <li>Overusing or misusing antibiotics trains surviving bacteria into <strong>resistant superbugs</strong>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 8: TOOL 5 — THE HUMAN FIREWALL (COMMUNITY PROTECTION)
+     ======================================================================= -->
+<section class="slide" data-phase="Act II · Outbreak Toolkit (Page 1)" data-pill="📄 PART B ROW 4 &amp; PAGE 2 #3B" data-pill-class="" data-src="Canadian Paediatric Society &amp; Public Health Agency of Canada">
+    <div class="slide-head">
+        <div class="kicker emerald">Toolkit 5 &middot; Protecting Classmates Who Can't Fight Alone</div>
+        <h2>How 399 classmates become a shield for the 1 who needs it most</h2>
+    </div>
+
+    <div class="main-split">
+        <div class="col-stack">
+            <div class="st-card emerald">
+                <div class="card-tag">For Vaccine-Preventable Diseases (e.g., Measles)</div>
+                <div class="card-title">Community Immunity ("The Human Firewall")</div>
+                <ul class="st-list">
+                    <li>Students in <strong>cancer treatment (chemotherapy)</strong>, organ transplant care, or with immune conditions often cannot get certain shots, and their bodies struggle to fight infections.</li>
+                    <li>When <strong>90% to 95%</strong> of the school is immunized, germs hit dead ends everywhere before reaching that classmate.</li>
+                </ul>
+            </div>
+
+            <div class="st-card">
+                <div class="card-tag">When There Is NO Vaccine Yet (Like Stomach Viruses!)</div>
+                <div class="card-title">Everyday Habits Become the Shield</div>
+                <ul class="st-list">
+                    <li>There is no routine shot for common school stomach bugs, so <strong>our daily choices</strong> are the only firewall that classmate has.</li>
+                    <li>Staying home until you are <strong>completely past your contagious window</strong> and scrubbing hands with real soap keeps dangerous germs out of their classroom!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_community_shield.jpg" alt="Circle of junior high students holding glowing teal shields protecting a classmate in the center">
+            <div class="visual-cap"><strong>Protecting Vulnerable Peers:</strong> Immunizations + staying home when contagious block the chain.</div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 9: SUSPECT LINEUP — FLU VS. NOROVIRUS (FOR PAGE 2 SOLO DEDUCTION)
+     ======================================================================= -->
+<section class="slide" data-phase="Act III · Suspect Files (For Page 2)" data-pill="🔬 COMPARE BOTH SUSPECTS · NO SPOILERS" data-pill-class="solo" data-src="Public Health Agency of Canada · Influenza &amp; Norovirus Fact Sheets">
+    <div class="slide-head">
+        <div class="kicker">Forensic Lab &middot; Two Viral Suspects</div>
+        <h2>Compare the two suspect files before you solve Case 55 solo</h2>
+    </div>
+
+    <div class="main-split img-left">
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_suspect_flu_vs_noro.jpg" alt="Left: Influenza respiratory virus in lungs. Right: Armored Norovirus stomach virus with magnifying glass on resin duck and clock.">
+            <div class="visual-cap"><strong>Suspect A:</strong> Lung &amp; airway virus &middot; <strong>Suspect B:</strong> Armored stomach &amp; surface virus</div>
+        </div>
+
+        <div class="duo-cards">
+            <div class="st-card blue">
+                <div class="card-tag">Suspect File A</div>
+                <div class="card-title">Influenza (The Flu)</div>
+                <ul class="st-list">
+                    <li><strong>Type:</strong> Respiratory <strong>virus</strong> (lungs &amp; throat).</li>
+                    <li><strong>Main symptoms:</strong> High fever, dry cough, sore throat, body aches, stuffy nose.</li>
+                    <li><strong>How long it lasts:</strong> Usually <strong>5 to 7 days</strong>.</li>
+                    <li><strong>How it spreads:</strong> Breathing droplets from coughs &amp; sneezes.</li>
+                    <li><strong>Surface weakness:</strong> Fragile outer coat; killed easily by regular soap or alcohol sanitizer.</li>
+                </ul>
+            </div>
+
+            <div class="st-card coral">
+                <div class="card-tag">Suspect File B</div>
+                <div class="card-title">Norovirus (Stomach Bug)</div>
+                <ul class="st-list">
+                    <li><strong>Type:</strong> Gastrointestinal <strong>virus</strong> (stomach &amp; gut).</li>
+                    <li><strong>Main symptoms:</strong> Sudden cramps, vomiting, watery diarrhea; rare cough; lasts <strong>24 to 48 hrs</strong>.</li>
+                    <li><strong>Tiny dose:</strong> Just <strong>18 virus particles</strong> can infect you! Survives days on hard plastic &amp; taps.</li>
+                    <li><strong>48-Hour Shedding:</strong> People still spread it for <strong>48 full hours AFTER</strong> vomiting/diarrhea stops.</li>
+                    <li><strong>Cleanup:</strong> Survives plain floor soap &amp; alcohol gel; surfaces need <strong>bleach disinfectant</strong>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 10: SOLO WORK LAUNCH & TEACHER PAUSE GATE (PAGE 2)
+     ======================================================================= -->
+<section class="slide" data-phase="Act III · Solo Investigation (Page 2)" data-pill="✍️ PAGE 2 · SOLO WORK IN PROGRESS" data-pill-class="solo" data-src="Centennial Junior High Case 55 · Solo Assessment Gate">
+    <div class="slide-head">
+        <div class="kicker">Your Turn, Detective &middot; Voices Off for Page 2</div>
+        <h2>Solve Case 55 on Page 2 (On Your Own)</h2>
+    </div>
+
+    <div class="main-split wide-img">
+        <div class="col-stack">
+            <div class="st-card amber">
+                <div class="card-tag">Check Your Worksheet Packet</div>
+                <div class="card-title">Step-by-Step Checklist</div>
+                <ul class="st-list">
+                    <li><strong>Page 1 (Parts A &amp; B):</strong> Finish all table boxes and Questions #5 &amp; #6 in your own words.</li>
+                    <li><strong>Page 2, Part C (#1 to #3):</strong> Work <strong>solo</strong>! Name the culprit virus with <strong>two data clues</strong>, explain <strong>both</strong> the fountain spill &amp; resin ducks, and answer <strong>3(a)</strong> &amp; <strong>3(b)</strong>.</li>
+                    <li><strong>Page 2, Part D (Monday Game Plan):</strong> Write what people must do AND why it works for all 3 rules.</li>
+                    <li><strong>Bonus (+1 pt):</strong> Two-word nickname outbreak detectives give the <em>very first person</em> who brings an illness into a group!</li>
+                </ul>
+            </div>
+
+            <div class="stop-gate">
+                <span>&#9208; TEACHER GATE: KEEP THIS SLIDE UP DURING SOLO WORK</span>
+                <span class="warn">NEXT SLIDE REVEALS ANSWERS &rarr;</span>
+            </div>
+        </div>
+
+        <div class="visual-frame contain" onclick="openZoom(event, this)">
+            <img src="assets/school_outbreak_map.jpg" alt="Centennial Junior High Floor Plan and Epidemic Curve Reference">
+            <div class="visual-cap"><strong>Live Case Map:</strong> Use the floor plan, absence curve, and Page 2 clue box for your answers.</div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 11: POST-COLLECTION DEBRIEF — CASE 55 SOLVED!
+     ======================================================================= -->
+<section class="slide" data-phase="Act IV · Post-Collection Debrief" data-pill="🔓 DEBRIEF · AFTER SHEETS ARE HANDED IN" data-pill-class="reveal" data-src="Nova Scotia Health Communicable Disease Control Manual · GI Outbreak Protocol">
+    <div class="slide-head">
+        <div class="kicker emerald">Case 55 Closed &middot; Post-Collection Debrief</div>
+        <h2>The Verdict: Norovirus &amp; Centennial's Monday Game Plan</h2>
+    </div>
+
+    <div class="main-split">
+        <div class="col-stack">
+            <div class="mini-grid-2x2">
+                <div class="gate-tile g4">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">!</span><span class="gate-name">Culprit: Norovirus</span></div>
+                        <div class="gate-body">88% vomiting/diarrhea (&lt;5% cough) + rapid 24 to 48 hr recovery + 3-to-55 jump. Penicillin fails because it's a <strong>virus</strong>!</div>
+                    </div>
+                    <div class="gate-ex">BONUS: "PATIENT ZERO" (INDEX CASE)</div>
+                </div>
+                <div class="gate-tile g3">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">1</span><span class="gate-name">48-Hour Stay-Home Rule</span></div>
+                        <div class="gate-body">Stay home <strong>48 full hours after</strong> symptoms stop because recovering kids still shed active virus!</div>
+                    </div>
+                    <div class="gate-ex">PROTECTS CLASSMATE IN CANCER CARE</div>
+                </div>
+                <div class="gate-tile g2">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">2</span><span class="gate-name">Bleach on Surfaces</span></div>
+                        <div class="gate-body">Wednesday's plain soap mop left live virus by the fountain! Custodians disinfect taps, desks &amp; handles with <strong>bleach</strong>.</div>
+                    </div>
+                    <div class="gate-ex">DESTROYS TOUGH PROTEIN SHELLS</div>
+                </div>
+                <div class="gate-tile">
+                    <div>
+                        <div class="gt-head"><span class="gate-num">3</span><span class="gate-name">Duck Pause + 20s Soap</span></div>
+                        <div class="gate-body">Resin ducks acted as <strong>contaminated objects</strong> (not living bug vectors!) carrying virus pocket-to-hand right before lunch.</div>
+                    </div>
+                    <div class="gate-ex">SOAP + WATER WASHES HANDS CLEAN</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-frame" onclick="openZoom(event, this)">
+            <img src="assets/c2_monday_bleach_clean.jpg" alt="Custodian disinfecting school water fountains with bleach while students wash hands with soap and pause resin duck trading">
+            <div class="visual-cap"><strong>Monday Morning Reset:</strong> Bleach disinfection + 48-hour stay-home + 20s soap wash stops the surge.</div>
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================================
+     SLIDE 12: VERIFIED SOURCES & CLASS 3 TEASER (THE SUPERBUG THREAT)
+     ======================================================================= -->
+<section class="slide" data-phase="Act IV · Sources &amp; Next Class" data-pill="📚 SOURCES CITED &amp; CLASS 3 PREVIEW" data-pill-class="reveal" data-src="Nobel Prize Lecture (Alexander Fleming, Dec 11, 1945) &amp; PHAC">
+    <div class="slide-head">
+        <div class="kicker">Check Our Receipts &middot; And What Comes Next</div>
+        <h2>Next Class: What happens when antibiotics stop working?</h2>
+    </div>
+
+    <div class="main-split img-left">
+        <div class="visual-frame contain" onclick="openZoom(event, this)">
+            <img src="assets/fleming_1928_penicillin.jpg" alt="Alexander Fleming 1928 Discovery of Penicillin agar plate showing clear zone of bacterial inhibition">
+            <div class="visual-cap"><strong>1928 Miracle, 1945 Warning:</strong> Fleming predicted superbugs the day he won the Nobel Prize.</div>
+        </div>
+
+        <div class="col-stack">
+            <div class="st-card coral">
+                <div class="card-tag">Coming in Class 3 &middot; The Superbug Threat</div>
+                <div class="card-title">Fleming's Warning Came True</div>
+                <ul class="st-list">
+                    <li>In 1945, penicillin inventor Alexander Fleming warned that misusing antibiotics would train surviving bacteria to fight back.</li>
+                    <li>Next class: how <strong>MRSA and superbugs</strong> swap defense genes like trading cards, and how doctors fight back.</li>
+                </ul>
+            </div>
+
+            <div class="st-card">
+                <div class="card-tag">Today's Verified Public Health Sources</div>
+                <div class="card-title">Every Fact Backed by Evidence</div>
+                <ul class="st-list">
+                    <li><strong>Public Health Agency of Canada (canada.ca):</strong> Norovirus &amp; handwashing science.</li>
+                    <li><strong>Nova Scotia Health &amp; 811:</strong> School GI outbreak &amp; 48-hour exclusion rules.</li>
+                    <li><strong>Immunize Canada &amp; From the Ground Up (Gr. 8 Health):</strong> Vaccines &amp; community protection.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="deck-footer">
+    <span class="src-tag"><strong>SOURCE:</strong> <span id="srcLine">Simulated Nova Scotia Health School Outbreak Investigation &middot; Case 55</span></span>
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="stepSlide(-1, event)" title="Previous Slide">&larr; Prev</button>
+        <span id="ctr">01 / 12</span>
+        <button class="nav-btn" onclick="stepSlide(1, event)" title="Next Slide">Next &rarr;</button>
+        <button class="nav-btn" onclick="toggleFS(event)" title="Fullscreen (F)">&#x26F6; Fullscreen</button>
+    </div>
+</footer>
+
+<!-- IMAGE LIGHTBOX MODAL -->
+<div class="lightbox" id="lightbox" onclick="closeZoom(event)">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-cap" id="lightboxCap"></div>
 </div>
 
 <script>
     var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
     var i = 0;
+
     function show(n) {
         i = Math.max(0, Math.min(slides.length - 1, n));
         slides.forEach(function(s, k) { s.classList.toggle('active', k === i); });
+
+        var active = slides[i];
         var totalStr = (slides.length < 10 ? '0' : '') + slides.length;
         var curStr = ('0' + (i + 1)).slice(-2);
         document.getElementById('ctr').textContent = curStr + ' / ' + totalStr;
+
+        var phaseEl = document.getElementById('phaseLabel');
+        var pillEl = document.getElementById('sheetPill');
+        var srcEl = document.getElementById('srcLine');
+
+        if (phaseEl && active.dataset.phase) phaseEl.textContent = active.dataset.phase;
+        if (pillEl && active.dataset.pill) {
+            pillEl.textContent = active.dataset.pill;
+            pillEl.className = 'sheet-pill' + (active.dataset.pillClass ? ' ' + active.dataset.pillClass : '');
+        }
+        if (srcEl && active.dataset.src) srcEl.textContent = active.dataset.src;
+
         if (history.replaceState) {
             history.replaceState(null, null, '#' + (i + 1));
         }
     }
+
+    function stepSlide(delta, e) {
+        if (e) e.stopPropagation();
+        show(i + delta);
+    }
+
+    function toggleFS(e) {
+        if (e) e.stopPropagation();
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            document.documentElement.requestFullscreen();
+        }
+    }
+
+    function openZoom(e, frameEl) {
+        e.stopPropagation();
+        var img = frameEl.querySelector('img');
+        var cap = frameEl.querySelector('.visual-cap');
+        if (!img) return;
+        document.getElementById('lightboxImg').src = img.src;
+        document.getElementById('lightboxImg').alt = img.alt;
+        document.getElementById('lightboxCap').textContent = cap ? cap.textContent.replace('(Click image to zoom)', '').replace('(Click to zoom)', '').trim() : img.alt;
+        document.getElementById('lightbox').classList.add('open');
+    }
+
+    function closeZoom(e) {
+        if (e) e.stopPropagation();
+        document.getElementById('lightbox').classList.remove('open');
+    }
+
     document.addEventListener('keydown', function(e) {
+        var lb = document.getElementById('lightbox');
+        if (lb.classList.contains('open')) {
+            if (e.key === 'Escape' || e.key === ' ') {
+                closeZoom();
+                e.preventDefault();
+            }
+            return;
+        }
         if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { show(i + 1); e.preventDefault(); }
         else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
         else if (e.key === 'Home') { show(0); }
         else if (e.key === 'End') { show(slides.length - 1); }
-        else if (e.key === 'f' || e.key === 'F') {
-            if (document.fullscreenElement) { document.exitFullscreen(); } else { document.documentElement.requestFullscreen(); }
-        }
+        else if (e.key === 'f' || e.key === 'F') { toggleFS(); }
     });
+
     document.addEventListener('click', function(e) {
-        if (e.clientX > window.innerWidth * 0.3) { show(i + 1); } else { show(i - 1); }
+        if (document.getElementById('lightbox').classList.contains('open')) return;
+        if (e.target.closest('.deck-topbar') || e.target.closest('.deck-footer') || e.target.closest('.visual-frame')) return;
+        if (e.clientX > window.innerWidth * 0.28) { show(i + 1); } else { show(i - 1); }
     });
 
     var hash = parseInt(window.location.hash.replace('#', ''), 10);
