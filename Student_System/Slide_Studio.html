@@ -739,7 +739,10 @@ Open the Google Classroom template and start Paragraph 1</textarea>
           </div>
           <div class="field" style="margin:0">
             <label for="apiKeyInp">API Key <span class="hint" id="apiKeyHint">local machine config outside git</span></label>
-            <input type="password" id="apiKeyInp" placeholder="Stored locally on this machine (paste only to replace)...">
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="password" id="apiKeyInp" placeholder="Stored locally on this machine (paste only to replace)..." style="flex:1">
+              <button type="button" class="btn" id="saveKeyBtn" onclick="saveEndpointConfig()" style="padding:7px 11px;white-space:nowrap">Save Key</button>
+            </div>
           </div>
           <div id="bridgeHelpNote" style="display:none;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;padding:7px 9px;border-radius:7px;font-size:0.74rem;line-height:1.4">
             <b>Local bridge offline:</b> Run <code>%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\Room8_Slide_Studio_Bridge.vbs</code> (auto-starts at Windows login) so browser requests can reach Alibaba MaaS without CORS blocks.
@@ -1629,6 +1632,48 @@ async function checkLocalBridge() {
   }
 }
 
+async function saveEndpointConfig() {
+  var provider = document.getElementById("providerSel").value;
+  var keyInp = document.getElementById("apiKeyInp");
+  var key = (keyInp.value || "").trim();
+  var baseUrl = (document.getElementById("baseUrlInp").value || DEFAULT_MAAS_BASE).trim();
+
+  if (provider !== "maas") {
+    if (!key) {
+      toast("Paste an API key first.");
+      keyInp.focus();
+      return;
+    }
+    try {
+      localStorage.setItem("r8_slide_studio_key_" + provider, key);
+    } catch (e) {}
+    await checkLocalBridge();
+    toast("Saved " + provider + " key in this browser's localStorage.");
+    return;
+  }
+
+  try {
+    var resp = await fetch(LOCAL_BRIDGE_URL + "/save-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey: key, baseUrl: baseUrl })
+    });
+    var data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.error || ("HTTP " + resp.status));
+    }
+    try {
+      localStorage.setItem("r8_slide_studio_maas_base_v3", baseUrl);
+    } catch (e) {}
+    keyInp.value = "";
+    _lastLlmPickedSig = "";
+    await checkLocalBridge();
+    toast("Saved Alibaba MaaS config locally" + (data.keyHint ? (" (" + data.keyHint + ")") : "") + "!");
+  } catch (err) {
+    toast("Could not save to local bridge: " + err.message);
+  }
+}
+
 async function generateAiImage(blankFrameOnly) {
   var key = (document.getElementById("apiKeyInp").value || "").trim();
   var provider = document.getElementById("providerSel").value;
@@ -1966,6 +2011,12 @@ function toast(msg) {
   document.getElementById("apiKeyInp").addEventListener("input", function() {
     if (document.getElementById("providerSel").value !== "maas") {
       checkLocalBridge();
+    }
+  });
+  document.getElementById("apiKeyInp").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveEndpointConfig();
     }
   });
 
