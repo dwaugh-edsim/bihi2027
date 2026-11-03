@@ -1,5 +1,6 @@
-"""Builds werewolf-role-cards.pdf and werewolf-props.pdf — printable game materials (A4)."""
+"""Builds werewolf-role-cards.pdf and werewolf-props.pdf — printable game materials (A4, ink-saver mono-friendly)."""
 import math
+from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
@@ -7,16 +8,18 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 PW, PH = A4                      # 595 x 842 pt
 M = 28                           # page margin
-BG    = HexColor("#0F1726")
-PANEL = HexColor("#1A2540")
-TEXT  = HexColor("#F2EFE6")
-MUTED = HexColor("#9AA6BF")
-GOLD  = HexColor("#F2C14E")
-GOLDD = HexColor("#6E5A24")
-RED   = HexColor("#E4572E")
-REDP  = HexColor("#351B1E")
-HAIR  = HexColor("#3A4763")
-CUT   = HexColor("#C9CDD6")
+
+# Inverted Ink-Saver Palette (clean white cards, crisp dark inks, light grey fills)
+BG    = HexColor("#FFFFFF")      # clean white card face
+PANEL = HexColor("#F1F5F9")      # light tint panel for subtle contrast
+TEXT  = HexColor("#0F172A")      # crisp deep ink / dark slate
+MUTED = HexColor("#475569")      # medium grey text / subheaders
+GOLD  = HexColor("#854D0E")      # deep amber / readable dark gold on white
+GOLDD = HexColor("#713F12")
+RED   = HexColor("#991B1B")      # deep crimson for werewolf / accents
+REDP  = HexColor("#FEF2F2")      # very light crimson tint panel for wolf card
+HAIR  = HexColor("#CBD5E1")      # subtle card border / divider line
+CUT   = HexColor("#94A3B8")      # dashed / dotted cut guides
 
 FB, FBOLD = "Helvetica", "Helvetica-Bold"
 
@@ -71,8 +74,11 @@ ICONS = {"paw": icon_paw, "lens": icon_lens, "cross": icon_cross, "house": icon_
 
 # ---- role card (default 172 x 235 pt) --------------------------------------
 def role_card(c, x, y, w, h, role):
-    rrect(c, x, y, w, h, 10, role["panel"] if role["key"]=="wolf" else BG,
-          stroke=role["col"] if role["key"]=="wolf" else HAIR, lw=1.4)
+    # Border & background: clean white / soft light tint
+    bg_col = role["panel"] if role["key"]=="wolf" else BG
+    stroke_col = role["col"] if role["key"]=="wolf" else HexColor("#64748B")
+    rrect(c, x, y, w, h, 10, bg_col, stroke=stroke_col, lw=1.5 if role["key"]=="wolf" else 1.2)
+
     pad = 13
     ix, iy = x+pad, y+h-pad
     c.setFillColor(role["col"]); c.setFont(FBOLD, 7.5)
@@ -86,8 +92,8 @@ def role_card(c, x, y, w, h, role):
     # icon
     ICONS[role["icon"]](c, x+w/2, y+h*0.60, 66 if role["key"] in ("villager","spectator") else 56,
                         role["col"])
-    # blocks
-    c.setStrokeColor(HAIR); c.setLineWidth(0.7)
+    # divider
+    c.setStrokeColor(HAIR); c.setLineWidth(0.8)
     c.line(ix, y+h*0.44, x+w-pad, y+h*0.44)
     ty = y+h*0.40
     for bi, (label, body) in enumerate(role["blocks"]):
@@ -131,11 +137,13 @@ ROLES = {
                          ("", "No faces. No hints. You are a shadow.")]),
 }
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+
 # ============ PDF 1 · ROLE CARDS (9 per page, 172x235 pt) ===================
-out1 = "D:/temp/ILT/werewolf-role-cards.pdf"
-c = canvas.Canvas(out1, pagesize=A4)
+out1 = SCRIPT_DIR / "werewolf-role-cards.pdf"
+c = canvas.Canvas(str(out1), pagesize=A4)
 c.setTitle("Werewolf — Role Cards (print & cut)")
-c.setAuthor("ILT"); c.setCreator("Z.ai"); c.setSubject("Printable role cards for the Werewolf class game")
+c.setAuthor("ILT"); c.setCreator("Antigravity"); c.setSubject("Printable role cards for the Werewolf class game")
 
 deck = (["wolf"]*3 + ["detective", "doctor"] + ["villager"]*4,
         ["villager"]*9,
@@ -146,12 +154,8 @@ CW, CH = 172, 235
 GX = (PW - 2*M - 3*CW) / 2
 GY = 16
 for pi, page in enumerate(deck):
-    page_header(c, "WEREWOLF · ROLE CARDS",
+    page_header(c, "WEREWOLF · ROLE CARDS (INK-SAVER LIGHT THEME)",
                 "print on card · cut along the cards · deal FACE DOWN · one per student")
-    label = {0: "PAGE 1 — WOLVES & SPECIALS (standard game)",
-             1: "PAGE 2 — VILLAGERS",
-             2: "PAGE 3 — VILLAGERS",
-             3: "PAGE 4 — SPARES & SPECTATORS"}[pi]
     for i, key in enumerate(page):
         col, row = i % 3, i // 3
         x = M + col * (CW + GX)
@@ -161,16 +165,17 @@ for pi, page in enumerate(deck):
             r["count"] = {"wolf": "spare — 4-wolf variant", "detective": "spare card",
                           "doctor": "spare card", "villager": "spare card"}.get(key, r["count"])
         role_card(c, x, y, CW, CH, r)
-        rrect(c, x-2.5, y-2.5, CW+5, CH+5, 12, None, stroke=CUT, lw=0.5)
+        # Cut guide
+        rrect(c, x-2.5, y-2.5, CW+5, CH+5, 12, None, stroke=CUT, lw=0.6)
     c.showPage()
 c.save()
 print("saved", out1)
 
 # ============ PDF 2 · PROPS =================================================
-out2 = "D:/temp/ILT/werewolf-props.pdf"
-c = canvas.Canvas(out2, pagesize=A4)
+out2 = SCRIPT_DIR / "werewolf-props.pdf"
+c = canvas.Canvas(str(out2), pagesize=A4)
 c.setTitle("Werewolf — Props Pack (ballots, slips, moderator card, reference)")
-c.setAuthor("ILT"); c.setCreator("Z.ai"); c.setSubject("Voting ballots, accusation slips, moderator pocket card, role reference")
+c.setAuthor("ILT"); c.setCreator("Antigravity"); c.setSubject("Voting ballots, accusation slips, moderator pocket card, role reference")
 
 def grid_positions(cols, rows, cw, chh, gx, gy):
     for r in range(rows):
@@ -179,17 +184,17 @@ def grid_positions(cols, rows, cw, chh, gx, gy):
 
 # --- P1: ballots 3x4, 172x178
 BW, BH, GB = 172, 178, 9
-page_header(c, "WEREWOLF · PROPS", "ballot slips — print one sheet per game day, cut, keep in the box")
+page_header(c, "WEREWOLF · PROPS (BALLOTS)", "print one sheet per game day, cut, keep in the box")
 for i, (x, y) in enumerate(grid_positions(3, 4, BW, BH, (PW-2*M-3*BW)//2, GB)):
-    rrect(c, x, y, BW, BH, 8, BG, stroke=HAIR, lw=1)
-    icon_moon(c, x+BW/2, y+BH-30, 26, GOLD)
+    rrect(c, x, y, BW, BH, 8, BG, stroke=HexColor("#475569"), lw=1)
+    icon_moon(c, x+BW/2, y+BH-30, 26, GOLD, over=BG)
     c.setFont(FBOLD, 13); c.setFillColor(TEXT)
     c.drawCentredString(x+BW/2, y+BH-62, "THE VOTE")
     c.setFont(FB, 9); c.setFillColor(MUTED)
     c.drawCentredString(x+BW/2, y+BH-76, "Day ______")
     c.setFont(FBOLD, 9.5); c.setFillColor(GOLD)
     c.drawString(x+16, y+BH-102, "I vote to eliminate:")
-    c.setStrokeColor(MUTED); c.setLineWidth(0.8)
+    c.setStrokeColor(HexColor("#94A3B8")); c.setLineWidth(0.8)
     c.line(x+16, y+42, x+BW-16, y+42)
     c.setFont(FB, 7); c.setFillColor(MUTED)
     c.drawCentredString(x+BW/2, y+18, "fold once · drop in the box · one name only")
@@ -197,9 +202,9 @@ c.showPage()
 
 # --- P2: accusation slips 3x2, 172x365
 AW, AH = 172, 365
-page_header(c, "WEREWOLF · PROPS", "secret accusation slips — everyone hands one in every day, every game")
+page_header(c, "WEREWOLF · PROPS (ACCUSATION SLIPS)", "secret accusation slips — everyone hands one in every day, every game")
 for x, y in grid_positions(3, 2, AW, AH, (PW-2*M-3*AW)//2, 14):
-    rrect(c, x, y, AW, AH, 8, BG, stroke=HAIR, lw=1)
+    rrect(c, x, y, AW, AH, 8, BG, stroke=HexColor("#475569"), lw=1)
     c.setFont(FBOLD, 10); c.setFillColor(GOLD)
     c.drawString(x+16, y+AH-30, "SECRET ACCUSATION")
     c.setFont(FB, 8.5); c.setFillColor(MUTED)
@@ -207,7 +212,7 @@ for x, y in grid_positions(3, 2, AW, AH, (PW-2*M-3*AW)//2, 14):
     c.setFont(FB, 10); c.setFillColor(TEXT)
     c.drawString(x+16, y+AH-72, "I suspect ____________________")
     c.drawString(x+16, y+AH-92, "because...")
-    c.setStrokeColor(HexColor("#55617E")); c.setLineWidth(0.6)
+    c.setStrokeColor(HexColor("#CBD5E1")); c.setLineWidth(0.7)
     for li in range(7):
         yy = y+AH-120 - li*26
         c.line(x+16, yy, x+AW-16, yy)
@@ -217,10 +222,10 @@ c.showPage()
 
 # --- P3: moderator pocket cards x2
 MW, MH = 250, 470
-page_header(c, "WEREWOLF · PROPS", "moderator pocket card — cut out, keep in your hand all game")
+page_header(c, "WEREWOLF · PROPS (MODERATOR POCKET CARD)", "moderator pocket card — cut out, keep in your hand all game")
 for pi in range(2):
     x = M + 6 + pi * (MW + 22); y = PH - M - 20 - MH
-    rrect(c, x, y, MW, MH, 10, BG, stroke=GOLD, lw=1.2)
+    rrect(c, x, y, MW, MH, 10, BG, stroke=GOLD, lw=1.4)
     c.setFillColor(GOLD); c.setFont(FBOLD, 12)
     c.drawString(x+18, y+MH-32, "MODERATOR · NIGHT ORDER")
     lines = [
@@ -242,7 +247,7 @@ for pi in range(2):
             yy -= 10.5
             c.drawString(x+42, yy, ln)
         yy -= 20
-    c.setStrokeColor(HAIR); c.setLineWidth(0.7); c.line(x+18, yy+8, x+MW-18, yy+8)
+    c.setStrokeColor(HAIR); c.setLineWidth(0.8); c.line(x+18, yy+8, x+MW-18, yy+8)
     yy -= 4
     c.setFillColor(GOLD); c.setFont(FBOLD, 9.5)
     c.drawString(x+18, yy, "THE DAY")
@@ -274,7 +279,7 @@ positions = [(M+8, PH-M-20-chh2), (M+8+cw2+20, PH-M-20-chh2),
 for key, (x, y) in zip(["wolf", "detective", "doctor", "villager"], positions):
     role_card(c, x, y, cw2, chh2, ROLES[key])
 ty = M + 30
-rrect(c, M, ty, PW-2*M, 82, 8, PANEL)
+rrect(c, M, ty, PW-2*M, 82, 8, PANEL, stroke=HexColor("#64748B"), lw=1)
 c.setFillColor(GOLD); c.setFont(FBOLD, 10)
 c.drawString(M+18, ty+58, "HOW THE GAME ENDS")
 c.setFillColor(TEXT); c.setFont(FB, 9.5)
