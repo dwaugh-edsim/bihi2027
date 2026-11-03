@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O2-A: Why Are We Doing This? (Curriculum & Purpose)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #eceff2;
+        --surface: #ffffff;
+        --surface-subtle: #f8fafc;
+        --line: #cbd5e1;
+        --text: #1e293b;
+        --text-heading: #0f172a;
+        --muted: #475569;
+        --dim: #64748b;
+        --navy: #1e3a8a;
+        --navy-bg: #eff6ff;
+        --navy-border: #bfdbfe;
+        --emerald: #15803d;
+        --emerald-bg: #f0fdf4;
+        --emerald-border: #86efac;
+        --amber: #b45309;
+        --amber-bg: #fef3c7;
+        --amber-border: #fde68a;
+        --coral: #dc2626;
+        --coral-bg: #fef2f2;
+        --coral-border: #fecaca;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; }
+
+    .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        padding: 5vh 6vw 8vh 6vw;
+        background: var(--bg);
+    }
+    .slide.active { display: flex; }
+
+    /* Top banner */
+    .top-directive {
+        background: var(--coral);
+        color: #ffffff;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: max(12px, 1.8vh);
+        letter-spacing: .08em;
+        text-align: center;
+        padding: 0.8vh 1vw;
+        margin: -5vh -6vw 3vh -6vw;
+        text-transform: uppercase;
+        border-bottom: 2px solid #991b1b;
+    }
+
+    .kicker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: max(12px, 1.8vh);
+        font-weight: 800;
+        letter-spacing: .12em;
+        color: var(--amber);
+        text-transform: uppercase;
+        margin-bottom: 1.2vh;
+    }
+
+    h1 {
+        font-family: 'Roboto Slab', Georgia, serif;
+        font-weight: 900;
+        font-size: max(32px, 6.8vh);
+        line-height: 1.08;
+        letter-spacing: -.02em;
+        color: var(--text-heading);
+    }
+
+    .sub {
+        font-size: max(15px, 2.5vh);
+        color: var(--muted);
+        margin-top: 1.4vh;
+        line-height: 1.4;
+        max-width: 75ch;
+    }
+    .sub strong { color: var(--text-heading); }
+
+    /* Slide 1 - Big 3 Reason Pillars */
+    .grid3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.8vw;
+        margin-top: 3.6vh;
+        flex: 1;
+    }
+
+    .pillar-card {
+        background: var(--surface);
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 2.8vh 1.6vw;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        position: relative;
+    }
+    .pillar-card.co2 { border-top: 6px solid #2563eb; }
+    .pillar-card.co3 { border-top: 6px solid #16a34a; }
+    .pillar-card.co4 { border-top: 6px solid #d97706; }
+
+    .pillar-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: max(11px, 1.6vh);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 1vh;
+    }
+    .pillar-card.co2 .pillar-badge { color: #1d4ed8; }
+    .pillar-card.co3 .pillar-badge { color: #15803d; }
+    .pillar-card.co4 .pillar-badge { color: #b45309; }
+
+    .pillar-title {
+        font-family: 'Roboto Slab', serif;
+        font-size: max(18px, 3vh);
+        font-weight: 800;
+        color: var(--text-heading);
+        line-height: 1.2;
+        margin-bottom: 1.4vh;
+    }
+
+    .pillar-body {
+        font-size: max(13px, 2.1vh);
+        color: var(--muted);
+        line-height: 1.45;
+        flex: 1;
+    }
+    .pillar-body strong { color: var(--text-heading); }
+
+    .pillar-quote {
+        margin-top: 1.8vh;
+        background: var(--surface-subtle);
+        border-left: 3px solid var(--line);
+        padding: 1vh 1vw;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: max(10.5px, 1.55vh);
+        color: var(--dim);
+        line-height: 1.4;
+    }
+
+    /* Slide 2 - Breakdown & Comparison */
+    .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.2vw;
+        margin-top: 3.4vh;
+        flex: 1;
+    }
+
+    .box-what-not {
+        background: #fff5f5;
+        border: 2px solid #fecaca;
+        border-radius: 12px;
+        padding: 2.8vh 1.8vw;
+    }
+    .box-what-is {
+        background: #f0fdf4;
+        border: 2px solid #86efac;
+        border-radius: 12px;
+        padding: 2.8vh 1.8vw;
+    }
+
+    .box-head {
+        font-family: 'Roboto Slab', serif;
+        font-size: max(18px, 3vh);
+        font-weight: 900;
+        margin-bottom: 1.6vh;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .box-what-not .box-head { color: #991b1b; }
+    .box-what-is .box-head { color: #166534; }
+
+    ul.point-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1.4vh;
+    }
+    ul.point-list li {
+        font-size: max(13.5px, 2.2vh);
+        line-height: 1.42;
+        padding-left: 1.6em;
+        position: relative;
+    }
+    .box-what-not ul.point-list li::before {
+        content: "✕";
+        position: absolute;
+        left: 0;
+        color: #dc2626;
+        font-weight: 900;
+    }
+    .box-what-is ul.point-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #16a34a;
+        font-weight: 900;
+    }
+
+    /* Slide 3 - The Gate & Integrity */
+    .gate-container {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 2.4vw;
+        margin-top: 3vh;
+        flex: 1;
+    }
+
+    .gate-callout {
+        background: var(--surface);
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 3vh 2vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .gate-rule {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.2vw;
+        margin-bottom: 2vh;
+    }
+    .gate-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: max(18px, 3vh);
+        font-weight: 900;
+        background: #0f172a;
+        color: #ffffff;
+        width: 1.8em;
+        height: 1.8em;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .gate-text h4 {
+        font-family: 'Roboto Slab', serif;
+        font-size: max(16px, 2.5vh);
+        font-weight: 800;
+        color: var(--text-heading);
+        margin-bottom: 0.4vh;
+    }
+    .gate-text p {
+        font-size: max(12.5px, 1.95vh);
+        color: var(--muted);
+        line-height: 1.4;
+    }
+
+    .outcome-manifest {
+        background: #0f172a;
+        color: #f8fafc;
+        border-radius: 12px;
+        padding: 3vh 2vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .outcome-manifest h3 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: max(13px, 2vh);
+        font-weight: 800;
+        color: #38bdf8;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 1.6vh;
+    }
+    .outcome-manifest .law {
+        font-size: max(13px, 2.1vh);
+        color: #cbd5e1;
+        line-height: 1.5;
+        margin-bottom: 1.4vh;
+    }
+    .outcome-manifest .law strong { color: #ffffff; }
+
+    /* Footer Navigation */
+    .nav-bar {
+        position: fixed;
+        left: 6vw;
+        right: 6vw;
+        bottom: 1.6vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: max(11px, 1.6vh);
+        font-weight: 700;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+    .nav-bar .keys { color: var(--text-heading); }
+    .nav-dots { display: flex; gap: 8px; }
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--line);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .dot.active { background: #0f172a; transform: scale(1.15); }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 · OUTCOME ROOTS (WHY WE ARE HERE) -->
+<section class="slide active" id="slide1">
+    <div class="top-directive">&#9888; DO NOT START SLIDES WITHOUT SIGNED APPROVAL &#9888;</div>
+    <div class="kicker">Healthy Living 9 &middot; Curriculum Alignment &middot; Outcome 2-A</div>
+    <h1>Why are we doing this?</h1>
+    <p class="sub">
+        You aren't making generic slideshows to pass time. You are building an accurate, peer-to-peer survival guide for incoming Grade 8 students. This work directly satisfies <strong>three core provincial curriculum outcomes</strong>:
+    </p>
+
+    <div class="grid3">
+        <!-- CO2 -->
+        <div class="pillar-card co2">
+            <div class="pillar-badge">Primary Outcome &middot; CO2</div>
+            <div class="pillar-title">Caring for Sexual &amp; Reproductive Health</div>
+            <div class="pillar-body">
+                Grade 8s arrive with half-truths and internet myths. You are evaluating <strong>what is physically true, what is false, and what DEPENDS</strong> on real clinical conditions.
+            </div>
+            <div class="pillar-quote">
+                &ldquo;Learners will analyse ways to care for one's own sexual and reproductive health.&rdquo;
+            </div>
+        </div>
+
+        <!-- CO3 -->
+        <div class="pillar-card co3">
+            <div class="pillar-badge">Evidence Outcome &middot; CO3</div>
+            <div class="pillar-title">Health Literacy &amp; Valid Sources</div>
+            <div class="pillar-body">
+                Anyone can guess on Reddit. You are proving <strong>where real help and confidential services exist</strong> (NS Health clinics, Public Health, Cleveland Clinic, Society of Obstetricians).
+            </div>
+            <div class="pillar-quote">
+                &ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo;
+            </div>
+        </div>
+
+        <!-- CO4 -->
+        <div class="pillar-card co4">
+            <div class="pillar-badge">Audience Outcome &middot; CO4</div>
+            <div class="pillar-title">Communication &amp; Plain Language</div>
+            <div class="pillar-body">
+                Medical jargon fails young teens. You are translating clinical facts into <strong>clear, respectful language</strong> that stops rumors and protects younger peers.
+            </div>
+            <div class="pillar-quote">
+                &ldquo;Learners will develop communication skills that support the growth of healthy relationships.&rdquo;
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 2 · THE AUDIENCE & THE STANDARD -->
+<section class="slide" id="slide2">
+    <div class="top-directive">&#9888; DO NOT START SLIDES WITHOUT SIGNED APPROVAL &#9888;</div>
+    <div class="kicker">The Standard &middot; Real Impact vs. Busywork</div>
+    <h1>The Grade 8 Litmus Test</h1>
+    <p class="sub">
+        Every slide you produce must survive a single question: <strong>Would a Grade 8 student be worse off or misinformed if they didn't see this?</strong>
+    </p>
+
+    <div class="compare-grid">
+        <div class="box-what-not">
+            <div class="box-head">What This Assignment Is NOT</div>
+            <ul class="point-list">
+                <li><strong>It is not copy-pasting Google summaries:</strong> If you don't understand the condition behind a DEPENDS, neither will your reader.</li>
+                <li><strong>It is not graphic anatomy shock value:</strong> No symptom photos, no fear tactics, and no personal stories.</li>
+                <li><strong>It is not slide decorating:</strong> Font animations and stock clip-art do not earn marks; accurate evidence and clear verdicts do.</li>
+            </ul>
+        </div>
+
+        <div class="box-what-is">
+            <div class="box-head">What This Assignment IS</div>
+            <ul class="point-list">
+                <li><strong>The Truth Behind the Rumor:</strong> Busting common schoolyard myths (tampon TSS risks, STI testing age rules in NS, birth control weight facts).</li>
+                <li><strong>Legal &amp; Practical Reality:</strong> Giving younger students the confidential legal facts (age of consent rules, parent permission requirements).</li>
+                <li><strong>Verified Sources:</strong> Every single claim is backed by a recognized institutional medical authority that you verified on paper first.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 3 · THE APPROVAL GATE (WHY THE INITIALS MATTER) -->
+<section class="slide" id="slide3">
+    <div class="top-directive">&#9888; DO NOT START SLIDES WITHOUT SIGNED APPROVAL &#9888;</div>
+    <div class="kicker">Integrity &middot; The Two-Phase Build</div>
+    <h1>Why the Paper Approval Gate Exists</h1>
+    <p class="sub">
+        Opening Google Slides before your facts are approved is how misinformation spreads. The planning organizer is where the actual thinking happens.
+    </p>
+
+    <div class="gate-container">
+        <div class="gate-callout">
+            <div class="gate-rule">
+                <div class="gate-num">1</div>
+                <div class="gate-text">
+                    <h4>The Organizer is Phase 1 (The Thinking)</h4>
+                    <p>Writing the exact claim, checking the verdict key, citing the official source, and drafting the plain-language explanation.</p>
+                </div>
+            </div>
+            <div class="gate-rule">
+                <div class="gate-num">2</div>
+                <div class="gate-text">
+                    <h4>Teacher Initials are the Quality Gate</h4>
+                    <p>Mr. Waugh checks that your DEPENDS conditions are physically correct and your sources are legitimate before you design.</p>
+                </div>
+            </div>
+            <div class="gate-rule" style="margin-bottom:0;">
+                <div class="gate-num">3</div>
+                <div class="gate-text">
+                    <h4>The Deck is Phase 2 (Typesetting)</h4>
+                    <p>Once initialed, making the 4 slides takes 15 minutes because all your text and sources are already finalized.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="outcome-manifest">
+            <div>
+                <h3 id="manifestHead">Curriculum Contract</h3>
+                <p class="law">
+                    <strong>1. No blank approvals:</strong> The screen tracker at the front of the room must show <span style="color:#86efac; font-weight:800;">FORM APPROVED</span> for your group.
+                </p>
+                <p class="law">
+                    <strong>2. Verifiable facts only:</strong> Every slide must carry the exact institution URL you cited on your signed sheet.
+                </p>
+                <p class="law">
+                    <strong>3. Ready for Grade 8 eyes:</strong> Tone must be professional, dignified, and clear.
+                </p>
+            </div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:max(11px, 1.5vh); color:#94a3b8; border-top:1px solid #334155; padding-top:1.2vh;">
+                ROOM 8 &middot; MR WAUGH &middot; HEALTHY LIVING 9
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="nav-bar">
+    <div>HL9 &middot; O2-A PSA RATIONALE</div>
+    <div class="nav-dots">
+        <div class="dot active" onclick="goToSlide(0)"></div>
+        <div class="dot" onclick="goToSlide(1)"></div>
+        <div class="dot" onclick="goToSlide(2)"></div>
+    </div>
+    <div class="keys">PRESS &larr; / &rarr; OR SPACE &middot; F = FULLSCREEN</div>
+</div>
+
+<script>
+    let currentIdx = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+
+    function showSlide(idx) {
+        if (idx < 0) idx = 0;
+        if (idx >= slides.length) idx = slides.length - 1;
+        currentIdx = idx;
+
+        slides.forEach((s, i) => s.classList.toggle('active', i === currentIdx));
+        dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
+    }
+
+    function goToSlide(idx) {
+        showSlide(idx);
+    }
+
+    function nextSlide() {
+        if (currentIdx < slides.length - 1) showSlide(currentIdx + 1);
+    }
+
+    function prevSlide() {
+        if (currentIdx > 0) showSlide(currentIdx - 1);
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') nextSlide();
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+        else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+        else if (e.key === '1') showSlide(0);
+        else if (e.key === '2') showSlide(1);
+        else if (e.key === '3') showSlide(2);
+    });
+</script>
+
+</body>
+</html>
