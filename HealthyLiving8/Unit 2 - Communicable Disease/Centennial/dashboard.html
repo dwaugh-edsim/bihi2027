@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 55 - Teacher Dashboard (Centennial)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#e2e8f0; --muted:#94a3b8; --bg:#0b1220; --panel:#111c33; --panel2:#0e1729; --line:#243352; --amber:#f59e0b; --teal:#2dd4bf; --ok:#22c55e; --bad:#ef4444; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.5;padding:22px}
+  h1{font-family:'Roboto Slab',serif;color:#fff;font-size:1.4rem;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:.85rem;margin-bottom:16px}
+  .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .bar input{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
+  .bar button{background:var(--amber);color:#1a1206;border:0;border-radius:8px;padding:8px 16px;font-weight:800;cursor:pointer}
+  .bar button.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+  #msg{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--muted)}
+  #msg.ok{color:var(--ok)} #msg.bad{color:var(--bad)}
+  table{width:100%;border-collapse:collapse;font-size:.78rem;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);background:var(--panel2)}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:hover td{background:#16223f}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:.72rem}
+  .pill{display:inline-block;border-radius:999px;padding:1px 8px;font-family:'JetBrains Mono',monospace;font-size:.64rem;border:1px solid var(--line)}
+  .pill.yes{color:var(--ok);border-color:var(--ok)} .pill.no{color:var(--muted)}
+  details summary{cursor:pointer;color:var(--teal);font-family:'JetBrains Mono',monospace;font-size:.68rem}
+  pre{white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0 0}
+  .stat{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0 16px;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--muted)}
+  .stat b{color:var(--amber)}
+</style>
+</head>
+<body>
+<h1>CASE 55: CENTENNIAL OUTBREAK - teacher dashboard</h1>
+<div class="sub">Latest saved investigation per student, straight from the server Vault. Teacher only - enter the teacher PIN (never stored, never sent anywhere except the Vault). Task: <span class="mono" id="taskName"></span></div>
+
+<div class="bar">
+  <input id="pin" type="password" placeholder="Teacher PIN" autocomplete="off">
+  <button type="button" onclick="load()">Load submissions</button>
+  <button type="button" class="ghost" onclick="exportCsv()">Export CSV</button>
+  <span id="msg"></span>
+</div>
+
+<div class="stat" id="stat"></div>
+<table id="tbl" hidden>
+  <thead><tr>
+    <th>Investigator</th><th>Section</th><th>Station</th><th>Committed</th><th>Culprit pick</th><th>Bonus</th><th>Last saved</th><th>Saves</th><th>Full state</th>
+  </tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script>
+(function(){
+"use strict";
+const VAULT_URL = 'https://script.google.com/macros/s/AKfycbzhCVthh1eWPNo2apOZPTJPhMDVcyL7Q7PrSxIlhiEbauTbXnEJBJcUCSAnPg2X4cZi/exec';
+const TASK_NAME = (window.CASE55 && CASE55.meta.taskName) || 'HL8-Centennial-Case55-Sim';
+document.getElementById('taskName').textContent = TASK_NAME;
+let lastRows = [];
+let pin = '';
+
+function msg(t, kind){ const m=document.getElementById('msg'); m.textContent=t; m.className=kind||''; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function post(obj){ return fetch(VAULT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(obj),keepalive:true}).then(r=>r.json()); }
+
+function load(){
+  pin = document.getElementById('pin').value.trim();
+  if(!pin){ msg('Enter the teacher PIN first.','bad'); return; }
+  msg('Loading...','');
+  post({action:'get_submissions', teacherPin:pin}).then(j=>{
+    if(!j || j.status!=='ok'){ msg('Error: '+(j&&j.message||'no response')+' - check the PIN.','bad'); return; }
+    const rows = j.rows||[];
+    const mine = rows.filter(r=> String(r[3])===TASK_NAME );
+    // latest per email
+    const byEmail = {};
+    mine.forEach(r=>{ const em=String(r[1]).toLowerCase(); const ts=new Date(r[0]).getTime(); if(!byEmail[em] || ts>new Date(byEmail[em][0]).getTime()) byEmail[em]=r; });
+    lastRows = Object.keys(byEmail).map(k=>byEmail[k]).sort((a,b)=> new Date(b[0])-new Date(a[0]));
+    render(lastRows, mine.length);
+    msg('Loaded '+lastRows.length+' students ('+mine.length+' total saves for this task).','ok');
+  }).catch(()=> msg('Network error.','bad'));
+}
+
+function parseData(r){ try{ return JSON.parse(r[5]||'{}'); }catch(e){ return {}; } }
+function stationLabel(d){ const n=(d.station||0)+1; return (d.station===0?'BRIEFING':'STATION 0'+n)+' / 9'; }
+
+function render(rows, totalSaves){
+  const tb=document.getElementById('rows'); tb.innerHTML='';
+  rows.forEach(r=>{
+    const d=parseData(r);
+    const tr=document.createElement('tr');
+    const culprit = (d.responses&&d.responses.c1_name)||'-';
+    const bonus = (d.responses&&d.responses.bonus)||'-';
+    const committed = d.committed ? '<span class="pill yes">YES</span>' : '<span class="pill no">no</span>';
+    tr.innerHTML = '<td class="mono">'+esc(r[1])+'</td>'
+      +'<td class="mono">'+esc(r[2]||d.section||'')+'</td>'
+      +'<td class="mono">'+esc(stationLabel(d))+'</td>'
+      +'<td>'+committed+'</td>'
+      +'<td>'+esc(culprit)+'</td>'
+      +'<td class="mono">'+esc(bonus)+'</td>'
+      +'<td class="mono">'+esc(new Date(r[0]).toLocaleString())+'</td>'
+      +'<td class="mono">'+ countSaves(r[1], rows) +'</td>'
+      +'<td><details><summary>state</summary><pre>'+esc(JSON.stringify(d,null,1))+'</pre></details></td>';
+    tb.appendChild(tr);
+  });
+  document.getElementById('tbl').hidden = rows.length===0;
+  const committedN = rows.filter(r=> parseData(r).committed).length;
+  document.getElementById('stat').innerHTML = 'students: <b>'+rows.length+'</b> &middot; committed: <b>'+committedN+'</b> &middot; total saves this task: <b>'+totalSaves+'</b>';
+}
+function countSaves(email, latestRows){ return lastRows.filter(r=>String(r[1]).toLowerCase()===String(email).toLowerCase()).length; }
+
+function exportCsv(){
+  if(!lastRows.length){ msg('Nothing to export - load first.','bad'); return; }
+  const head=['email','section','station','committed','culprit','bonus','lastSaved','summary','dataJson'];
+  const lines=[head.join(',')];
+  lastRows.forEach(r=>{
+    const d=parseData(r);
+    const row=[ r[1], r[2]||d.section||'', (d.station||0), d.committed?1:0, (d.responses&&d.responses.c1_name)||'', (d.responses&&d.responses.bonus)||'', new Date(r[0]).toISOString(), r[4]||'', JSON.stringify(d) ];
+    lines.push(row.map(csvQ).join(','));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='case55_submissions.csv'; a.click();
+}
+function csvQ(s){ s=String(s==null?'':s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+
+window.load=load; window.exportCsv=exportCsv;
+})();
+</script>
+</body>
+</html>
