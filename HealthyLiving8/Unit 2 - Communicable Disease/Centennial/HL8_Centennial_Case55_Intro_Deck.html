@@ -15,6 +15,9 @@
     Arvo slab display, Source Sans 3 body, JetBrains Mono labels,
     High-contrast projector light mode, double-rule borders, signature coral (#ed786a).
 
+    Layout: a fixed 1536x864 canvas scaled to fit the screen (PowerPoint-style),
+    so the deck is pixel-identical on every projector in the building.
+
     House rule for this unit: no em dashes or en dashes in student-facing strings.
 -->
 <html lang="en">
@@ -65,19 +68,34 @@
 
         html, body {
             height: 100%;
-            background: var(--paper);
+            background: #14171d;
             color: var(--ink);
             font-family: var(--font-body);
             -webkit-font-smoothing: antialiased;
+            overflow: hidden;
         }
-        body {
+
+        /* ══ Fixed stage: 1536 x 864, scaled to fit any screen ══ */
+        #stage {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #canvas {
+            width: 1536px;
+            height: 864px;
+            flex: none;
+            background: var(--paper);
+            background-image:
+                repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            font-size: 17px;
-            /* faint case-file hatch, deliberately near-invisible */
-            background-image:
-                repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+            transform-origin: center center;
+            box-shadow: 0 18px 60px rgba(0,0,0,.45);
         }
 
         /* ── Signature double-rule ── */
@@ -93,7 +111,7 @@
         /* ── Header ── */
         #header {
             background: var(--surface);
-            padding: 10px 28px;
+            padding: 8px 26px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -102,37 +120,37 @@
             z-index: 10;
             gap: 16px;
         }
-        .header-brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .header-brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
         .header-logo {
             font-family: var(--font-display);
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--ink);
             letter-spacing: -0.01em;
             text-transform: uppercase;
             white-space: nowrap;
         }
         .header-logo span { color: var(--coral); }
-        .header-sep { color: var(--line-dark); font-size: 1.2rem; font-weight: 300; }
+        .header-sep { color: var(--line-dark); font-size: 1.1rem; font-weight: 300; }
         .header-sub {
-            font-size: .82rem;
+            font-size: .76rem;
             font-weight: 700;
             color: var(--ink-muted);
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .header-meta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+        .header-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .badge-pill {
             background: var(--coral-pale);
             color: var(--coral-dark);
             border: 1px solid #f9c2bc;
             font-family: var(--font-mono);
-            font-size: .72rem;
+            font-size: .68rem;
             font-weight: 700;
-            padding: 4px 10px;
+            padding: 4px 9px;
             border-radius: 3px;
             letter-spacing: .06em;
             white-space: nowrap;
@@ -140,33 +158,33 @@
         .badge-pill.hot { background: var(--amber-pale); color: var(--amber); border-color: #fde68a; }
         .slide-counter {
             font-family: var(--font-mono);
-            font-size: .85rem;
+            font-size: .8rem;
             font-weight: 700;
             color: var(--ink-muted);
             white-space: nowrap;
         }
 
         /* ── Viewport + slides ── */
-        #viewport { flex: 1; position: relative; overflow: hidden; }
+        #viewport { flex: 1; position: relative; overflow: hidden; min-height: 0; }
         .slide {
             position: absolute;
             inset: 0;
-            padding: 22px 46px 20px;
+            padding: 16px 40px 14px;
             display: none;
             flex-direction: column;
-            overflow-y: auto;
+            overflow: hidden;
         }
         .slide.active { display: flex; }
-        .slide.plain { background: transparent; }
+        .slide.plain { background: transparent; padding: 0; }
 
         /* ── Slide typography ── */
         .slide-eyebrow {
-            font-size: .74rem;
+            font-size: .7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2.6px;
             color: #7c8798;
-            margin-bottom: 7px;
+            margin-bottom: 5px;
             flex-shrink: 0;
         }
         .slide-eyebrow .eyebrow-num {
@@ -176,39 +194,47 @@
             color: #ffffff;
             background: var(--coral);
             border-radius: 3px;
-            padding: 1px 8px;
-            margin-right: 8px;
+            padding: 1px 7px;
+            margin-right: 7px;
             letter-spacing: 0;
         }
         .slide-h1 {
             font-family: var(--font-display);
-            font-size: 2.35rem;
+            font-size: 2.3rem;
             font-weight: 700;
-            line-height: 1.12;
+            line-height: 1.1;
             color: var(--ink-heading);
             letter-spacing: -0.01em;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-shadow: 0.04em 0.05em 0 rgba(0,0,0,.07);
             flex-shrink: 0;
         }
         .slide-h1 em { color: var(--coral-dark); font-style: normal; }
         .slide-sub {
-            font-size: 1.06rem;
-            line-height: 1.45;
+            font-size: 1.02rem;
+            line-height: 1.42;
             color: var(--ink-body);
-            max-width: 1220px;
-            margin-bottom: 13px;
+            max-width: 1250px;
+            margin-bottom: 10px;
             flex-shrink: 0;
         }
         .slide-sub strong { color: var(--ink-heading); }
 
+        /* The body centres its block as a group, so a slide with less content than the
+           canvas shows even margin above and below instead of a hole under a card. */
         .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+        /* .mid  = centre the block in the leftover space
+           .fill = stretch the block to fill the body height */
+        .mid { margin: auto 0; flex-shrink: 0; }
+        .fill { flex: 1; min-height: 0; }
+        .body > .callout-box, .body > .commit-strip, .body > .timeline { flex-shrink: 0; }
 
         /* ── Grids ── */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; width: 100%; }
-        .split { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; width: 100%; align-items: stretch; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+        .split { display: grid; grid-template-columns: 1.12fr .88fr; gap: 20px; width: 100%; align-items: stretch; }
+        .col { display: flex; flex-direction: column; min-height: 0; }
 
         /* ── Card ── */
         .card {
@@ -216,10 +242,10 @@
             border: 1.5px solid var(--line);
             border-top-width: 4px;
             border-radius: 4px;
-            padding: 14px 16px;
+            padding: 12px 15px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             box-shadow: 0 2px 6px rgba(0,0,0,.05);
         }
         .card.coral { border-top-color: var(--coral); }
@@ -229,28 +255,80 @@
         .card.emerald { border-top-color: var(--emerald); }
         .card-tag {
             font-family: var(--font-mono);
-            font-size: .68rem;
+            font-size: .64rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: .16em;
+            letter-spacing: .15em;
             color: #8b95a6;
         }
         .card-h2 {
             font-family: var(--font-display);
-            font-size: 1.2rem;
+            font-size: 1.12rem;
             font-weight: 700;
             color: var(--ink-heading);
-            line-height: 1.2;
+            line-height: 1.18;
         }
-        .card-p { font-size: .93rem; line-height: 1.42; color: var(--ink-body); }
+        .card-p { font-size: .88rem; line-height: 1.4; color: var(--ink-body); }
         .card-p strong { color: var(--ink-heading); }
         .card-num {
             font-family: var(--font-mono);
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: var(--coral);
             line-height: 1;
         }
+        .card-foot {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 8px;
+            font-size: .79rem; line-height: 1.38; color: var(--ink-muted);
+        }
+        .card-foot b { color: var(--ink-heading); }
+        /* Mini answer box: mirrors the real Friday 3:15 input fields */
+        .ansbox {
+            background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px;
+            padding: 6px 8px; font-size: .76rem; line-height: 1.35; color: #8c96a6; font-style: italic;
+        }
+        .ansbox b {
+            display: block; font-style: normal; font-family: var(--font-mono); font-size: .6rem;
+            letter-spacing: .12em; color: var(--teal); margin-bottom: 1px;
+        }
+        .ansbox + .ansbox { margin-top: 5px; }
+        .card > .ansbox { flex: 1 1 0; min-height: 52px; }
+
+        /* ══════════ MINI PREVIEWS (fill a card without inventing content) ══════════ */
+        .tabpreview {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 10px;
+            display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto;
+        }
+        .tp-row {
+            display: flex; gap: 8px; align-items: center; background: var(--surface-subtle);
+            border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px;
+            font-size: .77rem; line-height: 1.35; color: var(--ink-body); flex: 1 1 0;
+        }
+        .tp-tag {
+            flex: none; font-family: var(--font-mono); font-size: .56rem; font-weight: 800;
+            letter-spacing: .1em; color: #8b95a6; padding-top: 2px;
+        }
+        .minimock {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 10px;
+            display: flex; flex-direction: column; gap: 7px; flex: 1 1 auto;
+        }
+        .mm-btn {
+            background: var(--amber); color: #1a1206; border-radius: 4px; padding: 9px;
+            font-size: .8rem; font-weight: 800; text-align: center;
+        }
+        .mm-bar {
+            background: #0e1729; color: #22c55e; border: 1px solid #243352; border-radius: 4px;
+            font-family: var(--font-mono); font-size: .68rem; font-weight: 700; padding: 8px 10px; letter-spacing: .06em;
+        }
+        .mm-bar.amber { color: #f59e0b; }
+        .mm-steps { display: flex; gap: 5px; }
+        .mm-step {
+            flex: 1; text-align: center; font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+            padding: 6px 0; border: 1px solid var(--line); border-radius: 4px;
+            background: var(--surface-subtle); color: var(--ink-muted);
+        }
+        .mm-step.done { background: var(--emerald-pale); border-color: var(--emerald); color: var(--emerald); }
+        .mm-step.now { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
 
         /* ── Callout ── */
         .callout-box {
@@ -258,10 +336,9 @@
             border: 1.5px solid var(--line);
             border-left: 5px solid var(--coral);
             border-radius: 4px;
-            padding: 12px 18px;
-            margin-top: 13px;
-            font-size: 1rem;
-            line-height: 1.42;
+            padding: 11px 16px;
+            font-size: .95rem;
+            line-height: 1.4;
             color: var(--ink-body);
             box-shadow: 0 2px 6px rgba(0,0,0,.05);
         }
@@ -277,12 +354,14 @@
             overflow: hidden;
             background: var(--ink-heading);
             box-shadow: 0 4px 14px rgba(0,0,0,.18);
+            flex: 1;
+            min-height: 0;
         }
         .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .photo::before, .photo::after {
             content: "";
             position: absolute;
-            width: 22px; height: 22px;
+            width: 20px; height: 20px;
             border: 3px solid rgba(255,255,255,.85);
             z-index: 2;
             pointer-events: none;
@@ -291,37 +370,42 @@
         .photo::after  { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
         .photo-cap {
             font-family: var(--font-mono);
-            font-size: .7rem;
+            font-size: .66rem;
             color: var(--dim);
             margin-top: 6px;
             letter-spacing: .02em;
+            flex-shrink: 0;
         }
 
         /* ── Numbered step list ── */
-        .steps { display: flex; flex-direction: column; gap: 9px; }
+        .steps { display: flex; flex-direction: column; gap: 14px; }
         .step { display: flex; gap: 12px; align-items: flex-start; }
         .step-n {
             flex: none;
-            width: 30px; height: 30px;
+            width: 28px; height: 28px;
             border-radius: 50%;
             background: var(--ink-heading);
             color: #fff;
             font-family: var(--font-mono);
             font-weight: 800;
-            font-size: .85rem;
+            font-size: .78rem;
             display: flex; align-items: center; justify-content: center;
         }
         .step-n.coral { background: var(--coral); }
-        .step-t { font-size: .98rem; line-height: 1.4; color: var(--ink-body); padding-top: 3px; }
+        .step-t { font-size: 1rem; line-height: 1.42; color: var(--ink-body); padding-top: 3px; }
         .step-t strong { color: var(--ink-heading); }
+        /* Boxed variant: each step gets its own panel, so a one-line step cannot
+           leave a hole in the middle of a column. */
+        .steps.boxed .step {
+            background: var(--surface); border: 1.5px solid var(--line);
+            border-left: 4px solid var(--coral); border-radius: 4px;
+            padding: 12px 14px; box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .startcard { flex: 1; gap: 8px; }
+        .startcard .steps { flex: 1; justify-content: space-around; gap: 8px; }
 
         /* ══════════ SLIDE 1: COVER ══════════ */
-        .cover {
-            position: absolute; inset: 0;
-            display: none;
-            overflow: hidden;
-            background: #05080f;
-        }
+        .cover { position: absolute; inset: 0; display: none; overflow: hidden; background: #05080f; }
         .cover.active { display: block; }
         .cover-img {
             position: absolute; inset: 0;
@@ -330,7 +414,7 @@
         .cover-scrim {
             position: absolute; inset: 0;
             background:
-                linear-gradient(100deg, rgba(5,8,15,.96) 0%, rgba(5,8,15,.90) 38%, rgba(5,8,15,.55) 62%, rgba(5,8,15,.35) 100%);
+                linear-gradient(100deg, rgba(5,8,15,.96) 0%, rgba(5,8,15,.90) 40%, rgba(5,8,15,.58) 64%, rgba(5,8,15,.34) 100%);
         }
         .cover-inner {
             position: relative;
@@ -338,73 +422,67 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 6vw;
-            max-width: 1350px;
+            padding: 0 74px;
         }
         .cover-stamp {
             display: inline-flex;
             align-self: flex-start;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             font-family: var(--font-mono);
-            font-size: .74rem;
+            font-size: .7rem;
             font-weight: 800;
-            letter-spacing: .2em;
+            letter-spacing: .18em;
             text-transform: uppercase;
             color: #ffd7d1;
             border: 2px solid var(--coral);
             background: rgba(237,120,106,.14);
-            padding: 6px 14px;
+            padding: 6px 13px;
             border-radius: 3px;
             transform: rotate(-1.2deg);
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
-        .cover-stamp .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+        .cover-stamp .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
         .cover-kicker {
             font-family: var(--font-mono);
-            font-size: .9rem;
+            font-size: .82rem;
             font-weight: 700;
-            letter-spacing: .32em;
+            letter-spacing: .3em;
             text-transform: uppercase;
             color: var(--teal);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .cover-title {
             font-family: var(--font-display);
-            font-size: clamp(3rem, 7.2vw, 6.6rem);
+            font-size: 5.6rem;
             font-weight: 700;
             line-height: .98;
             color: #ffffff;
             letter-spacing: -0.02em;
             text-shadow: 0.03em 0.04em 0 rgba(0,0,0,.5);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .cover-title .thin { color: var(--coral); }
-        .cover-rule { width: 120px; height: 5px; background: var(--coral); margin-bottom: 18px; border-radius: 2px; }
+        .cover-rule { width: 110px; height: 5px; background: var(--coral); margin-bottom: 16px; border-radius: 2px; }
         .cover-lede {
-            font-size: clamp(1.02rem, 1.55vw, 1.35rem);
-            line-height: 1.5;
+            font-size: 1.16rem;
+            line-height: 1.48;
             color: #d7dde7;
-            max-width: 780px;
-            margin-bottom: 24px;
+            max-width: 760px;
+            margin-bottom: 22px;
         }
         .cover-lede strong { color: #ffffff; }
-        .cover-meta {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+        .cover-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .cover-chip {
             font-family: var(--font-mono);
-            font-size: .74rem;
+            font-size: .68rem;
             font-weight: 700;
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             text-transform: uppercase;
             color: #cbd5e1;
             border: 1px solid #3d4b63;
             background: rgba(255,255,255,.06);
-            padding: 6px 12px;
+            padding: 6px 11px;
             border-radius: 3px;
         }
         .cover-chip.hot { color: #ffd7d1; border-color: var(--coral); background: rgba(237,120,106,.14); }
@@ -413,9 +491,10 @@
         .surge {
             display: flex;
             align-items: flex-end;
-            gap: 14px;
-            height: 210px;
-            padding: 14px 18px 0;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            padding: 12px 16px 0;
             background: var(--surface);
             border: 1.5px solid var(--line);
             border-radius: 4px;
@@ -424,7 +503,7 @@
         .surge-b {
             flex: 1;
             height: var(--h);
-            min-height: 44px;
+            min-height: 42px;
             background: linear-gradient(180deg, #f39083 0%, var(--coral) 100%);
             border-radius: 3px 3px 0 0;
             display: flex;
@@ -435,294 +514,255 @@
             border: 1px solid var(--coral-dark);
             border-bottom: 0;
         }
-        .surge-b b { font-family: var(--font-display); font-size: 1.55rem; color: #fff; line-height: 1; }
+        .surge-b b { font-family: var(--font-display); font-size: 1.5rem; color: #fff; line-height: 1; }
         .surge-b span {
             font-family: var(--font-mono);
-            font-size: .64rem;
+            font-size: .6rem;
             font-weight: 700;
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             color: #fff;
             opacity: .92;
             margin-top: 3px;
         }
         .surge-b.cold { background: linear-gradient(180deg, #7fb3ee 0%, var(--navy) 100%); border-color: #16369c; }
-        .surge-axis {
-            display: flex;
-            gap: 14px;
-            padding: 0 18px;
-            margin-top: 0;
-        }
+        .surge-axis { display: flex; gap: 12px; padding: 0 16px; flex-shrink: 0; }
         .surge-axis div {
             flex: 1;
             font-family: var(--font-mono);
-            font-size: .66rem;
+            font-size: .62rem;
             font-weight: 700;
-            letter-spacing: .1em;
+            letter-spacing: .09em;
             color: var(--dim);
             text-align: center;
-            padding: 5px 0 0;
+            padding: 4px 0 0;
         }
 
         /* ══════════ TIMELINE ══════════ */
-        .timeline { display: flex; align-items: stretch; gap: 0; margin-top: 4px; }
-        .tl-node {
-            flex: 1;
-            position: relative;
-            padding: 26px 8px 8px;
-            text-align: center;
-        }
+        .timeline { display: flex; align-items: stretch; gap: 0; flex-shrink: 0; margin-top: 12px; }
+        .tl-node { flex: 1; position: relative; padding: 24px 6px 0; text-align: center; }
         .tl-node::before {
-            content: "";
-            position: absolute;
-            top: 11px; left: 0; right: 0;
-            height: 3px;
-            background: var(--line);
+            content: ""; position: absolute; top: 10px; left: 0; right: 0; height: 3px; background: var(--line);
         }
         .tl-node::after {
-            content: "";
-            position: absolute;
-            top: 5px; left: 50%;
-            transform: translateX(-50%);
-            width: 15px; height: 15px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 3px solid var(--coral);
+            content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+            width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--coral);
         }
         .tl-node.locked::after { border-color: var(--amber); }
         .tl-node.locked::before { background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 15px); }
         .tl-label {
-            font-family: var(--font-mono);
-            font-size: .68rem;
-            font-weight: 800;
-            letter-spacing: .07em;
-            text-transform: uppercase;
-            color: var(--ink-heading);
-            line-height: 1.25;
+            font-family: var(--font-mono); font-size: .64rem; font-weight: 800; letter-spacing: .05em;
+            text-transform: uppercase; color: var(--ink-heading); line-height: 1.2;
         }
-        .tl-sub { font-size: .72rem; color: var(--dim); margin-top: 2px; }
+        .tl-sub { font-size: .7rem; color: var(--dim); margin-top: 2px; }
         .tl-node.locked .tl-label { color: var(--amber); }
 
         /* ══════════ UI MOCKUP ══════════ */
-        .mock-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        .mock-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
         .mock {
-            flex: 1;
-            min-height: 0;
+            flex: 0 0 auto;
+            height: 520px;
             display: grid;
-            grid-template-columns: 185px 1fr 300px;
+            grid-template-rows: 24px 1fr;
+            grid-template-columns: 168px 1fr 268px;
             border: 2px solid var(--ink-heading);
             border-radius: 5px;
             overflow: hidden;
             background: #0b1220;
             box-shadow: 0 6px 20px rgba(0,0,0,.28);
         }
-        .mock-col { min-width: 0; display: flex; flex-direction: column; }
-        .mock-rail { background: #0e1729; border-right: 2px solid #243352; padding: 8px; }
-        .mock-centre { background: #0b1220; padding: 10px 12px; overflow: hidden; }
-        .mock-log { background: #0e1729; border-left: 2px solid #243352; padding: 8px; }
-        .mock-h {
+        .mock-hud {
+            grid-column: 1 / -1;
+            background: #0e1729;
+            border-bottom: 2px solid #243352;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
             font-family: var(--font-mono);
-            font-size: .58rem;
-            font-weight: 800;
-            letter-spacing: .14em;
+            font-size: .52rem;
+            font-weight: 700;
+            letter-spacing: .07em;
             text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 6px;
+            color: #94a3b8;
+        }
+        .mock-hud .brand { color: #ffffff; font-family: 'Roboto Slab', Georgia, serif; font-size: .62rem; letter-spacing: .02em; }
+        .mock-hud .pill { border: 1px solid #243352; border-radius: 999px; padding: 1px 6px; }
+        .mock-hud .pill b { color: #e2e8f0; }
+        .mock-hud .ok { color: #22c55e; border-color: #22c55e; }
+        .mock-hud .spacer { flex: 1; }
+        .mock-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+        .mock-rail { background: #0e1729; border-right: 2px solid #243352; padding: 7px; }
+        .mock-centre { background: #0b1220; padding: 8px 10px; overflow: hidden; }
+        .mock-log { background: #0e1729; border-left: 2px solid #243352; padding: 7px; }
+        .mock-h {
+            font-family: var(--font-mono); font-size: .54rem; font-weight: 800; letter-spacing: .13em;
+            text-transform: uppercase; color: #64748b; margin-bottom: 5px;
         }
         .mock-nav {
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
-            background: #111c33;
-            border: 1px solid #243352;
-            border-radius: 5px;
-            padding: 5px 7px;
-            margin-bottom: 4px;
-            font-family: var(--font-mono);
-            font-size: .58rem;
-            font-weight: 700;
-            letter-spacing: .06em;
-            color: #e2e8f0;
-            text-transform: uppercase;
+            display: flex; justify-content: space-between; gap: 5px;
+            background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 4px 6px; margin-bottom: 3px;
+            font-family: var(--font-mono); font-size: .55rem; font-weight: 700; letter-spacing: .05em;
+            color: #e2e8f0; text-transform: uppercase;
         }
         .mock-nav.on { border-color: #f59e0b; background: #1a2542; color: #f59e0b; }
-        .mock-nav.lock { opacity: .5; color: #f59e0b; }
-        .mock-surge { margin-top: 8px; padding: 7px; border: 1px solid #243352; border-radius: 5px; background: #111c33; }
+        .mock-nav.lock { opacity: .55; color: #f59e0b; }
+        .mock-surge { margin-top: 6px; padding: 6px; border: 1px solid #243352; border-radius: 5px; background: #111c33; }
         .mock-surge-row { display: flex; gap: 3px; }
         .mock-surge-cell {
-            flex: 1;
-            text-align: center;
-            border: 1px solid #243352;
-            border-radius: 3px;
-            background: #0e1729;
-            padding: 3px 0;
+            flex: 1; text-align: center; border: 1px solid #243352; border-radius: 3px; background: #0e1729; padding: 2px 0;
         }
-        .mock-surge-cell b { display: block; font-family: 'Roboto Slab', Georgia, serif; font-size: .78rem; color: #fb7185; }
-        .mock-surge-cell i { font-family: var(--font-mono); font-style: normal; font-size: .48rem; color: #64748b; }
-        .mock-kicker { font-family: var(--font-mono); font-size: .58rem; font-weight: 700; letter-spacing: .16em; color: #2dd4bf; text-transform: uppercase; }
-        .mock-title { font-family: var(--font-display); font-size: .95rem; color: #fff; margin: 2px 0 6px; line-height: 1.2; }
-        .mock-char { display: flex; gap: 8px; background: #111c33; border: 1px solid #243352; border-radius: 6px; padding: 6px; margin-bottom: 7px; }
-        .mock-char img { width: 42px; height: 42px; border-radius: 5px; object-fit: cover; border: 2px solid #f59e0b; flex: none; }
-        .mock-char .who { font-family: var(--font-mono); font-size: .54rem; font-weight: 800; letter-spacing: .08em; color: #f59e0b; text-transform: uppercase; }
-        .mock-char .q { font-size: .62rem; color: #e2e8f0; line-height: 1.32; margin-top: 2px; }
-        .mock-tabs { display: flex; gap: 5px; margin-bottom: 6px; }
+        .mock-surge-cell b { display: block; font-family: Georgia, serif; font-size: .74rem; color: #fb7185; line-height: 1.15; }
+        .mock-surge-cell i { font-family: var(--font-mono); font-style: normal; font-size: .44rem; color: #64748b; }
+        .mock-kicker { font-family: var(--font-mono); font-size: .54rem; font-weight: 700; letter-spacing: .14em; color: #2dd4bf; text-transform: uppercase; }
+        .mock-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .mock-read { flex: none; border: 1px solid #2dd4bf; color: #2dd4bf; border-radius: 4px; padding: 2px 7px; font-family: var(--font-mono); font-size: .5rem; font-weight: 700; }
+        .mock-title { font-family: var(--font-display); font-size: .88rem; color: #fff; margin: 1px 0 5px; line-height: 1.2; }
+        .mock-char { display: flex; gap: 7px; background: #111c33; border: 1px solid #243352; border-radius: 6px; padding: 5px; margin-bottom: 6px; }
+        .mock-char img { width: 38px; height: 38px; border-radius: 5px; object-fit: cover; border: 2px solid #f59e0b; flex: none; }
+        .mock-char .who { font-family: var(--font-mono); font-size: .5rem; font-weight: 800; letter-spacing: .07em; color: #f59e0b; text-transform: uppercase; }
+        .mock-char .q { font-size: .58rem; color: #e2e8f0; line-height: 1.3; margin-top: 2px; }
+        .mock-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
         .mock-tab {
-            font-family: var(--font-mono);
-            font-size: .56rem;
-            font-weight: 700;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            background: #111c33;
-            color: #e2e8f0;
-            border: 1px solid #243352;
-            border-radius: 4px;
-            padding: 4px 8px;
+            font-family: var(--font-mono); font-size: .53rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+            background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 3px 7px;
         }
         .mock-tab.on { background: #2dd4bf; color: #06251f; border-color: #2dd4bf; }
-        .mock-body { background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 7px 9px; font-size: .62rem; color: #cbd5e1; line-height: 1.4; }
+        .mock-body { background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 6px 8px; font-size: .58rem; color: #cbd5e1; line-height: 1.4; }
         .mock-body b { color: #fff; }
         .mock-exhibit { margin-top: 6px; border: 1px solid #243352; border-radius: 5px; overflow: hidden; }
-        .mock-exhibit img { width: 100%; height: 86px; object-fit: cover; display: block; }
-        .mock-log-h { font-family: var(--font-mono); font-size: .56rem; font-weight: 800; letter-spacing: .12em; color: #2dd4bf; text-transform: uppercase; margin-bottom: 6px; }
-        .mock-prompt { background: #111c33; border: 1px solid #243352; border-left: 2px solid #2dd4bf; border-radius: 5px; padding: 7px 8px; font-size: .62rem; color: #e2e8f0; line-height: 1.38; margin-bottom: 8px; }
-        .mock-opt { display: block; width: 100%; text-align: left; background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 5px 8px; font-size: .6rem; margin-bottom: 4px; line-height: 1.3; }
+        .mock-exhibit img { width: 100%; height: 120px; object-fit: cover; display: block; }
+        .mock-exhibit .cap { font-family: var(--font-mono); font-size: .48rem; color: #64748b; padding: 4px 7px; border-top: 1px solid #243352; }
+        .mock-log-h { font-family: var(--font-mono); font-size: .52rem; font-weight: 800; letter-spacing: .1em; color: #2dd4bf; text-transform: uppercase; margin-bottom: 5px; }
+        .mock-prompt { background: #111c33; border: 1px solid #243352; border-left: 2px solid #2dd4bf; border-radius: 5px; padding: 6px 7px; font-size: .58rem; color: #e2e8f0; line-height: 1.34; margin-bottom: 6px; }
+        .mock-opt { display: block; width: 100%; text-align: left; background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 4px 7px; font-size: .56rem; margin-bottom: 3px; line-height: 1.28; }
         .mock-opt.on { background: #f59e0b; color: #1a1206; border-color: #f59e0b; font-weight: 700; }
-        .mock-hist { margin-top: 9px; border-top: 1px solid #243352; padding-top: 6px; font-family: var(--font-mono); font-size: .52rem; color: #64748b; line-height: 1.5; }
+        .mock-area { background: #111c33; border: 1px solid #243352; border-radius: 4px; padding: 5px 7px; font-size: .56rem; color: #7d8ba1; font-style: italic; margin-bottom: 6px; }
+        .mock-hist { margin-top: auto; border-top: 1px solid #243352; padding-top: 5px; font-family: var(--font-mono); font-size: .5rem; color: #64748b; line-height: 1.55; }
         .mock-hist b { color: #2dd4bf; }
 
-        .abc-key { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
-        .abc-item { display: flex; align-items: center; gap: 8px; font-size: .87rem; color: var(--ink-body); }
-        .abc-badge {
-            flex: none;
-            width: 24px; height: 24px;
-            border-radius: 50%;
-            background: var(--ink-heading);
-            color: #fff;
-            font-family: var(--font-mono);
-            font-weight: 800;
-            font-size: .74rem;
-            display: flex; align-items: center; justify-content: center;
+        .abc-key { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; flex-shrink: 0; }
+        .abc-item {
+            display: flex; gap: 10px; align-items: flex-start; font-size: .82rem; line-height: 1.38; color: var(--ink-body);
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 4px; padding: 10px 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
         }
-        .abc-item strong { color: var(--ink-heading); }
+        .abc-badge {
+            flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink-heading); color: #fff;
+            font-family: var(--font-mono); font-weight: 800; font-size: .7rem; display: flex; align-items: center; justify-content: center;
+        }
+        .abc-item strong { color: var(--ink-heading); display: block; font-size: .86rem; }
+
+        /* ══════════ SIGN-IN GATE MOCK ══════════ */
+        .gate-mock {
+            flex: 1; min-height: 0; display: flex; align-items: center;
+            border: 2px solid var(--ink-heading); border-radius: 6px; overflow: hidden;
+            background: linear-gradient(rgba(11,18,32,.72), rgba(11,18,32,.86)), url('assets/s0_normal_school.png') center/cover no-repeat;
+            box-shadow: 0 4px 14px rgba(0,0,0,.2);
+        }
+        .gate-mock-inner { padding: 16px 18px; text-align: center; width: 100%; }
+        .gate-mock-k { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin-bottom: 5px; }
+        .gate-mock-h { font-family: var(--font-display); font-size: 1.06rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .gate-mock-btn { background: var(--amber); color: #1a1206; font-weight: 800; border-radius: 6px; padding: 9px; font-size: .82rem; }
+        .gate-mock-hint { font-family: var(--font-mono); font-size: .6rem; color: #94a3b8; margin-top: 8px; line-height: 1.45; }
 
         /* ══════════ TAB CARDS ══════════ */
         .tabcard { border-radius: 5px; overflow: hidden; border: 1.5px solid var(--line); background: var(--surface); box-shadow: 0 2px 6px rgba(0,0,0,.05); display: flex; flex-direction: column; }
-        .tabcard-bar { padding: 8px 14px; font-family: var(--font-mono); font-size: .82rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; }
+        .tabcard-bar { padding: 8px 14px; font-family: var(--font-mono); font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; }
         .tabcard.navy .tabcard-bar { background: var(--navy); }
         .tabcard.teal .tabcard-bar { background: var(--teal); }
         .tabcard.amber .tabcard-bar { background: var(--amber); }
         .tabcard-body { padding: 12px 14px; flex: 1; }
-        .tabcard-body p { font-size: .95rem; line-height: 1.44; color: var(--ink-body); }
+        .tabcard-body p { font-size: .92rem; line-height: 1.42; color: var(--ink-body); }
         .tabcard-body strong { color: var(--ink-heading); }
-        .tabcard .example { font-family: var(--font-mono); font-size: .68rem; color: var(--dim); margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 7px; }
+        .tabcard .example { font-family: var(--font-mono); font-size: .64rem; color: var(--dim); margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 7px; }
 
         /* ══════════ FIELD WIDGETS ══════════ */
         .widget {
-            background: var(--surface);
-            border: 1.5px solid var(--line);
-            border-top: 4px solid var(--teal);
-            border-radius: 4px;
-            padding: 11px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+            background: var(--surface); border: 1.5px solid var(--line); border-top: 4px solid var(--teal); border-radius: 4px;
+            padding: 10px 11px; display: flex; flex-direction: column; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.05);
         }
-        .widget-h { font-family: var(--font-mono); font-size: .68rem; font-weight: 800; letter-spacing: .12em; color: var(--teal); text-transform: uppercase; }
-        .widget-p { font-size: .85rem; line-height: 1.38; color: var(--ink-muted); }
-        .w-opt { display: block; width: 100%; text-align: left; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; font-size: .78rem; color: var(--ink-body); margin-bottom: 4px; line-height: 1.3; }
+        .widget-h { font-family: var(--font-mono); font-size: .64rem; font-weight: 800; letter-spacing: .11em; color: var(--teal); text-transform: uppercase; }
+        .widget-p { font-size: .82rem; line-height: 1.35; color: var(--ink-muted); }
+        .widget-foot {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 7px;
+            font-size: .75rem; line-height: 1.35; color: var(--ink-muted);
+        }
+        .widget-foot b { color: var(--ink-heading); }
+        .w-opt { display: block; width: 100%; text-align: left; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 7px; font-size: .75rem; color: var(--ink-body); margin-bottom: 3px; line-height: 1.28; }
         .w-opt.on { background: var(--amber); color: #1a1206; border-color: #b45309; font-weight: 700; }
-        .w-input { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; font-size: .78rem; color: #8c96a6; font-style: italic; }
-        .w-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
-        .w-sel { flex: 1; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; font-family: var(--font-mono); font-size: .66rem; color: var(--ink-body); }
+        .w-input { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; font-size: .75rem; color: #8c96a6; font-style: italic; }
+        .w-row { display: flex; gap: 5px; align-items: center; margin-bottom: 3px; }
+        .w-sel { flex: 1; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; font-family: var(--font-mono); font-size: .62rem; color: var(--ink-body); }
         .w-sel.empty { color: #8c96a6; }
-        .w-num { flex: none; width: 30px; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 5px 0; font-family: var(--font-mono); font-size: .7rem; font-weight: 700; text-align: center; color: var(--ink-heading); }
-        .w-table { width: 100%; border-collapse: collapse; font-size: .74rem; }
-        .w-table th { background: var(--surface-subtle); border: 1px solid var(--line); padding: 4px 6px; font-family: var(--font-mono); font-size: .6rem; text-transform: uppercase; color: var(--ink-muted); text-align: left; }
-        .w-table td { border: 1px solid var(--line); padding: 5px 6px; color: #8c96a6; font-style: italic; }
+        .w-num { flex: none; width: 26px; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 0; font-family: var(--font-mono); font-size: .66rem; font-weight: 700; text-align: center; color: var(--ink-heading); }
+        .w-table { width: 100%; border-collapse: collapse; font-size: .7rem; }
+        .w-table th { background: var(--surface-subtle); border: 1px solid var(--line); padding: 3px 5px; font-family: var(--font-mono); font-size: .56rem; text-transform: uppercase; color: var(--ink-muted); text-align: left; }
+        .w-table td { border: 1px solid var(--line); padding: 4px 5px; color: #8c96a6; font-style: italic; }
 
         /* ══════════ COMMIT ══════════ */
         .commit-strip {
-            margin-top: 12px;
-            background: var(--amber-pale);
-            border: 2px solid var(--amber);
-            border-radius: 5px;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
+            margin-top: 12px; flex-shrink: 0;
+            background: var(--amber-pale); border: 2px solid var(--amber); border-radius: 5px; padding: 13px 18px;
+            display: flex; align-items: center; gap: 20px;
         }
         .commit-btn {
-            flex: none;
-            background: var(--amber);
-            color: #ffffff;
-            border: 2px solid #8a4008;
-            border-radius: 5px;
-            padding: 12px 22px;
-            font-family: var(--font-mono);
-            font-size: .92rem;
-            font-weight: 800;
-            letter-spacing: .08em;
-            white-space: nowrap;
+            flex: none; background: var(--amber); color: #ffffff; border: 2px solid #8a4008; border-radius: 5px;
+            padding: 11px 20px; font-family: var(--font-mono); font-size: .88rem; font-weight: 800; letter-spacing: .07em; white-space: nowrap;
         }
-        .commit-note { font-size: .95rem; line-height: 1.42; color: var(--ink-body); }
+        .commit-note { font-size: .92rem; line-height: 1.4; color: var(--ink-body); }
         .commit-note strong { color: var(--ink-heading); }
+
+        /* ══════════ CAST CARDS ══════════ */
+        .castcard {
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 5px; overflow: hidden;
+            display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,.06); min-height: 0;
+        }
+        .castcard img { width: 100%; height: 0; flex: 1 1 0; min-height: 0; object-fit: cover; object-position: center 20%; display: block; }
+        .castcard .cap { padding: 8px 12px 10px; border-top: 3px solid var(--coral); }
+        .castcard.teal .cap { border-top-color: var(--teal); }
+        .castcard.navy .cap { border-top-color: var(--navy); }
+        .castcard.amber .cap { border-top-color: var(--amber); }
+        .castcard.emerald .cap { border-top-color: var(--emerald); }
+        .castcard .nm { font-family: var(--font-display); font-size: 1.02rem; font-weight: 700; color: var(--ink-heading); line-height: 1.15; }
+        .castcard .rl { font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
 
         /* ══════════ CLOSING ══════════ */
         .closing { display: grid; grid-template-columns: 1.05fr .95fr; height: 100%; }
-        .closing-l { display: flex; flex-direction: column; justify-content: center; padding: 0 3vw 0 3.5vw; }
+        .closing-l { display: flex; flex-direction: column; justify-content: center; padding: 0 30px 0 48px; }
         .closing-r { position: relative; overflow: hidden; }
         .closing-r img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .closing-r::after {
-            content: "";
-            position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(236,239,242,.96) 0%, rgba(236,239,242,.18) 26%, rgba(236,239,242,0) 55%);
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(236,239,242,.97) 0%, rgba(236,239,242,.20) 24%, rgba(236,239,242,0) 52%);
         }
 
         /* ── Footer ── */
         #footer {
-            background: var(--surface);
-            padding: 9px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            z-index: 10;
-            gap: 14px;
+            background: var(--surface); padding: 8px 26px; display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; z-index: 10; gap: 14px;
         }
-        .footer-hint { font-size: .78rem; color: var(--ink-muted); font-weight: 600; }
+        .footer-hint { font-size: .74rem; color: var(--ink-muted); font-weight: 600; }
         .footer-hint kbd {
-            background: var(--paper);
-            border: 1px solid var(--line-dark);
-            border-radius: 3px;
-            padding: 2px 6px;
-            font-family: var(--font-mono);
-            font-size: .76rem;
-            color: var(--ink);
-            box-shadow: 0 1px 0 rgba(0,0,0,.1);
+            background: var(--paper); border: 1px solid var(--line-dark); border-radius: 3px; padding: 2px 5px;
+            font-family: var(--font-mono); font-size: .72rem; color: var(--ink); box-shadow: 0 1px 0 rgba(0,0,0,.1);
         }
         .footer-nav { display: flex; gap: 8px; align-items: center; }
         .nav-btn {
-            background: var(--surface);
-            border: 1.5px solid var(--line-dark);
-            color: var(--ink);
-            font-family: var(--font-body);
-            font-size: .82rem;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all .15s;
+            background: var(--surface); border: 1.5px solid var(--line-dark); color: var(--ink); font-family: var(--font-body);
+            font-size: .78rem; font-weight: 700; padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all .15s;
         }
         .nav-btn:hover { border-color: var(--coral); color: var(--coral-dark); background: var(--coral-pale); }
         .nav-btn.primary { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
         .nav-btn.primary:hover { background: var(--coral-dark); }
         .nav-btn:disabled { opacity: .4; cursor: not-allowed; }
 
-        .tiny { font-size: .78rem; color: var(--dim); line-height: 1.4; }
-        .mt { margin-top: 12px; }
+        .tiny { font-size: .74rem; color: var(--dim); line-height: 1.35; }
     </style>
 </head>
 <body>
+
+<div id="stage">
+<div id="canvas">
 
     <!-- ══════════ HEADER ══════════ -->
     <header id="header" class="double-rule-bottom">
@@ -773,26 +813,28 @@
                 hands you the outbreak case and the authority to call it.
             </p>
             <div class="body">
-                <div class="split">
-                    <div class="steps">
-                        <div class="step">
-                            <div class="step-n coral">01</div>
-                            <div class="step-t"><strong>Read the board.</strong> Each day brings new evidence: attendance counts, symptom logs, witness interviews, lab tests.</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">02</div>
-                            <div class="step-t"><strong>Make the call.</strong> You record a judgement every day. Change it as often as you like until you commit. Nobody is watching over your shoulder.</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">03</div>
-                            <div class="step-t"><strong>Deliver the plan.</strong> Friday afternoon you hand Vice-Principal Raman three rules that stop the outbreak before it hits a hundred students.</div>
+                <div class="split fill">
+                    <div class="col" style="justify-content: center; gap: 26px;">
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-n coral">01</div>
+                                <div class="step-t"><strong>Read the board.</strong> Each day brings new evidence: attendance counts, symptom logs, witness interviews, lab tests.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">02</div>
+                                <div class="step-t"><strong>Make the call.</strong> You record a judgement every day. Change it as often as you like until you commit. Nobody is watching over your shoulder.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">03</div>
+                                <div class="step-t"><strong>Deliver the plan.</strong> Friday afternoon you hand Vice-Principal Raman three rules that stop the outbreak before it hits a hundred students.</div>
+                            </div>
                         </div>
                         <div class="callout-box">
                             One week of story. <strong>Nine stops.</strong> One plan. And one verdict you do not get to see until your plan is on the table.
                         </div>
                     </div>
-                    <div>
-                        <div class="photo" style="height: 300px;">
+                    <div class="col">
+                        <div class="photo">
                             <img src="assets/s1_normal_office.png" alt="The Health Office desk: ice packs, bandages, a first aid kit and the absence clipboard." />
                         </div>
                         <div class="photo-cap">Your desk. Usually ice packs and bandages. This week it is an outbreak.</div>
@@ -810,47 +852,47 @@
                 something back. Working out which is which is the job.
             </p>
             <div class="body">
-                <div class="grid-3" style="gap: 14px;">
-                    <div class="card coral" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_vp_raman.png" alt="Vice-Principal Priya Raman" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--coral); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Vice-Principal Priya Raman</div>
-                            <div class="card-p tiny">In charge of the outbreak response</div>
+                <div class="grid-3 fill" style="grid-template-rows: 1fr 1fr; gap: 12px;">
+                    <div class="castcard">
+                        <img src="assets/char_vp_raman.png" alt="Vice-Principal Priya Raman" />
+                        <div class="cap">
+                            <div class="nm">Vice-Principal Priya Raman</div>
+                            <div class="rl">In charge of the outbreak response</div>
                         </div>
                     </div>
-                    <div class="card teal" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_nurse.png" alt="Nurse Chen" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--teal); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Nurse Chen</div>
-                            <div class="card-p tiny">School public-health nurse</div>
+                    <div class="castcard teal">
+                        <img src="assets/char_nurse.png" alt="Nurse Chen" />
+                        <div class="cap">
+                            <div class="nm">Nurse Chen</div>
+                            <div class="rl">School public-health nurse</div>
                         </div>
                     </div>
-                    <div class="card navy" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_marcus.png" alt="Marcus" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--navy); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Marcus</div>
-                            <div class="card-p tiny">Grade 9</div>
+                    <div class="castcard navy">
+                        <img src="assets/char_marcus.png" alt="Marcus" />
+                        <div class="cap">
+                            <div class="nm">Marcus</div>
+                            <div class="rl">Grade 9</div>
                         </div>
                     </div>
-                    <div class="card amber" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_jayden.png" alt="Jayden" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--amber); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Jayden</div>
-                            <div class="card-p tiny">Grade 8, West Wing</div>
+                    <div class="castcard amber">
+                        <img src="assets/char_jayden.png" alt="Jayden" />
+                        <div class="cap">
+                            <div class="nm">Jayden</div>
+                            <div class="rl">Grade 8, West Wing</div>
                         </div>
                     </div>
-                    <div class="card emerald" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_sophie.png" alt="Sophie" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--emerald); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Sophie</div>
-                            <div class="card-p tiny">Grade 7</div>
+                    <div class="castcard emerald">
+                        <img src="assets/char_sophie.png" alt="Sophie" />
+                        <div class="cap">
+                            <div class="nm">Sophie</div>
+                            <div class="rl">Grade 7</div>
                         </div>
                     </div>
-                    <div class="card coral" style="flex-direction: row; gap: 12px; align-items: center;">
-                        <img src="assets/char_boudreau.png" alt="Mr. Boudreau" style="width: 74px; height: 74px; border-radius: 6px; object-fit: cover; border: 2px solid var(--coral-dark); flex: none;" />
-                        <div>
-                            <div class="card-h2" style="font-size: 1.02rem;">Mr. Boudreau</div>
-                            <div class="card-p tiny">Head custodian</div>
+                    <div class="castcard">
+                        <img src="assets/char_boudreau.png" alt="Mr. Boudreau" />
+                        <div class="cap">
+                            <div class="nm">Mr. Boudreau</div>
+                            <div class="rl">Head custodian</div>
                         </div>
                     </div>
                 </div>
@@ -866,18 +908,22 @@
                 You cannot skip ahead, and you cannot rush it.
             </p>
             <div class="body">
-                <div class="grid-2" style="grid-template-columns: 1fr 1.15fr; gap: 22px; align-items: center;">
-                    <div>
-                        <div class="card amber" style="margin-bottom: 12px;">
+                <div class="grid-2 fill" style="grid-template-columns: .85fr 1.15fr; gap: 22px;">
+                    <div class="col" style="justify-content: center; gap: 16px;">
+                        <div class="card amber">
                             <div class="card-tag">Students home sick</div>
                             <div class="card-p">The number climbs every single day. Watch it climb. Something is spreading, and it is not slowing down.</div>
                         </div>
-                        <div class="callout-box teal" style="margin-top: 0;">
+                        <div class="card teal">
+                            <div class="card-tag">One stop per day</div>
+                            <div class="card-p">A new day opens only when you have finished the day before it. Nine stops, and you walk through them in order.</div>
+                        </div>
+                        <div class="callout-box teal">
                             <strong>Move around freely.</strong> Every stop you reach stays open, and you can go back and re-read any of them at any time.
                             <strong>Case Closed is the only locked door</strong>, and it opens when you commit.
                         </div>
                     </div>
-                    <div>
+                    <div class="col">
                         <div class="surge">
                             <div class="surge-b cold" style="--h: 22%;"><b>3</b><span>MON</span></div>
                             <div class="surge-b cold" style="--h: 34%;"><b>7</b><span>TUE</span></div>
@@ -890,7 +936,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="timeline mt">
+                <div class="timeline">
                     <div class="tl-node"><div class="tl-label">Briefing</div><div class="tl-sub">Monday 8:15</div></div>
                     <div class="tl-node"><div class="tl-label">Monday</div><div class="tl-sub">3 out</div></div>
                     <div class="tl-node"><div class="tl-label">Tuesday</div><div class="tl-sub">7 out</div></div>
@@ -914,6 +960,15 @@
             <div class="body">
                 <div class="mock-wrap">
                     <div class="mock">
+                        <div class="mock-hud">
+                            <span class="brand">CASE 55</span>
+                            <span class="pill">CENTENNIAL JR HIGH</span>
+                            <span class="pill ok">SYNC: SERVER OK</span>
+                            <span class="spacer"></span>
+                            <span class="pill">HEALTH OFFICER: <b>you@gnspes.ca</b></span>
+                            <span class="pill">SECTION <b>802-HE</b></span>
+                        </div>
+
                         <!-- A: left rail -->
                         <div class="mock-col mock-rail">
                             <div class="mock-h">Days of the outbreak</div>
@@ -936,10 +991,16 @@
                                 </div>
                             </div>
                         </div>
+
                         <!-- B: centre -->
                         <div class="mock-col mock-centre">
-                            <div class="mock-kicker">Day 1 // A totally normal Monday?</div>
-                            <div class="mock-title">Monday: Scraped knees, ice packs, and 3 kids home</div>
+                            <div class="mock-head">
+                                <div>
+                                    <div class="mock-kicker">Day 1 // A totally normal Monday?</div>
+                                    <div class="mock-title">Monday: Scraped knees, ice packs, and 3 kids home</div>
+                                </div>
+                                <span class="mock-read">Read this tab</span>
+                            </div>
                             <div class="mock-char">
                                 <img src="assets/char_vp_raman.png" alt="" />
                                 <div>
@@ -953,12 +1014,23 @@
                                 <span class="mock-tab">3. Science &amp; Words</span>
                             </div>
                             <div class="mock-body">
-                                <b>Monday's Health Office Log:</b> gym class visits 2, sent home sick <b>3 students</b>, all with lockers and homerooms in the <b>Grade 8 West Wing</b>.
+                                <b>Monday's Health Office Log:</b> gym class visits 2, sent home sick <b>3 students</b>,
+                                all with lockers and homerooms in the <b>Grade 8 West Wing</b>.
+                            </div>
+                            <div class="mock-body" style="margin-top:5px;">
+                                <b>Word Bank for Today</b> &nbsp;&middot;&nbsp; <b>outbreak</b>: more people sick than usual, in one place, at one time
+                                &nbsp;&middot;&nbsp; <b>symptom</b>: a sign of sickness you can feel or see
                             </div>
                             <div class="mock-exhibit">
                                 <img src="assets/s0_normal_school.png" alt="" />
+                                <div class="cap">Centennial Junior High on Monday: classes humming along like any normal week. (click picture to zoom)</div>
+                            </div>
+                            <div class="mock-exhibit">
+                                <img src="assets/s1_normal_office.png" alt="" />
+                                <div class="cap">Your Health Officer desk on Monday morning: bandages, a gym-class ice pack, and today's absence clipboard.</div>
                             </div>
                         </div>
+
                         <!-- C: right log -->
                         <div class="mock-col mock-log">
                             <div class="mock-log-h">Health Officer Log // Your Calls</div>
@@ -967,18 +1039,30 @@
                             <span class="mock-opt on">A virus that attacks the stomach</span>
                             <span class="mock-opt">Bacteria in bad cafeteria food</span>
                             <span class="mock-opt">Something in the school's tap water</span>
+                            <span class="mock-opt">Just a random coincidence</span>
+                            <div class="mock-area">Give one clue that proves your pick. Include a number...</div>
                             <div class="mock-hist">
                                 <b>SAVED ENTRIES ACROSS THE WEEK</b><br>
                                 Mon &bull; hypothesis recorded<br>
                                 Tue &bull; body system + proof<br>
-                                Wed &bull; 4 entry gates matched
+                                Wed &bull; 4 entry gates matched<br>
+                                Thu &bull; pattern + main spreader
                             </div>
                         </div>
                     </div>
                     <div class="abc-key">
-                        <div class="abc-item"><span class="abc-badge">A</span><span><strong>The week.</strong> Pick any day, and the sick count sits underneath.</span></div>
-                        <div class="abc-item"><span class="abc-badge">B</span><span><strong>The evidence.</strong> Who is talking, the three tabs, and the photos.</span></div>
-                        <div class="abc-item"><span class="abc-badge">C</span><span><strong>Your work.</strong> Everything you type goes here, and it saves itself.</span></div>
+                        <div class="abc-item">
+                            <span class="abc-badge">A</span>
+                            <span><strong>The week.</strong> Pick any day from Monday to Friday. The sick count underneath fills in as the week goes. Every stop you reach stays open.</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">B</span>
+                            <span><strong>The evidence.</strong> Who is talking, the three tabs, and the photos. Click any photo to zoom in, and read all three tabs.</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">C</span>
+                            <span><strong>Your work.</strong> The Health Officer Log. Choose, type, match, compare, order. Everything you type saves itself.</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -999,6 +1083,11 @@
                         <div class="tabcard-body">
                             <p><strong>What happened that day</strong>, in the words of the people who were there. Dispatch notes and interviews from staff and students.</p>
                             <div class="example">EXAMPLE: a witness interview, in their own words</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">QUOTE</span><span>"The only thing on the absence slip is three Grade 8 kids from the West Wing who went home throwing up. Probably nothing, right?"</span></div>
+                                <div class="tp-row"><span class="tp-tag">QUOTE</span><span>"Germs cannot soak through healthy unbroken skin. Your hands act like a delivery truck."</span></div>
+                                <div class="tp-row"><span class="tp-tag">LOG</span><span>Gym class visits: 2 scraped knees (cleaned and bandaged) and 1 sore wrist (ice pack).</span></div>
+                            </div>
                         </div>
                     </div>
                     <div class="tabcard teal">
@@ -1006,6 +1095,11 @@
                         <div class="tabcard-body">
                             <p><strong>The numbers.</strong> Attendance counts, symptom logs, test results, floor plans, lab files. This is where proof lives.</p>
                             <div class="example">EXAMPLE: a percentage, a date, a location</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">NUMBER</span><span>Sent home sick: <b>3 students</b>, all with lockers and homerooms in the Grade 8 West Wing.</span></div>
+                                <div class="tp-row"><span class="tp-tag">MAP</span><span>Grade 8 classes are in the West Wing. Grades 7 and 9 are not.</span></div>
+                                <div class="tp-row"><span class="tp-tag">PLACE</span><span>All three grades cross paths in the hallways, the cafeteria lunch line, and the computer lab.</span></div>
+                            </div>
                         </div>
                     </div>
                     <div class="tabcard amber">
@@ -1013,10 +1107,15 @@
                         <div class="tabcard-body">
                             <p><strong>The science you need today</strong>, plus a <strong>Word Bank</strong> that explains every new term in plain words.</p>
                             <div class="example">EXAMPLE: what a word means, in one sentence</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">WORD</span><span><b>outbreak</b>: when many more people get the same sickness than normal, in one place, at the same time.</span></div>
+                                <div class="tp-row"><span class="tp-tag">WORD</span><span><b>hypothesis</b>: a smart first guess based on the clues you have so far.</span></div>
+                                <div class="tp-row"><span class="tp-tag">WORD</span><span><b>contagious</b>: able to pass a sickness from one person to other people.</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="callout-box teal">
+                <div class="callout-box teal" style="margin-top: 12px; flex-shrink: 0;">
                     <strong>Two buttons worth knowing:</strong> every stop has a
                     <strong>Read this tab</strong> button that reads the page out loud to you,
                     and a <strong>Text A+ / A-</strong> button in the top bar if you want bigger type.
@@ -1034,19 +1133,22 @@
                 Five kinds of task, and that is all of them.
             </p>
             <div class="body">
-                <div class="grid-4" style="gap: 12px;">
+                <div class="grid-4 fill">
                     <div class="widget">
                         <div class="widget-h">Pick one</div>
                         <div class="widget-p">Choose from a list. Your call, your reason.</div>
                         <span class="w-opt on">A virus that attacks the lungs</span>
                         <span class="w-opt">A virus that attacks the stomach</span>
                         <span class="w-opt">Not sure yet</span>
+                        <div class="widget-foot">A good answer is a <b>clear pick</b> plus a reason that names something you actually saw in the Evidence tab. "Not sure yet" is allowed. Guessing without a reason is not.</div>
                     </div>
                     <div class="widget">
                         <div class="widget-h">Type it</div>
                         <div class="widget-p">Short answers. A sentence or two, not a page.</div>
                         <div class="w-input">Give one clue from the symptom log...</div>
-                        <div class="w-input" style="margin-top: 5px;">My hands pick up... then I touch...</div>
+                        <div class="w-input">My hands pick up... then I touch...</div>
+                        <div class="w-input">Reason 1 (what sanitizer can't break): ...</div>
+                        <div class="widget-foot">A good answer is <b>one fact with its number</b>, then the sentence that explains why that fact points at your answer. Two or three sentences is plenty.</div>
                     </div>
                     <div class="widget">
                         <div class="widget-h">Match them</div>
@@ -1054,6 +1156,8 @@
                         <div class="w-row"><span class="w-sel">Entry gate</span><span class="w-sel">Germ type</span></div>
                         <div class="w-row"><span class="w-sel empty">Choose...</span><span class="w-sel empty">Choose...</span></div>
                         <div class="w-row"><span class="w-sel">Mouth</span><span class="w-sel">Virus</span></div>
+                        <div class="w-row"><span class="w-sel">Eyes</span><span class="w-sel">Virus</span></div>
+                        <div class="widget-foot">A good answer <b>fills both dropdowns on every row</b>. If you cannot tell which gate applies, reread Tab 2 before you guess.</div>
                     </div>
                     <div class="widget">
                         <div class="widget-h">Compare</div>
@@ -1061,17 +1165,21 @@
                         <table class="w-table">
                             <tr><th></th><th>Column A</th><th>Column B</th></tr>
                             <tr><td><b>What does it do?</b></td><td>your words</td><td>your words</td></tr>
-                            <tr><td><b>When?</b></td><td>your words</td><td>your words</td></tr>
+                            <tr><td><b>Before or after?</b></td><td>your words</td><td>your words</td></tr>
+                            <tr><td><b>Which germs?</b></td><td>your words</td><td>your words</td></tr>
+                            <tr><td><b>Effect on others?</b></td><td>your words</td><td>your words</td></tr>
                         </table>
+                        <div class="widget-foot">A good answer is <b>short phrases, one idea per row</b>. A full sentence in every cell is too much for this table.</div>
                     </div>
                 </div>
-                <div class="grid-2" style="margin-top: 12px; gap: 14px;">
+                <div class="grid-2" style="margin-top: 12px; gap: 14px; flex: 0 0 auto;">
                     <div class="widget" style="border-top-color: var(--coral);">
                         <div class="widget-h" style="color: var(--coral-dark);">Put in order</div>
                         <div class="widget-p">Number the steps from first to last. Each number is used once.</div>
                         <div class="w-row"><span class="w-num">1</span><span class="w-sel">Pick the right step...</span></div>
                         <div class="w-row"><span class="w-num">2</span><span class="w-sel empty">Pick the right step...</span></div>
                         <div class="w-row"><span class="w-num">3</span><span class="w-sel empty">Pick the right step...</span></div>
+                        <div class="widget-foot">A good answer is <b>first to last with no number left blank</b>, and it reads as one unbroken cause-and-effect chain when you say it out loud.</div>
                     </div>
                     <div class="callout-box" style="margin-top: 0;">
                         The list at the bottom of the Log shows <strong>every entry you have made this week</strong>.
@@ -1094,19 +1202,38 @@
                         <div class="card-tag">Start</div>
                         <div class="card-h2">One click to start</div>
                         <div class="card-p">Sign in with your school Google account. No PIN. Nothing to type. No name to spell.</div>
+                        <div class="minimock">
+                            <div class="mm-btn">Sign in with your school account</div>
+                            <div class="tp-row"><span class="tp-tag">ASK</span><span>Google opens in a small pop-up. Confirm your account and it closes by itself.</span></div>
+                        </div>
                     </div>
                     <div class="card teal">
                         <div class="card-tag">Save</div>
                         <div class="card-h2">Saved as you go</div>
                         <div class="card-p">Every answer saves to the server a couple of seconds after you type it. Watch the top bar: it changes to <strong>SERVER OK</strong>.</div>
+                        <div class="minimock">
+                            <div class="mm-bar">SYNC: SAVING...</div>
+                            <div class="mm-bar">SYNC: SERVER OK 10:42</div>
+                            <div class="tp-row"><span class="tp-tag">TIP</span><span>Leave it on SERVER OK and you can close the tab safely.</span></div>
+                        </div>
                     </div>
                     <div class="card navy">
                         <div class="card-tag">Resume</div>
                         <div class="card-h2">Pick up anywhere</div>
                         <div class="card-p">Close the tab mid-sentence. Come back on a different Chromebook next week, sign in again, and you land exactly where you stopped.</div>
+                        <div class="minimock">
+                            <div class="mm-steps">
+                                <div class="mm-step done">MON</div>
+                                <div class="mm-step done">TUE</div>
+                                <div class="mm-step now">WED</div>
+                                <div class="mm-step">THU</div>
+                                <div class="mm-step">FRI</div>
+                            </div>
+                            <div class="tp-row"><span class="tp-tag">WHERE</span><span>Sign back in on any device and the week reopens on Wednesday, with Tuesday's answers already filled in.</span></div>
+                        </div>
                     </div>
                 </div>
-                <div class="callout-box amber">
+                <div class="callout-box amber" style="margin-top: 12px; flex-shrink: 0;">
                     <strong>Why it works that way:</strong> a Chromebook wipes its own memory when you close it.
                     So this assignment saves to the <strong>server</strong>, not to the device.
                     That is also why it still works on a different computer, a different day, or after a long weekend.
@@ -1123,21 +1250,27 @@
                 For each rule: <strong>what people must do</strong>, and <strong>why it stops this thing</strong>.
             </p>
             <div class="body">
-                <div class="grid-3">
+                <div class="grid-3 fill">
                     <div class="card amber">
                         <div class="card-num">RULE 1</div>
                         <div class="card-h2">Who stays home, and for how long</div>
                         <div class="card-p">Students who are sick, and students who are getting better. Both matter.</div>
+                        <div class="ansbox"><b>WHAT</b>Students who threw up or had diarrhea must stay home until...</div>
+                        <div class="ansbox"><b>WHY</b>This stops the spread because recovering people still...</div>
                     </div>
                     <div class="card amber">
                         <div class="card-num">RULE 2</div>
                         <div class="card-h2">How surfaces get cleaned</div>
                         <div class="card-p">Taps, fountains, desks, keyboards, door handles. What, and by whom.</div>
+                        <div class="ansbox"><b>WHAT</b>Custodians must disinfect surfaces using...</div>
+                        <div class="ansbox"><b>WHY</b>This works because plain soap and alcohol...</div>
                     </div>
                     <div class="card amber">
                         <div class="card-num">RULE 3</div>
                         <div class="card-h2">What students do before they eat</div>
                         <div class="card-p">The habit that stops it, spelled out in steps a Grade 7 can follow.</div>
+                        <div class="ansbox"><b>WHAT</b>Students must pause ___ and wash hands with ___ for...</div>
+                        <div class="ansbox"><b>WHY</b>This breaks the chain because...</div>
                     </div>
                 </div>
                 <div class="commit-strip">
@@ -1160,29 +1293,33 @@
                 what the task is.
             </p>
             <div class="body">
-                <div class="grid-4">
+                <div class="grid-2" style="grid-template-rows: auto auto; gap: 14px;">
                     <div class="card coral">
                         <div class="card-tag">Workload</div>
                         <div class="card-h2">Every stop has a task</div>
                         <div class="card-p">One judgement or a few short answers. <strong>No essays, no long writing.</strong> Short and sharp is the target.</div>
+                        <div class="card-foot">You are never asked to write a page. <b>One pick, or two short sentences</b>, is the whole thing.</div>
                     </div>
                     <div class="card teal">
                         <div class="card-tag">Reasoning</div>
                         <div class="card-h2">Evidence, not guesses</div>
                         <div class="card-p">Every answer should point at something specific in the Evidence tab: a number, a date, a quote.</div>
+                        <div class="card-foot">Put the <b>actual number</b> in your answer. If you cannot point at one, it is still a guess.</div>
                     </div>
                     <div class="card navy">
                         <div class="card-tag">Quality</div>
                         <div class="card-h2">Say why</div>
                         <div class="card-p">Most marks live in the "why" line. A right answer with no reason is only half an answer.</div>
+                        <div class="card-foot">Try this shape: <b>"Because ___, which means ___."</b> It fits in one line and carries the marks.</div>
                     </div>
                     <div class="card amber">
                         <div class="card-tag">Feedback</div>
                         <div class="card-h2">Your file at the end</div>
                         <div class="card-p">After you commit, <strong>Tab 3 (Your File)</strong> marks your log against the official Health Unit findings, so you see what you would have missed.</div>
+                        <div class="card-foot">Open it <b>after</b> you commit, not before. That is the whole point of locking your answers.</div>
                     </div>
                 </div>
-                <div class="callout-box">
+                <div class="callout-box" style="margin-top: 12px; flex-shrink: 0;">
                     <strong>Your Monday guess is never marked wrong.</strong>
                     Detectives are supposed to change their minds when the evidence changes.
                     What gets marked is <strong>whether you changed your mind, and why</strong>.
@@ -1195,30 +1332,41 @@
             <div class="slide-eyebrow"><span class="eyebrow-num">10</span> Get Started</div>
             <h1 class="slide-h1">Five steps and you are in the case</h1>
             <div class="body">
-                <div class="split">
-                    <div class="steps">
-                        <div class="step">
-                            <div class="step-n coral">1</div>
-                            <div class="step-t"><strong>Open the link in Google Classroom.</strong> It only works from the school-hosted link, so use the Classroom link rather than an old bookmark.</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">2</div>
-                            <div class="step-t"><strong>Click "Sign in with your school account."</strong> Use your own @gnspes.ca account. If the wrong one opens, use <strong>Switch account</strong> in the top bar.</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">3</div>
-                            <div class="step-t"><strong>Pick your class section.</strong></div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">4</div>
-                            <div class="step-t"><strong>Press READY: OPEN THE HEALTH OFFICE.</strong></div>
-                        </div>
-                        <div class="step">
-                            <div class="step-n coral">5</div>
-                            <div class="step-t"><strong>Start at Monday.</strong> Work at your own pace. It saves itself, so you can stop whenever you need to.</div>
+                <div class="split fill">
+                    <div class="card coral startcard">
+                        <div class="card-tag">Before you start</div>
+                        <div class="steps boxed">
+                            <div class="step">
+                                <div class="step-n coral">1</div>
+                                <div class="step-t"><strong>Open the link in Google Classroom.</strong> It only works from the school-hosted link, so use the Classroom link rather than an old bookmark.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">2</div>
+                                <div class="step-t"><strong>Click "Sign in with your school account."</strong> Use your own @gnspes.ca account. If the wrong one opens, use <strong>Switch account</strong> in the top bar.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">3</div>
+                                <div class="step-t"><strong>Pick your class section.</strong> It is on the opening screen and in the top bar. Your work gets filed under it.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">4</div>
+                                <div class="step-t"><strong>Press READY: OPEN THE HEALTH OFFICE.</strong> That is the button on the opening screen. Nothing opens until you press it.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">5</div>
+                                <div class="step-t"><strong>Start at Monday.</strong> Work at your own pace. It saves itself, so you can stop whenever you need to.</div>
+                            </div>
                         </div>
                     </div>
-                    <div>
+                    <div class="col" style="gap: 14px;">
+                        <div class="gate-mock">
+                            <div class="gate-mock-inner">
+                                <div class="gate-mock-k">Centennial Junior High // Health Office</div>
+                                <div class="gate-mock-h">CASE 55: CENTENNIAL OUTBREAK</div>
+                                <div class="gate-mock-btn">Sign in with your school account</div>
+                                <div class="gate-mock-hint">This is the screen you will see first. One click, then you are in the case.</div>
+                            </div>
+                        </div>
                         <div class="card teal">
                             <div class="card-tag">If something is hard to read</div>
                             <div class="card-h2">Turn the help on</div>
@@ -1228,7 +1376,7 @@
                             </div>
                             <div class="card-p">Both are on every screen, for everyone. Use them as much as you need.</div>
                         </div>
-                        <div class="callout-box amber" style="margin-top: 12px;">
+                        <div class="callout-box amber">
                             <strong>Questions are part of the job.</strong> Real investigators ask for help the
                             moment they are stuck. Ask Mr. Waugh before you guess.
                         </div>
@@ -1242,16 +1390,16 @@
             <div class="closing">
                 <div class="closing-l">
                     <div class="slide-eyebrow"><span class="eyebrow-num">11</span> Case 55</div>
-                    <h1 class="slide-h1" style="font-size: 3rem;">Case 55 is open.</h1>
-                    <p class="slide-sub" style="font-size: 1.16rem;">
+                    <h1 class="slide-h1" style="font-size: 2.9rem;">Case 55 is open.</h1>
+                    <p class="slide-sub" style="font-size: 1.12rem;">
                         55 students home sick. One week of evidence. Three rules for Monday.
                         <strong>The Health Office is yours.</strong>
                     </p>
-                    <div class="callout-box" style="max-width: 620px;">
+                    <div class="callout-box" style="max-width: 600px;">
                         Open the link in Google Classroom, sign in with your school account,
                         and start at Monday. The verdict is waiting on the other side of your commit.
                     </div>
-                    <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="margin-top: 16px; display: flex; gap: 9px; flex-wrap: wrap;">
                         <span class="badge-pill">HEALTHY LIVING 8</span>
                         <span class="badge-pill">UNIT 2 COMMUNICABLE DISEASE</span>
                         <span class="badge-pill hot">NS HL8 OUTCOME CO2</span>
@@ -1276,6 +1424,9 @@
         </div>
     </footer>
 
+</div>
+</div>
+
     <script>
         const slides = document.querySelectorAll('[data-slide]');
         const totalSlides = slides.length;
@@ -1284,6 +1435,16 @@
         const countDisplay = document.getElementById('slideCount');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const stage = document.getElementById('stage');
+        const canvas = document.getElementById('canvas');
+
+        /* Scale the fixed 1536x864 canvas to fit whatever screen we are on. */
+        function fitCanvas() {
+            const s = Math.min(stage.clientWidth / 1536, stage.clientHeight / 864);
+            canvas.style.transform = 'scale(' + s + ')';
+        }
+        fitCanvas();
+        window.addEventListener('resize', fitCanvas);
 
         function updateSlide(n) {
             if (n < 1) n = 1;
