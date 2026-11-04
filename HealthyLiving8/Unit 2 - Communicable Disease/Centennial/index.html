@@ -53,7 +53,7 @@
   .hud-btn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;font-family:var(--f-mono);font-size:.68rem;padding:3px 8px;white-space:nowrap}
   .hud-btn:hover{color:var(--ink);border-color:var(--muted)}
 
-  #main{flex:1;display:grid;grid-template-columns:188px minmax(0,1fr) 356px;min-height:0;position:relative}
+  #main{flex:1;display:grid;grid-template-columns:182px minmax(0,1fr) 390px;min-height:0;position:relative}
 
   /* Loading Veil */
   #loadingVeil{position:absolute;inset:0;background:rgba(11,18,32,.85);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--f-mono);color:var(--amber);font-size:1rem;letter-spacing:.1em}
@@ -170,11 +170,14 @@
   .order-preview{margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:.8rem;color:var(--muted)}
   .order-preview.dup{border-color:var(--warn);color:var(--warn)}
   .order-preview ol{margin:4px 0 0;padding-left:1.3em;color:var(--ink)}
-  .grid-table{width:100%;border-collapse:collapse;font-size:.8rem}
-  .grid-table th{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:5px}
-  .grid-table td{border:1px solid var(--line);padding:4px}
-  .grid-table td.rowlab{font-weight:700;color:var(--ink);width:30%;font-size:.77rem;line-height:1.2}
-  .grid-table input{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:6px 7px;font:inherit;font-size:.81rem}
+  .grid-cards{display:flex;flex-direction:column;gap:9px}
+  .grid-card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+  .grid-card .gc-q{font-size:.84rem;font-weight:800;color:#fff;line-height:1.25}
+  .grid-card .gc-item{display:flex;flex-direction:column;gap:3px}
+  .grid-card .gc-tag{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  .grid-card .gc-tag.v{color:var(--teal)}
+  .grid-card .gc-tag.a{color:var(--amber)}
+  .grid-card textarea{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font:inherit;font-size:.87rem;line-height:1.35;resize:vertical;min-height:2.4em;overflow:hidden}
   .big-btn{width:100%;background:var(--amber);color:#1a1206;border:0;border-radius:9px;padding:11px;font-weight:800;font-family:var(--f-mono);letter-spacing:.05em;font-size:.92rem}
   .big-btn:hover{filter:brightness(1.08)}
   .big-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
@@ -204,7 +207,7 @@
 
   /* Scaled Chromebooks (e.g. 1366x768 @ 110%-125% = 1093px-1240px CSS width) */
   @media (max-width:1260px){
-    #main{grid-template-columns:166px minmax(0,1fr) 316px}
+    #main{grid-template-columns:162px minmax(0,1fr) 340px}
     .pill-school{display:none}
   }
   /* Split-screen Chromebook (half of 1366px = ~683px) or narrow tablet */
@@ -718,6 +721,7 @@ function buildField(spec){
       spec.minWords = spec._minW;
     }
     t.addEventListener('input', ()=>{
+      autoGrow(t);
       setPath(state, spec.f, t.value);
       if(hint) updateTextHint(t, hint, spec.minWords||4);
       onChange();
@@ -755,21 +759,26 @@ function buildField(spec){
   }
   if(spec.type==='grid'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
-    const tb=document.createElement('table'); tb.className='grid-table';
-    let h='<tr><th></th>'; spec.cols.forEach(c=> h+='<th>'+esc(c)+'</th>'); h+='</tr>';
-    tb.innerHTML=h;
-    spec.rows.forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML='<td class="rowlab">'+esc(r.label)+'</td>';
-      ['v','a'].forEach(col=>{
-        const td=document.createElement('td');
-        const inp=document.createElement('input'); inp.type='text'; inp.setAttribute('data-f', spec.f+'.'+r.k+'.'+col);
-        inp.addEventListener('input', ()=>{ setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); onChange(); });
-        td.appendChild(inp); tr.appendChild(td);
+    const wrap=document.createElement('div'); wrap.className='grid-cards';
+    const colNames = spec.cols || ['Vaccines (shots)', 'Antibiotics (medicine)'];
+    spec.rows.forEach((r, idx)=>{
+      const card=document.createElement('div'); card.className='grid-card';
+      const q=document.createElement('div'); q.className='gc-q'; q.textContent=(idx+1)+'. '+r.label;
+      card.appendChild(q);
+      [['v', colNames[0]], ['a', colNames[1]]].forEach(([col, colTitle])=>{
+        const item=document.createElement('div'); item.className='gc-item';
+        const tag=document.createElement('span'); tag.className='gc-tag '+col; tag.textContent=colTitle;
+        const inp=document.createElement('textarea');
+        inp.rows = (r.k==='when' || r.k==='which') ? 1 : 2;
+        inp.placeholder = colTitle + '...';
+        inp.setAttribute('data-f', spec.f+'.'+r.k+'.'+col);
+        inp.addEventListener('input', ()=>{ autoGrow(inp); setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); onChange(); });
+        item.appendChild(tag); item.appendChild(inp);
+        card.appendChild(item);
       });
-      tb.appendChild(tr);
+      wrap.appendChild(card);
     });
-    w.appendChild(tb); return w;
+    w.appendChild(wrap); return w;
   }
   if(spec.type==='commit'){
     const b=document.createElement('button'); b.type='button'; b.className='big-btn'; b.id='commitBtn';
@@ -806,11 +815,16 @@ function updateTextHint(t, hint, minW){
     t.classList.remove('need-why');
   }
 }
+function autoGrow(t){
+  if(!t || t.tagName!=='TEXTAREA') return;
+  t.style.height = 'auto';
+  if(t.scrollHeight > 0) t.style.height = t.scrollHeight + 'px';
+}
 function hydrateFields(){
   document.querySelectorAll('#fields [data-f]').forEach(elm=>{
     const p=elm.getAttribute('data-f'); const v=getPath(state,p); if(v==null||v==='') return;
     if(elm.classList.contains('choice')){ elm.dataset.val=v; elm.querySelectorAll('.opt').forEach(b=>b.classList.toggle('active', b.dataset.v===v)); }
-    else elm.value=v;
+    else { elm.value=v; if(elm.tagName==='TEXTAREA') autoGrow(elm); }
   });
   document.querySelectorAll('#fields .field').forEach(w=>{
     if(w._orderSpec) renderOrderPreview(w._orderSpec, w._orderPrev);
