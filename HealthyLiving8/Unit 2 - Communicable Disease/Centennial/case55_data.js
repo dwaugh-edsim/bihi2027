@@ -54,7 +54,7 @@ var CASE55 = {
   stations: [
     /* ---------------- S0 BRIEFING (Monday 8:15 AM) ---------------- */
     {
-      id: "s0", nav: "BRIEFING", title: "Monday 8:15 AM: Welcome to the Health Office",
+      id: "s0", nav: "BRIEFING", navSub: "Health Office shift", title: "Monday 8:15 AM: Welcome to the Health Office",
       kicker: "Before the morning bell", day: 0,
       imgs: [{ src: "assets/s0_normal_school.png", cap: "A bright, ordinary morning outside Centennial Junior High (400 students in Grades 7, 8, and 9)." }],
       chars: [ { key: "vp", quote: "Morning! Thanks for taking this week's shift as our school Health Officer. Honestly, it is usually a pretty quiet job: mostly ice packs for gym-class boo-boos, bandages for scraped knees, and checking the morning absence slip with Nurse Chen. Should be an easy week!" } ],
@@ -79,7 +79,7 @@ var CASE55 = {
 
     /* ---------------- S1 MONDAY (Day 1) ---------------- */
     {
-      id: "s1", nav: "MONDAY", title: "Monday: Scraped knees, ice packs, and 3 kids home",
+      id: "s1", nav: "MONDAY", navSub: "3 out in West Wing", title: "Monday: Scraped knees, ice packs, and 3 kids home",
       kicker: "Day 1 // A totally normal Monday?", day: 1,
       imgs: [
         { src: "assets/s0_normal_school.png", cap: "Centennial Junior High on Monday: classes humming along like any normal week." },
@@ -116,7 +116,7 @@ var CASE55 = {
 
     /* ---------------- S2 TUESDAY ---------------- */
     {
-      id: "s2", nav: "TUESDAY", title: "Tuesday: Seven out, and a locker craze",
+      id: "s2", nav: "TUESDAY", navSub: "7 out & duck craze", title: "Tuesday: Seven out, and a locker craze",
       kicker: "Day 2 // 7 students out sick", day: 2,
       imgs: [
         { src: "assets/s2_tuesday_cafeteria.png", cap: "Right before lunch: students from all grades trade tiny plastic resin ducks at the lockers outside the cafeteria." },
@@ -150,13 +150,13 @@ var CASE55 = {
           }
         },
         { type: "text", f: "judgments.s1.why", label: "Justify your choice using a number from Tuesday's symptom log on Tab 2.", rows: 2, placeholder: "The evidence shows ___% of sick students have...",
-          mustMatch: "(88|45|5|24|48|seven|percent|%)", mustHint: "Nurse Chen tip: include a real number from Tab 2 (such as 88% or under 5%) to prove your choice!" }
+          mustMatch: "\\b(88|45|5|24|48|7|seven|eighty[- ]?eight|forty[- ]?five|five)\\b", mustHint: "Nurse Chen: Check the exact numbers on Tab 2 (88% stomach cramps/vomiting/diarrhea, 45% mild fever, under 5% cough, or 24 to 48 hours recovery) and cite one of those exact numbers!" }
       ]
     },
 
     /* ---------------- S3 WEDNESDAY ---------------- */
     {
-      id: "s3", nav: "WEDNESDAY", title: "Wednesday: Jumping wings and a hallway spill",
+      id: "s3", nav: "WEDNESDAY", navSub: "18 out & hall spill", title: "Wednesday: Jumping wings and a hallway spill",
       kicker: "Day 3 // 18 students out sick", day: 3,
       imgs: [
         { src: "assets/s2_fountain_ducks.png", cap: "Left: Wednesday afternoon's fountain cleanup in the Grade 8 hall. Right: resin ducks traded hand to hand." },
@@ -211,7 +211,7 @@ var CASE55 = {
 
     /* ---------------- S4 THURSDAY ---------------- */
     {
-      id: "s4", nav: "THURSDAY", title: "Thursday: All three grades, water tests, and tools",
+      id: "s4", nav: "THURSDAY", navSub: "34 out & lab tests", title: "Thursday: All three grades, water tests, and tools",
       kicker: "Day 4 // 34 students out sick", day: 4,
       imgs: [
         { src: "assets/s4a_soap_sanitizer.png", cap: "Left: 20 seconds with soap and running water rinses tough viruses down the drain. Right: alcohol gel struggles against tough shell viruses." },
@@ -263,7 +263,7 @@ var CASE55 = {
 
     /* ---------------- S5 FRIDAY AM ---------------- */
     {
-      id: "s5", nav: "FRIDAY AM", title: "Friday 9:00 AM: Three suspects on the lab table",
+      id: "s5", nav: "FRIDAY AM", navSub: "55 out: 3 suspects", title: "Friday 9:00 AM: Three suspects on the lab table",
       kicker: "Day 5 Morning // 55 students out sick (14% of school)", day: 5,
       imgs: [{ src: "assets/s5_suspects.png", cap: "Three lab suspect files: Influenza (lung virus), Norovirus (armored stomach virus), and Salmonella (foodborne bacteria)." }],
       chars: [ { key: "vp", quote: "Fifty-five students are home sick this morning: nearly 1 in every 7 kids in the building! Public Health sent over three suspect files. Compare all three against our week's clues and name our culprit." } ],
@@ -297,7 +297,7 @@ var CASE55 = {
 
     /* ---------------- S6 FRIDAY NOON ---------------- */
     {
-      id: "s6", nav: "FRIDAY NOON", title: "Friday 12:00 PM: Reconstruct the chain",
+      id: "s6", nav: "FRIDAY NOON", navSub: "Trace the 2 chains", title: "Friday 12:00 PM: Reconstruct the chain",
       kicker: "Day 5 Midday // Witness follow-up", day: 5,
       imgs: [{ src: "assets/s6_spread_map.png", cap: "Tracing both pathways: fountain tap contact in the West Wing and plastic ducks traded before lunch." }],
       chars: [
@@ -342,7 +342,7 @@ var CASE55 = {
 
     /* ---------------- S7 FRIDAY 3:15 PM ---------------- */
     {
-      id: "s7", nav: "FRIDAY 3:15", title: "Friday 3:15 PM: Your Monday Morning Game Plan",
+      id: "s7", nav: "FRIDAY 3:15", navSub: "Monday Game Plan", title: "Friday 3:15 PM: Your Monday Morning Game Plan",
       kicker: "Final Briefing // Before the buses leave", day: 5,
       imgs: [{ src: "assets/s7_monday_plan.png", cap: "Breaking every link in the chain before Monday's morning bell." }],
       chars: [
@@ -380,7 +380,7 @@ var CASE55 = {
 
     /* ---------------- S8 CASE CLOSED ---------------- */
     {
-      id: "s8", nav: "CASE CLOSED", title: "Case Closed: Public Health Verdict & Your File",
+      id: "s8", nav: "CASE CLOSED", navSub: "Official Verdict", title: "Case Closed: Public Health Verdict & Your File",
       kicker: "Debrief // Unlocked after commit", day: 5,
       locked: true,
       imgs: [{ src: "assets/s8_verdict.png", cap: "Case 55 closed: Norovirus confirmed, Monday protocol active, new cases drop to zero by Wednesday." }],
