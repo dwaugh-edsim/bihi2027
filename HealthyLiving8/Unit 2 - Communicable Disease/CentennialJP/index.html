@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ケース55: セントエニアル中学校の流行 - HL8 証探シミュレーション</title>
+<title>ケース55: セントennial中学校の流行 - HL8 調査シミュレーション</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,16 +29,20 @@
 
   /* ---------- SPLASH / GATE ---------- */
   #gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;padding:12px;
-    background:linear-gradient(rgba(7,11,22,.68),rgba(7,11,22,.86)),url('assets/s0_normal_school.png') center/cover no-repeat;}
-  #gateCard{max-width:540px;width:94%;max-height:94vh;overflow-y:auto;background:rgba(14,23,41,.93);border:2px solid var(--amber);border-radius:14px;
-    padding:clamp(16px,3vh,26px) 26px;box-shadow:0 24px 60px rgba(0,0,0,.6);text-align:center}
+    background:linear-gradient(rgba(7,11,22,.68),rgba(7,11,22,.86)),url('../Centennial/assets/s0_normal_school.png') center/cover no-repeat;}
+  #gateCard{max-width:560px;width:94%;max-height:94vh;overflow-y:auto;background:rgba(14,23,41,.94);border:2px solid var(--amber);border-radius:14px;
+    padding:clamp(14px,2.5vh,24px) 26px;box-shadow:0 24px 60px rgba(0,0,0,.6);text-align:center}
   #gateCard .k{font-family:var(--f-mono);font-size:.73rem;letter-spacing:.16em;color:var(--amber);text-transform:uppercase}
-  #gateCard h1{font-family:var(--f-slab);font-size:clamp(1.45rem,3.4vh,1.95rem);margin:.3em 0 .15em;color:#fff}
-  #gateCard .sub{color:var(--muted);margin:0 0 14px;font-size:.95rem;line-height:1.4}
+  #gateCard h1{font-family:var(--f-slab);font-size:clamp(1.4rem,3.2vh,1.9rem);margin:.25em 0 .15em;color:#fff}
+  #gateCard .sub{color:var(--muted);margin:0 0 12px;font-size:.93rem;line-height:1.38}
+  #gateOutcome{margin:0 0 14px;padding:10px 13px;background:rgba(45,212,191,.09);border:1px solid rgba(45,212,191,.42);border-left:3.5px solid var(--teal);border-radius:9px;text-align:left}
+  #gateOutcome .okicker{font-family:var(--f-mono);font-size:.66rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--teal);margin-bottom:3px}
+  #gateOutcome .otxt{font-size:.86rem;color:var(--ink);line-height:1.36;font-weight:600}
+  #gateOutcome .oen{font-size:.68rem;color:var(--muted);line-height:1.34;margin-top:5px;padding-top:5px;border-top:1px solid rgba(45,212,191,.22)}
   #signInBtn{background:var(--amber);color:#1a1206;font-weight:800;border:0;border-radius:10px;padding:12px 20px;font-size:1.02rem;width:100%}
   #signInBtn:hover{filter:brightness(1.08)}
-  #gateMsg{color:var(--muted);font-size:.82rem;margin-top:10px;min-height:1em}
-  #gateHint{color:var(--muted);font-size:.78rem;margin-top:8px;line-height:1.38}
+  #gateMsg{color:var(--muted);font-size:.82rem;margin-top:8px;min-height:0}
+  #gateHint{color:var(--muted);font-size:.77rem;margin-top:8px;line-height:1.36}
 
   /* ---------- APP FRAME (tuned for 1366x768 / 11.6" Chromebooks) ---------- */
   #app{display:none;height:100vh;height:100dvh;flex-direction:column}
@@ -183,6 +187,31 @@
   .big-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
   .ack-btn{width:100%;background:var(--teal);color:#06251f;border:0;border-radius:9px;padding:11px;font-weight:800;font-family:var(--f-mono);font-size:.92rem}
   .ack-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
+  .next-day-btn{width:100%;margin-top:4px;background:var(--teal);color:#06251f;border:0;border-radius:9px;padding:11px 14px;font-weight:800;font-family:var(--f-mono);letter-spacing:.04em;font-size:.88rem}
+  .next-day-btn:hover{filter:brightness(1.08)}
+  .test-plan-btn{width:100%;margin-bottom:9px;background:rgba(45,212,191,.13);color:var(--teal);border:1.5px solid var(--teal);border-radius:9px;padding:9px 12px;font-weight:800;font-family:var(--f-mono);font-size:.82rem}
+  .test-plan-btn:hover{background:var(--teal);color:#06251f}
+  .teach-box{display:none;margin-top:6px;padding:8px 10px;border-radius:8px;font-size:.81rem;line-height:1.36;border:1px solid var(--line);border-left:3px solid var(--teal);background:rgba(45,212,191,.09);color:var(--ink)}
+  .teach-box.show{display:block}
+  .teach-box.ok{border-left-color:var(--ok);background:rgba(34,197,94,.1);color:#dcfce7}
+  .teach-box.fix{border-left-color:var(--coral);background:rgba(251,113,133,.12);color:#ffe4e6}
+  .sim-callback{margin:0 0 10px;max-width:880px;background:rgba(45,212,191,.08);border:1.5px solid var(--teal);border-radius:10px;padding:8px 11px;display:flex;gap:10px;align-items:flex-start}
+  .sim-callback img{width:46px;height:46px;border-radius:8px;object-fit:cover;border:2px solid var(--teal);flex:none}
+  .sim-callback .cb-tag{font-family:var(--f-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:800}
+  .sim-callback .cb-txt{font-size:.87rem;color:var(--ink);margin-top:2px;line-height:1.35}
+  .sim-callback .cb-yours{font-size:.76rem;color:var(--muted);margin-top:4px;font-style:italic}
+  .plan-sim-box{margin:0 0 10px;display:none;flex-direction:column;gap:7px}
+  .plan-sim-box.show{display:flex}
+  .plan-reply{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:8px;padding:7px 10px;font-size:.81rem;line-height:1.34;display:flex;gap:8px;align-items:flex-start}
+  .plan-reply.warn{border-left-color:var(--amber);background:rgba(245,158,11,.09)}
+  .plan-reply img{width:34px;height:34px;border-radius:6px;object-fit:cover;border:1.5px solid var(--amber);flex:none}
+  .sim-week-card{margin:0 0 12px;padding:11px 13px;background:var(--panel2);border:1.5px solid var(--teal);border-radius:10px}
+  .sim-week-card h4{margin:0 0 5px;font-family:var(--f-mono);font-size:.73rem;color:var(--teal);text-transform:uppercase;letter-spacing:.08em}
+  .sim-bars{display:flex;gap:7px;margin:8px 0}
+  .sim-bar{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:5px 4px;text-align:center}
+  .sim-bar .sd{font-family:var(--f-mono);font-size:.64rem;color:var(--muted)}
+  .sim-bar .sn{font-family:var(--f-slab);font-size:1.05rem;font-weight:800;color:var(--ok)}
+  .sim-bar.leak .sn{color:var(--amber)}
   #histBox{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
   #histBox .hh{font-family:var(--f-mono);font-size:.67rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
   #histList{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);max-height:180px;overflow-y:auto}
@@ -231,13 +260,18 @@
 <!-- SPLASH / SIGN-IN GATE -->
 <div id="gate">
   <div id="gateCard">
-    <div class="k">セントエニアル中学校 // 保健室</div>
-    <h1>ケース55: セントエニアル中学校の流行</h1>
-    <p class="sub">こんにちはセントエニアル中学校の保健室担当です。おはうはもうちよきの保冷剂と、体育の時にのしるちの保健定口だけです。しかし、いつもいよい事が起きます。</p>
+    <div class="k">セントennial中学校 // 保健室</div>
+    <h1>ケース55: セントennial中学校の流行</h1>
+    <p class="sub">こんにちは、セントennial中学校の保健室担当です。ふだんは保冷剤と、体育のときの擦り傷の保健道具だけの仕事です。しかし、今週は異なることが起こります。</p>
+    <div id="gateOutcome">
+      <div class="okicker" id="gateOutcomeKicker">学習目標 // Healthy Living 8</div>
+      <div class="otxt" id="gateOutcomeTxt">生徒は、健康行動と身体的・精神的・情緒的・社会的・霊的健康との関係を分析する。</div>
+      <div class="oen" id="gateOutcomeEn">Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health.</div>
+    </div>
     <button id="signInBtn" type="button" onclick="signIn()">学校のアカウントでサインイン</button>
     <div id="gateMsg"></div>
     <div id="gateHint">学校の Google アカウントでクリック1回だけです。PIN も入力もなし。入力した内容は自動的にサーバーへ保存されるので、タブを閉じても別の Chromebook で続けることができます。</div>
-    <div style="margin-top:14px;color:#64748b;font-size:.7rem"><em>Created with Mistral</em></div>
+    <div style="margin-top:12px;color:#64748b;font-size:.7rem"><em>Created with Mistral</em></div>
   </div>
 </div>
 
@@ -245,7 +279,7 @@
 <div id="app">
   <div id="hud">
     <span class="brand">ケース55</span>
-    <span class="pill pill-school">セントエニアル中学校</span>
+    <span class="pill pill-school">セントennial中学校</span>
     <span class="pill" id="syncPill">同期: <b id="syncTxt">OFFLINE</b></span>
     <span class="pill">保健室担当: <b id="who">...</b></span>
     <span class="spacer"></span>
@@ -259,7 +293,7 @@
     <nav id="navRail" aria-label="流行の1週間">
       <div id="navList"></div>
       <div id="surge">
-        <div class="sh">病気で帰れた学生</div>
+        <div class="sh">病気で帰った学生</div>
         <div class="surge-row" id="surgeRow"></div>
       </div>
     </nav>
@@ -284,11 +318,11 @@
 
   <div id="foot">
     <button class="nav-btn" id="prevBtn" type="button" onclick="step(-1)">&larr; 前の日</button>
-    <button class="nav-btn" id="nextBtn" type="button" onclick="step(1)">次の日 &rarr;</button>
     <span class="ctr" id="ctr">導入</span>
+    <span style="margin-left:8px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
     <span class="spacer" style="flex:1"></span>
-    <button class="nav-btn" type="button" onclick="saveNow()">今すご保存</button>
-    <span style="margin-left:14px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
+    <button class="nav-btn" type="button" onclick="saveNow()">今すぐ保存</button>
+    <button class="nav-btn" id="nextBtn" type="button" style="border-color:var(--teal);color:var(--teal)" onclick="step(1)">次の日 &rarr;</button>
   </div>
 </div>
 
@@ -300,7 +334,7 @@
   <div class="cap" id="lbCap"></div>
 </div>
 
-<script src="case55_data.js"></script>
+<script src="case55_data.js?v=20261104jp2"></script>
 <script>
 (function(){
 "use strict";
@@ -309,7 +343,7 @@
 const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
 const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbzhCVthh1eWPNo2apOZPTJPhMDVcyL7Q7PrSxIlhiEbauTbXnEJBJcUCSAnPg2X4cZi/exec';
 const TASK_NAME    = (window.CASE55 && CASE55.meta.taskName) || 'HL8-Centennial-Case55-Sim';
-const DEFAULT_TABS = (window.CASE55 && CASE55.meta.defaultTabLabels) || { dispatch:'1. Story', evidence:'2. Evidence', toolkit:'3. Science & Words' };
+const DEFAULT_TABS = (window.CASE55 && CASE55.meta.defaultTabLabels) || { dispatch:'1. ストーリー', evidence:'2. 証拠', toolkit:'3. 科学と用語' };
 const SECTIONS     = ['801-HE', '802-HE', '803-HE', '804-HE'];
 const ID_KEY       = 'r8id';
 const AUTOSAVE_MS  = 2500;
@@ -326,6 +360,7 @@ const STATIONS = (window.CASE55 ? CASE55.stations : []);
 const CHARS    = (window.CASE55 ? CASE55.characters : {});
 const GLOSSARY = (window.CASE55 ? CASE55.glossary : {});
 const KEY      = (window.CASE55 ? CASE55.key : []);
+const CALLBACKS= (window.CASE55 && CASE55.callbacks) ? CASE55.callbacks : {};
 const DAYS = [ {d:'月',n:3}, {d:'火',n:7}, {d:'水',n:18}, {d:'木',n:34}, {d:'金',n:55} ];
 const COMMIT_IDX = STATIONS.findIndex(s => s.commitStation);
 const VERDICT_IDX = STATIONS.length - 1;
@@ -360,6 +395,12 @@ function toggleSize(){
 
 /* ================= AUTH (Path B) ================= */
 function boot(){
+  if(window.CASE55 && CASE55.meta){
+    if(CASE55.meta.outcomeLabel && el('gateOutcomeKicker')) el('gateOutcomeKicker').textContent = CASE55.meta.outcomeLabel;
+    if(CASE55.meta.outcomeJa && el('gateOutcomeTxt')) el('gateOutcomeTxt').textContent = CASE55.meta.outcomeJa;
+    else if(CASE55.meta.outcome && el('gateOutcomeTxt')) el('gateOutcomeTxt').textContent = CASE55.meta.outcome;
+    if(CASE55.meta.outcome && el('gateOutcomeEn')) el('gateOutcomeEn').textContent = CASE55.meta.outcome;
+  }
   const m = (location.hash||'').match(/[#&]r8id=([^&]+)/);
   if(m){ try{ identity = JSON.parse(atobUrl(m[1])); sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); }catch(e){} history.replaceState(null,'',location.pathname+location.search); }
   if(!identity){ try{ const s=sessionStorage.getItem(ID_KEY); if(s) identity=JSON.parse(s); }catch(e){} }
@@ -368,7 +409,7 @@ function boot(){
   else {
     showGate();
     if(!SKIPNET && !returnUrl()){
-      el('gateHint').textContent = 'これは学校のサイトではないリンク ('+(location.origin||'local file')+') なので、ここでは Google サインインは使えません。本物のリンク: '+ALLOWED_ORIGIN+'/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/CentennialJP/index.html  (位置に ?demo=1 をつけるとローカルでプレビューできます)';
+      el('gateHint').textContent = 'これは学校のサイトではないリンク ('+(location.origin||'local file')+') なので、ここでは Google サインインは使えません。本物のリンク: '+ALLOWED_ORIGIN+'/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/CentennialJP/index.html  (末尾に ?demo=1 をつけるとローカルでプレビューできます)';
     }
   }
 }
@@ -379,7 +420,10 @@ function showApp(){
   if(appShown){ restore(); return; }
   appShown = true;
   const sel = el('sectionSel'); sel.innerHTML = '<option value="">クラス?</option>' + SECTIONS.map(s=>'<option>'+s+'</option>').join('');
-  sel.addEventListener('change', ()=>{ state.section = sel.value; hydrateFields(); onChange(); });
+  sel.addEventListener('change', ()=>{
+    state.section = sel.value; hydrateFields(); onChange();
+    if(!isStationUnlocked(cur)) loadStation(maxUnlockedStation());
+  });
   buildSurge(); buildNav();
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) flush(); });
   window.addEventListener('pagehide', flush);
@@ -414,7 +458,7 @@ function onAuthFailed(reason){
   if(reason==='stale_or_future'||reason==='bad_sig'||reason==='missing'){
     try{ sessionStorage.removeItem(ID_KEY); }catch(e){} identity=null;
     setSync('サインイン有効期切れ','warn');
-    toast('サインインの有効期が切れました。作業はサーバーに安全にています: もう一度サインインして続けてください。');
+    toast('サインインの有効期が切れました。作業はサーバーに保存されています: もう一度サインインして続けてください。');
     setTimeout(()=>{ showGate(); el('gateMsg').textContent='サインインの有効期が切れました。サインインをクリックして、保存した作業を再読み込みできます。'; }, 800);
   } else setSync('保存できません: '+reason,'bad');
 }
@@ -482,13 +526,21 @@ function applyState(st){
   if(st && typeof st==='object'){ for(const k in st){ n[k]=st[k]; } }
   ['judgments','matches','responses','partB','visited'].forEach(k=>{ if(typeof n[k]!=='object'||!n[k]) n[k]={}; });
   state = n;
-  cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
   started = !!state.started; committed = !!state.committed;
+  if(committed){
+    let allPriorValid = true;
+    for(let k=0; k<COMMIT_IDX; k++){ if(!stationDone(k)){ allPriorValid = false; break; } }
+    const s7Req = (STATIONS[COMMIT_IDX].fields||[]).filter(f => !f.optional && f.type !== 'commit');
+    if(!s7Req.every(isFilled)) allPriorValid = false;
+    if(!allPriorValid){ committed = false; state.committed = false; }
+  }
+  cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
+  cur = Math.min(cur, maxUnlockedStation());
   const s=el('sectionSel'); if(s) s.value=state.section||'';
   buildNav(); loadStation(cur);
 }
 
-/* ================= COMPLETION LOGIC ================= */
+/* ================= COMPLETION & TEACHING LOGIC ================= */
 function orderStatus(spec){
   const o = getPath(state, spec.f) || {};
   const vals = spec.items.map(it => String(o[it.k]||'')).filter(Boolean);
@@ -502,7 +554,7 @@ function orderStatus(spec){
    still count real English words, so a bilingual answer works either way. */
 const JP = !!(window.CASE55 && CASE55.meta && CASE55.meta.lang === 'ja');
 const JP_CHARS_PER_WORD = 4;
-function jpChars(s){ return (String(s==null?'':s).match(/[\u3040-\u30ff\u3400-\u9fff\uff66-\uff9f]/g)||[]).length; }
+function jpChars(s){ return (String(s==null?'':s).match(/[぀-ヿ㐀-鿿ｦ-ﾟ]/g)||[]).length; }
 function enWords(s){ return (String(s==null?'':s).match(/[A-Za-z][A-Za-z'-]*/g)||[]).length; }
 function textScore(s){
   if(!JP) return wordCountEn(s);
@@ -513,28 +565,99 @@ function textScore(s){
 function wordCountEn(s){ return String(s==null?'':s).trim().split(/\s+/).filter(Boolean).length; }
 function wordCount(s){ return JP ? Math.ceil(textScore(s) / JP_CHARS_PER_WORD) : wordCountEn(s); }
 function minWordsFor(spec){ return spec.minWords || ((spec.f && spec.f.indexOf('responses.rule')===0) ? 3 : 4); }
-function isFilled(spec){
-  if(spec.optional) return true;
-  if(spec.type==='ack') return started;
-  if(spec.type==='commit') return committed;
-  if(spec.type==='section') return !!state.section;
-  if(spec.type==='choice') {
-    const v = getPath(state, spec.f); return v != null && String(v).trim().length > 0;
+function fieldIssue(spec){
+  if(spec.optional) return null;
+  if(spec.type==='ack') return started ? null : { kind:'empty', msg:'「準備完了: 保健室を開こう」をクリックして始めてください。' };
+  if(spec.type==='commit') return committed ? null : { kind:'empty', msg:'月曜のプランをコミットしてください。' };
+  if(spec.type==='section') return state.section ? null : { kind:'empty', msg:'先にクラスを選んでください。' };
+  if(spec.type==='choice'){
+    const v = getPath(state, spec.f);
+    if(v == null || String(v).trim()==='') return { kind:'empty', msg:'上の選択肢から1つ選んでください。' };
+    if(spec.correct && v !== spec.correct){
+      const tm = spec.teachMap && spec.teachMap[v];
+      return { kind:'teach', msg: (tm && tm.msg) || '今日の『証拠』タブを読み直して、別の選択肢を試してください。' };
+    }
+    return null;
   }
-  if(spec.type==='text') {
-    const v = getPath(state, spec.f); return wordCount(v) >= minWordsFor(spec);
+  if(spec.type==='text'){
+    const v = String(getPath(state, spec.f)||'').trim();
+    const mw = minWordsFor(spec);
+    if(wordCount(v) < mw) return { kind:'empty', msg:JP ? ('今日のタブの証拠を引用して、最少限 ' + (mw*JP_CHARS_PER_WORD) + ' 文字の説明を書いてください。') : ('Write at least '+mw+' words citing evidence from today\'s tabs.') };
+    if(spec.mustMatch && !(new RegExp(spec.mustMatch, 'i').test(v))){
+      return { kind:'teach', msg: spec.mustHint || '今日のタブにある具体的な事実や数字を1つ示してください。' };
+    }
+    return null;
   }
-  if(spec.type==='pair') return spec.selects.every(sl => !!getPath(state, spec.f+'.'+sl.key));
-  if(spec.type==='grid') return spec.rows.every(r => String(getPath(state, spec.f+'.'+r.k+'.v')||'').trim() && String(getPath(state, spec.f+'.'+r.k+'.a')||'').trim());
-  if(spec.type==='order') { const st = orderStatus(spec); return st.allPicked && !st.hasDup; }
-  return true;
+  if(spec.type==='pair'){
+    const g = getPath(state, spec.f+'.gate');
+    const m = getPath(state, spec.f+'.germ');
+    if(!g || !m) return { kind:'empty', msg:'入口（ゲート）と病原体の種類、両方を選んでください。' };
+    if(spec.expect){
+      const msgs = [];
+      if(g !== spec.expect.gate) msgs.push(spec.teachGate || '入口（ゲート）を見直してください。');
+      if(m !== spec.expect.germ) msgs.push(spec.teachGerm || 'ウイルスと細菌の区別を見直してください。');
+      if(msgs.length) return { kind:'teach', msg:'ナース・チェン: ' + msgs.join(' ') };
+    }
+    return null;
+  }
+  if(spec.type==='grid'){
+    const allHasText = spec.rows.every(r => String(getPath(state, spec.f+'.'+r.k+'.v')||'').trim().length >= 2 && String(getPath(state, spec.f+'.'+r.k+'.a')||'').trim().length >= 2);
+    if(!allHasText) return { kind:'empty', msg:'比較カード4つすべてに、ワクチンと抗生物質の両方を記入してください。' };
+    /* JP mode: these misconception checks match English keywords only, so a
+       Japanese answer would never be caught. Each one therefore also matches
+       the Japanese wording a student would actually write. */
+    const antiWhich = String(getPath(state, spec.f+'.which.a')||'').toLowerCase();
+    const antiWhichSaysVirus = JP
+      ? (/(ウイルス|ウィルス)/.test(antiWhich) && !/(ない|ません|無効|効かない|しない|ではない)/.test(antiWhich))
+      : (/virus/.test(antiWhich) && !/\b(no|not|never|don't|dont|nothing|cannot|can't|cant|zero)\b/.test(antiWhich));
+    if(antiWhichSaysVirus){
+      return { kind:'teach', msg:'ナース・チェン (カード3): 注意! 抗生物質は生きている細菌だけを殺すもので、ウイルスにはまったく効きません! カード3の「抗生物質」の箱を直してください。' };
+    }
+    const vacWhen = String(getPath(state, spec.f+'.when.v')||'').toLowerCase();
+    const antiWhen = String(getPath(state, spec.f+'.when.a')||'').toLowerCase();
+    const saysAfter  = JP ? (t)=>/(後|あと|感染後|疾患後)/.test(t) : (t)=>/\bafter\b/.test(t);
+    const saysBefore = JP ? (t)=>/(前|まえ|予防|接種前)/.test(t) : (t)=>/\bbefore\b/.test(t);
+    if((saysAfter(vacWhen) && !saysBefore(vacWhen)) || (saysBefore(antiWhen) && !saysAfter(antiWhen))){
+      return { kind:'teach', msg:'ナース・チェン (カード2): 入れ替わっています! ワクチンは病気になる前に接種して免疫系を先に訓練し、抗生物質は細菌感染の後から飲みます。カード2の「ワクチン」の箱を直してください。' };
+    }
+    return null;
+  }
+  if(spec.type==='order'){
+    const st = orderStatus(spec);
+    if(!st.allPicked) return { kind:'empty', msg:'すべてに、1から5までの番号をつけてください。' };
+    if(st.hasDup) return { kind:'teach', msg:'同じ番号（1から5）は2回使えません。' };
+    if(spec.expectOrder){
+      for(let stepNum=1; stepNum<=5; stepNum++){
+        const sStr = String(stepNum);
+        const expKey = Object.keys(spec.expectOrder).find(k => String(spec.expectOrder[k]) === sStr);
+        if(expKey && String(st.map[expKey]) !== sStr){
+          return { kind:'teach', msg:'Nurse Chen: ' + ((spec.stepHints && spec.stepHints[sStr]) || ('手順 N にどのステップが当てはるか確認してください: '+sStr+'.')) };
+        }
+      }
+    }
+    return null;
+  }
+  return null;
 }
+function isFilled(spec){ return !fieldIssue(spec); }
 function stationDone(i){
   const s = STATIONS[i];
+  if(!s) return false;
   if(s.locked && !committed) return false;
   const req = (s.fields||[]).filter(f=>!f.optional);
   if(!req.length) return !!state.visited[i];
   return req.every(isFilled);
+}
+function maxUnlockedStation(){
+  if(Q.has('unlock') && OFFPROD) return STATIONS.length - 1;
+  for(let k=0; k<STATIONS.length-1; k++){
+    if(!stationDone(k)) return k;
+  }
+  return committed ? (STATIONS.length - 1) : COMMIT_IDX;
+}
+function isStationUnlocked(i){
+  if(i <= 0) return true;
+  return i <= maxUnlockedStation();
 }
 
 /* ================= NAV / STATIONS ================= */
@@ -546,7 +669,20 @@ function buildNav(){
     const sub = s.title.indexOf(': ')>=0 ? s.title.split(': ').slice(1).join(': ').trim() : s.title;
     d.title = s.nav + ' - ' + sub;
     d.innerHTML = '<span class="st"></span><div class="ch">'+esc(s.nav)+'</div><div class="tt">'+esc(sub)+'</div>';
-    d.onclick = ()=>{ if(s.locked && !committed){ toast('ロックされています: 金書 15:15 で月曜のプランをコミットすると、ケース解決が開きます。'); return; } loadStation(i); };
+    d.onclick = ()=>{
+      if(!isStationUnlocked(i)){
+        const maxOpen = maxUnlockedStation();
+        if(cur !== maxOpen) loadStation(maxOpen);
+        checkAndCoachCurrent(false);
+        if(i === VERDICT_IDX && maxOpen === COMMIT_IDX){
+          toast('ロックされています: 金曜 15:15 に月曜のプランを仕上げてコミットすると、ケース解決が開きます。');
+        } else {
+          toast('ロックされています: 「' + STATIONS[maxOpen].nav + '」を保健室ログで終えるまで、「' + s.nav + '」には進めません。');
+        }
+        return;
+      }
+      loadStation(i);
+    };
     list.appendChild(d);
   });
   updateNavMarks();
@@ -554,18 +690,30 @@ function buildNav(){
 function updateNavMarks(){
   STATIONS.forEach((s,i)=>{
     const d = el('nav-'+i); if(!d) return;
-    const locked = s.locked && !committed;
+    const locked = !isStationUnlocked(i);
     const done = stationDone(i);
     d.classList.toggle('locked', locked);
     d.classList.toggle('done', done);
     d.classList.toggle('active', i===cur);
+    d.setAttribute('aria-disabled', locked ? 'true' : 'false');
     d.querySelector('.st').textContent = locked ? 'ロック' : (done ? '✓' : '•');
   });
   if(STATIONS[cur]){
     el('ctr').textContent = STATIONS[cur].nav + ' (' + (cur+1) + ' / ' + STATIONS.length + ')';
     el('prevBtn').disabled = (cur===0);
-    const nextLocked = (cur+1 < STATIONS.length) && STATIONS[cur+1].locked && !committed;
-    el('nextBtn').disabled = (cur===STATIONS.length-1) || nextLocked;
+    const nb = el('nextBtn');
+    if(nb){
+      if(cur >= STATIONS.length - 1){
+        nb.disabled = true;
+        nb.textContent = 'ケース解決 ✓';
+      } else if(!isStationUnlocked(cur + 1)){
+        nb.disabled = true;
+        nb.textContent = '\uD83D\uDD12 まず「' + STATIONS[cur].nav + '」を終える';
+      } else {
+        nb.disabled = false;
+        nb.textContent = '次: ' + STATIONS[cur+1].nav + ' →';
+      }
+    }
   }
 }
 function buildSurge(){
@@ -585,53 +733,186 @@ function updateSurge(){
     c.querySelector('.n').textContent = known ? d.n : '?';
   });
 }
-function focusFirstIncomplete(i){
-  const s = STATIONS[i]; if(!s) return;
-  const fields = s.fields || [];
-  for(let k=0; k<fields.length; k++){
-    const f = fields[k];
-    if(!f.optional && !isFilled(f)){
-      if(f.f){
-        const node = document.querySelector('#fields [data-f="'+f.f+'"]');
-        if(node){
-          if(node.tagName==='TEXTAREA'){ node.classList.add('need-why'); node.focus(); }
-          else { const sub = node.querySelector('button,select,input') || node; sub.focus(); }
-          node.scrollIntoView({behavior:'smooth', block:'center'});
-          return;
-        }
-      }
+function showTeachBox(w, kind, msg){
+  if(!w || !w._teachEl) return;
+  const tb = w._teachEl;
+  if(!msg){ tb.className='teach-box'; tb.textContent=''; return; }
+  tb.className = 'teach-box show ' + (kind||'');
+  tb.textContent = msg;
+}
+function refreshFieldCoach(w, forceShowEmpty){
+  if(!w || !w._spec) return null;
+  const spec = w._spec;
+  const iss = fieldIssue(spec);
+  if(spec.type==='choice'){
+    const v = getPath(state, spec.f);
+    if(!v){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
     }
+    const tm = spec.teachMap && spec.teachMap[v];
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else if(tm && tm.msg) showTeachBox(w, 'ok', tm.msg.trim());
+    else showTeachBox(w, 'ok', '✓ 選択を記録しました。');
+    return iss;
   }
+  if(spec.type==='pair'){
+    const g = getPath(state, spec.f+'.gate'), m = getPath(state, spec.f+'.germ');
+    if(!g || !m){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
+    }
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, 'ok', '✓ その通り: ' + g + ' + ' + m + '!');
+    return iss;
+  }
+  if(spec.type==='order'){
+    const st = orderStatus(spec);
+    if(!st.allPicked){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
+    }
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, 'ok', '✓ レジン製アヒルの連鎖5手順が、完全な原因・結果の順に並べています!');
+    return iss;
+  }
+  if(spec.type==='grid' || spec.type==='text'){
+    if(!iss){ showTeachBox(w, '', ''); return null; }
+    if(iss.kind==='teach' || forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, '', '');
+    return iss;
+  }
+  return iss;
+}
+function checkAndCoachCurrent(advanceIfOk){
+  const wraps = Array.from(document.querySelectorAll('#fields .field'));
+  let firstBadWrap = null, firstIssue = null;
+  wraps.forEach(w=>{
+    if(!w._spec || w._spec.optional || w._spec.type==='commit') return;
+    const iss = refreshFieldCoach(w, true);
+    if(iss && !firstBadWrap){ firstBadWrap = w; firstIssue = iss; }
+  });
+  updateNavMarks();
+  if(firstBadWrap){
+    const focusNode = firstBadWrap.querySelector('textarea, select, input, button.opt');
+    if(focusNode){
+      if(focusNode.tagName==='TEXTAREA') focusNode.classList.add('need-why');
+      focusNode.focus();
+    }
+    firstBadWrap.scrollIntoView({behavior:'smooth', block:'center'});
+    toast(firstIssue.kind==='teach' ? '右側の赤いナース・チェンの指摘を見てください!' : firstIssue.msg);
+    return false;
+  }
+  if(advanceIfOk && cur < STATIONS.length - 1){
+    if(cur === 0 && !started){ started = true; state.started = true; }
+    onChange();
+    const nxtName = STATIONS[cur+1].nav;
+    toast('よくできました、保健室担当さん! 「' + nxtName + '」へ進みます...');
+    loadStation(cur + 1);
+  }
+  return true;
 }
 function step(dir){
   let n = cur+dir;
   if(n < 0 || n >= STATIONS.length) return;
-  if(dir > 0 && cur >= 1 && cur < COMMIT_IDX && !stationDone(cur)){
-    focusFirstIncomplete(cur);
-    toast('次の日に進む前に、答えを完丁して、今日のタブの証拠で理由を書いてください。');
+  if(dir > 0 && !isStationUnlocked(n)){
+    if(n === VERDICT_IDX && maxUnlockedStation() === COMMIT_IDX){
+      checkAndCoachCurrent(false);
+      toast('金曜 15:15 で月曜のプランをコミットすると、ケース解決が開きます。');
+      return;
+    }
+    checkAndCoachCurrent(false);
     return;
   }
-  if(STATIONS[n].locked && !committed){ toast('金書 15:15 で月曜のプランをコミットすると、ケース解決が開きます。'); return; }
   loadStation(n);
+}
+function buildCallbackHtml(stId){
+  const cb = CALLBACKS[stId];
+  if(!cb) return '';
+  const guess = getPath(state, 'judgments.s0.guess');
+  if(!guess || !cb.byGuess || !cb.byGuess[guess]) return '';
+  const why = getPath(state, 'judgments.s0.why');
+  const ch = CHARS[cb.who] || { name: cb.who, img: null };
+  const ava = ch.img ? '<img src="'+ch.img+'" alt="'+esc(ch.name)+'">' : '';
+  return '<div class="sim-callback">'+ava+'<div style="min-width:0;flex:1">'
+    + '<div class="cb-tag">シミュレーション更新 // '+esc(ch.name)+' が月曜のログに反応します</div>'
+    + '<div class="cb-txt">'+esc(cb.byGuess[guess])+'</div>'
+    + '<div class="cb-yours">月曜のログ: 「'+esc(guess)+'"'+(why ? ' - "'+esc(why)+'"' : '')+'</div>'
+    + '</div></div>';
+}
+function evaluatePlanLevers(){
+  const r = state.responses || {};
+  const r1 = (r.rule1_what||'') + ' ' + (r.rule1_why||'');
+  const r2 = (r.rule2_what||'') + ' ' + (r.rule2_why||'');
+  const r3 = (r.rule3_what||'') + ' ' + (r.rule3_why||'');
+  /* JP mode: the English keywords are matched OR their Japanese equivalents.
+     Without this a Japanese student could never score on any lever, and the
+     Simulated Next Week card would always show the worst outcome. */
+  const has48h = JP
+    ? /(48|48時間|四十八|2日|2日間|two days|2 days|forty[- ]?eight)/i.test(r1)
+    : /\b(48|forty[- ]?eight|two days|2 days)\b/i.test(r1);
+  const hasBleach = JP
+    ? /(漂白剤|次亜塩素酸|塩素|クロリン|洗浄剤|bleach|chlorine)/i.test(r2)
+    : /\b(bleach|chlorine)\b/i.test(r2);
+  const hasDucks = JP
+    ? /(アヒル|交換|共有|媒介物|おもちゃ|玩具|duck|ducks|trade|trading|fomite|toys?)/i.test(r3)
+    : /\b(duck|ducks|trade|trading|fomite|toys?)\b/i.test(r3);
+  const hasSoap = JP
+    ? /(石けん|石鹸|手洗い|手洗|流水|soap)/i.test(r3)
+    : /\b(soap)\b/i.test(r3);
+  const score = (has48h?1:0) + (hasBleach?1:0) + ((hasDucks && hasSoap)?1:0);
+  return { has48h, hasBleach, hasDucks, hasSoap, score };
+}
+function buildSimulatedWeek(){
+  const lv = evaluatePlanLevers();
+  let curve, headline, summary;
+  if(lv.score === 3){
+    curve = [{d:'月',n:8,ok:true},{d:'火',n:2,ok:true},{d:'水',n:0,ok:true},{d:'木',n:0,ok:true},{d:'金',n:0,ok:true}];
+    headline = '翌週のシミュレーション: 水曜までに流行を止めました (3/3 の対策が有効)';
+    summary = 'マーカスは水曜に安全に9年生に戻りました! このための48時間の自宅待機と、ブドロ先生の漂白剤での清掃、およびアヒルの交換停止と石けんの手洗いで、3つの伝え方ルートをすべて断ち切られました。';
+  } else if(lv.score === 2){
+    curve = [{d:'月',n:14,ok:false},{d:'火',n:8,ok:false},{d:'水',n:3,ok:true},{d:'木',n:1,ok:true},{d:'金',n:0,ok:true}];
+    const gap = !lv.has48h ? '病気が治まったあと48時間の自宅待機' : (!lv.hasBleach ? '蛇口と給水栓に漂白剤消毒剤を使うこと' : 'アヒルの交換を止め、本物の石けんでこすり洗うこと');
+    headline = '翌週のシミュレーション: 落ち着きました、公衆衛生機関の仕組みが1つ必要 (2/3 の対策が有効)';
+    summary = 'このプランは流行の大部を止められましたが、公衆衛生機関の課題がこれも「' + gap + '」となると、週の初めに少し穴が空いてしまいました。';
+  } else {
+    curve = [{d:'月',n:21,ok:false},{d:'火',n:16,ok:false},{d:'水',n:9,ok:false},{d:'木',n:4,ok:true},{d:'金',n:1,ok:true}];
+    headline = '翌週のシミュレーション: 一部だけで防げました、公衆衛生機関が動きました ('+lv.score+'/3 の具体的な対策が有効)';
+    summary = '一般的なルールは役立ち、公衆衛生機関が確実な数字と漂白剤を加えて (病気が治まって完全な48時間、蛇口に漂白剤消毒剤、アヒルの交換停止と20秒の石けん手洗い)、金曜まで病例を小さくしました。';
+  }
+  return '<div class="sim-week-card"><h4>'+esc(headline)+'</h4>'
+    + '<div style="font-size:.86rem;color:var(--ink)">このプランを決めたときのセントennialで、翌週の新しい病気学生の数:</div>'
+    + '<div class="sim-bars">' + curve.map(c=>'<div class="sim-bar'+(c.ok?'':' leak')+'"><div class="sd">'+c.d+'</div><div class="sn">+'+c.n+'</div></div>').join('') + '</div>'
+    + '<div style="font-size:.83rem;color:var(--muted)">'+esc(summary)+'</div></div>';
 }
 function tabLabel(s, t){
   return (s.tabLabels && s.tabLabels[t]) || DEFAULT_TABS[t] || t;
 }
 function loadStation(i){
   stopReading();
+  const maxOpen = maxUnlockedStation();
+  if(i > maxOpen){
+    const blockedName = STATIONS[i] ? STATIONS[i].nav : 'that stage';
+    i = maxOpen;
+    toast('ロックされています: 「' + STATIONS[maxOpen].nav + '」を終えるまで、「' + blockedName + '」には進めません。');
+  }
   cur=i; state.station=i; state.visited[i]=true;
   if(!tabsSeen[i]) tabsSeen[i] = { dispatch: true };
   currentTab='dispatch';
   const s = STATIONS[i];
   const dc = el('deckContent');
-  const locked = s.locked && !committed;
+  const locked = !isStationUnlocked(i);
   if(locked){
-    dc.innerHTML = '<div id="lockedPanel">ケース解決はロックされています<br><span style="color:var(--muted);font-size:.85rem">金書 15:15 で月曜のプランを完丁してコミットすると、公正の判定が開きます。</span></div>';
-    el('taskPrompt').textContent = '金書 15:15 に行って月曜のプランをコミットしてください。';
+    dc.innerHTML = '<div id="lockedPanel">この日はロックされています<br><span style="color:var(--muted);font-size:.85rem">先に右の保健室ログで、それ以前の日を終えてください。</span></div>';
+    el('taskPrompt').textContent = '先に以前の日を終えてください。';
     el('fields').innerHTML='';
   } else {
     const tabKeys = Object.keys(s.tabs);
-    let html = '<div class="deck-header"><div><div class="kicker">'+esc(s.kicker)+'</div><h2>'+esc(s.title)+'</h2></div><button id="readBtn" type="button" onclick="toggleRead()">🔊 このタブを読み上げる</button></div>';
+    let html = '<div class="deck-header"><div><div class="kicker">'+esc(s.kicker)+'</div><h2>'+esc(s.title)+'</h2></div><button id="readBtn" type="button" onclick="toggleRead()">\uD83D\uDD0A このタブを読み上げる</button></div>';
+    html += buildCallbackHtml(s.id);
     const cList = s.chars||[];
     html += '<div class="chars'+(cList.length>1?' multi':'')+'">';
     cList.forEach(c=>{
@@ -665,6 +946,7 @@ function switchTab(t){
   if(!body) return;
   let html = s.tabs[t]||'';
   if(html === '@review') html = buildReview();
+  else if(cur === VERDICT_IDX && t === 'dispatch') html = buildSimulatedWeek() + html;
   if(t === 'toolkit' && s.words && s.words.length){
     /* JP glossary entries are {term, def}; English ones are plain strings. */
     html += '<div class="glossary"><h4>今日の用語集</h4><dl>' + s.words.map(w => {
@@ -693,24 +975,43 @@ function renderFields(fields, stIdx){
   const box = el('fields'); box.innerHTML='';
   if(committed && stIdx <= COMMIT_IDX){
     const n = document.createElement('div'); n.className='lock-notice';
-    n.textContent = 'プランはコミットされました。月曜から金書までの答えはロックされていますので、公正の判定と正直に比べられます。';
+    n.textContent = 'プランはコミットされました。月曜から金曜までの答えはロックされていますので、公式の判定と正直に比べられます。';
     box.appendChild(n);
   }
   fields.forEach(spec=> box.appendChild(buildField(spec)));
+  if(stIdx >= 1 && stIdx < COMMIT_IDX && STATIONS[stIdx+1]){
+    const nb = document.createElement('button');
+    nb.type = 'button'; nb.className = 'next-day-btn'; nb.id = 'nextDayBtn';
+    const nxtNav = STATIONS[stIdx+1].nav;
+    if(committed){
+      nb.textContent = '次の日: ' + nxtNav + ' →';
+      nb.onclick = ()=> loadStation(stIdx + 1);
+    } else {
+      nb.textContent = '確認して次の日へ: ' + nxtNav + ' →';
+      nb.onclick = ()=> checkAndCoachCurrent(true);
+    }
+    box.appendChild(nb);
+  }
   hydrateFields();
   if(committed && stIdx <= COMMIT_IDX){
-    box.querySelectorAll('textarea, select, input, button:not(.ack-btn):not(.big-btn)').forEach(e => e.disabled = true);
+    box.querySelectorAll('textarea, select, input, button.opt').forEach(e => e.disabled = true);
   }
 }
+function attachTeach(w){
+  const tb = document.createElement('div');
+  tb.className = 'teach-box';
+  w.appendChild(tb);
+  w._teachEl = tb;
+}
 function buildField(spec){
-  const w = document.createElement('div'); w.className='field';
+  const w = document.createElement('div'); w.className='field'; w._spec = spec;
   if(spec.type==='ack'){
     const b=document.createElement('button'); b.type='button'; b.className='ack-btn'; b.id='ackBtn';
     b.onclick = ()=>{
       if(started){ step(1); return; }
-      if(!state.section) { toast('すだし上のクラスを選んでください。'); return; }
+      if(!state.section) { toast('すぐ上のクラスを選んでください。'); return; }
       started=true; state.started=true; hydrateFields(); toast('1週間の開始です! 月曜の朝へ移ります...'); onChange();
-      setTimeout(()=>step(1), 650);
+      if(SELFTEST) step(1); else setTimeout(()=>step(1), 650);
     };
     w.appendChild(b); return w;
   }
@@ -718,20 +1019,23 @@ function buildField(spec){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const sel=document.createElement('select'); sel.setAttribute('data-sec', '1');
     sel.innerHTML='<option value="">- クラスを選ぶ -</option>'+SECTIONS.map(o=>'<option>'+o+'</option>').join('');
-    sel.addEventListener('change', ()=>{ state.section = sel.value; el('sectionSel').value = sel.value; onChange(); });
-    w.appendChild(sel); return w;
+    sel.addEventListener('change', ()=>{ state.section = sel.value; el('sectionSel').value = sel.value; refreshFieldCoach(w, false); onChange(); });
+    w.appendChild(sel); attachTeach(w); return w;
   }
   if(spec.type==='choice'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const c=document.createElement('div'); c.className='choice'; c.setAttribute('data-f', spec.f);
     spec.options.forEach(o=>{ const b=document.createElement('button'); b.type='button'; b.className='opt'; b.dataset.v=o; b.textContent=o;
       b.onclick=()=>{
-        c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b)); setPath(state, spec.f, o); onChange();
+        c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b));
+        setPath(state, spec.f, o);
+        const iss = refreshFieldCoach(w, false);
+        onChange();
         const nxt = w.nextElementSibling && w.nextElementSibling.querySelector('textarea');
-        if(nxt && wordCount(nxt.value) < 4){ nxt.classList.add('need-why'); }
+        if(!iss && nxt && wordCount(nxt.value) < 4){ nxt.classList.add('need-why'); }
       };
       c.appendChild(b); });
-    w.appendChild(c); return w;
+    w.appendChild(c); attachTeach(w); return w;
   }
   if(spec.type==='text'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -745,11 +1049,13 @@ function buildField(spec){
     t.addEventListener('input', ()=>{
       autoGrow(t);
       setPath(state, spec.f, t.value);
-      if(hint) updateTextHint(t, hint, spec.minWords||4);
+      if(hint) updateTextHint(t, hint, spec.minWords||4, spec);
+      refreshFieldCoach(w, false);
       onChange();
     });
     w.appendChild(t);
     if(hint){ w.appendChild(hint); w._textSpec = spec; w._textEl = t; w._hintEl = hint; }
+    attachTeach(w);
     return w;
   }
   if(spec.type==='pair'){
@@ -759,10 +1065,10 @@ function buildField(spec){
       const cell=document.createElement('div'); const l=document.createElement('label'); l.textContent=sl.label;
       const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+sl.key);
       sel.innerHTML='<option value="">- 選ぶ -</option>'+sl.options.map(o=>'<option>'+o+'</option>').join('');
-      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+sl.key, sel.value); onChange(); });
+      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+sl.key, sel.value); refreshFieldCoach(w, false); onChange(); });
       cell.appendChild(l); cell.appendChild(sel); row.appendChild(cell);
     });
-    w.appendChild(row); return w;
+    w.appendChild(row); attachTeach(w); return w;
   }
   if(spec.type==='order'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -770,19 +1076,20 @@ function buildField(spec){
     spec.items.forEach(it=>{
       const row=document.createElement('div'); row.className='order-row';
       const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+it.k);
-      sel.innerHTML='<option value=""#</option>'+[1,2,3,4,5].map(o=>'<option value=+o+>手順 '+o+'</option>').join('');
-      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); renderOrderPreview(spec, prev); onChange(); });
+      sel.innerHTML='<option value="">#</option>'+[1,2,3,4,5].map(o=>'<option value="'+o+'">手順 '+o+'</option>').join('');
+      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); renderOrderPreview(spec, prev); refreshFieldCoach(w, false); onChange(); });
       const span=document.createElement('span'); span.textContent=it.t;
       row.appendChild(sel); row.appendChild(span); w.appendChild(row);
     });
     w.appendChild(prev);
+    attachTeach(w);
     w._orderSpec = spec; w._orderPrev = prev;
     return w;
   }
   if(spec.type==='grid'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const wrap=document.createElement('div'); wrap.className='grid-cards';
-    const colNames = spec.cols || ['Vaccines (shots)', 'Antibiotics (medicine)'];
+    const colNames = spec.cols || ['ワクチン（注射）', '抗生物質（薬）'];
     spec.rows.forEach((r, idx)=>{
       const card=document.createElement('div'); card.className='grid-card';
       const q=document.createElement('div'); q.className='gc-q'; q.textContent=(idx+1)+'. '+r.label;
@@ -794,35 +1101,84 @@ function buildField(spec){
         inp.rows = (r.k==='when' || r.k==='which') ? 1 : 2;
         inp.placeholder = colTitle + '...';
         inp.setAttribute('data-f', spec.f+'.'+r.k+'.'+col);
-        inp.addEventListener('input', ()=>{ autoGrow(inp); setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); onChange(); });
+        inp.addEventListener('input', ()=>{ autoGrow(inp); setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); refreshFieldCoach(w, false); onChange(); });
         item.appendChild(tag); item.appendChild(inp);
         card.appendChild(item);
       });
       wrap.appendChild(card);
     });
-    w.appendChild(wrap); return w;
+    w.appendChild(wrap); attachTeach(w); return w;
   }
   if(spec.type==='commit'){
+    const tb = document.createElement('button'); tb.type='button'; tb.className='test-plan-btn'; tb.id='testPlanBtn';
+    tb.textContent = '\uD83D\uDD2C 原案を学校でテスト';
+    tb.onclick = ()=> testDraftPlan();
+    const simBox = document.createElement('div'); simBox.id='planSimBox'; simBox.className='plan-sim-box';
     const b=document.createElement('button'); b.type='button'; b.className='big-btn'; b.id='commitBtn';
     b.onclick=()=>doCommit();
-    w.appendChild(b); return w;
+    w.appendChild(tb); w.appendChild(simBox); w.appendChild(b); return w;
   }
   return w;
+}
+function testDraftPlan(){
+  const box = el('planSimBox'); if(!box) return;
+  const r = state.responses || {};
+  const anyWritten = ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].some(k => wordCount(r[k]) >= 1);
+  if(!anyWritten){
+    checkAndCoachCurrent(false);
+    return;
+  }
+  const lv = evaluatePlanLevers();
+  const items = [];
+  items.push({
+    who: 'marcus', ok: lv.has48h,
+    txt: lv.has48h
+      ? 'ありがとう! 症状が治まったあと48時間は家にいてほしいんだ。病毒を持ったまま月曜に学校に戻ってこられないから!'
+      : 'ちょっと待って: ノロウイルスは体調が戻ったあとも2日間は排出し続けるんだ! ルール1に『症状が治まって48時間』という具体的なルールを追加して、安全にしてくれない?'
+  });
+  items.push({
+    who: 'boudreau', ok: lv.hasBleach,
+    txt: lv.hasBleach
+      ? '了解、保健室担当さん! ピンクの花柄の洗浄剤は片付けて、蛇口・給水栓・トイレットの手すりには全部塩素系の漂白剤を薄めて使うよ!'
+      : 'いつものピンクの花柄の洗浄剤は、この硬い胃腸ウイルスには1週間まったく効きませんでした! ルール2に『多くの手が触れる表面には漂白剤消毒剤を使う』と具体的に書いてください。'
+  });
+  let sophieMsg = '';
+  if(lv.hasDucks && lv.hasSoap){
+    sophieMsg = '決まり! リュックのレジン製アヒルの交換を休みて、食事の前にはアルコールだけじゃなくて本物の石けんと流水でこすり洗うね!';
+  } else if(!lv.hasDucks){
+    sophieMsg = 'ちょっと待って! みんなのミニのレジン製アヒルはどうするの? ルール3には、アヒルの交換を止めることと、食前に本物の石けんと水で手を洗うことをちゃんと書いてね!';
+  } else {
+    sophieMsg = 'よし、アヒルはバッグの中にしまっておこう! でも、アルコール消毒剤は効きませんでしたから、ルール3には『食前に本物の石けんと流水で手を洗う』と書いてね!';
+  }
+  items.push({ who: 'sophie', ok: (lv.hasDucks && lv.hasSoap), txt: sophieMsg });
+  items.push({
+    who: 'nurse', ok: (lv.score === 3),
+    txt: lv.score === 3
+        ? '3/3 の流行対策がすべて決まりました! これで月曜の朝に実行したら、セントennialの曲線は水曜まで新規病例が 0 になります。もうコミットしてかまいません!'
+        : 'あなたの原案は対策を ' + lv.score + '/3 命中しました。上の黄色のノートを直してもう一度テストするか、準備ができたらコミットしてください。'
+  });
+  box.innerHTML = items.map(it=>{
+    const ch = CHARS[it.who] || { name: it.who, img: null };
+    const ava = ch.img ? '<img src="'+ch.img+'" alt="'+esc(ch.name)+'">' : '';
+    return '<div class="plan-reply'+(it.ok?'':' warn')+'">'+ava+'<div style="min-width:0;flex:1"><b>'+esc(ch.name)+':</b> '+esc(it.txt)+'</div></div>';
+  }).join('');
+  box.className = 'plan-sim-box show';
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 function renderOrderPreview(spec, box){
   if(!box) return;
   const st = orderStatus(spec);
-  if(!st.vals.length){ box.className='order-preview'; box.textContent='上の手順 1 から 5 までを選ぶと、你の連鎖が順に展くします。'; return; }
+  if(!st.vals.length){ box.className='order-preview'; box.textContent='上の手順 1 から 5 までを選ぶと、あなたの連鎖が順に展開します。'; return; }
   if(st.hasDup){
     box.className='order-preview dup';
-    box.textContent='注意: 同じ手順の数字を 2 回使っています。各句に 1 から 5 までの独この番号をかけてください。';
+    box.textContent='注意: 同じ手順の数字を 2 回使っています。各ステップに 1 から 5 までの違う番号をつけてください。';
     return;
   }
   const sorted = spec.items.filter(it => st.map[it.k]).sort((a,b)=> (+st.map[a.k]) - (+st.map[b.k]));
   box.className='order-preview';
   box.innerHTML = '<b>順番に並べた連鎖:</b><ol>' + sorted.map(it=>'<li value="'+esc(st.map[it.k])+'">'+esc(it.t)+'</li>').join('') + '</ol>';
 }
-function updateTextHint(t, hint, minW){
+function updateTextHint(t, hint, minW, spec){
   if(!hint || !t) return;
   const wc = wordCount(t.value);
   if(wc === 0){
@@ -834,6 +1190,10 @@ function updateTextHint(t, hint, minW){
     hint.textContent = JP
       ? 'スライドの事実をもう少し具体的に書き足してください (現在 ' + textScore(t.value) + ' 文字 / 必要 ' + (minW*JP_CHARS_PER_WORD) + ' 文字)。'
       : 'Add a bit more detail from the slides ('+wc+'/'+minW+'+ words).';
+  } else if(spec && spec.mustMatch && !(new RegExp(spec.mustMatch, 'i')).test(t.value)){
+    hint.className='just-hint short';
+    hint.textContent = JP ? 'もう少しだけです! 下のナース・チェンのヒントを見てください。'
+                          : 'Almost there: check Nurse Chen\'s tip right below!';
   } else {
     hint.className='just-hint ok';
     hint.textContent = JP ? '✓ 証拠による裏づけを記録しました'
@@ -854,44 +1214,36 @@ function hydrateFields(){
   });
   document.querySelectorAll('#fields .field').forEach(w=>{
     if(w._orderSpec) renderOrderPreview(w._orderSpec, w._orderPrev);
-    if(w._textSpec && w._hintEl) updateTextHint(w._textEl, w._hintEl, minWordsFor(w._textSpec));
+    if(w._textSpec && w._hintEl) updateTextHint(w._textEl, w._hintEl, minWordsFor(w._textSpec), w._textSpec);
+    if(w._spec) refreshFieldCoach(w, false);
   });
   const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
   const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? '月曜のプランコミット済み ✓ (判定を見る)' : '月曜のプランをコミットする'; cb.classList.toggle('done', committed); }
   const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'保健室開店 ✓ (月曜へ)':'準備完了: 保健室を開こう'; }
+  updateNavMarks();
 }
 function doCommit(){
   if(committed){ loadStation(VERDICT_IDX); return; }
+  if(!state.section){ toast('先に右上のクラスを選んでください。'); return; }
 
-  const missing = [];
-  if(!state.section) missing.push('- 右上のクラスを選びてください。');
-  if(!getPath(state, 'judgments.s0.guess') || wordCount(getPath(state, 'judgments.s0.why')) < 4) missing.push('- 月曜の最初の推測を選び、スライドの証拠で理由を書いてください。');
-  if(!getPath(state, 'judgments.s1.choice') || wordCount(getPath(state, 'judgments.s1.why')) < 4) missing.push('- 火曜の体のシステムを選び、ナース・チェンの数字で理由を書いてください。');
-  if(!getPath(state, 'judgments.s1.pattern') || wordCount(getPath(state, 'judgments.s1.pattern_why')) < 4 || !getPath(state, 'judgments.s2.top') || wordCount(getPath(state, 'judgments.s2.why')) < 4) missing.push('- 木曜の 2 つの証拠について選びで、それぞれの理由を書いてください。');
-  if(!getPath(state, 'responses.c1_name') || wordCount(getPath(state, 'responses.c1_clue1')) < 4 || wordCount(getPath(state, 'responses.c1_clue2')) < 4) missing.push('- 金書午前に犯人の病原体の名前を書き、 2 つの証拠の手持ちを書いてください。');
-  const s7 = STATIONS[COMMIT_IDX];
-  let rulesOk = true;
-  s7.fields.forEach(f => {
-    if(f.type === 'text' && !f.optional) {
-      if(wordCount(getPath(state, f.f)) < 3) rulesOk = false;
+  for(let i=1; i<COMMIT_IDX; i++){
+    if(!stationDone(i)){
+      loadStation(i);
+      checkAndCoachCurrent(false);
+      toast('月曜のプランをコミットする前に、まず「' + STATIONS[i].nav + '」を終えてください。');
+      return;
     }
-  });
-  if(!rulesOk) missing.push('- 月曜の 3 つのルールの WHAT と WHY には、それぞれにショートの文を少しとも 1 文書いてください。');
+  }
+  if(!checkAndCoachCurrent(false)) return;
 
-  if(missing.length) { alert('もう少しだけです! コミットの前に: \n\n' + missing.join('\n')); return; }
-
-  const incomplete = [];
-  for(let i=1; i<COMMIT_IDX; i++) { if(!stationDone(i)) incomplete.push(STATIONS[i].nav); }
-  let msg = '月曜の朝のプランをコミットしますか?\n\nコミットすると、月曜から金書までの答えはロックされ、ケース解決 (公正の判定) が開きます。';
-  if(incomplete.length) msg += '\n\n注意: どのステージにまだ未回答があります: ' + incomplete.join(', ') + '。どももコミットしますか?';
-
+  const msg = '月曜の朝のプランをコミットしますか?\n\nコミットすると、月曜から金曜までの回答はロックされ、ケース解決（公式の判定と翌週のシミュレーション）が開きます。';
   if(!confirm(msg)) return;
 
   committed=true; state.committed=true; state.committedAt=Date.now();
   save(); updateNavMarks();
   toast('月曜のプランをコミットしました! ケース解決を開きます...');
-  setTimeout(()=>loadStation(VERDICT_IDX), 600);
+  if(SELFTEST) loadStation(VERDICT_IDX); else setTimeout(()=>loadStation(VERDICT_IDX), 600);
 }
 
 /* ================= REVIEW TAB (S8 YOUR FILE) ================= */
@@ -911,7 +1263,7 @@ function buildReview(){
     const v = getPath(state, k.f);
     let yours = '-', correct = '-', isOk = false;
     if(k.noKey){
-      yours = v || '(なし)'; correct = '假証 (採点しません)';
+      yours = v || '(なし)'; correct = '仮説 (採点しません)';
     } else if(k.answer){
       total++; yours = v || '(空欄)'; correct = k.answer; isOk = (v === k.answer); if(isOk) scored++;
     } else if(k.pair){
@@ -929,21 +1281,22 @@ function buildReview(){
       if(isOk) scored++;
     }
     const cls = k.noKey ? '' : (isOk ? 'ok' : 'bad');
-    const mark = k.noKey ? '' : (isOk ? '✓ ' : '✗ ');
+    const mark = k.noKey ? '' : (isOk ? '\u2713 ' : '\u2717 ');
     const whyVal = k.whyF ? getPath(state, k.whyF) : '';
     const whyHtml = k.whyF ? '<span class="note"><b>あなたの理由:</b> '+esc(whyVal||'(空欄)')+'</span>' : '';
     rowsHtml += '<tr><td>'+esc(k.st)+'</td><td>'+esc(k.label)+'</td><td class="'+cls+'">'+mark+esc(yours)+whyHtml+'</td><td>'+esc(correct)+(k.note?'<span class="note">'+esc(k.note)+'</span>':'')+'</td></tr>';
   });
 
   const r = state.responses || {};
-  let html = '<p><strong>選択と照合の自己チェック: '+scored+' / '+total+'</strong> (下のあなたの説明と月曜のプランは、先生が確認します。)</p>';
-  html += '<table class="review-tbl"><tr><th>日</th><th>チェック</th><th>あなたの選択</th><th>公術衛生機関の所見</th></tr>'+rowsHtml+'</table>';
+  let html = buildSimulatedWeek();
+  html += '<p><strong>選択と照合の自己チェック: '+scored+' / '+total+'</strong> (下のあなたの説明と月曜のプランは、先生が確認します。)</p>';
+  html += '<table class="review-tbl"><tr><th>日</th><th>チェック</th><th>あなたの選択</th><th>公衆衛生機関の所見</th></tr>'+rowsHtml+'</table>';
 
   html += '<div class="file-sec"><h4>あなたの月曜の朝プラン (タブ2と比べる)</h4>';
-  html += '<div class="file-rule"><b>ルール1 (学校に戻るときての准等):</b> '+esc(r.rule1_what||'-')+'<br><span style="color:var(--muted)">理由:</span> '+esc(r.rule1_why||'-')+'</div>';
-  html += '<div class="file-rule"><b>ルール2 (表面の清撰):</b> '+esc(r.rule2_what||'-')+'<br><span style="color:var(--muted)">理由:</span> '+esc(r.rule2_why||'-')+'</div>';
+  html += '<div class="file-rule"><b>ルール1 (学校に戻るときの基準):</b> '+esc(r.rule1_what||'-')+'<br><span style="color:var(--muted)">理由:</span> '+esc(r.rule1_why||'-')+'</div>';
+  html += '<div class="file-rule"><b>ルール2 (表面の清掃):</b> '+esc(r.rule2_what||'-')+'<br><span style="color:var(--muted)">理由:</span> '+esc(r.rule2_why||'-')+'</div>';
   html += '<div class="file-rule"><b>ルール3 (アヒルと食前の手洗い):</b> '+esc(r.rule3_what||'-')+'<br><span style="color:var(--muted)">理由:</span> '+esc(r.rule3_why||'-')+'</div>';
-  html += '<div class="file-rule"><b>ボーナスの爱称:</b> '+esc(r.bonus||'(未入手)')+'</div>';
+  html += '<div class="file-rule"><b>ボーナスの愛称:</b> '+esc(r.bonus||'(未入手)')+'</div>';
   html += '</div>';
   return html;
 }
@@ -958,7 +1311,7 @@ function renderHistory(){
       if(f.type==='section') v = state.section;
       else if(f.type==='choice' || f.type==='text') v = getPath(state, f.f);
       else if(f.type==='pair') { const p = getPath(state, f.f); if(p && (p.gate||p.germ)) v = (p.gate||'?')+' / '+(p.germ||'?'); }
-      else if(f.type==='order') { const st = orderStatus(f); if(st.vals.length) v = st.allPicked && !st.hasDup ? '5 手順を並べた ✓' : (st.vals.length+'/5 番号済み'); }
+      else if(f.type==='order') { const st = orderStatus(f); if(st.vals.length) v = isFilled(f) ? '5 手順を並べた ✓' : (st.vals.length+'/5 進行中'); }
       else if(f.type==='grid') { const p = getPath(state, f.f); if(p && Object.keys(p).length) v = isFilled(f) ? '8 マスすべて入力 ✓' : '入力中'; }
 
       if(v != null && String(v).trim() !== '') {
@@ -991,7 +1344,7 @@ if(window.speechSynthesis){
 function stopReading(){
   if(window.speechSynthesis) try{ speechSynthesis.cancel(); }catch(e){}
   isReading=false;
-  const b=el('readBtn'); if(b){ b.classList.remove('reading'); b.textContent='🔊 このタブを読み上げる'; }
+  const b=el('readBtn'); if(b){ b.classList.remove('reading'); b.textContent='\uD83D\uDD0A このタブを読み上げる'; }
 }
 function toggleRead(){
   if(!window.speechSynthesis) { toast('このブラウザでは読み上げを使えません。'); return; }
@@ -1041,58 +1394,133 @@ function runSelfTest(){
   const out=[]; const ok=(c,m)=>out.push((c?'PASS':'FAIL')+': '+m);
   try{
     ok(STATIONS.length===9, 'stations loaded = '+STATIONS.length);
+    ok(!!(el('gateOutcomeTxt') && el('gateOutcomeTxt').textContent.includes('健康行動')), 'Splash login displays the main learning outcome in Japanese');
     ok(Object.values(CHARS).every(c=>!!c.img), 'all 6 characters have portrait assets');
     ok(STATIONS.every(s=>(s.imgs||[]).length>=1), 'every station has >=1 exhibit image');
     ok(typeof window.signIn==='function' && typeof window.toggleRead==='function','window handlers exposed');
 
-    loadStation(3); const t=document.querySelector('#fields textarea');
-    if(t){ t.focus(); t.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true})); ok(cur===3, 'ArrowRight in textarea does not jump station'); }
+    // Sequential lock before starting
+    loadStation(0);
+    ok(!isStationUnlocked(1) && !isStationUnlocked(2) && !isStationUnlocked(7), 'All future stages locked before the briefing is completed');
+    ok(el('nextBtn').disabled === true, 'Footer Next button disabled while the current stage is incomplete');
+    loadStation(5);
+    ok(cur===0, 'loadStation(5) clamps back to stage 0 when earlier stages are incomplete');
+    ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
+    state.section = '801-HE'; el('ackBtn').click();
+    ok(started===true && cur===1 && !isStationUnlocked(2), 'Ack opens Monday while Tuesday to Case Closed remain locked');
 
-    // Duplicate order guard
-    loadStation(6);
+    // Monday: right-side Check & Next Day button + justification enforcement
+    ok(!!el('nextDayBtn') && el('nextBtn').disabled===true, 'Right-side Check & Next Day rendered and footer Next disabled until Monday is done');
+    loadStation(4);
+    ok(cur===1, 'Cannot skip ahead to Thursday while Monday is unfinished');
+    setPath(state, 'judgments.s0.guess', '西棟の水道の水にある何か');
+    hydrateFields();
+    ok(!stationDone(1) && el('nextBtn').disabled===true, 'Monday choice alone is NOT done without a justification');
+    el('nextDayBtn').click(); ok(cur===1, 'Right-side Next Day button blocks when the justification is empty');
+    setPath(state, 'judgments.s0.why', '西棟の生徒3人が昼前に吐きました。');
+    hydrateFields();
+    ok(el('nextBtn').disabled===false, 'Footer Next button unlocks as soon as Monday is completed');
+    el('nextDayBtn').click(); ok(cur===2, 'Right-side Next Day button advances to Tuesday when Monday is complete');
+
+    // Tuesday: dynamic Nurse Chen callback + wrong choice coaching + number check
+    ok(el('deckContent').innerHTML.includes('sim-callback') && el('deckContent').innerHTML.includes('西棟の水道の水'), 'Tuesday renders the Nurse Chen dynamic callback quoting the Monday hypothesis');
+    setPath(state, 'judgments.s1.choice', '肺と気道（呼吸器系）');
+    setPath(state, 'judgments.s1.why', '欠席者の88%が胃の症状を示しました。');
+    hydrateFields();
+    ok(!stationDone(2) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Tuesday body-system choice blocked with the Nurse Chen teaching box');
+    setPath(state, 'judgments.s1.choice', '胃と腸（消化器系）');
+    setPath(state, 'judgments.s1.why', '今日は胃の具合が悪い生徒がいました。');
+    hydrateFields();
+    ok(!stationDone(2), 'Tuesday why without a number or percentage triggers the coaching check');
+    setPath(state, 'judgments.s1.why', '欠席者の88%が胃の痙攣と吐き気を示しました。');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===3, 'Tuesday advances to Wednesday once the choice and the number justification are valid');
+
+    // Wednesday: ArrowRight guard + pair teaching check
+    const t3=document.querySelector('#fields textarea');
+    if(t3){ t3.focus(); t3.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true})); ok(cur===3, 'ArrowRight in a textarea does not jump station'); }
+    setPath(state, 'matches.a1', {gate:'口', germ:'ウイルス'});
+    setPath(state, 'matches.a2', {gate:'鼻', germ:'ウイルス'});
+    setPath(state, 'matches.a3', {gate:'目', germ:'ウイルス'});
+    setPath(state, 'matches.a4', {gate:'傷（切り傷・すり傷）', germ:'ウイルス'});
+    setPath(state, 'responses.q5', '汚れたアヒルに触った後の口の入口と、くしゃみによる鼻の入口。');
+    hydrateFields();
+    ok(!stationDone(3) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Germ Type (Virus on a knee scrape) blocked with a teaching note');
+    setPath(state, 'matches.a4', {gate:'傷（切り傷・すり傷）', germ:'細菌'});
+    hydrateFields();
+    ok(stationDone(3), 'Wednesday is complete once all 4 pairs and the gate answer are valid');
+    el('nextDayBtn').click(); ok(cur===4, 'Wednesday advances to Thursday once all 4 pairs and gates are valid');
+
+    // Thursday: VP Raman dynamic callback + Vaccines/Antibiotics misconception coaching
+    ok(el('deckContent').innerHTML.includes('sim-callback') && el('deckContent').innerHTML.includes('100%きれい'), 'Thursday renders the VP Raman dynamic callback reacting to the Monday water guess');
+    setPath(state, 'judgments.s1.pattern', '病気が人から人へ伝わり、広がり方が毎日速くなっている');
+    setPath(state, 'judgments.s1.pattern_why', '病例は3、7、18、34と増え続けて、水はきれいでした。');
+    setPath(state, 'judgments.s2.top', '1週間続いた昼前のレジン製アヒルの交換');
+    setPath(state, 'judgments.s2.why', 'アヒルは水曜の午前に全学年で交換されていました。');
+    setPath(state, 'responses.q6', '石けんが油分を剥がし、流水がウイルスを洗い流します。');
+    setPath(state, 'partB', {
+      does: {v:'免疫系を訓練する', a:'細菌を殺す'},
+      when: {v:'病気になる前', a:'病気になった後'},
+      which:{v:'ウイルスと一部の細菌', a:'ウイルスと細菌'},
+      others:{v:'弱い同級生を守る', a:'使いすぎると耐性菌が増える'}
+    });
+    hydrateFields();
+    ok(!stationDone(4) && !!document.querySelector('#fields .teach-box.fix'), 'Antibiotic-kills-virus misconception caught and coached on Thursday');
+    setPath(state, 'partB.which.a', '細菌だけ');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===5, 'Thursday advances to Friday AM once the misconception is fixed');
+
+    // Friday AM: suspect coaching + advance
+    setPath(state, 'responses.c1_name', '容疑者C: サルモネラ菌 (食中毒の細菌)');
+    setPath(state, 'responses.c1_clue1', '88%が胃の症状を示し、24から48時間で回復しました。');
+    setPath(state, 'responses.c1_clue2', '病気の生徒21人は家から弁当を持ってきたので、食堂の食べ物は除外されます。');
+    hydrateFields();
+    ok(!stationDone(5) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Friday AM suspect (Salmonella) coached with the home-lunch clue');
+    setPath(state, 'responses.c1_name', '容疑者B: ノロウイルス (胃腸炎ウイルス)');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===6, 'Friday AM advances to Friday Noon');
+
+    // Friday Noon: duplicate + wrong-order coaching + penicillin check
     setPath(state, 'responses.chain', {a:'1',b:'1',c:'3',d:'4',e:'5'});
     ok(!isFilled(STATIONS[6].fields[0]), 'Duplicate step numbers rejected by isFilled');
+    setPath(state, 'responses.chain', {a:'1',b:'2',c:'3',d:'4',e:'5'});
+    ok(!isFilled(STATIONS[6].fields[0]), 'Out-of-order 1..5 chain coached before advancing');
     setPath(state, 'responses.chain', {b:'1',e:'2',d:'3',a:'4',c:'5'});
-    ok(isFilled(STATIONS[6].fields[0]), 'Unique 1..5 accepted by isFilled');
+    ok(isFilled(STATIONS[6].fields[0]), 'Correct 1..5 fomite chain accepted');
+    setPath(state, 'responses.c2', '石けんだけではノロウイルスは死なず、ブドロ先生は同じ布で給水栓の蛇口も拭きました。');
+    setPath(state, 'responses.c3a', 'ノロウイルスはウイルスで、ペニシリンは細菌だけを殺します。');
+    setPath(state, 'responses.c3b', '同級生は20秒間石けんで手を洗うと、マーカスは安全です。');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===7, 'Friday Noon advances to Friday 3:15');
 
-    loadStation(0); ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
-    state.section = '801-HE'; el('ackBtn').click(); ok(started===true, 'Ack sets started');
+    // Friday 3:15: S8 still locked, empty commit blocked, Test Draft Rules works, Commit unlocks S8 + Simulated Next Week
+    ok(!isStationUnlocked(8), 'S8 locked before the commit');
+    window.confirm = ()=>true;
+    el('commitBtn').click(); ok(!committed, 'Commit blocked when the S7 rules are empty');
+    setPath(state, 'responses.rule1_what', '吐きそうが止まってから48時間、家に留まる。');
+    setPath(state, 'responses.rule1_why', '人々は48時間ノロウイルスを排出し続ける。');
+    setPath(state, 'responses.rule2_what', '蛇口と給水栓を漂白剤で拭く。');
+    setPath(state, 'responses.rule2_why', 'いつもの紫色の洗浄剤では、この硬い胃腸ウイルスに全然効きませんでした。');
+    setPath(state, 'responses.rule3_what', 'アヒルの交換を止め、石けんと水で洗う。');
+    setPath(state, 'responses.rule3_why', 'アヒルは媒介物であり、石けんは消毒剤とちがってウイルスを洗い流せます。');
+    hydrateFields();
+    el('testPlanBtn').click();
+    ok(el('planSimBox').classList.contains('show') && el('planSimBox').innerHTML.includes('3/3'), 'Test Draft Rules renders the live school character replies');
+    el('commitBtn').click();
+    ok(committed && cur===8, 'Commit succeeds and opens Case Closed');
 
-    // Monday button requires evidence justification before stationDone / step(1)
-    loadStation(1);
-    setPath(state, 'judgments.s0.guess', '肠を攻撃するウイルス');
-    ok(!stationDone(1), 'Monday button alone is NOT done without justification');
-    step(1); ok(cur===1, 'Next day blocked when Monday justification is empty');
-    setPath(state, 'judgments.s0.why', '不明');
-    ok(!stationDone(1), 'short Japanese justification rejected');
+    ok(!document.getElementById('lockedPanel') && el('tabBody').innerHTML.includes('sim-week-card'), 'S8 unlocked after the commit and renders the Simulated Next Week curve');
+    switchTab('yourfile');
+    ok(el('tabBody').innerHTML.includes('review-tbl') && el('tabBody').innerHTML.includes('sim-week-card') && el('tabBody').innerHTML.includes('ルール1'), 'Review tab renders Simulated Next Week + score + Monday rules');
+    loadStation(7);
+    ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after the commit');
+
+    // JP-specific: the keyword checks must recognise Japanese, and the text gate must open
+    const lv = evaluatePlanLevers();
+    ok(lv.has48h && lv.hasBleach && lv.hasDucks && lv.hasSoap, 'JP lever detection recognises 48h / bleach / ducks / soap in Japanese');
     ok(wordCount('不明') < 4, 'JP wordCount: 2 kanji score below the 4-word gate');
-    ok(wordCount('3人の学生が午前に吐き、せきはゼロだった。') >= 4, 'JP wordCount: a full Japanese sentence clears the gate');
+    ok(wordCount('欠席者の88%が胃の痙攣と吐き気を示しました。') >= 4, 'JP wordCount: a full Japanese sentence clears the gate');
     ok(wordCount('Three students threw up before lunch with zero cough.') >= 4, 'JP wordCount: an English-only answer still clears the gate');
-    setPath(state, 'judgments.s0.why', '3人の学生が午前に吐き、せきはゼロだった。');
-    ok(stationDone(1), 'Japanese evidence justification completes Monday');
-    step(1); ok(cur===2, 'Next day advances once Monday is justified');
-
-    loadStation(8); ok(!!document.getElementById('lockedPanel'),'S8 locked before commit');
-
-    window.alert = ()=>{}; window.confirm = ()=>true;
-    loadStation(7); el('commitBtn').click(); ok(!committed, 'Commit blocked when empty');
-
-    setPath(state, 'judgments.s1.choice', '胃と腸（消化器系）');
-    setPath(state, 'judgments.s1.why', '欠席者の88%が吐き気と痛搼を示していました。');
-    setPath(state, 'judgments.s1.pattern', '病気が人から人へ伝わり、広がり方が毎日速くなっている');
-    setPath(state, 'judgments.s1.pattern_why', '病例は3、7、18、34と增え続けて、水はきれいでした。');
-    setPath(state, 'judgments.s2.top', '1週間続いた午前のレジン製アヒルの交換');
-    setPath(state, 'judgments.s2.why', 'アヒルは水曜の午前に全学年で交換されていました。');
-    setPath(state, 'responses.c1_name', '犯人者B: ノロウイラス (胃腔炎ウイラス)');
-    setPath(state, 'responses.c1_clue1', '88%が胃の症状を示し、24から48時間で回復しました。');
-    setPath(state, 'responses.c1_clue2', 'サルモネラ菌ではありません。21人は家から弁当です。');
-    ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].forEach(k=>setPath(state, 'responses.'+k, '48時間、完全に快復するまで家に留まる'));
-    el('commitBtn').click(); ok(committed, 'Commit succeeds with valid justified data');
-
-    loadStation(7); ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after commit');
-    loadStation(8); ok(!document.getElementById('lockedPanel'),'S8 unlocked after commit');
-    switchTab('yourfile'); ok(el('tabBody').innerHTML.includes('review-tbl') && el('tabBody').innerHTML.includes('ルール1'), 'Review tab renders score + Monday rules');
-    ok(el('tabBody').innerHTML.includes('胃と腸（消化器系）'), 'Review tab shows the Japanese answer key');
   }catch(e){ out.push('FAIL: exception '+e.message); }
   const d=document.createElement('div'); d.id='selftest'; d.textContent=out.join(' | '); document.body.appendChild(d);
 }
