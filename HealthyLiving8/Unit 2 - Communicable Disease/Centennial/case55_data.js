@@ -22,6 +22,8 @@ var CASE55 = {
     subtitle: "An outbreak investigation at Centennial Junior High",
     hud: "OUTBREAK HUD // CASE 55",
     taskName: "HL8-Centennial-Case55-Sim",
+    outcomeLabel: "Learning Outcome // Healthy Living 8",
+    outcome: "Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health.",
     defaultTabLabels: { dispatch: "1. Story", evidence: "2. Evidence", toolkit: "3. Science & Words" }
   },
 
