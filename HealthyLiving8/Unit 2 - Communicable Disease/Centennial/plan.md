@@ -218,15 +218,18 @@ No `apiKey` in the body is needed - the bridge falls back to its saved local key
 
 ### Review & Chronological Rewrite (2026-11-04)
 
-- **Narrative structure:** Rewrote the story to unfold chronologically (Sunday Briefing -> Mon -> Tue -> Wed -> Thu -> Fri AM -> Fri Noon -> Fri 3:15 PM -> Case Closed). Students now see evidence as it comes in, mimicking a real investigation. The surge tracker on the left lights up day-by-day.
-- **Pedagogy & Leaks:** Added a Hypothesis (first guess) on Monday. Added Suspect C (Salmonella) to force elimination reasoning instead of simple matching. Removed answer leaks in application stations (they now point back to evidence days). Added Word Bank to toolkits. Added "Your File" review tab at verdict for formative feedback. Added order-sequence field for duck chain.
-- **Critical bug fixes:**
-  - Keyboard navigation (arrows, numbers) disabled when typing in text boxes (previously typing '4' jumped stations).
-  - Save race condition fixed: saves are blocked until the restore completes, preventing a blank state from overwriting a student's work on slow load.
-  - Fields lock after committing the Monday plan to prevent copying the verdict.
-  - Commit requires culprit + 3 words for each rule, and warns about incomplete days.
-- **Accessibility:** Added Read Aloud (speechSynthesis) button, text size toggle (A+/A-), and image alt text.
-- **Dashboard:** Fixed station label off-by-one and save count bug.
+- **Narrative structure:** Rewrote the story to unfold chronologically (Sunday Briefing -> Mon -> Tue -> Wed -> Thu -> Fri AM -> Fri Noon -> Fri 3:15 PM -> Case Closed). Students now see evidence as it comes in, mimicking a real investigation. The surge tracker on the left reveals numbers day-by-day (`?` for future days).
+- **Visual audit & 8 new/regenerated images (Qwen Image 3.0 Pro):**
+  - Added `char_nurse.png` (Nurse Chen) and `char_boudreau.png` (Mr. Boudreau) so all 6 characters have dossier portraits.
+  - Added `s1_monday_west_wing.png` (Monday 3 empty desks) and `s2_tuesday_cafeteria.png` (locker duck trading outside cafeteria) so every single day has visual exhibits.
+  - Fixed two AI anatomy glitches found during visual inspection (`s2_fountain_ducks.png` locker arm and `s3_entry_gates.png` hologram face) and upgraded `s5_suspects.png` (+ deck `../assets/c2_suspect_three_lineup.png`) to show all 3 suspects (Influenza, Norovirus, Salmonella).
+- **Pedagogy & UX polish:**
+  - Numbered kid-friendly tabs (`1. Story`, `2. Evidence`, `3. Science & Words`) with unread amber dots (`●`) and `Next tab ->` nudges so 12-year-olds read all tabs.
+  - Added a Hypothesis (first guess) on Monday, Suspect C (Salmonella) on Friday AM, a live-preview 5-step fomite sequencer with duplicate-number guard on Friday Noon, Word Bank on every station, and a full `Your File` review tab on Case Closed showing both auto-check scores and the student's Monday Plan alongside Public Health's version.
+  - Synced `../HL8_Germs_C2_Outbreak_Deck.html`, `../HL8_Germs_C2_Outbreak_Worksheet.html`, `Student_System/assignments_data.js`, and private keys/spec (`../bihipri-27/HealthyLiving8-priv/HL8_Centennial_Case55_Sim_Spec_and_Key.md` + `HL8_Germs_C2_Worksheet_Teacher_Key.md`).
+- **Critical bug fixes & accessibility:**
+  - Keyboard navigation disabled inside inputs/textareas/selects/buttons; save race condition blocked until server restore completes; S0-S7 inputs lock on commit; commit validates section + culprit + 3+ words per rule; responsive single-column stack below 920px; `Read this tab` TTS + `A+/A-` zoom.
+  - Teacher `dashboard.html` now loads `case55_data.js`, adds section filter + privacy email masking for projector/screenshots, computes auto-check score out of 9, and formats student answers cleanly.
 
 ---
 

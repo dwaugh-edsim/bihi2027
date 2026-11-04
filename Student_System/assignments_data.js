@@ -118,6 +118,14 @@ window.COURSE_ASSIGNMENTS = {
         active: "hl8-junction-ex2",
         items: [
             {
+                id: "hl8-centennial-case55",
+                taskName: "HL8-Centennial-Case55-Sim",
+                short: "Case 55 · Centennial Outbreak Sim",
+                match: /centennial|case.?55|outbreak|norovirus|germs/i,
+                outcome: "Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health",
+                ref: "HL8 CO2 — communicable disease prevention sits explicitly under CO2 (Health Behaviours: soap vs sanitizer, 48-hour exclusion, surface disinfection, vaccines vs antibiotics, community protection)"
+            },
+            {
                 id: "hl8-junction-ex1",
                 taskName: "HL8 Junction Exhibit 1 — Strategy Matrix",
                 short: "Junction Ex. 1 · The Group Chat Fire",
