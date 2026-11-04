@@ -239,6 +239,8 @@ const OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
 const DEMO = Q.has('demo') && OFFPROD;
 const SELFTEST = Q.has('selftest') && OFFPROD;
 const SKIPNET = DEMO || SELFTEST;
+const ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
+function returnUrl(){ return location.origin.indexOf(ALLOWED_ORIGIN)===0 ? location.href.split('#')[0] : null; }
 
 const STATIONS = (window.CASE55 ? CASE55.stations : []);
 const CHARS    = (window.CASE55 ? CASE55.characters : {});
@@ -271,7 +273,7 @@ function boot(){
   if(m){ try{ identity = JSON.parse(atobUrl(m[1])); sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); }catch(e){} history.replaceState(null,'',location.pathname+location.search); }
   if(!identity){ try{ const s=sessionStorage.getItem(ID_KEY); if(s) identity=JSON.parse(s); }catch(e){} }
   if(SKIPNET){ identity = { email:'demo@gnspes.ca', ts:Date.now(), sig:'demo' }; }
-  if(identity && identity.email && identity.sig){ showApp(); } else { showGate(); }
+  if(identity && identity.email && identity.sig){ showApp(); } else { showGate(); if(!SKIPNET && !returnUrl()) el('gateHint').textContent = 'This is not the school-hosted link ('+(location.origin||'local file')+'), so Google sign-in is off here. Use the live link: '+ALLOWED_ORIGIN+'/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/Centennial/index.html  (append ?demo=1 to click around locally without signing in).'; }
 }
 function showGate(){ el('app').style.display='none'; el('gate').style.display='flex'; }
 function showApp(){
@@ -287,7 +289,12 @@ function showApp(){
   restore();
 }
 function signIn(){
-  const url = IDENTITY_URL + '?return=' + encodeURIComponent(location.origin);
+  const ret = returnUrl();
+  if(!ret){
+    el('gateMsg').innerHTML = 'Sign-in is allowlisted to the school-hosted link only, not this copy ('+esc(location.origin||'local file')+').<br>Open the live assignment from Google Classroom: <a style="color:var(--amber)" href="'+ALLOWED_ORIGIN+'/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/Centennial/index.html">'+ALLOWED_ORIGIN+'/.../Centennial/index.html</a>';
+    return;
+  }
+  const url = IDENTITY_URL + '?return=' + encodeURIComponent(ret);
   popupRef = window.open(url, 'r8signin', 'width=520,height=700');
   if(!popupRef) el('gateMsg').textContent = 'Pop-up blocked - allow pop-ups for this site, then try again.';
 }
@@ -571,6 +578,7 @@ function runSelfTest(){
     ok(typeof window.step==='function'&&typeof window.saveNow==='function'&&typeof window.switchTab==='function'&&typeof window.openZoom==='function'&&typeof window.closeZoom==='function'&&typeof window.switchAccount==='function','all inline onclick handlers exposed on window');
     const _open=window.open; window.open=()=>null; let threw=null; try{ el('signInBtn').click(); }catch(e){ threw=e; } window.open=_open;
     ok(!threw, 'signIn button click does not throw'+(threw?' ('+threw.message+')':''));
+    ok(returnUrl()===null || returnUrl().indexOf(ALLOWED_ORIGIN)===0, 'returnUrl is allowlisted or null (origin='+location.origin+')');
     ok(getPath({a:{b:7}},'a.b')===7, 'getPath works');
     setPath(state,'responses.__t','hello'); ok(getPath(state,'responses.__t')==='hello','setPath roundtrip');
     loadStation(7); ok(!!el('commitBtn'), 'S7 commit button exists');
