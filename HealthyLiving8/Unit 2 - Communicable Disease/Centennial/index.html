@@ -416,7 +416,10 @@ function showApp(){
   if(appShown){ restore(); return; }
   appShown = true;
   const sel = el('sectionSel'); sel.innerHTML = '<option value="">section?</option>' + SECTIONS.map(s=>'<option>'+s+'</option>').join('');
-  sel.addEventListener('change', ()=>{ state.section = sel.value; hydrateFields(); onChange(); });
+  sel.addEventListener('change', ()=>{
+    state.section = sel.value; hydrateFields(); onChange();
+    if(!isStationUnlocked(cur)) loadStation(maxUnlockedStation());
+  });
   buildSurge(); buildNav();
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) flush(); });
   window.addEventListener('pagehide', flush);
@@ -520,8 +523,15 @@ function applyState(st){
   ['judgments','matches','responses','partB','visited'].forEach(k=>{ if(typeof n[k]!=='object'||!n[k]) n[k]={}; });
   state = n;
   started = !!state.started; committed = !!state.committed;
+  if(committed){
+    let allPriorValid = true;
+    for(let k=0; k<COMMIT_IDX; k++){ if(!stationDone(k)){ allPriorValid = false; break; } }
+    const s7Req = (STATIONS[COMMIT_IDX].fields||[]).filter(f => !f.optional && f.type !== 'commit');
+    if(!s7Req.every(isFilled)) allPriorValid = false;
+    if(!allPriorValid){ committed = false; state.committed = false; }
+  }
   cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
-  while(cur > 0 && !isStationUnlocked(cur)) cur--;
+  cur = Math.min(cur, maxUnlockedStation());
   const s=el('sectionSel'); if(s) s.value=state.section||'';
   buildNav(); loadStation(cur);
 }
@@ -610,16 +620,16 @@ function stationDone(i){
   if(!req.length) return !!state.visited[i];
   return req.every(isFilled);
 }
+function maxUnlockedStation(){
+  if(Q.has('unlock') && OFFPROD) return STATIONS.length - 1;
+  for(let k=0; k<STATIONS.length-1; k++){
+    if(!stationDone(k)) return k;
+  }
+  return committed ? (STATIONS.length - 1) : COMMIT_IDX;
+}
 function isStationUnlocked(i){
   if(i <= 0) return true;
-  if(Q.has('unlock') && OFFPROD) return true;
-  if(DEMO && Q.has('st') && i <= +(Q.get('st')||0)) return true;
-  if(i === VERDICT_IDX) return committed;
-  if(committed) return true;
-  for(let k=0; k<i; k++){
-    if(!stationDone(k)) return false;
-  }
-  return true;
+  return i <= maxUnlockedStation();
 }
 
 /* ================= NAV / STATIONS ================= */
@@ -633,12 +643,14 @@ function buildNav(){
     d.innerHTML = '<span class="st"></span><div class="ch">'+esc(s.nav)+'</div><div class="tt">'+esc(sub)+'</div>';
     d.onclick = ()=>{
       if(!isStationUnlocked(i)){
-        if(i === VERDICT_IDX){ toast('Locked: commit your Monday Morning Game Plan on Friday 3:15 to unlock Case Closed.'); return; }
-        let firstOpen = 0;
-        while(firstOpen < i && stationDone(firstOpen)) firstOpen++;
-        if(cur !== firstOpen) loadStation(firstOpen);
+        const maxOpen = maxUnlockedStation();
+        if(cur !== maxOpen) loadStation(maxOpen);
         checkAndCoachCurrent(false);
-        toast('Locked: complete ' + STATIONS[firstOpen].nav + ' in your Health Officer Log on the right first.');
+        if(i === VERDICT_IDX && maxOpen === COMMIT_IDX){
+          toast('Locked: finish and commit your Monday Morning Game Plan on Friday 3:15 to unlock Case Closed.');
+        } else {
+          toast('Locked: complete ' + STATIONS[maxOpen].nav + ' in your Health Officer Log before moving to ' + s.nav + '.');
+        }
         return;
       }
       loadStation(i);
@@ -655,13 +667,25 @@ function updateNavMarks(){
     d.classList.toggle('locked', locked);
     d.classList.toggle('done', done);
     d.classList.toggle('active', i===cur);
-    d.querySelector('.st').textContent = locked ? 'LOCK' : (done ? '✓' : '•');
+    d.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    d.querySelector('.st').textContent = locked ? 'LOCK' : (done ? '\u2713' : '\u2022');
   });
   if(STATIONS[cur]){
     el('ctr').textContent = STATIONS[cur].nav + ' (' + (cur+1) + ' of ' + STATIONS.length + ')';
     el('prevBtn').disabled = (cur===0);
-    const nextIsVerdictLocked = (cur+1 === VERDICT_IDX) && !committed;
-    el('nextBtn').disabled = (cur===STATIONS.length-1) || nextIsVerdictLocked;
+    const nb = el('nextBtn');
+    if(nb){
+      if(cur >= STATIONS.length - 1){
+        nb.disabled = true;
+        nb.textContent = 'Case Closed \u2713';
+      } else if(!isStationUnlocked(cur + 1)){
+        nb.disabled = true;
+        nb.textContent = '\uD83D\uDD12 Finish ' + STATIONS[cur].nav + ' first';
+      } else {
+        nb.disabled = false;
+        nb.textContent = 'Next: ' + STATIONS[cur+1].nav + ' \u2192';
+      }
+    }
   }
 }
 function buildSurge(){
@@ -766,17 +790,14 @@ function checkAndCoachCurrent(advanceIfOk){
 function step(dir){
   let n = cur+dir;
   if(n < 0 || n >= STATIONS.length) return;
-  if(dir > 0){
-    if(cur === 0 && !stationDone(0)){
-      if(!state.section){ toast('Pick your class section on the right first.'); return; }
-      started = true; state.started = true; onChange();
-      loadStation(1); return;
-    }
-    if(cur >= 1 && cur < COMMIT_IDX && !stationDone(cur)){
+  if(dir > 0 && !isStationUnlocked(n)){
+    if(n === VERDICT_IDX && maxUnlockedStation() === COMMIT_IDX){
       checkAndCoachCurrent(false);
+      toast('Commit your Monday Plan on Friday 3:15 to open Case Closed.');
       return;
     }
-    if(STATIONS[n].locked && !committed){ toast('Commit your Monday Plan on Friday 3:15 to open Case Closed.'); return; }
+    checkAndCoachCurrent(false);
+    return;
   }
   loadStation(n);
 }
@@ -833,6 +854,12 @@ function tabLabel(s, t){
 }
 function loadStation(i){
   stopReading();
+  const maxOpen = maxUnlockedStation();
+  if(i > maxOpen){
+    const blockedName = STATIONS[i] ? STATIONS[i].nav : 'that stage';
+    i = maxOpen;
+    toast('Locked: complete ' + STATIONS[maxOpen].nav + ' before moving to ' + blockedName + '.');
+  }
   cur=i; state.station=i; state.visited[i]=true;
   if(!tabsSeen[i]) tabsSeen[i] = { dispatch: true };
   currentTab='dispatch';
@@ -1144,6 +1171,7 @@ function hydrateFields(){
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
   const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED \u2713 (VIEW VERDICT)' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
   const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'HEALTH OFFICE OPEN \u2713 (GO TO MONDAY)':'READY: OPEN THE HEALTH OFFICE'; }
+  updateNavMarks();
 }
 function doCommit(){
   if(committed){ loadStation(VERDICT_IDX); return; }
@@ -1306,19 +1334,25 @@ function runSelfTest(){
 
     // Sequential lock before starting
     loadStation(0);
-    ok(!isStationUnlocked(2) && !isStationUnlocked(7), 'Future days locked before earlier days completed');
+    ok(!isStationUnlocked(1) && !isStationUnlocked(2) && !isStationUnlocked(7), 'All future stages locked before Briefing completed');
+    ok(el('nextBtn').disabled === true, 'Footer Next button disabled while current stage incomplete');
+    loadStation(5);
+    ok(cur===0, 'loadStation(5) clamps back to stage 0 when earlier stages incomplete');
     ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
     state.section = '801-HE'; el('ackBtn').click();
-    ok(started===true && cur===1, 'Ack opens Health Office and moves to Monday');
+    ok(started===true && cur===1 && !isStationUnlocked(2), 'Ack opens Monday while Tuesday-Case Closed remain locked');
 
     // Monday: right-side Check & Next Day button + justification enforcement
-    ok(!!el('nextDayBtn'), 'Right-side Check & Next Day button rendered on Monday');
+    ok(!!el('nextDayBtn') && el('nextBtn').disabled===true, 'Right-side Check & Next Day rendered and footer Next disabled until Monday done');
+    loadStation(4);
+    ok(cur===1, 'Cannot skip ahead to Thursday while Monday is unfinished');
     setPath(state, 'judgments.s0.guess', 'Something in the West Wing drinking water');
     hydrateFields();
-    ok(!stationDone(1), 'Monday button alone is NOT done without justification');
+    ok(!stationDone(1) && el('nextBtn').disabled===true, 'Monday button alone is NOT done without justification');
     el('nextDayBtn').click(); ok(cur===1, 'Right-side Next Day button blocks when justification empty');
     setPath(state, 'judgments.s0.why', 'Three West Wing students threw up before lunch.');
     hydrateFields();
+    ok(el('nextBtn').disabled===false, 'Footer Next button unlocks as soon as Monday is completed');
     el('nextDayBtn').click(); ok(cur===2, 'Right-side Next Day button advances to Tuesday when Monday complete');
 
     // Tuesday: dynamic Nurse Chen callback + wrong choice coaching + number check
