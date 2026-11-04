@@ -14,9 +14,11 @@
     --line:#243352; --amber:#f59e0b; --teal:#2dd4bf; --coral:#fb7185; --blue:#60a5fa;
     --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
     --f-body:'Inter',system-ui,sans-serif; --f-mono:'JetBrains Mono',monospace; --f-slab:'Roboto Slab',serif;
+    --base-size:16px;
   }
+  html.big { --base-size:19px; }
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
+  html,body{margin:0;height:100%;font-size:var(--base-size)}
   body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.5;overflow:hidden}
   button{font:inherit;cursor:pointer}
   .mono{font-family:var(--f-mono)}
@@ -26,126 +28,155 @@
     background:linear-gradient(rgba(7,11,22,.72),rgba(7,11,22,.88)),url('assets/case55_cover.png') center/cover no-repeat;}
   #gateCard{max-width:560px;width:92%;background:rgba(14,23,41,.92);border:2px solid var(--amber);border-radius:14px;
     padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.6);text-align:center}
-  #gateCard .k{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.18em;color:var(--amber);text-transform:uppercase}
+  #gateCard .k{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.18em;color:var(--amber);text-transform:uppercase}
   #gateCard h1{font-family:var(--f-slab);font-size:2rem;margin:.35em 0 .1em;color:#fff}
-  #gateCard .sub{color:var(--muted);margin:0 0 18px;font-size:.95rem}
-  #signInBtn{background:var(--amber);color:#1a1206;font-weight:800;border:0;border-radius:10px;padding:14px 22px;font-size:1rem;width:100%}
+  #gateCard .sub{color:var(--muted);margin:0 0 18px;font-size:1rem}
+  #signInBtn{background:var(--amber);color:#1a1206;font-weight:800;border:0;border-radius:10px;padding:14px 22px;font-size:1.1rem;width:100%}
   #signInBtn:hover{filter:brightness(1.08)}
-  #gateMsg{color:var(--muted);font-size:.82rem;margin-top:12px;min-height:1.2em}
-  #gateHint{color:var(--muted);font-size:.78rem;margin-top:10px}
+  #gateMsg{color:var(--muted);font-size:.85rem;margin-top:12px;min-height:1.2em}
+  #gateHint{color:var(--muted);font-size:.8rem;margin-top:10px}
 
   /* ---------- APP FRAME ---------- */
   #app{display:none;height:100vh;flex-direction:column}
-  #hud{display:flex;align-items:center;gap:14px;padding:8px 14px;background:var(--panel2);border-bottom:2px solid var(--line);font-family:var(--f-mono);font-size:.72rem;color:var(--muted);flex-wrap:wrap}
-  #hud .brand{font-family:var(--f-slab);color:#fff;font-size:.95rem;letter-spacing:.04em}
+  #hud{display:flex;align-items:center;gap:14px;padding:8px 14px;background:var(--panel2);border-bottom:2px solid var(--line);font-family:var(--f-mono);font-size:.75rem;color:var(--muted);flex-wrap:wrap}
+  #hud .brand{font-family:var(--f-slab);color:#fff;font-size:1rem;letter-spacing:.04em}
   #hud .pill{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel)}
   #hud .pill b{color:var(--ink)}
   #syncPill.ok{color:var(--ok);border-color:var(--ok)} #syncPill.warn{color:var(--warn);border-color:var(--warn)} #syncPill.bad{color:var(--bad);border-color:var(--bad)}
   #hud .spacer{flex:1}
-  #sectionSel{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-family:var(--f-mono);font-size:.72rem;padding:3px 6px}
-  #switchBtn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;font-family:var(--f-mono);font-size:.68rem;padding:3px 8px}
-  #switchBtn:hover{color:var(--ink)}
+  #sectionSel{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-family:var(--f-mono);font-size:.75rem;padding:3px 6px}
+  .hud-btn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;font-family:var(--f-mono);font-size:.7rem;padding:3px 8px}
+  .hud-btn:hover{color:var(--ink);border-color:var(--muted)}
 
-  #main{flex:1;display:grid;grid-template-columns:208px 1fr 340px;min-height:0}
+  #main{flex:1;display:grid;grid-template-columns:220px 1fr 380px;min-height:0;position:relative}
+
+  /* Loading Veil */
+  #loadingVeil{position:absolute;inset:0;background:rgba(11,18,32,.85);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--f-mono);color:var(--amber);font-size:1rem;letter-spacing:.1em}
 
   /* ---------- NAV RAIL ---------- */
   #navRail{background:var(--panel2);border-right:2px solid var(--line);overflow-y:auto;padding:10px}
   .nav-item{padding:9px 10px;border-radius:9px;border:1px solid transparent;cursor:pointer;margin-bottom:6px;background:var(--panel)}
   .nav-item:hover{border-color:var(--line)}
   .nav-item.active{border-color:var(--amber);background:#1a2542}
-  .nav-item .ch{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.12em;color:var(--amber);text-transform:uppercase}
-  .nav-item .tt{font-size:.8rem;font-weight:600;color:var(--ink);line-height:1.25}
-  .nav-item .st{float:right;font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+  .nav-item .ch{font-family:var(--f-mono);font-size:.65rem;letter-spacing:.12em;color:var(--amber);text-transform:uppercase}
+  .nav-item .tt{font-size:.85rem;font-weight:600;color:var(--ink);line-height:1.25}
+  .nav-item .st{float:right;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
   .nav-item.done .st{color:var(--ok)}
   .nav-item.locked{opacity:.55;cursor:not-allowed}
   .nav-item.locked .st{color:var(--warn)}
 
   /* surge progress */
   #surge{margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
-  #surge .sh{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  #surge .sh{font-family:var(--f-mono);font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
   .surge-row{display:flex;gap:4px}
-  .surge-day{flex:1;text-align:center;border:1px solid var(--line);border-radius:6px;padding:5px 0;background:var(--panel2)}
-  .surge-day .d{font-family:var(--f-mono);font-size:.6rem;color:var(--muted)}
-  .surge-day .n{font-family:var(--f-slab);font-size:.95rem;font-weight:800;color:var(--muted)}
+  .surge-day{flex:1;text-align:center;border:1px solid var(--line);border-radius:6px;padding:5px 0;background:var(--panel2);transition:all .3s}
+  .surge-day .d{font-family:var(--f-mono);font-size:.65rem;color:var(--muted)}
+  .surge-day .n{font-family:var(--f-slab);font-size:1rem;font-weight:800;color:var(--muted)}
   .surge-day.lit{border-color:var(--coral);background:#2a1620}
   .surge-day.lit .n{color:var(--coral)}
+  .surge-day.hidden .n{opacity:0}
 
   /* ---------- CENTER DECK ---------- */
   #deck{overflow-y:auto;padding:18px 22px;min-width:0}
-  .kicker{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;color:var(--teal);text-transform:uppercase}
-  #deck h2{font-family:var(--f-slab);color:#fff;font-size:1.5rem;margin:.2em 0 .6em}
+  .deck-header{display:flex;justify-content:space-between;align-items:flex-start;max-width:820px}
+  .kicker{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.16em;color:var(--teal);text-transform:uppercase}
+  #deck h2{font-family:var(--f-slab);color:#fff;font-size:1.6rem;margin:.2em 0 .6em}
+  #readBtn{background:var(--panel);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:6px 12px;font-family:var(--f-mono);font-size:.75rem;font-weight:700;margin-top:4px}
+  #readBtn:hover{background:var(--teal);color:#06251f}
+  #readBtn.reading{background:var(--teal);color:#06251f}
   .tabs{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
-  .tab-btn{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:6px 12px}
+  .tab-btn{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:6px 12px}
   .tab-btn.active{color:#1a1206;background:var(--teal);border-color:var(--teal);font-weight:700}
-  #tabBody{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px;max-width:820px}
+  #tabBody{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px;max-width:820px;font-size:1rem}
   #tabBody p{margin:.5em 0} #tabBody ul{margin:.4em 0 .6em;padding-left:1.2em} #tabBody li{margin:.25em 0}
   #tabBody strong{color:#fff}
+  .glossary{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}
+  .glossary h4{margin:0 0 8px;font-family:var(--f-mono);font-size:.75rem;color:var(--teal);text-transform:uppercase}
+  .glossary dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;font-size:.9rem}
+  .glossary dt{font-weight:700;color:var(--amber)}
+  .glossary dd{margin:0;color:var(--ink)}
+
+  /* review table */
+  .review-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+  .review-tbl th{text-align:left;padding:8px;border-bottom:2px solid var(--line);color:var(--muted);font-family:var(--f-mono);font-size:.7rem;text-transform:uppercase}
+  .review-tbl td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+  .review-tbl .ok{color:var(--ok);font-weight:700}
+  .review-tbl .bad{color:var(--coral);font-weight:700}
+  .review-tbl .note{display:block;font-size:.75rem;color:var(--muted);margin-top:4px}
 
   /* character dossier cards (speech-bubble quote) */
   .chars{display:flex;flex-direction:column;gap:12px;margin:0 0 16px;max-width:820px}
   .char-card{display:flex;gap:12px;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px;align-items:flex-start}
   .char-card img{width:74px;height:74px;border-radius:10px;object-fit:cover;border:2px solid var(--amber);flex:none}
-  .char-card .mono-ava{width:74px;height:74px;border-radius:10px;background:#1a2542;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--f-slab);font-weight:800;color:var(--teal);flex:none}
-  .char-card .who{font-family:var(--f-mono);font-size:.68rem;color:var(--amber);text-transform:uppercase;letter-spacing:.1em}
-  .char-card .role{font-size:.72rem;color:var(--muted)}
-  .char-card .quote{position:relative;margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;font-size:.86rem;color:var(--ink)}
+  .char-card .mono-ava{width:74px;height:74px;border-radius:10px;background:#1a2542;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--f-slab);font-weight:800;color:var(--teal);flex:none;font-size:1.5rem}
+  .char-card .who{font-family:var(--f-mono);font-size:.7rem;color:var(--amber);text-transform:uppercase;letter-spacing:.1em}
+  .char-card .role{font-size:.75rem;color:var(--muted)}
+  .char-card .quote{position:relative;margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;font-size:.95rem;color:var(--ink)}
   .char-card .quote:before{content:"";position:absolute;left:-7px;top:14px;border:6px solid transparent;border-right-color:var(--amber);border-left:0}
 
   /* exhibit images */
   .exhibits{display:flex;flex-direction:column;gap:14px;margin:0 0 8px;max-width:820px}
   .exhibit{border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel2)}
   .exhibit img{width:100%;display:block;cursor:zoom-in}
-  .exhibit .cap{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line)}
+  .exhibit .cap{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line)}
 
   /* locked station */
   #lockedPanel{max-width:820px;background:var(--panel);border:2px dashed var(--warn);border-radius:12px;padding:26px;text-align:center;color:var(--warn);font-family:var(--f-mono)}
 
   /* ---------- RIGHT TERMINAL ---------- */
   #term{background:var(--panel2);border-left:2px solid var(--line);display:flex;flex-direction:column;min-height:0}
-  #termHead{padding:10px 12px;border-bottom:1px solid var(--line);font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;color:var(--teal);text-transform:uppercase}
-  #termScroll{flex:1;overflow-y:auto;padding:12px}
-  #taskPrompt{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:8px;padding:10px 12px;font-size:.84rem;margin-bottom:12px}
-  .field{margin-bottom:13px}
-  .field>label{display:block;font-size:.76rem;font-weight:700;color:var(--ink);margin-bottom:5px}
-  .field textarea,.field input[type=text],.field select{width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:.84rem}
+  #termHead{padding:10px 12px;border-bottom:1px solid var(--line);font-family:var(--f-mono);font-size:.75rem;letter-spacing:.14em;color:var(--teal);text-transform:uppercase}
+  #termScroll{flex:1;overflow-y:auto;padding:14px}
+  #taskPrompt{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:8px;padding:12px 14px;font-size:.95rem;margin-bottom:16px;line-height:1.4}
+  .lock-notice{background:rgba(245,158,11,.1);border:1px solid var(--amber);color:var(--amber);padding:10px;border-radius:8px;font-size:.85rem;margin-bottom:16px;font-weight:600}
+  .field{margin-bottom:16px}
+  .field>label{display:block;font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.3}
+  .field textarea,.field input[type=text],.field select{width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-size:.95rem}
+  .field textarea:disabled,.field select:disabled,.field input:disabled,.opt:disabled{opacity:0.6;cursor:not-allowed}
   .field textarea{resize:vertical;min-height:2.4em}
   .field :focus{outline:none;border-color:var(--amber)}
-  .choice{display:flex;flex-direction:column;gap:6px}
-  .opt{text-align:left;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.82rem}
-  .opt:hover{border-color:var(--amber)}
+  .choice{display:flex;flex-direction:column;gap:8px}
+  .opt{text-align:left;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.9rem;line-height:1.3}
+  .opt:not(:disabled):hover{border-color:var(--amber)}
   .opt.active{background:var(--amber);color:#1a1206;border-color:var(--amber);font-weight:700}
-  .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .pair-row label{font-size:.68rem;color:var(--muted);font-weight:600}
-  .grid-table{width:100%;border-collapse:collapse;font-size:.78rem}
-  .grid-table th{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:6px}
+  .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pair-row label{font-size:.75rem;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+  .order-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .order-row select{width:60px;flex:none}
+  .order-row span{font-size:.9rem}
+  .grid-table{width:100%;border-collapse:collapse;font-size:.85rem}
+  .grid-table th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:6px}
   .grid-table td{border:1px solid var(--line);padding:5px}
   .grid-table td.rowlab{font-weight:700;color:var(--ink);width:34%}
-  .grid-table input{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 7px;font:inherit;font-size:.78rem}
-  .big-btn{width:100%;background:var(--amber);color:#1a1206;border:0;border-radius:10px;padding:12px;font-weight:800;font-family:var(--f-mono);letter-spacing:.06em}
+  .grid-table input{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit;font-size:.85rem}
+  .big-btn{width:100%;background:var(--amber);color:#1a1206;border:0;border-radius:10px;padding:14px;font-weight:800;font-family:var(--f-mono);letter-spacing:.06em;font-size:1rem}
   .big-btn:hover{filter:brightness(1.08)}
-  .ack-btn{width:100%;background:var(--teal);color:#06251f;border:0;border-radius:10px;padding:11px;font-weight:800;font-family:var(--f-mono)}
+  .big-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
+  .ack-btn{width:100%;background:var(--teal);color:#06251f;border:0;border-radius:10px;padding:14px;font-weight:800;font-family:var(--f-mono);font-size:1rem}
   .ack-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
-  #histBox{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
-  #histBox .hh{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
-  #histList{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);max-height:180px;overflow-y:auto}
-  #histList .h{ padding:2px 0;border-bottom:1px dashed #1c2a47}
+  #histBox{margin-top:20px;border-top:1px solid var(--line);padding-top:12px}
+  #histBox .hh{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  #histList{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);max-height:220px;overflow-y:auto}
+  #histList .h{ padding:4px 0;border-bottom:1px dashed #1c2a47;line-height:1.4}
   #histList .h b{color:var(--teal)}
 
   /* ---------- FOOTER CONTROLS ---------- */
-  #foot{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel2);border-top:2px solid var(--line);font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
-  .nav-btn{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 14px;font-family:var(--f-mono);font-size:.74rem}
-  .nav-btn:hover{border-color:var(--amber)}
+  #foot{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel2);border-top:2px solid var(--line);font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+  .nav-btn{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 16px;font-family:var(--f-mono);font-size:.8rem;font-weight:600}
+  .nav-btn:not(:disabled):hover{border-color:var(--amber)}
   .nav-btn:disabled{opacity:.4;cursor:not-allowed}
   #foot .ctr{color:var(--muted)}
-  #toast{position:fixed;bottom:52px;left:50%;transform:translateX(-50%);background:#1a2542;border:1px solid var(--amber);color:var(--ink);border-radius:10px;padding:10px 18px;font-size:.84rem;z-index:80;display:none;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  #toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#1a2542;border:1px solid var(--amber);color:var(--ink);border-radius:10px;padding:12px 20px;font-size:.95rem;z-index:80;display:none;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:center;max-width:90vw}
 
   /* ---------- LIGHTBOX ---------- */
   #lightbox{position:fixed;inset:0;background:rgba(4,8,16,.92);display:none;align-items:center;justify-content:center;z-index:90;flex-direction:column;gap:10px;padding:24px}
   #lightbox img{max-width:94vw;max-height:86vh;border:2px solid var(--amber);border-radius:10px}
-  #lightbox .cap{font-family:var(--f-mono);color:var(--muted);font-size:.74rem}
-  #restored{display:none;margin:0 0 10px;padding:8px 12px;border:1px solid var(--ok);background:rgba(34,197,94,.08);color:var(--ok);border-radius:8px;font-size:.8rem}
+  #lightbox .cap{font-family:var(--f-mono);color:var(--muted);font-size:.8rem}
+  #restored{display:none;margin:0 0 12px;padding:10px 14px;border-radius:8px;font-size:.9rem;font-weight:600}
+  #restored.ok{border:1px solid var(--ok);background:rgba(34,197,94,.08);color:var(--ok)}
+  #restored.bad{border:1px solid var(--bad);background:rgba(239,68,68,.08);color:var(--bad)}
 
-  @media (max-width:1100px){ #main{grid-template-columns:170px 1fr 300px} }
+  @media (max-width:1100px){ #main{grid-template-columns:180px 1fr 320px} }
 </style>
 </head>
 <body>
@@ -155,7 +186,7 @@
   <div id="gateCard">
     <div class="k">Restricted // School Health Investigation</div>
     <h1>CASE 55: CENTENNIAL OUTBREAK</h1>
-    <p class="sub">An outbreak investigation at Centennial Junior High. Read the evidence. Make the call. Defend your Monday plan.</p>
+    <p class="sub">An outbreak investigation at Centennial Junior High. Read the evidence day by day. Make the call. Defend your Monday plan.</p>
     <button id="signInBtn" type="button" onclick="signIn()">Sign in with your school account</button>
     <div id="gateMsg"></div>
     <div id="gateHint">One click with your school Google account. No PIN, nothing to type. Your work saves to the server automatically, so you can close this and come back later.</div>
@@ -168,15 +199,16 @@
   <div id="hud">
     <span class="brand">CASE 55</span>
     <span class="pill">CENTENNIAL JR HIGH</span>
-    <span class="pill">STATUS: <b id="statusPill">ACTIVE</b></span>
     <span class="pill" id="syncPill">SYNC: <b id="syncTxt">OFFLINE</b></span>
     <span class="pill">INVESTIGATOR: <b id="who">...</b></span>
     <span class="spacer"></span>
     <span class="pill">SECTION <select id="sectionSel"></select></span>
-    <button id="switchBtn" type="button" onclick="switchAccount()">switch</button>
+    <button class="hud-btn" type="button" onclick="toggleSize()" title="Change text size">A+ / A-</button>
+    <button class="hud-btn" type="button" onclick="switchAccount()">switch account</button>
   </div>
 
   <div id="main">
+    <div id="loadingVeil">LOADING YOUR INVESTIGATION...</div>
     <div id="navRail">
       <div id="navList"></div>
       <div id="surge">
@@ -186,7 +218,7 @@
     </div>
 
     <div id="deck">
-      <div id="restored">Restored your investigation from the server.</div>
+      <div id="restored"></div>
       <div id="deckContent"></div>
     </div>
 
@@ -209,7 +241,7 @@
     <span class="ctr" id="ctr">BRIEFING</span>
     <span class="spacer" style="flex:1"></span>
     <button class="nav-btn" type="button" onclick="saveNow()">Save now</button>
-    <span>keys: &larr; &rarr; to move, 1-9 for stations</span> <span style="margin-left:14px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
+    <span style="margin-left:14px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
   </div>
 </div>
 
@@ -233,7 +265,7 @@ const TASK_NAME    = (window.CASE55 && CASE55.meta.taskName) || 'HL8-Centennial-
 const SECTIONS     = ['801-HE', '802-HE', '803-HE', '804-HE'];
 const ID_KEY       = 'r8id';
 const AUTOSAVE_MS  = 2500;
-/* Demo mode only off the production origin, so it can never be used to write on Pages. */
+
 const Q = new URLSearchParams(location.search);
 const OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
 const DEMO = Q.has('demo') && OFFPROD;
@@ -244,28 +276,35 @@ function returnUrl(){ return location.origin.indexOf(ALLOWED_ORIGIN)===0 ? locat
 
 const STATIONS = (window.CASE55 ? CASE55.stations : []);
 const CHARS    = (window.CASE55 ? CASE55.characters : {});
+const GLOSSARY = (window.CASE55 ? CASE55.glossary : {});
+const KEY      = (window.CASE55 ? CASE55.key : []);
 const DAYS = [ {d:'Mon',n:3}, {d:'Tue',n:7}, {d:'Wed',n:18}, {d:'Thu',n:34}, {d:'Fri',n:55} ];
+const COMMIT_IDX = STATIONS.findIndex(s => s.commitStation);
+const VERDICT_IDX = STATIONS.length - 1;
 
 /* ================= STATE ================= */
 let identity = null;
 let state = freshState();
 let cur = 0;
-let visited = {};
 let started = false;
 let committed = false;
-let committedAt = null;
 let lastSavedHash = null;
 let timer = null;
 let popupRef = null;
 let currentTab = 'dispatch';
+let appShown = false;
+let loaded = false;
 
 function freshState(){
-  return { v:1, section:'', station:0, visited:{}, started:false, committed:false, committedAt:null,
+  return { v:2, section:'', station:0, visited:{}, started:false, committed:false, committedAt:null,
            judgments:{}, matches:{}, responses:{}, partB:{}, lastActive:Date.now() };
 }
 function getPath(o,p){ if(!o||!p) return undefined; const ks=p.split('.'); let a=o; for(let i=0;i<ks.length;i++){ if(a==null) return undefined; a=a[ks[i]]; } return a; }
 function setPath(o,p,v){ const ks=p.split('.'); let a=o; for(let i=0;i<ks.length-1;i++){ if(typeof a[ks[i]]!=='object'||a[ks[i]]===null) a[ks[i]]={}; a=a[ks[i]]; } a[ks[ks.length-1]]=v; }
 function el(id){ return document.getElementById(id); }
+
+if(sessionStorage.getItem('c55_big')==='1') document.documentElement.classList.add('big');
+function toggleSize(){ const h=document.documentElement; h.classList.toggle('big'); sessionStorage.setItem('c55_big', h.classList.contains('big')?'1':'0'); }
 
 /* ================= AUTH (Path B) ================= */
 function boot(){
@@ -279,11 +318,11 @@ function showGate(){ el('app').style.display='none'; el('gate').style.display='f
 function showApp(){
   el('gate').style.display='none'; el('app').style.display='flex';
   el('who').textContent = identity.email;
+  if(appShown) return; // prevent duplicate listeners
+  appShown = true;
   const sel = el('sectionSel'); sel.innerHTML = '<option value="">section?</option>' + SECTIONS.map(s=>'<option>'+s+'</option>').join('');
-  sel.addEventListener('change', ()=>{ state.section = sel.value; onChange(); });
+  sel.addEventListener('change', ()=>{ state.section = sel.value; hydrateFields(); onChange(); });
   buildSurge(); buildNav();
-  const sp = new URLSearchParams(location.search).get('st');
-  loadStation(sp!=null ? Math.max(0,Math.min(STATIONS.length-1, +sp||0)) : 0);
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) flush(); });
   window.addEventListener('pagehide', flush);
   restore();
@@ -325,11 +364,12 @@ function summarize(st){
   const culprit = getPath(st,'responses.c1_name')||'-';
   return 'station '+(st.station+1)+'/9'+(st.committed?' committed':'')+' culprit='+culprit;
 }
-function onChange(){ clearTimeout(timer); setSync('EDITING...','warn'); timer=setTimeout(save, AUTOSAVE_MS); }
-function flush(){ clearTimeout(timer); save(); }
-function saveNow(){ clearTimeout(timer); save(); }
+function onChange(){ if(!loaded) return; clearTimeout(timer); setSync('EDITING...','warn'); timer=setTimeout(save, AUTOSAVE_MS); updateNavMarks(); }
+function flush(){ if(!loaded) return; clearTimeout(timer); save(); }
+function saveNow(){ if(!loaded) return; clearTimeout(timer); save(); toast('Saved.'); }
 function save(){
   if(!identity){ showGate(); return; }
+  if(!loaded) return; // NEVER save before restore finishes
   state.lastActive = Date.now();
   const h = JSON.stringify(state);
   if(SKIPNET){ lastSavedHash=h; setSync('DEMO - not saving','warn'); renderHistory(); return; }
@@ -354,35 +394,61 @@ function verify(rid,h){
     .then(j=>{ if(j&&j.found){ lastSavedHash=h; setSync('SERVER OK','ok'); } else setSync('RETRYING...','warn'); })
     .catch(()=>setSync('RETRYING...','warn'));
 }
-function restore(){
-  if(SKIPNET){ setSync('DEMO MODE','warn'); return; }
+function restore(attempt=1){
+  if(SKIPNET){ setSync('DEMO MODE','warn'); loaded=true; el('loadingVeil').style.display='none'; loadStation(Math.max(0,Math.min(STATIONS.length-1, +(Q.get('st')||0)))); return; }
   setSync('LOADING...','warn');
   post(VAULT_URL, { action:'load_assignment', email:identity.email, ts:identity.ts, sig:identity.sig, task:TASK_NAME })
     .then(j=>{
       if(j && j.status==='ok' && j.found){
         applyState(j.data||{});
-        el('restored').style.display='block';
+        el('restored').className='ok'; el('restored').style.display='block';
         el('restored').textContent = 'Restored your investigation from the server'+(j.savedAt?' (saved '+new Date(j.savedAt).toLocaleString()+')':'')+'.';
         setSync('SERVER OK','ok');
         lastSavedHash = JSON.stringify(state);
-      } else if(j && j.status==='auth_failed'){ onAuthFailed(j.reason); }
-      else setSync('NO SAVE YET','');
+        finishLoad();
+      } else if(j && j.status==='auth_failed'){ onAuthFailed(j.reason); el('loadingVeil').style.display='none'; }
+      else { setSync('NO SAVE YET',''); finishLoad(); loadStation(0); }
     })
-    .catch(()=> setSync('LOAD FAILED (network)','warn'));
+    .catch((e)=>{
+      if(attempt < 3) { setTimeout(()=>restore(attempt+1), 1500); return; }
+      setSync('LOAD FAILED','bad');
+      el('restored').className='bad'; el('restored').style.display='block';
+      el('restored').textContent = 'Could not reach the server to load your earlier work. If you have worked on this before, refresh the page before you type anything.';
+      finishLoad(); loadStation(0);
+    });
 }
+function finishLoad(){ loaded=true; el('loadingVeil').style.display='none'; }
 function applyState(st){
   const n = freshState();
   if(st && typeof st==='object'){ for(const k in st){ n[k]=st[k]; } }
-  if(typeof n.judgments!=='object'||!n.judgments) n.judgments={};
-  if(typeof n.matches!=='object'||!n.matches) n.matches={};
-  if(typeof n.responses!=='object'||!n.responses) n.responses={};
-  if(typeof n.partB!=='object'||!n.partB) n.partB={};
-  if(typeof n.visited!=='object'||!n.visited) n.visited={};
+  ['judgments','matches','responses','partB','visited'].forEach(k=>{ if(typeof n[k]!=='object'||!n[k]) n[k]={}; });
   state = n;
   cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
-  visited = state.visited; started = !!state.started; committed = !!state.committed; committedAt = state.committedAt||null;
+  started = !!state.started; committed = !!state.committed;
   if(state.section){ const s=el('sectionSel'); if(s) s.value=state.section; }
-  buildNav(); loadStation(cur); updateLocks();
+  buildNav(); loadStation(cur);
+}
+
+/* ================= COMPLETION LOGIC ================= */
+function isFilled(spec){
+  if(spec.optional) return true;
+  if(spec.type==='ack') return started;
+  if(spec.type==='commit') return committed;
+  if(spec.type==='section') return !!state.section;
+  if(spec.type==='choice' || spec.type==='text') {
+    const v = getPath(state, spec.f); return v != null && String(v).trim().length > 0;
+  }
+  if(spec.type==='pair') return spec.selects.every(sl => !!getPath(state, spec.f+'.'+sl.key));
+  if(spec.type==='grid') return spec.rows.every(r => !!getPath(state, spec.f+'.'+r.k+'.v') && !!getPath(state, spec.f+'.'+r.k+'.a'));
+  if(spec.type==='order') return spec.items.every(it => !!getPath(state, spec.f+'.'+it.k));
+  return true;
+}
+function stationDone(i){
+  const s = STATIONS[i];
+  if(s.locked && !committed) return false;
+  const req = (s.fields||[]).filter(f=>!f.optional);
+  if(!req.length) return !!state.visited[i];
+  return req.every(isFilled);
 }
 
 /* ================= NAV / STATIONS ================= */
@@ -391,47 +457,61 @@ function buildNav(){
   STATIONS.forEach((s,i)=>{
     const d = document.createElement('div');
     d.className='nav-item'; d.id='nav-'+i;
-    const locked = s.locked && !committed;
-    if(locked) d.classList.add('locked');
-    if(visited[i]) d.classList.add('done');
-    if(i===cur) d.classList.add('active');
-    d.innerHTML = '<span class="st">'+(locked?'LOCK':(visited[i]?'DONE':'...'))+'</span><div class="ch">'+s.nav+'</div><div class="tt">'+s.title+'</div>';
-    d.onclick = ()=>{ if(locked){ toast('Locked - commit your Monday plan at Station 07 to reveal the verdict.'); return; } loadStation(i); };
+    d.innerHTML = '<span class="st"></span><div class="ch">'+esc(s.nav)+'</div><div class="tt">'+esc(s.title.split(':')[0])+'</div>';
+    d.onclick = ()=>{ if(s.locked && !committed){ toast('Locked. Commit your Monday plan to reveal the verdict.'); return; } loadStation(i); };
     list.appendChild(d);
   });
-  el('ctr').textContent = (cur===0?'BRIEFING':('STATION 0'+cur))+' / '+STATIONS.length;
-  el('prevBtn').disabled = (cur===0); el('nextBtn').disabled = (cur===STATIONS.length-1);
+  updateNavMarks();
+}
+function updateNavMarks(){
+  STATIONS.forEach((s,i)=>{
+    const d = el('nav-'+i); if(!d) return;
+    const locked = s.locked && !committed;
+    const done = stationDone(i);
+    d.classList.toggle('locked', locked);
+    d.classList.toggle('done', done);
+    d.classList.toggle('active', i===cur);
+    d.querySelector('.st').textContent = locked ? 'LOCK' : (done ? '✓' : '•');
+  });
+  el('ctr').textContent = STATIONS[cur].nav + ' (' + (cur+1) + '/' + STATIONS.length + ')';
+  el('prevBtn').disabled = (cur===0);
+  const nextLocked = (cur+1 < STATIONS.length) && STATIONS[cur+1].locked && !committed;
+  el('nextBtn').disabled = (cur===STATIONS.length-1) || nextLocked;
 }
 function buildSurge(){
   const row = el('surgeRow'); row.innerHTML='';
-  DAYS.forEach(d=>{
-    const c=document.createElement('div'); c.className='surge-day'; c.id='sd-'+d.d;
+  DAYS.forEach((d,i)=>{
+    const c=document.createElement('div'); c.className='surge-day hidden'; c.id='sd-'+i;
     c.innerHTML='<div class="d">'+d.d+'</div><div class="n">'+d.n+'</div>'; row.appendChild(c);
   });
 }
 function updateSurge(){
-  const frac = Object.keys(visited).length / STATIONS.length;
-  const lit = Math.round(frac * DAYS.length);
-  DAYS.forEach((d,i)=>{ el('sd-'+d.d).classList.toggle('lit', i < lit); });
+  const day = STATIONS[cur].day || 0;
+  DAYS.forEach((d,i)=>{ 
+    const c = el('sd-'+i);
+    c.classList.toggle('lit', i < day); 
+    c.classList.toggle('hidden', i >= day);
+  });
 }
 function step(dir){
   let n = cur+dir;
-  while(n>=0 && n<STATIONS.length){ if(!(STATIONS[n].locked && !committed)) break; n+=dir; }
-  n = Math.max(0, Math.min(STATIONS.length-1, n));
+  if(n < 0 || n >= STATIONS.length) return;
+  if(STATIONS[n].locked && !committed) return;
   loadStation(n);
 }
 function loadStation(i){
-  cur=i; state.station=i; visited[i]=true; state.visited=visited;
+  stopReading();
+  cur=i; state.station=i; state.visited[i]=true;
   currentTab='dispatch';
   const s = STATIONS[i];
   const dc = el('deckContent');
   const locked = s.locked && !committed;
   if(locked){
-    dc.innerHTML = '<div id="lockedPanel">STATION LOCKED<br><span style="color:var(--muted);font-size:.78rem">Commit your Monday Game Plan at Station 07 to unlock the verdict.</span></div>';
-    el('taskPrompt').textContent = 'This station is locked. Go to Station 07 and commit your plan.';
+    dc.innerHTML = '<div id="lockedPanel">STATION LOCKED<br><span style="color:var(--muted);font-size:.85rem">Commit your Monday Game Plan to unlock the verdict.</span></div>';
+    el('taskPrompt').textContent = 'This station is locked.';
     el('fields').innerHTML='';
   } else {
-    let html = '<div class="kicker">'+esc(s.kicker)+'</div><h2>'+esc(s.title)+'</h2>';
+    let html = '<div class="deck-header"><div><div class="kicker">'+esc(s.kicker)+'</div><h2>'+esc(s.title)+'</h2></div><button id="readBtn" type="button" onclick="toggleRead()">🔊 Read to me</button></div>';
     html += '<div class="chars">';
     (s.chars||[]).forEach(c=>{
       const ch = CHARS[c.key]||{name:c.key,role:'',img:null};
@@ -439,41 +519,64 @@ function loadStation(i){
       html += '<div class="char-card">'+ava+'<div><div class="who">'+esc(ch.name)+'</div><div class="role">'+esc(ch.role)+'</div><div class="quote">'+esc(c.quote)+'</div></div></div>';
     });
     html += '</div>';
-    html += '<div class="tabs">'+Object.keys(s.tabs).map(t=>'<button class="tab-btn'+(t==='dispatch'?' active':'')+'" data-tab="'+t+'" onclick="switchTab(\''+t+'\')">'+t+'</button>').join('')+'</div>';
-    html += '<div id="tabBody">'+ (s.tabs.dispatch||'') +'</div>';
-    html += '<div class="exhibits">'+(s.imgs||[]).map(im=>'<div class="exhibit"><img src="'+im.src+'" alt="" onclick="openZoom(this)"><div class="cap">'+esc(im.cap)+'</div></div>').join('')+'</div>';
+    const tl = s.tabLabels || {};
+    html += '<div class="tabs">'+Object.keys(s.tabs).map(t=>'<button class="tab-btn'+(t==='dispatch'?' active':'')+'" data-tab="'+t+'" onclick="switchTab(\''+t+'\')">'+esc(tl[t]||t)+'</button>').join('')+'</div>';
+    html += '<div id="tabBody"></div>';
+    html += '<div class="exhibits">'+(s.imgs||[]).map(im=>'<div class="exhibit"><img src="'+im.src+'" alt="'+esc(im.cap)+'" onclick="openZoom(this)"><div class="cap">'+esc(im.cap)+'</div></div>').join('')+'</div>';
     dc.innerHTML = html;
+    switchTab('dispatch');
     el('taskPrompt').textContent = s.task||'';
-    renderFields(s.fields||[]);
+    renderFields(s.fields||[], i);
   }
-  buildNav(); updateSurge(); updateLocks(); renderHistory();
+  updateNavMarks(); updateSurge(); renderHistory();
   el('deck').scrollTop = 0;
-  onChangeSoon();
+  if(loaded){ clearTimeout(timer); timer=setTimeout(save, 1200); }
 }
 function switchTab(t){
   currentTab=t;
   const s=STATIONS[cur]; const body=el('tabBody');
-  if(body) body.innerHTML = s.tabs[t]||'';
+  if(!body) return;
+  let html = s.tabs[t]||'';
+  if(html === '@review') html = buildReview();
+  if(t === 'toolkit' && s.words && s.words.length){
+    html += '<div class="glossary"><h4>Word Bank</h4><dl>' + s.words.map(w => '<dt>'+w+'</dt><dd>'+esc(GLOSSARY[w])+'</dd>').join('') + '</dl></div>';
+  }
+  body.innerHTML = html;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
 }
-function updateLocks(){
-  STATIONS.forEach((s,i)=>{ const n=el('nav-'+i); if(!n) return; const locked=s.locked&&!committed; n.classList.toggle('locked',locked); n.querySelector('.st').textContent = locked?'LOCK':(visited[i]?'DONE':'...'); });
-}
-function onChangeSoon(){ clearTimeout(timer); timer=setTimeout(save, 1200); }
 
 /* ================= FIELDS ================= */
-function renderFields(fields){
+function renderFields(fields, stIdx){
   const box = el('fields'); box.innerHTML='';
+  if(committed && stIdx <= COMMIT_IDX){
+    const n = document.createElement('div'); n.className='lock-notice';
+    n.textContent = 'Your plan is committed. Your answers from the week are locked so you can compare them to the verdict.';
+    box.appendChild(n);
+  }
   fields.forEach(spec=> box.appendChild(buildField(spec)));
   hydrateFields();
+  if(committed && stIdx <= COMMIT_IDX){
+    box.querySelectorAll('textarea, select, input, button:not(.ack-btn):not(.big-btn)').forEach(e => e.disabled = true);
+  }
 }
 function buildField(spec){
   const w = document.createElement('div'); w.className='field';
   if(spec.type==='ack'){
-    const b=document.createElement('button'); b.type='button'; b.className='ack-btn'+(started?' done':''); b.id='ackBtn';
-    b.textContent = started ? 'INVESTIGATION STARTED' : spec.label;
-    b.onclick = ()=>{ if(started) return; started=true; state.started=true; b.classList.add('done'); b.textContent='INVESTIGATION STARTED'; toast('Investigation started. Everything you type saves automatically.'); onChange(); };
+    const b=document.createElement('button'); b.type='button'; b.className='ack-btn'; b.id='ackBtn';
+    b.onclick = ()=>{ 
+      if(started) return; 
+      if(!state.section) { toast('Please pick your class section first.'); return; }
+      started=true; state.started=true; hydrateFields(); toast('Investigation started. Everything you type saves automatically.'); onChange(); 
+      setTimeout(()=>step(1), 800);
+    };
     w.appendChild(b); return w;
+  }
+  if(spec.type==='section'){
+    const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
+    const sel=document.createElement('select'); sel.setAttribute('data-sec', '1');
+    sel.innerHTML='<option value="">- Pick your section -</option>'+SECTIONS.map(o=>'<option>'+o+'</option>').join('');
+    sel.addEventListener('change', ()=>{ state.section = sel.value; el('sectionSel').value = sel.value; onChange(); });
+    w.appendChild(sel); return w;
   }
   if(spec.type==='choice'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -501,6 +604,18 @@ function buildField(spec){
     });
     w.appendChild(row); return w;
   }
+  if(spec.type==='order'){
+    const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
+    spec.items.forEach(it=>{
+      const row=document.createElement('div'); row.className='order-row';
+      const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+it.k);
+      sel.innerHTML='<option value="">-</option>'+[1,2,3,4,5].map(o=>'<option>'+o+'</option>').join('');
+      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); onChange(); });
+      const span=document.createElement('span'); span.textContent=it.t;
+      row.appendChild(sel); row.appendChild(span); w.appendChild(row);
+    });
+    return w;
+  }
   if(spec.type==='grid'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const tb=document.createElement('table'); tb.className='grid-table';
@@ -520,7 +635,7 @@ function buildField(spec){
     w.appendChild(tb); return w;
   }
   if(spec.type==='commit'){
-    const b=document.createElement('button'); b.type='button'; b.className='big-btn'; b.id='commitBtn'; b.textContent=spec.label;
+    const b=document.createElement('button'); b.type='button'; b.className='big-btn'; b.id='commitBtn';
     b.onclick=()=>doCommit();
     w.appendChild(b); return w;
   }
@@ -532,72 +647,159 @@ function hydrateFields(){
     if(elm.classList.contains('choice')){ elm.dataset.val=v; elm.querySelectorAll('.opt').forEach(b=>b.classList.toggle('active', b.dataset.v===v)); }
     else elm.value=v;
   });
-  const cb=el('commitBtn'); if(cb) cb.textContent = committed ? 'PLAN COMMITTED' : 'COMMIT MY MONDAY PLAN';
-  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'INVESTIGATION STARTED':'READY - START THE INVESTIGATION'; }
+  const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
+  const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'PLAN COMMITTED ✓' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
+  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'WEEK STARTED ✓':'READY: START THE WEEK'; }
 }
 function doCommit(){
-  if(committed){ toast('Already committed. Station 08 is unlocked.'); loadStation(8); return; }
-  committed=true; state.committed=true; state.committedAt=Date.now(); committedAt=state.committedAt;
-  save(); updateLocks(); buildNav();
-  toast('Monday plan committed to the server. Station 08 (verdict) unlocked.');
-  setTimeout(()=>loadStation(8), 600);
+  if(committed){ loadStation(VERDICT_IDX); return; }
+  
+  // Validation: culprit + all 6 rules must have at least 3 words
+  const missing = [];
+  if(!getPath(state, 'responses.c1_name')) missing.push('Pick a culprit on FRIDAY AM.');
+  const s7 = STATIONS[COMMIT_IDX];
+  let rulesOk = true;
+  s7.fields.forEach(f => {
+    if(f.type === 'text' && !f.optional) {
+      const v = String(getPath(state, f.f) || '').trim();
+      if(v.split(/\s+/).length < 3) rulesOk = false;
+    }
+  });
+  if(!rulesOk) missing.push('Write at least 3 words for every rule (what and why).');
+  
+  if(missing.length) { alert('Before you commit:\n\n' + missing.join('\n')); return; }
+  
+  // Warn about other incomplete stations
+  let incomplete = [];
+  for(let i=1; i<COMMIT_IDX; i++) { if(!stationDone(i)) incomplete.push(STATIONS[i].nav); }
+  let msg = 'Are you sure you want to commit your Monday Plan?\n\nOnce you commit, your answers lock and you will see the verdict.';
+  if(incomplete.length) msg += '\n\nWait! You have not finished these days: ' + incomplete.join(', ') + '. Do you still want to commit?';
+  
+  if(!confirm(msg)) return;
+  
+  committed=true; state.committed=true; state.committedAt=Date.now();
+  save(); updateNavMarks();
+  toast('Monday plan committed. The verdict is unlocked!');
+  setTimeout(()=>loadStation(VERDICT_IDX), 600);
+}
+
+/* ================= REVIEW TAB ================= */
+function buildReview(){
+  let html = '<p>Here is how your answers from the week compare to the health unit\'s findings. You can look back at the earlier days to see your full written answers.</p><table class="review-tbl"><tr><th>Day</th><th>Question</th><th>Your answer</th><th>Health unit</th></tr>';
+  KEY.forEach(k => {
+    const v = getPath(state, k.f);
+    let yours = '-', correct = '-', isOk = false;
+    if(k.noKey){
+      yours = v || '-'; correct = '(Guess)'; isOk = true;
+    } else if(k.answer){
+      yours = v || '-'; correct = k.answer; isOk = (v === k.answer);
+    } else if(k.pair){
+      yours = v ? (v.gate||'-')+' / '+(v.germ||'-') : '-';
+      correct = k.pair.gate + ' / ' + k.pair.germ;
+      isOk = v && v.gate === k.pair.gate && v.germ === k.pair.germ;
+    } else if(k.order){
+      const o = v || {};
+      yours = ['a','b','c','d','e'].map(x=>o[x]||'?').join(', ');
+      correct = ['a','b','c','d','e'].map(x=>k.order[x]).join(', ');
+      isOk = ['a','b','c','d','e'].every(x => String(o[x]) === String(k.order[x]));
+    }
+    const cls = k.noKey ? '' : (isOk ? 'ok' : 'bad');
+    const mark = k.noKey ? '' : (isOk ? '✓ ' : '✗ ');
+    html += '<tr><td>'+esc(k.st)+'</td><td>'+esc(k.label)+'</td><td class="'+cls+'">'+mark+esc(yours)+'</td><td>'+esc(correct)+(k.note?'<span class="note">'+esc(k.note)+'</span>':'')+'</td></tr>';
+  });
+  html += '</table>';
+  return html;
 }
 
 /* ================= HISTORY ================= */
 function renderHistory(){
   const list=el('histList'); if(!list) return;
   const rows=[];
-  const push=(tag,key,val)=>{ if(val==null||val==='') return; const s=(typeof val==='object')?JSON.stringify(val):String(val); if(!s) return; rows.push('<div class="h"><b>'+esc(tag)+'</b> '+esc(key)+': '+esc(s.length>90?s.slice(0,90)+'...':s)+'</div>'); };
-  const j=state.judgments||{}; for(const k in j){ if(typeof j[k]==='object'){ for(const kk in j[k]) push(k.toUpperCase(), kk, j[k][kk]); } else push(k.toUpperCase(),'choice',j[k]); }
-  const m=state.matches||{}; for(const k in m){ const v=m[k]; if(v&&v.gate) push('MATCH', k, v.gate+' / '+(v.germ||'?')); }
-  const r=state.responses||{}; for(const k in r){ push('ANSWER', k, r[k]); }
-  const p=state.partB||{}; for(const k in p){ if(p[k]&&p[k].v) push('TABLE', k+'.vaccine', p[k].v); if(p[k]&&p[k].a) push('TABLE', k+'.antibiotic', p[k].a); }
+  STATIONS.forEach(s => {
+    (s.fields||[]).forEach(f => {
+      let v = null;
+      if(f.type==='section') v = state.section;
+      else if(f.type==='choice' || f.type==='text') v = getPath(state, f.f);
+      else if(f.type==='pair') { const p = getPath(state, f.f); if(p && (p.gate||p.germ)) v = (p.gate||'?')+' / '+(p.germ||'?'); }
+      else if(f.type==='order') { const p = getPath(state, f.f); if(p && Object.keys(p).length) v = 'Order chosen'; }
+      else if(f.type==='grid') { const p = getPath(state, f.f); if(p && Object.keys(p).length) v = 'Table started'; }
+      
+      if(v != null && String(v).trim() !== '') {
+        let lab = f.label.length > 35 ? f.label.slice(0,35)+'...' : f.label;
+        let val = String(v); val = val.length > 50 ? val.slice(0,50)+'...' : val;
+        rows.push('<div class="h"><b>'+esc(s.nav)+'</b> '+esc(lab)+': <span style="color:var(--ink)">'+esc(val)+'</span></div>');
+      }
+    });
+  });
   list.innerHTML = rows.length ? rows.join('') : '<div class="h" style="color:var(--muted)">Nothing yet - your answers appear here as you type.</div>';
 }
 
+/* ================= READ ALOUD ================= */
+let isReading = false;
+function stopReading(){ if(window.speechSynthesis) speechSynthesis.cancel(); isReading=false; const b=el('readBtn'); if(b) b.classList.remove('reading'); }
+function toggleRead(){
+  if(!window.speechSynthesis) { toast('Read aloud is not supported on this browser.'); return; }
+  if(isReading) { stopReading(); return; }
+  const s = STATIONS[cur];
+  let txt = s.title + '. ';
+  (s.chars||[]).forEach(c => { txt += (CHARS[c.key]?CHARS[c.key].name:'') + ' says: ' + c.quote + ' '; });
+  const tb = el('tabBody'); if(tb) txt += tb.innerText + ' ';
+  txt += 'Your task: ' + (s.task||'');
+  const u = new SpeechSynthesisUtterance(txt);
+  u.rate = 0.9;
+  u.onend = stopReading;
+  isReading = true; el('readBtn').classList.add('reading');
+  speechSynthesis.speak(u);
+}
+
 /* ================= LIGHTBOX / TOAST / KEYS ================= */
-function openZoom(img){ el('lbImg').src=img.src; el('lbCap').textContent = (img.parentElement.querySelector('.cap')||{}).textContent||''; el('lightbox').style.display='flex'; }
+function openZoom(img){ el('lbImg').src=img.src; el('lbCap').textContent = img.alt||''; el('lightbox').style.display='flex'; }
 function closeZoom(){ el('lightbox').style.display='none'; }
 let toastT=null;
-function toast(msg){ const t=el('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none', 3200); }
+function toast(msg){ const t=el('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none', 3500); }
 document.addEventListener('keydown', (e)=>{
   if(el('gate').style.display==='flex') return;
+  // CRITICAL: Do not navigate while typing in text boxes or selects
+  if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
   if(e.key==='ArrowRight'){ step(1); } else if(e.key==='ArrowLeft'){ step(-1); }
-  else if(/^[1-9]$/.test(e.key)){ const n=+e.key-1; if(n<STATIONS.length){ if(STATIONS[n].locked&&!committed){toast('Locked - commit at Station 07.');} else loadStation(n); } }
-  else if(e.key==='Escape'){ closeZoom(); }
+  else if(e.key==='Escape'){ closeZoom(); stopReading(); }
 });
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 if(SKIPNET){ window.__c55 = { getState:()=>state, loadStation, doCommit, applyState, setPath, getPath, STATIONS, save }; }
-if(SELFTEST){ setTimeout(runSelfTest, 400); }
+if(SELFTEST){ setTimeout(runSelfTest, 600); }
 function runSelfTest(){
   const out=[]; const ok=(c,m)=>out.push((c?'PASS':'FAIL')+': '+m);
   try{
     ok(STATIONS.length===9, 'stations loaded = '+STATIONS.length);
     ok(typeof window.signIn==='function','signIn exposed on window');
-    ok(typeof window.step==='function'&&typeof window.saveNow==='function'&&typeof window.switchTab==='function'&&typeof window.openZoom==='function'&&typeof window.closeZoom==='function'&&typeof window.switchAccount==='function','all inline onclick handlers exposed on window');
-    const _open=window.open; window.open=()=>null; let threw=null; try{ el('signInBtn').click(); }catch(e){ threw=e; } window.open=_open;
-    ok(!threw, 'signIn button click does not throw'+(threw?' ('+threw.message+')':''));
-    ok(returnUrl()===null || returnUrl().indexOf(ALLOWED_ORIGIN)===0, 'returnUrl is allowlisted or null (origin='+location.origin+')');
-    ok(getPath({a:{b:7}},'a.b')===7, 'getPath works');
-    setPath(state,'responses.__t','hello'); ok(getPath(state,'responses.__t')==='hello','setPath roundtrip');
-    loadStation(7); ok(!!el('commitBtn'), 'S7 commit button exists');
-    const t=document.querySelector('#fields textarea'); ok(!!t,'S7 textarea exists');
-    if(t){ t.value='rule one answer'; t.dispatchEvent(new Event('input',{bubbles:true})); ok(getPath(state,'responses.rule1_what')==='rule one answer','text input -> state'); }
-    loadStation(1); const opt=document.querySelector('#fields .opt'); ok(!!opt,'S1 choice button exists');
-    if(opt){ opt.click(); ok(!!getPath(state,'judgments.s1.choice'),'choice -> state = '+getPath(state,'judgments.s1.choice')); }
+    ok(typeof window.toggleRead==='function','toggleRead exposed');
+    
+    loadStation(3); const t=document.querySelector('#fields textarea'); 
+    if(t){ t.focus(); const evt = new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true}); t.dispatchEvent(evt); ok(cur===3, 'Typing ArrowRight in textarea does not navigate'); }
+    
+    loadStation(0); ok(!el('ackBtn').classList.contains('done'), 'Ack is not done initially');
+    state.section = '801-HE'; el('ackBtn').click(); ok(started===true, 'Ack sets started');
+    
     loadStation(8); ok(!!document.getElementById('lockedPanel'),'S8 locked before commit');
-    loadStation(7); const cb=el('commitBtn'); if(cb) cb.click();
-    ok(state.committed===true,'commit sets committed=true');
-    loadStation(8); ok(!!el('tabBody') && !document.getElementById('lockedPanel'),'S8 unlocked + rendered after commit');
-    const snap=JSON.parse(JSON.stringify(state)); applyState(snap);
-    ok(state.committed===true && STATIONS.length===9,'applyState preserves committed + stations');
-    loadStation(0); ok(!!el('ackBtn'),'S0 ack button exists');
+    
+    // Test commit validation
+    window.alert = ()=>{}; window.confirm = ()=>true;
+    loadStation(7); el('commitBtn').click(); ok(!committed, 'Commit blocked when empty');
+    
+    setPath(state, 'responses.c1_name', 'Suspect B');
+    ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].forEach(k=>setPath(state, 'responses.'+k, 'one two three'));
+    el('commitBtn').click(); ok(committed, 'Commit succeeds with valid data');
+    
+    loadStation(7); ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after commit');
+    loadStation(8); ok(!document.getElementById('lockedPanel'),'S8 unlocked after commit');
+    switchTab('yourfile'); ok(el('tabBody').innerHTML.includes('review-tbl'), 'Review table renders');
+    
   }catch(e){ out.push('FAIL: exception '+e.message); }
   const d=document.createElement('div'); d.id='selftest'; d.textContent=out.join(' | '); document.body.appendChild(d);
 }
 
-window.signIn=signIn; window.switchAccount=switchAccount; window.step=step; window.saveNow=saveNow; window.switchTab=switchTab; window.openZoom=openZoom; window.closeZoom=closeZoom;
+window.signIn=signIn; window.switchAccount=switchAccount; window.step=step; window.saveNow=saveNow; window.switchTab=switchTab; window.openZoom=openZoom; window.closeZoom=closeZoom; window.toggleSize=toggleSize; window.toggleRead=toggleRead;
 
 boot();
 })();

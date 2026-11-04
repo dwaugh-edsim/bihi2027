@@ -216,6 +216,18 @@ No `apiKey` in the body is needed - the bridge falls back to its saved local key
 - `dashboard.html` - teacher PIN-gated latest-per-student view + CSV export.
 - Tested with headless Chrome (`--dump-dom --enable-logging=stderr`): all 9 stations render with correct fields and zero JS errors; an in-page `?selftest=1` harness drives the real engine and reports **13/13 PASS** (data load, get/setPath, text->state, choice->state, S8 locked before commit, commit sets committed, S8 unlocks after commit, applyState roundtrip). `?demo=1` renders offline (disabled on the production origin). Vault `get_health` confirmed live (`R8-VAULT-0.3.0`, key configured). Remaining manual step: one real student Google sign-in to prove the browser save -> reload -> restore round-trip end to end, then commit/push.
 
+### Review & Chronological Rewrite (2026-11-04)
+
+- **Narrative structure:** Rewrote the story to unfold chronologically (Sunday Briefing -> Mon -> Tue -> Wed -> Thu -> Fri AM -> Fri Noon -> Fri 3:15 PM -> Case Closed). Students now see evidence as it comes in, mimicking a real investigation. The surge tracker on the left lights up day-by-day.
+- **Pedagogy & Leaks:** Added a Hypothesis (first guess) on Monday. Added Suspect C (Salmonella) to force elimination reasoning instead of simple matching. Removed answer leaks in application stations (they now point back to evidence days). Added Word Bank to toolkits. Added "Your File" review tab at verdict for formative feedback. Added order-sequence field for duck chain.
+- **Critical bug fixes:**
+  - Keyboard navigation (arrows, numbers) disabled when typing in text boxes (previously typing '4' jumped stations).
+  - Save race condition fixed: saves are blocked until the restore completes, preventing a blank state from overwriting a student's work on slow load.
+  - Fields lock after committing the Monday plan to prevent copying the verdict.
+  - Commit requires culprit + 3 words for each rule, and warns about incomplete days.
+- **Accessibility:** Added Read Aloud (speechSynthesis) button, text size toggle (A+/A-), and image alt text.
+- **Dashboard:** Fixed station label off-by-one and save count bug.
+
 ---
 
 ## 9. Teacher dashboard and marking

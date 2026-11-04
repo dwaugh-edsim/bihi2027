@@ -72,6 +72,7 @@ function load(){
     if(!j || j.status!=='ok'){ msg('Error: '+(j&&j.message||'no response')+' - check the PIN.','bad'); return; }
     const rows = j.rows||[];
     const mine = rows.filter(r=> String(r[3])===TASK_NAME );
+    allMine = mine;
     // latest per email
     const byEmail = {};
     mine.forEach(r=>{ const em=String(r[1]).toLowerCase(); const ts=new Date(r[0]).getTime(); if(!byEmail[em] || ts>new Date(byEmail[em][0]).getTime()) byEmail[em]=r; });
@@ -82,7 +83,8 @@ function load(){
 }
 
 function parseData(r){ try{ return JSON.parse(r[5]||'{}'); }catch(e){ return {}; } }
-function stationLabel(d){ const n=(d.station||0)+1; return (d.station===0?'BRIEFING':'STATION 0'+n)+' / 9'; }
+const NAV_LABELS = ['BRIEFING', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY AM', 'FRIDAY NOON', 'FRIDAY 3:15', 'CASE CLOSED'];
+function stationLabel(d){ return NAV_LABELS[d.station||0] || ('STATION '+(d.station||0)); }
 
 function render(rows, totalSaves){
   const tb=document.getElementById('rows'); tb.innerHTML='';
@@ -99,7 +101,7 @@ function render(rows, totalSaves){
       +'<td>'+esc(culprit)+'</td>'
       +'<td class="mono">'+esc(bonus)+'</td>'
       +'<td class="mono">'+esc(new Date(r[0]).toLocaleString())+'</td>'
-      +'<td class="mono">'+ countSaves(r[1], rows) +'</td>'
+      +'<td class="mono">'+ countSaves(r[1]) +'</td>'
       +'<td><details><summary>state</summary><pre>'+esc(JSON.stringify(d,null,1))+'</pre></details></td>';
     tb.appendChild(tr);
   });
@@ -107,7 +109,8 @@ function render(rows, totalSaves){
   const committedN = rows.filter(r=> parseData(r).committed).length;
   document.getElementById('stat').innerHTML = 'students: <b>'+rows.length+'</b> &middot; committed: <b>'+committedN+'</b> &middot; total saves this task: <b>'+totalSaves+'</b>';
 }
-function countSaves(email, latestRows){ return lastRows.filter(r=>String(r[1]).toLowerCase()===String(email).toLowerCase()).length; }
+let allMine = [];
+function countSaves(email){ return allMine.filter(r=>String(r[1]).toLowerCase()===String(email).toLowerCase()).length; }
 
 function exportCsv(){
   if(!lastRows.length){ msg('Nothing to export - load first.','bad'); return; }
