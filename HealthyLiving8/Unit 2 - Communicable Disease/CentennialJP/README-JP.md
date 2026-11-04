@@ -16,7 +16,7 @@ the student can still connect the words to their English science notes.
 |---|---|
 | `index.html` | The simulation engine + Japanese UI. Same engine as the English build, with Japanese chrome and a Japanese-aware text-length gate (see below). |
 | `case55_data.js` | All story content: station tabs, character quotes, choices, fields, glossary, the learning outcome, and the answer key. This is the file you edit to change content. |
-| `dashboard.html` | Teacher view. Reads submissions for the JP task from the Vault and scores them against the JP answer key. |
+| *(in private repo)* | Teacher dashboard moved to `bihipri-27/HealthyLiving8-priv/Unit 2 - Communicable Disease/CentennialJP/dashboard.html`. |
 | `HL8_Centennial_Case55_Intro_Deck.html` | Projector walkthrough deck, in Japanese. |
 
 **Images are not copied here.** The 20 exhibit images and 6 character portraits

@@ -181,7 +181,7 @@ All in `HealthyLiving8/Unit 2 - Communicable Disease/Centennial/`. Standalone, z
 | `assets/` | **Done.** 14 generated PNGs: 10 station exhibits (1920x1080) - `case55_cover`, `s1_evidence_board`, `s2_fountain_ducks`, `s3_entry_gates`, `s4a_soap_sanitizer`, `s4b_vaccine_shield`, `s5_suspects`, `s6_spread_map`, `s7_monday_plan`, `s8_verdict` - plus 4 character dossier portraits (1328x1328) - `char_vp_raman`, `char_jayden`, `char_sophie`, `char_marcus`. Referenced as `assets/<name>.png` |
 | `case55_data.js` | All story content as data: station definitions, dispatch text, tab content, prompts, option labels, image paths (`assets/...`), and the locked verdict text. Edit content here without touching the engine |
 | `index.html` | The sim: sign-in gate + HUD + nav-rail + center deck + investigation-log terminal + lightbox + auth/persistence engine adapted from `assignment_pages.html` + `collectState()/applyState()` |
-| `dashboard.html` | Teacher-only, PIN-gated view: `get_submissions`, filter to this task, reduce latest-per-email, render a table (investigator, section, station reached, culprit pick, committed, last saved, # saves) + CSV export. PIN entered per session, never stored or shipped in any student file |
+| `dashboard.html` | **Moved to `bihipri-27` (`HealthyLiving8-priv/Unit 2 - Communicable Disease/Centennial/dashboard.html`).** Teacher-only, PIN-gated view: `get_submissions`, filter to this task, reduce latest-per-email, render a table (investigator, section, station reached, culprit pick, committed, last saved, # saves) + CSV export. PIN entered per session, never stored or shipped in any student file |
 
 ### Reproducing / regenerating the images (Qwen engine via Slide_Studio's local MaaS bridge)
 
