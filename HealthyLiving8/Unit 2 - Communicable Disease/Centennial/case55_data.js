@@ -50,50 +50,54 @@ var CASE55 = {
   },
 
   stations: [
-    /* ---------------- S0 BRIEFING (Sunday) ---------------- */
+    /* ---------------- S0 BRIEFING (Monday 8:15 AM) ---------------- */
     {
-      id: "s0", nav: "BRIEFING", title: "Sunday Night: Your new assignment",
-      kicker: "Before the school week starts", day: 0,
-      imgs: [{ src: "assets/case55_cover.png", cap: "Centennial Junior High, a school with 400 students in Grades 7, 8, and 9." }],
-      chars: [ { key: "vp", quote: "Welcome to Centennial Junior High. Starting tomorrow morning, you are our school health investigator. Watch the daily sick list, read every tab of evidence, and tell me right away if you spot a pattern." } ],
+      id: "s0", nav: "BRIEFING", title: "Monday 8:15 AM: Welcome to the Health Office",
+      kicker: "Before the morning bell", day: 0,
+      imgs: [{ src: "assets/s0_normal_school.png", cap: "A bright, ordinary morning outside Centennial Junior High (400 students in Grades 7, 8, and 9)." }],
+      chars: [ { key: "vp", quote: "Morning! Thanks for taking this week's shift as our school Health Officer. Honestly, it is usually a pretty quiet job: mostly ice packs for gym-class boo-boos, bandages for scraped knees, and checking the morning absence slip with Nurse Chen. Should be an easy week!" } ],
       words: ["outbreak", "symptom"],
       tabs: {
-        dispatch: `<p>You have been assigned to Centennial Junior High as the <strong>school health investigator</strong> for the week.</p>
-<p>Your job is to watch the clues as they arrive each day. If many students get the same sickness at the same time, it could be an <strong>outbreak</strong>. If that happens, you will need to figure out which germ is causing it, how it is spreading, and how to stop it.</p>`,
+        dispatch: `<p>You are Centennial Junior High's <strong>Health Officer</strong> for the week.</p>
+<p>Most weeks, your biggest job is handing out ice packs for jammed fingers in floor hockey, putting bandages on scraped knees from gym class, and logging the daily absence sheet. Still, Nurse Chen asks every Health Officer to watch the sick list just in case an <strong>outbreak</strong> ever starts.</p>`,
         evidence: `<p><strong>Building facts for Centennial Junior High (400 students total):</strong></p>
 <ul><li><strong>Grade 7</strong> classes are in the <strong>East Wing</strong>.</li>
 <li><strong>Grade 8</strong> classes are in the <strong>West Wing</strong>.</li>
 <li><strong>Grade 9</strong> classes are in the <strong>North Wing</strong>.</li>
 <li>All three grades cross paths in the <strong>hallways</strong>, the <strong>cafeteria lunch line</strong>, and the <strong>computer lab</strong>.</li></ul>`,
-        toolkit: `<p><strong>How to play:</strong> each station on the left is a new moment in the school week. Read all three tabs in the middle (<strong>1. Story</strong>, <strong>2. Evidence</strong>, and <strong>3. Science &amp; Words</strong>), then enter your answers in the <strong>Investigation Log</strong> on the right.</p>
+        toolkit: `<p><strong>How to play:</strong> each station on the left is a new day in your week as Health Officer. Read all three tabs in the middle (<strong>1. Story</strong>, <strong>2. Evidence</strong>, and <strong>3. Science &amp; Words</strong>), then record your calls in the <strong>Health Officer Log</strong> on the right.</p>
 <p>Click any picture to zoom in. Use <strong>Read this tab</strong> at the top right if you want a page read out loud. Everything you type <strong>saves to the server automatically</strong>, so you can close the tab and continue later on any computer.</p>`
       },
-      task: "Read all three tabs so you know how the building is laid out. Then pick your class section and press READY to start Monday morning.",
+      task: "Read all three tabs so you know how Centennial is laid out. Then pick your class section and press READY to start Day 1 in the Health Office.",
       fields: [
         { type: "section", label: "Your class section" },
-        { type: "ack", label: "READY: START MONDAY MORNING" }
+        { type: "ack", label: "READY: OPEN THE HEALTH OFFICE" }
       ]
     },
 
-    /* ---------------- S1 MONDAY ---------------- */
+    /* ---------------- S1 MONDAY (Day 1) ---------------- */
     {
-      id: "s1", nav: "MONDAY", title: "Monday: Three empty desks in the West Wing",
-      kicker: "Day 1 // 3 students out sick", day: 1,
-      imgs: [{ src: "assets/s1_monday_west_wing.png", cap: "Monday morning in the Grade 8 West Wing: three empty desks and the first absence report." }],
-      chars: [ { key: "vp", quote: "Three students from the Grade 8 West Wing went home sick before lunch today. That is only three kids out of four hundred, so nobody is panicking yet. Still, write down your first guess." } ],
+      id: "s1", nav: "MONDAY", title: "Monday: Scraped knees, ice packs, and 3 kids home",
+      kicker: "Day 1 // A totally normal Monday?", day: 1,
+      imgs: [
+        { src: "assets/s0_normal_school.png", cap: "Centennial Junior High on Monday: classes humming along like any normal week." },
+        { src: "assets/s1_normal_office.png", cap: "Your Health Officer desk on Monday morning: bandages, a gym-class ice pack, and today's absence clipboard." }
+      ],
+      chars: [ { key: "vp", quote: "Pretty normal Monday so far: two gym-class knee scrapes and one bumped elbow. The only thing on the absence slip is three Grade 8 kids from the West Wing who went home throwing up. Probably nothing, right? Jot down a quick first guess in your log." } ],
       words: ["symptom", "hypothesis"],
       tabs: {
-        dispatch: `<p><strong>Monday's Attendance Report:</strong> <strong>3 students</strong> went home sick.</p>
-<p>All 3 students have lockers and homeroom classes in the <strong>Grade 8 West Wing</strong>.</p>`,
-        evidence: `<p><strong>Early symptoms reported to the office:</strong></p>
-<ul><li>All 3 students felt fine at the morning bell, then suddenly got <strong>stomach cramps</strong> and started <strong>throwing up (vomiting)</strong>.</li>
-<li>None of the Grade 7 or Grade 9 rooms reported sick students today.</li></ul>`,
-        toolkit: `<p><strong>Detective tip:</strong> real investigators start with a <strong>hypothesis</strong>, which is a smart first guess based on early clues. Your first guess is <strong>never marked wrong</strong>. What matters in science is whether you test your guess against new evidence as the week goes on.</p>`
+        dispatch: `<p><strong>Monday's Health Office Log:</strong></p>
+<ul><li><strong>Gym class visits:</strong> 2 scraped knees (cleaned and bandaged) and 1 sore wrist (ice pack).</li>
+<li><strong>Sent home sick:</strong> <strong>3 students</strong>, all with lockers and homerooms in the <strong>Grade 8 West Wing</strong>.</li></ul>`,
+        evidence: `<p><strong>What those 3 students reported before going home:</strong></p>
+<ul><li>All 3 felt fine when they walked into school this morning, then suddenly got <strong>stomach cramps</strong> and started <strong>throwing up (vomiting)</strong> before lunch.</li>
+<li>Grade 7 and Grade 9 had zero sick walk-ins today.</li></ul>`,
+        toolkit: `<p><strong>Health Officer tip:</strong> when scientists spot even a small cluster, they write down a <strong>hypothesis</strong> (a smart first guess based on early clues). Your first guess is <strong>never marked wrong</strong>. What matters is whether you update your thinking if new clues come in tomorrow.</p>`
       },
-      task: "You only have Monday's tiny clue so far. Lock in your first hypothesis: what do you think is making these three Grade 8 students sick?",
+      task: "It looks like an ordinary Monday except for those 3 West Wing students. Log your first hypothesis: if something IS going around, what is your early guess?",
       fields: [
         { type: "choice", f: "judgments.s0.guess", label: "Monday hypothesis: what is your first guess?",
-          options: ["A virus that attacks the lungs, like the flu", "A virus that attacks the stomach", "Bacteria in bad cafeteria food", "Something in the school's tap water", "Not enough clues to tell yet"] }
+          options: ["A virus that attacks the lungs, like the flu", "A virus that attacks the stomach", "Bacteria in bad cafeteria food", "Something in the school's tap water", "Just a random coincidence (not enough clues yet)"] }
       ]
     },
 
@@ -120,7 +124,7 @@ var CASE55 = {
 <li><strong>45%</strong> have a mild fever and a headache.</li>
 <li><strong>Fewer than 5%</strong> have a cough, a sore throat, or a stuffy nose.</li>
 <li><strong>Surprise clue:</strong> two of Monday's sick students already called to say they are starting to feel better after just <strong>24 to 48 hours</strong>.</li></ul>`,
-        toolkit: `<p><strong>Detective tip:</strong> a germ that attacks the <strong>lungs and airways</strong> (the respiratory system) mainly causes coughing, sneezing, and a sore throat. A germ that attacks the <strong>stomach and gut</strong> (the digestive system) mainly causes cramps, vomiting, and diarrhea.</p>`
+        toolkit: `<p><strong>Health Officer tip:</strong> a germ that attacks the <strong>lungs and airways</strong> (the respiratory system) mainly causes coughing, sneezing, and a sore throat. A germ that attacks the <strong>stomach and gut</strong> (the digestive system) mainly causes cramps, vomiting, and diarrhea.</p>`
       },
       task: "Check Nurse Chen's numbers on Tab 2 (Evidence). Decide which body system the germ is attacking, and prove your pick using a number from the log.",
       fields: [
@@ -220,12 +224,12 @@ var CASE55 = {
         evidence: `<p><strong>Suspect A: Influenza (the flu), a respiratory virus.</strong> Attacks lungs and throat. Incubation: 1 to 4 days. High fever, dry cough, sore throat, body aches, stuffy nose. Lasts <strong>5 to 7 days</strong>. Spreads mainly in breath droplets. Fragile outer coat: easily destroyed by soap or alcohol hand sanitizer.</p>
 <p><strong>Suspect B: Norovirus (stomach bug), a digestive virus.</strong> Attacks stomach and gut. Incubation: <strong>12 to 48 hours</strong>. Sudden stomach cramps, vomiting, watery diarrhea, mild fever; cough is rare. Most recover in <strong>24 to 48 hours</strong>. Tiny dose: just <strong>18 virus particles</strong> can infect you! Survives for days on hard plastic and metal taps. Recovering people still shed virus for <strong>48 hours after</strong> symptoms stop. Hard protein shell: alcohol gel works poorly, and mopping with plain soap and water spreads it around; surfaces need a <strong>bleach disinfectant</strong>.</p>
 <p><strong>Suspect C: Salmonella (food poisoning), a digestive bacteria.</strong> Comes from contaminated food like undercooked poultry or eggs. Incubation: 6 hours to 3 days. Stomach cramps, diarrhea, fever, sometimes vomiting. Lasts <strong>4 to 7 days</strong>. Sickens people who ate the same contaminated meal; rarely spreads fast from student to student across hallways.</p>`,
-        toolkit: `<p><strong>How detectives rule suspects out:</strong></p>
+        toolkit: `<p><strong>How Health Officers rule suspects out:</strong></p>
 <ul><li>Check <strong>symptoms</strong> (Tuesday's log: 88% stomach, under 5% cough).</li>
 <li>Check <strong>recovery speed</strong> (24 to 48 hours vs nearly a full week).</li>
 <li>Check <strong>who got sick</strong> (Thursday's check: 21 sick students bring lunch from home and never ate cafeteria food, and cases climbed day after day instead of one bad meal).</li></ul>`
       },
-      task: "Solo detective call: name the culprit germ, give one clue pointing TO your pick, and give one clue that rules OUT one of the other suspects.",
+      task: "Your call as Health Officer: name the culprit germ, give one clue pointing TO your pick, and give one clue that rules OUT one of the other suspects.",
       fields: [
         { type: "choice", f: "responses.c1_name", label: "Which germ caused Case 55?", options: ["Suspect A: Influenza (the flu)", "Suspect B: Norovirus (stomach virus)", "Suspect C: Salmonella (food-poisoning bacteria)"] },
         { type: "text", f: "responses.c1_clue1", label: "Clue 1: one piece of evidence (with a fact or number) that points TO your culprit.", rows: 2, placeholder: "The evidence shows ___, which matches..." },
@@ -313,7 +317,7 @@ var CASE55 = {
       kicker: "Debrief // Unlocked after commit", day: 5,
       locked: true,
       imgs: [{ src: "assets/s8_verdict.png", cap: "Case 55 closed: Norovirus confirmed, Monday protocol active, new cases drop to zero by Wednesday." }],
-      chars: [ { key: "vp", quote: "Case 55 is closed! Public Health confirmed Norovirus, and with our Monday rules in place, new cases dropped to zero by mid-week. Open Tab 3 (Your File) to compare your detective log with the official findings." } ],
+      chars: [ { key: "vp", quote: "Case 55 is closed! For a Health Officer who signed up to hand out ice packs for gym-class scraped knees, you just saved our school week. Public Health confirmed Norovirus, and with our Monday rules in place, new cases dropped to zero by mid-week. Open Tab 3 (Your File) to compare your log with the official findings." } ],
       words: ["incubation", "fomite", "contagious"],
       tabLabels: { dispatch: "1. Official Verdict", evidence: "2. Health Unit Plan", yourfile: "3. Your File", toolkit: "4. Sources & Next Class" },
       tabs: {
@@ -340,7 +344,7 @@ var CASE55 = {
   ],
 
   key: [
-    { st: "MONDAY",      label: "Monday first guess", f: "judgments.s0.guess", noKey: true, note: "A first hypothesis is never marked wrong. Detectives update their thinking as clues arrive." },
+    { st: "MONDAY",      label: "Monday first guess", f: "judgments.s0.guess", noKey: true, note: "A first hypothesis is never marked wrong. Health Officers update their thinking as clues arrive." },
     { st: "TUESDAY",     label: "Body system under attack", f: "judgments.s1.choice", answer: "The stomach and gut (digestive system)", note: "88% had stomach cramps, vomiting, and diarrhea; fewer than 5% had a cough." },
     { st: "WEDNESDAY",   label: "1. Ducks, then eating a snack", f: "matches.a1", pair: { gate: "Mouth", germ: "Virus" } },
     { st: "WEDNESDAY",   label: "2. Sneezes in the stairwell", f: "matches.a2", pair: { gate: "Nose", germ: "Virus" } },

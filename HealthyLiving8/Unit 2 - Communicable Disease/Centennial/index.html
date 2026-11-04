@@ -25,7 +25,7 @@
 
   /* ---------- SPLASH / GATE ---------- */
   #gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;
-    background:linear-gradient(rgba(7,11,22,.72),rgba(7,11,22,.88)),url('assets/case55_cover.png') center/cover no-repeat;}
+    background:linear-gradient(rgba(7,11,22,.68),rgba(7,11,22,.86)),url('assets/s0_normal_school.png') center/cover no-repeat;}
   #gateCard{max-width:560px;width:92%;background:rgba(14,23,41,.92);border:2px solid var(--amber);border-radius:14px;
     padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.6);text-align:center}
   #gateCard .k{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.18em;color:var(--amber);text-transform:uppercase}
@@ -205,9 +205,9 @@
 <!-- SPLASH / SIGN-IN GATE -->
 <div id="gate">
   <div id="gateCard">
-    <div class="k">Restricted // School Health Investigation</div>
+    <div class="k">Centennial Junior High // Health Office</div>
     <h1>CASE 55: CENTENNIAL OUTBREAK</h1>
-    <p class="sub">An outbreak investigation at Centennial Junior High. Follow the clues from Monday to Friday, name the culprit, and defend your Monday plan.</p>
+    <p class="sub">You are Centennial's school Health Officer. Usually that just means ice packs and bandages for gym-class scraped knees. Then this week happens.</p>
     <button id="signInBtn" type="button" onclick="signIn()">Sign in with your school account</button>
     <div id="gateMsg"></div>
     <div id="gateHint">One click with your school Google account. No PIN, nothing to type. Everything you enter saves to the server automatically, so you can close this tab and finish later on any Chromebook.</div>
@@ -221,7 +221,7 @@
     <span class="brand">CASE 55</span>
     <span class="pill">CENTENNIAL JR HIGH</span>
     <span class="pill" id="syncPill">SYNC: <b id="syncTxt">OFFLINE</b></span>
-    <span class="pill">INVESTIGATOR: <b id="who">...</b></span>
+    <span class="pill">HEALTH OFFICER: <b id="who">...</b></span>
     <span class="spacer"></span>
     <span class="pill">SECTION <select id="sectionSel" aria-label="Class section"></select></span>
     <button class="hud-btn" type="button" onclick="toggleSize()" title="Toggle larger text">Text A+/A-</button>
@@ -229,7 +229,7 @@
   </div>
 
   <div id="main">
-    <div id="loadingVeil">LOADING YOUR INVESTIGATION...</div>
+    <div id="loadingVeil">LOADING YOUR HEALTH OFFICE LOG...</div>
     <nav id="navRail" aria-label="Days of the outbreak">
       <div id="navList"></div>
       <div id="surge">
@@ -243,8 +243,8 @@
       <div id="deckContent"></div>
     </main>
 
-    <aside id="term" aria-label="Investigation Log">
-      <div id="termHead">Investigation Log // Your Answers</div>
+    <aside id="term" aria-label="Health Officer Log">
+      <div id="termHead">Health Officer Log // Your Calls</div>
       <div id="termScroll">
         <div id="taskPrompt"></div>
         <div id="fields"></div>
@@ -436,7 +436,7 @@ function restore(attempt=1){
         finishLoad();
         applyState(j.data||{});
         el('restored').className='ok'; el('restored').style.display='block';
-        el('restored').textContent = 'Restored your investigation from the server'+(j.savedAt?' (last saved '+new Date(j.savedAt).toLocaleString()+')':'')+'.';
+        el('restored').textContent = 'Restored your Health Office log from the server'+(j.savedAt?' (last saved '+new Date(j.savedAt).toLocaleString()+')':'')+'.';
         setSync('SERVER OK','ok');
         lastSavedHash = JSON.stringify(state);
       } else if(j && j.status==='auth_failed'){ onAuthFailed(j.reason); el('loadingVeil').style.display='none'; }
@@ -614,7 +614,7 @@ function renderFields(fields, stIdx){
   const box = el('fields'); box.innerHTML='';
   if(committed && stIdx <= COMMIT_IDX){
     const n = document.createElement('div'); n.className='lock-notice';
-    n.textContent = 'Your plan is committed. Answers from Sunday to Friday are locked so you can compare them honestly with the verdict.';
+    n.textContent = 'Your plan is committed. Answers from Monday to Friday are locked so you can compare them honestly with the verdict.';
     box.appendChild(n);
   }
   fields.forEach(spec=> box.appendChild(buildField(spec)));
@@ -731,7 +731,7 @@ function hydrateFields(){
   const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
   const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED ✓ (VIEW VERDICT)' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
-  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'WEEK STARTED ✓ (GO TO MONDAY)':'READY: START MONDAY MORNING'; }
+  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'HEALTH OFFICE OPEN ✓ (GO TO MONDAY)':'READY: OPEN THE HEALTH OFFICE'; }
 }
 function doCommit(){
   if(committed){ loadStation(VERDICT_IDX); return; }
@@ -753,7 +753,7 @@ function doCommit(){
 
   const incomplete = [];
   for(let i=1; i<COMMIT_IDX; i++) { if(!stationDone(i)) incomplete.push(STATIONS[i].nav); }
-  let msg = 'Ready to commit your Monday Morning Game Plan?\n\nOnce you commit, your Sunday-to-Friday answers lock and Case Closed (the official verdict) unlocks.';
+  let msg = 'Ready to commit your Monday Morning Game Plan?\n\nOnce you commit, your Monday-to-Friday answers lock and Case Closed (the official verdict) unlocks.';
   if(incomplete.length) msg += '\n\nNote: you still have unanswered items on: ' + incomplete.join(', ') + '. Commit anyway?';
 
   if(!confirm(msg)) return;

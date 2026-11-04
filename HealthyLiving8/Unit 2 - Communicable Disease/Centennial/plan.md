@@ -218,7 +218,7 @@ No `apiKey` in the body is needed - the bridge falls back to its saved local key
 
 ### Review & Chronological Rewrite (2026-11-04)
 
-- **Narrative structure:** Rewrote the story to unfold chronologically (Sunday Briefing -> Mon -> Tue -> Wed -> Thu -> Fri AM -> Fri Noon -> Fri 3:15 PM -> Case Closed). Students now see evidence as it comes in, mimicking a real investigation. The surge tracker on the left reveals numbers day-by-day (`?` for future days).
+- **Narrative structure & role:** Rewrote the story to unfold chronologically (Monday 8:15 AM Briefing -> Mon -> Tue -> Wed -> Thu -> Fri AM -> Fri Noon -> Fri 3:15 PM -> Case Closed) and recast the student from an outside "investigator" to Centennial's weekly **Health Officer** (usually handling gym-class scraped knees and ice packs). Day 1 opens on a bright, healthy, normal school morning (`s0_normal_school.png` and `s1_normal_office.png`) before the cluster grows. The surge tracker on the left reveals numbers day-by-day (`?` for future days).
 - **Visual audit & 8 new/regenerated images (Qwen Image 3.0 Pro):**
   - Added `char_nurse.png` (Nurse Chen) and `char_boudreau.png` (Mr. Boudreau) so all 6 characters have dossier portraits.
   - Added `s1_monday_west_wing.png` (Monday 3 empty desks) and `s2_tuesday_cafeteria.png` (locker duck trading outside cafeteria) so every single day has visual exhibits.
