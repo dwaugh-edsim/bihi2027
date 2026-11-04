@@ -134,11 +134,12 @@ function formatCard(d){
   const j = d.judgments || {};
   const pb = d.partB || {};
   let h = '<div class="card">';
-  h += '<div class="grp"><div class="k">Early Calls</div>'
-    + '<b>Mon Guess:</b> '+esc(getPath(j,'s0.guess')||'-')+'<br>'
-    + '<b>Tue Body System:</b> '+esc(getPath(j,'s1.choice')||'-')+' ('+esc(getPath(j,'s1.why')||'-')+')<br>'
+  h += '<div class="grp"><div class="k">Early Calls &amp; Justifications</div>'
+    + '<b>Mon Guess:</b> '+esc(getPath(j,'s0.guess')||'-')+' <em>[Why: '+esc(getPath(j,'s0.why')||'-')+']</em><br>'
+    + '<b>Tue Body System:</b> '+esc(getPath(j,'s1.choice')||'-')+' <em>[Why: '+esc(getPath(j,'s1.why')||'-')+']</em><br>'
     + '<b>Wed Hands 2-Step:</b> '+esc(r.q5||'-')+'<br>'
-    + '<b>Thu Top Spreader:</b> '+esc(getPath(j,'s2.top')||'-')+' ('+esc(getPath(j,'s2.why')||'-')+')<br>'
+    + '<b>Thu Pattern:</b> '+esc(getPath(j,'s1.pattern')||'-')+' <em>[Why: '+esc(getPath(j,'s1.pattern_why')||'-')+']</em><br>'
+    + '<b>Thu Top Spreader:</b> '+esc(getPath(j,'s2.top')||'-')+' <em>[Why: '+esc(getPath(j,'s2.why')||'-')+']</em><br>'
     + '<b>Thu Soap vs Sanitizer:</b> '+esc(r.q6||'-')+'</div>';
   h += '<div class="grp"><div class="k">Vaccines vs Antibiotics</div>'
     + ['does','when','which','others'].map(k=>'<b>'+k+':</b> V='+esc(getPath(pb,k+'.v')||'-')+' | A='+esc(getPath(pb,k+'.a')||'-')).join('<br>') + '</div>';
@@ -199,12 +200,16 @@ function rerender(){
 function exportCsv(){
   const rows = filteredRows();
   if(!rows.length){ msg('Nothing to export: load submissions first.','bad'); return; }
-  const head=['email','section','dayReached','committed','autoScore','culprit','clueFor','ruledOut','fountainSpill','penicillin','protectMarcus','rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why','bonus','lastSaved'];
+  const head=['email','section','dayReached','committed','autoScore','monGuess','monWhy','tueSystem','tueWhy','thuPattern','thuPatternWhy','thuSpreader','thuSpreaderWhy','culprit','clueFor','ruledOut','fountainSpill','penicillin','protectMarcus','rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why','bonus','lastSaved'];
   const lines=[head.join(',')];
   rows.forEach(r=>{
-    const d=parseData(r); const rs=d.responses||{}; const sc=scoreState(d);
+    const d=parseData(r); const rs=d.responses||{}; const j=d.judgments||{}; const sc=scoreState(d);
     const row=[
       r[1], r[2]||d.section||'', stationLabel(d), d.committed?1:0, sc.ok+'/'+sc.tot,
+      getPath(j,'s0.guess')||'', getPath(j,'s0.why')||'',
+      getPath(j,'s1.choice')||'', getPath(j,'s1.why')||'',
+      getPath(j,'s1.pattern')||'', getPath(j,'s1.pattern_why')||'',
+      getPath(j,'s2.top')||'', getPath(j,'s2.why')||'',
       rs.c1_name||'', rs.c1_clue1||'', rs.c1_clue2||'', rs.c2||'', rs.c3a||'', rs.c3b||'',
       rs.rule1_what||'', rs.rule1_why||'', rs.rule2_what||'', rs.rule2_why||'', rs.rule3_what||'', rs.rule3_why||'',
       rs.bonus||'', new Date(r[0]).toISOString()

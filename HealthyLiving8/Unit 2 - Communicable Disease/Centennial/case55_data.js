@@ -83,21 +83,24 @@ var CASE55 = {
         { src: "assets/s0_normal_school.png", cap: "Centennial Junior High on Monday: classes humming along like any normal week." },
         { src: "assets/s1_normal_office.png", cap: "Your Health Officer desk on Monday morning: bandages, a gym-class ice pack, and today's absence clipboard." }
       ],
-      chars: [ { key: "vp", quote: "Pretty normal Monday so far: two gym-class knee scrapes and one bumped elbow. The only thing on the absence slip is three Grade 8 kids from the West Wing who went home throwing up. Probably nothing, right? Jot down a quick first guess in your log." } ],
+      chars: [ { key: "vp", quote: "Pretty normal Monday so far: two gym-class knee scrapes and one bumped elbow. The only thing on the absence slip is three Grade 8 kids from the West Wing who went home throwing up before lunch. Read today's clues, make a first guess, and back it up with evidence from the log." } ],
       words: ["symptom", "hypothesis"],
       tabs: {
         dispatch: `<p><strong>Monday's Health Office Log:</strong></p>
 <ul><li><strong>Gym class visits:</strong> 2 scraped knees (cleaned and bandaged) and 1 sore wrist (ice pack).</li>
-<li><strong>Sent home sick:</strong> <strong>3 students</strong>, all with lockers and homerooms in the <strong>Grade 8 West Wing</strong>.</li></ul>`,
+<li><strong>Sent home sick:</strong> <strong>3 students</strong> (out of 400 in the school), all with lockers and homerooms in the <strong>Grade 8 West Wing</strong>.</li></ul>`,
         evidence: `<p><strong>What those 3 students reported before going home:</strong></p>
-<ul><li>All 3 felt fine when they walked into school this morning, then suddenly got <strong>stomach cramps</strong> and started <strong>throwing up (vomiting)</strong> before lunch.</li>
-<li>Grade 7 and Grade 9 had zero sick walk-ins today.</li></ul>`,
-        toolkit: `<p><strong>Health Officer tip:</strong> when scientists spot even a small cluster, they write down a <strong>hypothesis</strong> (a smart first guess based on early clues). Your first guess is <strong>never marked wrong</strong>. What matters is whether you update your thinking if new clues come in tomorrow.</p>`
+<ul><li>All 3 felt fine at the 8:30 AM bell, then suddenly got <strong>stomach cramps</strong> and started <strong>throwing up (vomiting)</strong> between 10:30 and 11:15 AM (<strong>before</strong> the cafeteria opened for lunch).</li>
+<li><strong>0 of the 3</strong> had a cough, sore throat, or stuffy nose.</li>
+<li>Two of the sick students have lockers beside the <strong>West Wing drinking fountain</strong>, and all 3 were showing off mini plastic <strong>resin ducks</strong> before homeroom.</li>
+<li>Grade 7 (East Wing) and Grade 9 (North Wing) had <strong>0 sick walk-ins</strong> today.</li></ul>`,
+        toolkit: `<p><strong>Health Officer tip:</strong> when scientists spot even a small cluster, they write down a <strong>hypothesis</strong> (a smart first guess based on early clues) and <strong>justify it with evidence</strong>. Your Monday guess is never marked wrong as long as you back it up with a real fact from today's tabs.</p>`
       },
-      task: "It looks like an ordinary Monday except for those 3 West Wing students. Log your first hypothesis: if something IS going around, what is your early guess?",
+      task: "Read Tab 1 (Story) and Tab 2 (Evidence). Pick your Monday hypothesis, then justify your answer using at least one specific fact from today's slides.",
       fields: [
         { type: "choice", f: "judgments.s0.guess", label: "Monday hypothesis: what is your first guess?",
-          options: ["A virus that attacks the lungs, like the flu", "A virus that attacks the stomach", "Bacteria in bad cafeteria food", "Something in the school's tap water", "Just a random coincidence (not enough clues yet)"] }
+          options: ["A virus that attacks the stomach", "A virus that attacks the lungs, like the flu", "Bacteria from food", "Something in the West Wing drinking water", "Too early to name one cause yet (watch Tuesday's log)"] },
+        { type: "text", f: "judgments.s0.why", label: "Justify your Monday guess using at least one fact from today's Story or Evidence tabs.", rows: 3, placeholder: "Based on Monday's evidence, I picked this because..." }
       ]
     },
 
@@ -126,10 +129,10 @@ var CASE55 = {
 <li><strong>Surprise clue:</strong> two of Monday's sick students already called to say they are starting to feel better after just <strong>24 to 48 hours</strong>.</li></ul>`,
         toolkit: `<p><strong>Health Officer tip:</strong> a germ that attacks the <strong>lungs and airways</strong> (the respiratory system) mainly causes coughing, sneezing, and a sore throat. A germ that attacks the <strong>stomach and gut</strong> (the digestive system) mainly causes cramps, vomiting, and diarrhea.</p>`
       },
-      task: "Check Nurse Chen's numbers on Tab 2 (Evidence). Decide which body system the germ is attacking, and prove your pick using a number from the log.",
+      task: "Check Nurse Chen's numbers on Tab 2 (Evidence). Pick which body system the germ is attacking, then justify your answer using a number from the log.",
       fields: [
-        { type: "choice", f: "judgments.s1.choice", label: "Which body system is this germ attacking?", options: ["The stomach and gut (digestive system)", "The lungs and airways (respiratory system)", "Not sure yet"] },
-        { type: "text", f: "judgments.s1.why", label: "Give one clue from Tuesday's symptom log that proves your pick. Include a number.", rows: 2, placeholder: "One clue is that ___% of sick students have..." }
+        { type: "choice", f: "judgments.s1.choice", label: "Which body system is this germ attacking?", options: ["The stomach and gut (digestive system)", "The lungs and airways (respiratory system)"] },
+        { type: "text", f: "judgments.s1.why", label: "Justify your choice using a number from Tuesday's symptom log on Tab 2.", rows: 2, placeholder: "The evidence shows ___% of sick students have..." }
       ]
     },
 
@@ -199,12 +202,13 @@ var CASE55 = {
         toolkit: `<p><strong>The human firewall:</strong> when 90 to 95% of a school is vaccinated against a disease like measles, germs hit dead ends before reaching vulnerable classmates like Marcus (<strong>community protection</strong>). When no routine vaccine exists, staying home while contagious and scrubbing with real soap are the only firewall Marcus has.</p>
 <p><strong>Timeline check:</strong> notice WHEN things happened. Cafeteria-line kids got sick Tuesday and Grade 7s got sick Wednesday morning, <em>before</em> Wednesday afternoon's fountain spill!</p>`
       },
-      task: "Check the numbers and timeline on Tab 1 and Tab 3, then study the tools on Tab 2 to fill the table and explain why soap beats sanitizer here.",
+      task: "Check the numbers and timeline on Tab 1 and Tab 3, justify both choices using slide evidence, then study Tab 2 to fill the table and soap question.",
       fields: [
         { type: "choice", f: "judgments.s1.pattern", label: "Look at the daily numbers so far: 3, 7, 18, 34. What pattern do you see?",
           options: ["The sickness is spreading person to person, and speeding up each day", "About the same number of new students get sick each day", "The outbreak is already slowing down"] },
+        { type: "text", f: "judgments.s1.pattern_why", label: "Justify your pattern choice using the daily numbers (or water and lunch facts) on Tab 1.", rows: 2, placeholder: "The evidence shows this pattern because from Monday to Thursday..." },
         { type: "choice", f: "judgments.s2.top", label: "Which clue did MORE to carry the germ across all three grades (7, 8, and 9)?", options: ["The Wednesday afternoon fountain spill", "The all-week resin duck trading before lunch", "Both spread it across grades equally"] },
-        { type: "text", f: "judgments.s2.why", label: "Prove your pick using WHEN or WHERE from the timeline.", rows: 2, placeholder: "I picked ___ because on Tuesday/Wednesday..." },
+        { type: "text", f: "judgments.s2.why", label: "Justify your pick using WHEN or WHERE from the timeline on Tab 1 and Tab 3.", rows: 2, placeholder: "I picked ___ because on Tuesday/Wednesday..." },
         { type: "grid", f: "partB", label: "Compare: Vaccines vs Antibiotics (short phrases are great)", cols: ["Vaccines (shots)", "Antibiotics (medicine)"],
           rows: [ { k: "does", label: "What does it do?" }, { k: "when", label: "Before or after you get sick?" }, { k: "which", label: "Which germs does it fight?" }, { k: "others", label: "Effect on others / overuse risk?" } ] },
         { type: "text", f: "responses.q6", label: "Give TWO reasons washing with soap and running water works when alcohol sanitizer fails on a tough stomach virus.", rows: 3, placeholder: "Reason 1 (what sanitizer can't break): ... Reason 2 (what soap + water do): ..." }
@@ -344,15 +348,15 @@ var CASE55 = {
   ],
 
   key: [
-    { st: "MONDAY",      label: "Monday first guess", f: "judgments.s0.guess", noKey: true, note: "A first hypothesis is never marked wrong. Health Officers update their thinking as clues arrive." },
-    { st: "TUESDAY",     label: "Body system under attack", f: "judgments.s1.choice", answer: "The stomach and gut (digestive system)", note: "88% had stomach cramps, vomiting, and diarrhea; fewer than 5% had a cough." },
+    { st: "MONDAY",      label: "Monday first guess", f: "judgments.s0.guess", whyF: "judgments.s0.why", noKey: true, note: "A first hypothesis is never marked wrong when backed by Monday's evidence. Health Officers update their thinking as clues arrive." },
+    { st: "TUESDAY",     label: "Body system under attack", f: "judgments.s1.choice", whyF: "judgments.s1.why", answer: "The stomach and gut (digestive system)", note: "88% had stomach cramps, vomiting, and diarrhea; fewer than 5% had a cough." },
     { st: "WEDNESDAY",   label: "1. Ducks, then eating a snack", f: "matches.a1", pair: { gate: "Mouth", germ: "Virus" } },
     { st: "WEDNESDAY",   label: "2. Sneezes in the stairwell", f: "matches.a2", pair: { gate: "Nose", germ: "Virus" } },
     { st: "WEDNESDAY",   label: "3. Rubbing eyes after keyboard", f: "matches.a3", pair: { gate: "Eyes", germ: "Virus" } },
     { st: "WEDNESDAY",   label: "4. Infected gym-floor knee scrape", f: "matches.a4", pair: { gate: "Cut or scrape", germ: "Bacteria" }, note: "Red, hot, swollen skin scrapes are bacterial infections entering broken skin." },
-    { st: "THURSDAY",    label: "Pattern in daily numbers (3, 7, 18, 34)", f: "judgments.s1.pattern", answer: "The sickness is spreading person to person, and speeding up each day", note: "Daily jumps grew larger (+4, +11, +16, then +21 on Friday)." },
-    { st: "THURSDAY",    label: "Main spreader across all 3 grades", f: "judgments.s2.top", answer: "The all-week resin duck trading before lunch", note: "Ducks moved across Grades 7, 8, and 9 from Monday on; cafeteria and Grade 7 cases appeared before Wednesday afternoon's spill." },
-    { st: "FRIDAY AM",   label: "Culprit pathogen", f: "responses.c1_name", answer: "Suspect B: Norovirus (stomach virus)" },
+    { st: "THURSDAY",    label: "Pattern in daily numbers (3, 7, 18, 34)", f: "judgments.s1.pattern", whyF: "judgments.s1.pattern_why", answer: "The sickness is spreading person to person, and speeding up each day", note: "Daily jumps grew larger (+4, +11, +16, then +21 on Friday), and tap water + home lunches ruled out a single source." },
+    { st: "THURSDAY",    label: "Main spreader across all 3 grades", f: "judgments.s2.top", whyF: "judgments.s2.why", answer: "The all-week resin duck trading before lunch", note: "Ducks moved across Grades 7, 8, and 9 from Monday on; cafeteria and Grade 7 cases appeared before Wednesday afternoon's spill." },
+    { st: "FRIDAY AM",   label: "Culprit pathogen", f: "responses.c1_name", whyF: "responses.c1_clue1", answer: "Suspect B: Norovirus (stomach virus)" },
     { st: "FRIDAY NOON", label: "5-step resin-duck chain", f: "responses.chain", order: { b: 1, e: 2, d: 3, a: 4, c: 5 },
       orderText: "1. Sick hands hold duck -> 2. Virus survives on plastic fomite -> 3. Traded to another grade -> 4. No soap wash before cafeteria -> 5. Sandwich carries virus into mouth" }
   ]

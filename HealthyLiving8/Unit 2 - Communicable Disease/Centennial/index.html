@@ -142,7 +142,11 @@
   .field>label{display:block;font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.32}
   .field textarea,.field input[type=text],.field select{width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-size:.95rem}
   .field textarea:disabled,.field select:disabled,.field input:disabled,.opt:disabled{opacity:0.65;cursor:not-allowed}
-  .field textarea{resize:vertical;min-height:2.4em}
+  .field textarea{resize:vertical;min-height:2.4em;transition:border-color .2s, box-shadow .2s}
+  .field textarea.need-why{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.25)}
+  .just-hint{margin-top:5px;font-family:var(--f-mono);font-size:.73rem;color:var(--muted)}
+  .just-hint.short{color:var(--amber)}
+  .just-hint.ok{color:var(--ok)}
   .field :focus{outline:none;border-color:var(--amber)}
   .choice{display:flex;flex-direction:column;gap:8px}
   .opt{text-align:left;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.9rem;line-height:1.3}
@@ -469,13 +473,18 @@ function orderStatus(spec){
   const uniq = new Set(vals);
   return { allPicked: vals.length === spec.items.length, hasDup: uniq.size !== vals.length, vals, map: o };
 }
+function wordCount(s){ return String(s==null?'':s).trim().split(/\s+/).filter(Boolean).length; }
+function minWordsFor(spec){ return spec.minWords || ((spec.f && spec.f.indexOf('responses.rule')===0) ? 3 : 4); }
 function isFilled(spec){
   if(spec.optional) return true;
   if(spec.type==='ack') return started;
   if(spec.type==='commit') return committed;
   if(spec.type==='section') return !!state.section;
-  if(spec.type==='choice' || spec.type==='text') {
+  if(spec.type==='choice') {
     const v = getPath(state, spec.f); return v != null && String(v).trim().length > 0;
+  }
+  if(spec.type==='text') {
+    const v = getPath(state, spec.f); return wordCount(v) >= minWordsFor(spec);
   }
   if(spec.type==='pair') return spec.selects.every(sl => !!getPath(state, spec.f+'.'+sl.key));
   if(spec.type==='grid') return spec.rows.every(r => String(getPath(state, spec.f+'.'+r.k+'.v')||'').trim() && String(getPath(state, spec.f+'.'+r.k+'.a')||'').trim());
@@ -537,9 +546,32 @@ function updateSurge(){
     c.querySelector('.n').textContent = known ? d.n : '?';
   });
 }
+function focusFirstIncomplete(i){
+  const s = STATIONS[i]; if(!s) return;
+  const fields = s.fields || [];
+  for(let k=0; k<fields.length; k++){
+    const f = fields[k];
+    if(!f.optional && !isFilled(f)){
+      if(f.f){
+        const node = document.querySelector('#fields [data-f="'+f.f+'"]');
+        if(node){
+          if(node.tagName==='TEXTAREA'){ node.classList.add('need-why'); node.focus(); }
+          else { const sub = node.querySelector('button,select,input') || node; sub.focus(); }
+          node.scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+      }
+    }
+  }
+}
 function step(dir){
   let n = cur+dir;
   if(n < 0 || n >= STATIONS.length) return;
+  if(dir > 0 && cur >= 1 && cur < COMMIT_IDX && !stationDone(cur)){
+    focusFirstIncomplete(cur);
+    toast('Before moving to the next day, finish your answer and justify it using evidence from today\'s tabs.');
+    return;
+  }
   if(STATIONS[n].locked && !committed){ toast('Commit your Monday Plan on Friday 3:15 to open Case Closed.'); return; }
   loadStation(n);
 }
@@ -646,15 +678,31 @@ function buildField(spec){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const c=document.createElement('div'); c.className='choice'; c.setAttribute('data-f', spec.f);
     spec.options.forEach(o=>{ const b=document.createElement('button'); b.type='button'; b.className='opt'; b.dataset.v=o; b.textContent=o;
-      b.onclick=()=>{ c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b)); setPath(state, spec.f, o); onChange(); };
+      b.onclick=()=>{
+        c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b)); setPath(state, spec.f, o); onChange();
+        const nxt = w.nextElementSibling && w.nextElementSibling.querySelector('textarea');
+        if(nxt && wordCount(nxt.value) < 4){ nxt.classList.add('need-why'); }
+      };
       c.appendChild(b); });
     w.appendChild(c); return w;
   }
   if(spec.type==='text'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const t=document.createElement('textarea'); t.setAttribute('data-f', spec.f); t.rows=spec.rows||2; if(spec.placeholder) t.placeholder=spec.placeholder;
-    t.addEventListener('input', ()=>{ setPath(state, spec.f, t.value); onChange(); });
-    w.appendChild(t); return w;
+    let hint = null;
+    if(!spec.optional){
+      hint = document.createElement('div'); hint.className='just-hint'; hint.dataset.hintFor = spec.f;
+      spec._minW = spec.minWords || (cur === COMMIT_IDX ? 3 : 4);
+      spec.minWords = spec._minW;
+    }
+    t.addEventListener('input', ()=>{
+      setPath(state, spec.f, t.value);
+      if(hint) updateTextHint(t, hint, spec.minWords||4);
+      onChange();
+    });
+    w.appendChild(t);
+    if(hint){ w.appendChild(hint); w._textSpec = spec; w._textEl = t; w._hintEl = hint; }
+    return w;
   }
   if(spec.type==='pair'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -721,13 +769,31 @@ function renderOrderPreview(spec, box){
   box.className='order-preview';
   box.innerHTML = '<b>Your chain in order:</b><ol>' + sorted.map(it=>'<li value="'+esc(st.map[it.k])+'">'+esc(it.t)+'</li>').join('') + '</ol>';
 }
+function updateTextHint(t, hint, minW){
+  if(!hint || !t) return;
+  const wc = wordCount(t.value);
+  if(wc === 0){
+    hint.className='just-hint';
+    hint.textContent='Required: justify using evidence from the tabs above.';
+  } else if(wc < minW){
+    hint.className='just-hint short';
+    hint.textContent='Add a bit more detail from the slides ('+wc+'/'+minW+'+ words).';
+  } else {
+    hint.className='just-hint ok';
+    hint.textContent='✓ Evidence justification recorded';
+    t.classList.remove('need-why');
+  }
+}
 function hydrateFields(){
   document.querySelectorAll('#fields [data-f]').forEach(elm=>{
     const p=elm.getAttribute('data-f'); const v=getPath(state,p); if(v==null||v==='') return;
     if(elm.classList.contains('choice')){ elm.dataset.val=v; elm.querySelectorAll('.opt').forEach(b=>b.classList.toggle('active', b.dataset.v===v)); }
     else elm.value=v;
   });
-  document.querySelectorAll('#fields .field').forEach(w=>{ if(w._orderSpec) renderOrderPreview(w._orderSpec, w._orderPrev); });
+  document.querySelectorAll('#fields .field').forEach(w=>{
+    if(w._orderSpec) renderOrderPreview(w._orderSpec, w._orderPrev);
+    if(w._textSpec && w._hintEl) updateTextHint(w._textEl, w._hintEl, minWordsFor(w._textSpec));
+  });
   const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
   const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED ✓ (VIEW VERDICT)' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
@@ -738,13 +804,15 @@ function doCommit(){
 
   const missing = [];
   if(!state.section) missing.push('- Pick your class section (top right bar).');
-  if(!getPath(state, 'responses.c1_name')) missing.push('- Name the culprit germ on FRIDAY AM.');
+  if(!getPath(state, 'judgments.s0.guess') || wordCount(getPath(state, 'judgments.s0.why')) < 4) missing.push('- Pick and justify your MONDAY first guess using slide evidence.');
+  if(!getPath(state, 'judgments.s1.choice') || wordCount(getPath(state, 'judgments.s1.why')) < 4) missing.push('- Pick and justify the body system on TUESDAY using Nurse Chen\'s numbers.');
+  if(!getPath(state, 'judgments.s1.pattern') || wordCount(getPath(state, 'judgments.s1.pattern_why')) < 4 || !getPath(state, 'judgments.s2.top') || wordCount(getPath(state, 'judgments.s2.why')) < 4) missing.push('- Pick and justify both THURSDAY evidence choices.');
+  if(!getPath(state, 'responses.c1_name') || wordCount(getPath(state, 'responses.c1_clue1')) < 4 || wordCount(getPath(state, 'responses.c1_clue2')) < 4) missing.push('- Name the culprit germ on FRIDAY AM and write both evidence clues.');
   const s7 = STATIONS[COMMIT_IDX];
   let rulesOk = true;
   s7.fields.forEach(f => {
     if(f.type === 'text' && !f.optional) {
-      const v = String(getPath(state, f.f) || '').trim();
-      if(v.split(/\s+/).filter(Boolean).length < 3) rulesOk = false;
+      if(wordCount(getPath(state, f.f)) < 3) rulesOk = false;
     }
   });
   if(!rulesOk) missing.push('- Write at least a short sentence (3+ words) for each WHAT and WHY box on all 3 Monday rules.');
@@ -800,7 +868,9 @@ function buildReview(){
     }
     const cls = k.noKey ? '' : (isOk ? 'ok' : 'bad');
     const mark = k.noKey ? '' : (isOk ? '✓ ' : '✗ ');
-    rowsHtml += '<tr><td>'+esc(k.st)+'</td><td>'+esc(k.label)+'</td><td class="'+cls+'">'+mark+esc(yours)+'</td><td>'+esc(correct)+(k.note?'<span class="note">'+esc(k.note)+'</span>':'')+'</td></tr>';
+    const whyVal = k.whyF ? getPath(state, k.whyF) : '';
+    const whyHtml = k.whyF ? '<span class="note"><b>Your reason:</b> '+esc(whyVal||'(blank)')+'</span>' : '';
+    rowsHtml += '<tr><td>'+esc(k.st)+'</td><td>'+esc(k.label)+'</td><td class="'+cls+'">'+mark+esc(yours)+whyHtml+'</td><td>'+esc(correct)+(k.note?'<span class="note">'+esc(k.note)+'</span>':'')+'</td></tr>';
   });
 
   const r = state.responses || {};
@@ -909,14 +979,33 @@ function runSelfTest(){
     loadStation(0); ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
     state.section = '801-HE'; el('ackBtn').click(); ok(started===true, 'Ack sets started');
 
+    // Monday button requires evidence justification before stationDone / step(1)
+    loadStation(1);
+    setPath(state, 'judgments.s0.guess', 'A virus that attacks the stomach');
+    ok(!stationDone(1), 'Monday button alone is NOT done without justification');
+    step(1); ok(cur===1, 'Next day blocked when Monday justification is empty');
+    setPath(state, 'judgments.s0.why', 'idk');
+    ok(!stationDone(1), '1-word justification rejected');
+    setPath(state, 'judgments.s0.why', 'Three students threw up before lunch with zero cough.');
+    ok(stationDone(1), '4+ word evidence justification completes Monday');
+    step(1); ok(cur===2, 'Next day advances once Monday is justified');
+
     loadStation(8); ok(!!document.getElementById('lockedPanel'),'S8 locked before commit');
 
     window.alert = ()=>{}; window.confirm = ()=>true;
     loadStation(7); el('commitBtn').click(); ok(!committed, 'Commit blocked when empty');
 
+    setPath(state, 'judgments.s1.choice', 'The stomach and gut (digestive system)');
+    setPath(state, 'judgments.s1.why', '88 percent of sick students had vomiting and cramps.');
+    setPath(state, 'judgments.s1.pattern', 'The sickness is spreading person to person, and speeding up each day');
+    setPath(state, 'judgments.s1.pattern_why', 'Cases jumped from 3 to 7 to 18 to 34 while water tested clean.');
+    setPath(state, 'judgments.s2.top', 'The all-week resin duck trading before lunch');
+    setPath(state, 'judgments.s2.why', 'Ducks were traded across all grades before Wednesday afternoon.');
     setPath(state, 'responses.c1_name', 'Suspect B: Norovirus (stomach virus)');
+    setPath(state, 'responses.c1_clue1', '88 percent had stomach symptoms and recovered in 24 to 48 hours.');
+    setPath(state, 'responses.c1_clue2', 'Cannot be Salmonella because 21 sick students brought lunch from home.');
     ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].forEach(k=>setPath(state, 'responses.'+k, 'stay home forty eight hours'));
-    el('commitBtn').click(); ok(committed, 'Commit succeeds with valid data');
+    el('commitBtn').click(); ok(committed, 'Commit succeeds with valid justified data');
 
     loadStation(7); ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after commit');
     loadStation(8); ok(!document.getElementById('lockedPanel'),'S8 unlocked after commit');
