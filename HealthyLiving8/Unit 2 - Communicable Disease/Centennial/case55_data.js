@@ -99,7 +99,15 @@ var CASE55 = {
       task: "Read Tab 1 (Story) and Tab 2 (Evidence). Pick your Monday hypothesis, then justify your answer using at least one specific fact from today's slides.",
       fields: [
         { type: "choice", f: "judgments.s0.guess", label: "Monday hypothesis: what is your first guess?",
-          options: ["A virus that attacks the stomach", "A virus that attacks the lungs, like the flu", "Bacteria from food", "Something in the West Wing drinking water", "Too early to name one cause yet (watch Tuesday's log)"] },
+          options: ["A virus that attacks the stomach", "A virus that attacks the lungs, like the flu", "Bacteria from food", "Something in the West Wing drinking water", "Too early to name one cause yet (watch Tuesday's log)"],
+          teachMap: {
+            "A virus that attacks the stomach": { ok: true, msg: " Nurse Chen: Smart early call! Sudden stomach cramps and vomiting with zero cough fit a stomach bug. Now justify why using a Monday fact below." },
+            "A virus that attacks the lungs, like the flu": { ok: true, msg: "Nurse Chen: Logged! Keep an eye on whether coughing shows up tomorrow, since all 3 kids today had stomach cramps and zero cough. Explain your thinking below." },
+            "Bacteria from food": { ok: true, msg: "Nurse Chen: Good hypothesis to test! Notice the 3 students threw up before Monday lunch opened, so let's watch cafeteria clues tomorrow. Justify your guess below." },
+            "Something in the West Wing drinking water": { ok: true, msg: "Nurse Chen: Interesting angle, since two of the sick kids have lockers right by the West Wing fountain! Public Health can test the water this week. Explain why below." },
+            "Too early to name one cause yet (watch Tuesday's log)": { ok: true, msg: "Nurse Chen: Fair caution with only 3 of 400 students out so far! Explain what clues you DO see on Monday's tabs right below." }
+          }
+        },
         { type: "text", f: "judgments.s0.why", label: "Justify your Monday guess using at least one fact from today's Story or Evidence tabs.", rows: 3, placeholder: "Based on Monday's evidence, I picked this because..." }
       ]
     },
@@ -131,8 +139,16 @@ var CASE55 = {
       },
       task: "Check Nurse Chen's numbers on Tab 2 (Evidence). Pick which body system the germ is attacking, then justify your answer using a number from the log.",
       fields: [
-        { type: "choice", f: "judgments.s1.choice", label: "Which body system is this germ attacking?", options: ["The stomach and gut (digestive system)", "The lungs and airways (respiratory system)"] },
-        { type: "text", f: "judgments.s1.why", label: "Justify your choice using a number from Tuesday's symptom log on Tab 2.", rows: 2, placeholder: "The evidence shows ___% of sick students have..." }
+        { type: "choice", f: "judgments.s1.choice", label: "Which body system is this germ attacking?",
+          options: ["The stomach and gut (digestive system)", "The lungs and airways (respiratory system)"],
+          correct: "The stomach and gut (digestive system)",
+          teachMap: {
+            "The stomach and gut (digestive system)": { ok: true, msg: "Nurse Chen: Spot on! Vomiting, stomach cramps, and diarrhea are classic digestive-system symptoms. Now cite a number from Tab 2 below." },
+            "The lungs and airways (respiratory system)": { ok: false, msg: "Nurse Chen: Re-check Tab 2 (Evidence)! Fewer than 5% of sick students have a cough or sore throat, while 88% have stomach cramps, vomiting, and diarrhea. Coughing = lungs; vomiting and diarrhea = stomach and gut. Try switching your answer!" }
+          }
+        },
+        { type: "text", f: "judgments.s1.why", label: "Justify your choice using a number from Tuesday's symptom log on Tab 2.", rows: 2, placeholder: "The evidence shows ___% of sick students have...",
+          mustMatch: "(88|45|5|24|48|seven|percent|%)", mustHint: "Nurse Chen tip: include a real number from Tab 2 (such as 88% or under 5%) to prove your choice!" }
       ]
     },
 
@@ -167,14 +183,27 @@ var CASE55 = {
       task: "Read Tab 2 and Tab 3 first. Match each school moment to its entry gate and germ type, then explain the two steps of how hands get germs inside your body.",
       fields: [
         { type: "pair", f: "matches.a1", label: "1. Trading resin ducks with a classmate who has a stomach bug, then eating a snack without washing your hands.",
+          expect: { gate: "Mouth", germ: "Virus" },
+          teachGate: "Eating a snack with unwashed fingers carries germs straight into the Mouth gate.",
+          teachGerm: "Check Tab 3: fast-moving school stomach bugs carried on shared plastic are caused by a Virus.",
           selects: [ { key: "gate", label: "Entry gate", options: ["Mouth", "Nose", "Eyes", "Cut or scrape"] }, { key: "germ", label: "Germ type", options: ["Virus", "Bacteria"] } ] },
         { type: "pair", f: "matches.a2", label: "2. Walking up a crowded stairwell right after three people with colds sneeze.",
+          expect: { gate: "Nose", germ: "Virus" },
+          teachGate: "Sneezes spray tiny droplets into the air that you breathe in through your Nose.",
+          teachGerm: "Check Tab 3: common colds are caused by a Virus, not bacteria.",
           selects: [ { key: "gate", label: "Entry gate", options: ["Mouth", "Nose", "Eyes", "Cut or scrape"] }, { key: "germ", label: "Germ type", options: ["Virus", "Bacteria"] } ] },
         { type: "pair", f: "matches.a3", label: "3. Rubbing your itchy eyes after typing on a keyboard that a classmate with a cold just used.",
+          expect: { gate: "Eyes", germ: "Virus" },
+          teachGate: "Rubbing itchy Eyes lets germs on your fingertips enter through the wet surface of the eye.",
+          teachGerm: "That classmate had a cold, and colds are caused by a Virus.",
           selects: [ { key: "gate", label: "Entry gate", options: ["Mouth", "Nose", "Eyes", "Cut or scrape"] }, { key: "germ", label: "Germ type", options: ["Virus", "Bacteria"] } ] },
         { type: "pair", f: "matches.a4", label: "4. Sliding across a dirty gym floor with an uncovered knee scrape, which turns red, hot, and swollen.",
+          expect: { gate: "Cut or scrape", germ: "Bacteria" },
+          teachGate: "An uncovered knee scrape is broken skin: that is the Cut or scrape gate.",
+          teachGerm: "Key science clue on Tab 3: a skin cut that turns red, hot, and swollen is infected by Bacteria, not a virus!",
           selects: [ { key: "gate", label: "Entry gate", options: ["Mouth", "Nose", "Eyes", "Cut or scrape"] }, { key: "germ", label: "Germ type", options: ["Virus", "Bacteria"] } ] },
-        { type: "text", f: "responses.q5", label: "Healthy skin blocks germs. In two clear steps, explain how unwashed hands still get germs inside your body.", rows: 3, placeholder: "Step 1: My hands pick up... Step 2: Then I touch..." }
+        { type: "text", f: "responses.q5", label: "Healthy skin blocks germs. In two clear steps, explain how unwashed hands still get germs inside your body.", rows: 3, placeholder: "Step 1: My hands pick up... Step 2: Then I touch...",
+          mustMatch: "(mouth|nose|eye|eyes|face|food|snack|cut|gate|doorway)", mustHint: "Nurse Chen tip: make sure Step 2 names an entry gate (like touching your mouth, nose, eyes, or food)!" }
       ]
     },
 
@@ -205,9 +234,24 @@ var CASE55 = {
       task: "Check the numbers and timeline on Tab 1 and Tab 3, justify both choices using slide evidence, then study Tab 2 to fill the table and soap question.",
       fields: [
         { type: "choice", f: "judgments.s1.pattern", label: "Look at the daily numbers so far: 3, 7, 18, 34. What pattern do you see?",
-          options: ["The sickness is spreading person to person, and speeding up each day", "About the same number of new students get sick each day", "The outbreak is already slowing down"] },
+          options: ["The sickness is spreading person to person, and speeding up each day", "About the same number of new students get sick each day", "The outbreak is already slowing down"],
+          correct: "The sickness is spreading person to person, and speeding up each day",
+          teachMap: {
+            "The sickness is spreading person to person, and speeding up each day": { ok: true, msg: "Nurse Chen: Exactly! The daily jumps keep growing (+4, then +11, then +16), classic person-to-person acceleration." },
+            "About the same number of new students get sick each day": { ok: false, msg: "Nurse Chen: Check the math between days: Mon 3 to Tue 7 (+4), Tue 7 to Wed 18 (+11), Wed 18 to Thu 34 (+16). Each jump is much bigger than the day before! Try another option." },
+            "The outbreak is already slowing down": { ok: false, msg: "Nurse Chen: Look at the numbers again: 3 -> 7 -> 18 -> 34. Almost twice as many students are out each day! That means it is speeding up, not slowing down." }
+          }
+        },
         { type: "text", f: "judgments.s1.pattern_why", label: "Justify your pattern choice using the daily numbers (or water and lunch facts) on Tab 1.", rows: 2, placeholder: "The evidence shows this pattern because from Monday to Thursday..." },
-        { type: "choice", f: "judgments.s2.top", label: "Which clue did MORE to carry the germ across all three grades (7, 8, and 9)?", options: ["The Wednesday afternoon fountain spill", "The all-week resin duck trading before lunch", "Both spread it across grades equally"] },
+        { type: "choice", f: "judgments.s2.top", label: "Which clue did MORE to carry the germ across all three grades (7, 8, and 9)?",
+          options: ["The Wednesday afternoon fountain spill", "The all-week resin duck trading before lunch", "Both spread it across grades equally"],
+          correct: "The all-week resin duck trading before lunch",
+          teachMap: {
+            "The all-week resin duck trading before lunch": { ok: true, msg: "Nurse Chen: Nailed it! Resin ducks were traded hand to hand across Grades 7, 8, and 9 starting Monday, before Wednesday's West Wing spill even happened." },
+            "The Wednesday afternoon fountain spill": { ok: false, msg: "Nurse Chen: Check the timeline on Tab 3! Cafeteria-line kids got sick on Tuesday and Grade 7s got sick Wednesday morning, BEFORE Wednesday's 2:00 PM fountain spill! Plus that fountain is in the Grade 8 wing. What moved across all three grades since Monday?" },
+            "Both spread it across grades equally": { ok: false, msg: "Nurse Chen: Look closely at WHERE and WHEN: the fountain spill was at 2:00 PM Wednesday inside the Grade 8 West Wing (causing Thursday's Grade 8 spike), while Grade 7s were ALREADY sick Wednesday morning! Which clue crossed all 3 grades from Monday on?" }
+          }
+        },
         { type: "text", f: "judgments.s2.why", label: "Justify your pick using WHEN or WHERE from the timeline on Tab 1 and Tab 3.", rows: 2, placeholder: "I picked ___ because on Tuesday/Wednesday..." },
         { type: "grid", f: "partB", label: "Compare: Vaccines vs Antibiotics (short phrases are great)", cols: ["Vaccines (shots)", "Antibiotics (medicine)"],
           rows: [ { k: "does", label: "What does it do?" }, { k: "when", label: "Before or after you get sick?" }, { k: "which", label: "Which germs does it fight?" }, { k: "others", label: "Effect on others / overuse risk?" } ] },
@@ -235,7 +279,15 @@ var CASE55 = {
       },
       task: "Your call as Health Officer: name the culprit germ, give one clue pointing TO your pick, and give one clue that rules OUT one of the other suspects.",
       fields: [
-        { type: "choice", f: "responses.c1_name", label: "Which germ caused Case 55?", options: ["Suspect A: Influenza (the flu)", "Suspect B: Norovirus (stomach virus)", "Suspect C: Salmonella (food-poisoning bacteria)"] },
+        { type: "choice", f: "responses.c1_name", label: "Which germ caused Case 55?",
+          options: ["Suspect A: Influenza (the flu)", "Suspect B: Norovirus (stomach virus)", "Suspect C: Salmonella (food-poisoning bacteria)"],
+          correct: "Suspect B: Norovirus (stomach virus)",
+          teachMap: {
+            "Suspect B: Norovirus (stomach virus)": { ok: true, msg: "Nurse Chen: Bullseye! Norovirus matches the 88% stomach symptoms, the fast 24 to 48 hour recovery, survival on plastic ducks, and why plain soap mopping failed. Now write your two proof clues below!" },
+            "Suspect A: Influenza (the flu)": { ok: false, msg: "Nurse Chen: Compare Suspect A with Tuesday's chart! Influenza attacks the lungs (cough, sore throat) and lasts 5 to 7 days. At Centennial, under 5% had a cough, 88% had vomiting/diarrhea, and kids recovered in 24 to 48 hours. Check the other suspects!" },
+            "Suspect C: Salmonella (food-poisoning bacteria)": { ok: false, msg: "Nurse Chen: Good thought checking a stomach germ! However, check two facts: (1) on Thursday, 21 sick students brought lunch from home and never ate cafeteria food, and (2) Salmonella lasts 4 to 7 days and rarely spreads fast on plastic toys. Which stomach germ fits a 24 to 48 hour recovery?" }
+          }
+        },
         { type: "text", f: "responses.c1_clue1", label: "Clue 1: one piece of evidence (with a fact or number) that points TO your culprit.", rows: 2, placeholder: "The evidence shows ___, which matches..." },
         { type: "text", f: "responses.c1_clue2", label: "Clue 2: name a suspect you ruled OUT, and give the evidence that proves it cannot be that germ.", rows: 2, placeholder: "It cannot be Suspect ___ because..." }
       ]
@@ -264,6 +316,14 @@ var CASE55 = {
       task: "Number the 5 steps of the resin-duck chain in order (each number 1 to 5 used once). Then explain the fountain pathway, the penicillin problem, and protecting Marcus.",
       fields: [
         { type: "order", f: "responses.chain", label: "Number the 5 steps of the resin-duck chain from 1 (happens first) to 5 (happens last):",
+          expectOrder: { b: "1", e: "2", d: "3", a: "4", c: "5" },
+          stepHints: {
+            "1": "Step 1 must be how germs first reach the toy: a student who still has virus on their hands holds and trades a plastic resin duck.",
+            "2": "Step 2 happens on the toy itself: tough virus particles stay alive on the hard plastic duck (acting as a fomite).",
+            "3": "Step 3 is how the duck crosses grades: the duck is handed to a classmate from another grade at the lockers.",
+            "4": "Step 4 happens on the way to eat: that classmate walks straight into the cafeteria without washing hands with soap.",
+            "5": "Step 5 is how the germ finally enters the body: they pick up a sandwich, and the virus enters through the mouth gate."
+          },
           items: [
             { k: "a", t: "That classmate walks straight into the cafeteria without washing hands with soap." },
             { k: "b", t: "A student who still has virus on their hands holds and trades a plastic resin duck." },
@@ -272,7 +332,8 @@ var CASE55 = {
             { k: "e", t: "Tough virus particles stay alive on the hard plastic duck (acting as a fomite)." }
           ] },
         { type: "text", f: "responses.c2", label: "How did Wednesday's fountain spill make students like Jayden sick on Thursday night, even though Jayden wasn't at the spill? Use Mr. Boudreau's and Jayden's clues.", rows: 3, placeholder: "Plain soap did not... Then Mr. Boudreau wiped... So when Jayden..." },
-        { type: "text", f: "responses.c3a", label: "Why won't penicillin (an antibiotic) cure the 55 sick students?", rows: 2, placeholder: "Penicillin won't cure them because..." },
+        { type: "text", f: "responses.c3a", label: "Why won't penicillin (an antibiotic) cure the 55 sick students?", rows: 2, placeholder: "Penicillin won't cure them because...",
+          mustMatch: "(virus|viruses|viral|bacteria|bacterial)", mustHint: "Nurse Chen tip: connect BOTH words in your answer: antibiotics only kill bacteria, and Norovirus is a virus!" },
         { type: "text", f: "responses.c3b", label: "Name one specific habit classmates must follow to protect Marcus, and explain why it keeps him safe.", rows: 2, placeholder: "Classmates must ___ because..." }
       ]
     },
@@ -301,7 +362,7 @@ var CASE55 = {
 <p><em>Model from a different case (head lice):</em> What: "Students pause sharing hats, helmets, and headphones all week." Why: "Lice crawl from head to head on shared fabric and plastic, so pausing sharing cuts off their bridge."</p>
 <p><strong>Bonus challenge:</strong> outbreak detectives have a famous two-word nickname for the very first person who brings an illness into a group or school.</p>`
       },
-      task: "Write all 3 Monday rules (both WHAT and WHY), try the optional bonus, and press COMMIT MY MONDAY PLAN. Committing locks your week's answers and opens Case Closed.",
+      task: "Write all 3 Monday rules (both WHAT and WHY), click TEST MY DRAFT RULES ON THE SCHOOL to see how Marcus, Mr. Boudreau, and Sophie react, then press COMMIT MY MONDAY PLAN to open Case Closed.",
       fields: [
         { type: "text", f: "responses.rule1_what", label: "Rule 1 (returning after being sick): what must sick or recovering students do?", rows: 2, placeholder: "Students who threw up or had diarrhea must stay home until..." },
         { type: "text", f: "responses.rule1_why", label: "Rule 1: why does that rule stop this virus?", rows: 2, placeholder: "This stops the spread because recovering people still..." },
@@ -359,7 +420,31 @@ var CASE55 = {
     { st: "FRIDAY AM",   label: "Culprit pathogen", f: "responses.c1_name", whyF: "responses.c1_clue1", answer: "Suspect B: Norovirus (stomach virus)" },
     { st: "FRIDAY NOON", label: "5-step resin-duck chain", f: "responses.chain", order: { b: 1, e: 2, d: 3, a: 4, c: 5 },
       orderText: "1. Sick hands hold duck -> 2. Virus survives on plastic fomite -> 3. Traded to another grade -> 4. No soap wash before cafeteria -> 5. Sandwich carries virus into mouth" }
-  ]
+  ],
+
+  /* Dynamic sim callbacks reacting to the student's own Monday hypothesis */
+  callbacks: {
+    s2: {
+      who: "nurse",
+      byGuess: {
+        "A virus that attacks the stomach": "Yesterday you hypothesized a stomach virus right away, and look at Tuesday's chart: 88% have stomach cramps and vomiting! Now verify the body system and watch how it is travelling.",
+        "A virus that attacks the lungs, like the flu": "Yesterday you guessed a lung virus like the flu. Check Tuesday's chart closely: fewer than 5% have a cough, while 88% are throwing up! Does a lung virus still fit?",
+        "Bacteria from food": "Yesterday you wondered about bacteria in food. Today we do see cafeteria-line kids out sick, so keep watching who actually eats cafeteria food this week!",
+        "Something in the West Wing drinking water": "Yesterday you flagged the West Wing drinking water. Public Health pulled a water sample for the town lab today (results arrive Thursday). Meanwhile, check today's symptom numbers!",
+        "Too early to name one cause yet (watch Tuesday's log)": "Yesterday you waited for more clues before naming one cause. Four more cases arrived today plus our symptom percentages: time to lock in which body system is under attack!"
+      }
+    },
+    s4: {
+      who: "vp",
+      byGuess: {
+        "A virus that attacks the stomach": "Your Monday stomach-virus hunch is looking sharper every day: today's clean water test and 21 home-lunch cases just ruled out tap water and a bad cafeteria meal!",
+        "A virus that attacks the lungs, like the flu": "Remember your Monday flu guess? Between Tuesday's stomach chart and today's jump across all three grades, we are definitely chasing a tough stomach germ, not a lung virus.",
+        "Bacteria from food": "Remember how you suspected food bacteria on Monday? Check Tab 1: 21 of our sick students bring lunch from home and never touch cafeteria food!",
+        "Something in the West Wing drinking water": "Remember how you suspected the West Wing water on Monday? Our town water lab report just came back 100% clean, so pipes aren't the culprit!",
+        "Too early to name one cause yet (watch Tuesday's log)": "Holding off on Monday paid off: today's lab checks just ruled out both town tap water and cafeteria food, pointing straight at person-to-person surface spread!"
+      }
+    }
+  }
 };
 
 window.CASE55 = CASE55;

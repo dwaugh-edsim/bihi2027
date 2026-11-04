@@ -183,6 +183,31 @@
   .big-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
   .ack-btn{width:100%;background:var(--teal);color:#06251f;border:0;border-radius:9px;padding:11px;font-weight:800;font-family:var(--f-mono);font-size:.92rem}
   .ack-btn.done{background:var(--panel);color:var(--ok);border:1px solid var(--ok);cursor:default}
+  .next-day-btn{width:100%;margin-top:4px;background:var(--teal);color:#06251f;border:0;border-radius:9px;padding:11px 14px;font-weight:800;font-family:var(--f-mono);letter-spacing:.04em;font-size:.88rem}
+  .next-day-btn:hover{filter:brightness(1.08)}
+  .test-plan-btn{width:100%;margin-bottom:9px;background:rgba(45,212,191,.13);color:var(--teal);border:1.5px solid var(--teal);border-radius:9px;padding:9px 12px;font-weight:800;font-family:var(--f-mono);font-size:.82rem}
+  .test-plan-btn:hover{background:var(--teal);color:#06251f}
+  .teach-box{display:none;margin-top:6px;padding:8px 10px;border-radius:8px;font-size:.81rem;line-height:1.36;border:1px solid var(--line);border-left:3px solid var(--teal);background:rgba(45,212,191,.09);color:var(--ink)}
+  .teach-box.show{display:block}
+  .teach-box.ok{border-left-color:var(--ok);background:rgba(34,197,94,.1);color:#dcfce7}
+  .teach-box.fix{border-left-color:var(--coral);background:rgba(251,113,133,.12);color:#ffe4e6}
+  .sim-callback{margin:0 0 10px;max-width:880px;background:rgba(45,212,191,.08);border:1.5px solid var(--teal);border-radius:10px;padding:8px 11px;display:flex;gap:10px;align-items:flex-start}
+  .sim-callback img{width:46px;height:46px;border-radius:8px;object-fit:cover;border:2px solid var(--teal);flex:none}
+  .sim-callback .cb-tag{font-family:var(--f-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:800}
+  .sim-callback .cb-txt{font-size:.87rem;color:var(--ink);margin-top:2px;line-height:1.35}
+  .sim-callback .cb-yours{font-size:.76rem;color:var(--muted);margin-top:4px;font-style:italic}
+  .plan-sim-box{margin:0 0 10px;display:none;flex-direction:column;gap:7px}
+  .plan-sim-box.show{display:flex}
+  .plan-reply{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:8px;padding:7px 10px;font-size:.81rem;line-height:1.34;display:flex;gap:8px;align-items:flex-start}
+  .plan-reply.warn{border-left-color:var(--amber);background:rgba(245,158,11,.09)}
+  .plan-reply img{width:34px;height:34px;border-radius:6px;object-fit:cover;border:1.5px solid var(--amber);flex:none}
+  .sim-week-card{margin:0 0 12px;padding:11px 13px;background:var(--panel2);border:1.5px solid var(--teal);border-radius:10px}
+  .sim-week-card h4{margin:0 0 5px;font-family:var(--f-mono);font-size:.73rem;color:var(--teal);text-transform:uppercase;letter-spacing:.08em}
+  .sim-bars{display:flex;gap:7px;margin:8px 0}
+  .sim-bar{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:5px 4px;text-align:center}
+  .sim-bar .sd{font-family:var(--f-mono);font-size:.64rem;color:var(--muted)}
+  .sim-bar .sn{font-family:var(--f-slab);font-size:1.05rem;font-weight:800;color:var(--ok)}
+  .sim-bar.leak .sn{color:var(--amber)}
   #histBox{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
   #histBox .hh{font-family:var(--f-mono);font-size:.67rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
   #histList{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);max-height:180px;overflow-y:auto}
@@ -284,11 +309,11 @@
 
   <div id="foot">
     <button class="nav-btn" id="prevBtn" type="button" onclick="step(-1)">&larr; Earlier day</button>
-    <button class="nav-btn" id="nextBtn" type="button" onclick="step(1)">Next day &rarr;</button>
     <span class="ctr" id="ctr">BRIEFING</span>
+    <span style="margin-left:8px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
     <span class="spacer" style="flex:1"></span>
     <button class="nav-btn" type="button" onclick="saveNow()">Save now</button>
-    <span style="margin-left:14px;color:#64748b;font-size:.68rem"><em>Created with Mistral</em></span>
+    <button class="nav-btn" id="nextBtn" type="button" style="border-color:var(--teal);color:var(--teal)" onclick="step(1)">Next day &rarr;</button>
   </div>
 </div>
 
@@ -300,7 +325,7 @@
   <div class="cap" id="lbCap"></div>
 </div>
 
-<script src="case55_data.js"></script>
+<script src="case55_data.js?v=20261104d"></script>
 <script>
 (function(){
 "use strict";
@@ -326,6 +351,7 @@ const STATIONS = (window.CASE55 ? CASE55.stations : []);
 const CHARS    = (window.CASE55 ? CASE55.characters : {});
 const GLOSSARY = (window.CASE55 ? CASE55.glossary : {});
 const KEY      = (window.CASE55 ? CASE55.key : []);
+const CALLBACKS= (window.CASE55 && CASE55.callbacks) ? CASE55.callbacks : {};
 const DAYS = [ {d:'Mon',n:3}, {d:'Tue',n:7}, {d:'Wed',n:18}, {d:'Thu',n:34}, {d:'Fri',n:55} ];
 const COMMIT_IDX = STATIONS.findIndex(s => s.commitStation);
 const VERDICT_IDX = STATIONS.length - 1;
@@ -482,13 +508,14 @@ function applyState(st){
   if(st && typeof st==='object'){ for(const k in st){ n[k]=st[k]; } }
   ['judgments','matches','responses','partB','visited'].forEach(k=>{ if(typeof n[k]!=='object'||!n[k]) n[k]={}; });
   state = n;
-  cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
   started = !!state.started; committed = !!state.committed;
+  cur = Math.max(0, Math.min(STATIONS.length-1, state.station||0));
+  while(cur > 0 && !isStationUnlocked(cur)) cur--;
   const s=el('sectionSel'); if(s) s.value=state.section||'';
   buildNav(); loadStation(cur);
 }
 
-/* ================= COMPLETION LOGIC ================= */
+/* ================= COMPLETION & TEACHING LOGIC ================= */
 function orderStatus(spec){
   const o = getPath(state, spec.f) || {};
   const vals = spec.items.map(it => String(o[it.k]||'')).filter(Boolean);
@@ -497,28 +524,91 @@ function orderStatus(spec){
 }
 function wordCount(s){ return String(s==null?'':s).trim().split(/\s+/).filter(Boolean).length; }
 function minWordsFor(spec){ return spec.minWords || ((spec.f && spec.f.indexOf('responses.rule')===0) ? 3 : 4); }
-function isFilled(spec){
-  if(spec.optional) return true;
-  if(spec.type==='ack') return started;
-  if(spec.type==='commit') return committed;
-  if(spec.type==='section') return !!state.section;
-  if(spec.type==='choice') {
-    const v = getPath(state, spec.f); return v != null && String(v).trim().length > 0;
+function fieldIssue(spec){
+  if(spec.optional) return null;
+  if(spec.type==='ack') return started ? null : { kind:'empty', msg:'Click READY: OPEN THE HEALTH OFFICE to begin.' };
+  if(spec.type==='commit') return committed ? null : { kind:'empty', msg:'Commit your Monday Plan.' };
+  if(spec.type==='section') return state.section ? null : { kind:'empty', msg:'Pick your class section first.' };
+  if(spec.type==='choice'){
+    const v = getPath(state, spec.f);
+    if(v == null || String(v).trim()==='') return { kind:'empty', msg:'Choose one of the options above.' };
+    if(spec.correct && v !== spec.correct){
+      const tm = spec.teachMap && spec.teachMap[v];
+      return { kind:'teach', msg: (tm && tm.msg) || 'Re-check today\'s Evidence tab and try another option.' };
+    }
+    return null;
   }
-  if(spec.type==='text') {
-    const v = getPath(state, spec.f); return wordCount(v) >= minWordsFor(spec);
+  if(spec.type==='text'){
+    const v = String(getPath(state, spec.f)||'').trim();
+    const mw = minWordsFor(spec);
+    if(wordCount(v) < mw) return { kind:'empty', msg:'Write at least '+mw+' words citing evidence from today\'s tabs.' };
+    if(spec.mustMatch && !(new RegExp(spec.mustMatch, 'i').test(v))){
+      return { kind:'teach', msg: spec.mustHint || 'Cite a specific fact or number from today\'s tabs.' };
+    }
+    return null;
   }
-  if(spec.type==='pair') return spec.selects.every(sl => !!getPath(state, spec.f+'.'+sl.key));
-  if(spec.type==='grid') return spec.rows.every(r => String(getPath(state, spec.f+'.'+r.k+'.v')||'').trim() && String(getPath(state, spec.f+'.'+r.k+'.a')||'').trim());
-  if(spec.type==='order') { const st = orderStatus(spec); return st.allPicked && !st.hasDup; }
-  return true;
+  if(spec.type==='pair'){
+    const g = getPath(state, spec.f+'.gate');
+    const m = getPath(state, spec.f+'.germ');
+    if(!g || !m) return { kind:'empty', msg:'Choose both an Entry gate and a Germ type.' };
+    if(spec.expect){
+      const msgs = [];
+      if(g !== spec.expect.gate) msgs.push(spec.teachGate || 'Re-check the Entry gate.');
+      if(m !== spec.expect.germ) msgs.push(spec.teachGerm || 'Re-check Virus vs Bacteria.');
+      if(msgs.length) return { kind:'teach', msg:'Nurse Chen: ' + msgs.join(' ') };
+    }
+    return null;
+  }
+  if(spec.type==='grid'){
+    const allHasText = spec.rows.every(r => String(getPath(state, spec.f+'.'+r.k+'.v')||'').trim().length >= 2 && String(getPath(state, spec.f+'.'+r.k+'.a')||'').trim().length >= 2);
+    if(!allHasText) return { kind:'empty', msg:'Fill in both Vaccines and Antibiotics on all 4 comparison cards.' };
+    const antiWhich = String(getPath(state, spec.f+'.which.a')||'').toLowerCase();
+    if(/virus/.test(antiWhich) && !/\b(no|not|never|don't|dont|nothing|cannot|can't|cant|zero)\b/.test(antiWhich)){
+      return { kind:'teach', msg:'Nurse Chen (Card 3): Careful! Antibiotics ONLY kill living bacteria. They do nothing to viruses! Fix your Antibiotics box on Card 3.' };
+    }
+    const vacWhen = String(getPath(state, spec.f+'.when.v')||'').toLowerCase();
+    const antiWhen = String(getPath(state, spec.f+'.when.a')||'').toLowerCase();
+    if((/\bafter\b/.test(vacWhen) && !/\bbefore\b/.test(vacWhen)) || (/\bbefore\b/.test(antiWhen) && !/\bafter\b/.test(antiWhen))){
+      return { kind:'teach', msg:'Nurse Chen (Card 2): Flip check! Vaccines are given BEFORE you get sick to train your immune system ahead of time; antibiotics are taken AFTER a bacterial infection starts.' };
+    }
+    return null;
+  }
+  if(spec.type==='order'){
+    const st = orderStatus(spec);
+    if(!st.allPicked) return { kind:'empty', msg:'Pick a step number (1 to 5) for all 5 sentences.' };
+    if(st.hasDup) return { kind:'teach', msg:'Each step number from 1 to 5 can only be used once.' };
+    if(spec.expectOrder){
+      for(let stepNum=1; stepNum<=5; stepNum++){
+        const sStr = String(stepNum);
+        const expKey = Object.keys(spec.expectOrder).find(k => String(spec.expectOrder[k]) === sStr);
+        if(expKey && String(st.map[expKey]) !== sStr){
+          return { kind:'teach', msg:'Nurse Chen: ' + ((spec.stepHints && spec.stepHints[sStr]) || ('Check which event happens at Step '+sStr+'.')) };
+        }
+      }
+    }
+    return null;
+  }
+  return null;
 }
+function isFilled(spec){ return !fieldIssue(spec); }
 function stationDone(i){
   const s = STATIONS[i];
+  if(!s) return false;
   if(s.locked && !committed) return false;
   const req = (s.fields||[]).filter(f=>!f.optional);
   if(!req.length) return !!state.visited[i];
   return req.every(isFilled);
+}
+function isStationUnlocked(i){
+  if(i <= 0) return true;
+  if(Q.has('unlock') && OFFPROD) return true;
+  if(DEMO && Q.has('st') && i <= +(Q.get('st')||0)) return true;
+  if(i === VERDICT_IDX) return committed;
+  if(committed) return true;
+  for(let k=0; k<i; k++){
+    if(!stationDone(k)) return false;
+  }
+  return true;
 }
 
 /* ================= NAV / STATIONS ================= */
@@ -530,7 +620,18 @@ function buildNav(){
     const sub = s.title.indexOf(': ')>=0 ? s.title.split(': ').slice(1).join(': ').trim() : s.title;
     d.title = s.nav + ' - ' + sub;
     d.innerHTML = '<span class="st"></span><div class="ch">'+esc(s.nav)+'</div><div class="tt">'+esc(sub)+'</div>';
-    d.onclick = ()=>{ if(s.locked && !committed){ toast('Locked: commit your Monday Morning Game Plan on Friday 3:15 to unlock Case Closed.'); return; } loadStation(i); };
+    d.onclick = ()=>{
+      if(!isStationUnlocked(i)){
+        if(i === VERDICT_IDX){ toast('Locked: commit your Monday Morning Game Plan on Friday 3:15 to unlock Case Closed.'); return; }
+        let firstOpen = 0;
+        while(firstOpen < i && stationDone(firstOpen)) firstOpen++;
+        if(cur !== firstOpen) loadStation(firstOpen);
+        checkAndCoachCurrent(false);
+        toast('Locked: complete ' + STATIONS[firstOpen].nav + ' in your Health Officer Log on the right first.');
+        return;
+      }
+      loadStation(i);
+    };
     list.appendChild(d);
   });
   updateNavMarks();
@@ -538,7 +639,7 @@ function buildNav(){
 function updateNavMarks(){
   STATIONS.forEach((s,i)=>{
     const d = el('nav-'+i); if(!d) return;
-    const locked = s.locked && !committed;
+    const locked = !isStationUnlocked(i);
     const done = stationDone(i);
     d.classList.toggle('locked', locked);
     d.classList.toggle('done', done);
@@ -548,8 +649,8 @@ function updateNavMarks(){
   if(STATIONS[cur]){
     el('ctr').textContent = STATIONS[cur].nav + ' (' + (cur+1) + ' of ' + STATIONS.length + ')';
     el('prevBtn').disabled = (cur===0);
-    const nextLocked = (cur+1 < STATIONS.length) && STATIONS[cur+1].locked && !committed;
-    el('nextBtn').disabled = (cur===STATIONS.length-1) || nextLocked;
+    const nextIsVerdictLocked = (cur+1 === VERDICT_IDX) && !committed;
+    el('nextBtn').disabled = (cur===STATIONS.length-1) || nextIsVerdictLocked;
   }
 }
 function buildSurge(){
@@ -569,34 +670,152 @@ function updateSurge(){
     c.querySelector('.n').textContent = known ? d.n : '?';
   });
 }
-function focusFirstIncomplete(i){
-  const s = STATIONS[i]; if(!s) return;
-  const fields = s.fields || [];
-  for(let k=0; k<fields.length; k++){
-    const f = fields[k];
-    if(!f.optional && !isFilled(f)){
-      if(f.f){
-        const node = document.querySelector('#fields [data-f="'+f.f+'"]');
-        if(node){
-          if(node.tagName==='TEXTAREA'){ node.classList.add('need-why'); node.focus(); }
-          else { const sub = node.querySelector('button,select,input') || node; sub.focus(); }
-          node.scrollIntoView({behavior:'smooth', block:'center'});
-          return;
-        }
-      }
+function showTeachBox(w, kind, msg){
+  if(!w || !w._teachEl) return;
+  const tb = w._teachEl;
+  if(!msg){ tb.className='teach-box'; tb.textContent=''; return; }
+  tb.className = 'teach-box show ' + (kind||'');
+  tb.textContent = msg;
+}
+function refreshFieldCoach(w, forceShowEmpty){
+  if(!w || !w._spec) return null;
+  const spec = w._spec;
+  const iss = fieldIssue(spec);
+  if(spec.type==='choice'){
+    const v = getPath(state, spec.f);
+    if(!v){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
     }
+    const tm = spec.teachMap && spec.teachMap[v];
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else if(tm && tm.msg) showTeachBox(w, 'ok', tm.msg.trim());
+    else showTeachBox(w, 'ok', '✓ Choice recorded.');
+    return iss;
   }
+  if(spec.type==='pair'){
+    const g = getPath(state, spec.f+'.gate'), m = getPath(state, spec.f+'.germ');
+    if(!g || !m){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
+    }
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, 'ok', '✓ Spot on: ' + g + ' gate + ' + m + '!');
+    return iss;
+  }
+  if(spec.type==='order'){
+    const st = orderStatus(spec);
+    if(!st.allPicked){
+      if(forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+      else showTeachBox(w, '', '');
+      return iss;
+    }
+    if(iss) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, 'ok', '✓ All 5 steps of the resin-duck chain are in exact cause-and-effect order!');
+    return iss;
+  }
+  if(spec.type==='grid' || spec.type==='text'){
+    if(!iss){ showTeachBox(w, '', ''); return null; }
+    if(iss.kind==='teach' || forceShowEmpty) showTeachBox(w, 'fix', iss.msg);
+    else showTeachBox(w, '', '');
+    return iss;
+  }
+  return iss;
+}
+function checkAndCoachCurrent(advanceIfOk){
+  const wraps = Array.from(document.querySelectorAll('#fields .field'));
+  let firstBadWrap = null, firstIssue = null;
+  wraps.forEach(w=>{
+    if(!w._spec || w._spec.optional || w._spec.type==='commit') return;
+    const iss = refreshFieldCoach(w, true);
+    if(iss && !firstBadWrap){ firstBadWrap = w; firstIssue = iss; }
+  });
+  updateNavMarks();
+  if(firstBadWrap){
+    const focusNode = firstBadWrap.querySelector('textarea, select, input, button.opt');
+    if(focusNode){
+      if(focusNode.tagName==='TEXTAREA') focusNode.classList.add('need-why');
+      focusNode.focus();
+    }
+    firstBadWrap.scrollIntoView({behavior:'smooth', block:'center'});
+    toast(firstIssue.kind==='teach' ? 'Check Nurse Chen\'s coaching note in red/coral on the right!' : firstIssue.msg);
+    return false;
+  }
+  if(advanceIfOk && cur < STATIONS.length - 1){
+    if(cur === 0 && !started){ started = true; state.started = true; }
+    onChange();
+    const nxtName = STATIONS[cur+1].nav;
+    toast('Nice work, Health Officer! Moving to ' + nxtName + '...');
+    loadStation(cur + 1);
+  }
+  return true;
 }
 function step(dir){
   let n = cur+dir;
   if(n < 0 || n >= STATIONS.length) return;
-  if(dir > 0 && cur >= 1 && cur < COMMIT_IDX && !stationDone(cur)){
-    focusFirstIncomplete(cur);
-    toast('Before moving to the next day, finish your answer and justify it using evidence from today\'s tabs.');
-    return;
+  if(dir > 0){
+    if(cur === 0 && !stationDone(0)){
+      if(!state.section){ toast('Pick your class section on the right first.'); return; }
+      started = true; state.started = true; onChange();
+      loadStation(1); return;
+    }
+    if(cur >= 1 && cur < COMMIT_IDX && !stationDone(cur)){
+      checkAndCoachCurrent(false);
+      return;
+    }
+    if(STATIONS[n].locked && !committed){ toast('Commit your Monday Plan on Friday 3:15 to open Case Closed.'); return; }
   }
-  if(STATIONS[n].locked && !committed){ toast('Commit your Monday Plan on Friday 3:15 to open Case Closed.'); return; }
   loadStation(n);
+}
+function buildCallbackHtml(stId){
+  const cb = CALLBACKS[stId];
+  if(!cb) return '';
+  const guess = getPath(state, 'judgments.s0.guess');
+  if(!guess || !cb.byGuess || !cb.byGuess[guess]) return '';
+  const why = getPath(state, 'judgments.s0.why');
+  const ch = CHARS[cb.who] || { name: cb.who, img: null };
+  const ava = ch.img ? '<img src="'+ch.img+'" alt="'+esc(ch.name)+'">' : '';
+  return '<div class="sim-callback">'+ava+'<div style="min-width:0;flex:1">'
+    + '<div class="cb-tag">Sim Update // '+esc(ch.name)+' responds to your Monday log</div>'
+    + '<div class="cb-txt">'+esc(cb.byGuess[guess])+'</div>'
+    + '<div class="cb-yours">Your Monday log: "'+esc(guess)+'"'+(why ? ' - "'+esc(why)+'"' : '')+'</div>'
+    + '</div></div>';
+}
+function evaluatePlanLevers(){
+  const r = state.responses || {};
+  const r1 = (r.rule1_what||'') + ' ' + (r.rule1_why||'');
+  const r2 = (r.rule2_what||'') + ' ' + (r.rule2_why||'');
+  const r3 = (r.rule3_what||'') + ' ' + (r.rule3_why||'');
+  const has48h = /\b(48|forty[- ]?eight|two days|2 days)\b/i.test(r1);
+  const hasBleach = /\b(bleach|chlorine)\b/i.test(r2);
+  const hasDucks = /\b(duck|ducks|trade|trading|fomite|toys?)\b/i.test(r3);
+  const hasSoap = /\b(soap)\b/i.test(r3);
+  const score = (has48h?1:0) + (hasBleach?1:0) + ((hasDucks && hasSoap)?1:0);
+  return { has48h, hasBleach, hasDucks, hasSoap, score };
+}
+function buildSimulatedWeek(){
+  const lv = evaluatePlanLevers();
+  let curve, headline, summary;
+  if(lv.score === 3){
+    curve = [{d:'Mon',n:8,ok:true},{d:'Tue',n:2,ok:true},{d:'Wed',n:0,ok:true},{d:'Thu',n:0,ok:true},{d:'Fri',n:0,ok:true}];
+    headline = 'SIMULATED NEXT WEEK: OUTBREAK CRUSHED BY WEDNESDAY (3/3 LEVERS HIT)';
+    summary = 'Marcus returned safely to Grade 9 on Wednesday! Your 48-hour stay-home buffer, Mr. Boudreau\'s bleach wipe-down, and pausing resin ducks + soap handwashing broke all three transmission links.';
+  } else if(lv.score === 2){
+    curve = [{d:'Mon',n:14,ok:false},{d:'Tue',n:8,ok:false},{d:'Wed',n:3,ok:true},{d:'Thu',n:1,ok:true},{d:'Fri',n:0,ok:true}];
+    const gap = !lv.has48h ? 'the 48-hour post-symptom stay-home window' : (!lv.hasBleach ? 'naming bleach disinfectant for taps and fountains' : 'pausing resin-duck trading AND scrubbing with real soap');
+    headline = 'SIMULATED NEXT WEEK: SLOWED DOWN, NEEDED 1 PUBLIC HEALTH PATCH (2/3 LEVERS)';
+    summary = 'Your plan blocked most of the outbreak, though a few extra cases slipped through early in the week before Public Health tightened ' + gap + '.';
+  } else {
+    curve = [{d:'Mon',n:21,ok:false},{d:'Tue',n:16,ok:false},{d:'Wed',n:9,ok:false},{d:'Thu',n:4,ok:true},{d:'Fri',n:1,ok:true}];
+    headline = 'SIMULATED NEXT WEEK: PARTIAL SHIELD, PUBLIC HEALTH STEPPED IN ('+lv.score+'/3 SPECIFIC LEVERS)';
+    summary = 'Your general rules helped, and Public Health added the exact numbers and cleaners (full 48 hours symptom-free, bleach on taps, duck pause + 20-second soap wash) to bring cases down by Friday.';
+  }
+  return '<div class="sim-week-card"><h4>'+esc(headline)+'</h4>'
+    + '<div style="font-size:.86rem;color:var(--ink)">New sick students next week at Centennial under your committed rules:</div>'
+    + '<div class="sim-bars">' + curve.map(c=>'<div class="sim-bar'+(c.ok?'':' leak')+'"><div class="sd">'+c.d+'</div><div class="sn">+'+c.n+'</div></div>').join('') + '</div>'
+    + '<div style="font-size:.83rem;color:var(--muted)">'+esc(summary)+'</div></div>';
 }
 function tabLabel(s, t){
   return (s.tabLabels && s.tabLabels[t]) || DEFAULT_TABS[t] || t;
@@ -608,14 +827,15 @@ function loadStation(i){
   currentTab='dispatch';
   const s = STATIONS[i];
   const dc = el('deckContent');
-  const locked = s.locked && !committed;
+  const locked = !isStationUnlocked(i);
   if(locked){
-    dc.innerHTML = '<div id="lockedPanel">CASE CLOSED IS LOCKED<br><span style="color:var(--muted);font-size:.85rem">Finish and commit your Monday Morning Game Plan on Friday 3:15 to unlock the official verdict.</span></div>';
-    el('taskPrompt').textContent = 'Go to Friday 3:15 and commit your Monday Plan.';
+    dc.innerHTML = '<div id="lockedPanel">THIS DAY IS LOCKED<br><span style="color:var(--muted);font-size:.85rem">Complete earlier days in your Health Officer Log first.</span></div>';
+    el('taskPrompt').textContent = 'Finish earlier days first.';
     el('fields').innerHTML='';
   } else {
     const tabKeys = Object.keys(s.tabs);
     let html = '<div class="deck-header"><div><div class="kicker">'+esc(s.kicker)+'</div><h2>'+esc(s.title)+'</h2></div><button id="readBtn" type="button" onclick="toggleRead()">🔊 Read this tab</button></div>';
+    html += buildCallbackHtml(s.id);
     const cList = s.chars||[];
     html += '<div class="chars'+(cList.length>1?' multi':'')+'">';
     cList.forEach(c=>{
@@ -649,6 +869,7 @@ function switchTab(t){
   if(!body) return;
   let html = s.tabs[t]||'';
   if(html === '@review') html = buildReview();
+  else if(cur === VERDICT_IDX && t === 'dispatch') html = buildSimulatedWeek() + html;
   if(t === 'toolkit' && s.words && s.words.length){
     html += '<div class="glossary"><h4>Word Bank for Today</h4><dl>' + s.words.map(w => '<dt>'+esc(w)+'</dt><dd>'+esc(GLOSSARY[w]||'')+'</dd>').join('') + '</dl></div>';
   }
@@ -675,20 +896,39 @@ function renderFields(fields, stIdx){
     box.appendChild(n);
   }
   fields.forEach(spec=> box.appendChild(buildField(spec)));
+  if(stIdx >= 1 && stIdx < COMMIT_IDX && STATIONS[stIdx+1]){
+    const nb = document.createElement('button');
+    nb.type = 'button'; nb.className = 'next-day-btn'; nb.id = 'nextDayBtn';
+    const nxtNav = STATIONS[stIdx+1].nav;
+    if(committed){
+      nb.textContent = 'NEXT DAY: ' + nxtNav + ' \u2192';
+      nb.onclick = ()=> loadStation(stIdx + 1);
+    } else {
+      nb.textContent = 'CHECK & NEXT DAY: ' + nxtNav + ' \u2192';
+      nb.onclick = ()=> checkAndCoachCurrent(true);
+    }
+    box.appendChild(nb);
+  }
   hydrateFields();
   if(committed && stIdx <= COMMIT_IDX){
-    box.querySelectorAll('textarea, select, input, button:not(.ack-btn):not(.big-btn)').forEach(e => e.disabled = true);
+    box.querySelectorAll('textarea, select, input, button.opt').forEach(e => e.disabled = true);
   }
 }
+function attachTeach(w){
+  const tb = document.createElement('div');
+  tb.className = 'teach-box';
+  w.appendChild(tb);
+  w._teachEl = tb;
+}
 function buildField(spec){
-  const w = document.createElement('div'); w.className='field';
+  const w = document.createElement('div'); w.className='field'; w._spec = spec;
   if(spec.type==='ack'){
     const b=document.createElement('button'); b.type='button'; b.className='ack-btn'; b.id='ackBtn';
     b.onclick = ()=>{
       if(started){ step(1); return; }
       if(!state.section) { toast('Pick your class section right above first.'); return; }
       started=true; state.started=true; hydrateFields(); toast('Week started! Moving to Monday morning...'); onChange();
-      setTimeout(()=>step(1), 650);
+      if(SELFTEST) step(1); else setTimeout(()=>step(1), 650);
     };
     w.appendChild(b); return w;
   }
@@ -696,20 +936,23 @@ function buildField(spec){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const sel=document.createElement('select'); sel.setAttribute('data-sec', '1');
     sel.innerHTML='<option value="">- Pick your class section -</option>'+SECTIONS.map(o=>'<option>'+o+'</option>').join('');
-    sel.addEventListener('change', ()=>{ state.section = sel.value; el('sectionSel').value = sel.value; onChange(); });
-    w.appendChild(sel); return w;
+    sel.addEventListener('change', ()=>{ state.section = sel.value; el('sectionSel').value = sel.value; refreshFieldCoach(w, false); onChange(); });
+    w.appendChild(sel); attachTeach(w); return w;
   }
   if(spec.type==='choice'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
     const c=document.createElement('div'); c.className='choice'; c.setAttribute('data-f', spec.f);
     spec.options.forEach(o=>{ const b=document.createElement('button'); b.type='button'; b.className='opt'; b.dataset.v=o; b.textContent=o;
       b.onclick=()=>{
-        c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b)); setPath(state, spec.f, o); onChange();
+        c.dataset.val=o; c.querySelectorAll('.opt').forEach(x=>x.classList.toggle('active', x===b));
+        setPath(state, spec.f, o);
+        const iss = refreshFieldCoach(w, false);
+        onChange();
         const nxt = w.nextElementSibling && w.nextElementSibling.querySelector('textarea');
-        if(nxt && wordCount(nxt.value) < 4){ nxt.classList.add('need-why'); }
+        if(!iss && nxt && wordCount(nxt.value) < 4){ nxt.classList.add('need-why'); }
       };
       c.appendChild(b); });
-    w.appendChild(c); return w;
+    w.appendChild(c); attachTeach(w); return w;
   }
   if(spec.type==='text'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -723,11 +966,13 @@ function buildField(spec){
     t.addEventListener('input', ()=>{
       autoGrow(t);
       setPath(state, spec.f, t.value);
-      if(hint) updateTextHint(t, hint, spec.minWords||4);
+      if(hint) updateTextHint(t, hint, spec.minWords||4, spec);
+      refreshFieldCoach(w, false);
       onChange();
     });
     w.appendChild(t);
     if(hint){ w.appendChild(hint); w._textSpec = spec; w._textEl = t; w._hintEl = hint; }
+    attachTeach(w);
     return w;
   }
   if(spec.type==='pair'){
@@ -737,10 +982,10 @@ function buildField(spec){
       const cell=document.createElement('div'); const l=document.createElement('label'); l.textContent=sl.label;
       const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+sl.key);
       sel.innerHTML='<option value="">- choose -</option>'+sl.options.map(o=>'<option>'+o+'</option>').join('');
-      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+sl.key, sel.value); onChange(); });
+      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+sl.key, sel.value); refreshFieldCoach(w, false); onChange(); });
       cell.appendChild(l); cell.appendChild(sel); row.appendChild(cell);
     });
-    w.appendChild(row); return w;
+    w.appendChild(row); attachTeach(w); return w;
   }
   if(spec.type==='order'){
     const lab=document.createElement('label'); lab.textContent=spec.label; w.appendChild(lab);
@@ -749,11 +994,12 @@ function buildField(spec){
       const row=document.createElement('div'); row.className='order-row';
       const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+it.k);
       sel.innerHTML='<option value="">#</option>'+[1,2,3,4,5].map(o=>'<option value="'+o+'">Step '+o+'</option>').join('');
-      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); renderOrderPreview(spec, prev); onChange(); });
+      sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); renderOrderPreview(spec, prev); refreshFieldCoach(w, false); onChange(); });
       const span=document.createElement('span'); span.textContent=it.t;
       row.appendChild(sel); row.appendChild(span); w.appendChild(row);
     });
     w.appendChild(prev);
+    attachTeach(w);
     w._orderSpec = spec; w._orderPrev = prev;
     return w;
   }
@@ -772,20 +1018,69 @@ function buildField(spec){
         inp.rows = (r.k==='when' || r.k==='which') ? 1 : 2;
         inp.placeholder = colTitle + '...';
         inp.setAttribute('data-f', spec.f+'.'+r.k+'.'+col);
-        inp.addEventListener('input', ()=>{ autoGrow(inp); setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); onChange(); });
+        inp.addEventListener('input', ()=>{ autoGrow(inp); setPath(state, spec.f+'.'+r.k+'.'+col, inp.value); refreshFieldCoach(w, false); onChange(); });
         item.appendChild(tag); item.appendChild(inp);
         card.appendChild(item);
       });
       wrap.appendChild(card);
     });
-    w.appendChild(wrap); return w;
+    w.appendChild(wrap); attachTeach(w); return w;
   }
   if(spec.type==='commit'){
+    const tb = document.createElement('button'); tb.type='button'; tb.className='test-plan-btn'; tb.id='testPlanBtn';
+    tb.textContent = '\uD83D\uDD2C TEST MY DRAFT RULES ON THE SCHOOL';
+    tb.onclick = ()=> testDraftPlan();
+    const simBox = document.createElement('div'); simBox.id='planSimBox'; simBox.className='plan-sim-box';
     const b=document.createElement('button'); b.type='button'; b.className='big-btn'; b.id='commitBtn';
     b.onclick=()=>doCommit();
-    w.appendChild(b); return w;
+    w.appendChild(tb); w.appendChild(simBox); w.appendChild(b); return w;
   }
   return w;
+}
+function testDraftPlan(){
+  const box = el('planSimBox'); if(!box) return;
+  const r = state.responses || {};
+  const anyWritten = ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].some(k => wordCount(r[k]) >= 1);
+  if(!anyWritten){
+    checkAndCoachCurrent(false);
+    return;
+  }
+  const lv = evaluatePlanLevers();
+  const items = [];
+  items.push({
+    who: 'marcus', ok: lv.has48h,
+    txt: lv.has48h
+      ? 'Thank you! Keeping sick students home a full 48 hours after symptoms stop means kids will not come back still shedding virus near me on Monday.'
+      : 'Hold on: Norovirus still sheds for 2 days after people feel better! Can you add a specific 48-hour symptom-free rule in Rule 1 so I am safe?'
+  });
+  items.push({
+    who: 'boudreau', ok: lv.hasBleach,
+    txt: lv.hasBleach
+      ? 'Copy that, Health Officer! I am putting away the pink floral cleaner and mixing chlorine bleach for every tap, fountain, and bathroom latch.'
+      : 'My regular pink cleaner did not touch this tough stomach virus all week! Tell me specifically in Rule 2 to use a bleach disinfectant on high-touch surfaces.'
+  });
+  let sophieMsg = '';
+  if(lv.hasDucks && lv.hasSoap){
+    sophieMsg = 'Deal! We will pause resin-duck trading in our backpacks AND scrub with real soap and running water before lunch instead of just sanitizer.';
+  } else if(!lv.hasDucks){
+    sophieMsg = 'Wait: what should we do with our mini resin ducks? Make sure Rule 3 pauses duck trading AND requires washing with real soap and water before lunch!';
+  } else {
+    sophieMsg = 'Okay, ducks stay zipped in our bags! Just do not forget to require real soap and running water before lunch in Rule 3 because hand sanitizer failed.';
+  }
+  items.push({ who: 'sophie', ok: (lv.hasDucks && lv.hasSoap), txt: sophieMsg });
+  items.push({
+    who: 'nurse', ok: (lv.score === 3),
+    txt: lv.score === 3
+      ? '3 out of 3 outbreak levers locked in! If we run this Monday morning, Centennial\'s curve drops to zero new cases by Wednesday. Ready to commit!'
+      : 'Your draft hits ' + lv.score + ' out of 3 key levers. Sharpen the amber notes above and test again, or commit whenever you are ready!'
+  });
+  box.innerHTML = items.map(it=>{
+    const ch = CHARS[it.who] || { name: it.who, img: null };
+    const ava = ch.img ? '<img src="'+ch.img+'" alt="'+esc(ch.name)+'">' : '';
+    return '<div class="plan-reply'+(it.ok?'':' warn')+'">'+ava+'<div style="min-width:0;flex:1"><b>'+esc(ch.name)+':</b> '+esc(it.txt)+'</div></div>';
+  }).join('');
+  box.className = 'plan-sim-box show';
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 function renderOrderPreview(spec, box){
   if(!box) return;
@@ -800,7 +1095,7 @@ function renderOrderPreview(spec, box){
   box.className='order-preview';
   box.innerHTML = '<b>Your chain in order:</b><ol>' + sorted.map(it=>'<li value="'+esc(st.map[it.k])+'">'+esc(it.t)+'</li>').join('') + '</ol>';
 }
-function updateTextHint(t, hint, minW){
+function updateTextHint(t, hint, minW, spec){
   if(!hint || !t) return;
   const wc = wordCount(t.value);
   if(wc === 0){
@@ -809,9 +1104,12 @@ function updateTextHint(t, hint, minW){
   } else if(wc < minW){
     hint.className='just-hint short';
     hint.textContent='Add a bit more detail from the slides ('+wc+'/'+minW+'+ words).';
+  } else if(spec && spec.mustMatch && !(new RegExp(spec.mustMatch, 'i')).test(t.value)){
+    hint.className='just-hint short';
+    hint.textContent='Almost there: check Nurse Chen\'s tip right below!';
   } else {
     hint.className='just-hint ok';
-    hint.textContent='✓ Evidence justification recorded';
+    hint.textContent='\u2713 Evidence justification recorded';
     t.classList.remove('need-why');
   }
 }
@@ -828,44 +1126,35 @@ function hydrateFields(){
   });
   document.querySelectorAll('#fields .field').forEach(w=>{
     if(w._orderSpec) renderOrderPreview(w._orderSpec, w._orderPrev);
-    if(w._textSpec && w._hintEl) updateTextHint(w._textEl, w._hintEl, minWordsFor(w._textSpec));
+    if(w._textSpec && w._hintEl) updateTextHint(w._textEl, w._hintEl, minWordsFor(w._textSpec), w._textSpec);
+    if(w._spec) refreshFieldCoach(w, false);
   });
   const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
-  const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED ✓ (VIEW VERDICT)' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
-  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'HEALTH OFFICE OPEN ✓ (GO TO MONDAY)':'READY: OPEN THE HEALTH OFFICE'; }
+  const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED \u2713 (VIEW VERDICT)' : 'COMMIT MY MONDAY PLAN'; cb.classList.toggle('done', committed); }
+  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'HEALTH OFFICE OPEN \u2713 (GO TO MONDAY)':'READY: OPEN THE HEALTH OFFICE'; }
 }
 function doCommit(){
   if(committed){ loadStation(VERDICT_IDX); return; }
+  if(!state.section){ toast('Pick your class section in the top right bar first.'); return; }
 
-  const missing = [];
-  if(!state.section) missing.push('- Pick your class section (top right bar).');
-  if(!getPath(state, 'judgments.s0.guess') || wordCount(getPath(state, 'judgments.s0.why')) < 4) missing.push('- Pick and justify your MONDAY first guess using slide evidence.');
-  if(!getPath(state, 'judgments.s1.choice') || wordCount(getPath(state, 'judgments.s1.why')) < 4) missing.push('- Pick and justify the body system on TUESDAY using Nurse Chen\'s numbers.');
-  if(!getPath(state, 'judgments.s1.pattern') || wordCount(getPath(state, 'judgments.s1.pattern_why')) < 4 || !getPath(state, 'judgments.s2.top') || wordCount(getPath(state, 'judgments.s2.why')) < 4) missing.push('- Pick and justify both THURSDAY evidence choices.');
-  if(!getPath(state, 'responses.c1_name') || wordCount(getPath(state, 'responses.c1_clue1')) < 4 || wordCount(getPath(state, 'responses.c1_clue2')) < 4) missing.push('- Name the culprit germ on FRIDAY AM and write both evidence clues.');
-  const s7 = STATIONS[COMMIT_IDX];
-  let rulesOk = true;
-  s7.fields.forEach(f => {
-    if(f.type === 'text' && !f.optional) {
-      if(wordCount(getPath(state, f.f)) < 3) rulesOk = false;
+  for(let i=1; i<COMMIT_IDX; i++){
+    if(!stationDone(i)){
+      loadStation(i);
+      checkAndCoachCurrent(false);
+      toast('Finish ' + STATIONS[i].nav + ' first before committing your Monday Plan.');
+      return;
     }
-  });
-  if(!rulesOk) missing.push('- Write at least a short sentence (3+ words) for each WHAT and WHY box on all 3 Monday rules.');
+  }
+  if(!checkAndCoachCurrent(false)) return;
 
-  if(missing.length) { alert('Almost ready! Before you commit:\n\n' + missing.join('\n')); return; }
-
-  const incomplete = [];
-  for(let i=1; i<COMMIT_IDX; i++) { if(!stationDone(i)) incomplete.push(STATIONS[i].nav); }
-  let msg = 'Ready to commit your Monday Morning Game Plan?\n\nOnce you commit, your Monday-to-Friday answers lock and Case Closed (the official verdict) unlocks.';
-  if(incomplete.length) msg += '\n\nNote: you still have unanswered items on: ' + incomplete.join(', ') + '. Commit anyway?';
-
+  const msg = 'Ready to commit your Monday Morning Game Plan?\n\nOnce you commit, your Monday-to-Friday answers lock and Case Closed (the official verdict + simulated next week) unlocks.';
   if(!confirm(msg)) return;
 
   committed=true; state.committed=true; state.committedAt=Date.now();
   save(); updateNavMarks();
   toast('Monday plan committed! Unlocking Case Closed...');
-  setTimeout(()=>loadStation(VERDICT_IDX), 600);
+  if(SELFTEST) loadStation(VERDICT_IDX); else setTimeout(()=>loadStation(VERDICT_IDX), 600);
 }
 
 /* ================= REVIEW TAB (S8 YOUR FILE) ================= */
@@ -903,14 +1192,15 @@ function buildReview(){
       if(isOk) scored++;
     }
     const cls = k.noKey ? '' : (isOk ? 'ok' : 'bad');
-    const mark = k.noKey ? '' : (isOk ? '✓ ' : '✗ ');
+    const mark = k.noKey ? '' : (isOk ? '\u2713 ' : '\u2717 ');
     const whyVal = k.whyF ? getPath(state, k.whyF) : '';
     const whyHtml = k.whyF ? '<span class="note"><b>Your reason:</b> '+esc(whyVal||'(blank)')+'</span>' : '';
     rowsHtml += '<tr><td>'+esc(k.st)+'</td><td>'+esc(k.label)+'</td><td class="'+cls+'">'+mark+esc(yours)+whyHtml+'</td><td>'+esc(correct)+(k.note?'<span class="note">'+esc(k.note)+'</span>':'')+'</td></tr>';
   });
 
   const r = state.responses || {};
-  let html = '<p><strong>Quick-check score on choice &amp; matching clues: '+scored+' / '+total+'.</strong> (Your written explanations and Monday Plan below are reviewed by your teacher.)</p>';
+  let html = buildSimulatedWeek();
+  html += '<p><strong>Quick-check score on choice &amp; matching clues: '+scored+' / '+total+'.</strong> (Your written explanations and Monday Plan below are reviewed by your teacher.)</p>';
   html += '<table class="review-tbl"><tr><th>Day</th><th>Check</th><th>Your choice</th><th>Public Health finding</th></tr>'+rowsHtml+'</table>';
 
   html += '<div class="file-sec"><h4>Your Monday Morning Game Plan (compared with Tab 2)</h4>';
@@ -932,8 +1222,8 @@ function renderHistory(){
       if(f.type==='section') v = state.section;
       else if(f.type==='choice' || f.type==='text') v = getPath(state, f.f);
       else if(f.type==='pair') { const p = getPath(state, f.f); if(p && (p.gate||p.germ)) v = (p.gate||'?')+' / '+(p.germ||'?'); }
-      else if(f.type==='order') { const st = orderStatus(f); if(st.vals.length) v = st.allPicked && !st.hasDup ? '5 steps ordered ✓' : (st.vals.length+'/5 numbered'); }
-      else if(f.type==='grid') { const p = getPath(state, f.f); if(p && Object.keys(p).length) v = isFilled(f) ? 'All 8 boxes filled ✓' : 'In progress'; }
+      else if(f.type==='order') { const st = orderStatus(f); if(st.vals.length) v = isFilled(f) ? '5 steps ordered \u2713' : (st.vals.length+'/5 in progress'); }
+      else if(f.type==='grid') { const p = getPath(state, f.f); if(p && Object.keys(p).length) v = isFilled(f) ? 'All 8 boxes filled \u2713' : 'In progress'; }
 
       if(v != null && String(v).trim() !== '') {
         const lab = f.label.length > 34 ? f.label.slice(0,34)+'...' : f.label;
@@ -950,7 +1240,7 @@ let isReading = false;
 function stopReading(){
   if(window.speechSynthesis) try{ speechSynthesis.cancel(); }catch(e){}
   isReading=false;
-  const b=el('readBtn'); if(b){ b.classList.remove('reading'); b.textContent='🔊 Read this tab'; }
+  const b=el('readBtn'); if(b){ b.classList.remove('reading'); b.textContent='\uD83D\uDD0A Read this tab'; }
 }
 function toggleRead(){
   if(!window.speechSynthesis) { toast('Read aloud is not supported in this browser.'); return; }
@@ -972,7 +1262,7 @@ function toggleRead(){
   u.onend = stopReading;
   u.onerror = stopReading;
   isReading = true;
-  const b=el('readBtn'); if(b){ b.classList.add('reading'); b.textContent='⏹ Stop reading'; }
+  const b=el('readBtn'); if(b){ b.classList.add('reading'); b.textContent='\u23F9 Stop reading'; }
   speechSynthesis.speak(u);
 }
 
@@ -1002,50 +1292,114 @@ function runSelfTest(){
     ok(STATIONS.every(s=>(s.imgs||[]).length>=1), 'every station has >=1 exhibit image');
     ok(typeof window.signIn==='function' && typeof window.toggleRead==='function','window handlers exposed');
 
-    loadStation(3); const t=document.querySelector('#fields textarea');
-    if(t){ t.focus(); t.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true})); ok(cur===3, 'ArrowRight in textarea does not jump station'); }
+    // Sequential lock before starting
+    loadStation(0);
+    ok(!isStationUnlocked(2) && !isStationUnlocked(7), 'Future days locked before earlier days completed');
+    ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
+    state.section = '801-HE'; el('ackBtn').click();
+    ok(started===true && cur===1, 'Ack opens Health Office and moves to Monday');
 
-    // Duplicate order guard
-    loadStation(6);
-    setPath(state, 'responses.chain', {a:'1',b:'1',c:'3',d:'4',e:'5'});
-    ok(!isFilled(STATIONS[6].fields[0]), 'Duplicate step numbers rejected by isFilled');
-    setPath(state, 'responses.chain', {b:'1',e:'2',d:'3',a:'4',c:'5'});
-    ok(isFilled(STATIONS[6].fields[0]), 'Unique 1..5 accepted by isFilled');
-
-    loadStation(0); ok(!el('ackBtn').classList.contains('done'), 'Ack starts undone');
-    state.section = '801-HE'; el('ackBtn').click(); ok(started===true, 'Ack sets started');
-
-    // Monday button requires evidence justification before stationDone / step(1)
-    loadStation(1);
-    setPath(state, 'judgments.s0.guess', 'A virus that attacks the stomach');
+    // Monday: right-side Check & Next Day button + justification enforcement
+    ok(!!el('nextDayBtn'), 'Right-side Check & Next Day button rendered on Monday');
+    setPath(state, 'judgments.s0.guess', 'Something in the West Wing drinking water');
+    hydrateFields();
     ok(!stationDone(1), 'Monday button alone is NOT done without justification');
-    step(1); ok(cur===1, 'Next day blocked when Monday justification is empty');
-    setPath(state, 'judgments.s0.why', 'idk');
-    ok(!stationDone(1), '1-word justification rejected');
-    setPath(state, 'judgments.s0.why', 'Three students threw up before lunch with zero cough.');
-    ok(stationDone(1), '4+ word evidence justification completes Monday');
-    step(1); ok(cur===2, 'Next day advances once Monday is justified');
+    el('nextDayBtn').click(); ok(cur===1, 'Right-side Next Day button blocks when justification empty');
+    setPath(state, 'judgments.s0.why', 'Three West Wing students threw up before lunch.');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===2, 'Right-side Next Day button advances to Tuesday when Monday complete');
 
-    loadStation(8); ok(!!document.getElementById('lockedPanel'),'S8 locked before commit');
-
-    window.alert = ()=>{}; window.confirm = ()=>true;
-    loadStation(7); el('commitBtn').click(); ok(!committed, 'Commit blocked when empty');
-
+    // Tuesday: dynamic Nurse Chen callback + wrong choice coaching + number check
+    ok(el('deckContent').innerHTML.includes('sim-callback') && el('deckContent').innerHTML.includes('West Wing drinking water'), 'Tuesday renders Nurse Chen dynamic callback quoting Monday hypothesis');
+    setPath(state, 'judgments.s1.choice', 'The lungs and airways (respiratory system)');
+    setPath(state, 'judgments.s1.why', '88% of sick students had stomach symptoms.');
+    hydrateFields();
+    ok(!stationDone(2) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Tuesday body-system choice blocked with Nurse Chen teaching box');
     setPath(state, 'judgments.s1.choice', 'The stomach and gut (digestive system)');
-    setPath(state, 'judgments.s1.why', '88 percent of sick students had vomiting and cramps.');
+    setPath(state, 'judgments.s1.why', 'Students felt bad in their stomachs today.');
+    hydrateFields();
+    ok(!stationDone(2), 'Tuesday why without number/percentage triggers coaching check');
+    setPath(state, 'judgments.s1.why', '88% of sick students had stomach cramps and vomiting.');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===3, 'Tuesday advances to Wednesday once choice + number justification valid');
+
+    // Wednesday: ArrowRight guard + pair teaching check
+    const t3=document.querySelector('#fields textarea');
+    if(t3){ t3.focus(); t3.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true})); ok(cur===3, 'ArrowRight in textarea does not jump station'); }
+    setPath(state, 'matches.a1', {gate:'Mouth', germ:'Virus'});
+    setPath(state, 'matches.a2', {gate:'Nose', germ:'Virus'});
+    setPath(state, 'matches.a3', {gate:'Eyes', germ:'Virus'});
+    setPath(state, 'matches.a4', {gate:'Cut or scrape', germ:'Virus'});
+    setPath(state, 'responses.q5', 'Mouth gate after holding dirty ducks and nose gate from sneezes.');
+    hydrateFields();
+    ok(!stationDone(3) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Germ Type (Virus on knee scrape) blocked with teaching note');
+    setPath(state, 'matches.a4', {gate:'Cut or scrape', germ:'Bacteria'});
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===4, 'Wednesday advances to Thursday once all 4 pairs + gates valid');
+
+    // Thursday: VP Raman dynamic callback + Vaccines/Antibiotics misconception coaching
+    ok(el('deckContent').innerHTML.includes('sim-callback') && el('deckContent').innerHTML.includes('100% clean'), 'Thursday renders VP Raman dynamic callback reacting to Monday water guess');
     setPath(state, 'judgments.s1.pattern', 'The sickness is spreading person to person, and speeding up each day');
     setPath(state, 'judgments.s1.pattern_why', 'Cases jumped from 3 to 7 to 18 to 34 while water tested clean.');
     setPath(state, 'judgments.s2.top', 'The all-week resin duck trading before lunch');
     setPath(state, 'judgments.s2.why', 'Ducks were traded across all grades before Wednesday afternoon.');
-    setPath(state, 'responses.c1_name', 'Suspect B: Norovirus (stomach virus)');
-    setPath(state, 'responses.c1_clue1', '88 percent had stomach symptoms and recovered in 24 to 48 hours.');
-    setPath(state, 'responses.c1_clue2', 'Cannot be Salmonella because 21 sick students brought lunch from home.');
-    ['rule1_what','rule1_why','rule2_what','rule2_why','rule3_what','rule3_why'].forEach(k=>setPath(state, 'responses.'+k, 'stay home forty eight hours'));
-    el('commitBtn').click(); ok(committed, 'Commit succeeds with valid justified data');
+    setPath(state, 'responses.q6', 'Soap lifts grease off skin and running water rinses viruses down the drain.');
+    setPath(state, 'partB', {
+      does: {v:'Trains immune system', a:'Kills bacteria'},
+      when: {v:'Before you get sick', a:'After you get sick'},
+      which:{v:'Viruses and some bacteria', a:'Viruses and bacteria'},
+      others:{v:'Protects vulnerable classmates', a:'Overuse breeds superbugs'}
+    });
+    hydrateFields();
+    ok(!stationDone(4) && !!document.querySelector('#fields .teach-box.fix'), 'Antibiotic-kills-virus misconception caught and coached on Thursday');
+    setPath(state, 'partB.which.a', 'Bacteria only');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===5, 'Thursday advances to Friday AM once misconception fixed');
 
-    loadStation(7); ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after commit');
-    loadStation(8); ok(!document.getElementById('lockedPanel'),'S8 unlocked after commit');
-    switchTab('yourfile'); ok(el('tabBody').innerHTML.includes('review-tbl') && el('tabBody').innerHTML.includes('Rule 1'), 'Review tab renders score + Monday rules');
+    // Friday AM: suspect coaching + advance
+    setPath(state, 'responses.c1_name', 'Suspect C: Salmonella (food-poisoning bacteria)');
+    setPath(state, 'responses.c1_clue1', '88 percent had stomach symptoms and recovered in 24 to 48 hours.');
+    setPath(state, 'responses.c1_clue2', '21 sick students brought lunch from home so cafeteria food is ruled out.');
+    hydrateFields();
+    ok(!stationDone(5) && !!document.querySelector('#fields .teach-box.fix'), 'Wrong Friday AM suspect (Salmonella) coached with home-lunch clue');
+    setPath(state, 'responses.c1_name', 'Suspect B: Norovirus (stomach virus)');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===6, 'Friday AM advances to Friday Noon');
+
+    // Friday Noon: duplicate + wrong-order coaching + penicillin check
+    setPath(state, 'responses.chain', {a:'1',b:'1',c:'3',d:'4',e:'5'});
+    ok(!isFilled(STATIONS[6].fields[0]), 'Duplicate step numbers rejected by isFilled');
+    setPath(state, 'responses.chain', {a:'1',b:'2',c:'3',d:'4',e:'5'});
+    ok(!isFilled(STATIONS[6].fields[0]), 'Out-of-order 1..5 chain coached before advancing');
+    setPath(state, 'responses.chain', {b:'1',e:'2',d:'3',a:'4',c:'5'});
+    ok(isFilled(STATIONS[6].fields[0]), 'Correct 1..5 fomite chain accepted');
+    setPath(state, 'responses.c2', 'Plain soap did not kill Norovirus and Mr. Boudreau wiped the fountain tap with the same cloth.');
+    setPath(state, 'responses.c3a', 'Norovirus is a virus and penicillin only kills bacteria.');
+    setPath(state, 'responses.c3b', 'Classmates must wash hands with soap for 20 seconds so Marcus stays safe.');
+    hydrateFields();
+    el('nextDayBtn').click(); ok(cur===7, 'Friday Noon advances to Friday 3:15');
+
+    // Friday 3:15: S8 still locked, empty commit blocked, Test Draft Rules works, Commit unlocks S8 + Simulated Next Week
+    ok(!isStationUnlocked(8), 'S8 locked before commit');
+    window.confirm = ()=>true;
+    el('commitBtn').click(); ok(!committed, 'Commit blocked when S7 rules empty');
+    setPath(state, 'responses.rule1_what', 'Stay home 48 hours after vomiting stops.');
+    setPath(state, 'responses.rule1_why', 'People still shed Norovirus for 48 hours.');
+    setPath(state, 'responses.rule2_what', 'Wipe taps and fountains with bleach cleaner.');
+    setPath(state, 'responses.rule2_why', 'Regular pink cleaner failed on tough stomach viruses.');
+    setPath(state, 'responses.rule3_what', 'Pause resin duck trading and wash with soap and water.');
+    setPath(state, 'responses.rule3_why', 'Ducks are fomites and soap rinses virus off unlike sanitizer.');
+    hydrateFields();
+    el('testPlanBtn').click();
+    ok(el('planSimBox').classList.contains('show') && el('planSimBox').innerHTML.includes('3 out of 3'), 'Test Draft Rules renders live school character replies');
+    el('commitBtn').click();
+    ok(committed && cur===8, 'Commit succeeds and opens Case Closed');
+
+    ok(!document.getElementById('lockedPanel') && el('tabBody').innerHTML.includes('sim-week-card'), 'S8 unlocked after commit and renders Simulated Next Week curve');
+    switchTab('yourfile');
+    ok(el('tabBody').innerHTML.includes('review-tbl') && el('tabBody').innerHTML.includes('sim-week-card') && el('tabBody').innerHTML.includes('Rule 1'), 'Review tab renders Simulated Next Week + score + Monday rules');
+    loadStation(7);
+    ok(document.querySelector('#fields textarea').disabled, 'S7 fields disabled after commit');
   }catch(e){ out.push('FAIL: exception '+e.message); }
   const d=document.createElement('div'); d.id='selftest'; d.textContent=out.join(' | '); document.body.appendChild(d);
 }
