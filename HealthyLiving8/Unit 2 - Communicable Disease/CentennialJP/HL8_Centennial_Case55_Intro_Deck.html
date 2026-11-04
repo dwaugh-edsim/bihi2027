@@ -1,0 +1,1467 @@
+<!DOCTYPE HTML>
+<!--
+    Healthy Living 8 • ユニット2 感染症
+    「ケース55: センテニアルのアウトブレイク」 課題紹介デッキ
+
+    Mr. Waugh • Room 8 • Bicentennial Junior High School
+    すべての HL8 クラスで使えます: 801, 802, 803, 804
+
+    目的: ケース55の調査シミュレーションを紹介し、その使い方を手順に案内します。
+    このデッキは内容を教えていません。容疑者、科学、侵入経路 (entry gate)、
+    月曜のルールはすべてシミュレーションの中にとどめているので、
+    証拠の調査が先に答えを明かしてしまうことはありません。
+
+    デザインシステム: Strongly Typed (Room 8 既定)
+    見出しは Arvo slab、本文は Source Sans 3、ラベルは JetBrains Mono、
+    投影機用のハイコントラスト ライトモード、二重罫線、シグネチャーカラー (#ed786a)。
+
+    レイアウト: 1536x864 の固定キャンバスを画面に合わせる (PowerPoint方式)、
+    校舎内のどのプロジェクターでも同じ見た目になります。
+
+    このユニットのルール: 生徒向けの文字列に em dash や en dash を使わない。
+-->
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>HL8 ユニット2 • ケース55: センテニアルのアウトブレイク</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Strongly Typed light palette */
+            --paper: #eceff2;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --line: #cbd5e1;
+            --line-soft: #e5e9f0;
+            --line-dark: #94a3b8;
+            --ink: #1e2530;
+            --ink-heading: #0f172a;
+            --ink-body: #333b48;
+            --ink-muted: #475569;
+            --dim: #64748b;
+
+            /* Signature + structured accents */
+            --coral: #ed786a;
+            --coral-dark: #c95548;
+            --coral-pale: #fdf0ee;
+            --teal: #0f766e;
+            --teal-pale: #f0fdfa;
+            --navy: #1d4ed8;
+            --navy-pale: #eff6ff;
+            --amber: #b45309;
+            --amber-pale: #fef3c7;
+            --emerald: #15803d;
+            --emerald-pale: #dcfce7;
+
+            --font-display: 'Arvo', Georgia, 'Noto Sans JP', serif;
+            --font-body: 'Source Sans 3', -apple-system, 'Noto Sans JP', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Noto Sans JP', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            background: #14171d;
+            color: var(--ink);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* ══ Fixed stage: 1536 x 864, scaled to fit any screen ══ */
+        #stage {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #canvas {
+            width: 1536px;
+            height: 864px;
+            flex: none;
+            background: var(--paper);
+            background-image:
+                repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform-origin: center center;
+            box-shadow: 0 18px 60px rgba(0,0,0,.45);
+        }
+
+        /* ── Signature double-rule ── */
+        .double-rule-bottom {
+            border-bottom: 2px solid var(--line-soft);
+            box-shadow: inset 0 -6px 0 0 var(--surface), inset 0 -8px 0 0 var(--line);
+        }
+        .double-rule-top {
+            border-top: 2px solid var(--line-soft);
+            box-shadow: inset 0 6px 0 0 var(--surface), inset 0 8px 0 0 var(--line);
+        }
+
+        /* ── Header ── */
+        #header {
+            background: var(--surface);
+            padding: 8px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            gap: 16px;
+        }
+        .header-brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+        .header-logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .header-logo span { color: var(--coral); }
+        .header-sep { color: var(--line-dark); font-size: 1.1rem; font-weight: 300; }
+        .header-sub {
+            font-size: .76rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .badge-pill {
+            background: var(--coral-pale);
+            color: var(--coral-dark);
+            border: 1px solid #f9c2bc;
+            font-family: var(--font-mono);
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 3px;
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+        .badge-pill.hot { background: var(--amber-pale); color: var(--amber); border-color: #fde68a; }
+        .slide-counter {
+            font-family: var(--font-mono);
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+        /* ── Viewport + slides ── */
+        #viewport { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 16px 40px 14px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .slide.active { display: flex; }
+        .slide.plain { background: transparent; padding: 0; }
+
+        /* ── Slide typography ── */
+        .slide-eyebrow {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2.6px;
+            color: #7c8798;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+        .slide-eyebrow .eyebrow-num {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            color: #ffffff;
+            background: var(--coral);
+            border-radius: 3px;
+            padding: 1px 7px;
+            margin-right: 7px;
+            letter-spacing: 0;
+        }
+        .slide-h1 {
+            font-family: var(--font-display);
+            font-size: 2.3rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--ink-heading);
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+            text-shadow: 0.04em 0.05em 0 rgba(0,0,0,.07);
+            flex-shrink: 0;
+        }
+        .slide-h1 em { color: var(--coral-dark); font-style: normal; }
+        .slide-sub {
+            font-size: 1.02rem;
+            line-height: 1.42;
+            color: var(--ink-body);
+            max-width: 1250px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+        .slide-sub strong { color: var(--ink-heading); }
+
+        .body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        /* .mid  = centre the block in the leftover space, callout pinned to the bottom
+           .fill = stretch the block to fill the body height */
+        .mid { margin: auto 0; flex-shrink: 0; }
+        .fill { flex: 1; min-height: 0; }
+        .body > .callout-box, .body > .commit-strip, .body > .timeline { flex-shrink: 0; }
+
+        /* ── Grids ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+        .split { display: grid; grid-template-columns: 1.12fr .88fr; gap: 20px; width: 100%; align-items: stretch; }
+        .col { display: flex; flex-direction: column; min-height: 0; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-top-width: 4px;
+            border-radius: 4px;
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .card.coral { border-top-color: var(--coral); }
+        .card.teal  { border-top-color: var(--teal); }
+        .card.navy  { border-top-color: var(--navy); }
+        .card.amber { border-top-color: var(--amber); }
+        .card.emerald { border-top-color: var(--emerald); }
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: .64rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: #8b95a6;
+        }
+        .card-h2 {
+            font-family: var(--font-display);
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: var(--ink-heading);
+            line-height: 1.18;
+        }
+        .card-p { font-size: .88rem; line-height: 1.4; color: var(--ink-body); }
+        .card-p strong { color: var(--ink-heading); }
+        .card-num {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--coral);
+            line-height: 1;
+        }
+        .card-foot {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 8px;
+            font-size: .79rem; line-height: 1.38; color: var(--ink-muted);
+        }
+        .card-foot b { color: var(--ink-heading); }
+        /* Mini answer box: mirrors the real Friday 3:15 input fields */
+        .ansbox {
+            background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px;
+            padding: 6px 8px; font-size: .76rem; line-height: 1.35; color: #8c96a6; font-style: italic;
+        }
+        .ansbox b {
+            display: block; font-style: normal; font-family: var(--font-mono); font-size: .6rem;
+            letter-spacing: .12em; color: var(--teal); margin-bottom: 1px;
+        }
+        .ansbox + .ansbox { margin-top: 5px; }
+        .card > .ansbox { flex: 1 1 0; min-height: 52px; }
+
+        /* ══════════ MINI PREVIEWS (fill a card without inventing content) ══════════ */
+        .tabpreview {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 10px;
+            display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto;
+        }
+        .tp-row {
+            display: flex; gap: 8px; align-items: center; background: var(--surface-subtle);
+            border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px;
+            font-size: .77rem; line-height: 1.35; color: var(--ink-body); flex: 1 1 0;
+        }
+        .tp-tag {
+            flex: none; font-family: var(--font-mono); font-size: .56rem; font-weight: 800;
+            letter-spacing: .1em; color: #8b95a6; padding-top: 2px;
+        }
+        .minimock {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 10px;
+            display: flex; flex-direction: column; gap: 7px; flex: 1 1 auto;
+        }
+        .mm-btn {
+            background: var(--amber); color: #1a1206; border-radius: 4px; padding: 9px;
+            font-size: .8rem; font-weight: 800; text-align: center;
+        }
+        .mm-bar {
+            background: #0e1729; color: #22c55e; border: 1px solid #243352; border-radius: 4px;
+            font-family: var(--font-mono); font-size: .68rem; font-weight: 700; padding: 8px 10px; letter-spacing: .06em;
+        }
+        .mm-bar.amber { color: #f59e0b; }
+        .mm-steps { display: flex; gap: 5px; }
+        .mm-step {
+            flex: 1; text-align: center; font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+            padding: 6px 0; border: 1px solid var(--line); border-radius: 4px;
+            background: var(--surface-subtle); color: var(--ink-muted);
+        }
+        .mm-step.done { background: var(--emerald-pale); border-color: var(--emerald); color: var(--emerald); }
+        .mm-step.now { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+
+        /* ── Callout ── */
+        .callout-box {
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-left: 5px solid var(--coral);
+            border-radius: 4px;
+            padding: 11px 16px;
+            font-size: .95rem;
+            line-height: 1.4;
+            color: var(--ink-body);
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .callout-box.amber { border-left-color: var(--amber); }
+        .callout-box.teal  { border-left-color: var(--teal); }
+        .callout-box strong { color: var(--ink-heading); }
+
+        /* ── Photo panel with viewfinder brackets ── */
+        .photo {
+            position: relative;
+            border: 2px solid var(--ink-heading);
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--ink-heading);
+            box-shadow: 0 4px 14px rgba(0,0,0,.18);
+            flex: 1;
+            min-height: 0;
+        }
+        .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .photo::before, .photo::after {
+            content: "";
+            position: absolute;
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,.85);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .photo::before { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+        .photo::after  { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+        .photo-cap {
+            font-family: var(--font-mono);
+            font-size: .66rem;
+            color: var(--dim);
+            margin-top: 6px;
+            letter-spacing: .02em;
+            flex-shrink: 0;
+        }
+
+        /* ── Numbered step list ── */
+        .steps { display: flex; flex-direction: column; gap: 10px; }
+        .step { display: flex; gap: 12px; align-items: flex-start; }
+        .step-n {
+            flex: none;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--ink-heading);
+            color: #fff;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: .78rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .step-n.coral { background: var(--coral); }
+        .step-t { font-size: .93rem; line-height: 1.38; color: var(--ink-body); padding-top: 4px; }
+        .step-t strong { color: var(--ink-heading); }
+
+        /* ══════════ SLIDE 1: COVER ══════════ */
+        .cover { position: absolute; inset: 0; display: none; overflow: hidden; background: #05080f; }
+        .cover.active { display: block; }
+        .cover-img {
+            position: absolute; inset: 0;
+            background: url('../Centennial/assets/case55_cover.png') center/cover no-repeat;
+        }
+        .cover-scrim {
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(100deg, rgba(5,8,15,.96) 0%, rgba(5,8,15,.90) 40%, rgba(5,8,15,.58) 64%, rgba(5,8,15,.34) 100%);
+        }
+        .cover-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 74px;
+        }
+        .cover-stamp {
+            display: inline-flex;
+            align-self: flex-start;
+            align-items: center;
+            gap: 9px;
+            font-family: var(--font-mono);
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: #ffd7d1;
+            border: 2px solid var(--coral);
+            background: rgba(237,120,106,.14);
+            padding: 6px 13px;
+            border-radius: 3px;
+            transform: rotate(-1.2deg);
+            margin-bottom: 20px;
+        }
+        .cover-stamp .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+        .cover-kicker {
+            font-family: var(--font-mono);
+            font-size: .82rem;
+            font-weight: 700;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 8px;
+        }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: 5.6rem;
+            font-weight: 700;
+            line-height: .98;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            text-shadow: 0.03em 0.04em 0 rgba(0,0,0,.5);
+            margin-bottom: 12px;
+        }
+        .cover-title .thin { color: var(--coral); }
+        .cover-rule { width: 110px; height: 5px; background: var(--coral); margin-bottom: 16px; border-radius: 2px; }
+        .cover-lede {
+            font-size: 1.16rem;
+            line-height: 1.48;
+            color: #d7dde7;
+            max-width: 760px;
+            margin-bottom: 22px;
+        }
+        .cover-lede strong { color: #ffffff; }
+        .cover-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .cover-chip {
+            font-family: var(--font-mono);
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #cbd5e1;
+            border: 1px solid #3d4b63;
+            background: rgba(255,255,255,.06);
+            padding: 6px 11px;
+            border-radius: 3px;
+        }
+        .cover-chip.hot { color: #ffd7d1; border-color: var(--coral); background: rgba(237,120,106,.14); }
+
+        /* ══════════ SURGE HERO ══════════ */
+        .surge {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            padding: 12px 16px 0;
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .surge-b {
+            flex: 1;
+            height: var(--h);
+            min-height: 42px;
+            background: linear-gradient(180deg, #f39083 0%, var(--coral) 100%);
+            border-radius: 3px 3px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 6px;
+            border: 1px solid var(--coral-dark);
+            border-bottom: 0;
+        }
+        .surge-b b { font-family: var(--font-display); font-size: 1.5rem; color: #fff; line-height: 1; }
+        .surge-b span {
+            font-family: var(--font-mono);
+            font-size: .6rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: #fff;
+            opacity: .92;
+            margin-top: 3px;
+        }
+        .surge-b.cold { background: linear-gradient(180deg, #7fb3ee 0%, var(--navy) 100%); border-color: #16369c; }
+        .surge-axis { display: flex; gap: 12px; padding: 0 16px; flex-shrink: 0; }
+        .surge-axis div {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: .09em;
+            color: var(--dim);
+            text-align: center;
+            padding: 4px 0 0;
+        }
+
+        /* ══════════ TIMELINE ══════════ */
+        .timeline { display: flex; align-items: stretch; gap: 0; flex-shrink: 0; margin-top: 12px; }
+        .tl-node { flex: 1; position: relative; padding: 24px 6px 0; text-align: center; }
+        .tl-node::before {
+            content: ""; position: absolute; top: 10px; left: 0; right: 0; height: 3px; background: var(--line);
+        }
+        .tl-node::after {
+            content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+            width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--coral);
+        }
+        .tl-node.locked::after { border-color: var(--amber); }
+        .tl-node.locked::before { background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 15px); }
+        .tl-label {
+            font-family: var(--font-mono); font-size: .64rem; font-weight: 800; letter-spacing: .05em;
+            text-transform: uppercase; color: var(--ink-heading); line-height: 1.2;
+        }
+        .tl-sub { font-size: .7rem; color: var(--dim); margin-top: 2px; }
+        .tl-node.locked .tl-label { color: var(--amber); }
+
+        /* ══════════ UI MOCKUP ══════════ */
+        .mock-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+        .mock {
+            flex: 0 0 auto;
+            height: 520px;
+            display: grid;
+            grid-template-rows: 24px 1fr;
+            grid-template-columns: 168px 1fr 268px;
+            border: 2px solid var(--ink-heading);
+            border-radius: 5px;
+            overflow: hidden;
+            background: #0b1220;
+            box-shadow: 0 6px 20px rgba(0,0,0,.28);
+        }
+        .mock-hud {
+            grid-column: 1 / -1;
+            background: #0e1729;
+            border-bottom: 2px solid #243352;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+            font-family: var(--font-mono);
+            font-size: .52rem;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+        .mock-hud .brand { color: #ffffff; font-family: 'Roboto Slab', Georgia, 'Noto Sans JP', serif; font-size: .62rem; letter-spacing: .02em; }
+        .mock-hud .pill { border: 1px solid #243352; border-radius: 999px; padding: 1px 6px; }
+        .mock-hud .pill b { color: #e2e8f0; }
+        .mock-hud .ok { color: #22c55e; border-color: #22c55e; }
+        .mock-hud .spacer { flex: 1; }
+        .mock-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+        .mock-rail { background: #0e1729; border-right: 2px solid #243352; padding: 7px; }
+        .mock-centre { background: #0b1220; padding: 8px 10px; overflow: hidden; }
+        .mock-log { background: #0e1729; border-left: 2px solid #243352; padding: 7px; }
+        .mock-h {
+            font-family: var(--font-mono); font-size: .54rem; font-weight: 800; letter-spacing: .13em;
+            text-transform: uppercase; color: #64748b; margin-bottom: 5px;
+        }
+        .mock-nav {
+            display: flex; justify-content: space-between; gap: 5px;
+            background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 4px 6px; margin-bottom: 3px;
+            font-family: var(--font-mono); font-size: .55rem; font-weight: 700; letter-spacing: .05em;
+            color: #e2e8f0; text-transform: uppercase;
+        }
+        .mock-nav.on { border-color: #f59e0b; background: #1a2542; color: #f59e0b; }
+        .mock-nav.lock { opacity: .55; color: #f59e0b; }
+        .mock-surge { margin-top: 6px; padding: 6px; border: 1px solid #243352; border-radius: 5px; background: #111c33; }
+        .mock-surge-row { display: flex; gap: 3px; }
+        .mock-surge-cell {
+            flex: 1; text-align: center; border: 1px solid #243352; border-radius: 3px; background: #0e1729; padding: 2px 0;
+        }
+        .mock-surge-cell b { display: block; font-family: Georgia, 'Noto Sans JP', serif; font-size: .74rem; color: #fb7185; line-height: 1.15; }
+        .mock-surge-cell i { font-family: var(--font-mono); font-style: normal; font-size: .44rem; color: #64748b; }
+        .mock-kicker { font-family: var(--font-mono); font-size: .54rem; font-weight: 700; letter-spacing: .14em; color: #2dd4bf; text-transform: uppercase; }
+        .mock-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .mock-read { flex: none; border: 1px solid #2dd4bf; color: #2dd4bf; border-radius: 4px; padding: 2px 7px; font-family: var(--font-mono); font-size: .5rem; font-weight: 700; }
+        .mock-title { font-family: var(--font-display); font-size: .88rem; color: #fff; margin: 1px 0 5px; line-height: 1.2; }
+        .mock-char { display: flex; gap: 7px; background: #111c33; border: 1px solid #243352; border-radius: 6px; padding: 5px; margin-bottom: 6px; }
+        .mock-char img { width: 38px; height: 38px; border-radius: 5px; object-fit: cover; border: 2px solid #f59e0b; flex: none; }
+        .mock-char .who { font-family: var(--font-mono); font-size: .5rem; font-weight: 800; letter-spacing: .07em; color: #f59e0b; text-transform: uppercase; }
+        .mock-char .q { font-size: .58rem; color: #e2e8f0; line-height: 1.3; margin-top: 2px; }
+        .mock-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
+        .mock-tab {
+            font-family: var(--font-mono); font-size: .53rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+            background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 3px 7px;
+        }
+        .mock-tab.on { background: #2dd4bf; color: #06251f; border-color: #2dd4bf; }
+        .mock-body { background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 6px 8px; font-size: .58rem; color: #cbd5e1; line-height: 1.4; }
+        .mock-body b { color: #fff; }
+        .mock-exhibit { margin-top: 6px; border: 1px solid #243352; border-radius: 5px; overflow: hidden; }
+        .mock-exhibit img { width: 100%; height: 120px; object-fit: cover; display: block; }
+        .mock-exhibit .cap { font-family: var(--font-mono); font-size: .48rem; color: #64748b; padding: 4px 7px; border-top: 1px solid #243352; }
+        .mock-log-h { font-family: var(--font-mono); font-size: .52rem; font-weight: 800; letter-spacing: .1em; color: #2dd4bf; text-transform: uppercase; margin-bottom: 5px; }
+        .mock-prompt { background: #111c33; border: 1px solid #243352; border-left: 2px solid #2dd4bf; border-radius: 5px; padding: 6px 7px; font-size: .58rem; color: #e2e8f0; line-height: 1.34; margin-bottom: 6px; }
+        .mock-opt { display: block; width: 100%; text-align: left; background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 4px 7px; font-size: .56rem; margin-bottom: 3px; line-height: 1.28; }
+        .mock-opt.on { background: #f59e0b; color: #1a1206; border-color: #f59e0b; font-weight: 700; }
+        .mock-area { background: #111c33; border: 1px solid #243352; border-radius: 4px; padding: 5px 7px; font-size: .56rem; color: #7d8ba1; font-style: italic; margin-bottom: 6px; }
+        .mock-hist { margin-top: auto; border-top: 1px solid #243352; padding-top: 5px; font-family: var(--font-mono); font-size: .5rem; color: #64748b; line-height: 1.55; }
+        .mock-hist b { color: #2dd4bf; }
+
+        .abc-key { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; flex-shrink: 0; }
+        .abc-item {
+            display: flex; gap: 10px; align-items: flex-start; font-size: .82rem; line-height: 1.38; color: var(--ink-body);
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 4px; padding: 10px 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .abc-badge {
+            flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink-heading); color: #fff;
+            font-family: var(--font-mono); font-weight: 800; font-size: .7rem; display: flex; align-items: center; justify-content: center;
+        }
+        .abc-item strong { color: var(--ink-heading); display: block; font-size: .86rem; }
+
+        /* ══════════ SIGN-IN GATE MOCK ══════════ */
+        .gate-mock {
+            border: 2px solid var(--ink-heading); border-radius: 6px; overflow: hidden;
+            background: linear-gradient(rgba(11,18,32,.72), rgba(11,18,32,.86)), url('../Centennial/assets/s0_normal_school.png') center/cover no-repeat;
+            box-shadow: 0 4px 14px rgba(0,0,0,.2);
+        }
+        .gate-mock-inner { padding: 16px 18px; text-align: center; }
+        .gate-mock-k { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin-bottom: 5px; }
+        .gate-mock-h { font-family: var(--font-display); font-size: 1.06rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .gate-mock-btn { background: var(--amber); color: #1a1206; font-weight: 800; border-radius: 6px; padding: 9px; font-size: .82rem; }
+        .gate-mock-hint { font-family: var(--font-mono); font-size: .6rem; color: #94a3b8; margin-top: 8px; line-height: 1.45; }
+
+        /* ══════════ TAB CARDS ══════════ */
+        .tabcard { border-radius: 5px; overflow: hidden; border: 1.5px solid var(--line); background: var(--surface); box-shadow: 0 2px 6px rgba(0,0,0,.05); display: flex; flex-direction: column; }
+        .tabcard-bar { padding: 8px 14px; font-family: var(--font-mono); font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; }
+        .tabcard.navy .tabcard-bar { background: var(--navy); }
+        .tabcard.teal .tabcard-bar { background: var(--teal); }
+        .tabcard.amber .tabcard-bar { background: var(--amber); }
+        .tabcard-body { padding: 12px 14px; flex: 1; }
+        .tabcard-body p { font-size: .92rem; line-height: 1.42; color: var(--ink-body); }
+        .tabcard-body strong { color: var(--ink-heading); }
+        .tabcard .example { font-family: var(--font-mono); font-size: .64rem; color: var(--dim); margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 7px; }
+
+        /* ══════════ FIELD WIDGETS ══════════ */
+        .widget {
+            background: var(--surface); border: 1.5px solid var(--line); border-top: 4px solid var(--teal); border-radius: 4px;
+            padding: 10px 11px; display: flex; flex-direction: column; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .widget-h { font-family: var(--font-mono); font-size: .64rem; font-weight: 800; letter-spacing: .11em; color: var(--teal); text-transform: uppercase; }
+        .widget-p { font-size: .82rem; line-height: 1.35; color: var(--ink-muted); }
+        .widget-foot {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 7px;
+            font-size: .75rem; line-height: 1.35; color: var(--ink-muted);
+        }
+        .widget-foot b { color: var(--ink-heading); }
+        .w-opt { display: block; width: 100%; text-align: left; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 7px; font-size: .75rem; color: var(--ink-body); margin-bottom: 3px; line-height: 1.28; }
+        .w-opt.on { background: var(--amber); color: #1a1206; border-color: #b45309; font-weight: 700; }
+        .w-input { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; font-size: .75rem; color: #8c96a6; font-style: italic; }
+        .w-row { display: flex; gap: 5px; align-items: center; margin-bottom: 3px; }
+        .w-sel { flex: 1; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; font-family: var(--font-mono); font-size: .62rem; color: var(--ink-body); }
+        .w-sel.empty { color: #8c96a6; }
+        .w-num { flex: none; width: 26px; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px; padding: 4px 0; font-family: var(--font-mono); font-size: .66rem; font-weight: 700; text-align: center; color: var(--ink-heading); }
+        .w-table { width: 100%; border-collapse: collapse; font-size: .7rem; }
+        .w-table th { background: var(--surface-subtle); border: 1px solid var(--line); padding: 3px 5px; font-family: var(--font-mono); font-size: .56rem; text-transform: uppercase; color: var(--ink-muted); text-align: left; }
+        .w-table td { border: 1px solid var(--line); padding: 4px 5px; color: #8c96a6; font-style: italic; }
+
+        /* ══════════ COMMIT ══════════ */
+        .commit-strip {
+            margin-top: 12px; flex-shrink: 0;
+            background: var(--amber-pale); border: 2px solid var(--amber); border-radius: 5px; padding: 13px 18px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .commit-btn {
+            flex: none; background: var(--amber); color: #ffffff; border: 2px solid #8a4008; border-radius: 5px;
+            padding: 11px 20px; font-family: var(--font-mono); font-size: .88rem; font-weight: 800; letter-spacing: .07em; white-space: nowrap;
+        }
+        .commit-note { font-size: .92rem; line-height: 1.4; color: var(--ink-body); }
+        .commit-note strong { color: var(--ink-heading); }
+
+        /* ══════════ CAST CARDS ══════════ */
+        .castcard {
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 5px; overflow: hidden;
+            display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,.06); min-height: 0;
+        }
+        .castcard img { width: 100%; height: 0; flex: 1 1 0; min-height: 0; object-fit: cover; object-position: center 20%; display: block; }
+        .castcard .cap { padding: 8px 12px 10px; border-top: 3px solid var(--coral); }
+        .castcard.teal .cap { border-top-color: var(--teal); }
+        .castcard.navy .cap { border-top-color: var(--navy); }
+        .castcard.amber .cap { border-top-color: var(--amber); }
+        .castcard.emerald .cap { border-top-color: var(--emerald); }
+        .castcard .nm { font-family: var(--font-display); font-size: 1.02rem; font-weight: 700; color: var(--ink-heading); line-height: 1.15; }
+        .castcard .rl { font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+
+        /* ══════════ CLOSING ══════════ */
+        .closing { display: grid; grid-template-columns: 1.05fr .95fr; height: 100%; }
+        .closing-l { display: flex; flex-direction: column; justify-content: center; padding: 0 30px 0 48px; }
+        .closing-r { position: relative; overflow: hidden; }
+        .closing-r img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .closing-r::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(236,239,242,.97) 0%, rgba(236,239,242,.20) 24%, rgba(236,239,242,0) 52%);
+        }
+
+        /* ── Footer ── */
+        #footer {
+            background: var(--surface); padding: 8px 26px; display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; z-index: 10; gap: 14px;
+        }
+        .footer-hint { font-size: .74rem; color: var(--ink-muted); font-weight: 600; }
+        .footer-hint kbd {
+            background: var(--paper); border: 1px solid var(--line-dark); border-radius: 3px; padding: 2px 5px;
+            font-family: var(--font-mono); font-size: .72rem; color: var(--ink); box-shadow: 0 1px 0 rgba(0,0,0,.1);
+        }
+        .footer-nav { display: flex; gap: 8px; align-items: center; }
+        .nav-btn {
+            background: var(--surface); border: 1.5px solid var(--line-dark); color: var(--ink); font-family: var(--font-body);
+            font-size: .78rem; font-weight: 700; padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all .15s;
+        }
+        .nav-btn:hover { border-color: var(--coral); color: var(--coral-dark); background: var(--coral-pale); }
+        .nav-btn.primary { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
+        .nav-btn.primary:hover { background: var(--coral-dark); }
+        .nav-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+        .tiny { font-size: .74rem; color: var(--dim); line-height: 1.35; }
+    </style>
+</head>
+<body>
+
+<div id="stage">
+<div id="canvas">
+
+    <!-- ══════════ HEADER ══════════ -->
+    <header id="header" class="double-rule-bottom">
+        <div class="header-brand">
+            <div class="header-logo">Room 8 &bull; <span>Healthy Living 8</span></div>
+            <div class="header-sep">/</div>
+            <div class="header-sub">ユニット2 &bull; 感染症 &bull; ケース55: センテニアルのアウトブレイク</div>
+        </div>
+        <div class="header-meta">
+            <span class="badge-pill">NS HL8 学習成果 CO2</span>
+            <span class="badge-pill hot">ケース55 &bull; 進行中</span>
+            <span class="slide-counter" id="slideCount">1 / 12</span>
+        </div>
+    </header>
+
+    <!-- ══════════ SLIDES ══════════ -->
+    <main id="viewport">
+
+        <!-- ─────────── 01 COVER ─────────── -->
+        <section class="cover active" data-slide="1">
+            <div class="cover-img"></div>
+            <div class="cover-scrim"></div>
+            <div class="cover-inner">
+                <div class="cover-stamp"><span class="dot"></span> センテニアル中学校 &bull; 保健室 &bull; ケースファイル55</div>
+                <div class="cover-kicker">Healthy Living 8 の調査</div>
+                <h1 class="cover-title">ケース55<br><span class="thin">センテニアルのアウトブレイク</span></h1>
+                <div class="cover-rule"></div>
+                <p class="cover-lede">
+                    金曜の朝までに、<strong>400人中55人</strong>が病気で休みます。
+                    あなたには1週間の証拠と1つの仕事があります。
+                    <strong>それを止める3つのルールを書く</strong>ことです。始業ベルが鳴る月曜までです。
+                </p>
+                <div class="cover-meta">
+                    <span class="cover-chip hot">あなたは保健室担当</span>
+                    <span class="cover-chip">9つのステージ &bull; 月曜から金曜まで</span>
+                    <span class="cover-chip">自動でサーバーに保存</span>
+                    <span class="cover-chip">リンクは Google Classroom に</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 02 YOUR JOB ─────────── -->
+        <section class="slide" data-slide="2">
+            <div class="slide-eyebrow"><span class="eyebrow-num">01</span> 課題</div>
+            <h1 class="slide-h1">あなたは学校の<em>保健室担当</em></h1>
+            <p class="slide-sub">
+                医者ではありません。クリップボードを持った探偵です。1週間、センテニアル中学校は
+                アウトブレイク (outbreak) のケースと、結論を出す権限をあなたに渡します。
+            </p>
+            <div class="body">
+                <div class="split fill">
+                    <div class="col" style="justify-content: space-between;">
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-n coral">01</div>
+                                <div class="step-t"><strong>掲示板を読む。</strong> 毎日新しい証拠が届きます。出席数、症状 (symptom) の記録、目撃者のインタビュー、実験検査の結果です。</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">02</div>
+                                <div class="step-t"><strong>判断を出す。</strong> 毎日1つ、判断を記録します。確定させるまでは何度でも書き換えてかまいません。誰にも見張られているわけではありません。</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">03</div>
+                                <div class="step-t"><strong>計画を届ける。</strong> 金曜の午後、副校長ラマンに、100人に増える前にアウトブレイクを止める3つのルールを渡します。</div>
+                            </div>
+                        </div>
+                        <div class="callout-box">
+                            1週間の物語。<strong>9つのステージ。</strong>1つの計画。そして、計画が提出されるまで見られない1つの結論。
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="photo">
+                            <img src="../Centennial/assets/s1_normal_office.png" alt="保健室の机。アイスバッグ、包帯、救急箱、欠席記録のクリップボード。" />
+                        </div>
+                        <div class="photo-cap">あなたの机。通常はアイスバッグと包帯。今週はアウトブレイクの拠点です。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 03 THE CAST ─────────── -->
+        <section class="slide" data-slide="3">
+            <div class="slide-eyebrow"><span class="eyebrow-num">02</span> ケースに登場する人々</div>
+            <h1 class="slide-h1">今週、6人があなたと話します</h1>
+            <p class="slide-sub">
+                彼らの言葉があなたの証拠です。ある人は推測しているだけ。ある人は何かを隠しています。
+                どちらがどれかを見極めるのが仕事です。
+            </p>
+            <div class="body">
+                <div class="grid-3 fill" style="grid-template-rows: 1fr 1fr; gap: 12px;">
+                    <div class="castcard">
+                        <img src="../Centennial/assets/char_vp_raman.png" alt="副校長 プリヤ・ラマン" />
+                        <div class="cap">
+                            <div class="nm">副校長 プリヤ・ラマン</div>
+                            <div class="rl">アウトブレイク対応の責任者</div>
+                        </div>
+                    </div>
+                    <div class="castcard teal">
+                        <img src="../Centennial/assets/char_nurse.png" alt="ナース・チェン" />
+                        <div class="cap">
+                            <div class="nm">ナース・チェン</div>
+                            <div class="rl">学校の公衆衛生看護師</div>
+                        </div>
+                    </div>
+                    <div class="castcard navy">
+                        <img src="../Centennial/assets/char_marcus.png" alt="マーカス" />
+                        <div class="cap">
+                            <div class="nm">マーカス</div>
+                            <div class="rl">9年生</div>
+                        </div>
+                    </div>
+                    <div class="castcard amber">
+                        <img src="../Centennial/assets/char_jayden.png" alt="ジェイデン" />
+                        <div class="cap">
+                            <div class="nm">ジェイデン</div>
+                            <div class="rl">8年生・西棟</div>
+                        </div>
+                    </div>
+                    <div class="castcard emerald">
+                        <img src="../Centennial/assets/char_sophie.png" alt="ソフィ" />
+                        <div class="cap">
+                            <div class="nm">ソフィ</div>
+                            <div class="rl">7年生</div>
+                        </div>
+                    </div>
+                    <div class="castcard">
+                        <img src="../Centennial/assets/char_boudreau.png" alt="ブドロ先生" />
+                        <div class="cap">
+                            <div class="nm">ブドロ先生</div>
+                            <div class="rl">用務員長</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 04 YOUR WEEK ─────────── -->
+        <section class="slide" data-slide="4">
+            <div class="slide-eyebrow"><span class="eyebrow-num">03</span> 使い方</div>
+            <h1 class="slide-h1">ケースは1日ずつ進みます</h1>
+            <p class="slide-sub">
+                新しい証拠が毎日届きます。本物の調査と同じようにです。
+                先に飛ばすことも、急ぐこともできません。
+            </p>
+            <div class="body">
+                <div class="grid-2 fill" style="grid-template-columns: .85fr 1.15fr; gap: 22px;">
+                    <div class="col" style="justify-content: space-between;">
+                        <div class="card amber">
+                            <div class="card-tag">病気で欠席中の生徒数</div>
+                            <div class="card-p">この数字は毎日増えていきます。増えていくのを見てください。何かが広がっており、止まっていません。</div>
+                        </div>
+                        <div class="callout-box teal">
+                            <strong>自由に移動できます。</strong> 到達したステージは開いたままで、あとからいつでも読み直せます。
+                            <strong>ロックされるのは「ケース完了」だけ</strong>で、確定させると開きます。
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="surge">
+                            <div class="surge-b cold" style="--h: 22%;"><b>3</b><span>月</span></div>
+                            <div class="surge-b cold" style="--h: 34%;"><b>7</b><span>火</span></div>
+                            <div class="surge-b" style="--h: 52%;"><b>18</b><span>水</span></div>
+                            <div class="surge-b" style="--h: 76%;"><b>34</b><span>木</span></div>
+                            <div class="surge-b" style="--h: 100%;"><b>55</b><span>金</span></div>
+                        </div>
+                        <div class="surge-axis">
+                            <div>月</div><div>火</div><div>水</div><div>木</div><div>金</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="tl-node"><div class="tl-label">ブリーフィング</div><div class="tl-sub">月曜 8:15</div></div>
+                    <div class="tl-node"><div class="tl-label">月曜日</div><div class="tl-sub">3人欠席</div></div>
+                    <div class="tl-node"><div class="tl-label">火曜日</div><div class="tl-sub">7人欠席</div></div>
+                    <div class="tl-node"><div class="tl-label">水曜日</div><div class="tl-sub">18人欠席</div></div>
+                    <div class="tl-node"><div class="tl-label">木曜日</div><div class="tl-sub">34人欠席</div></div>
+                    <div class="tl-node"><div class="tl-label">金曜の朝</div><div class="tl-sub">55人欠席</div></div>
+                    <div class="tl-node"><div class="tl-label">金曜の正午</div><div class="tl-sub">状況を整理</div></div>
+                    <div class="tl-node"><div class="tl-label">金曜 3:15</div><div class="tl-sub">確定</div></div>
+                    <div class="tl-node locked"><div class="tl-label">ケース完了</div><div class="tl-sub">ロック中</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 05 ANATOMY OF A STOP ─────────── -->
+        <section class="slide" data-slide="5">
+            <div class="slide-eyebrow"><span class="eyebrow-num">04</span> 使い方</div>
+            <h1 class="slide-h1">どのステージも画面は同じです</h1>
+            <p class="slide-sub">
+                画面は3つのパネルだけです。迷うことはありません。一度覚えてしまえば、1週間は軽く終わります。
+            </p>
+            <div class="body">
+                <div class="mock-wrap">
+                    <div class="mock">
+                        <div class="mock-hud">
+                            <span class="brand">ケース55</span>
+                            <span class="pill">センテニアル中学校</span>
+                            <span class="pill ok">SYNC: SERVER OK</span>
+                            <span class="spacer"></span>
+                            <span class="pill">保健室担当: <b>you@gnspes.ca</b></span>
+                            <span class="pill">クラス <b>802-HE</b></span>
+                        </div>
+
+                        <!-- A: left rail -->
+                        <div class="mock-col mock-rail">
+                            <div class="mock-h">アウトブレイクの経過日</div>
+                            <div class="mock-nav on"><span>月曜日</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>火曜日</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>水曜日</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>木曜日</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>金曜の朝</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>金曜の正午</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>金曜 3:15</span><span>&bull;</span></div>
+                            <div class="mock-nav lock"><span>ケース完了</span><span>ロック</span></div>
+                            <div class="mock-surge">
+                                <div class="mock-h">今日の欠席者</div>
+                                <div class="mock-surge-row">
+                                    <div class="mock-surge-cell"><b>3</b><i>月</i></div>
+                                    <div class="mock-surge-cell"><b>7</b><i>火</i></div>
+                                    <div class="mock-surge-cell"><b>18</b><i>水</i></div>
+                                    <div class="mock-surge-cell"><b>34</b><i>木</i></div>
+                                    <div class="mock-surge-cell"><b>55</b><i>金</i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- B: centre -->
+                        <div class="mock-col mock-centre">
+                            <div class="mock-head">
+                                <div>
+                                    <div class="mock-kicker">1日目 // まったく普通の月曜日?</div>
+                                    <div class="mock-title">月曜日: 擦り傷の膝、アイスバッグ、3人が休み</div>
+                                </div>
+                                <span class="mock-read">このタブを読む</span>
+                            </div>
+                            <div class="mock-char">
+                                <img src="../Centennial/assets/char_vp_raman.png" alt="" />
+                                <div>
+                                    <div class="who">副校長 プリヤ・ラマン</div>
+                                    <div class="q">「今のところ普通の月曜日です。欠席票に書いてがあるのは、吐いて帰った8年生3人だけ。大丈夫ですよね?」</div>
+                                </div>
+                            </div>
+                            <div class="mock-tabs">
+                                <span class="mock-tab on">1. ストーリー</span>
+                                <span class="mock-tab">2. 証拠</span>
+                                <span class="mock-tab">3. 科学と用語</span>
+                            </div>
+                            <div class="mock-body">
+                                <b>月曜日の保健室ログ:</b> 体育の授業で保健室を訪れたのは2人、病気で帰宅した生徒は <b>3人</b>、
+                                3人とも、ロッカーとホームルームが8年生の<b>西棟</b>の生徒です。
+                            </div>
+                            <div class="mock-body" style="margin-top:5px;">
+                                <b>今日の用語集</b> &nbsp;&middot;&nbsp; <b>アウトブレイク (outbreak)</b>: いつものより多くの人が、同じ場所で、同じ時期に病気になっていること
+                                &nbsp;&middot;&nbsp; <b>症状 (symptom)</b>: 感じたり見たりできる病気のサイン
+                            </div>
+                            <div class="mock-exhibit">
+                                <img src="../Centennial/assets/s0_normal_school.png" alt="" />
+                                <div class="cap">月曜のセンテニアル中学校。いつもの週のように授業は順調です。(画像をクリックで拡大)</div>
+                            </div>
+                            <div class="mock-exhibit">
+                                <img src="../Centennial/assets/s1_normal_office.png" alt="" />
+                                <div class="cap">月曜の朝の保健室担当の机。包帯、体育の授業のアイスバッグ、今日の欠席記録のクリップボード。</div>
+                            </div>
+                        </div>
+
+                        <!-- C: right log -->
+                        <div class="mock-col mock-log">
+                            <div class="mock-log-h">保健室ログ // あなたの判断</div>
+                            <div class="mock-prompt">あの西棟の3人を除けば、平凡な月曜日に見えます。最初の仮説 (hypothesis) を記録してください。もし何かが回っているとしたら、最初の推測は何ですか?</div>
+                            <span class="mock-opt">インフルエンザのように肺を攻撃するウイルス</span>
+                            <span class="mock-opt on">胃を攻撃するウイルス</span>
+                            <span class="mock-opt">食堂の食べ物に潜む細菌</span>
+                            <span class="mock-opt">学校の蛇口の水に何かある</span>
+                            <span class="mock-opt">たまたまの偶然</span>
+                            <div class="mock-area">選んだ答えを証明する手がかりを1つ。数字も入れてください...</div>
+                            <div class="mock-hist">
+                                <b>保存された記録</b><br>
+                                月 &bull; 仮説を記録<br>
+                                火 &bull; 体内器官 + 証明<br>
+                                水 &bull; 4つの侵入経路が一致<br>
+                                木 &bull; パターン + 主な伝播者
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abc-key">
+                        <div class="abc-item">
+                            <span class="abc-badge">A</span>
+                            <span><strong>一週間。</strong> 月曜から金曜の任意の日を選べます。下にある欠席者数は週が進むと増えていきます。到達したステージは開いたままです。</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">B</span>
+                            <span><strong>証拠。</strong> 誰が話しているか、3つのタブ、写真。写真はどれでもクリックで拡大でき、3つのタブはすべて読んでください。</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">C</span>
+                            <span><strong>あなたの作業。</strong> 保健室ログ。選ぶ、入力する、照合する、表にまとめる、順番をつける。入力したものはすべて自動で保存されます。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 06 THE THREE TABS ─────────── -->
+        <section class="slide" data-slide="6">
+            <div class="slide-eyebrow"><span class="eyebrow-num">05</span> 使い方</div>
+            <h1 class="slide-h1">3つのタブ。3つの役割。</h1>
+            <p class="slide-sub">
+                各ステージの中央には3つのタブが開きます。答える前に3つとも読んでください。
+                答え、たいてい2番目に潜んでいます。
+            </p>
+            <div class="body">
+                <div class="grid-3 fill">
+                    <div class="tabcard navy">
+                        <div class="tabcard-bar">1. ストーリー</div>
+                        <div class="tabcard-body">
+                            <p><strong>その日に何が起きたか</strong>を、その場にいた人の言葉で。職員と生徒からの連絡メモとインタビュー。</p>
+                            <div class="example">例: 目撃者のインタビュー、その人の言葉のまま</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">引用</span><span>「欠席票に書いてあるのは、西棟の8年生3人が吐いて帰ったことだけです。たぶん何でもないですよね?」</span></div>
+                                <div class="tp-row"><span class="tp-tag">引用</span><span>「病原体は、健康で傷のない皮膚を通して浸透できません。あなたの手は配達車のようです。」</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tabcard teal">
+                        <div class="tabcard-bar">2. 証拠</div>
+                        <div class="tabcard-body">
+                            <p><strong>数字。</strong> 出席数、症状の記録、検査結果、フロアマップ、実験ファイル。証明はここにあります。</p>
+                            <div class="example">例: 割合、日付、場所</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">数字</span><span>病気で帰宅: <b>3人</b>、全員、ロッカーとホームルームが8年生の西棟。</span></div>
+                                <div class="tp-row"><span class="tp-tag">地図</span><span>8年生の授業は西棟。7年生と9年生は違います。</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tabcard amber">
+                        <div class="tabcard-bar">3. 科学と用語</div>
+                        <div class="tabcard-body">
+                            <p><strong>今日必要な科学</strong>と、新しい用語を易しい言葉で説明してくれる<strong>用語集 (Word Bank)</strong>。</p>
+                            <div class="example">例: 用語の意味を1文で説明</div>
+                            <div class="tabpreview">
+                                <div class="tp-row"><span class="tp-tag">用語</span><span><b>アウトブレイク (outbreak)</b>: いつものより多くの人に同じ病気が、同じ場所で、同じ時期に起きているとき。</span></div>
+                                <div class="tp-row"><span class="tp-tag">用語</span><span><b>仮説 (hypothesis)</b>: いままでの手がかりをもとにした、根拠のある最初の推測。</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="callout-box teal" style="margin-top: 12px; flex-shrink: 0;">
+                    <strong>覚えておきたい2つのボタン:</strong> 各ステージには、ページを読み上げてくれる
+                    <strong>このタブを読む</strong>ボタンがあり、文字を大きくしたいときは上部のバーに<strong>Text A+ / A-</strong>ボタンがあります。
+                    何度使ってもかまいません。使った人の記録はされません。
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 07 THE LOG ─────────── -->
+        <section class="slide" data-slide="7">
+            <div class="slide-eyebrow"><span class="eyebrow-num">06</span> 使い方</div>
+            <h1 class="slide-h1">右側のログがあなたの作業場です</h1>
+            <p class="slide-sub">
+                これがあなたのワークシートです。提出するものはすべてここに、1日ずつ入力します。
+                課題は5種類、それだけです。
+            </p>
+            <div class="body">
+                <div class="grid-4 fill">
+                    <div class="widget">
+                        <div class="widget-h">症状を記録</div>
+                        <div class="widget-p">リストから選びます。判断と理由があなたのものです。</div>
+                        <span class="w-opt on">肺を攻撃するウイルス</span>
+                        <span class="w-opt">胃を攻撃するウイルス</span>
+                        <span class="w-opt">まだわからない</span>
+                        <div class="widget-foot">よい答えは<b>はっきりした選択</b>と、証拠タブで実際に見たものを挙げる理由です。「まだわからない」も認められます。理由のない推測は認められません。</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-h">理由を書く</div>
+                        <div class="widget-p">短い答えで。1ページではなく1文か2文で。</div>
+                        <div class="w-input">症状の記録から手がかりを1つ...</div>
+                        <div class="w-input">我的手につけて...それから触れる...</div>
+                        <div class="w-input">理由1 (消毒剤では消せないもの): ...</div>
+                        <div class="widget-foot">よい答えは<b>数字つきの事実1つ</b>、そしてその事実が自分の答えを示している理由を説明する文です。2文か3文あれば十分です。</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-h">照合する</div>
+                        <div class="widget-p">1つの状況につき2つのドロップダウン。それぞれに1つずつ選びます。</div>
+                        <div class="w-row"><span class="w-sel">侵入経路</span><span class="w-sel">病原体の種類</span></div>
+                        <div class="w-row"><span class="w-sel empty">選択する</span><span class="w-sel empty">選択する</span></div>
+                        <div class="w-row"><span class="w-sel">口</span><span class="w-sel">ウイルス</span></div>
+                        <div class="w-row"><span class="w-sel">目</span><span class="w-sel">ウイルス</span></div>
+                        <div class="widget-foot">よい答えは<b>すべての行の2つのドロップダウンを埋めること</b>です。どの経路か分からないときは、推測する前にタブ2を読み直してください。</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-h">表にまとめる</div>
+                        <div class="widget-p">小さな表。短い言葉で十分です。</div>
+                        <table class="w-table">
+                            <tr><th></th><th>列A</th><th>列B</th></tr>
+                            <tr><td><b>どんなはたらきをする?</b></td><td>あなたの言葉</td><td>あなたの言葉</td></tr>
+                            <tr><td><b>前か後か?</b></td><td>あなたの言葉</td><td>あなたの言葉</td></tr>
+                            <tr><td><b>どの病原体?</b></td><td>あなたの言葉</td><td>あなたの言葉</td></tr>
+                            <tr><td><b>他への影響は?</b></td><td>あなたの言葉</td><td>あなたの言葉</td></tr>
+                        </table>
+                        <div class="widget-foot">よい答えは<b>短い言葉で、1行に1つの要点</b>です。すべてのマスに完全な文章を書くのは、この表には多すぎます。</div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 12px; gap: 14px; flex: 0 0 auto;">
+                    <div class="widget" style="border-top-color: var(--coral);">
+                        <div class="widget-h" style="color: var(--coral-dark);">順番をつける</div>
+                        <div class="widget-p">手順に最初から最後まで番号をつけます。番号は1つずつ使います。</div>
+                        <div class="w-row"><span class="w-num">1</span><span class="w-sel">正しい手順を選んで...</span></div>
+                        <div class="w-row"><span class="w-num">2</span><span class="w-sel empty">正しい手順を選んで...</span></div>
+                        <div class="w-row"><span class="w-num">3</span><span class="w-sel empty">正しい手順を選んで...</span></div>
+                        <div class="widget-foot">よい答えは<b>最初から最後まで、番号に空きがないこと</b>、そして声に出して読んだときに、途切れのない原因と結果の流れとして読めることです。</div>
+                    </div>
+                    <div class="callout-box" style="margin-top: 0;">
+                        ログの下にあるリストには、<strong>今週あなたが入力したすべての記録</strong>が表示されます。
+                        これが学習の証拠です。次のステージに進む前に、まだ足りないものを確認できるように置かれています。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 08 SAVES ITSELF ─────────── -->
+        <section class="slide" data-slide="8">
+            <div class="slide-eyebrow"><span class="eyebrow-num">07</span> 使い方</div>
+            <h1 class="slide-h1">作業を失うことはありません</h1>
+            <p class="slide-sub">
+                探す保存ボタンはありません。USBメモリもありません。「ごめん、落ちて全部消えてしまった」という言い訳もありません。
+            </p>
+            <div class="body">
+                <div class="grid-3 mid">
+                    <div class="card coral">
+                        <div class="card-tag">開始</div>
+                        <div class="card-h2">クリックひとつで開始</div>
+                        <div class="card-p">学校の Google account でサインインします。PINはありません。入力するものはありません。名前を書く必要もありません。</div>
+                        <div class="minimock">
+                            <div class="mm-btn">学校アカウントでサインイン</div>
+                            <div class="tp-row"><span class="tp-tag">質問</span><span>Google が小さなポップアップで開きます。アカウントを確認すると自動的に閉じます。</span></div>
+                        </div>
+                    </div>
+                    <div class="card teal">
+                        <div class="card-tag">保存</div>
+                        <div class="card-h2">入力するたびに保存</div>
+                        <div class="card-p">入力した答えは数秒後にサーバーへ保存されます。上部のバーを見ると <strong>SERVER OK</strong> に変わります。</div>
+                        <div class="minimock">
+                            <div class="mm-bar">SYNC: 保存中...</div>
+                            <div class="mm-bar">SYNC: SERVER OK 10:42</div>
+                            <div class="tp-row"><span class="tp-tag">ヒント</span><span>SERVER OK のままにしておけば、タブを安全に閉じられます。</span></div>
+                        </div>
+                    </div>
+                    <div class="card navy">
+                        <div class="card-tag">再開</div>
+                        <div class="card-h2">どこからでも続けられます</div>
+                        <div class="card-p">文章の途中でタブを閉じても大丈夫です。来週別の Chromebook で戻ってサインインすると、止めた場所からそのまま続きます。</div>
+                        <div class="minimock">
+                            <div class="mm-steps">
+                                <div class="mm-step done">月</div>
+                                <div class="mm-step done">火</div>
+                                <div class="mm-step now">水</div>
+                                <div class="mm-step">木</div>
+                                <div class="mm-step">金</div>
+                            </div>
+                            <div class="tp-row"><span class="tp-tag">場所</span><span>どの端末でもサインインし直すと、先週は水曜の続きから開き、火曜の回答はもう入力されています。</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="callout-box amber" style="margin-top: 12px; flex-shrink: 0;">
+                    <strong>なぜ这种方式なのか:</strong> Chromebook は電源を切ると自分のメモリを消してしまうからです。
+                    だからこの課題は端末ではなく<strong>サーバー</strong>に保存されます。
+                    別のコンピュータでも、別の日でも、長い週末のあとも動くのは、このためです。
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 09 THE COMMIT GATE ─────────── -->
+        <section class="slide" data-slide="9">
+            <div class="slide-eyebrow"><span class="eyebrow-num">08</span> 唯一のゲート</div>
+            <h1 class="slide-h1">金曜 3:15。3つのルール。そして<em>確定</em>。</h1>
+            <p class="slide-sub">
+                副校長ラマンには月曜の朝の対策 (Game Plan) が必要で、バスは10分後に出発します。
+                それぞれのルールには、<strong>人が何をするか</strong>と、<strong>なぜそれがこの原因を止められるか</strong>を書きます。
+            </p>
+            <div class="body">
+                <div class="grid-3 fill">
+                    <div class="card amber">
+                        <div class="card-num">ルール1</div>
+                        <div class="card-h2">誰が何日家にいるか</div>
+                        <div class="card-p">病気の生徒と、治りかけの生徒。どちらも大切です。</div>
+                        <div class="ansbox"><b>何を</b>吐いた、あるいは下痢をした生徒は、...まで家にいる必要があります。</div>
+                        <div class="ansbox"><b>なぜ</b>これが広がるのを止められるのは、治っている人もまだ...</div>
+                    </div>
+                    <div class="card amber">
+                        <div class="card-num">ルール2</div>
+                        <div class="card-h2">物体の表面をどう清掃するか</div>
+                        <div class="card-p">蛇口、噴水、机、キーボード、ドアハンドル。何を使うか、誰が行うか。</div>
+                        <div class="ansbox"><b>何を</b>用務員は表面を...を使って消毒しなければなりません。</div>
+                        <div class="ansbox"><b>なぜ</b>これが効くのは、石けんとアルコールは...</div>
+                    </div>
+                    <div class="card amber">
+                        <div class="card-num">ルール3</div>
+                        <div class="card-h2">生徒が食べる前に行うこと</div>
+                        <div class="card-p">それを止める習慣を、7年生でもできる手順に書き起こします。</div>
+                        <div class="ansbox"><b>何を</b>生徒は ___ を止めて、___ で手を洗い、...だけ行います。</div>
+                        <div class="ansbox"><b>なぜ</b>これが連鎖を断ち切るのは...</div>
+                    </div>
+                </div>
+                <div class="commit-strip">
+                    <div class="commit-btn">月曜の計画を確定する</div>
+                    <div class="commit-note">
+                        <strong>確定すると月曜から金曜までの回答がロックされ</strong>、公式の調査結果と正直に比較できるようになります。
+                        そして<strong>「ケース完了」が開きます</strong>。
+                        結論を先に見る方法はありません。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 10 MARKING ─────────── -->
+        <section class="slide" data-slide="10">
+            <div class="slide-eyebrow"><span class="eyebrow-num">09</span> 評価のしかた</div>
+            <h1 class="slide-h1">評価のポイント</h1>
+            <p class="slide-sub">
+                ログは次のステージへ進む前に何が必要かを教えてくれます。
+                課題内容を推測することはありません。
+            </p>
+            <div class="body">
+                <div class="grid-2 mid" style="grid-template-rows: auto auto; gap: 14px;">
+                    <div class="card coral">
+                        <div class="card-tag">作業量</div>
+                        <div class="card-h2">各ステージに課題があります</div>
+                        <div class="card-p">1つの判断か、短い答えをいくつか。<strong>小論文も長い文章も書きません。</strong>簡潔で的確な回答が目標です。</div>
+                        <div class="card-foot">1ページを書くことを求められることはありません。<b>選ぶか、2文の短い回答</b>で、それで十分です。</div>
+                    </div>
+                    <div class="card teal">
+                        <div class="card-tag">論拠</div>
+                        <div class="card-h2">推測ではなく証拠</div>
+                        <div class="card-p">すべての答えは、証拠タブの具体的なものを指すようにします。数字、日付、引用のどれかです。</div>
+                        <div class="card-foot">答えには<b>実際の数字</b>を入れます。数字が指せないなら、それはまだ推測です。</div>
+                    </div>
+                    <div class="card navy">
+                        <div class="card-tag">質</div>
+                        <div class="card-h2">理由を言う</div>
+                        <div class="card-p">点数の大部分は「理由」の一行にあります。理由のない正解は、答えの半分だけです。</div>
+                        <div class="card-foot">この書き方を試してください。<b>「___だから、___という意味になるから。」</b>1行に収まり、点を取れます。</div>
+                    </div>
+                    <div class="card amber">
+                        <div class="card-tag">フィードバック</div>
+                        <div class="card-h2">最後のあなたのファイル</div>
+                        <div class="card-p">確定したあと、<strong>タブ3 (あなたのファイル)</strong>が公式の保健局 (Health Unit) の調査結果とあなたのログを照合し、見落としていたものが分かるように表示されます。</div>
+                        <div class="card-foot">確定の<b>後</b>に開いてください。確定前ではありません。回答をロックする理由はこれです。</div>
+                    </div>
+                </div>
+                <div class="callout-box" style="margin-top: 12px; flex-shrink: 0;">
+                    <strong>月曜の推測が「誤り」と評価されることはありません。</strong>
+                    探偵は、証拠が変われば考えを変えるものです。
+                    評価されるのは、<strong>考えを変えたかどうか、そしてその理由</strong>です。
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 11 BEFORE YOU START ─────────── -->
+        <section class="slide" data-slide="11">
+            <div class="slide-eyebrow"><span class="eyebrow-num">10</span> はじめかた</div>
+            <h1 class="slide-h1">5つの手順でケースに入ります</h1>
+            <div class="body">
+                <div class="split fill">
+                    <div class="steps" style="justify-content: space-between;">
+                        <div class="step">
+                            <div class="step-n coral">1</div>
+                            <div class="step-t"><strong>Google Classroom でリンクを開く。</strong> 学校から送られたリンクからのみ開けます。古いブックマークではなく、Classroom のリンクを使ってください。</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-n coral">2</div>
+                            <div class="step-t"><strong>「学校アカウントでサインイン」をクリックする。</strong> 自分用の @gnspes.ca アカウントを使います。別のアカウントが開いた場合は、上部のバーにある<strong>アカウントの切り替え (Switch account)</strong>を使ってください。</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-n coral">3</div>
+                            <div class="step-t"><strong>「あなたのクラス」から自分のクラスを選ぶ。</strong></div>
+                        </div>
+                        <div class="step">
+                            <div class="step-n coral">4</div>
+                            <div class="step-t"><strong>「準備完了: 保健室を開こう」を押す。</strong></div>
+                        </div>
+                        <div class="step">
+                            <div class="step-n coral">5</div>
+                            <div class="step-t"><strong>月曜から始める。</strong> 自分のペースで進めると、自動で保存されるので、必要なときにいつでも中断できます。</div>
+                        </div>
+                    </div>
+                    <div class="col" style="justify-content: center; gap: 14px;">
+                        <div class="gate-mock">
+                            <div class="gate-mock-inner">
+                                <div class="gate-mock-k">センテニアル中学校 // 保健室</div>
+                                <div class="gate-mock-h">ケース55: センテニアルのアウトブレイク</div>
+                                <div class="gate-mock-btn">学校アカウントでサインイン</div>
+                                <div class="gate-mock-hint">最初に表示される画面です。クリックひとつでケースに入ります。</div>
+                            </div>
+                        </div>
+                        <div class="card teal">
+                            <div class="card-tag">読みにくいときは</div>
+                            <div class="card-h2">ヘルプ機能を使う</div>
+                            <div class="card-p">
+                                各ステージには、ページを読み上げてくれる<strong>このタブを読む</strong>ボタンがあります。
+                                上部のバーには、文字を大きくする<strong>Text A+ / A-</strong>ボタンがあります。
+                            </div>
+                            <div class="card-p">どちらもすべての画面で使えます。必要なだけ使って結構です。</div>
+                        </div>
+                        <div class="callout-box amber">
+                            <strong>質問も仕事のうちです。</strong> 本物の調査員は行き詰まったらすぐに助けを求めます。
+                            推測する前に Mr. Waugh に聞いてください。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 12 CLOSING ─────────── -->
+        <section class="slide plain" data-slide="12">
+            <div class="closing">
+                <div class="closing-l">
+                    <div class="slide-eyebrow"><span class="eyebrow-num">11</span> ケース55</div>
+                    <h1 class="slide-h1" style="font-size: 2.9rem;">ケース55がはじまります。</h1>
+                    <p class="slide-sub" style="font-size: 1.12rem;">
+                        55人が病気で欠席。1週間の証拠。月曜のための3つのルール。
+                        <strong>保健室はあなたのものです。</strong>
+                    </p>
+                    <div class="callout-box" style="max-width: 600px;">
+                        Google Classroom でリンクを開き、学校アカウントでサインインして、
+                        月曜から始めましょう。結論は、あなたの確定の向こう側に待っています。
+                    </div>
+                    <div style="margin-top: 16px; display: flex; gap: 9px; flex-wrap: wrap;">
+                        <span class="badge-pill">HEALTHY LIVING 8</span>
+                        <span class="badge-pill">ユニット2 感染症</span>
+                        <span class="badge-pill hot">NS HL8 学習成果 CO2</span>
+                    </div>
+                </div>
+                <div class="closing-r">
+                    <img src="../Centennial/assets/s0_normal_school.png" alt="ある普通の朝のセンテニアル中学校。" />
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <footer id="footer" class="double-rule-top">
+        <div class="footer-hint">
+            <kbd>&larr;</kbd> <kbd>&rarr;</kbd> または <kbd>Space</kbd> でスライドを進められます
+        </div>
+        <div class="footer-nav">
+            <button class="nav-btn" id="prevBtn">&larr; 前へ</button>
+            <button class="nav-btn primary" id="nextBtn">次へ &rarr;</button>
+        </div>
+    </footer>
+
+</div>
+</div>
+
+    <script>
+        const slides = document.querySelectorAll('[data-slide]');
+        const totalSlides = slides.length;
+        let currentSlide = 1;
+
+        const countDisplay = document.getElementById('slideCount');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const stage = document.getElementById('stage');
+        const canvas = document.getElementById('canvas');
+
+        /* Scale the fixed 1536x864 canvas to fit whatever screen we are on. */
+        function fitCanvas() {
+            const s = Math.min(stage.clientWidth / 1536, stage.clientHeight / 864);
+            canvas.style.transform = 'scale(' + s + ')';
+        }
+        fitCanvas();
+        window.addEventListener('resize', fitCanvas);
+
+        function updateSlide(n) {
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            slides.forEach(s => {
+                const sNum = parseInt(s.dataset.slide, 10);
+                s.classList.toggle('active', sNum === currentSlide);
+            });
+
+            countDisplay.innerText = currentSlide + ' / ' + totalSlides;
+            prevBtn.disabled = (currentSlide === 1);
+            nextBtn.innerText = (currentSlide === totalSlides) ? '終了' : '次へ →';
+        }
+
+        prevBtn.addEventListener('click', () => updateSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides) updateSlide(currentSlide + 1);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                updateSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                updateSlide(currentSlide - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                updateSlide(1);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                updateSlide(totalSlides);
+            }
+        });
+
+        /* Deep link: ?slide=7 opens straight on slide 7 (handy for "start here" links) */
+        const requested = parseInt(new URLSearchParams(location.search).get('slide'), 10);
+        updateSlide(Number.isFinite(requested) && requested >= 1 && requested <= totalSlides ? requested : 1);
+    </script>
+</body>
+</html>
