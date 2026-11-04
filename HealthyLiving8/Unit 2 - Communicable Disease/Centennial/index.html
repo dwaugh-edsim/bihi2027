@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Case 55: Centennial Outbreak - HL8 Investigation Sim</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
@@ -566,6 +567,10 @@ function runSelfTest(){
   const out=[]; const ok=(c,m)=>out.push((c?'PASS':'FAIL')+': '+m);
   try{
     ok(STATIONS.length===9, 'stations loaded = '+STATIONS.length);
+    ok(typeof window.signIn==='function','signIn exposed on window');
+    ok(typeof window.step==='function'&&typeof window.saveNow==='function'&&typeof window.switchTab==='function'&&typeof window.openZoom==='function'&&typeof window.closeZoom==='function'&&typeof window.switchAccount==='function','all inline onclick handlers exposed on window');
+    const _open=window.open; window.open=()=>null; let threw=null; try{ el('signInBtn').click(); }catch(e){ threw=e; } window.open=_open;
+    ok(!threw, 'signIn button click does not throw'+(threw?' ('+threw.message+')':''));
     ok(getPath({a:{b:7}},'a.b')===7, 'getPath works');
     setPath(state,'responses.__t','hello'); ok(getPath(state,'responses.__t')==='hello','setPath roundtrip');
     loadStation(7); ok(!!el('commitBtn'), 'S7 commit button exists');
@@ -583,6 +588,8 @@ function runSelfTest(){
   }catch(e){ out.push('FAIL: exception '+e.message); }
   const d=document.createElement('div'); d.id='selftest'; d.textContent=out.join(' | '); document.body.appendChild(d);
 }
+
+window.signIn=signIn; window.switchAccount=switchAccount; window.step=step; window.saveNow=saveNow; window.switchTab=switchTab; window.openZoom=openZoom; window.closeZoom=closeZoom;
 
 boot();
 })();
