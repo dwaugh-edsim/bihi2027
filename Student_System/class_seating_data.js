@@ -173,7 +173,8 @@ window.CLASS_SEATING = {
                 "25": "Talia D.",
                 "26": "Mae'ijah D.",
                 "27": "Jayden L.",
-                "28": "Martin V."
+                "28": "Martin V.",
+                "29": "Taneil T."
             }
         },
         "802": {
@@ -247,7 +248,6 @@ window.CLASS_SEATING = {
             seats: {
                 "1": "Rosie M.",
                 "2": "Timi A.",
-                "3": "Taneil T.",
                 "4": "Vasylyna B.",
                 "5": "Arielle S.",
                 "6": "Habib B.",
