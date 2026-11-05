@@ -28,6 +28,16 @@ What does and doesn't travel:
   or `display_instructions_data.js` for the slide's instructions) and
   push; the projector picks it up on reload.
 
+## Agent log — ALWAYS update `E:\IDE Agent Notes` as you work
+
+Standing rule for every session, not just this task: **any project write (code, docs,
+data) is a milestone — update the AgentLog repo at `E:\IDE Agent Notes` at that write,
+not at session end.** The next session on any machine (home or school) reads current
+state instead of guessing. Protocol: `E:\IDE Agent Notes\AGENT_PROTOCOL.md`. Routine:
+`git pull --rebase --autostash` → rewrite the project card in `projects/` → append one
+`journal/YYYY-MM-DD.md` block → update `INDEX.md` if the project list moved → commit +
+push (or just run `sync.bat`). Do not batch a morning of work into one entry.
+
 ## Two repositories (public vs private)
 
 - **`bihi2027` (this repo — public, GitHub Pages)** — student-facing only: assignments,
