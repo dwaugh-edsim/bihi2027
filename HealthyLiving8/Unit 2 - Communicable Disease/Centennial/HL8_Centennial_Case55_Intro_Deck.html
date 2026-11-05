@@ -101,6 +101,9 @@
             transform-origin: center center;
             box-shadow: 0 18px 60px rgba(0,0,0,.45);
         }
+        :fullscreen #canvas, :-webkit-full-screen #canvas {
+            box-shadow: none;
+        }
 
         /* ── Signature double-rule ── */
         .double-rule-bottom {
@@ -174,11 +177,26 @@
             position: absolute;
             inset: 0;
             padding: 16px 40px 14px;
-            display: none;
+            display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--paper);
+            background-image: repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 1;
         }
-        .slide.active { display: flex; }
+        #viewport.ready .slide,
+        #viewport.ready .cover {
+            transition: opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 2;
+        }
         .slide.plain { background: transparent; padding: 0; }
 
         /* ── Slide typography ── */
@@ -405,8 +423,24 @@
         .startcard .steps { flex: 1; justify-content: space-around; gap: 6px; }
 
         /* ══════════ SLIDE 1: COVER ══════════ */
-        .cover { position: absolute; inset: 0; display: none; overflow: hidden; background: #05080f; }
-        .cover.active { display: block; }
+        .cover {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #05080f;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .cover.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 2;
+        }
         .cover-img {
             position: absolute; inset: 0;
             background: url('assets/case55_cover.png') center/cover no-repeat;
@@ -800,7 +834,7 @@
     <main id="viewport">
 
         <!-- ─────────── 01 COVER ─────────── -->
-        <section class="cover active" data-slide="1">
+        <section class="cover" data-slide="1">
             <div class="cover-img"></div>
             <div class="cover-scrim"></div>
             <div class="cover-inner">
@@ -1438,9 +1472,10 @@
     <!-- ══════════ FOOTER ══════════ -->
     <footer id="footer" class="double-rule-top">
         <div class="footer-hint">
-            Press <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>Space</kbd> to navigate slides
+            Press <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>Space</kbd> to navigate &bull; <kbd>F</kbd> for fullscreen
         </div>
         <div class="footer-nav">
+            <button class="nav-btn" id="fsBtn" title="Toggle Fullscreen (F)">&#x26F6; Fullscreen</button>
             <button class="nav-btn" id="prevBtn">&larr; Previous</button>
             <button class="nav-btn primary" id="nextBtn">Next &rarr;</button>
         </div>
@@ -1457,6 +1492,7 @@
         const countDisplay = document.getElementById('slideCount');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const fsBtn = document.getElementById('fsBtn');
         const stage = document.getElementById('stage');
         const canvas = document.getElementById('canvas');
 
@@ -1488,6 +1524,31 @@
             if (currentSlide < totalSlides) updateSlide(currentSlide + 1);
         });
 
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        if (fsBtn) {
+            fsBtn.addEventListener('click', toggleFullscreen);
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (fsBtn) {
+                const isFs = Boolean(document.fullscreenElement);
+                fsBtn.innerHTML = isFs ? '&times; Exit Fullscreen' : '&#x26F6; Fullscreen';
+                fsBtn.title = isFs ? 'Exit Fullscreen (F or Esc)' : 'Toggle Fullscreen (F)';
+            }
+            fitCanvas();
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
                 e.preventDefault();
@@ -1501,12 +1562,19 @@
             } else if (e.key === 'End') {
                 e.preventDefault();
                 updateSlide(totalSlides);
+            } else if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
             }
         });
 
+        const viewport = document.getElementById('viewport');
         /* Deep link: ?slide=7 opens straight on slide 7 (handy for "start here" links) */
         const requested = parseInt(new URLSearchParams(location.search).get('slide'), 10);
         updateSlide(Number.isFinite(requested) && requested >= 1 && requested <= totalSlides ? requested : 1);
+        requestAnimationFrame(() => {
+            if (viewport) viewport.classList.add('ready');
+        });
     </script>
 </body>
 </html>
