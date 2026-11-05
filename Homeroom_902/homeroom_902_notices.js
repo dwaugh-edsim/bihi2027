@@ -17,7 +17,6 @@
 // Keep it short: these are read from the back of the room before first period.
 window.HOMEROOM_902_NOTICES = {
     announcements: [
-        "Bring in your Take Your Kid to Work form.",
         "Be in Room 8 by 8:55 — before O Canada."
     ]
 };
