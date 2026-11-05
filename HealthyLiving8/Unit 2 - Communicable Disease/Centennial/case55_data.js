@@ -48,7 +48,8 @@ var CASE55 = {
     immune: "Your body's defence team; it finds and fights germs.",
     antibiotic: "A medicine (like penicillin) that kills bacteria. It does nothing to viruses.",
     vaccine: "A shot that trains your immune system to recognize a germ before you meet it.",
-    hypothesis: "A smart first guess based on the clues you have."
+    hypothesis: "A smart first guess based on the clues you have.",
+    shed: "To keep giving off germs that other people can catch, even after you feel better."
   },
 
   stations: [
@@ -102,7 +103,7 @@ var CASE55 = {
         { type: "choice", f: "judgments.s0.guess", label: "Monday hypothesis: what is your first guess?",
           options: ["A virus that attacks the stomach", "A virus that attacks the lungs, like the flu", "Bacteria from food", "Something in the West Wing drinking water", "Too early to name one cause yet (watch Tuesday's log)"],
           teachMap: {
-            "A virus that attacks the stomach": { ok: true, msg: " Nurse Chen: Smart early call! Stomach cramps + vomiting, zero cough = stomach bug. Justify with a Monday fact below." },
+            "A virus that attacks the stomach": { ok: true, msg: "Nurse Chen: Smart early call! Stomach cramps + vomiting, zero cough = stomach bug. Justify with a Monday fact below." },
             "A virus that attacks the lungs, like the flu": { ok: true, msg: "Nurse Chen: Logged! Watch for coughs tomorrow - all 3 kids today had stomach cramps, zero cough. Explain below." },
             "Bacteria from food": { ok: true, msg: "Nurse Chen: Good hypothesis to test! All 3 threw up before Monday lunch opened - watch cafeteria clues tomorrow. Justify below." },
             "Something in the West Wing drinking water": { ok: true, msg: "Nurse Chen: Interesting angle - two sick kids have lockers by the West Wing fountain! Water can be tested this week. Explain below." },
@@ -122,14 +123,14 @@ var CASE55 = {
         { src: "assets/s1_evidence_board.png", cap: "Nurse Chen's symptom board and floor plan by Tuesday afternoon." }
       ],
       chars: [
-        { key: "vp", quote: "Seven out sick today: four more in Grade 8 West Wing, plus the first cafeteria lunch-line kids. Nurse Chen made you a symptom chart." },
+        { key: "vp", quote: "Seven kids in total have gone home sick since Monday: four new today, two in Grade 8 West Wing and two from the cafeteria lunch line. Nurse Chen made you a symptom chart." },
         { key: "sophie", quote: "See these tiny resin ducks? Grades 7, 8, and 9 have traded them at the lockers since Monday, right before lunch. I traded mine with three people today!" }
       ],
       words: ["symptom", "outbreak"],
       tabs: {
-        dispatch: `<p><strong>Tuesday's Attendance Report:</strong> <strong>7 students</strong> are home sick today (up from 3 on Monday).</p>
-<ul><li>4 more in the <strong>Grade 8 West Wing</strong>.</li>
-<li>First sick kids from the <strong>cafeteria lunch line</strong>.</li>
+        dispatch: `<p><strong>Tuesday's Attendance Report:</strong> <strong>7 students</strong> in total have gone home sick since Monday (3 on Monday + 4 new today). Every daily number in this log is a running total, so each day's jump shows that day's new cases.</p>
+<ul><li>2 of today's 4 new cases are in the <strong>Grade 8 West Wing</strong>.</li>
+<li>The other 2 new cases are the first sick kids from the <strong>cafeteria lunch line</strong>.</li>
 <li>All grades have been trading mini <strong>resin ducks</strong> hand to hand at the lockers right before lunch.</li></ul>`,
         evidence: `<p><strong>Nurse Chen's Symptom Log (all sick students):</strong></p>
 <ul><li><strong>88%</strong> have sudden stomach cramps, vomiting, and watery diarrhea.</li>
@@ -162,21 +163,21 @@ var CASE55 = {
         { src: "assets/s3_entry_gates.png", cap: "The four entry gates past your body's outer wall: mouth, nose, eyes, broken skin." }
       ],
       chars: [
-        { key: "jayden", quote: "At 2:00, a kid threw up beside the Grade 8 West Wing fountain. Mr. Boudreau mopped fast with warm water and regular floor soap." },
+        { key: "jayden", quote: "The kids who saw it told everyone: at 2:00, a kid threw up beside the Grade 8 West Wing fountain. Mr. Boudreau mopped fast with warm water and his regular pink floral floor soap." },
         { key: "nurse", quote: "Germs can't soak through healthy skin on your palms. But hands are a delivery truck: they pick germs off surfaces and carry them to a doorway into your body." }
       ],
       words: ["pathogen", "virus", "bacteria", "fomite"],
       tabs: {
-        dispatch: `<p><strong>Wednesday's Attendance Report:</strong> <strong>18 students</strong> are home sick today!</p>
+        dispatch: `<p><strong>Wednesday's Attendance Report:</strong> <strong>18 students</strong> in total have gone home sick since Monday (7 + 11 new today)!</p>
 <ul><li>Morning: the sickness jumped to the <strong>Grade 7 East Wing</strong>, far from Grade 8.</li>
-<li><strong>2:00 PM incident:</strong> a student threw up beside the <strong>Grade 8 West Wing fountain</strong>, spraying microscopic drops onto taps and tiles. It was mopped with <strong>plain warm water and floor soap</strong>.</li></ul>`,
+<li><strong>2:00 PM incident:</strong> a student threw up beside the <strong>Grade 8 West Wing fountain</strong>, spraying microscopic drops onto taps and tiles. It was mopped with <strong>plain warm water and Mr. Boudreau's regular pink floral floor soap</strong>.</li></ul>`,
         evidence: `<p><strong>The 4 Entry Gates into your body:</strong></p>
 <ul><li><strong>Mouth:</strong> swallowing germs on food, snacks, pens, or dirty fingers.</li>
 <li><strong>Nose:</strong> breathing in droplets after someone coughs or sneezes nearby.</li>
 <li><strong>Eyes:</strong> rubbing eyes with fingers that touched a shared surface.</li>
 <li><strong>Cuts or scrapes:</strong> germs slipping past broken skin (gym scrape, hangnail).</li></ul>
 <p>Some germs survive for <strong>days</strong> on hard plastic and metal taps. A non-living object that carries germs person to person is a <strong>fomite</strong> (FOE-might).</p>`,
-        toolkit: `<p><strong>Viruses vs bacteria:</strong> <strong>viruses</strong> are tiny genetic packages that hijack your cells (colds, flu, COVID-19, most school stomach bugs). <strong>Bacteria</strong> are living single cells (strep throat, some food poisoning like Salmonella, infected skin cuts).</p>
+        toolkit: `<p><strong>Viruses vs bacteria:</strong> <strong>viruses</strong> are tiny genetic packages that hijack your cells (colds, flu, COVID-19, and the stomach bugs that sweep fast through a whole school). <strong>Bacteria</strong> are living single cells (strep throat, some food poisoning like Salmonella, and infected skin cuts). A cut or scrape that gets infected turns red, hot, swollen, and sore because bacteria are growing in the wound.</p>
 <p><strong>The skin paradox:</strong> unbroken skin blocks germs like a brick wall, yet people touch their eyes, nose, mouth, or food <strong>over 20 times an hour</strong>.</p>`
       },
       task: "Read Tabs 2 and 3. Match each school moment to its gate and germ type, then explain the two steps of how hands get germs inside you.",
@@ -215,24 +216,24 @@ var CASE55 = {
         { src: "assets/s4b_vaccine_shield.png", cap: "Vaccines train your immune system early. Antibiotics only kill bacteria. Healthy classmates shield vulnerable peers." }
       ],
       chars: [
-        { key: "vp", quote: "Thirty-four out today across all three grades, with a big jump in Grade 8 West Wing. Parents are asking doctors for penicillin. But two tests came back good: town tap water is clean, and 21 sick kids bring lunch from home." },
+        { key: "vp", quote: "Thirty-four out today across all three grades, with a big jump in Grade 8 West Wing. Parents are asking doctors for penicillin. But two tests came back good: town tap water is clean, and 21 of the 34 sick kids bring lunch from home." },
         { key: "marcus", quote: "My cancer treatment weakens my immune system, so a stomach bug could put me in hospital. There's no shot for school stomach bugs, so everyone else's habits are my shield." }
       ],
       words: ["immune", "vaccine", "antibiotic"],
       tabs: {
-        dispatch: `<p><strong>Thursday's Attendance Report:</strong> <strong>34 students</strong> are home sick (Mon 3 -> Tue 7 -> Wed 18 -> Thu 34).</p>
+        dispatch: `<p><strong>Thursday's Attendance Report:</strong> <strong>34 students</strong> in total have gone home sick since Monday (Mon 3 -> Tue 7 -> Wed 18 -> Thu 34, so 16 new today).</p>
 <ul><li>All three grades (<strong>7, 8, 9</strong>) and the <strong>computer lab</strong> now have cases.</li>
 <li><strong>Grade 8 West Wing</strong> had its biggest single-day jump today (the day after Wednesday's spill).</li>
 <li><strong>Town water lab test:</strong> Centennial's tap water is <strong>100% clean</strong>.</li>
-<li><strong>Cafeteria check:</strong> <strong>21 sick students</strong> bring lunch from home and never eat cafeteria food.</li></ul>`,
-        evidence: `<p><strong>Soap and water vs sanitizer:</strong> 20 seconds of soap under running water rinses germs down the drain. Alcohol sanitizer (60-70%) dissolves the soft fatty coat of flu/COVID viruses when hands look clean, but stomach viruses have a <strong>hard protein shell with no fatty coat</strong> (greasy fingers also block alcohol), so sanitizer fails on them.</p>
-<p><strong>Vaccines vs antibiotics:</strong> a <strong>vaccine</strong> shows your immune system a harmless germ piece <strong>before</strong> you're sick, so white blood cells build antibodies (specific viruses or bacteria). An <strong>antibiotic</strong> (penicillin) is taken <strong>after</strong> a <strong>bacterial</strong> infection - it does <strong>nothing to viruses</strong>; overuse breeds superbugs.</p>`,
+<li><strong>Cafeteria check:</strong> <strong>21 of the 34 sick students</strong> bring lunch from home and never eat cafeteria food.</li></ul>`,
+        evidence: `<p><strong>Soap and water vs sanitizer:</strong> Scrubbing with soap for 20 seconds <strong>lifts germs and grease off your skin</strong>, and the <strong>running water rinses them down the drain</strong>. Soap and water work on tough germs because they <em>remove</em> germs instead of needing to kill them. Alcohol sanitizer (60-70%) has to <em>kill</em> the germ: it dissolves the soft fatty coat of flu/COVID viruses when hands look clean. Stomach viruses have a <strong>hard protein shell with no fatty coat</strong>, and greasy or dirty fingers also block alcohol, so sanitizer fails on them.</p>
+<p><strong>Vaccines vs antibiotics:</strong> a <strong>vaccine</strong> shows your immune system a harmless germ piece <strong>before</strong> you're sick, so your white blood cells build <strong>antibodies</strong> (germ-fighting proteins) ahead of time. Each vaccine is made for <strong>one specific germ</strong> (the measles shot only stops measles), and there are vaccines for both viruses and bacteria. An <strong>antibiotic</strong> (penicillin) is taken <strong>after</strong> a <strong>bacterial</strong> infection has already started. It fights <strong>bacteria only</strong> and does <strong>nothing to viruses</strong>. <strong>Overuse</strong> can breed <strong>superbugs</strong>: bacteria that no longer die from the medicine and can then spread to other people.</p>`,
         toolkit: `<p><strong>The human firewall:</strong> when 90-95% of a school is vaccinated (e.g. measles), germs hit dead ends before reaching vulnerable classmates like Marcus (<strong>community protection</strong>). With no stomach-bug vaccine, staying home while contagious and soap-scrubbing are his only firewall.</p>
 <p><strong>Timeline check:</strong> cafeteria-line kids got sick Tuesday and Grade 7s Wednesday morning, <em>before</em> Wednesday afternoon's fountain spill!</p>`
       },
       task: "Check Tabs 1 and 3, justify both choices with slide evidence, then use Tab 2 for the table and soap question.",
       fields: [
-        { type: "choice", f: "judgments.s1.pattern", label: "Daily numbers so far: 3, 7, 18, 34. What pattern do you see?",
+        { type: "choice", f: "judgments.s1.pattern", label: "Running totals so far: 3, 7, 18, 34. Look at how many NEW cases each day adds. What pattern do you see?",
           options: ["The sickness is spreading person to person, and speeding up each day", "About the same number of new students get sick each day", "The outbreak is already slowing down"],
           correct: "The sickness is spreading person to person, and speeding up each day",
           teachMap: {
@@ -264,14 +265,14 @@ var CASE55 = {
       kicker: "Day 5 Morning // 55 students out sick (14% of school)", day: 5,
       imgs: [{ src: "assets/s5_suspects.png", cap: "Three suspect files: Influenza (lung virus), Norovirus (armored stomach virus), Salmonella (foodborne bacteria)." }],
       chars: [ { key: "vp", quote: "Fifty-five kids are out this morning: nearly 1 in 7 in the building! Public Health sent three suspect files. Compare all three against our week's clues and name the culprit." } ],
-      words: ["incubation", "contagious", "bacteria"],
+      words: ["incubation", "contagious", "shed", "bacteria"],
       tabs: {
-        dispatch: `<p><strong>Friday Morning Report:</strong> <strong>55 of 400 students</strong> out sick (Gr8 West 18, Gr7 East 12, cafeteria line 9, Gr9 North 8, computer lab 5, other 3).</p>
+        dispatch: `<p><strong>Friday Morning Report:</strong> <strong>55 of 400 students</strong> have gone home sick in total since Monday, 21 of them new today (by location: Gr8 West 18, Gr7 East 12, cafeteria line 9, Gr9 North 8, computer lab 5, other 3).</p>
 <p>Public Health narrowed it to <strong>three suspects</strong> on Tab 2. Only one fits <strong>every</strong> clue from Monday to Friday.</p>`,
         evidence: `<p><strong>Suspect A: Influenza (the flu), a respiratory virus.</strong> Attacks lungs/throat. Incubation 1-4 days. High fever, dry cough, sore throat, aches, stuffy nose. Lasts <strong>5-7 days</strong>. Spreads in breath droplets. Fragile coat: killed by soap/sanitizer.</p>
-<p><strong>Suspect B: Norovirus (stomach bug), a digestive virus.</strong> Attacks stomach/gut. Incubation <strong>12-48h</strong>. Sudden cramps, vomiting, diarrhea, mild fever; cough rare. Recover in <strong>24-48h</strong>. Dose: just <strong>18 virus particles</strong>. Survives days on plastic and taps. Still sheds <strong>48h after</strong> symptoms stop. Hard protein shell: alcohol gel fails; plain soap spreads it; needs <strong>bleach</strong>.</p>
+<p><strong>Suspect B: Norovirus (stomach bug), a digestive virus.</strong> Attacks stomach/gut. Incubation <strong>12-48h</strong>. Sudden cramps, vomiting, diarrhea, mild fever; cough rare. Recover in <strong>24-48h</strong>. Dose: just <strong>18 virus particles</strong>. Survives days on plastic and taps. Still <strong>sheds</strong> (keeps giving off virus that others can catch) for <strong>48h after</strong> symptoms stop. Hard protein shell: alcohol gel fails, and plain soap on a surface only wipes the virus around instead of killing it. <strong>Bleach</strong> (a strong disinfectant that breaks the shell apart) is what kills it on surfaces. Only trained adults, like custodians, handle bleach.</p>
 <p><strong>Suspect C: Salmonella (food poisoning), a digestive bacteria.</strong> From contaminated food (undercooked poultry/eggs). Incubation 6h-3 days. Cramps, diarrhea, fever, sometimes vomiting. Lasts <strong>4-7 days</strong>. Sickens people who ate the same meal; rarely spreads fast student to student.</p>`,
-        toolkit: `<p><strong>Rule suspects out by:</strong> <strong>symptoms</strong> (88% stomach, under 5% cough), <strong>recovery speed</strong> (24-48 hours vs a week), and <strong>who got sick</strong> (21 sick kids bring lunch from home; cases climbed all week, not one bad meal).</p>`
+        toolkit: `<p><strong>Rule suspects out by:</strong> <strong>symptoms</strong> (88% stomach, under 5% cough), <strong>recovery speed</strong> (24-48 hours vs a week), and <strong>who got sick</strong> (21 of the 34 sick kids checked on Thursday bring lunch from home; cases climbed all week, not one bad meal).</p>`
       },
       task: "Your call: name the culprit germ, give one clue pointing TO it, and one clue ruling OUT another suspect.",
       fields: [
@@ -281,7 +282,7 @@ var CASE55 = {
           teachMap: {
             "Suspect B: Norovirus (stomach virus)": { ok: true, msg: "Nurse Chen: Bullseye! Norovirus matches 88% stomach symptoms, fast 24-48h recovery, survival on ducks, and why plain-soap mopping failed. Write your two proof clues below!" },
             "Suspect A: Influenza (the flu)": { ok: false, msg: "Nurse Chen: Compare Suspect A with Tuesday's chart! Flu attacks lungs (cough, sore throat), lasts 5-7 days. At Centennial, under 5% had cough, 88% had vomiting/diarrhea, recovery 24-48h. Check the other suspects!" },
-            "Suspect C: Salmonella (food-poisoning bacteria)": { ok: false, msg: "Nurse Chen: Good check of a stomach germ! But: (1) 21 sick students bring lunch from home, and (2) Salmonella lasts 4-7 days and rarely spreads fast on plastic toys. Which stomach germ fits a 24-48h recovery?" }
+            "Suspect C: Salmonella (food-poisoning bacteria)": { ok: false, msg: "Nurse Chen: Good check of a stomach germ! But: (1) 21 of the 34 sick students checked bring lunch from home, and (2) Salmonella lasts 4-7 days and rarely spreads fast from student to student. Which stomach germ fits a 24-48h recovery?" }
           }
         },
         { type: "text", f: "responses.c1_clue1", label: "Clue 1: one fact or number that points TO your culprit.", rows: 2, placeholder: "The evidence shows ___, which matches..." },
@@ -295,33 +296,33 @@ var CASE55 = {
       kicker: "Day 5 Midday // Witness follow-up", day: 5,
       imgs: [{ src: "assets/s6_spread_map.png", cap: "Both pathways: fountain-tap contact in the West Wing and ducks traded before lunch." }],
       chars: [
-        { key: "boudreau", quote: "I cleaned Wednesday's fountain spill with only warm water and floor soap on my cart, then wiped the fountain's metal tap with that same cloth." },
-        { key: "jayden", quote: "I wasn't near Wednesday's spill when it happened, but I drank from that fountain Thursday morning. By Thursday night, I was throwing up." },
+        { key: "boudreau", quote: "I cleaned Wednesday's fountain spill with only warm water and my regular pink floral floor soap, then wiped the fountain's metal tap with that same cloth. I did not know soap alone would not kill the virus." },
+        { key: "jayden", quote: "I wasn't near Wednesday's spill when it happened, but I drank from that fountain at about 8:45 Thursday morning, right after the first bell. By 10:00 Thursday night, I was throwing up." },
         { key: "sophie", quote: "Kids still trade ducks in the lunch line, and almost nobody washes with soap first - the bathroom line is busy." }
       ],
       words: ["fomite", "incubation", "antibiotic"],
       tabs: {
         dispatch: `<p>You know <em>what</em> hit Centennial. Now prove <em>how</em> both pathways worked, why parents' antibiotic requests won't help, and how classmates protect Marcus.</p>`,
-        evidence: `<p><strong>Review the witness quotes:</strong> what Mr. Boudreau used on the floor then the <strong>fountain tap</strong>; the hours between Jayden drinking Thursday AM and getting sick Thursday night (vs. the culprit's incubation); and that parents want <strong>penicillin</strong> while <strong>Marcus</strong> has a weak immune system.</p>`,
+        evidence: `<p><strong>Review the witness quotes:</strong> what Mr. Boudreau used on the floor then the <strong>fountain tap</strong>; the number of hours between Jayden drinking Thursday morning and getting sick Thursday night (count them, then compare with the culprit's incubation time); and that parents want <strong>penicillin</strong> while <strong>Marcus</strong> has a weak immune system.</p>`,
         toolkit: `<p><strong>Write a cause-and-effect chain</strong> using <em>"first, then, so."</em> Example (head lice): "First, a student with lice wore shared headphones. Then lice clung to the ear pads. So the next student got lice too."</p>`
       },
       task: "Number the 5 duck-chain steps 1 to 5, then explain the fountain pathway, the penicillin problem, and protecting Marcus.",
       fields: [
-        { type: "order", f: "responses.chain", label: "Number the 5 duck-chain steps 1 (first) to 5 (last):",
+        { type: "order", f: "responses.chain", label: "Number the 5 duck-chain steps 1 (first) to 5 (last). Follow the virus from one person's hands to another person's mouth:",
           expectOrder: { b: "1", e: "2", d: "3", a: "4", c: "5" },
           stepHints: {
-            "1": "Step 1: germs first reach the toy when a student with virus on their hands holds and trades a resin duck.",
+            "1": "Step 1: germs first reach the toy when a student with virus on their hands picks up a resin duck.",
             "2": "Step 2: tough virus particles stay alive on the hard plastic duck (a fomite).",
-            "3": "Step 3: the duck is handed to a classmate from another grade at the lockers.",
+            "3": "Step 3: the duck is traded to a classmate from another grade at the lockers, after the virus is already living on it.",
             "4": "Step 4: that classmate walks into the cafeteria without washing hands with soap.",
             "5": "Step 5: they pick up a sandwich, and the virus enters through the mouth gate."
           },
           items: [
             { k: "a", t: "That classmate walks straight into the cafeteria without washing hands with soap." },
-            { k: "b", t: "A student who still has virus on their hands holds and trades a plastic resin duck." },
+            { k: "b", t: "A student who still has virus on their hands picks up a plastic resin duck." },
             { k: "c", t: "They pick up a sandwich, and the virus enters through the mouth gate." },
-            { k: "d", t: "The duck is handed to a classmate from another grade at the lockers." },
-            { k: "e", t: "Tough virus particles stay alive on the hard plastic duck (acting as a fomite)." }
+            { k: "d", t: "Next, the duck is traded to a classmate from another grade at the lockers." },
+            { k: "e", t: "Tough virus particles stay alive on the hard plastic, so the duck becomes a fomite." }
           ] },
         { type: "text", f: "responses.c2", label: "How did Wednesday's fountain spill make Jayden sick Thursday night when he wasn't at the spill? Use Boudreau's and Jayden's clues.", rows: 3, placeholder: "Plain soap did not... Then Mr. Boudreau wiped... So when Jayden..." },
         { type: "text", f: "responses.c3a", label: "Why won't penicillin (an antibiotic) cure the 55 sick students?", rows: 2, placeholder: "Penicillin won't cure them because...",
@@ -347,7 +348,7 @@ var CASE55 = {
 <li><strong>Rule 3:</strong> what students do about resin ducks and handwashing before eating</li></ul>`,
         evidence: `<p><strong>Double-check a fact?</strong> Click back to earlier days before you commit: <strong>Thursday Tab 2</strong> (why soap + water beat sanitizer) and <strong>Friday AM Tab 2</strong> (hours of shedding after feeling better; which cleaner kills it on surfaces).</p>`,
         toolkit: `<p><strong>Each rule needs:</strong> <strong>WHAT people do</strong> (exact hours, cleaner, or seconds) and <strong>WHY it stops this virus</strong>. Model (head lice): What - "pause sharing hats and headphones." Why - "lice crawl on shared fabric and plastic, so pausing cuts their bridge."</p>
-<p><strong>Bonus challenge:</strong> detectives have a famous two-word nickname for the first person who brings an illness into a school.</p>`
+<p><strong>Bonus challenge:</strong> detectives have a famous two-word nickname for the first person who brings an illness into a school. Hint: the first word is what a doctor calls someone who is sick, and the second word is the number that comes before one.</p>`
       },
       task: "Write all 3 Monday rules (WHAT and WHY), test them on the school, then COMMIT to open Case Closed.",
       fields: [
@@ -375,7 +376,7 @@ var CASE55 = {
       tabs: {
         dispatch: `<p><strong>Official Culprit: Suspect B, Norovirus</strong> (a stomach virus), not Influenza and not Salmonella.</p>
 <ul><li><strong>Why not Influenza:</strong> 88% vomiting/diarrhea, under 5% cough (digestive, not lungs); flu lasts 5-7 days, not 24-48h.</li>
-<li><strong>Why not Salmonella:</strong> 21 of 55 sick kids brought lunch from home, town water clean, recovery 1-2 days (not 4-7), cases accelerated person to person (3->7->18->34->55).</li>
+<li><strong>Why not Salmonella:</strong> 21 of the 34 sick kids checked on Thursday brought lunch from home, town water clean, recovery 1-2 days (not 4-7), cases accelerated person to person (3->7->18->34->55).</li>
 <li><strong>Both pathways:</strong> resin ducks were <strong>fomites</strong> carrying norovirus across Grades 7-9 before lunch (mouth gate). Then Wednesday's spill caused Thursday's West Wing spike: plain soap didn't kill norovirus and the same cloth wiped the tap Jayden used Thursday AM (fits the 12-48h incubation).</li>
 <li><strong>Why penicillin fails:</strong> antibiotics only kill living bacteria; norovirus is a virus.</li>
 <li><strong>Bonus answer:</strong> <strong>Patient Zero</strong> (also called the <strong>index case</strong>).</li></ul>`,
@@ -426,7 +427,7 @@ var CASE55 = {
       byGuess: {
         "A virus that attacks the stomach": "Your Monday stomach-virus hunch is looking sharper: today's clean water test and 21 home-lunch cases ruled out tap water and a bad cafeteria meal!",
         "A virus that attacks the lungs, like the flu": "Remember your Monday flu guess? Tuesday's stomach chart plus today's jump across all grades means we're chasing a tough stomach germ, not a lung virus.",
-        "Bacteria from food": "Remember suspecting food bacteria on Monday? Check Tab 1: 21 sick students bring lunch from home and never touch cafeteria food!",
+        "Bacteria from food": "Remember suspecting food bacteria on Monday? Check Tab 1: 21 of the 34 sick students bring lunch from home and never touch cafeteria food!",
         "Something in the West Wing drinking water": "Remember suspecting the West Wing water? The town lab just reported 100% clean - pipes aren't the culprit!",
         "Too early to name one cause yet (watch Tuesday's log)": "Holding off on Monday paid off: today's lab checks ruled out tap water and cafeteria food, pointing to person-to-person surface spread!"
       }

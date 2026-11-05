@@ -286,3 +286,31 @@ const AUTOSAVE_MS  = 2500;
 3. **Vault growth:** autosave appends a row per save, so the Submissions tab grows quickly (that is also the version history). Day one accepts this. Optional later: add an upsert `save_sim_state` action that keeps one latest row per student while still logging checkpoints. Want it now or later?
 4. ~~Cover art~~ **RESOLVED:** generated a full 10-image set (incl. `case55_cover.png` splash) with the Qwen engine into `Centennial/assets/`. Regenerate anytime via the bridge (section 7).
 5. **Marking:** treat this as formative (responses reviewed in the dashboard) and keep marks in Classroom, or do you want a marks column flowing into the Master Sheet later?
+
+---
+
+## 15. Text-clarity audit (2026-11-05): can every student question be answered from the supplied text?
+
+Method: walked every gated field (choice, pair, order, grid, mustMatch text) and every free-text prompt, and asked "which tab sentence gives the answer, in words a 12-year-old can read?"
+
+Gaps found and fixed in `case55_data.js` (JP data + gloss re-synced):
+
+| Where | Gap | Fix |
+|---|---|---|
+| Wed pair 4 (infected scrape = bacteria) | Tab 3 never said an infected cut is red/hot/swollen | Added that sentence to Tab 3 |
+| Wed pair 1 (stomach bug = virus) | Tab 3 said only "most school stomach bugs" | Reworded: stomach bugs that sweep fast through a whole school |
+| Thu q6 (2 reasons soap works) | Text gave only one reason | Rewrote Tab 2: soap lifts germs and grease off skin + running water rinses them away, so it REMOVES germs; sanitizer must KILL them |
+| Thu vaccine/antibiotic grid | "which germs" was garbled; "superbug" and "antibody" undefined | One specific germ per vaccine; antibiotics bacteria only; superbug and antibody defined inline |
+| Fri noon duck chain (strict order) | Steps b/e/d could be read in 2 orders | Reworded: picks up -> stays alive on plastic (fomite) -> traded -> no soap -> sandwich; step hints updated |
+| Fri noon fountain question | Plain soap "spreads it" was unexplained; Jayden timing was vague | Soap only wipes the virus around; Jayden drank about 8:45 AM, sick by 10:00 PM (about 13 h, inside 12-48 h) |
+| Fri AM / Rule 1 | "sheds" never defined | Defined inline + new glossary word `shed` on Friday AM |
+| Rule 2 | Why bleach works was missing | Bleach breaks the shell apart; only trained adults handle it |
+| Pink cleaner | Engine replies (Boudreau) mention the pink floral cleaner, the story never did | Story now names Boudreau's pink floral floor soap (Wed + Fri noon) |
+| Counts | Tue said 7 = "4 more" + cafeteria kids (did not add up); daily numbers read as both "out today" and "new" | Tue: 7 = 3 + 4 new (2 West Wing + 2 cafeteria). Every daily number is stated as a running total (+4, +11, +16, +21 = new cases) |
+| "21 sick kids bring lunch" | Denominator unstated and Fri verdict said "21 of 55" | Now "21 of the 34 sick students checked Thursday" everywhere |
+| Bonus (Patient Zero) | Could not be answered from the text | Hint added: first word = what a doctor calls a sick person, second = the number before one |
+| Wed Jayden quote | Said he watched the spill; Fri noon says he was not near it | Wed quote now reports what the kids who saw it said |
+
+Checked and fine: Monday hypothesis, Tuesday body system, Wed pairs 2 and 3, Wed q5, Thursday pattern + top spreader, Friday culprit and both clue prompts, Friday noon penicillin and Marcus, Rule 1 (48 h) and Rule 3 (duck pause + 20 s soap) all have their answers in the tabs.
+
+Verification: Centennial selftest 41/41 PASS, CentennialJP selftest 42/42 PASS, `verify_centennial_jp.py` 0 failures, 0 em/en dashes.
