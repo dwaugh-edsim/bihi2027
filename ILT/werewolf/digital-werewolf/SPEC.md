@@ -1,8 +1,8 @@
 # Digital Werewolf — design spec
 
-**Status: PRE-BUILD (v0.1).** Student pitch received 2026-11-06, still being written;
-gameplay answers pending. This file is the living scope — update it as answers land.
-Nothing here is committed design until the answers section says so.
+**Status: PRE-BUILD (v0.2).** Student pitch received 2026-11-06, still being written;
+gameplay answers pending. Backend decided same day: **GAS-backed, gnspes identity**
+(Dave). This file is the living scope — update it as answers land.
 
 ## Why this exists
 
@@ -67,42 +67,82 @@ Nothing here is committed design until the answers section says so.
 ## Decisions already made
 
 - **Login: gnspes**, same pattern as Outbreak (Dave, 2026-11-06).
-- **Home folder:** `bihi2027/ILT/werewolf/digital-werewolf/` — the game itself
-  is student-facing, so the public repo is the right side.
-- No student PII in this repo: identity is resolved at join time or
-  server-side, Outbreak-style. This spec carries no student names.
+- **Backend: Google Apps Script web app**, Sheets/Cache-backed, riding the
+  proven Student_System/Outbreak stack (Dave, 2026-11-06). See Platform reality.
+- **Home folder:** `bihi2027/ILT/werewolf/digital-werewolf/` — the game engine
+  and client are student-facing, so the public repo is the right side.
+  The GAS server code touches roster emails, so IT lives private
+  (`bihipri-27/Student_System-priv/digital-werewolf-gas/`).
+- No student PII in the public repo: emails/PINs stay Google-side and in the
+  private repo only. This spec carries no student names.
 
-## Platform reality
+## Platform reality — GAS-backed (v0.2)
 
-- bihi2027 deploys GitHub Pages from `main`: **static only**. Real-time
-  per-device play needs a server; it cannot live on Pages.
-- Reuse the Outbreak/Case55 server pattern: a room server on Dave's laptop
-  (pod-map bridge runs :8791 live / :8797 test), students join by short URL
-  or QR from school wifi.
-- **RISK, test before any per-device build:** student Chromebooks/phones must
-  be able to reach Dave's laptop over school wifi — separate VLANs are common.
-  One-line test: serve a page, join from a student device. If unreachable,
-  projector mode is the fallback and the pitch changes shape.
-- If per-device works: the server holds ALL state; clients are thin controllers.
-  Private info (role, detective results, wolf chat) leaves the server only to
-  authorized sessions.
+- bihi2027 deploys GitHub Pages from `main`: **static only**. The game logic
+  could live there, but real-time state cannot. That problem is solved by
+  putting the backend on a **Google Apps Script web app** instead of a local
+  server: GAS runs on Google's machines, so **Dave's laptop is not part of the
+  game at all** — no server process, no VLAN reachability question (students
+  demonstrably reach Google from school Chromebooks: Outbreak proves it), and
+  the game keeps running even if his laptop sleeps or leaves the room.
+- **Identity for free:** deployed "execute as me, users in domain," the web app
+  knows the caller's gnspes email (`Session.getActiveUser()`), same as the
+  existing Student_System login. Chromebooks are already signed in; personal
+  phones only work if the kid signs into their gnspes Google account in the
+  browser. Guidance to students: play on your Chromebook.
+- **Storage:** CacheService for hot state (alive/dead map, night picks, votes,
+  phase clock), ScriptProperties for durable game config, Sheets only for
+  things worth keeping after class (game logs, scores). The audit-priv lessons
+  apply directly: **confirm-after-write** from api.js, an
+  `action=get_health` version endpoint to catch repo↔deployment drift
+  (the A1 lesson from the 902 loss), and append-only logs to dodge the
+  50k-row read wall.
+- **Four design constraints to build around:**
+  1. **Latency:** GAS round-trips run 1-3s (worse cold). Clients poll on a
+     jittered 3-5s interval. That is fine for Werewolf — night phases are
+     30s+, day talk is minutes — but it rules out any fast-reflex mechanic,
+     and wolf unanimity re-pick loops will feel a beat slow. Accepted.
+  2. **Write contention:** 28 kids acting in the same 60s vote window.
+     Votes/actions are **append-only** writes (own cache key or log row, no
+     read-modify-write), polls are cache reads (no lock), and the ONLY
+     read-modify-write in the system is the moderator's phase advance, under
+     LockService. Client submissions carry random jitter.
+  3. **Secret state must never land anywhere a kid can open.** Roles, detective
+     results, and wolf chat live in CacheService/ScriptProperties keyed by
+     game id — **never in a sheet students could find by URL**. Sheets hold
+     public or post-game data only. "Who's the wolf" is exactly what a kid
+     will go hunting for; the design assumes they will try.
+  4. **PII placement:** the GAS server source handles emails/PINs, so it is
+     private-repo material. The public repo holds only PII-free game code
+     (engine + client HTML). The GAS app serves the client via HtmlService,
+     importing the same engine source — one paste-deploy, and the audit's
+     version endpoint proves which code is actually live.
 
-## Recommended first draft (builder recommendation, pre-answers)
+## Recommended first draft (v0.2 — GAS per-device is now PRIMARY)
 
-One engine, two front-ends, in this order:
+One engine, one GAS app, three screens. The old "projector first, per-device
+after the VLAN test" phasing is retired — GAS removes the VLAN blocker
+entirely (Outbreak already proves students reach Google), so the student's
+per-device vision is now the v1 target, not a v2.
 
 1. **Core engine** — pure JS state machine: role deal, night sequence
    (wolf → doctor → detective), day vote, death handling, win detection.
-   No UI, deterministic, testable with a scripted game log.
-2. **Projector mode, ships first** — deck-style night/day screens plus a
-   teacher console for the secret bits. Wolves point while eyes closed
-   (classic method), Dave enters the picks, the app announces results,
-   runs optional timers, tracks the dead, calls the win. Zero network risk,
-   works in any room, deployable the day it is built.
-3. **Per-device mode (the student's vision), after the VLAN test passes** —
-   join-code lobby, gnspes login, one private screen per role, wolf
-   unanimity picker, secret ballot, spectator view for the dead. Same
-   engine underneath.
+   No UI, no transport, deterministic, testable with a scripted game log.
+   Lives in this public folder; imported by the GAS app at deploy.
+2. **GAS server** (`bihipri-27/Student_System-priv/digital-werewolf-gas/`) —
+   identity, state store, action endpoints (join, night-pick, vote,
+   phase-advance, get_health), all following the Student_System patterns:
+   confirm-after-write, LockService on the moderator transition, CacheService
+   hot state, secrets never in sheets.
+3. **Three client screens, one app:**
+   - **Student screen** (per-device, the student's vision): join by class +
+     PIN, one private screen per role, wolf unanimity picker, secret ballot,
+     spectator view for the dead.
+   - **Moderator screen** (Dave, projector): phase clock, day/night banners,
+     announcements, dead list, win call, pause/override. This REPLACES the
+     old standalone projector-mode plan — it is just a privileged client,
+     not a separate build.
+   - **God view** folded into the moderator screen (see-all, kick, force-end).
 
 **Default rule set to build v1 against** (defaults, not promises — each one
 flips cheaply when the student's answers land):
@@ -126,14 +166,24 @@ Role counts are CONFIG, not constants — whether the room runs classic density
 ## Folder plan
 
 ```
-digital-werewolf/
+bihi2027/ILT/werewolf/digital-werewolf/     PUBLIC — student-facing, PII-free
 ├── SPEC.md        this file — living scope
-├── engine/        game state machine (v1)
-├── projector/     projector deck + teacher console (v1)
-└── server/        room server + per-device client (v2, after the VLAN test)
+├── engine/        game state machine (pure JS, no UI, no transport)
+└── client/        student screen + moderator screen HTML/JS
+
+bihipri-27/Student_System-priv/digital-werewolf-gas/   PRIVATE — handles PII
+└── Code.gs + appsscript notes   identity, state store, action endpoints
 ```
+
+The GAS app serves the client via HtmlService and imports the engine source,
+so the public folder never carries roster data and the private folder never
+carries UI. Deploy = paste both into one Apps Script project.
 
 ## Change log
 
+- 2026-11-06 v0.2 — backend decided by Dave: GAS web app + gnspes identity
+  (Student_System pattern). Per-device mode promoted to v1 PRIMARY; VLAN risk
+  retired; projector console folded into the moderator screen. Four GAS
+  constraints added (latency, contention, secret-state placement, PII split).
 - 2026-11-06 v0.1 — first draft from the partial student pitch plus builder
   recommendations. 13 gameplay questions out; 4 contradictions flagged.
