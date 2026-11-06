@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOONHOLLOW HARBOUR // DIGITAL WEREWOLF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-page: #f0f2f5;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+
+    --border-card: #d5dbe3;
+    --border-subtle: #e5e9f0;
+    --border-highlight: #ed786a;
+
+    --text-main: #1e2530;
+    --text-heading: #181f2b;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+
+    --coral: #ed786a;
+    --coral-hover: #fd887a;
+    --coral-dark: #d65b4c;
+    --coral-bg: #fff1f0;
+    --coral-border: #fecdd3;
+
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+
+    --emerald: #15803d;
+    --emerald-bg: #dcfce7;
+    --emerald-border: #86efac;
+
+    --amber: #b45309;
+    --amber-bg: #fef3c7;
+    --amber-border: #fde68a;
+
+    --purple: #6d28d9;
+    --purple-bg: #f5f3ff;
+    --purple-border: #ddd6fe;
+
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --red-border: #fca5a5;
+
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    min-height: 100vh;
+    background: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-body);
+}
+
+.bg-fx {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url('assets/bg_day_village.jpg');
+    background-size: cover; background-position: center;
+    opacity: 0.13; pointer-events: none;
+    transition: background-image 0.5s ease;
+}
+body.night-theme .bg-fx {
+    background-image: url('assets/bg_night_village.jpg');
+    opacity: 0.18;
+}
+
+.double-rule-bottom {
+    border-bottom: 2px solid var(--border-subtle);
+    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+}
+
+.shell {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column;
+    min-height: 100vh;
+}
+
+/* TOP BAR */
+header.topbar {
+    background: rgba(255,255,255,0.97);
+    padding: 8px 16px 11px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap;
+}
+.brand-row { display: flex; align-items: center; gap: 8px; }
+.badge-room {
+    background: var(--coral); color: #ffffff;
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.82rem;
+    border-radius: 6px; padding: 4px 10px;
+    box-shadow: 0 2px 6px rgba(237,120,106,0.3);
+}
+.top-title {
+    font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem;
+    color: var(--text-heading);
+}
+.pill-mono {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.76rem;
+    padding: 4px 9px; border-radius: 6px;
+    background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border);
+}
+body.night-theme .pill-mono.phase {
+    background: #1e293b; color: #fde68a; border-color: #0f172a;
+}
+
+.btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.85rem;
+    color: var(--text-heading); background: #ffffff;
+    border: 1.5px solid var(--border-card); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; transition: all 0.12s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:hover { background: var(--bg-card-hover); border-color: #94a3b8; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.coral { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
+.btn.coral:hover { background: var(--coral-hover); }
+.btn.emerald { background: var(--emerald); color: #ffffff; border-color: var(--emerald); }
+.btn.blue { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+.btn.purple { background: var(--purple); color: #ffffff; border-color: var(--purple); }
+.btn-xs { font-family: var(--font-mono); font-size: 0.74rem; padding: 4px 8px; }
+
+/* DEMO SWITCHER RIBBON */
+.demo-ribbon {
+    background: #1e293b; color: #f8fafc;
+    padding: 6px 16px;
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap; font-size: 0.82rem;
+}
+.demo-ribbon.show { display: flex; }
+.demo-ribbon select {
+    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid #475569;
+    background: #0f172a; color: #f8fafc;
+}
+
+/* SIGN-IN / JOIN SPLASH GATE */
+.gate-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.gate-card {
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 14px; width: min(500px, 95vw);
+    overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+}
+.gate-art {
+    height: 185px; background-image: url('assets/bg_night_village.jpg');
+    background-size: cover; background-position: center;
+    position: relative; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px 20px; color: #ffffff;
+}
+.gate-art::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.88) 100%);
+}
+.gate-art > * { position: relative; z-index: 1; }
+.gate-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.input-clean {
+    width: 100%; padding: 9px 12px; border-radius: 8px;
+    border: 1.5px solid var(--border-card); font-family: var(--font-body);
+    font-size: 0.96rem; font-weight: 600;
+}
+
+/* STUDENT GAME WORKSPACE (CHROMEBOOK 1366x620 TUNED) */
+.player-grid {
+    flex: 1;
+    max-width: 1220px; width: 100%; margin: 0 auto;
+    padding: 12px 16px 20px;
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 14px;
+    align-items: start;
+}
+@media (max-width: 860px) {
+    .player-grid { grid-template-columns: 1fr; }
+}
+
+.card-box {
+    background: #ffffff; border: 1px solid var(--border-card);
+    border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 14px;
+}
+
+/* SECRET TAP-TO-PEEK ROLE CARD */
+.secret-card-stage {
+    border-radius: 10px; overflow: hidden;
+    border: 2px solid #1e293b;
+    background: #0f172a; color: #f8fafc;
+    cursor: pointer; position: relative;
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.secret-card-stage:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(15,23,42,0.22);
+}
+.secret-art {
+    width: 100%; aspect-ratio: 1 / 0.86;
+    object-fit: cover; display: block;
+}
+.secret-caption {
+    padding: 11px 13px;
+    text-align: center;
+}
+.role-badge-lg {
+    display: inline-block;
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.76rem;
+    padding: 3px 9px; border-radius: 5px; letter-spacing: 0.08em;
+    margin-bottom: 5px;
+}
+.role-badge-lg.cover { background: #f59e0b; color: #1e1b18; }
+.role-badge-lg.WEREWOLF { background: #dc2626; color: #ffffff; }
+.role-badge-lg.DOCTOR { background: #16a34a; color: #ffffff; }
+.role-badge-lg.DETECTIVE { background: #d97706; color: #ffffff; }
+.role-badge-lg.VILLAGER { background: #2563eb; color: #ffffff; }
+
+.secret-title {
+    font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700;
+    color: #ffffff; margin-bottom: 4px;
+}
+.secret-desc {
+    font-size: 0.84rem; color: #cbd5e1; line-height: 1.35;
+}
+
+/* NOTEBOOK / TEAMMATES MINI CARDS */
+.sub-box {
+    margin-top: 10px; padding: 10px 12px;
+    border-radius: 8px; background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+}
+.sub-box-title {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.72rem;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 5px;
+}
+
+/* RIGHT ACTION CONSOLE */
+.phase-banner {
+    border-radius: 10px; overflow: hidden;
+    background-size: cover; background-position: center;
+    position: relative; padding: 16px 18px; color: #ffffff;
+    margin-bottom: 12px; border: 1.5px solid var(--border-card);
+}
+.phase-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 100%);
+}
+.phase-banner > * { position: relative; z-index: 1; }
+.phase-banner h2 {
+    font-family: var(--font-heading); font-size: 1.32rem; margin-bottom: 3px;
+}
+.phase-banner p { font-size: 0.92rem; color: #e2e8f0; }
+
+.consensus-bar {
+    padding: 10px 13px; border-radius: 8px; margin-bottom: 10px;
+    font-weight: 700; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.consensus-bar.ok { background: var(--emerald-bg); border: 1.5px solid var(--emerald-border); color: var(--emerald); }
+.consensus-bar.split { background: var(--amber-bg); border: 1.5px solid var(--amber-border); color: var(--amber); }
+
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 8px;
+}
+.target-btn {
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 8px; padding: 9px 11px;
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    transition: all 0.12s ease;
+}
+.target-btn:hover:not(:disabled) {
+    border-color: var(--coral); background: var(--coral-bg);
+}
+.target-btn.selected {
+    border-color: var(--blue); background: var(--blue-bg);
+    box-shadow: 0 0 0 2px rgba(29,78,216,0.2);
+}
+.target-btn:disabled {
+    opacity: 0.45; cursor: not-allowed; background: #f1f5f9;
+}
+.t-seat {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.t-name { font-weight: 700; font-size: 0.94rem; color: var(--text-heading); }
+.t-chip {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.68rem;
+    padding: 2px 6px; border-radius: 4px; background: var(--blue); color: #ffffff;
+}
+
+.spectator-alert {
+    background: #1e293b; color: #f8fafc;
+    border: 2px solid var(--coral); border-radius: 9px;
+    padding: 12px 15px; margin-bottom: 12px;
+}
+.spectator-alert strong { color: #fca5a5; font-family: var(--font-heading); }
+
+/* GOD VIEW TABLE */
+.god-wrap {
+    max-width: 1240px; width: 100%; margin: 0 auto; padding: 14px 18px;
+    display: grid; grid-template-columns: 360px 1fr; gap: 14px;
+}
+@media (max-width: 900px) { .god-wrap { grid-template-columns: 1fr; } }
+.god-seat-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.god-row {
+    background: #ffffff; border: 1px solid var(--border-card); border-radius: 7px;
+    padding: 6px 10px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.86rem;
+}
+.god-row.dead { opacity: 0.55; background: #f1f5f9; }
+.r-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.7rem;
+    padding: 2px 6px; border-radius: 4px; color: #ffffff;
+}
+.r-pill.WEREWOLF { background: var(--red); }
+.r-pill.DOCTOR { background: var(--emerald); }
+.r-pill.DETECTIVE { background: var(--amber); }
+.r-pill.VILLAGER { background: #64748b; }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+
+<div class="shell">
+    <!-- TOP HEADER -->
+    <header class="topbar double-rule-bottom">
+        <div class="brand-row">
+            <span class="badge-room">ROOM 8</span>
+            <span class="top-title" id="headerTitle">Moonhollow Werewolf</span>
+            <span class="pill-mono" id="gameCodeBadge">WOLF</span>
+            <span class="pill-mono phase" id="phaseBadge">LOBBY</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span id="whoLabel" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);"></span>
+            <a class="btn btn-xs" href="lcd.html" target="_blank">Open Class LCD</a>
+        </div>
+    </header>
+
+    <!-- DEMO SEAT SWITCHER RIBBON (shown in ?demo=1 / local preview mode) -->
+    <div class="demo-ribbon" id="demoRibbon">
+        <div>
+            <strong>INTERACTIVE DEMO MODE:</strong> Synced live with <code>lcd.html</code> (or standalone 28-player bot class). Switch seats anytime to test every role!
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <label for="demoSeatSelect">Viewing Seat:</label>
+            <select id="demoSeatSelect" onchange="onDemoSeatChange(this.value)"></select>
+            <button class="btn btn-xs coral" onclick="demoStepPhase()">Advance Phase -&gt;</button>
+        </div>
+    </div>
+
+    <!-- 1. SIGN-IN & ROOM JOIN GATE -->
+    <div class="gate-wrap" id="gateView" style="display:none;">
+        <div class="gate-card">
+            <div class="gate-art">
+                <div style="font-family:var(--font-mono); font-size:0.74rem; font-weight:800; color:#fde68a;">BICENTENNIAL ROOM 8 // CLASS GAME</div>
+                <h1 style="font-family:var(--font-heading); font-size:1.45rem;">Moonhollow Harbour: Werewolf</h1>
+                <div style="font-size:0.9rem; color:#e2e8f0;">One secret village. Hidden wolves. Trust nobody blindly.</div>
+            </div>
+            <div class="gate-body" id="gateBody">
+                <!-- Populated dynamically based on Live Server vs Local Demo -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. STUDENT PER-DEVICE VIEW -->
+    <div class="player-grid" id="playerView" style="display:none;">
+        <!-- LEFT: SECRET ROLE CARD & PRIVATE CASE NOTES -->
+        <div>
+            <div class="card-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-family:var(--font-heading); font-weight:700; font-size:0.95rem;" id="mySeatHeader">Seat #01</span>
+                    <button class="btn btn-xs" id="peekToggleBtn" onclick="toggleRolePeek()">Tap to Peek</button>
+                </div>
+
+                <div class="secret-card-stage" id="secretCardStage"
+                     onmousedown="setPeek(true)" onmouseup="setPeek(false)" onmouseleave="setPeek(false)"
+                     ontouchstart="setPeek(true)" ontouchend="setPeek(false)"
+                     onclick="toggleRolePeek()">
+                    <img class="secret-art" id="secretCardImg" src="assets/card_back.jpg" alt="Secret Role Card">
+                    <div class="secret-caption">
+                        <span class="role-badge-lg cover" id="secretBadge">SECRET IDENTITY HIDDEN</span>
+                        <div class="secret-title" id="secretTitle">Tap or Hold to Peek</div>
+                        <div class="secret-desc" id="secretDesc">Keep your Chromebook angled toward yourself so pod neighbours cannot see your card!</div>
+                    </div>
+                </div>
+
+                <div id="privateNotesArea"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: LIVE PHASE CONSOLE -->
+        <div class="card-box" id="actionConsole">
+            <!-- Populated per phase & role -->
+        </div>
+    </div>
+
+    <!-- 3. PRIVATE TEACHER GOD-VIEW CONSOLE (?god=1) -->
+    <div class="god-wrap" id="godView" style="display:none;">
+        <div class="card-box" id="godControlsBox"></div>
+        <div class="card-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h2 style="font-family:var(--font-heading); font-size:1.1rem;">Teacher God-View (Private Window - Do Not Project!)</h2>
+                <span class="pill-mono" id="godCountsBadge"></span>
+            </div>
+            <div class="god-seat-grid" id="godSeatGrid"></div>
+        </div>
+    </div>
+
+    <!-- 4. HEADLESS SELFTEST OUTPUT (?selftest=1 off-prod) -->
+    <pre id="selftest" style="display:none; padding:16px; font-family:monospace;"></pre>
+</div>
+
+<script src="engine/werewolf_engine.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    var E = window.WerewolfEngine;
+    var IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
+    var ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
+    var ID_SESSION_KEY = 'r8id';
+    var CHANNEL_NAME = 'r8_werewolf_v1';
+
+    var Q = new URLSearchParams(location.search);
+    var OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
+    var SELFTEST = Q.has('selftest') && OFFPROD;
+    var IS_GOD = Q.get('god') === '1';
+    var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || '';
+    var targetGameId = Q.get('game') || '';
+    var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
+
+    var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
+    var identity = null;
+    var popupRef = null;
+    var joinedPlayerId = sessionStorage.getItem('ww_player_id') || 'P1';
+    var rolePeekOpen = false;
+    var personalSuspectHistory = [];
+
+    // Standalone fallback local game if student opens index.html?demo=1 without lcd.html open
+    var fallbackDemoGame = E.createGame({ populateDemo: true, rules: { classSize: 28, preset: 'classic' } });
+    var activeLocalGame = fallbackDemoGame;
+    var currentView = null;
+
+    function el(id) { return document.getElementById(id); }
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function atobUrl(s) {
+        s = s.replace(/-/g, '+').replace(/_/g, '/');
+        while (s.length % 4) s += '=';
+        return atob(s);
+    }
+
+    // 0. SELFTEST MODE
+    if (SELFTEST) {
+        var st = E.runSelfTest();
+        var pre = el('selftest');
+        pre.style.display = 'block';
+        pre.textContent = JSON.stringify(st, null, 2);
+        return;
+    }
+
+    // Read Path B Google Identity token from URL hash or sessionStorage
+    var hashMatch = (location.hash || '').match(/[#&]r8id=([^&]+)/);
+    if (hashMatch) {
+        try {
+            identity = JSON.parse(atobUrl(hashMatch[1]));
+            sessionStorage.setItem(ID_SESSION_KEY, JSON.stringify(identity));
+        } catch (e) {}
+        history.replaceState(null, '', location.pathname + location.search);
+    }
+    if (!identity) {
+        try {
+            var savedId = sessionStorage.getItem(ID_SESSION_KEY);
+            if (savedId) identity = JSON.parse(savedId);
+        } catch (e) {}
+    }
+
+    window.addEventListener('message', function (ev) {
+        if (!ev.data || ev.data.type !== 'r8id' || !ev.data.id) return;
+        identity = ev.data.id;
+        try { sessionStorage.setItem(ID_SESSION_KEY, JSON.stringify(identity)); } catch (e) {}
+        try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (e) {}
+        boot();
+    });
+
+    if (bc) {
+        bc.onmessage = function (ev) {
+            var msg = ev.data || {};
+            if (serverUrl) return;
+            if (msg.type === 'STATE_SYNC' && msg.game) {
+                activeLocalGame = msg.game;
+                syncFromLocalGame();
+            } else if ((msg.type === 'ACTION_RESULT' || msg.type === 'JOIN_RESULT') && msg.game) {
+                activeLocalGame = msg.game;
+                if (msg.result && !msg.result.ok && msg.result.error) {
+                    alert(msg.result.error);
+                }
+                syncFromLocalGame();
+            }
+        };
+    }
+
+    function syncFromLocalGame() {
+        if (IS_GOD) {
+            currentView = E.projectViewForViewer(activeLocalGame, { kind: 'god' });
+            renderGodView();
+            return;
+        }
+        // Ensure joinedPlayerId exists in activeLocalGame
+        if (activeLocalGame.players.length > 0) {
+            var exists = activeLocalGame.players.some(function (p) { return p.id === joinedPlayerId; });
+            if (!exists) joinedPlayerId = activeLocalGame.players[0].id;
+        }
+        currentView = E.projectViewForViewer(activeLocalGame, { kind: 'player', playerId: joinedPlayerId });
+        renderDemoRibbon();
+        renderPlayerView();
+    }
+
+    // Server calls
+    function postServer(payload) {
+        return fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); });
+    }
+
+    window.signInWithSchoolAccount = function () {
+        if (location.origin.indexOf(ALLOWED_ORIGIN) !== 0) {
+            alert('School Google sign-in requires the hosted dwaugh-edsim.github.io link. Use Interactive Demo Mode locally!');
+            return;
+        }
+        var ret = location.href.split('#')[0];
+        popupRef = window.open(IDENTITY_URL + '?return=' + encodeURIComponent(ret), 'r8signin', 'width=520,height=700');
+    };
+
+    window.enterInteractiveDemo = function () {
+        isDemo = true;
+        serverUrl = '';
+        el('gateView').style.display = 'none';
+        el('playerView').style.display = 'grid';
+        el('demoRibbon').classList.add('show');
+        if (bc) bc.postMessage({ type: 'REQUEST_SYNC' });
+        syncFromLocalGame();
+    };
+
+    window.joinLiveServerSeat = function () {
+        var nameVal = (el('displayNameInput') ? el('displayNameInput').value : '').trim();
+        var codeVal = (el('roomCodeInput') ? el('roomCodeInput').value : targetGameId).trim().toUpperCase();
+        if (!nameVal) {
+            alert('Enter your First Name + Last Initial (for example: Jordan Th.).');
+            return;
+        }
+        postServer({
+            action: 'join_game',
+            gameId: codeVal,
+            displayName: nameVal,
+            email: identity.email,
+            ts: identity.ts,
+            sig: identity.sig
+        }).then(function (res) {
+            if (res && res.status === 'ok' && res.view) {
+                joinedPlayerId = res.playerId;
+                targetGameId = res.view.gameId;
+                try { sessionStorage.setItem('ww_player_id', joinedPlayerId); } catch (e) {}
+                currentView = res.view;
+                el('gateView').style.display = 'none';
+                el('playerView').style.display = 'grid';
+                renderPlayerView();
+            } else {
+                alert((res && res.message) || 'Could not join lobby yet.');
+            }
+        });
+    };
+
+    // Role Card Peek Controls
+    var holdTimeout = null;
+    window.setPeek = function (state) {
+        if (state) {
+            rolePeekOpen = true;
+            renderRoleCardOnly();
+        }
+    };
+    window.toggleRolePeek = function () {
+        if (holdTimeout) return;
+        rolePeekOpen = !rolePeekOpen;
+        renderRoleCardOnly();
+    };
+
+    window.onDemoSeatChange = function (pid) {
+        joinedPlayerId = pid;
+        rolePeekOpen = false;
+        if (activeLocalGame && activeLocalGame.players) {
+            activeLocalGame.players.forEach(function (p) { p.isBot = (p.id !== pid); });
+        }
+        syncFromLocalGame();
+    };
+
+    window.demoStepPhase = function () {
+        if (bc) {
+            // Also step local fallback in case lcd.html is not open
+            if (activeLocalGame === fallbackDemoGame) {
+                if (activeLocalGame.phase === 'ROLE_REVEAL' || activeLocalGame.phase === 'NIGHT' || activeLocalGame.phase === 'DAY_VOTE' || activeLocalGame.phase === 'DAY_REVOTE') {
+                    E.simulateBotActions(activeLocalGame, Date.now());
+                }
+                if (activeLocalGame.phase === 'GAME_OVER') {
+                    activeLocalGame = E.resetToLobby(activeLocalGame, true, Date.now());
+                    fallbackDemoGame = activeLocalGame;
+                } else {
+                    E.advancePhase(activeLocalGame, Date.now());
+                }
+                syncFromLocalGame();
+            } else {
+                bc.postMessage({ type: 'GOD_ADVANCE' });
+            }
+        }
+    };
+
+    window.submitMyAction = function (type, targetId) {
+        if (type === 'villager_watch') {
+            var pObj = (currentView.players || []).find(function (x) { return x.id === targetId; });
+            if (pObj) {
+                personalSuspectHistory.unshift('Night ' + currentView.round + ' hunch: #' + pObj.seat + ' ' + pObj.name);
+                personalSuspectHistory = personalSuspectHistory.slice(0, 6);
+            }
+        }
+
+        if (serverUrl && !isDemo) {
+            postServer({
+                action: 'submit_action',
+                gameId: targetGameId || currentView.gameId,
+                type: type,
+                targetId: targetId,
+                requestId: 'req_' + Date.now() + '_' + Math.floor(Math.random() * 9999),
+                email: identity.email,
+                ts: identity.ts,
+                sig: identity.sig
+            }).then(function (res) {
+                if (res && res.status === 'ok' && res.view) {
+                    currentView = res.view;
+                    renderPlayerView();
+                } else if (res && res.message) {
+                    alert(res.message);
+                }
+            });
+            return;
+        }
+
+        // Local / BroadcastChannel Demo mode
+        if (activeLocalGame === fallbackDemoGame) {
+            var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId }, Date.now());
+            if (!r.ok) alert(r.error);
+            syncFromLocalGame();
+        }
+        if (bc) {
+            bc.postMessage({
+                type: 'PLAYER_ACTION',
+                playerId: joinedPlayerId,
+                requestId: 'demo_' + Date.now(),
+                actionPayload: { type: type, targetId: targetId }
+            });
+        }
+    };
+
+    // Role Metadata
+    function roleInfo(role) {
+        if (role === 'WEREWOLF') {
+            return {
+                label: 'WEREWOLF',
+                title: 'Werewolf Pack',
+                img: 'assets/role_werewolf.jpg',
+                desc: 'Each night, silently agree with your fellow Werewolves on 1 villager to eliminate. Blend in during daytime debates!'
+            };
+        }
+        if (role === 'DOCTOR') {
+            return {
+                label: 'TOWN DOCTOR',
+                title: 'Town Doctor',
+                img: 'assets/role_doctor.jpg',
+                desc: 'Each night, choose 1 player to protect with your lantern shield. If the Werewolves attack that player, nobody dies!'
+            };
+        }
+        if (role === 'DETECTIVE') {
+            return {
+                label: 'TOWN DETECTIVE',
+                title: 'Town Detective',
+                img: 'assets/role_detective.jpg',
+                desc: 'Each night, investigate 1 player to learn their TRUE ROLE in your private Case File. Guide the village carefully!'
+            };
+        }
+        return {
+            label: 'VILLAGER',
+            title: 'Town Council Villager',
+            img: 'assets/role_villager.jpg',
+            desc: 'You have the power of numbers and the ballot! Watch reactions closely, spot contradictions, and exile every Werewolf.'
+        };
+    }
+
+    function renderDemoRibbon() {
+        if (!isDemo || IS_GOD || !currentView) return;
+        el('demoRibbon').classList.add('show');
+        var sel = el('demoSeatSelect');
+        var opts = (activeLocalGame.players || []).map(function (p) {
+            var rTag = p.role ? (' [' + p.role + ']') : '';
+            var deadTag = !p.alive ? ' (OUT)' : '';
+            return '<option value="' + esc(p.id) + '"' + (p.id === joinedPlayerId ? ' selected' : '') + '>#'
+                + (p.seat < 10 ? '0' + p.seat : p.seat) + ' ' + esc(p.name) + rTag + deadTag + '</option>';
+        }).join('');
+        sel.innerHTML = opts;
+    }
+
+    function renderRoleCardOnly() {
+        if (!currentView || !currentView.me) return;
+        var me = currentView.me;
+        var peekBtn = el('peekToggleBtn');
+        var img = el('secretCardImg');
+        var badge = el('secretBadge');
+        var title = el('secretTitle');
+        var desc = el('secretDesc');
+
+        if (!me.role) {
+            img.src = 'assets/card_back.jpg';
+            badge.className = 'role-badge-lg cover';
+            badge.textContent = 'WAITING FOR DEAL';
+            title.textContent = 'Lobby Open';
+            desc.textContent = 'Your secret role card will appear here as soon as the teacher deals the deck.';
+            peekBtn.textContent = 'Lobby';
+            return;
+        }
+
+        if (!rolePeekOpen) {
+            img.src = 'assets/card_back.jpg';
+            badge.className = 'role-badge-lg cover';
+            badge.textContent = 'HIDDEN FOR PRIVACY';
+            title.textContent = 'Tap to Peek at Role';
+            desc.textContent = 'Keep your screen angled away from neighbours, then tap to check your role.';
+            peekBtn.textContent = 'Show Role';
+        } else {
+            var info = roleInfo(me.role);
+            img.src = info.img;
+            badge.className = 'role-badge-lg ' + me.role;
+            badge.textContent = info.label;
+            title.textContent = info.title;
+            desc.textContent = info.desc;
+            peekBtn.textContent = 'Hide Role';
+        }
+    }
+
+    function renderPlayerView() {
+        var v = currentView;
+        if (!v) return;
+        var isNight = (v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
+        document.body.classList.toggle('night-theme', isNight);
+
+        el('gameCodeBadge').textContent = v.gameId || 'WOLF';
+        el('phaseBadge').textContent = v.phase === 'LOBBY' ? 'LOBBY' : ('R' + v.round + ' · ' + v.phase);
+
+        var me = v.me;
+        if (!me) {
+            el('mySeatHeader').textContent = 'Spectator / Unseated';
+            el('actionConsole').innerHTML = '<p>Waiting to claim a seat in the Lobby...</p>';
+            return;
+        }
+
+        el('mySeatHeader').textContent = 'Seat #' + (me.seat < 10 ? '0' + me.seat : me.seat) + ' · ' + me.name;
+        renderRoleCardOnly();
+
+        // Private sidebar notes (Packmates, Detective Case File, or Personal Notes)
+        var sideHtml = '';
+        if (me.role === 'WEREWOLF' && me.packmates) {
+            var mates = me.packmates.map(function (m) {
+                return '#' + m.seat + ' ' + esc(m.name) + (!m.alive ? ' (Out)' : '');
+            }).join(' · ');
+            sideHtml += '<div class="sub-box"><div class="sub-box-title">Your Werewolf Pack (Tap Role to Hide!)</div>'
+                + '<div style="font-size:0.86rem; font-weight:700; color:var(--red);">' + (rolePeekOpen ? mates : 'Tap "Show Role" above to view packmates') + '</div></div>';
+        }
+        if (me.role === 'DETECTIVE' && me.findings) {
+            var fList = me.findings.length
+                ? me.findings.map(function (f) {
+                    return '<div style="font-size:0.85rem; margin-top:3px;"><strong>Night ' + f.round + ':</strong> #' + f.seat + ' ' + esc(f.targetName) + ' = <span style="font-family:var(--font-mono); font-weight:800; color:var(--blue);">' + esc(f.role) + '</span></div>';
+                }).join('')
+                : '<div style="font-size:0.84rem; color:var(--text-muted);">No investigations completed yet.</div>';
+            sideHtml += '<div class="sub-box"><div class="sub-box-title">Detective Case Notebook</div>'
+                + (rolePeekOpen ? fList : '<div style="font-size:0.84rem; color:var(--text-muted);">Tap "Show Role" above to inspect verified clues.</div>')
+                + '</div>';
+        }
+        if (personalSuspectHistory.length > 0) {
+            sideHtml += '<div class="sub-box"><div class="sub-box-title">My Night Watch Notes</div>'
+                + personalSuspectHistory.map(function (line) { return '<div style="font-size:0.82rem; color:var(--text-muted);">' + esc(line) + '</div>'; }).join('')
+                + '</div>';
+        }
+        el('privateNotesArea').innerHTML = sideHtml;
+
+        // RIGHT ACTION CONSOLE
+        var bgBanner = isNight ? 'assets/bg_night_village.jpg' : 'assets/bg_day_village.jpg';
+        if (v.phase === 'GAME_OVER') {
+            bgBanner = v.winner === 'WEREWOLVES' ? 'assets/banner_victory_wolves.jpg' : 'assets/banner_victory_village.jpg';
+        }
+
+        var html = '<div class="phase-banner" style="background-image:url(\'' + bgBanner + '\');">'
+            + '<h2>' + esc((v.lastAnnouncement && v.lastAnnouncement.headline) || v.phase) + '</h2>'
+            + '<p>' + esc((v.lastAnnouncement && v.lastAnnouncement.subline) || '') + '</p>'
+            + '</div>';
+
+        // Spectator banner if eliminated
+        if (!me.alive && v.phase !== 'GAME_OVER') {
+            html += '<div class="spectator-alert">'
+                + '<strong>GHOST SPECTATOR MODE - LIPS SEALED!</strong>'
+                + '<div style="font-size:0.88rem; margin-top:4px;">You were eliminated in Round ' + (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound + '. Do not talk, react, or show your Chromebook screen to living players!</div>'
+                + '</div>';
+            if (me.isSpectatorTruthUnlocked) {
+                html += '<div class="sub-box"><div class="sub-box-title">Silent Ghost Truth Board</div>'
+                    + '<div class="target-grid">'
+                    + v.players.map(function (p) {
+                        return '<div class="target-btn" style="cursor:default; opacity:' + (p.alive ? '1' : '0.55') + ';">'
+                            + '<div><div class="t-seat">#' + p.seat + '</div><div class="t-name">' + esc(p.name) + '</div></div>'
+                            + '<span class="r-pill ' + (p.role || 'VILLAGER') + '">' + esc(p.role || '?') + '</span></div>';
+                    }).join('')
+                    + '</div></div>';
+            }
+            el('actionConsole').innerHTML = html;
+            return;
+        }
+
+        if (v.phase === 'LOBBY') {
+            html += '<div style="padding:10px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:6px;">You Are Seated in Moonhollow Council (' + v.counts.seated + ' Players)</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.94rem;">Watch the front Class LCD Display. As soon as the teacher clicks <strong>Deal Roles &amp; Start</strong>, your secret card on the left will unlock!</p>'
+                + '</div>';
+        } else if (v.phase === 'ROLE_REVEAL') {
+            html += '<div style="padding:8px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:8px;">Step 1: Check Your Secret Identity</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:12px;">Tap <strong>Show Role</strong> on your card on the left to read your instructions privately, then tap <strong>Hide Role</strong> and confirm below.</p>'
+                + (me.hasActed
+                    ? '<div class="consensus-bar ok">Confirmed! Waiting for classmates (' + v.counts.acted + '/' + v.counts.expectedActors + ' ready)...</div>'
+                    : '<button class="btn emerald" style="padding:10px 18px; font-size:1rem;" onclick="submitMyAction(\'confirm_role\', \'\')">I Checked My Role (Ready) -&gt;</button>')
+                + '</div>';
+        } else if (v.phase === 'NIGHT') {
+            html += renderNightConsoleForMe(v, me);
+        } else if (v.phase === 'DAWN' || v.phase === 'DUSK') {
+            html += '<div style="padding:8px 4px;">'
+                + '<p style="font-size:0.96rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> for the town announcement!</p>'
+                + '</div>';
+        } else if (v.phase === 'DAY_DISCUSSION') {
+            html += '<div style="padding:8px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:6px;">Day ' + v.round + ' Voice Discussion in the Room</h3>'
+                + '<p style="font-size:0.94rem; color:var(--text-muted); line-height:1.45;">'
+                + (v.rules.claimRule === 'quiet'
+                    ? '<strong>Quiet Inference Rule Active:</strong> Debate suspects out loud using behaviour and voting clues, but nobody may claim to be the Detective, Doctor, or Werewolf!'
+                    : 'Debate suspects out loud in the classroom. The secret ballot will open on this screen shortly.')
+                + '</p></div>';
+        } else if (v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') {
+            html += renderVoteConsoleForMe(v, me);
+        } else if (v.phase === 'GAME_OVER') {
+            html += '<div style="margin-top:8px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:8px;">Final Village Roster Reveal</h3>'
+                + '<div class="target-grid">'
+                + v.players.map(function (p) {
+                    return '<div class="target-btn" style="cursor:default;">'
+                        + '<div><div class="t-seat">#' + p.seat + (!p.alive ? ' · OUT' : ' · SURVIVED') + '</div><div class="t-name">' + esc(p.name) + '</div></div>'
+                        + '<span class="r-pill ' + (p.role || 'VILLAGER') + '">' + esc(p.role || 'VILLAGER') + '</span></div>';
+                }).join('')
+                + '</div></div>';
+        }
+
+        el('actionConsole').innerHTML = html;
+    }
+
+    function renderNightConsoleForMe(v, me) {
+        var aliveTargets = v.players.filter(function (p) { return p.alive; });
+        var headerTxt = '';
+        var subTxt = '';
+        var actionType = 'night';
+        var consensusHtml = '';
+
+        if (me.role === 'WEREWOLF') {
+            headerTxt = (v.round === 1 && v.rules.peacefulNight1)
+                ? 'Werewolf Pack Practice Coordination (Peaceful Night 1)'
+                : 'Werewolf Night Hunt - Pick 1 Victim Unanimously';
+            subTxt = 'All living Werewolves must lock onto the SAME villager.';
+            if (me.consensus && me.consensus.totalActors > 1) {
+                if (me.consensus.isUnanimous) {
+                    var uPlayer = v.players.find(function (x) { return x.id === me.consensus.unanimousTarget; });
+                    consensusHtml = '<div class="consensus-bar ok">PACK UNANIMOUS: Locked onto #' + (uPlayer ? uPlayer.seat + ' ' + esc(uPlayer.name) : '') + '!</div>';
+                } else {
+                    var picksDesc = (me.packmates || []).filter(function (m) { return m.alive; }).map(function (m) {
+                        var t = v.players.find(function (x) { return x.id === m.pick; });
+                        return esc(m.name) + ' -> ' + (t ? ('#' + t.seat + ' ' + esc(t.name)) : 'waiting');
+                    }).join(' | ');
+                    consensusHtml = '<div class="consensus-bar split"><span>PACK CONVERGING: ' + picksDesc + '</span></div>';
+                }
+            }
+        } else if (me.role === 'DOCTOR') {
+            headerTxt = 'Town Doctor - Protect 1 Player Tonight';
+            subTxt = (v.round === 1 && v.rules.peacefulNight1)
+                ? 'Night 1 is peaceful (nobody dies tonight), so your save streak stays fresh for Night 2! Tap any seat as a cover click.'
+                : 'Choose 1 living player to shield from a Werewolf attack.';
+        } else if (me.role === 'DETECTIVE') {
+            headerTxt = 'Town Detective - Investigate 1 Suspect';
+            subTxt = 'Select 1 player to uncover their TRUE ROLE at Dawn.';
+            if (me.consensus && me.consensus.totalActors > 1) {
+                consensusHtml = me.consensus.isUnanimous
+                    ? '<div class="consensus-bar ok">Detectives Unanimous! Clues will unlock at Dawn.</div>'
+                    : '<div class="consensus-bar split">Multiple Detectives: Agree on the same target!</div>';
+            }
+        } else {
+            headerTxt = 'Night Watch Cover Tap (Villager)';
+            subTxt = 'Tap 1 person you want to watch tomorrow so every Chromebook clicks once during Night (zero click giveaways!).';
+            actionType = 'villager_watch';
+        }
+
+        var buttons = aliveTargets.map(function (t) {
+            var disabled = false;
+            var reasonChip = '';
+            if (me.role === 'WEREWOLF' && t.role === 'WEREWOLF') {
+                disabled = true;
+                reasonChip = 'PACK';
+            } else if (me.role === 'DOCTOR') {
+                if (!v.rules.doctorSelfSave && t.id === me.id) { disabled = true; reasonChip = 'NO SELF'; }
+                else if (!v.rules.doctorRepeatSave && me.lastDoctorSavedId === t.id) { disabled = true; reasonChip = 'SAVED LAST NIGHT'; }
+            } else if ((me.role === 'DETECTIVE' || me.role === 'VILLAGER') && t.id === me.id) {
+                disabled = true;
+                reasonChip = 'YOU';
+            }
+
+            var isSel = me.myNightPick === t.id;
+            return '<button class="target-btn' + (isSel ? ' selected' : '') + '"'
+                + (disabled ? ' disabled' : '')
+                + ' onclick="submitMyAction(\'' + actionType + '\', \'' + esc(t.id) + '\')">'
+                + '<div><div class="t-seat">Seat #' + (t.seat < 10 ? '0' + t.seat : t.seat) + '</div>'
+                + '<div class="t-name">' + esc(t.name) + '</div></div>'
+                + (isSel ? '<span class="t-chip">LOCKED</span>' : (reasonChip ? '<span class="t-seat">' + reasonChip + '</span>' : ''))
+                + '</button>';
+        }).join('');
+
+        return '<div>'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:4px;">' + esc(headerTxt) + '</h3>'
+            + '<p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">' + esc(subTxt) + '</p>'
+            + consensusHtml
+            + '<div class="target-grid">' + buttons + '</div>'
+            + '</div>';
+    }
+
+    function renderVoteConsoleForMe(v, me) {
+        var tiedSet = {};
+        (v.tiedCandidates || []).forEach(function (id) { tiedSet[id] = true; });
+        var candidates = v.players.filter(function (p) {
+            if (!p.alive) return false;
+            if (v.phase === 'DAY_REVOTE') return Boolean(tiedSet[p.id]);
+            return true;
+        });
+
+        var curPick = me.myCurrentVote;
+        var buttons = candidates.map(function (c) {
+            var sel = curPick === c.id;
+            return '<button class="target-btn' + (sel ? ' selected' : '') + '" onclick="submitMyAction(\'vote\', \'' + esc(c.id) + '\')">'
+                + '<div><div class="t-seat">Seat #' + (c.seat < 10 ? '0' + c.seat : c.seat) + '</div>'
+                + '<div class="t-name">' + esc(c.name) + '</div></div>'
+                + (sel ? '<span class="t-chip">MY VOTE</span>' : '')
+                + '</button>';
+        }).join('');
+
+        var skipBtn = v.phase === 'DAY_VOTE'
+            ? ('<button class="btn' + (curPick === 'SKIP' ? ' blue' : '') + '" style="margin-top:10px;" onclick="submitMyAction(\'vote\', \'SKIP\')">'
+                + (curPick === 'SKIP' ? 'Voted: Skip / Hold (No Exile)' : 'Vote Skip / Hold (No Exile Today)') + '</button>')
+            : '';
+
+        return '<div>'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:4px;">'
+            + (v.phase === 'DAY_REVOTE' ? 'Instant Runoff Ballot - Choose Between Tied Suspects' : 'Cast Your Secret Council Ballot')
+            + '</h3>'
+            + '<p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">Your vote is secret. You can change your selection until the teacher closes the ballot.</p>'
+            + '<div class="target-grid">' + buttons + '</div>'
+            + skipBtn
+            + '</div>';
+    }
+
+    // TEACHER GOD-VIEW CONSOLE (?god=1)
+    window.godOverrideNight = function (roleKey, targetId) {
+        if (serverUrl) {
+            var pin = sessionStorage.getItem('ww_teacher_pin') || prompt('Teacher PIN:') || '';
+            sessionStorage.setItem('ww_teacher_pin', pin);
+            postServer({
+                action: 'god_override_night',
+                gameId: targetGameId || (currentView && currentView.gameId),
+                teacherPin: pin,
+                roleKey: roleKey,
+                targetId: targetId,
+                god: true
+            }).then(function (r) {
+                if (r && r.view) { currentView = r.view; renderGodView(); }
+            });
+            return;
+        }
+        if (activeLocalGame === fallbackDemoGame) {
+            E.submitModeratorNightOverride(activeLocalGame, roleKey, targetId, Date.now());
+            syncFromLocalGame();
+        }
+        if (bc) {
+            bc.postMessage({ type: 'GOD_NIGHT_OVERRIDE', roleKey: roleKey, targetId: targetId });
+        }
+    };
+
+    function renderGodView() {
+        el('gateView').style.display = 'none';
+        el('playerView').style.display = 'none';
+        el('godView').style.display = 'grid';
+        el('headerTitle').textContent = 'Teacher God-View Console';
+
+        var v = currentView;
+        if (!v || !v.god) return;
+
+        el('gameCodeBadge').textContent = v.gameId;
+        el('phaseBadge').textContent = 'R' + v.round + ' · ' + v.phase;
+        el('godCountsBadge').textContent = v.god.livingWolves + ' Wolves vs ' + v.god.livingTown + ' Town';
+
+        var aliveOpts = '<option value="">-- Select Living Seat --</option>' + v.players.filter(function (p) { return p.alive; }).map(function (p) {
+            return '<option value="' + esc(p.id) + '">#' + p.seat + ' ' + esc(p.name) + ' (' + p.role + ')</option>';
+        }).join('');
+
+        var ctrlHtml = '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:8px;">Moderator Controls &amp; Live Secrets</h3>'
+            + '<button class="btn emerald" style="width:100%; margin-bottom:10px;" onclick="demoStepPhase()">Advance Game Phase -&gt;</button>';
+
+        if (v.phase === 'NIGHT') {
+            ctrlHtml += '<div class="sub-box">'
+                + '<div class="sub-box-title">Projector-Mode Night Entry (Optional Override)</div>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:4px;">Wolves Target (' + (v.god.wolfConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'WEREWOLF\', this.value)">' + aliveOpts + '</select>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:6px;">Doctor Save (' + (v.god.doctorConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'DOCTOR\', this.value)">' + aliveOpts + '</select>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:6px;">Detective Check (' + (v.god.detectiveConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'DETECTIVE\', this.value)">' + aliveOpts + '</select>'
+                + '</div>';
+        }
+
+        var findingsHtml = (v.god.secret.detectiveFindings || []).map(function (f) {
+            return '<div style="font-size:0.82rem;">N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong>' + f.role + '</strong></div>';
+        }).join('') || '<div style="font-size:0.8rem; color:var(--text-muted);">None yet</div>';
+
+        var auditHtml = (v.god.secret.auditLog || []).slice(-6).reverse().map(function (a) {
+            return '<div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">[R' + a.round + '] ' + esc(a.text) + '</div>';
+        }).join('');
+
+        ctrlHtml += '<div class="sub-box"><div class="sub-box-title">Detective Findings</div>' + findingsHtml + '</div>'
+            + '<div class="sub-box"><div class="sub-box-title">Secret Audit Log</div>' + auditHtml + '</div>';
+
+        el('godControlsBox').innerHTML = ctrlHtml;
+
+        el('godSeatGrid').innerHTML = v.players.map(function (p) {
+            return '<div class="god-row' + (!p.alive ? ' dead' : '') + '">'
+                + '<span><strong>#' + (p.seat < 10 ? '0' + p.seat : p.seat) + '</strong> ' + esc(p.name) + (!p.alive ? ' (OUT)' : '') + '</span>'
+                + '<span class="r-pill ' + (p.role || 'VILLAGER') + '">' + esc(p.role || 'LOBBY') + '</span>'
+                + '</div>';
+        }).join('');
+    }
+
+    function boot() {
+        if (IS_GOD) {
+            if (serverUrl) {
+                var pin = sessionStorage.getItem('ww_teacher_pin') || prompt('Enter Room 8 Teacher PIN for God View:') || '';
+                sessionStorage.setItem('ww_teacher_pin', pin);
+                var pollGod = function () {
+                    postServer({ action: 'poll_state', gameId: targetGameId, viewerKind: 'god', teacherPin: pin })
+                        .then(function (d) { if (d && d.view) { currentView = d.view; renderGodView(); } })
+                        .catch(function () {});
+                };
+                pollGod();
+                setInterval(pollGod, 3500);
+            } else {
+                if (bc) bc.postMessage({ type: 'REQUEST_SYNC' });
+                syncFromLocalGame();
+            }
+            return;
+        }
+
+        if (isDemo) {
+            if (OFFPROD && Q.get('preview') === 'night') {
+                E.startGame(fallbackDemoGame, Date.now());
+                E.advancePhase(fallbackDemoGame, Date.now());
+                E.simulateBotActions(fallbackDemoGame, Date.now());
+                var wolfSeat = fallbackDemoGame.players.find(function (p) { return p.role === 'WEREWOLF'; });
+                if (wolfSeat) joinedPlayerId = wolfSeat.id;
+                rolePeekOpen = true;
+            }
+            enterInteractiveDemo();
+            return;
+        }
+
+        // Live Server Mode: show Google Sign-In or Join Room Gate
+        el('gateView').style.display = 'flex';
+        var gb = el('gateBody');
+        if (!identity || !identity.email) {
+            gb.innerHTML = '<button class="btn coral" style="width:100%; padding:11px; font-size:1rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
+                + '<button class="btn" style="width:100%;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>';
+        } else {
+            el('whoLabel').textContent = identity.email;
+            gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initial:</label>'
+                + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Jordan Th." maxlength="22"></div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (from front LCD):</label>'
+                + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
+                + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
+                + '<button class="btn btn-xs" onclick="enterInteractiveDemo()">Or try Offline Demo Mode</button>';
+        }
+
+        // Poll server when seated
+        setInterval(function () {
+            if (!serverUrl || isDemo || !identity || el('playerView').style.display === 'none') return;
+            postServer({
+                action: 'poll_state',
+                gameId: targetGameId,
+                viewerKind: 'player',
+                email: identity.email,
+                ts: identity.ts,
+                sig: identity.sig
+            }).then(function (d) {
+                if (d && d.status === 'ok' && d.view) {
+                    currentView = d.view;
+                    renderPlayerView();
+                }
+            }).catch(function () {});
+        }, 3600 + Math.floor(Math.random() * 900));
+    }
+
+    boot();
+})();
+</script>
+</body>
+</html>
