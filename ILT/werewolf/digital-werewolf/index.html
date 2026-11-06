@@ -568,7 +568,8 @@ body.night-theme .pill-mono.phase {
     var SELFTEST = Q.has('selftest') && OFFPROD;
     var IS_GOD = Q.get('god') === '1';
     var serverUrl = Q.get('server') || sGet('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
-    var targetGameId = Q.get('game') || '';
+    var urlClass = (Q.get('class') || '').trim();
+    var targetGameId = Q.get('game') || (urlClass === '902' ? 'WOLF-FQGQ' : (urlClass === '703' ? 'WOLF-E8SQ' : ''));
     var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
 
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
@@ -714,6 +715,32 @@ body.night-theme .pill-mono.phase {
         'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
         'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
     ];
+    var ROSTER_902 = [
+        'Anna Ta.', 'Arlo Ja.', 'Chelsea Re.', 'Douglas La.', 'Gemma Br.',
+        'Hannah St.', 'Jax Ma.', 'John Bo.', 'Jordan He.', 'Jordan Sk.',
+        'Lyla Fl.', 'Marla Ll.', 'Mhareon Ol.', 'Mona Al.', 'Noah Bu.',
+        'Nolan Ca.', 'Nova Tu.', 'Oscar Pi.', 'Seb Ha.', 'Simon Ma.',
+        'Sofia Ku.', 'Sofie St.', 'Thomas Ov.', 'Tristan Ha.', 'Zackory Ne.'
+    ];
+    var activeQuickClass = (urlClass === '902') ? '902' : '703';
+
+    window.switchQuickClass = function (cls) {
+        activeQuickClass = cls;
+        var sel = el('quickNameSelect');
+        var b703 = el('qpBtn703');
+        var b902 = el('qpBtn902');
+        if (b703) b703.className = 'btn btn-xs' + (cls === '703' ? ' blue' : '');
+        if (b902) b902.className = 'btn btn-xs' + (cls === '902' ? ' blue' : '');
+        if (sel) {
+            var list = cls === '902' ? ROSTER_902 : ROSTER_703;
+            sel.innerHTML = '<option value="">Quick-pick your name (' + cls + ') or type below...</option>'
+                + list.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+        }
+        if (!Q.get('game') && el('roomCodeInput')) {
+            targetGameId = (cls === '902') ? 'WOLF-FQGQ' : 'WOLF-E8SQ';
+            el('roomCodeInput').value = targetGameId;
+        }
+    };
 
     window.joinLiveServerSeat = function () {
         var nameVal = (el('displayNameInput') ? el('displayNameInput').value : '').trim();
@@ -1322,15 +1349,22 @@ body.night-theme .pill-mono.phase {
             gb.innerHTML = '<button class="btn coral" style="width:100%; padding:11px; font-size:1rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
                 + '<button class="btn" style="width:100%;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>';
         } else {
-            var opts703 = '<option value="">Quick-pick your name (703) or type below...</option>'
-                + ROSTER_703.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+            var startList = activeQuickClass === '902' ? ROSTER_902 : ROSTER_703;
+            var optsList = '<option value="">Quick-pick your name (' + activeQuickClass + ') or type below...</option>'
+                + startList.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+            var phSample = activeQuickClass === '902' ? 'e.g. Jordan He. or Sofia Ku.' : 'e.g. Oliver Br. or Carson Do.';
             el('whoLabel').textContent = identity.email;
             gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
                 + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
-                + '<div><label style="font-size:0.84rem; font-weight:700;">Class 703 Quick-Pick (optional):</label>'
-                + '<select class="input-clean" style="margin-top:3px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + opts703 + '</select></div>'
+                + '<div><div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick (optional):</label>'
+                + '<span style="display:inline-flex; gap:4px;">'
+                + '<button type="button" id="qpBtn703" class="btn btn-xs' + (activeQuickClass === '703' ? ' blue' : '') + '" onclick="switchQuickClass(\'703\')">703</button>'
+                + '<button type="button" id="qpBtn902" class="btn btn-xs' + (activeQuickClass === '902' ? ' blue' : '') + '" onclick="switchQuickClass(\'902\')">902</button>'
+                + '</span></div>'
+                + '<select id="quickNameSelect" class="input-clean" style="margin-top:4px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + optsList + '</select></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initials:</label>'
-                + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Oliver Br. or Carson Do." maxlength="22"></div>'
+                + '<input class="input-clean" id="displayNameInput" placeholder="' + phSample + '" maxlength="22"></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'

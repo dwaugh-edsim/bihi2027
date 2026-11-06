@@ -572,7 +572,7 @@ footer.foot-bar {
         <div class="ops-cluster">
             <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
             <button class="btn emerald" id="nextPhaseBtn" onclick="onNextPhaseClick()">Deal Roles &amp; Start -&gt;</button>
-            <a class="btn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
+            <a class="btn" id="howToSlidesBtn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
             <button class="btn" onclick="openStudentPreview()" title="Open synced Student Chromebook screen">Student Screen</button>
             <button class="btn purple" onclick="openGodConsole()" title="Open private Teacher God-View in separate window (never flashes roles here)">God View</button>
             <button class="btn btn-xs" id="sfxBtn" onclick="toggleSfx()">SFX: ON</button>
@@ -667,8 +667,11 @@ footer.foot-bar {
 
     // Live server endpoint (pre-wired to Room 8 Digital Werewolf Web App; toggleable with Local/Demo Mode)
     var params = new URLSearchParams(location.search);
+    var urlGameId = (params.get('game') || '').trim().toUpperCase();
+    var urlClass = (params.get('class') || '').trim();
+    var forceCloud = params.get('cloud') === '1' || Boolean(urlGameId);
     var configuredServerUrl = params.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
-    var serverUrl = (params.get('demo') === '1') ? '' : (sessionStorage.getItem('ww_mode') === 'cloud' ? configuredServerUrl : '');
+    var serverUrl = (params.get('demo') === '1') ? '' : ((forceCloud || sessionStorage.getItem('ww_mode') === 'cloud') ? configuredServerUrl : '');
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
 
     var sfxEnabled = true;
@@ -1514,6 +1517,43 @@ footer.foot-bar {
         E.advancePhase(localGame, Date.now());
         E.simulateBotActions(localGame, Date.now());
         currentView = E.projectViewForViewer(localGame, { kind: 'lcd' });
+    }
+    if (urlClass === '902' && el('howToSlidesBtn')) {
+        el('howToSlidesBtn').href = 'Digital_Werewolf_Intro_Deck_902.html';
+    }
+    if (serverUrl) {
+        var initTargetId = urlGameId || (urlClass === '902' ? 'WOLF-FQGQ' : '');
+        if (initTargetId) {
+            currentView.gameId = initTargetId;
+            fetch(serverUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'poll_state', gameId: initTargetId, viewerKind: 'lcd' })
+            }).then(function (r) { return r.json(); }).then(function (d) {
+                if (d && d.status === 'ok' && d.view) {
+                    currentView = d.view;
+                    render();
+                }
+            }).catch(function () {});
+        } else {
+            fetch(serverUrl + '?action=get_health')
+                .then(function (r) { return r.json(); })
+                .then(function (h) {
+                    if (h && h.activeGameId) {
+                        currentView.gameId = h.activeGameId;
+                        return fetch(serverUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'poll_state', gameId: h.activeGameId, viewerKind: 'lcd' })
+                        }).then(function (r2) { return r2.json(); });
+                    }
+                }).then(function (d2) {
+                    if (d2 && d2.status === 'ok' && d2.view) {
+                        currentView = d2.view;
+                        render();
+                    }
+                }).catch(function () {});
+        }
     }
     render();
     broadcastLocalState();
