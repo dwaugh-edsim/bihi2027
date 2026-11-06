@@ -358,16 +358,20 @@ footer.footbar {
     <!-- TOP BAR -->
     <header class="topbar double-rule-bottom">
         <div class="brand-left">
-            <span class="badge-room">703 // WEREWOLF</span>
+            <span class="badge-room" id="classBadge">703 // WEREWOLF</span>
             <span class="deck-title">Moonhollow Quick Start</span>
             <span class="code-pill" id="liveRoomBadge">CODE: WOLF-E8SQ</span>
+            <div style="display:inline-flex; gap:4px; margin-left:6px;">
+                <button type="button" id="deckBtn703" class="btn btn-xs blue" onclick="setClass('703')">Class 703</button>
+                <button type="button" id="deckBtn902" class="btn btn-xs" onclick="setClass('902')">Homeroom 902</button>
+            </div>
         </div>
         <div class="nav-right">
             <button class="slide-tab active" id="tab1" onclick="showSlide(0)">1. Join &amp; Peek</button>
             <button class="slide-tab" id="tab2" onclick="showSlide(1)">2. Roles &amp; Loop</button>
             <button class="btn" onclick="stepSlide(-1)">&lt;- Prev</button>
             <button class="btn coral" onclick="stepSlide(1)">Next -&gt;</button>
-            <a class="btn emerald" href="lcd.html?cloud=1&amp;class=703&amp;game=WOLF-E8SQ">Class LCD -&gt;</a>
+            <a class="btn emerald" id="launchLcdBtn" href="lcd.html?cloud=1&amp;class=703&amp;game=WOLF-E8SQ">Class LCD -&gt;</a>
             <button class="btn" onclick="toggleFs()" title="Fullscreen (F)">[F]</button>
         </div>
     </header>
@@ -412,14 +416,14 @@ footer.footbar {
                             <div class="step-num">3</div>
                             <div>
                                 <div class="step-title">Pick Your Name (First + Last Initials)</div>
-                                <div class="step-desc">Choose your name from the <strong>Class 703 Quick-Pick</strong> dropdown (example: <strong>Oliver Br.</strong> or <strong>Carson Do.</strong>) and click <strong>Join Town Council</strong>!</div>
+                                <div class="step-desc" id="step3Desc">Choose your name from the <strong>Class 703 Quick-Pick</strong> dropdown (example: <strong>Oliver Br.</strong> or <strong>Carson Do.</strong>) and click <strong>Join Town Council</strong>!</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="url-callout">
                         <span style="font-weight:800; color:var(--text-heading);">Game Link:</span>
-                        <span class="url-mono">dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/</span>
+                        <span class="url-mono" id="gameLinkMono">dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/</span>
                     </div>
                 </div>
 
@@ -469,7 +473,7 @@ footer.footbar {
             <div class="slide-hero" style="background-image: url('assets/bg_night_village.jpg');">
                 <div class="kicker">SLIDE 2 OF 2 // ROLES &amp; ROUND RULES</div>
                 <h1>Every Screen Looks Identical at Night - Trust Nobody Blindly!</h1>
-                <p>During Night, all 24 Chromebooks show the exact same neutral seat grid so clicking never gives away your role.</p>
+                <p id="nightSubline">During Night, all 24 Chromebooks show the exact same neutral seat grid so clicking never gives away your role.</p>
             </div>
 
             <div class="roles-row">
@@ -540,7 +544,7 @@ footer.footbar {
     <!-- FOOTER -->
     <footer class="footbar">
         <span><strong>Keyboard:</strong> Left / Right Arrows or Space to switch slides · <strong>F</strong> for Fullscreen</span>
-        <span>Moonhollow Harbour Digital Werewolf · Room 8 &amp; Class 703</span>
+        <span id="footerClass">Moonhollow Harbour Digital Werewolf · Room 8 &amp; Class 703</span>
     </footer>
 </div>
 
@@ -549,6 +553,55 @@ footer.footbar {
     'use strict';
     var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
     var idx = 0;
+    var currentClass = '703';
+
+    window.setClass = function (cls) {
+        currentClass = (cls === '902') ? '902' : '703';
+        var is902 = (currentClass === '902');
+        var badge = document.getElementById('classBadge');
+        var rBadge = document.getElementById('liveRoomBadge');
+        var sTag = document.getElementById('stepCodeTag');
+        var s3 = document.getElementById('step3Desc');
+        var gLink = document.getElementById('gameLinkMono');
+        var nSub = document.getElementById('nightSubline');
+        var fCls = document.getElementById('footerClass');
+        var b703 = document.getElementById('deckBtn703');
+        var b902 = document.getElementById('deckBtn902');
+        var lcd = document.getElementById('launchLcdBtn');
+
+        if (b703) b703.className = 'btn btn-xs' + (!is902 ? ' blue' : '');
+        if (b902) b902.className = 'btn btn-xs' + (is902 ? ' blue' : '');
+
+        if (badge) badge.textContent = is902 ? '902 // WEREWOLF' : '703 // WEREWOLF';
+        if (rBadge) rBadge.textContent = is902 ? 'CODE: WOLF-FQGQ' : 'CODE: WOLF-E8SQ';
+        if (sTag) sTag.textContent = is902 ? 'Code: WOLF-FQGQ' : 'Code: WOLF-E8SQ';
+        if (s3) {
+            s3.innerHTML = is902
+                ? 'Choose your name from the <strong>Homeroom 902 Quick-Pick</strong> dropdown (example: <strong>Jordan He.</strong> or <strong>Sofia Ku.</strong>) and click <strong>Join Town Council</strong>!'
+                : 'Choose your name from the <strong>Class 703 Quick-Pick</strong> dropdown (example: <strong>Oliver Br.</strong> or <strong>Carson Do.</strong>) and click <strong>Join Town Council</strong>!';
+        }
+        if (gLink) {
+            gLink.textContent = is902
+                ? 'dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/?class=902'
+                : 'dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/?class=703';
+        }
+        if (nSub) {
+            nSub.textContent = is902
+                ? 'During Night, all 25 Chromebooks show the exact same neutral seat grid so clicking never gives away your role.'
+                : 'During Night, all 24 Chromebooks show the exact same neutral seat grid so clicking never gives away your role.';
+        }
+        if (fCls) {
+            fCls.textContent = is902
+                ? 'Moonhollow Harbour Digital Werewolf · Room 8 // Homeroom 902'
+                : 'Moonhollow Harbour Digital Werewolf · Room 8 & Class 703';
+        }
+        if (lcd) {
+            lcd.href = is902
+                ? 'lcd.html?cloud=1&class=902&game=WOLF-FQGQ'
+                : 'lcd.html?cloud=1&class=703&game=WOLF-E8SQ';
+        }
+        try { sessionStorage.setItem('ww_active_class', currentClass); } catch (e) {}
+    };
 
     window.showSlide = function (n) {
         idx = (n + 2) % 2;
@@ -586,15 +639,11 @@ footer.footbar {
         window.showSlide(1);
     }
 
-    // Pull active live room code so Slide 1 displays the exact code automatically
-    fetch(DEFAULT_SERVER_URL + '?action=get_health')
-        .then(function (r) { return r.json(); })
-        .then(function (h) {
-            if (h && h.activeGameId) {
-                document.getElementById('liveRoomBadge').textContent = 'ROOM CODE: ' + h.activeGameId;
-                document.getElementById('stepCodeTag').textContent = 'Code: ' + h.activeGameId;
-            }
-        }).catch(function () {});
+    var qClass = (new URLSearchParams(location.search).get('class') || '').trim();
+    var sClass = '';
+    try { sClass = sessionStorage.getItem('ww_active_class') || ''; } catch (e) {}
+    var targetInitClass = (qClass === '902' || (!qClass && sClass === '902')) ? '902' : '703';
+    window.setClass(targetInitClass);
 })();
 </script>
 </body>
