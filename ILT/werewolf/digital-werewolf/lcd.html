@@ -572,13 +572,12 @@ footer.foot-bar {
         <div class="ops-cluster">
             <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
             <button class="btn emerald" id="nextPhaseBtn" onclick="onNextPhaseClick()">Deal Roles &amp; Start -&gt;</button>
-            <button class="btn amber" id="resetLobbyBtn" onclick="promptResetLobby()" title="Reset game back to Lobby">Reset</button>
+            <button class="btn amber" id="resetLobbyBtn" onclick="promptResetLobby()" title="Reset game back to Lobby (Teacher PIN required)">Reset</button>
             <a class="btn" id="howToSlidesBtn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
-            <button class="btn" onclick="openStudentPreview()" title="Open synced Student Chromebook screen">Student Screen</button>
-            <button class="btn purple" onclick="openGodConsole()" title="Open private Teacher God-View in separate window (never flashes roles here)">God View</button>
+            <a class="btn purple" id="runHostBtn" href="run.html" target="_blank" title="Open Teacher Game Controller (Run the Game)" style="text-decoration:none;">Run Game (Host)</a>
             <button class="btn btn-xs" id="sfxBtn" onclick="toggleSfx()">SFX: ON</button>
             <button class="btn btn-xs" onclick="toggleFullscreen()" title="Fullscreen (F)">[F]</button>
-            <button class="btn btn-xs" onclick="openServerModal()" title="Server connection &amp; reset">Setup</button>
+            <button class="btn btn-xs" onclick="openServerModal()" title="Server connection &amp; reset (Teacher PIN required)">Setup</button>
         </div>
     </header>
 
@@ -1070,6 +1069,13 @@ footer.foot-bar {
     };
 
     window.promptResetLobby = function () {
+        var pin = teacherPin || sessionStorage.getItem('ww_teacher_pin') || '';
+        if (!pin) {
+            var entered = prompt('Enter Room 8 Teacher PIN to Reset:');
+            if (!entered) return;
+            teacherPin = entered.trim();
+            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
+        }
         var choice = prompt(
             'Room 8 Werewolf Reset:\n\n' +
             '1 = Reset to Lobby (Keep Class Seated - wipes dealt roles so you can re-deal)\n' +
@@ -1143,6 +1149,13 @@ footer.foot-bar {
     });
 
     window.openServerModal = function () {
+        var pin = teacherPin || sessionStorage.getItem('ww_teacher_pin') || '';
+        if (!pin) {
+            var entered = prompt('Enter Room 8 Teacher PIN for Server & Settings:');
+            if (!entered) return;
+            teacherPin = entered.trim();
+            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
+        }
         el('serverUrlInput').value = serverUrl || configuredServerUrl || DEFAULT_SERVER_URL;
         el('teacherPinInput').value = teacherPin;
         el('serverModal').classList.add('open');

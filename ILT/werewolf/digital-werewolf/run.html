@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room 8 Werewolf - Run the Game (Teacher Host)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-page: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --border-card: #334155;
+    --border-subtle: #475569;
+    --text-main: #f8fafc;
+    --text-heading: #ffffff;
+    --text-muted: #94a3b8;
+    --coral: #ed786a;
+    --coral-hover: #fd887a;
+    --coral-dark: #d65b4c;
+    --blue: #3b82f6;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --red: #ef4444;
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--bg-page); color: var(--text-main);
+    font-family: var(--font-body); min-height: 100vh;
+    display: flex; flex-direction: column;
+}
+.topbar {
+    background: #0b1120; border-bottom: 2px solid #334155;
+    padding: 10px 18px; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.brand-cluster { display: flex; align-items: center; gap: 10px; }
+.badge-room {
+    background: var(--coral); color: #ffffff;
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
+    padding: 4px 10px; border-radius: 6px;
+}
+.top-title {
+    font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;
+    color: var(--text-heading);
+}
+.pill-mono {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.8rem;
+    padding: 3px 8px; border-radius: 5px;
+    background: #1e293b; color: #93c5fd; border: 1px solid #3b82f6;
+}
+.pill-mono.phase {
+    background: #312e81; color: #fde68a; border-color: #f59e0b;
+}
+
+.btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.86rem;
+    color: #ffffff; background: #334155; border: 1px solid #475569;
+    border-radius: 7px; padding: 7px 14px; cursor: pointer;
+    transition: all 0.12s ease; display: inline-flex; align-items: center;
+    justify-content: center; gap: 6px; text-decoration: none;
+}
+.btn:hover { background: #475569; }
+.btn.coral { background: var(--coral); border-color: var(--coral-dark); }
+.btn.coral:hover { background: var(--coral-hover); }
+.btn.emerald { background: var(--emerald); border-color: #059669; }
+.btn.blue { background: var(--blue); border-color: #2563eb; }
+.btn.amber { background: var(--amber); border-color: #d97706; color: #0f172a; }
+.btn.purple { background: var(--purple); border-color: #7c3aed; }
+.btn-xs { font-family: var(--font-mono); font-size: 0.74rem; padding: 4px 8px; }
+
+/* TIMER CLUSTER */
+.timer-box {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #0f172a; border: 1px solid #334155;
+    border-radius: 8px; padding: 4px 10px;
+}
+.timer-digits {
+    font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem;
+    color: #38bdf8; min-width: 58px; text-align: center;
+}
+
+/* LAYOUT */
+.main-grid {
+    flex: 1; display: grid; grid-template-columns: 360px 1fr;
+    gap: 16px; padding: 16px; max-width: 1440px; margin: 0 auto; width: 100%;
+}
+@media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; }
+}
+
+.card {
+    background: var(--bg-card); border: 1px solid var(--border-card);
+    border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;
+}
+.card-title {
+    font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700;
+    color: #ffffff; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155; padding-bottom: 8px;
+}
+
+/* SETTINGS FORM */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
+.field select, .field input {
+    background: #0f172a; border: 1px solid #334155; color: #ffffff;
+    font-family: var(--font-mono); font-size: 0.85rem; padding: 7px 10px;
+    border-radius: 6px;
+}
+.role-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0f172a; border: 1px solid #334155; padding: 6px 12px;
+    border-radius: 6px; font-size: 0.86rem;
+}
+.role-controls { display: flex; align-items: center; gap: 6px; }
+
+/* ROSTER TABLE */
+.roster-wrap {
+    overflow-y: auto; max-height: calc(100vh - 230px);
+}
+.seat-table {
+    width: 100%; border-collapse: collapse; font-size: 0.86rem;
+}
+.seat-table th {
+    text-align: left; padding: 8px; font-size: 0.76rem;
+    font-family: var(--font-mono); color: var(--text-muted);
+    border-bottom: 1px solid #334155;
+}
+.seat-table td {
+    padding: 8px; border-bottom: 1px solid #273549; vertical-align: middle;
+}
+.seat-table tr:hover { background: #273549; }
+.seat-table tr.dead td { opacity: 0.55; text-decoration: line-through; }
+.r-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.72rem;
+    padding: 2px 7px; border-radius: 4px; color: #ffffff;
+}
+.r-pill.WEREWOLF { background: var(--red); }
+.r-pill.DOCTOR { background: var(--emerald); }
+.r-pill.DETECTIVE { background: var(--amber); color: #0f172a; }
+.r-pill.VILLAGER { background: #475569; }
+
+/* PIN GATE OVERLAY */
+.pin-gate {
+    position: fixed; inset: 0; z-index: 100;
+    background: #0b1120; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.pin-card {
+    background: #1e293b; border: 2px solid #334155; border-radius: 14px;
+    width: min(440px, 92vw); padding: 24px; text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+.pin-card h2 {
+    font-family: var(--font-heading); font-size: 1.35rem; margin-bottom: 8px;
+    color: #ffffff;
+}
+.pin-card p { font-size: 0.88rem; color: #94a3b8; margin-bottom: 16px; }
+.pin-input {
+    width: 100%; padding: 10px; font-family: var(--font-mono);
+    font-size: 1.1rem; text-align: center; border-radius: 8px;
+    border: 1.5px solid #475569; background: #0f172a; color: #ffffff;
+    margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- TEACHER PIN GATE (Default Room 8 Teacher PIN: Dartmouth) -->
+<div class="pin-gate" id="pinGate" style="display:none;">
+    <div class="pin-card">
+        <div style="font-family:var(--font-mono); font-size:0.76rem; font-weight:800; color:var(--coral); margin-bottom:6px;">ROOM 8 TEACHER HOST CONTROL</div>
+        <h2>Run Moonhollow Werewolf</h2>
+        <p>This controller is for the teacher only. Enter the Room 8 Teacher PIN to manage roles, advance phases, and view the secret God-View.</p>
+        <input type="password" id="pinInput" class="pin-input" placeholder="Enter Teacher PIN" autofocus onkeydown="if(event.key==='Enter')unlockHostWithPin()">
+        <button class="btn coral" style="width:100%; padding:10px; font-size:0.95rem;" onclick="unlockHostWithPin()">Unlock Host Console -&gt;</button>
+        <div id="pinError" style="margin-top:10px; font-size:0.8rem; color:var(--red); display:none;">Incorrect Teacher PIN. Try again.</div>
+    </div>
+</div>
+
+<div class="topbar">
+    <div class="brand-cluster">
+        <span class="badge-room">ROOM 8</span>
+        <span class="top-title">Werewolf Host Controller</span>
+        <span class="pill-mono" id="roomCodeBadge">WOLF-E8SQ</span>
+        <span class="pill-mono phase" id="phaseBadge">LOBBY</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="timer-box">
+            <span style="font-family:var(--font-mono); font-size:0.74rem; color:var(--text-muted);">TIMER</span>
+            <span class="timer-digits" id="timerDigits">--:--</span>
+            <button class="btn btn-xs" onclick="togglePauseTimer()" id="pauseBtn">Pause</button>
+            <button class="btn btn-xs" onclick="addSeconds(30)">+30s</button>
+        </div>
+
+        <button class="btn emerald" id="primaryPhaseBtn" onclick="onHostAdvancePhase()">Deal Roles &amp; Start Night 1 -&gt;</button>
+        <button class="btn amber btn-xs" onclick="onHostResetLobby()">Reset Game</button>
+        <a class="btn blue btn-xs" id="lcdLink" href="lcd.html" target="_blank" title="Open Class Projector LCD Display">Open Projector LCD</a>
+        <a class="btn btn-xs" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Student 2-Slide Instructions">How-To Slides</a>
+    </div>
+</div>
+
+<div class="main-grid">
+    <!-- LEFT COLUMN: GAME SETTINGS & SERVER CONFIG -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+            <div class="card-title">
+                <span>Class &amp; Room Preset</span>
+                <span id="seatCountBadge" class="pill-mono" style="font-size:0.72rem;">24 Seats</span>
+            </div>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-xs blue" id="btn703" onclick="selectClassPreset('703')">Class 703 (24)</button>
+                <button type="button" class="btn btn-xs" id="btn902" onclick="selectClassPreset('902')">Homeroom 902 (25)</button>
+                <button type="button" class="btn btn-xs" id="btn28" onclick="selectClassPreset('28')">Classic 28</button>
+            </div>
+
+            <div class="field">
+                <label for="roomCodeInput">Active Cloud Room Code:</label>
+                <input id="roomCodeInput" value="WOLF-E8SQ" onchange="switchRoomCode(this.value)">
+            </div>
+
+            <div class="card-title" style="margin-top:6px;">Role Distribution</div>
+
+            <div class="role-row">
+                <span>🐺 Werewolves</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('wolvesCount', -1)">-</button>
+                    <span id="cntWolves" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">3</span>
+                    <button class="btn btn-xs" onclick="adjustRole('wolvesCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>💉 Doctor</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('doctorsCount', -1)">-</button>
+                    <span id="cntDoctors" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">1</span>
+                    <button class="btn btn-xs" onclick="adjustRole('doctorsCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>🔍 Detective</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('detectivesCount', -1)">-</button>
+                    <span id="cntDetectives" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">1</span>
+                    <button class="btn btn-xs" onclick="adjustRole('detectivesCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>🌾 Villagers</span>
+                <span id="cntVillagers" style="font-family:var(--font-mono); font-weight:800; color:var(--text-muted);">19</span>
+            </div>
+
+            <button class="btn coral" style="width:100%;" onclick="applyRoleSettings()">Update Room Rules</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Cloud Server Status</span>
+                <span id="serverHealthBadge" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--emerald);">CONNECTED</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all;" id="serverUrlLabel"></div>
+            <div style="display:flex; gap:6px;">
+                <button class="btn btn-xs" onclick="checkServerHealth()">Ping Server</button>
+                <button class="btn btn-xs" onclick="changeTeacherPin()">Change PIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+            <div class="card-title">
+                <span>Live Town Council Roster</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span class="pill-mono" id="seatedStat" style="color:var(--emerald);">0 / 24 Seated</span>
+                    <span class="pill-mono" id="aliveStat">24 Alive</span>
+                </div>
+            </div>
+
+            <div class="roster-wrap">
+                <table class="seat-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">Seat</th>
+                            <th>Student Name</th>
+                            <th>Secret Role</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Host Override</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterTbody">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECRET NIGHT & AUDIT LOG -->
+        <div class="card">
+            <div class="card-title">
+                <span>Secret Audit &amp; Detective Findings (Teacher Eyes Only)</span>
+            </div>
+            <div id="findingsBox" style="font-size:0.84rem; display:flex; flex-direction:column; gap:4px;">
+                <span style="color:var(--text-muted);">No night investigations yet.</span>
+            </div>
+            <div id="auditLogBox" style="font-size:0.78rem; color:var(--text-muted); border-top:1px solid #334155; padding-top:8px; display:flex; flex-direction:column; gap:3px;">
+                <span>Audit log initialized.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
+    var Q = new URLSearchParams(location.search);
+    var targetClass = Q.get('class') || '703';
+    var targetGameId = Q.get('game') || (targetClass === '902' ? 'WOLF-FQGQ' : 'WOLF-E8SQ');
+    var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
+    var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
+    var currentView = null;
+    var pollInterval = null;
+
+    function el(id) { return document.getElementById(id); }
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    // PIN Gate
+    function verifyPinState() {
+        if (!teacherPin) {
+            el('pinGate').style.display = 'flex';
+        } else {
+            el('pinGate').style.display = 'none';
+            boot();
+        }
+    }
+
+    window.unlockHostWithPin = function () {
+        var val = (el('pinInput').value || '').trim();
+        if (!val) return;
+        teacherPin = val;
+        try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
+        el('pinGate').style.display = 'none';
+        boot();
+    };
+
+    window.changeTeacherPin = function () {
+        var p = prompt('Enter new Room 8 Teacher PIN:', teacherPin);
+        if (p != null) {
+            teacherPin = p.trim();
+            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
+            pollState();
+        }
+    };
+
+    function postServer(payload) {
+        payload.teacherPin = teacherPin;
+        payload.gameId = payload.gameId || targetGameId;
+        return fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); });
+    }
+
+    window.switchRoomCode = function (val) {
+        targetGameId = (val || '').trim().toUpperCase();
+        el('roomCodeBadge').textContent = targetGameId;
+        el('roomCodeInput').value = targetGameId;
+        el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        pollState();
+    };
+
+    window.selectClassPreset = function (cls) {
+        targetClass = cls;
+        if (cls === '703') {
+            switchRoomCode('WOLF-E8SQ');
+            updatePresetRules(24, 3, 1, 1);
+        } else if (cls === '902') {
+            switchRoomCode('WOLF-FQGQ');
+            updatePresetRules(25, 3, 1, 1);
+        } else {
+            updatePresetRules(28, 3, 1, 1);
+        }
+    };
+
+    function updatePresetRules(size, w, doc, det) {
+        postServer({
+            action: 'update_rules',
+            rules: {
+                classSize: size,
+                wolvesCount: w,
+                doctorsCount: doc,
+                detectivesCount: det
+            }
+        }).then(function () { pollState(); });
+    }
+
+    window.adjustRole = function (key, delta) {
+        if (!currentView || !currentView.rules) return;
+        var r = currentView.rules;
+        var cur = r[key] || 0;
+        var next = Math.max(0, cur + delta);
+        var patch = {};
+        patch[key] = next;
+        postServer({ action: 'update_rules', rules: patch }).then(function () { pollState(); });
+    };
+
+    window.applyRoleSettings = function () {
+        pollState();
+        alert('Room rules refreshed.');
+    };
+
+    window.onHostAdvancePhase = function () {
+        if (!currentView) return;
+        var ph = currentView.phase;
+        var promptMsg = 'Advance to next phase?';
+        if (ph === 'LOBBY') promptMsg = 'Deal secret roles to all seated players and start Night 1?';
+        else if (ph === 'NIGHT') promptMsg = 'End Night and wake the town for Day Debate?';
+        else if (ph === 'DAY_DEBATE') promptMsg = 'Open Town Council voting now?';
+        else if (ph === 'DAY_VOTING') promptMsg = 'Tally votes and eliminate the chosen suspect?';
+
+        if (confirm(promptMsg)) {
+            postServer({ action: 'advance_phase' }).then(function (res) {
+                if (res && res.status === 'ok') {
+                    pollState();
+                } else {
+                    alert('Advance failed: ' + ((res && res.message) || 'check connection'));
+                }
+            });
+        }
+    };
+
+    window.onHostResetLobby = function () {
+        var choice = prompt(
+            'Room 8 Werewolf Reset:\n\n' +
+            '1 = Reset to Lobby (Keep Class Seated - wipes dealt roles so you can re-deal)\n' +
+            '2 = Fresh Clean Room (Wipe all seats to 0 so students rejoin from scratch)\n\n' +
+            'Type 1 or 2 (or click Cancel):',
+            '1'
+        );
+        if (choice === '1') {
+            postServer({ action: 'reset_lobby', keepPlayers: true }).then(function () { pollState(); });
+        } else if (choice === '2') {
+            postServer({ action: 'reset_lobby', keepPlayers: false }).then(function () { pollState(); });
+        }
+    };
+
+    window.togglePauseTimer = function () {
+        postServer({ action: 'toggle_timer_pause' }).then(function () { pollState(); });
+    };
+
+    window.addSeconds = function (sec) {
+        postServer({ action: 'add_timer_seconds', seconds: sec }).then(function () { pollState(); });
+    };
+
+    window.hostEliminatePlayer = function (pId) {
+        if (confirm('Eliminate player ' + pId + '?')) {
+            postServer({ action: 'moderator_override', playerId: pId, field: 'alive', value: false })
+                .then(function () { pollState(); });
+        }
+    };
+
+    window.hostRevivePlayer = function (pId) {
+        if (confirm('Revive player ' + pId + '?')) {
+            postServer({ action: 'moderator_override', playerId: pId, field: 'alive', value: true })
+                .then(function () { pollState(); });
+        }
+    };
+
+    window.checkServerHealth = function () {
+        fetch(serverUrl + '?action=get_health')
+            .then(function (r) { return r.json(); })
+            .then(function (h) {
+                alert('Server Online! Version: ' + h.serverVersion + ' | Active Game: ' + h.activeGameId);
+            }).catch(function (e) {
+                alert('Could not reach server: ' + e);
+            });
+    };
+
+    function pollState() {
+        postServer({
+            action: 'poll_state',
+            viewerKind: 'god',
+            teacherPin: teacherPin
+        }).then(function (res) {
+            if (res && res.status === 'ok' && res.view) {
+                currentView = res.view;
+                renderView();
+            } else if (res && res.status === 'auth_failed') {
+                el('pinGate').style.display = 'flex';
+                el('pinError').style.display = 'block';
+            }
+        }).catch(function () {});
+    }
+
+    function renderView() {
+        if (!currentView) return;
+        var v = currentView;
+        el('roomCodeBadge').textContent = v.gameId;
+        el('roomCodeInput').value = v.gameId;
+        el('phaseBadge').textContent = v.phase + (v.round ? (' R' + v.round) : '');
+
+        // Primary Phase Button
+        var btn = el('primaryPhaseBtn');
+        if (v.phase === 'LOBBY') btn.textContent = 'Deal Roles & Start Night 1 ->';
+        else if (v.phase === 'ROLE_REVEAL') btn.textContent = 'Begin Night 1 ->';
+        else if (v.phase === 'NIGHT') btn.textContent = 'End Night -> Dawn Breaks ->';
+        else if (v.phase === 'DAWN') btn.textContent = 'Start Day Debate ->';
+        else if (v.phase === 'DAY_DEBATE') btn.textContent = 'Open Voting ->';
+        else if (v.phase === 'DAY_VOTING') btn.textContent = 'Tally & Eliminate ->';
+        else if (v.phase === 'GAME_OVER') btn.textContent = 'New Game / Reset Lobby';
+
+        // Rules
+        if (v.rules) {
+            el('seatCountBadge').textContent = v.rules.classSize + ' Seats';
+            el('cntWolves').textContent = v.rules.wolvesCount;
+            el('cntDoctors').textContent = v.rules.doctorsCount;
+            el('cntDetectives').textContent = v.rules.detectivesCount;
+            var vill = Math.max(0, v.rules.classSize - (v.rules.wolvesCount + v.rules.doctorsCount + v.rules.detectivesCount));
+            el('cntVillagers').textContent = vill;
+        }
+
+        // Stats
+        var seated = (v.players || []).filter(function (p) { return !p.isPlaceholder; }).length;
+        var alive = (v.players || []).filter(function (p) { return p.alive; }).length;
+        el('seatedStat').textContent = seated + ' / ' + (v.rules ? v.rules.classSize : 24) + ' Seated';
+        el('aliveStat').textContent = alive + ' Alive';
+
+        // Roster Table
+        var tbody = el('rosterTbody');
+        tbody.innerHTML = (v.players || []).map(function (p) {
+            var role = p.role || 'VILLAGER';
+            var isDead = !p.alive;
+            var actionBtn = isDead
+                ? '<button class="btn btn-xs emerald" onclick="hostRevivePlayer(\'' + p.id + '\')">Revive</button>'
+                : '<button class="btn btn-xs" style="color:var(--coral);" onclick="hostEliminatePlayer(\'' + p.id + '\')">Eliminate</button>';
+
+            return '<tr class="' + (isDead ? 'dead' : '') + '">'
+                + '<td style="font-family:var(--font-mono); font-weight:800; color:var(--text-muted);">#' + (p.seat < 10 ? '0' + p.seat : p.seat) + '</td>'
+                + '<td><strong>' + esc(p.name) + '</strong>' + (p.email ? (' <span style="font-size:0.75rem; color:var(--text-muted);">&lt;' + esc(p.email) + '&gt;</span>') : '') + '</td>'
+                + '<td><span class="r-pill ' + role + '">' + role + '</span></td>'
+                + '<td>' + (isDead ? '<span style="color:var(--red); font-weight:700;">OUT</span>' : '<span style="color:var(--emerald);">ALIVE</span>') + '</td>'
+                + '<td style="text-align:right;">' + actionBtn + '</td>'
+                + '</tr>';
+        }).join('');
+
+        // God Findings
+        if (v.god && v.god.secret) {
+            var findings = (v.god.secret.detectiveFindings || []).map(function (f) {
+                return '<div>N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong style="color:var(--amber);">' + f.role + '</strong></div>';
+            }).join('');
+            el('findingsBox').innerHTML = findings || '<span style="color:var(--text-muted);">No investigations yet.</span>';
+
+            var audit = (v.god.secret.auditLog || []).slice(-8).reverse().map(function (a) {
+                return '<div>[R' + a.round + '] ' + esc(a.text) + '</div>';
+            }).join('');
+            el('auditLogBox').innerHTML = audit || '<span>Audit log initialized.</span>';
+        }
+    }
+
+    function boot() {
+        el('serverUrlLabel').textContent = serverUrl;
+        el('roomCodeBadge').textContent = targetGameId;
+        el('roomCodeInput').value = targetGameId;
+        el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        pollState();
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(pollState, 3500);
+    }
+
+    verifyPinState();
+})();
+</script>
+</body>
+</html>

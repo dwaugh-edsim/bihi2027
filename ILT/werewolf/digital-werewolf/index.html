@@ -464,7 +464,6 @@ body.night-theme .pill-mono.phase {
             <span id="whoLabel" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);"></span>
             <button class="btn btn-xs" id="leaveSeatBtn" style="display:none;" onclick="leaveMySeat()" title="Leave current seat and return to name select">Switch Seat</button>
             <button class="btn btn-xs" id="logoutBtn" style="display:none;" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>
-            <a class="btn btn-xs" href="lcd.html" target="_blank">Open Class LCD</a>
         </div>
     </header>
 
@@ -1383,8 +1382,8 @@ body.night-theme .pill-mono.phase {
         if (!identity || !identity.email) {
             if (el('logoutBtn')) el('logoutBtn').style.display = 'none';
             el('whoLabel').textContent = '';
-            gb.innerHTML = '<button class="btn coral" style="width:100%; padding:11px; font-size:1rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
-                + '<button class="btn" style="width:100%;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>';
+            gb.innerHTML = '<button class="btn coral" style="width:100%; padding:13px; font-size:1.02rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
+                + (Q.get('demo') === '1' ? '<button class="btn" style="width:100%; margin-top:8px;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>' : '');
         } else {
             if (el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
             var startList = activeQuickClass === '902' ? ROSTER_902 : ROSTER_703;
@@ -1409,7 +1408,7 @@ body.night-theme .pill-mono.phase {
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
-                + '<button class="btn btn-xs" onclick="enterInteractiveDemo()">Or try Offline Demo Mode</button>';
+                + (Q.get('demo') === '1' ? '<button class="btn btn-xs" style="margin-top:6px;" onclick="enterInteractiveDemo()">Offline Demo Mode</button>' : '');
 
             fetch(serverUrl + '?action=get_health')
                 .then(function (r) { return r.json(); })
