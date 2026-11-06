@@ -462,6 +462,7 @@ body.night-theme .pill-mono.phase {
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
             <span id="whoLabel" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);"></span>
+            <button class="btn btn-xs" id="leaveSeatBtn" style="display:none;" onclick="leaveMySeat()" title="Leave current seat and return to name select">Switch Seat / Reset</button>
             <a class="btn btn-xs" href="lcd.html" target="_blank">Open Class LCD</a>
         </div>
     </header>
@@ -697,8 +698,20 @@ body.night-theme .pill-mono.phase {
         el('gateView').style.display = 'none';
         el('playerView').style.display = 'flex';
         el('cornerPocket').style.display = 'flex';
+        if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'inline-flex';
         applyCornerSide();
     }
+
+    window.leaveMySeat = function () {
+        if (confirm('Leave your seat and return to the name selection screen?')) {
+            try { sessionStorage.removeItem('ww_player_id'); } catch (e) {}
+            joinedPlayerId = '';
+            el('playerView').style.display = 'none';
+            el('cornerPocket').style.display = 'none';
+            if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'none';
+            el('gateView').style.display = 'flex';
+        }
+    };
 
     window.enterInteractiveDemo = function () {
         isDemo = true;
