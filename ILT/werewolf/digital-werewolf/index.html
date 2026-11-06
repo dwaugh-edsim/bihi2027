@@ -570,7 +570,7 @@ body.night-theme .pill-mono.phase {
     var IS_GOD = Q.get('god') === '1';
     var serverUrl = Q.get('server') || sGet('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
     var urlClass = (Q.get('class') || '').trim();
-    var targetGameId = Q.get('game') || (urlClass === '902' ? 'WOLF-FQGQ' : (urlClass === '703' ? 'WOLF-E8SQ' : ''));
+    var targetGameId = Q.get('game') || (urlClass === '902' ? 'WOLF-BFJJ' : (urlClass === '703' ? 'WOLF-E8SQ' : ''));
     var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
 
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
@@ -771,7 +771,7 @@ body.night-theme .pill-mono.phase {
                 + list.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
         }
         if (!Q.get('game') && el('roomCodeInput')) {
-            targetGameId = (cls === '902') ? 'WOLF-FQGQ' : 'WOLF-E8SQ';
+            targetGameId = (cls === '902') ? 'WOLF-BFJJ' : 'WOLF-E8SQ';
             el('roomCodeInput').value = targetGameId;
         }
     };
@@ -1166,8 +1166,10 @@ body.night-theme .pill-mono.phase {
         } else if (v.phase === 'NIGHT') {
             html += renderCamouflagedNightConsole(v, me);
         } else if (v.phase === 'DAWN' || v.phase === 'DUSK') {
+            var stTxt = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
             html += '<div style="padding:8px 4px;">'
-                + '<p style="font-size:0.96rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> for the town announcement!</p>'
+                + (stTxt ? '<div style="background:#ffffff; border:1px solid var(--border-card); border-left:4px solid var(--coral); border-radius:8px; padding:12px 14px; font-family:var(--font-heading); font-size:0.95rem; font-style:italic; line-height:1.55; color:var(--text-heading); margin-bottom:12px;">"' + esc(stTxt) + '"</div>' : '')
+                + '<p style="font-size:0.94rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> as morning debate begins!</p>'
                 + '</div>';
         } else if (v.phase === 'DAY_DISCUSSION') {
             html += '<div style="padding:8px 4px;">'

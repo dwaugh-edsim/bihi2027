@@ -280,6 +280,15 @@ body {
 
     <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
     <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- NARRATOR STORY SCRIPT (TEACHER READ ALOUD) -->
+        <div class="card" id="narratorCard" style="display:none; border-left:4px solid var(--amber); background:#1e293b;">
+            <div class="card-title" style="color:var(--amber);">
+                <span>📜 Narrator Story (Read Aloud to Class)</span>
+                <button class="btn btn-xs" onclick="speakNarratorStory()" title="Play narration out loud">🔊 Read Aloud</button>
+            </div>
+            <div id="narratorScriptText" style="font-family:var(--font-heading); font-size:1.02rem; line-height:1.55; color:#f8fafc; font-style:italic;"></div>
+        </div>
+
         <div class="card">
             <div class="card-title">
                 <span>Live Town Council Roster</span>
@@ -329,7 +338,7 @@ body {
     var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
     var Q = new URLSearchParams(location.search);
     var targetClass = Q.get('class') || '703';
-    var targetGameId = Q.get('game') || (targetClass === '902' ? 'WOLF-FQGQ' : 'WOLF-E8SQ');
+    var targetGameId = Q.get('game') || (targetClass === '902' ? 'WOLF-BFJJ' : 'WOLF-E8SQ');
     var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
     var currentView = null;
@@ -390,7 +399,7 @@ body {
             switchRoomCode('WOLF-E8SQ');
             updatePresetRules(24, 3, 1, 1);
         } else if (cls === '902') {
-            switchRoomCode('WOLF-FQGQ');
+            switchRoomCode('WOLF-BFJJ');
             updatePresetRules(25, 3, 1, 1);
         } else {
             updatePresetRules(28, 3, 1, 1);
@@ -507,12 +516,35 @@ body {
         }).catch(function () {});
     }
 
+    window.speakNarratorStory = function () {
+        var elTxt = document.getElementById('narratorScriptText');
+        var txt = elTxt ? elTxt.textContent.replace(/^"|"$/g, '') : '';
+        if (!txt || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(txt);
+        u.rate = 0.92;
+        u.pitch = 0.95;
+        window.speechSynthesis.speak(u);
+    };
+
     function renderView() {
         if (!currentView) return;
         var v = currentView;
         el('roomCodeBadge').textContent = v.gameId;
         el('roomCodeInput').value = v.gameId;
         el('phaseBadge').textContent = v.phase + (v.round ? (' R' + v.round) : '');
+
+        // Narrator Story Script
+        var story = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
+        var nCard = el('narratorCard');
+        if (nCard) {
+            if (story) {
+                nCard.style.display = 'flex';
+                el('narratorScriptText').textContent = '"' + story + '"';
+            } else {
+                nCard.style.display = 'none';
+            }
+        }
 
         // Primary Phase Button
         var btn = el('primaryPhaseBtn');

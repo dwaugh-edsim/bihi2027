@@ -35,7 +35,7 @@
     wolvesCount: 3,
     doctorsCount: 1,
     detectivesCount: 1,
-    peacefulNight1: true,       // Night 1 has no wolf kill (detective still checks, wolves practice unanimity)
+    peacefulNight1: false,      // Live kill right from Night 1! Werewolves hunt immediately
     doctorSelfSave: false,      // Can a doctor protect themselves?
     doctorRepeatSave: false,    // Can doctors protect the exact same player two nights running?
     revealRoleOnDeath: false,   // Reveal eliminated player's true role to the village?
@@ -688,6 +688,57 @@
     return { ok: true };
   }
 
+  function buildStoryNarration(kind, data) {
+    data = data || {};
+    var round = data.round || 1;
+    var name = data.name || 'a villager';
+    var seat = data.seat ? ('Seat #' + (data.seat < 10 ? '0' + data.seat : data.seat)) : '';
+
+    if (kind === 'night_start') {
+      var nightStories = [
+        'A thick November fog rolls in off the harbour as the midnight bells toll. The villagers bar their doors and draw their shutters, hoping to survive until morning while silent footsteps stalk the cobblestone alleys.',
+        'Cold sea winds sweep across the docks. The lantern on the village tavern flickers and dies out. Somewhere in the shadows, yellow eyes gleam in the dark as the hunt begins.',
+        'Moonlight filters through the clouds over Moonhollow Harbour. The town falls dead quiet. Behind closed curtains, heartbeats quicken as the pack prowls the village paths.'
+      ];
+      return nightStories[(round - 1) % nightStories.length];
+    }
+
+    if (kind === 'dawn_kill') {
+      var killStories = [
+        'Dawn breaks cold and grey over the harbour. As the church bell tolls for morning roll call, the villagers find ' + seat + ' (' + name + ') tragically missing. Down near the water, shredded coats and deep claw marks tell the grim tale: ' + name + ' was taken by the werewolves in the dead of night.',
+        'The morning rooster crows through the sea mist, but one home remains dark. Villagers rush to ' + seat + ' and find the door unlatched and the room ransacked. ' + name + ' has fallen victim to the ravenous wolves.',
+        'A chilling silence hangs over the town square this morning. When the council gathers at the docks, ' + seat + ' (' + name + ') is absent. The werewolves struck under the shadow of high tide, leaving only footprints in the mud.'
+      ];
+      return killStories[(round - 1) % killStories.length];
+    }
+
+    if (kind === 'dawn_save') {
+      var saveStories = [
+        'Under the cover of pitch darkness, the beasts clawed at the window of ' + seat + ' (' + name + '). But just as the shadows closed in, the Town Doctor rushed through the fog with a blazing lantern and protective herbs, driving the wolves back into the sea! ' + name + ' was saved in the nick of time!',
+        'Savage snarls echoed outside the door of ' + seat + ' (' + name + ') in the midnight hours. Before the pack could strike, the Doctor intervened with steel and courage! ' + name + ' was shielded until morning, and nobody died tonight!'
+      ];
+      return saveStories[(round - 1) % saveStories.length];
+    }
+
+    if (kind === 'dawn_peaceful') {
+      return 'The harbour was eerily quiet through the long hours of the dark. Strange shadows danced in the trees, but the dawn bell chimed with good news: every villager woke safely in their bed this morning.';
+    }
+
+    if (kind === 'dusk_exile') {
+      var exileStories = [
+        'Heated debate raged across the town hall as the sun dipped toward the harbour. Suspicious glances turned to pointed fingers. By council vote, ' + seat + ' (' + name + ') was condemned and marched to the town gates, exiled into the deep mist.',
+        'Accusations flew back and forth through the afternoon. In the final ballot, the town council delivered their verdict against ' + seat + ' (' + name + '). Protesting their innocence, ' + name + ' was cast out beyond the harbour walls as the iron gates locked shut.'
+      ];
+      return exileStories[(round - 1) % exileStories.length];
+    }
+
+    if (kind === 'dusk_no_exile') {
+      return 'Voices clashed and fists slammed on the council tables until twilight fell! With the vote locked in a dead heat, no verdict could be reached. The accused walked free, but paranoia runs deeper than ever as night approaches.';
+    }
+
+    return '';
+  }
+
   function enterNight(game, now) {
     game.phase = PHASES.NIGHT;
     game.nightSubStep = 'ALL';
@@ -704,13 +755,16 @@
     var nightNote = (game.round === 1 && game.rules.peacefulNight1)
       ? 'Night 1 (Starter Night): Wolves coordinate silently, Detectives investigate 1 suspect, Villagers log a Night Watch hunch. Nobody dies tonight!'
       : 'Night ' + game.round + ': Everyone tap 1 choice quietly on your Chromebook so no clicks give away your role.';
+    var nightStory = buildStoryNarration('night_start', { round: game.round });
     game.lastAnnouncement = {
       kind: 'night',
       headline: 'Night ' + game.round + ' Falls Over Moonhollow',
       subline: nightNote,
+      story: nightStory,
       eliminatedId: null,
       savedByDoctor: false
     };
+    game.lastStory = nightStory;
     pushFeed(game, 'night', 'Night ' + game.round + ' Begins', nightNote);
   }
 
@@ -803,28 +857,44 @@
     game.pauseRemainingSec = null;
 
     var headline, subline;
+    var dawnStory = '';
     if (isPeaceful) {
       headline = 'Dawn of Day 1: Everyone Survived the Arrival Night!';
       subline = 'Detectives gathered their first clue. Talk out loud in the room to spot subtle bluffs!';
+      dawnStory = buildStoryNarration('dawn_peaceful', { round: game.round });
     } else if (savedByDoctor) {
+      var savedP = getPlayer(game, wolfChoice.targetId);
       headline = 'Dawn of Day ' + game.round + ': MIRACLE SAVE! Nobody Died!';
       subline = 'The Werewolves struck in the dark, but the Town Doctor arrived right on time!';
+      dawnStory = buildStoryNarration('dawn_save', {
+        round: game.round,
+        name: savedP ? savedP.name : 'a villager',
+        seat: savedP ? savedP.seat : 0
+      });
     } else if (eliminatedPlayer) {
       var roleTag = game.rules.revealRoleOnDeath ? (' (' + eliminatedPlayer.role + ')') : '';
       headline = 'Dawn of Day ' + game.round + ': ' + eliminatedPlayer.name + ' Was Eliminated!';
       subline = 'Seat #' + eliminatedPlayer.seat + roleTag + ' is now a Silent Ghost Spectator.';
+      dawnStory = buildStoryNarration('dawn_kill', {
+        round: game.round,
+        name: eliminatedPlayer.name,
+        seat: eliminatedPlayer.seat
+      });
     } else {
       headline = 'Dawn of Day ' + game.round + ': Quiet Night in Moonhollow';
       subline = 'All villagers woke safely this morning.';
+      dawnStory = buildStoryNarration('dawn_peaceful', { round: game.round });
     }
 
     game.lastAnnouncement = {
       kind: 'dawn',
       headline: headline,
       subline: subline,
+      story: dawnStory,
       eliminatedId: eliminatedPlayer ? eliminatedPlayer.id : null,
       savedByDoctor: savedByDoctor
     };
+    game.lastStory = dawnStory;
     pushFeed(game, savedByDoctor ? 'save' : (eliminatedPlayer ? 'death' : 'dawn'), headline, subline);
 
     checkAndApplyWinner(game, now);
@@ -982,13 +1052,20 @@
     };
 
     var duskHeadline = exiled.name + ' Was Exiled by the Town (' + topCount + ' Votes)';
+    var duskStory = buildStoryNarration('dusk_exile', {
+      round: game.round,
+      name: exiled.name,
+      seat: exiled.seat
+    });
     game.lastAnnouncement = {
       kind: 'dusk',
       headline: duskHeadline,
       subline: roleRevealTxt + ' Night approaches...',
+      story: duskStory,
       eliminatedId: exiled.id,
       savedByDoctor: false
     };
+    game.lastStory = duskStory;
     pushFeed(game, 'exile', duskHeadline, roleRevealTxt);
 
     checkAndApplyWinner(game, now);
@@ -1007,13 +1084,16 @@
       skipVotes: skipVotes,
       totalCast: totalCast
     };
+    var noExileStory = buildStoryNarration('dusk_no_exile', { round: game.round });
     game.lastAnnouncement = {
       kind: 'dusk',
       headline: headline,
       subline: subline,
+      story: noExileStory,
       eliminatedId: null,
       savedByDoctor: false
     };
+    game.lastStory = noExileStory;
     pushFeed(game, 'dusk', headline, subline);
     checkAndApplyWinner(game, now);
   }
@@ -1391,6 +1471,7 @@
       players: publicPlayers,
       tiedCandidates: game.currentVote.tiedCandidates || [],
       lastAnnouncement: game.lastAnnouncement,
+      lastStory: game.lastStory || (game.lastAnnouncement && game.lastAnnouncement.story) || '',
       lastVoteSummary: game.lastVoteSummary,
       publicFeed: game.publicFeed,
       winner: game.winner,
@@ -1497,7 +1578,8 @@
 
     advancePhase(g, 3000);
     check(g.phase === PHASES.DAWN, 'Resolves to DAWN');
-    check(livingPlayers(g).length === 28, 'Peaceful Night 1 kills nobody');
+    check(livingPlayers(g).length === 27, 'Live Night 1 kill eliminates 1 victim');
+    check(Boolean(g.lastStory), 'Story narration is generated for Dawn');
     check(g.secret.detectiveFindings.length === 1, 'Detective records Night 1 finding');
 
     // 3. Day 1 Discussion -> Vote -> Tie Runoff test

@@ -361,6 +361,28 @@ main.stage-grid {
 }
 .start-cta:hover { background: var(--coral-hover); transform: translateY(-1px); }
 
+/* STORY CHRONICLE CARD */
+.story-chronicle-card {
+    background: #ffffff;
+    border: 1.5px solid var(--border-card);
+    border-left: 5px solid var(--coral);
+    border-radius: 9px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+.story-chronicle-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+}
+.story-chronicle-title {
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.86rem;
+    color: var(--coral-dark); letter-spacing: 0.5px;
+}
+.story-chronicle-text {
+    font-family: var(--font-heading); font-size: 1.04rem; line-height: 1.55;
+    color: var(--text-heading); font-style: italic;
+}
+
 /* ACTIVE PHASE WIDGETS */
 .meter-box {
     background: #f8fafc; border: 1.5px solid var(--border-card);
@@ -1129,6 +1151,17 @@ footer.foot-bar {
         window.open(url, 'r8_werewolf_god', 'width=980,height=740');
     };
 
+    window.speakNarratorStory = function () {
+        var elTxt = document.getElementById('narratorStoryText');
+        var txt = elTxt ? elTxt.textContent.replace(/^"|"$/g, '') : '';
+        if (!txt || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(txt);
+        u.rate = 0.92;
+        u.pitch = 0.95;
+        window.speechSynthesis.speak(u);
+    };
+
     window.toggleSfx = function () {
         sfxEnabled = !sfxEnabled;
         el('sfxBtn').textContent = 'SFX: ' + (sfxEnabled ? 'ON' : 'OFF');
@@ -1380,6 +1413,18 @@ footer.foot-bar {
             + '<div class="hud-role-card"><img src="assets/role_villager.jpg" alt=""><div><div class="hud-role-count">' + villagersStart + '</div><div class="hud-role-lbl">Villagers</div></div></div>'
             + '</div>');
 
+        // Atmospheric Story Narration Chronicle
+        var storyTxt = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
+        if (storyTxt && (v.phase === 'DAWN' || v.phase === 'DUSK' || v.phase === 'DAY_DISCUSSION' || v.phase === 'NIGHT')) {
+            parts.push('<div class="story-chronicle-card">'
+                + '<div class="story-chronicle-header">'
+                + '  <span class="story-chronicle-title">📜 The Moonhollow Chronicle</span>'
+                + '  <button class="btn btn-xs" onclick="speakNarratorStory()" title="Play narration out loud">🔊 Read Aloud</button>'
+                + '</div>'
+                + '<div class="story-chronicle-text" id="narratorStoryText">"' + esc(storyTxt) + '"</div>'
+                + '</div>');
+        }
+
         if (v.phase === 'ROLE_REVEAL' || v.phase === 'NIGHT' || v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') {
             var meterTitle = v.phase === 'ROLE_REVEAL' ? 'Secret Role Cards Confirmed'
                 : (v.phase === 'NIGHT' ? 'Aggregate Night Checks Complete (Seats Hidden)' : 'Secret Ballots Locked In');
@@ -1551,7 +1596,7 @@ footer.foot-bar {
         el('howToSlidesBtn').href = 'Digital_Werewolf_Intro_Deck_902.html';
     }
     if (serverUrl) {
-        var initTargetId = urlGameId || (urlClass === '902' ? 'WOLF-FQGQ' : '');
+        var initTargetId = urlGameId || (urlClass === '902' ? 'WOLF-BFJJ' : '');
         if (initTargetId) {
             currentView.gameId = initTargetId;
             fetch(serverUrl, {
