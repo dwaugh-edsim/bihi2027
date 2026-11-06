@@ -286,18 +286,21 @@ body {
   padding: 6px 8px 4px;
 }
 
-/* --- BACK ZONE: 1 SOLO FAR-LEFT + 2 SIDE PAIRS + 1 MIDDLE QUAD + TEACHER --- */
+/* --- BACK ZONE: PAIR - QUAD - TRIO (+ SOLO FAR-LEFT IN 801) + TEACHER --- */
 .back-pods-row {
   display: grid;
   gap: 22px;
   align-items: center;
   padding: 8px 6px 6px;
 }
-.back-pods-row.layout-split {
-  grid-template-columns: 0.88fr 1.28fr 1.72fr 1.28fr 0.94fr;
+.back-pods-row.layout-std {
+  grid-template-columns: 1.1fr 1.72fr 1.5fr 0.94fr;
 }
-.back-pods-row.layout-trio {
-  grid-template-columns: 1.45fr 1.85fr 1.28fr 0.94fr;
+.back-pods-row.layout-solo {
+  grid-template-columns: 0.62fr 0.78fr 1.72fr 1.5fr 0.94fr;
+}
+.back-pods-row.layout-solo > :nth-child(2) {
+  margin-left: 30px;
 }
 
 /* Individual Pod Card (matches screenshot aesthetic) */
@@ -783,8 +786,8 @@ body.flipped .pod-card.tilt-br { transform: rotate(30deg); }
   .front-banner { background: #d9d9d9 !important; color: #000 !important; border: 2px solid #000; }
   .blueprint { box-shadow: none; border: 2px solid #000; padding: 12px 16px 16px; gap: 14px; }
   .pod-stage { gap: 18px; padding: 4px 2px; }
-  .back-pods-row.layout-split { grid-template-columns: 0.88fr 1.28fr 1.72fr 1.28fr 0.94fr; }
-  .back-pods-row.layout-trio { grid-template-columns: 1.45fr 1.85fr 1.28fr 0.94fr; }
+  .back-pods-row.layout-std { grid-template-columns: 1.1fr 1.72fr 1.5fr 0.94fr; }
+  .back-pods-row.layout-solo { grid-template-columns: 0.62fr 0.78fr 1.72fr 1.5fr 0.94fr; }
   .pod-card { background: #f0f0f0 !important; border: 1.5px solid #334155 !important; box-shadow: none; padding: 7px 8px 9px; }
   .desk { background: #fff !important; border-color: #000 !important; min-height: 48px; box-shadow: none; }
   .desk.empty { border-style: dashed !important; border-color: #64748b !important; }
@@ -797,11 +800,11 @@ body.flipped .pod-card.tilt-br { transform: rotate(30deg); }
   <div class="topbar-in">
     <div>
       <h1>Room 8 &middot; Alternative Pod Seat Map</h1>
-      <div class="sub">All 7 homerooms &middot; 29 desks &middot; 4 front pods of 5 + Back-Left Trio (or Solo in 801) &middot; auto-saves to private repo (bihipri-27)</div>
+      <div class="sub">All 7 homerooms &middot; 29 desks &middot; 4 front pods of 5 + Back Pair &middot; Quad &middot; Trio (801: Solo + 1 far-left) &middot; auto-saves to private repo (bihipri-27)</div>
     </div>
     <div class="spec" id="topSpec">
       FRONT ARC &nbsp;5 &middot; 5 &middot; 5 &middot; 5 = 20 (Pods 1-4)<br>
-      BACK ZONE &nbsp;3 (Row of 3) &middot; 4 &middot; 2 = 9 + Teacher Desk
+      BACK ZONE &nbsp;2 &middot; 4 &middot; 3 = 9 + Teacher Desk
     </div>
   </div>
 </div>
@@ -823,7 +826,6 @@ body.flipped .pod-card.tilt-br { transform: rotate(30deg); }
     <button class="btn primary-lcd" id="lcdBtn" onclick="toggleLcdMode()" title="Toggle full-screen Classroom LCD Display (Shortcut: L)">&#128250; Class LCD View</button>
     <button class="btn" id="fsBtn" onclick="toggleFullscreen()" title="Browser Fullscreen (Shortcut: F)">&#9974; Fullscreen</button>
     <button class="btn" onclick="toggleFlip()" title="Flip between Front-at-Top and Teacher Back-of-Room View">&#8645; Flip View</button>
-    <button class="btn edit-only" id="layoutVariantBtn" onclick="toggleLayoutVariant()" title="Toggle back-left layout: Trio of 3 (903) vs Solo + Pair (801)">&#9881; Back-Left: Trio (3)</button>
     <button class="btn edit-only" onclick="promptAddOrRename()" title="Add or rename a student on the selected desk">&#65291; Add / Edit</button>
     <button class="btn danger edit-only" onclick="removeSelectedDesk()" title="Remove the selected desk's name (or click × on any desk)">&times; Remove</button>
     <button class="btn edit-only" onclick="clearAllToTray()" title="Move all students in this class to the Unseated Tray so you can assign pods from scratch">&#129529; Clear to Tray</button>
@@ -1958,29 +1960,19 @@ var POD_LAYOUT_FRONT = [
   { id: "P4", title: "Pod 4", countLabel: "5 Seats", tilt: "tilt-fr", kind: "pod5", positions: [16, 17, 18, 19, 20] }
 ];
 
-function layoutModeOf(g) {
-  var saved = null;
-  try { saved = localStorage.getItem(STORAGE_PFX + "layout_" + g); } catch (e) {}
-  if (saved === "split" || saved === "trio") return saved;
-  if (DATA[g] && (DATA[g].backLayout === "split" || DATA[g].backLayout === "trio")) {
-    return DATA[g].backLayout;
-  }
-  return (g === "g801") ? "split" : "trio";
-}
-
 function getBackPodsForGroup(g) {
-  if (layoutModeOf(g) === "split") {
+  if (g === "g801") {
     return [
       { id: "P5", title: "Solo Back-Left", countLabel: "1 Seat", tilt: "solo-back", kind: "pod1", positions: [21] },
-      { id: "P6", title: "Back-Left Pair", countLabel: "2 Seats", tilt: "tilt-bl", kind: "pod2", positions: [22, 23] },
-      { id: "P7", title: "Back-Middle Pod", countLabel: "4 Seats", tilt: "", kind: "pod4", positions: [24, 25, 26, 27] },
-      { id: "P8", title: "Back-Right Pair", countLabel: "2 Seats", tilt: "tilt-br", kind: "pod2", positions: [28, 29] }
+      { id: "P5b", title: "Back-Left Seat", countLabel: "1 Seat", tilt: "", kind: "pod1", positions: [22] },
+      { id: "P7", title: "Back-Middle Pod", countLabel: "4 Seats", tilt: "", kind: "pod4", positions: [23, 24, 25, 26] },
+      { id: "P8", title: "Back-Right Trio", countLabel: "3 Seats", tilt: "tilt-br trio-pod", kind: "pod3", positions: [27, 28, 29] }
     ];
   }
   return [
-    { id: "P5", title: "Back-Left Trio", countLabel: "3 Seats", tilt: "tilt-bl trio-pod", kind: "pod3", positions: [21, 22, 23] },
-    { id: "P7", title: "Back-Middle Pod", countLabel: "4 Seats", tilt: "", kind: "pod4", positions: [24, 25, 26, 27] },
-    { id: "P8", title: "Back-Right Pair", countLabel: "2 Seats", tilt: "tilt-br", kind: "pod2", positions: [28, 29] }
+    { id: "P5", title: "Back-Left Pair", countLabel: "2 Seats", tilt: "tilt-bl", kind: "pod2", positions: [21, 22] },
+    { id: "P7", title: "Back-Middle Pod", countLabel: "4 Seats", tilt: "", kind: "pod4", positions: [23, 24, 25, 26] },
+    { id: "P8", title: "Back-Right Trio", countLabel: "3 Seats", tilt: "tilt-br trio-pod", kind: "pod3", positions: [27, 28, 29] }
   ];
 }
 
@@ -2141,7 +2133,6 @@ function render(g) {
   }
   updateCounts(g);
 
-  var mode = layoutModeOf(g);
   var backPods = getBackPodsForGroup(g);
 
   var html = '<div class="front-banner">\u2b06 Front of Room &middot; Whiteboard &amp; Projector Screen \u2b06</div>';
@@ -2153,7 +2144,7 @@ function render(g) {
   }
   html += '</div>';
 
-  html += '<div class="back-pods-row ' + (mode === "split" ? "layout-split" : "layout-trio") + '">';
+  html += '<div class="back-pods-row ' + (g === "g801" ? "layout-solo" : "layout-std") + '">';
   for (var b = 0; b < backPods.length; b++) {
     html += renderPodHtml(g, D, order, backPods[b]);
   }
@@ -2433,37 +2424,15 @@ function resetGroup() {
   toast("Reset Homeroom " + DATA[current].num + " pod map to default.");
 }
 
-function toggleLayoutVariant() {
-  var curMode = layoutModeOf(current);
-  var nextMode = (curMode === "split") ? "trio" : "split";
-  try { localStorage.setItem(STORAGE_PFX + "layout_" + current, nextMode); } catch (e) {}
-  if (DATA[current]) DATA[current].backLayout = nextMode;
-  render(current);
-  updateTopSpec();
-  flashSaved();
-  toast("Switched " + DATA[current].num + " back-left to " + (nextMode === "trio" ? "Trio (row of 3)" : "Solo + Pair") + ".");
-}
-
 function updateTopSpec() {
   var el = document.getElementById("topSpec");
-  var mode = layoutModeOf(current);
   if (el) {
-    if (mode === "split") {
+    if (current === "g801") {
       el.innerHTML = "FRONT ARC &nbsp;5 &middot; 5 &middot; 5 &middot; 5 = 20 (Pods 1-4)<br>" +
-                     "BACK ZONE &nbsp;1 (Solo Alex R) &middot; 2 &middot; 4 &middot; 2 = 9 + Teacher Desk";
+                     "BACK ZONE &nbsp;1 (Solo far-left) &middot; 1 &middot; 4 &middot; 3 = 9 + Teacher Desk";
     } else {
       el.innerHTML = "FRONT ARC &nbsp;5 &middot; 5 &middot; 5 &middot; 5 = 20 (Pods 1-4)<br>" +
-                     "BACK ZONE &nbsp;3 (Row of 3) &middot; 4 &middot; 2 = 9 + Teacher Desk";
-    }
-  }
-  var btn = document.getElementById("layoutVariantBtn");
-  if (btn) {
-    if (mode === "split") {
-      btn.innerHTML = "&#9881; Back-Left: Solo + Pair";
-      btn.title = "Current: Solo #21 (Alex R) + Pair #22-#23. Click to switch to Trio of 3.";
-    } else {
-      btn.innerHTML = "&#9881; Back-Left: Trio (3)";
-      btn.title = "Current: Trio of 3 (#21-#23 row). Click to switch to Solo + Pair.";
+                     "BACK ZONE &nbsp;2 &middot; 4 &middot; 3 = 9 + Teacher Desk";
     }
   }
 }
@@ -2483,10 +2452,10 @@ function buildPodExportArtifacts() {
     baked[g].order = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29];
     baked[g].desks = newDesks;
     baked[g].unseated = unseatedCopy;
-    baked[g].backLayout = layoutModeOf(g);
+    baked[g].backLayout = (g === "g801") ? "solo" : "std";
     groupsOut[g] = {
       num: baked[g].num,
-      layout: layoutModeOf(g),
+      layout: (g === "g801") ? "solo" : "std",
       desks: newDesks,
       unseated: unseatedCopy
     };
