@@ -570,6 +570,7 @@ footer.foot-bar {
         </div>
 
         <div class="ops-cluster">
+            <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between 28-Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
             <button class="btn emerald" id="nextPhaseBtn" onclick="onNextPhaseClick()">Deal Roles &amp; Start -&gt;</button>
             <button class="btn" onclick="openStudentPreview()" title="Open synced Student Chromebook screen">Student Screen</button>
             <button class="btn purple" onclick="openGodConsole()" title="Open private Teacher God-View in separate window (never flashes roles here)">God View</button>
@@ -659,12 +660,14 @@ footer.foot-bar {
     'use strict';
 
     var E = window.WerewolfEngine;
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
     var CHANNEL_NAME = 'r8_werewolf_v1';
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
 
-    // Optional live server endpoint (can also be set via ?server=... or Setup modal)
+    // Live server endpoint (pre-wired to Room 8 Digital Werewolf Web App; toggleable with Local/Demo Mode)
     var params = new URLSearchParams(location.search);
-    var serverUrl = params.get('server') || sessionStorage.getItem('ww_server_url') || '';
+    var configuredServerUrl = params.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
+    var serverUrl = (params.get('demo') === '1') ? '' : (sessionStorage.getItem('ww_mode') === 'cloud' ? configuredServerUrl : '');
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
 
     var sfxEnabled = true;
@@ -786,8 +789,14 @@ footer.foot-bar {
     // Server RPC helper when connected to live Google Apps Script Web App
     function callServer(payload) {
         if (!serverUrl) return Promise.resolve(null);
+        if (!teacherPin) {
+            var entered = prompt('Enter Room 8 Teacher PIN to control the Cloud Room:');
+            if (!entered) return Promise.resolve(null);
+            teacherPin = entered.trim();
+            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
+        }
         payload.teacherPin = teacherPin;
-        if (currentView && currentView.gameId && !payload.gameId) {
+        if (currentView && currentView.gameId && !payload.gameId && payload.action !== 'create_game') {
             payload.gameId = currentView.gameId;
         }
         return fetch(serverUrl, {
@@ -795,10 +804,18 @@ footer.foot-bar {
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
         }).then(function (r) { return r.json(); }).then(function (data) {
+            if (data && data.engineVersion === 'missing') {
+                alert('Server connected, but WerewolfEngine is missing in Apps Script! Paste the updated single-file Code.gs -> Manage deployments -> Edit -> New version -> Deploy.');
+                return data;
+            }
             if (data && data.status === 'ok' && data.view) {
                 currentView = data.view;
                 render();
             } else if (data && data.message) {
+                if (/PIN/i.test(data.message)) {
+                    teacherPin = '';
+                    try { sessionStorage.removeItem('ww_teacher_pin'); } catch (e) {}
+                }
                 alert('Server message: ' + data.message);
             }
             return data;
@@ -806,6 +823,48 @@ footer.foot-bar {
             console.warn('Server call error:', err);
         });
     }
+
+    window.onCloudToggleClick = function () {
+        if (serverUrl) {
+            // Switch back to Local / Bot Demo Mode
+            serverUrl = '';
+            try { sessionStorage.setItem('ww_mode', 'local'); } catch (e) {}
+            refreshLocalView();
+            return;
+        }
+        var targetUrl = configuredServerUrl || DEFAULT_SERVER_URL;
+        fetch(targetUrl + '?action=get_health')
+            .then(function (r) { return r.json(); })
+            .then(function (h) {
+                if (h && h.engineVersion === 'missing') {
+                    alert('Server reachable (' + h.serverVersion + '), one quick update needed: re-paste the updated single-file Code.gs and click Manage Deployments -> Edit -> New Version -> Deploy so the game engine is bundled.');
+                    return;
+                }
+                serverUrl = targetUrl;
+                try {
+                    sessionStorage.setItem('ww_mode', 'cloud');
+                    sessionStorage.setItem('ww_server_url', serverUrl);
+                } catch (e) {}
+                if (h && h.activeGameId) {
+                    fetch(serverUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'poll_state', gameId: h.activeGameId, viewerKind: 'lcd' })
+                    }).then(function (r2) { return r2.json(); }).then(function (d) {
+                        if (d && d.status === 'ok' && d.view) {
+                            currentView = d.view;
+                            render();
+                        } else {
+                            callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
+                        }
+                    });
+                } else {
+                    callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
+                }
+            }).catch(function (err) {
+                alert('Could not reach Server health endpoint: ' + err);
+            });
+    };
 
     // Poll server every 3.5s + jitter when in Live Server Mode
     function scheduleServerPoll() {
@@ -1040,7 +1099,7 @@ footer.foot-bar {
     });
 
     window.openServerModal = function () {
-        el('serverUrlInput').value = serverUrl;
+        el('serverUrlInput').value = serverUrl || configuredServerUrl || DEFAULT_SERVER_URL;
         el('teacherPinInput').value = teacherPin;
         el('serverModal').classList.add('open');
     };
@@ -1048,11 +1107,17 @@ footer.foot-bar {
         el('serverModal').classList.remove('open');
     };
     window.saveServerConfig = function () {
-        serverUrl = el('serverUrlInput').value.trim();
+        var typedUrl = el('serverUrlInput').value.trim();
+        configuredServerUrl = typedUrl || DEFAULT_SERVER_URL;
+        serverUrl = typedUrl;
         teacherPin = el('teacherPinInput').value.trim();
         try {
-            if (serverUrl) sessionStorage.setItem('ww_server_url', serverUrl);
-            else sessionStorage.removeItem('ww_server_url');
+            if (serverUrl) {
+                sessionStorage.setItem('ww_server_url', serverUrl);
+                sessionStorage.setItem('ww_mode', 'cloud');
+            } else {
+                sessionStorage.setItem('ww_mode', 'local');
+            }
             if (teacherPin) sessionStorage.setItem('ww_teacher_pin', teacherPin);
         } catch (e) {}
         closeServerModal();
@@ -1112,13 +1177,16 @@ footer.foot-bar {
             nxt.onclick = window.onNextPhaseClick;
         }
 
-        // Mode & URL footer
+        // Mode & URL footer + Cloud button state
+        var cBtn = el('cloudToggleBtn');
         if (serverUrl) {
+            if (cBtn) { cBtn.textContent = 'Cloud Room Active (Switch to Demo)'; cBtn.className = 'btn coral'; }
             el('modeBadge').textContent = 'MODE: LIVE CLOUD SERVER (GNSPES CHROMEBOOKS)';
-            el('studentUrlDisplay').textContent = location.origin + location.pathname.replace(/lcd\.html.*$/, 'index.html?game=' + v.gameId);
+            el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/?game=' + v.gameId;
         } else {
+            if (cBtn) { cBtn.textContent = 'Go Live (Cloud)'; cBtn.className = 'btn blue'; }
             el('modeBadge').textContent = 'MODE: INSTANT CLASSROOM / DEMO SYNC';
-            el('studentUrlDisplay').textContent = 'Click "Student Screen" or "God View" above to test multi-screen sync!';
+            el('studentUrlDisplay').textContent = 'Click "Go Live (Cloud)" for 28 Chromebooks, or "Student Screen" for instant demo!';
         }
 
         // Hero Banner Art + Copy

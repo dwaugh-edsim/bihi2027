@@ -429,6 +429,7 @@ body.night-theme .pill-mono.phase {
     'use strict';
 
     var E = window.WerewolfEngine;
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
     var IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
     var ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
     var ID_SESSION_KEY = 'r8id';
@@ -438,7 +439,7 @@ body.night-theme .pill-mono.phase {
     var OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
     var SELFTEST = Q.has('selftest') && OFFPROD;
     var IS_GOD = Q.get('god') === '1';
-    var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || '';
+    var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
     var targetGameId = Q.get('game') || '';
     var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
 
@@ -1114,10 +1115,40 @@ body.night-theme .pill-mono.phase {
             gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initial:</label>'
                 + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Jordan Th." maxlength="22"></div>'
-                + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (from front LCD):</label>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
                 + '<button class="btn btn-xs" onclick="enterInteractiveDemo()">Or try Offline Demo Mode</button>';
+
+            // Auto-detect active room code & restore seat if student already joined!
+            fetch(serverUrl + '?action=get_health')
+                .then(function (r) { return r.json(); })
+                .then(function (h) {
+                    if (h && h.activeGameId && !targetGameId) {
+                        targetGameId = h.activeGameId;
+                        if (el('roomCodeInput') && !el('roomCodeInput').value) {
+                            el('roomCodeInput').value = h.activeGameId;
+                        }
+                    }
+                    if (targetGameId) {
+                        postServer({
+                            action: 'poll_state',
+                            gameId: targetGameId,
+                            viewerKind: 'player',
+                            email: identity.email,
+                            ts: identity.ts,
+                            sig: identity.sig
+                        }).then(function (pRes) {
+                            if (pRes && pRes.status === 'ok' && pRes.joined && pRes.view) {
+                                joinedPlayerId = pRes.playerId;
+                                currentView = pRes.view;
+                                el('gateView').style.display = 'none';
+                                el('playerView').style.display = 'grid';
+                                renderPlayerView();
+                            }
+                        }).catch(function () {});
+                    }
+                }).catch(function () {});
         }
 
         // Poll server when seated
