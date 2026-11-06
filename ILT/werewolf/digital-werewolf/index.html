@@ -731,7 +731,8 @@ body.night-theme .pill-mono.phase {
                 showSeatedWorkspace();
                 renderPlayerView();
             } else {
-                alert((res && res.message) || 'Could not join lobby yet.');
+                var errTxt = (res && (res.message || (res.reason ? ('Identity check failed: ' + res.reason) : ''))) || 'Could not join lobby yet.';
+                alert(errTxt);
             }
         });
     };
@@ -1315,6 +1316,7 @@ body.night-theme .pill-mono.phase {
         } else {
             el('whoLabel').textContent = identity.email;
             gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
+                + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initial:</label>'
                 + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Jordan Th." maxlength="22"></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
@@ -1340,11 +1342,21 @@ body.night-theme .pill-mono.phase {
                             ts: identity.ts,
                             sig: identity.sig
                         }).then(function (pRes) {
-                            if (pRes && pRes.status === 'ok' && pRes.joined && pRes.view) {
-                                joinedPlayerId = pRes.playerId;
-                                currentView = pRes.view;
-                                showSeatedWorkspace();
-                                renderPlayerView();
+                            var sb = el('sigVerifyBadge');
+                            if (pRes && pRes.status === 'ok') {
+                                if (sb) {
+                                    sb.style.color = 'var(--emerald)';
+                                    sb.textContent = 'Server Identity Check: VERIFIED (Lobby ' + targetGameId + ' ready)';
+                                }
+                                if (pRes.joined && pRes.view) {
+                                    joinedPlayerId = pRes.playerId;
+                                    currentView = pRes.view;
+                                    showSeatedWorkspace();
+                                    renderPlayerView();
+                                }
+                            } else if (pRes && pRes.status === 'auth_failed' && sb) {
+                                sb.style.color = 'var(--red)';
+                                sb.textContent = 'Server Identity Check FAILED: ' + (pRes.reason || 'bad_sig') + ' (check R8_IDENTITY_KEY)';
                             }
                         }).catch(function () {});
                     }
