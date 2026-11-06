@@ -1,6 +1,6 @@
 # Digital Werewolf - Design Spec & v1 Build Notes
 
-**Status: FIRST DRAFT BUILT (v0.3, 2026-11-06).**
+**Status: FIRST DRAFT BUILT (v0.4, 2026-11-06).**
 Student pitch received 2026-11-06; backend decided same day (**Google Apps Script web app + gnspes identity**). First playable full-class draft (20-30+ students, custom graphics, Class LCD Display, Student Chromebook screen, Teacher God-View, and private GAS backend) is now live for student playtesting and rules feedback.
 
 ## Why this exists
@@ -60,6 +60,7 @@ Every rule from the student pitch is wired into `werewolf_engine.js` and exposed
 
 ## Change Log
 
+- **2026-11-06 v0.4** - Anti-Cheat / Anti-Shoulder-Surfing overhaul on `index.html`: replaced the large role card and role-specific Night headers with a 100% camouflaged single-column console (identical heading, neutral `SET` / `WAITING` status line, and uniform seat buttons across all roles) plus a tiny `216px` monochrome press-and-hold **Corner Micro-Peek** (`Hold [ID] to Peek` or hold `P` key, instant snap-shut on release/blur + 3.2s max timer, and `<- L` / `-> R` corner flip away from pod neighbours).
 - **2026-11-06 v0.3** - Built full v1 playable draft: `werewolf_engine.js` (20/20 self-tests passing), 9 Qwen-Image-3.0-Pro custom illustrations in `assets/`, Strongly Typed 1080p/864p `lcd.html` Class Display, Chromebook-tuned `index.html` (with Tap-to-Peek card cover, Villager Night Watch anti-tell, `?demo=1` seat switcher, and `?god=1` Teacher Console), and private `Code.gs` server.
 - **2026-11-06 v0.2** - Backend decided by Dave: Google Apps Script web app + gnspes identity. Per-device mode promoted to v1 primary; four server constraints documented.
 - **2026-11-06 v0.1** - First draft spec from partial student pitch + 19 open gameplay questions.

@@ -66,12 +66,12 @@ html, body {
     position: fixed; inset: 0; z-index: 0;
     background-image: url('assets/bg_day_village.jpg');
     background-size: cover; background-position: center;
-    opacity: 0.13; pointer-events: none;
+    opacity: 0.12; pointer-events: none;
     transition: background-image 0.5s ease;
 }
 body.night-theme .bg-fx {
     background-image: url('assets/bg_night_village.jpg');
-    opacity: 0.18;
+    opacity: 0.16;
 }
 
 .double-rule-bottom {
@@ -170,67 +170,248 @@ body.night-theme .pill-mono.phase {
     font-size: 0.96rem; font-weight: 600;
 }
 
-/* STUDENT GAME WORKSPACE (CHROMEBOOK 1366x620 TUNED) */
-.player-grid {
+/* CAMOUFLAGED SINGLE-COLUMN STUDENT CONSOLE (IDENTICAL FOR ALL ROLES) */
+.player-stage {
     flex: 1;
-    max-width: 1220px; width: 100%; margin: 0 auto;
-    padding: 12px 16px 20px;
-    display: grid;
-    grid-template-columns: 330px 1fr;
-    gap: 14px;
-    align-items: start;
-}
-@media (max-width: 860px) {
-    .player-grid { grid-template-columns: 1fr; }
+    max-width: 980px; width: 100%; margin: 0 auto;
+    padding: 12px 16px 76px; /* bottom room for corner micro-pocket */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .card-box {
     background: #ffffff; border: 1px solid var(--border-card);
     border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    padding: 14px;
+    padding: 14px 16px;
 }
 
-/* SECRET TAP-TO-PEEK ROLE CARD */
-.secret-card-stage {
+.identity-strip {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 14px;
+    background: #ffffff; border: 1px solid var(--border-card);
+    border-radius: 9px;
+    font-size: 0.88rem;
+}
+.seat-tag-main {
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.96rem;
+    color: var(--text-heading);
+}
+.stealth-hint {
+    font-size: 0.8rem; color: var(--text-dim);
+}
+
+/* PHASE BANNER */
+.phase-banner {
     border-radius: 10px; overflow: hidden;
-    border: 2px solid #1e293b;
-    background: #0f172a; color: #f8fafc;
-    cursor: pointer; position: relative;
-    transition: transform 0.14s ease, box-shadow 0.14s ease;
+    background-size: cover; background-position: center;
+    position: relative; padding: 14px 18px; color: #ffffff;
+    margin-bottom: 12px; border: 1.5px solid var(--border-card);
 }
-.secret-card-stage:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(15,23,42,0.22);
+.phase-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 100%);
 }
-.secret-art {
-    width: 100%; aspect-ratio: 1 / 0.86;
-    object-fit: cover; display: block;
+.phase-banner > * { position: relative; z-index: 1; }
+.phase-banner h2 {
+    font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 3px;
 }
-.secret-caption {
-    padding: 11px 13px;
-    text-align: center;
-}
-.role-badge-lg {
-    display: inline-block;
-    font-family: var(--font-mono); font-weight: 800; font-size: 0.76rem;
-    padding: 3px 9px; border-radius: 5px; letter-spacing: 0.08em;
-    margin-bottom: 5px;
-}
-.role-badge-lg.cover { background: #f59e0b; color: #1e1b18; }
-.role-badge-lg.WEREWOLF { background: #dc2626; color: #ffffff; }
-.role-badge-lg.DOCTOR { background: #16a34a; color: #ffffff; }
-.role-badge-lg.DETECTIVE { background: #d97706; color: #ffffff; }
-.role-badge-lg.VILLAGER { background: #2563eb; color: #ffffff; }
+.phase-banner p { font-size: 0.9rem; color: #e2e8f0; }
 
-.secret-title {
-    font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700;
-    color: #ffffff; margin-bottom: 4px;
+/* UNIFORM NEUTRAL STATUS BAR (ZERO COLOUR GIVEAWAYS ACROSS ROLES) */
+.neutral-status-bar {
+    padding: 8px 12px; border-radius: 7px; margin-bottom: 10px;
+    background: #f8fafc; border: 1px solid var(--border-card);
+    color: var(--text-muted);
+    font-size: 0.84rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
-.secret-desc {
-    font-size: 0.84rem; color: #cbd5e1; line-height: 1.35;
+.neutral-status-mono {
+    font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700;
+    color: var(--text-dim);
 }
 
-/* NOTEBOOK / TEAMMATES MINI CARDS */
+/* UNIFORM SEAT GRID (ALL LIVING SEATS LOOK IDENTICAL TO NEIGHBOURS) */
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 8px;
+}
+.target-btn {
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 8px; padding: 8px 11px;
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    transition: border-color 0.1s ease, background 0.1s ease;
+}
+.target-btn:hover:not(:disabled) {
+    border-color: #94a3b8; background: #f8fafc;
+}
+.target-btn.selected {
+    border-color: #475569; background: #f1f5f9;
+}
+.target-btn:disabled {
+    opacity: 0.48; cursor: not-allowed; background: #f1f5f9;
+}
+.t-seat {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.73rem;
+    color: var(--text-dim);
+}
+.t-name { font-weight: 700; font-size: 0.92rem; color: var(--text-heading); }
+.t-chip {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.66rem;
+    padding: 2px 5px; border-radius: 4px;
+    background: #cbd5e1; color: #1e293b;
+}
+
+.spectator-notice {
+    background: #f8fafc; color: var(--text-main);
+    border: 1.5px solid var(--border-card); border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 10px;
+}
+
+/* ==========================================================================
+   ANTI-CHEAT CORNER MICRO-PEEK ("CUP YOUR HAND OVER THE CORNER")
+   Tiny, low-contrast, monochrome slate palette. Press-and-hold ONLY.
+   ========================================================================== */
+.corner-pocket {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 60;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.corner-pocket.right-side {
+    left: auto;
+    right: 10px;
+    align-items: flex-end;
+}
+
+/* Tiny discreet popover shown ONLY while finger/mouse/key is held down */
+.peek-popover {
+    display: none;
+    width: 216px;
+    margin-bottom: 6px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #94a3b8;
+    box-shadow: 0 4px 14px rgba(15,23,42,0.16);
+    color: #1e293b;
+    font-size: 0.75rem;
+    line-height: 1.32;
+}
+.corner-pocket.peeking .peek-popover {
+    display: block;
+}
+.peek-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #cbd5e1;
+}
+.peek-thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 5px;
+    object-fit: cover;
+    flex-shrink: 0;
+    /* Desaturated low-contrast filter so zero bright red/green glow leaks sideways */
+    filter: grayscale(0.55) contrast(0.92);
+    border: 1px solid #94a3b8;
+}
+.peek-role-code {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.74rem;
+    color: #0f172a;
+    letter-spacing: 0.03em;
+}
+.peek-role-sub {
+    font-size: 0.7rem;
+    color: #475569;
+}
+.peek-notes {
+    font-size: 0.72rem;
+    color: #334155;
+    max-height: 190px;
+    overflow-y: auto;
+}
+.peek-note-block {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #cbd5e1;
+}
+.peek-note-label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+/* Compact corner trigger bar */
+.corner-trigger-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.peek-hold-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: rgba(248, 250, 252, 0.94);
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: none;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.08);
+}
+.peek-hold-btn:hover {
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+.corner-pocket.peeking .peek-hold-btn {
+    background: #e2e8f0;
+    border-color: #64748b;
+    color: #0f172a;
+}
+.peek-mini-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: cover;
+    opacity: 0.75;
+    filter: grayscale(0.4);
+}
+.corner-swap-btn {
+    padding: 5px 6px;
+    border-radius: 6px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.corner-swap-btn:hover {
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+
+/* SUB BOX FOR GOD VIEW */
 .sub-box {
     margin-top: 10px; padding: 10px 12px;
     border-radius: 8px; background: #f8fafc;
@@ -242,71 +423,7 @@ body.night-theme .pill-mono.phase {
     margin-bottom: 5px;
 }
 
-/* RIGHT ACTION CONSOLE */
-.phase-banner {
-    border-radius: 10px; overflow: hidden;
-    background-size: cover; background-position: center;
-    position: relative; padding: 16px 18px; color: #ffffff;
-    margin-bottom: 12px; border: 1.5px solid var(--border-card);
-}
-.phase-banner::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 100%);
-}
-.phase-banner > * { position: relative; z-index: 1; }
-.phase-banner h2 {
-    font-family: var(--font-heading); font-size: 1.32rem; margin-bottom: 3px;
-}
-.phase-banner p { font-size: 0.92rem; color: #e2e8f0; }
-
-.consensus-bar {
-    padding: 10px 13px; border-radius: 8px; margin-bottom: 10px;
-    font-weight: 700; font-size: 0.9rem;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-.consensus-bar.ok { background: var(--emerald-bg); border: 1.5px solid var(--emerald-border); color: var(--emerald); }
-.consensus-bar.split { background: var(--amber-bg); border: 1.5px solid var(--amber-border); color: var(--amber); }
-
-.target-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-    gap: 8px;
-}
-.target-btn {
-    background: #ffffff; border: 1.5px solid var(--border-card);
-    border-radius: 8px; padding: 9px 11px;
-    text-align: left; cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between; gap: 6px;
-    transition: all 0.12s ease;
-}
-.target-btn:hover:not(:disabled) {
-    border-color: var(--coral); background: var(--coral-bg);
-}
-.target-btn.selected {
-    border-color: var(--blue); background: var(--blue-bg);
-    box-shadow: 0 0 0 2px rgba(29,78,216,0.2);
-}
-.target-btn:disabled {
-    opacity: 0.45; cursor: not-allowed; background: #f1f5f9;
-}
-.t-seat {
-    font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem;
-    color: var(--text-muted);
-}
-.t-name { font-weight: 700; font-size: 0.94rem; color: var(--text-heading); }
-.t-chip {
-    font-family: var(--font-mono); font-weight: 800; font-size: 0.68rem;
-    padding: 2px 6px; border-radius: 4px; background: var(--blue); color: #ffffff;
-}
-
-.spectator-alert {
-    background: #1e293b; color: #f8fafc;
-    border: 2px solid var(--coral); border-radius: 9px;
-    padding: 12px 15px; margin-bottom: 12px;
-}
-.spectator-alert strong { color: #fca5a5; font-family: var(--font-heading); }
-
-/* GOD VIEW TABLE */
+/* GOD VIEW TABLE (?god=1 teacher private window only) */
 .god-wrap {
     max-width: 1240px; width: 100%; margin: 0 auto; padding: 14px 18px;
     display: grid; grid-template-columns: 360px 1fr; gap: 14px;
@@ -375,35 +492,43 @@ body.night-theme .pill-mono.phase {
         </div>
     </div>
 
-    <!-- 2. STUDENT PER-DEVICE VIEW -->
-    <div class="player-grid" id="playerView" style="display:none;">
-        <!-- LEFT: SECRET ROLE CARD & PRIVATE CASE NOTES -->
-        <div>
-            <div class="card-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-family:var(--font-heading); font-weight:700; font-size:0.95rem;" id="mySeatHeader">Seat #01</span>
-                    <button class="btn btn-xs" id="peekToggleBtn" onclick="toggleRolePeek()">Tap to Peek</button>
-                </div>
-
-                <div class="secret-card-stage" id="secretCardStage"
-                     onmousedown="setPeek(true)" onmouseup="setPeek(false)" onmouseleave="setPeek(false)"
-                     ontouchstart="setPeek(true)" ontouchend="setPeek(false)"
-                     onclick="toggleRolePeek()">
-                    <img class="secret-art" id="secretCardImg" src="assets/card_back.jpg" alt="Secret Role Card">
-                    <div class="secret-caption">
-                        <span class="role-badge-lg cover" id="secretBadge">SECRET IDENTITY HIDDEN</span>
-                        <div class="secret-title" id="secretTitle">Tap or Hold to Peek</div>
-                        <div class="secret-desc" id="secretDesc">Keep your Chromebook angled toward yourself so pod neighbours cannot see your card!</div>
-                    </div>
-                </div>
-
-                <div id="privateNotesArea"></div>
-            </div>
+    <!-- 2. CAMOUFLAGED STUDENT PER-DEVICE VIEW (LOOKS IDENTICAL FOR ALL ROLES) -->
+    <div class="player-stage" id="playerView" style="display:none;">
+        <div class="identity-strip">
+            <span class="seat-tag-main" id="mySeatHeader">Seat #01</span>
+            <span class="stealth-hint">Anti-Peek Mode: Cup hand over bottom corner &amp; hold <strong>[ID]</strong> (or hold <strong>P</strong> key)</span>
         </div>
 
-        <!-- RIGHT: LIVE PHASE CONSOLE -->
         <div class="card-box" id="actionConsole">
-            <!-- Populated per phase & role -->
+            <!-- Populated per phase with role-neutral headings & buttons -->
+        </div>
+    </div>
+
+    <!-- DISCREET CUP-YOUR-HAND CORNER POCKET (PRESS & HOLD ONLY, AUTO-HIDES) -->
+    <div class="corner-pocket" id="cornerPocket" style="display:none;">
+        <div class="peek-popover" id="peekPopover" aria-live="polite">
+            <div class="peek-top">
+                <img class="peek-thumb" id="secretCardImg" src="assets/card_back.jpg" alt="">
+                <div>
+                    <div class="peek-role-code" id="secretBadge">WAITING</div>
+                    <div class="peek-role-sub" id="secretTitle">Lobby Open</div>
+                </div>
+            </div>
+            <div id="secretDesc" style="color:#334155;">Your role unlocks once the deck is dealt.</div>
+            <div class="peek-notes" id="privateNotesArea"></div>
+        </div>
+
+        <div class="corner-trigger-row">
+            <button type="button" class="peek-hold-btn" id="peekHoldBtn"
+                    title="Cup your hand over this corner and hold down to check your role">
+                <img class="peek-mini-dot" src="assets/card_back.jpg" alt="">
+                <span id="peekBtnLabel">Hold [ID] to Peek</span>
+            </button>
+            <button type="button" class="corner-swap-btn" id="cornerSwapBtn"
+                    onclick="toggleCornerSide()"
+                    title="Move secret corner away from your closest pod neighbour">
+                -&gt; R
+            </button>
         </div>
     </div>
 
@@ -435,19 +560,25 @@ body.night-theme .pill-mono.phase {
     var ID_SESSION_KEY = 'r8id';
     var CHANNEL_NAME = 'r8_werewolf_v1';
 
+    function sGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+    function sSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
     var Q = new URLSearchParams(location.search);
     var OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
     var SELFTEST = Q.has('selftest') && OFFPROD;
     var IS_GOD = Q.get('god') === '1';
-    var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
+    var serverUrl = Q.get('server') || sGet('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
     var targetGameId = Q.get('game') || '';
     var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
 
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
     var identity = null;
     var popupRef = null;
-    var joinedPlayerId = sessionStorage.getItem('ww_player_id') || 'P1';
+    var joinedPlayerId = sGet('ww_player_id') || 'P1';
     var rolePeekOpen = false;
+    var peekSafetyTimer = null;
+    var cornerRight = sGet('ww_corner_side') === 'R';
+    var subtleGuardNote = '';
     var personalSuspectHistory = [];
 
     // Standalone fallback local game if student opens index.html?demo=1 without lcd.html open
@@ -511,11 +642,22 @@ body.night-theme .pill-mono.phase {
             } else if ((msg.type === 'ACTION_RESULT' || msg.type === 'JOIN_RESULT') && msg.game) {
                 activeLocalGame = msg.game;
                 if (msg.result && !msg.result.ok && msg.result.error) {
-                    alert(msg.result.error);
+                    setSubtleNote('Seat unavailable right now - choose another seat.');
                 }
                 syncFromLocalGame();
             }
         };
+    }
+
+    function setSubtleNote(msg) {
+        subtleGuardNote = msg;
+        renderPlayerView();
+        setTimeout(function () {
+            if (subtleGuardNote === msg) {
+                subtleGuardNote = '';
+                renderPlayerView();
+            }
+        }, 2600);
     }
 
     function syncFromLocalGame() {
@@ -524,7 +666,6 @@ body.night-theme .pill-mono.phase {
             renderGodView();
             return;
         }
-        // Ensure joinedPlayerId exists in activeLocalGame
         if (activeLocalGame.players.length > 0) {
             var exists = activeLocalGame.players.some(function (p) { return p.id === joinedPlayerId; });
             if (!exists) joinedPlayerId = activeLocalGame.players[0].id;
@@ -534,7 +675,6 @@ body.night-theme .pill-mono.phase {
         renderPlayerView();
     }
 
-    // Server calls
     function postServer(payload) {
         return fetch(serverUrl, {
             method: 'POST',
@@ -552,11 +692,17 @@ body.night-theme .pill-mono.phase {
         popupRef = window.open(IDENTITY_URL + '?return=' + encodeURIComponent(ret), 'r8signin', 'width=520,height=700');
     };
 
+    function showSeatedWorkspace() {
+        el('gateView').style.display = 'none';
+        el('playerView').style.display = 'flex';
+        el('cornerPocket').style.display = 'flex';
+        applyCornerSide();
+    }
+
     window.enterInteractiveDemo = function () {
         isDemo = true;
         serverUrl = '';
-        el('gateView').style.display = 'none';
-        el('playerView').style.display = 'grid';
+        showSeatedWorkspace();
         el('demoRibbon').classList.add('show');
         if (bc) bc.postMessage({ type: 'REQUEST_SYNC' });
         syncFromLocalGame();
@@ -582,8 +728,7 @@ body.night-theme .pill-mono.phase {
                 targetGameId = res.view.gameId;
                 try { sessionStorage.setItem('ww_player_id', joinedPlayerId); } catch (e) {}
                 currentView = res.view;
-                el('gateView').style.display = 'none';
-                el('playerView').style.display = 'grid';
+                showSeatedWorkspace();
                 renderPlayerView();
             } else {
                 alert((res && res.message) || 'Could not join lobby yet.');
@@ -591,23 +736,79 @@ body.night-theme .pill-mono.phase {
         });
     };
 
-    // Role Card Peek Controls
-    var holdTimeout = null;
-    window.setPeek = function (state) {
-        if (state) {
-            rolePeekOpen = true;
-            renderRoleCardOnly();
+    // =========================================================================
+    // PRESS-AND-HOLD CORNER MICRO-PEEK (INSTANT AUTO-HIDE + 3.2s MAX SAFETY)
+    // =========================================================================
+    function applyCornerSide() {
+        var pocket = el('cornerPocket');
+        var swapBtn = el('cornerSwapBtn');
+        if (!pocket || !swapBtn) return;
+        pocket.classList.toggle('right-side', cornerRight);
+        swapBtn.textContent = cornerRight ? '<- L' : '-> R';
+    }
+
+    window.toggleCornerSide = function () {
+        cornerRight = !cornerRight;
+        try { sessionStorage.setItem('ww_corner_side', cornerRight ? 'R' : 'L'); } catch (e) {}
+        applyCornerSide();
+    };
+
+    function openCornerPeek() {
+        if (rolePeekOpen) return;
+        rolePeekOpen = true;
+        if (peekSafetyTimer) clearTimeout(peekSafetyTimer);
+        peekSafetyTimer = setTimeout(function () {
+            closeCornerPeek();
+        }, 3200);
+        renderCornerPocket();
+    }
+
+    function closeCornerPeek() {
+        if (peekSafetyTimer) {
+            clearTimeout(peekSafetyTimer);
+            peekSafetyTimer = null;
         }
-    };
-    window.toggleRolePeek = function () {
-        if (holdTimeout) return;
-        rolePeekOpen = !rolePeekOpen;
-        renderRoleCardOnly();
-    };
+        if (!rolePeekOpen) return;
+        rolePeekOpen = false;
+        renderCornerPocket();
+    }
+
+    (function wireHoldToPeek() {
+        var btn = el('peekHoldBtn');
+        if (!btn) return;
+        btn.addEventListener('pointerdown', function (ev) {
+            ev.preventDefault();
+            openCornerPeek();
+        });
+        btn.addEventListener('pointerup', closeCornerPeek);
+        btn.addEventListener('pointercancel', closeCornerPeek);
+        btn.addEventListener('pointerleave', closeCornerPeek);
+        btn.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+
+        window.addEventListener('pointerup', closeCornerPeek);
+        window.addEventListener('blur', closeCornerPeek);
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) closeCornerPeek();
+        });
+
+        // Optional discreet keyboard hold: hold 'P' key to peek, release 'P' to snap shut
+        document.addEventListener('keydown', function (ev) {
+            if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
+            if ((ev.key === 'p' || ev.key === 'P') && !ev.repeat) {
+                openCornerPeek();
+            }
+        });
+        document.addEventListener('keyup', function (ev) {
+            if (ev.key === 'p' || ev.key === 'P') {
+                closeCornerPeek();
+            }
+        });
+    })();
 
     window.onDemoSeatChange = function (pid) {
         joinedPlayerId = pid;
-        rolePeekOpen = false;
+        subtleGuardNote = '';
+        closeCornerPeek();
         if (activeLocalGame && activeLocalGame.players) {
             activeLocalGame.players.forEach(function (p) { p.isBot = (p.id !== pid); });
         }
@@ -615,8 +816,8 @@ body.night-theme .pill-mono.phase {
     };
 
     window.demoStepPhase = function () {
+        subtleGuardNote = '';
         if (bc) {
-            // Also step local fallback in case lcd.html is not open
             if (activeLocalGame === fallbackDemoGame) {
                 if (activeLocalGame.phase === 'ROLE_REVEAL' || activeLocalGame.phase === 'NIGHT' || activeLocalGame.phase === 'DAY_VOTE' || activeLocalGame.phase === 'DAY_REVOTE') {
                     E.simulateBotActions(activeLocalGame, Date.now());
@@ -635,11 +836,37 @@ body.night-theme .pill-mono.phase {
     };
 
     window.submitMyAction = function (type, targetId) {
+        if (!currentView || !currentView.me) return;
+        var me = currentView.me;
+
+        // Client-side stealth guard so all 28 buttons look identical on screen (zero greyed-out packmate tells!)
+        if (currentView.phase === 'NIGHT' && type !== 'confirm_role') {
+            var targetObj = (currentView.players || []).find(function (x) { return x.id === targetId; });
+            if (me.role === 'WEREWOLF' && targetObj && targetObj.role === 'WEREWOLF') {
+                setSubtleNote('Seat #' + targetObj.seat + ' unavailable - select a different seat.');
+                return;
+            }
+            if (me.role === 'DOCTOR') {
+                if (!currentView.rules.doctorSelfSave && targetId === me.id) {
+                    setSubtleNote('Self-selection disabled by house rule - pick another seat.');
+                    return;
+                }
+                if (!currentView.rules.doctorRepeatSave && me.lastDoctorSavedId === targetId) {
+                    setSubtleNote('Cannot select the same seat two nights in a row.');
+                    return;
+                }
+            }
+            if ((me.role === 'DETECTIVE' || me.role === 'VILLAGER') && targetId === me.id) {
+                setSubtleNote('Select another classmate seat rather than your own.');
+                return;
+            }
+        }
+
         if (type === 'villager_watch') {
             var pObj = (currentView.players || []).find(function (x) { return x.id === targetId; });
             if (pObj) {
-                personalSuspectHistory.unshift('Night ' + currentView.round + ' hunch: #' + pObj.seat + ' ' + pObj.name);
-                personalSuspectHistory = personalSuspectHistory.slice(0, 6);
+                personalSuspectHistory.unshift('N' + currentView.round + ' watch: #' + pObj.seat + ' ' + pObj.name);
+                personalSuspectHistory = personalSuspectHistory.slice(0, 5);
             }
         }
 
@@ -658,16 +885,15 @@ body.night-theme .pill-mono.phase {
                     currentView = res.view;
                     renderPlayerView();
                 } else if (res && res.message) {
-                    alert(res.message);
+                    setSubtleNote(res.message);
                 }
             });
             return;
         }
 
-        // Local / BroadcastChannel Demo mode
         if (activeLocalGame === fallbackDemoGame) {
             var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId }, Date.now());
-            if (!r.ok) alert(r.error);
+            if (!r.ok) setSubtleNote('Seat unavailable - pick another seat.');
             syncFromLocalGame();
         }
         if (bc) {
@@ -680,37 +906,36 @@ body.night-theme .pill-mono.phase {
         }
     };
 
-    // Role Metadata
     function roleInfo(role) {
         if (role === 'WEREWOLF') {
             return {
-                label: 'WEREWOLF',
-                title: 'Werewolf Pack',
+                label: 'ROLE: WEREWOLF',
+                title: 'Night Pack',
                 img: 'assets/role_werewolf.jpg',
-                desc: 'Each night, silently agree with your fellow Werewolves on 1 villager to eliminate. Blend in during daytime debates!'
+                desc: 'Agree unanimously with packmates on 1 seat each night. Blend in during Day votes.'
             };
         }
         if (role === 'DOCTOR') {
             return {
-                label: 'TOWN DOCTOR',
-                title: 'Town Doctor',
+                label: 'ROLE: DOCTOR',
+                title: 'Town Shield',
                 img: 'assets/role_doctor.jpg',
-                desc: 'Each night, choose 1 player to protect with your lantern shield. If the Werewolves attack that player, nobody dies!'
+                desc: 'Select 1 seat each night to protect from elimination.'
             };
         }
         if (role === 'DETECTIVE') {
             return {
-                label: 'TOWN DETECTIVE',
-                title: 'Town Detective',
+                label: 'ROLE: DETECTIVE',
+                title: 'Investigator',
                 img: 'assets/role_detective.jpg',
-                desc: 'Each night, investigate 1 player to learn their TRUE ROLE in your private Case File. Guide the village carefully!'
+                desc: 'Select 1 seat each night to reveal their true role here at Dawn.'
             };
         }
         return {
-            label: 'VILLAGER',
-            title: 'Town Council Villager',
+            label: 'ROLE: VILLAGER',
+            title: 'Town Council',
             img: 'assets/role_villager.jpg',
-            desc: 'You have the power of numbers and the ballot! Watch reactions closely, spot contradictions, and exile every Werewolf.'
+            desc: 'Tap 1 cover seat at night, watch patterns, and vote out Werewolves by day.'
         };
     }
 
@@ -719,49 +944,99 @@ body.night-theme .pill-mono.phase {
         el('demoRibbon').classList.add('show');
         var sel = el('demoSeatSelect');
         var opts = (activeLocalGame.players || []).map(function (p) {
-            var rTag = p.role ? (' [' + p.role + ']') : '';
             var deadTag = !p.alive ? ' (OUT)' : '';
             return '<option value="' + esc(p.id) + '"' + (p.id === joinedPlayerId ? ' selected' : '') + '>#'
-                + (p.seat < 10 ? '0' + p.seat : p.seat) + ' ' + esc(p.name) + rTag + deadTag + '</option>';
+                + (p.seat < 10 ? '0' + p.seat : p.seat) + ' ' + esc(p.name) + deadTag + '</option>';
         }).join('');
         sel.innerHTML = opts;
     }
 
-    function renderRoleCardOnly() {
-        if (!currentView || !currentView.me) return;
-        var me = currentView.me;
-        var peekBtn = el('peekToggleBtn');
+    function renderCornerPocket() {
+        var pocket = el('cornerPocket');
+        if (!pocket || !currentView || !currentView.me) return;
+
+        var v = currentView;
+        var me = v.me;
+        pocket.classList.toggle('peeking', rolePeekOpen);
+        el('peekBtnLabel').textContent = rolePeekOpen ? 'Release to Hide' : 'Hold [ID] to Peek';
+
+        if (!rolePeekOpen) {
+            return;
+        }
+
         var img = el('secretCardImg');
         var badge = el('secretBadge');
         var title = el('secretTitle');
         var desc = el('secretDesc');
+        var notesEl = el('privateNotesArea');
 
         if (!me.role) {
             img.src = 'assets/card_back.jpg';
-            badge.className = 'role-badge-lg cover';
-            badge.textContent = 'WAITING FOR DEAL';
-            title.textContent = 'Lobby Open';
-            desc.textContent = 'Your secret role card will appear here as soon as the teacher deals the deck.';
-            peekBtn.textContent = 'Lobby';
+            badge.textContent = 'LOBBY SEAT';
+            title.textContent = 'Waiting for Deal';
+            desc.textContent = 'Your secret role unlocks here once the teacher deals the cards.';
+            notesEl.innerHTML = '';
             return;
         }
 
-        if (!rolePeekOpen) {
-            img.src = 'assets/card_back.jpg';
-            badge.className = 'role-badge-lg cover';
-            badge.textContent = 'HIDDEN FOR PRIVACY';
-            title.textContent = 'Tap to Peek at Role';
-            desc.textContent = 'Keep your screen angled away from neighbours, then tap to check your role.';
-            peekBtn.textContent = 'Show Role';
-        } else {
-            var info = roleInfo(me.role);
-            img.src = info.img;
-            badge.className = 'role-badge-lg ' + me.role;
-            badge.textContent = info.label;
-            title.textContent = info.title;
-            desc.textContent = info.desc;
-            peekBtn.textContent = 'Hide Role';
+        var info = roleInfo(me.role);
+        img.src = info.img;
+        badge.textContent = info.label;
+        title.textContent = 'Seat #' + (me.seat < 10 ? '0' + me.seat : me.seat) + ' · ' + info.title;
+        desc.textContent = info.desc;
+
+        var notesHtml = '';
+
+        // Werewolf private pack & live target picks (kept strictly inside corner peek!)
+        if (me.role === 'WEREWOLF' && me.packmates) {
+            var packHdr = 'Packmates';
+            if (v.phase === 'NIGHT' && me.consensus && me.consensus.totalActors > 1) {
+                packHdr = me.consensus.isUnanimous ? 'Packmates (Agreed)' : 'Packmates (Match 1 Seat)';
+            }
+            var packLines = me.packmates.map(function (m) {
+                var pickSeat = '';
+                if (v.phase === 'NIGHT' && m.alive) {
+                    var t = v.players.find(function (x) { return x.id === m.pick; });
+                    pickSeat = t ? (' -> #' + t.seat) : ' (..)';
+                }
+                return '#' + m.seat + ' ' + esc(m.name) + (!m.alive ? ' [Out]' : pickSeat);
+            }).join('<br>');
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">' + packHdr + '</div>' + packLines + '</div>';
         }
+
+        // Doctor last protected reminder
+        if (me.role === 'DOCTOR' && me.lastDoctorSavedId) {
+            var lastP = v.players.find(function (x) { return x.id === me.lastDoctorSavedId; });
+            if (lastP) {
+                notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Last Shielded</div>#' + lastP.seat + ' ' + esc(lastP.name) + '</div>';
+            }
+        }
+
+        // Detective verified clues
+        if (me.role === 'DETECTIVE' && me.findings) {
+            var clueLines = me.findings.length
+                ? me.findings.map(function (f) {
+                    return 'N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' = <strong>' + esc(f.role) + '</strong>';
+                }).join('<br>')
+                : 'None yet (unlocks at Dawn).';
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Case Clues</div>' + clueLines + '</div>';
+        }
+
+        // Villager personal hunch log
+        if (personalSuspectHistory.length > 0) {
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">My Notes</div>'
+                + personalSuspectHistory.map(esc).join('<br>') + '</div>';
+        }
+
+        // Eliminated Ghost Truth (kept strictly inside cupped-hand corner instead of full-screen splash!)
+        if (!me.alive && me.isSpectatorTruthUnlocked && v.phase !== 'GAME_OVER') {
+            var specialSeats = v.players.filter(function (p) { return p.role && p.role !== 'VILLAGER'; }).map(function (p) {
+                return '#' + p.seat + ' ' + esc(p.name) + ': ' + esc(p.role) + (!p.alive ? ' [Out]' : '');
+            }).join('<br>');
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Ghost Truth (Keep Secret)</div>' + specialSeats + '</div>';
+        }
+
+        notesEl.innerHTML = notesHtml;
     }
 
     function renderPlayerView() {
@@ -781,35 +1056,8 @@ body.night-theme .pill-mono.phase {
         }
 
         el('mySeatHeader').textContent = 'Seat #' + (me.seat < 10 ? '0' + me.seat : me.seat) + ' · ' + me.name;
-        renderRoleCardOnly();
+        renderCornerPocket();
 
-        // Private sidebar notes (Packmates, Detective Case File, or Personal Notes)
-        var sideHtml = '';
-        if (me.role === 'WEREWOLF' && me.packmates) {
-            var mates = me.packmates.map(function (m) {
-                return '#' + m.seat + ' ' + esc(m.name) + (!m.alive ? ' (Out)' : '');
-            }).join(' · ');
-            sideHtml += '<div class="sub-box"><div class="sub-box-title">Your Werewolf Pack (Tap Role to Hide!)</div>'
-                + '<div style="font-size:0.86rem; font-weight:700; color:var(--red);">' + (rolePeekOpen ? mates : 'Tap "Show Role" above to view packmates') + '</div></div>';
-        }
-        if (me.role === 'DETECTIVE' && me.findings) {
-            var fList = me.findings.length
-                ? me.findings.map(function (f) {
-                    return '<div style="font-size:0.85rem; margin-top:3px;"><strong>Night ' + f.round + ':</strong> #' + f.seat + ' ' + esc(f.targetName) + ' = <span style="font-family:var(--font-mono); font-weight:800; color:var(--blue);">' + esc(f.role) + '</span></div>';
-                }).join('')
-                : '<div style="font-size:0.84rem; color:var(--text-muted);">No investigations completed yet.</div>';
-            sideHtml += '<div class="sub-box"><div class="sub-box-title">Detective Case Notebook</div>'
-                + (rolePeekOpen ? fList : '<div style="font-size:0.84rem; color:var(--text-muted);">Tap "Show Role" above to inspect verified clues.</div>')
-                + '</div>';
-        }
-        if (personalSuspectHistory.length > 0) {
-            sideHtml += '<div class="sub-box"><div class="sub-box-title">My Night Watch Notes</div>'
-                + personalSuspectHistory.map(function (line) { return '<div style="font-size:0.82rem; color:var(--text-muted);">' + esc(line) + '</div>'; }).join('')
-                + '</div>';
-        }
-        el('privateNotesArea').innerHTML = sideHtml;
-
-        // RIGHT ACTION CONSOLE
         var bgBanner = isNight ? 'assets/bg_night_village.jpg' : 'assets/bg_day_village.jpg';
         if (v.phase === 'GAME_OVER') {
             bgBanner = v.winner === 'WEREWOLVES' ? 'assets/banner_victory_wolves.jpg' : 'assets/banner_victory_village.jpg';
@@ -820,52 +1068,44 @@ body.night-theme .pill-mono.phase {
             + '<p>' + esc((v.lastAnnouncement && v.lastAnnouncement.subline) || '') + '</p>'
             + '</div>';
 
-        // Spectator banner if eliminated
+        // Eliminated player main view: clean, neutral, zero exposed roles on open screen!
         if (!me.alive && v.phase !== 'GAME_OVER') {
-            html += '<div class="spectator-alert">'
-                + '<strong>GHOST SPECTATOR MODE - LIPS SEALED!</strong>'
-                + '<div style="font-size:0.88rem; margin-top:4px;">You were eliminated in Round ' + (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound + '. Do not talk, react, or show your Chromebook screen to living players!</div>'
-                + '</div>';
-            if (me.isSpectatorTruthUnlocked) {
-                html += '<div class="sub-box"><div class="sub-box-title">Silent Ghost Truth Board</div>'
-                    + '<div class="target-grid">'
-                    + v.players.map(function (p) {
-                        return '<div class="target-btn" style="cursor:default; opacity:' + (p.alive ? '1' : '0.55') + ';">'
-                            + '<div><div class="t-seat">#' + p.seat + '</div><div class="t-name">' + esc(p.name) + '</div></div>'
-                            + '<span class="r-pill ' + (p.role || 'VILLAGER') + '">' + esc(p.role || '?') + '</span></div>';
-                    }).join('')
-                    + '</div></div>';
-            }
+            var outRound = (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound || '?';
+            html += '<div class="spectator-notice">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.02rem; margin-bottom:4px;">Eliminated in Round ' + outRound + ' (Silent Observer)</h3>'
+                + '<p style="font-size:0.9rem; color:var(--text-muted);">Keep a poker face and stay silent so living classmates can solve the round fairly.'
+                + (me.isSpectatorTruthUnlocked ? ' Hold <strong>[ID]</strong> in the corner under your hand if you want a quiet peek.' : '')
+                + '</p></div>';
             el('actionConsole').innerHTML = html;
             return;
         }
 
         if (v.phase === 'LOBBY') {
-            html += '<div style="padding:10px 4px;">'
-                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:6px;">You Are Seated in Moonhollow Council (' + v.counts.seated + ' Players)</h3>'
-                + '<p style="color:var(--text-muted); font-size:0.94rem;">Watch the front Class LCD Display. As soon as the teacher clicks <strong>Deal Roles &amp; Start</strong>, your secret card on the left will unlock!</p>'
+            html += '<div style="padding:8px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Seated in Moonhollow Council (' + v.counts.seated + ' Players)</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.93rem;">Watch the front Class LCD Display. Once roles are dealt, cup your hand over the small <strong>Hold [ID] to Peek</strong> badge in your bottom corner to check your role privately.</p>'
                 + '</div>';
         } else if (v.phase === 'ROLE_REVEAL') {
             html += '<div style="padding:8px 4px;">'
-                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:8px;">Step 1: Check Your Secret Identity</h3>'
-                + '<p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:12px;">Tap <strong>Show Role</strong> on your card on the left to read your instructions privately, then tap <strong>Hide Role</strong> and confirm below.</p>'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Step 1: Private Corner Check</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:12px;">Cup one hand over the small <strong>Hold [ID] to Peek</strong> badge in the bottom corner of your screen, read your role, release to snap it shut, then click Ready below.</p>'
                 + (me.hasActed
-                    ? '<div class="consensus-bar ok">Confirmed! Waiting for classmates (' + v.counts.acted + '/' + v.counts.expectedActors + ' ready)...</div>'
-                    : '<button class="btn emerald" style="padding:10px 18px; font-size:1rem;" onclick="submitMyAction(\'confirm_role\', \'\')">I Checked My Role (Ready) -&gt;</button>')
+                    ? '<div class="neutral-status-bar"><span>Ready recorded. Waiting for classmates...</span><span class="neutral-status-mono">' + v.counts.acted + '/' + v.counts.expectedActors + '</span></div>'
+                    : '<button class="btn emerald" style="padding:10px 18px; font-size:0.98rem;" onclick="submitMyAction(\'confirm_role\', \'\')">I Checked My Corner Card (Ready) -&gt;</button>')
                 + '</div>';
         } else if (v.phase === 'NIGHT') {
-            html += renderNightConsoleForMe(v, me);
+            html += renderCamouflagedNightConsole(v, me);
         } else if (v.phase === 'DAWN' || v.phase === 'DUSK') {
             html += '<div style="padding:8px 4px;">'
                 + '<p style="font-size:0.96rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> for the town announcement!</p>'
                 + '</div>';
         } else if (v.phase === 'DAY_DISCUSSION') {
             html += '<div style="padding:8px 4px;">'
-                + '<h3 style="font-family:var(--font-heading); font-size:1.08rem; margin-bottom:6px;">Day ' + v.round + ' Voice Discussion in the Room</h3>'
-                + '<p style="font-size:0.94rem; color:var(--text-muted); line-height:1.45;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Day ' + v.round + ' Council Discussion</h3>'
+                + '<p style="font-size:0.93rem; color:var(--text-muted); line-height:1.45;">'
                 + (v.rules.claimRule === 'quiet'
-                    ? '<strong>Quiet Inference Rule Active:</strong> Debate suspects out loud using behaviour and voting clues, but nobody may claim to be the Detective, Doctor, or Werewolf!'
-                    : 'Debate suspects out loud in the classroom. The secret ballot will open on this screen shortly.')
+                    ? '<strong>Quiet Inference Rule Active:</strong> Debate suspects out loud using behaviour and voting patterns, without claiming special roles.'
+                    : 'Debate suspects out loud in the classroom. Secret council voting opens shortly.')
                 + '</p></div>';
         } else if (v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') {
             html += renderVoteConsoleForMe(v, me);
@@ -884,77 +1124,36 @@ body.night-theme .pill-mono.phase {
         el('actionConsole').innerHTML = html;
     }
 
-    function renderNightConsoleForMe(v, me) {
+    // 100% ROLE-CAMOUFLAGED NIGHT CONSOLE:
+    // Identical title, neutral bar, and plain white seat buttons for ALL roles!
+    function renderCamouflagedNightConsole(v, me) {
         var aliveTargets = v.players.filter(function (p) { return p.alive; });
-        var headerTxt = '';
-        var subTxt = '';
-        var actionType = 'night';
-        var consensusHtml = '';
+        var actionType = (me.role === 'VILLAGER') ? 'villager_watch' : 'night';
 
-        if (me.role === 'WEREWOLF') {
-            headerTxt = (v.round === 1 && v.rules.peacefulNight1)
-                ? 'Werewolf Pack Practice Coordination (Peaceful Night 1)'
-                : 'Werewolf Night Hunt - Pick 1 Victim Unanimously';
-            subTxt = 'All living Werewolves must lock onto the SAME villager.';
-            if (me.consensus && me.consensus.totalActors > 1) {
-                if (me.consensus.isUnanimous) {
-                    var uPlayer = v.players.find(function (x) { return x.id === me.consensus.unanimousTarget; });
-                    consensusHtml = '<div class="consensus-bar ok">PACK UNANIMOUS: Locked onto #' + (uPlayer ? uPlayer.seat + ' ' + esc(uPlayer.name) : '') + '!</div>';
-                } else {
-                    var picksDesc = (me.packmates || []).filter(function (m) { return m.alive; }).map(function (m) {
-                        var t = v.players.find(function (x) { return x.id === m.pick; });
-                        return esc(m.name) + ' -> ' + (t ? ('#' + t.seat + ' ' + esc(t.name)) : 'waiting');
-                    }).join(' | ');
-                    consensusHtml = '<div class="consensus-bar split"><span>PACK CONVERGING: ' + picksDesc + '</span></div>';
-                }
-            }
-        } else if (me.role === 'DOCTOR') {
-            headerTxt = 'Town Doctor - Protect 1 Player Tonight';
-            subTxt = (v.round === 1 && v.rules.peacefulNight1)
-                ? 'Night 1 is peaceful (nobody dies tonight), so your save streak stays fresh for Night 2! Tap any seat as a cover click.'
-                : 'Choose 1 living player to shield from a Werewolf attack.';
-        } else if (me.role === 'DETECTIVE') {
-            headerTxt = 'Town Detective - Investigate 1 Suspect';
-            subTxt = 'Select 1 player to uncover their TRUE ROLE at Dawn.';
-            if (me.consensus && me.consensus.totalActors > 1) {
-                consensusHtml = me.consensus.isUnanimous
-                    ? '<div class="consensus-bar ok">Detectives Unanimous! Clues will unlock at Dawn.</div>'
-                    : '<div class="consensus-bar split">Multiple Detectives: Agree on the same target!</div>';
-            }
-        } else {
-            headerTxt = 'Night Watch Cover Tap (Villager)';
-            subTxt = 'Tap 1 person you want to watch tomorrow so every Chromebook clicks once during Night (zero click giveaways!).';
-            actionType = 'villager_watch';
-        }
+        var pickedObj = aliveTargets.find(function (x) { return x.id === me.myNightPick; });
+        var leftStatus = subtleGuardNote
+            ? subtleGuardNote
+            : (pickedObj
+                ? ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name)
+                : 'Select 1 living seat below so every Chromebook records a quiet tap.');
+
+        // 100% identical badge across ALL 4 roles (zero group-count tells on open screen!)
+        var rightMono = pickedObj ? 'SET' : 'WAITING';
 
         var buttons = aliveTargets.map(function (t) {
-            var disabled = false;
-            var reasonChip = '';
-            if (me.role === 'WEREWOLF' && t.role === 'WEREWOLF') {
-                disabled = true;
-                reasonChip = 'PACK';
-            } else if (me.role === 'DOCTOR') {
-                if (!v.rules.doctorSelfSave && t.id === me.id) { disabled = true; reasonChip = 'NO SELF'; }
-                else if (!v.rules.doctorRepeatSave && me.lastDoctorSavedId === t.id) { disabled = true; reasonChip = 'SAVED LAST NIGHT'; }
-            } else if ((me.role === 'DETECTIVE' || me.role === 'VILLAGER') && t.id === me.id) {
-                disabled = true;
-                reasonChip = 'YOU';
-            }
-
             var isSel = me.myNightPick === t.id;
             return '<button class="target-btn' + (isSel ? ' selected' : '') + '"'
-                + (disabled ? ' disabled' : '')
                 + ' onclick="submitMyAction(\'' + actionType + '\', \'' + esc(t.id) + '\')">'
                 + '<div><div class="t-seat">Seat #' + (t.seat < 10 ? '0' + t.seat : t.seat) + '</div>'
                 + '<div class="t-name">' + esc(t.name) + '</div></div>'
-                + (isSel ? '<span class="t-chip">LOCKED</span>' : (reasonChip ? '<span class="t-seat">' + reasonChip + '</span>' : ''))
+                + (isSel ? '<span class="t-chip">SET</span>' : '')
                 + '</button>';
         }).join('');
 
         return '<div>'
-            + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:4px;">' + esc(headerTxt) + '</h3>'
-            + '<p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">' + esc(subTxt) + '</p>'
-            + consensusHtml
+            + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:4px;">Night Council Selection</h3>'
+            + '<p style="font-size:0.87rem; color:var(--text-muted); margin-bottom:10px;">Every player taps 1 seat quietly during Night. Cup your hand over <strong>Hold [ID]</strong> in the corner if you need to check private details.</p>'
+            + '<div class="neutral-status-bar"><span>' + esc(leftStatus) + '</span><span class="neutral-status-mono">' + esc(rightMono) + '</span></div>'
             + '<div class="target-grid">' + buttons + '</div>'
             + '</div>';
     }
@@ -974,7 +1173,7 @@ body.night-theme .pill-mono.phase {
             return '<button class="target-btn' + (sel ? ' selected' : '') + '" onclick="submitMyAction(\'vote\', \'' + esc(c.id) + '\')">'
                 + '<div><div class="t-seat">Seat #' + (c.seat < 10 ? '0' + c.seat : c.seat) + '</div>'
                 + '<div class="t-name">' + esc(c.name) + '</div></div>'
-                + (sel ? '<span class="t-chip">MY VOTE</span>' : '')
+                + (sel ? '<span class="t-chip">SET</span>' : '')
                 + '</button>';
         }).join('');
 
@@ -1022,6 +1221,7 @@ body.night-theme .pill-mono.phase {
     function renderGodView() {
         el('gateView').style.display = 'none';
         el('playerView').style.display = 'none';
+        el('cornerPocket').style.display = 'none';
         el('godView').style.display = 'grid';
         el('headerTitle').textContent = 'Teacher God-View Console';
 
@@ -1098,7 +1298,9 @@ body.night-theme .pill-mono.phase {
                 E.simulateBotActions(fallbackDemoGame, Date.now());
                 var wolfSeat = fallbackDemoGame.players.find(function (p) { return p.role === 'WEREWOLF'; });
                 if (wolfSeat) joinedPlayerId = wolfSeat.id;
-                rolePeekOpen = true;
+                if (Q.get('peek') === '1') {
+                    rolePeekOpen = true;
+                }
             }
             enterInteractiveDemo();
             return;
@@ -1120,7 +1322,6 @@ body.night-theme .pill-mono.phase {
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
                 + '<button class="btn btn-xs" onclick="enterInteractiveDemo()">Or try Offline Demo Mode</button>';
 
-            // Auto-detect active room code & restore seat if student already joined!
             fetch(serverUrl + '?action=get_health')
                 .then(function (r) { return r.json(); })
                 .then(function (h) {
@@ -1142,8 +1343,7 @@ body.night-theme .pill-mono.phase {
                             if (pRes && pRes.status === 'ok' && pRes.joined && pRes.view) {
                                 joinedPlayerId = pRes.playerId;
                                 currentView = pRes.view;
-                                el('gateView').style.display = 'none';
-                                el('playerView').style.display = 'grid';
+                                showSeatedWorkspace();
                                 renderPlayerView();
                             }
                         }).catch(function () {});
