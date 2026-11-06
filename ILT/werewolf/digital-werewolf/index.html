@@ -462,7 +462,8 @@ body.night-theme .pill-mono.phase {
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
             <span id="whoLabel" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);"></span>
-            <button class="btn btn-xs" id="leaveSeatBtn" style="display:none;" onclick="leaveMySeat()" title="Leave current seat and return to name select">Switch Seat / Reset</button>
+            <button class="btn btn-xs" id="leaveSeatBtn" style="display:none;" onclick="leaveMySeat()" title="Leave current seat and return to name select">Switch Seat</button>
+            <button class="btn btn-xs" id="logoutBtn" style="display:none;" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>
             <a class="btn btn-xs" href="lcd.html" target="_blank">Open Class LCD</a>
         </div>
     </header>
@@ -699,6 +700,7 @@ body.night-theme .pill-mono.phase {
         el('playerView').style.display = 'flex';
         el('cornerPocket').style.display = 'flex';
         if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'inline-flex';
+        if (identity && el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
         applyCornerSide();
     }
 
@@ -710,6 +712,26 @@ body.night-theme .pill-mono.phase {
             el('cornerPocket').style.display = 'none';
             if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'none';
             el('gateView').style.display = 'flex';
+            boot();
+        }
+    };
+
+    window.signOutGoogle = function () {
+        if (confirm('Sign out of your school account on this Chromebook?')) {
+            try {
+                sessionStorage.removeItem(ID_SESSION_KEY);
+                sessionStorage.removeItem('ww_player_id');
+            } catch (e) {}
+            identity = null;
+            joinedPlayerId = '';
+            currentView = null;
+            el('whoLabel').textContent = '';
+            if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'none';
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'none';
+            if (el('cornerPocket')) el('cornerPocket').style.display = 'none';
+            if (el('playerView')) el('playerView').style.display = 'none';
+            el('gateView').style.display = 'flex';
+            boot();
         }
     };
 
@@ -1359,15 +1381,21 @@ body.night-theme .pill-mono.phase {
         el('gateView').style.display = 'flex';
         var gb = el('gateBody');
         if (!identity || !identity.email) {
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'none';
+            el('whoLabel').textContent = '';
             gb.innerHTML = '<button class="btn coral" style="width:100%; padding:11px; font-size:1rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
                 + '<button class="btn" style="width:100%;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>';
         } else {
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
             var startList = activeQuickClass === '902' ? ROSTER_902 : ROSTER_703;
             var optsList = '<option value="">Quick-pick your name (' + activeQuickClass + ') or type below...</option>'
                 + startList.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
             var phSample = activeQuickClass === '902' ? 'e.g. Jordan He. or Sofia Ku.' : 'e.g. Oliver Br. or Carson Do.';
             el('whoLabel').textContent = identity.email;
-            gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
+            gb.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">'
+                + '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
+                + '<button type="button" class="btn btn-xs" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>'
+                + '</div>'
                 + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
                 + '<div><div style="display:flex; justify-content:space-between; align-items:center;">'
                 + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick (optional):</label>'
