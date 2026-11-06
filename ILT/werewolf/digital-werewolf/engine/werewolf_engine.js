@@ -873,8 +873,8 @@
       });
     } else if (eliminatedPlayer) {
       var roleTag = game.rules.revealRoleOnDeath ? (' (' + eliminatedPlayer.role + ')') : '';
-      headline = 'Dawn of Day ' + game.round + ': ' + eliminatedPlayer.name + ' Was Eliminated!';
-      subline = 'Seat #' + eliminatedPlayer.seat + roleTag + ' is now a Silent Ghost Spectator.';
+      headline = 'Dawn of Day ' + game.round + ': The Werewolves Struck! ' + eliminatedPlayer.name + ' Was Eliminated!';
+      subline = 'Seat #' + eliminatedPlayer.seat + roleTag + ' was taken in the night and is now a Silent Ghost Spectator.';
       dawnStory = buildStoryNarration('dawn_kill', {
         round: game.round,
         name: eliminatedPlayer.name,

@@ -280,6 +280,15 @@ body {
 
     <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
     <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- LIVE NIGHT ACTIONS INTELLIGENCE (HOST GOD-VIEW) -->
+        <div class="card" id="liveNightCard" style="display:none; border-left:4px solid var(--red); background:#1e1b4b;">
+            <div class="card-title" style="color:#f87171;">
+                <span>🌙 Live Night Actions (Teacher Eyes Only)</span>
+                <span class="pill-mono" id="nightActedBadge" style="background:#312e81; color:#c7d2fe;">0 / 0 Tapped</span>
+            </div>
+            <div id="liveNightBody" style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
         <!-- NARRATOR STORY SCRIPT (TEACHER READ ALOUD) -->
         <div class="card" id="narratorCard" style="display:none; border-left:4px solid var(--amber); background:#1e293b;">
             <div class="card-title" style="color:var(--amber);">
@@ -590,18 +599,94 @@ body {
                 + '</tr>';
         }).join('');
 
-        // God Findings
+        // God Findings & Live Night Intel
         if (v.god) {
+            var nightCard = el('liveNightCard');
+            if (v.phase === 'NIGHT') {
+                nightCard.style.display = 'block';
+                el('nightActedBadge').textContent = v.counts.acted + ' / ' + v.counts.expectedActors + ' Tapped';
+
+                var wolfPicksMap = (v.god.currentNight && v.god.currentNight.wolfPicks) || {};
+                var livingWolves = (v.players || []).filter(function (p) { return p.role === 'WEREWOLF' && p.alive; });
+                var wolfPickDescs = livingWolves.map(function (w) {
+                    var tId = wolfPicksMap[w.id];
+                    var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                    return '<span style="font-weight:700; color:#fca5a5;">#' + (w.seat < 10 ? '0' + w.seat : w.seat) + ' ' + esc(w.name) + '</span>'
+                        + (tp ? (' ➔ 🎯 <strong>#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name) + '</strong> (' + tp.role + ')') : ' <em style="color:#94a3b8;">(waiting for tap...)</em>');
+                });
+
+                var wolfCons = v.god.wolfConsensus;
+                var wolfStatusHtml = '';
+                var chosenVictimId = null;
+
+                if (wolfCons && wolfCons.submittedCount > 0) {
+                    if (wolfCons.isUnanimous) {
+                        var uTarget = (v.players || []).find(function (p) { return p.id === wolfCons.unanimousTarget; });
+                        chosenVictimId = uTarget ? uTarget.id : null;
+                        wolfStatusHtml = '<span style="color:#4ade80; font-weight:800;">🎯 LOCKED: Seat #' + (uTarget ? (uTarget.seat < 10 ? '0' + uTarget.seat : uTarget.seat) + ' ' + esc(uTarget.name) : 'Unknown') + '</span> (' + wolfCons.totalActors + ' Wolves Agreed)';
+                    } else {
+                        var keys = Object.keys(wolfCons.counts || {});
+                        var topDescs = keys.map(function (tId) {
+                            var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                            return '#' + (tp ? tp.seat : tId) + ' (' + wolfCons.counts[tId] + ' votes)';
+                        }).join(', ');
+                        wolfStatusHtml = '<span style="color:#fbbf24; font-weight:800;">SPLIT PICKS: ' + esc(topDescs) + '</span> (plurality/tiebreak applies)';
+                    }
+                } else {
+                    wolfStatusHtml = '<span style="color:#f87171; font-weight:800;">WAITING FOR WEREWOLF TAP</span> (' + livingWolves.length + ' living wolves)';
+                }
+
+                // Doctor
+                var docCons = v.god.doctorConsensus;
+                var docDesc = '<em style="color:#94a3b8;">Waiting for Doctor tap...</em>';
+                var shieldedTargetId = null;
+                if (docCons && docCons.counts) {
+                    var dPicks = Object.keys(docCons.counts).map(function (tId) {
+                        var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                        shieldedTargetId = tId;
+                        return tp ? ('#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name)) : tId;
+                    }).join(', ');
+                    if (dPicks) docDesc = '<strong style="color:var(--emerald);">🛡️ Shielding: ' + dPicks + '</strong>';
+                }
+
+                var conflictHtml = '';
+                if (chosenVictimId && shieldedTargetId && chosenVictimId === shieldedTargetId) {
+                    conflictHtml = '<div style="background:rgba(52, 211, 153, 0.2); border:1px solid #34d399; border-radius:6px; padding:6px 10px; color:#6ee7b7; font-weight:700;">'
+                        + '✨ DOCTOR INTERCEPT! Doctor is shielding the Wolf target! Nobody will die at Dawn.'
+                        + '</div>';
+                }
+
+                // Detective
+                var detCons = v.god.detectiveConsensus;
+                var detDesc = '<em style="color:#94a3b8;">Waiting for Detective tap...</em>';
+                if (detCons && detCons.counts) {
+                    var detPicks = Object.keys(detCons.counts).map(function (tId) {
+                        var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                        return tp ? ('#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name) + ' = <strong style="color:var(--amber);">' + tp.role + '</strong>') : tId;
+                    }).join(', ');
+                    if (detPicks) detDesc = '<strong style="color:var(--amber);">🔍 Investigating: ' + detPicks + '</strong>';
+                }
+
+                el('liveNightBody').innerHTML = ''
+                    + '<div><div style="font-weight:800; color:#fca5a5; margin-bottom:2px;">🐺 Werewolf Attack: ' + wolfStatusHtml + '</div>'
+                    + '<div style="font-size:0.82rem; margin-left:8px; line-height:1.4;">' + (wolfPickDescs.length ? wolfPickDescs.join('<br>') : '<em style="color:#94a3b8;">No wolves living</em>') + '</div></div>'
+                    + '<div><div style="font-weight:800; color:#a7f3d0; margin-bottom:2px;">🩺 Doctor Shield: ' + docDesc + '</div></div>'
+                    + conflictHtml
+                    + '<div><div style="font-weight:800; color:#fde68a; margin-bottom:2px;">🔍 Detective Check: ' + detDesc + '</div></div>';
+            } else {
+                nightCard.style.display = 'none';
+            }
+
             var findings = ((v.god.secret && v.god.secret.detectiveFindings) || []).map(function (f) {
                 return '<div>N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong style="color:var(--amber);">' + f.role + '</strong></div>';
             }).join('');
             if (v.phase === 'NIGHT' && v.god.detectiveConsensus && v.god.detectiveConsensus.counts) {
-                var detPicks = Object.keys(v.god.detectiveConsensus.counts).map(function (tId) {
+                var detPicks2 = Object.keys(v.god.detectiveConsensus.counts).map(function (tId) {
                     var tp = v.players.find(function (x) { return x.id === tId; });
                     return tp ? ('#' + tp.seat + ' ' + tp.name + ' (' + tp.role + ')') : tId;
                 }).join(', ');
-                if (detPicks) {
-                    findings = '<div style="color:#38bdf8; margin-bottom:4px;"><strong>Live Detective Target Tonight:</strong> ' + esc(detPicks) + '</div>' + findings;
+                if (detPicks2) {
+                    findings = '<div style="color:#38bdf8; margin-bottom:4px;"><strong>Live Detective Target Tonight:</strong> ' + esc(detPicks2) + '</div>' + findings;
                 }
             }
             el('findingsBox').innerHTML = findings || '<span style="color:var(--text-muted);">No investigations yet.</span>';

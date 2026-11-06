@@ -1425,6 +1425,31 @@ footer.foot-bar {
                 + '</div>');
         }
 
+        if (v.phase === 'DAWN') {
+            var ann = v.lastAnnouncement || {};
+            var isSaved = ann.savedByDoctor;
+            var elimId = ann.eliminatedId;
+            var elimPlayer = elimId ? (v.players || []).find(function (p) { return p.id === elimId; }) : null;
+
+            if (isSaved) {
+                parts.push('<div class="meter-box" style="border-color:var(--emerald); background:rgba(5, 150, 105, 0.12);">'
+                    + '<div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:800; color:var(--emerald); margin-bottom:4px;">✨ MIRACLE SAVE! The Doctor Protected the Village!</div>'
+                    + '<div style="font-size:0.95rem; color:var(--text-main);">The Werewolves struck in the dark, but the Town Doctor shielded the target! Nobody died overnight.</div>'
+                    + '</div>');
+            } else if (elimPlayer) {
+                parts.push('<div class="meter-box" style="border-color:var(--red); background:rgba(225, 29, 72, 0.1);">'
+                    + '<div style="font-family:var(--font-heading); font-size:1.18rem; font-weight:800; color:var(--red); margin-bottom:4px;">🐺 THE WEREWOLVES STRUCK OVERNIGHT!</div>'
+                    + '<div style="font-size:1.02rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">Seat #' + (elimPlayer.seat < 10 ? '0' + elimPlayer.seat : elimPlayer.seat) + ' ' + esc(elimPlayer.name) + ' was eliminated!</div>'
+                    + '<div style="font-size:0.88rem; color:var(--text-muted);">They must now maintain strict poker-face and follow the Silent Ghost Spectator rule.</div>'
+                    + '</div>');
+            } else {
+                parts.push('<div class="meter-box">'
+                    + '<div style="font-family:var(--font-heading); font-size:1.1rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">🌅 Peaceful Dawn Over Moonhollow</div>'
+                    + '<div style="font-size:0.92rem; color:var(--text-muted);">All villagers woke safely this morning.</div>'
+                    + '</div>');
+            }
+        }
+
         if (v.phase === 'ROLE_REVEAL' || v.phase === 'NIGHT' || v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') {
             var meterTitle = v.phase === 'ROLE_REVEAL' ? 'Secret Role Cards Confirmed'
                 : (v.phase === 'NIGHT' ? 'Aggregate Night Checks Complete (Seats Hidden)' : 'Secret Ballots Locked In');

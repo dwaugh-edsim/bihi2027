@@ -1059,19 +1059,40 @@ body.night-theme .pill-mono.phase {
 
         // Werewolf private pack & live target picks (kept strictly inside corner peek!)
         if (me.role === 'WEREWOLF' && me.packmates) {
-            var packHdr = 'Packmates';
-            if (v.phase === 'NIGHT' && me.consensus && me.consensus.totalActors > 1) {
-                packHdr = me.consensus.isUnanimous ? 'Packmates (Agreed)' : 'Packmates (Match 1 Seat)';
+            var livingWolves = me.packmates.filter(function (m) { return m.alive; });
+            var isSolo = livingWolves.length === 1;
+            var packHdr = '🐺 Packmates';
+            if (v.phase === 'NIGHT') {
+                if (isSolo) {
+                    packHdr = '🐺 Solo Hunter (Your target will die at Dawn!)';
+                } else if (me.consensus && me.consensus.isUnanimous) {
+                    packHdr = '🐺 Pack Agreed (Kill strikes at Dawn!)';
+                } else {
+                    packHdr = '🐺 Pack Coordinating (Match 1 Seat to lock kill)';
+                }
             }
             var packLines = me.packmates.map(function (m) {
                 var pickSeat = '';
                 if (v.phase === 'NIGHT' && m.alive) {
                     var t = v.players.find(function (x) { return x.id === m.pick; });
-                    pickSeat = t ? (' -> #' + t.seat) : ' (..)';
+                    pickSeat = t ? (' -> Target: #' + (t.seat < 10 ? '0' + t.seat : t.seat) + ' ' + esc(t.name)) : ' (waiting for tap...)';
                 }
-                return '#' + m.seat + ' ' + esc(m.name) + (!m.alive ? ' [Out]' : pickSeat);
+                return '#' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat);
             }).join('<br>');
-            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">' + packHdr + '</div>' + packLines + '</div>';
+
+            var lastStrikeNote = '';
+            if (v.phase !== 'NIGHT' && v.round > 1 && v.lastAnnouncement && v.lastAnnouncement.kind === 'dawn') {
+                if (v.lastAnnouncement.savedByDoctor) {
+                    lastStrikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">⚠️ Last Night: Doctor protected your pack\'s target!</div>';
+                } else if (v.lastAnnouncement.eliminatedId) {
+                    var elimP = v.players.find(function (p) { return p.id === v.lastAnnouncement.eliminatedId; });
+                    if (elimP) {
+                        lastStrikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--emerald);">⚔️ Last Night: Pack eliminated #' + elimP.seat + ' ' + esc(elimP.name) + '!</div>';
+                    }
+                }
+            }
+
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label">' + packHdr + '</div>' + packLines + lastStrikeNote + '</div>';
         }
 
         // Doctor last protected reminder
@@ -1248,10 +1269,18 @@ body.night-theme .pill-mono.phase {
             : (pickedObj
                 ? ((me.role === 'DETECTIVE')
                     ? ('Investigation locked: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Hold [ID] in corner to inspect finding)')
-                    : ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name))
+                    : (me.role === 'WEREWOLF')
+                        ? ('Wolf strike target: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Hold [ID] in corner to coordinate pack)')
+                        : (me.role === 'DOCTOR')
+                            ? ('Protection shield: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Protected from wolf attack tonight)')
+                            : ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name))
                 : ((me.role === 'DETECTIVE')
                     ? 'Select 1 suspect below to investigate their true role.'
-                    : 'Select 1 living seat below so every Chromebook records a quiet tap.'));
+                    : (me.role === 'WEREWOLF')
+                        ? 'Select 1 villager target below for tonight\'s Werewolf strike.'
+                        : (me.role === 'DOCTOR')
+                            ? 'Select 1 player below to protect with your lantern shield.'
+                            : 'Select 1 living seat below so every Chromebook records a quiet tap.'));
 
         // 100% identical badge across ALL 4 roles (zero group-count tells on open screen!)
         var rightMono = pickedObj ? 'SET' : 'WAITING';
