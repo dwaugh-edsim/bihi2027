@@ -570,8 +570,9 @@ footer.foot-bar {
         </div>
 
         <div class="ops-cluster">
-            <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between 28-Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
+            <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
             <button class="btn emerald" id="nextPhaseBtn" onclick="onNextPhaseClick()">Deal Roles &amp; Start -&gt;</button>
+            <a class="btn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
             <button class="btn" onclick="openStudentPreview()" title="Open synced Student Chromebook screen">Student Screen</button>
             <button class="btn purple" onclick="openGodConsole()" title="Open private Teacher God-View in separate window (never flashes roles here)">God View</button>
             <button class="btn btn-xs" id="sfxBtn" onclick="toggleSfx()">SFX: ON</button>
@@ -947,29 +948,53 @@ footer.foot-bar {
         refreshLocalView();
     };
 
+    var ROSTER_703 = [
+        'Eolann Ba.', 'Tyrese Be.', 'Ahmed Be.', 'Veronika Bo.', 'Tate Bo.', 'Oliver Br.',
+        'Sofiia Bu.', 'Gabriel Bu.', 'Ainsley Co.', 'Carson Do.', 'Lyla Go.', 'Malikee Gr.',
+        'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
+        'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
+    ];
+
     window.loadHomeroomSeats = function (hr) {
         selectedHomeroom = hr;
-        if (!hr || !window.MASTER_ROSTER_DATA) return;
-        var matches = window.MASTER_ROSTER_DATA.filter(function (s) {
-            return String(s.homeroom || '').trim() === String(hr);
-        });
-        if (!matches.length) return;
+        if (!hr) return;
+        var names = [];
+        if (String(hr) === '703') {
+            names = ROSTER_703.slice();
+        } else if (window.MASTER_ROSTER_DATA) {
+            names = window.MASTER_ROSTER_DATA.filter(function (s) {
+                return String(s.homeroom || '').trim() === String(hr);
+            }).map(function (s) {
+                return formatShortStudentName(s.first_name, s.last_name);
+            });
+        }
+        if (!names.length) return;
         if (serverUrl) {
-            alert('In Live Server Mode, students claim their own seats by signing in on their Chromebooks.');
+            var recSrv = E.recommendRoles(names.length, currentView.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
+            callServer({
+                action: 'update_rules',
+                rules: {
+                    classSize: names.length,
+                    wolvesCount: recSrv.wolvesCount,
+                    doctorsCount: recSrv.doctorsCount,
+                    detectivesCount: recSrv.detectivesCount
+                }
+            });
+            alert('Cloud Room resized to ' + names.length + ' seats for ' + hr + '! Students now claim their seats by signing in on their Chromebooks.');
             return;
         }
-        var rec = E.recommendRoles(matches.length, localGame.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
+        var rec = E.recommendRoles(names.length, localGame.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
         E.updateRules(localGame, {
-            classSize: matches.length,
+            classSize: names.length,
             wolvesCount: rec.wolvesCount,
             doctorsCount: rec.doctorsCount,
             detectivesCount: rec.detectivesCount
         }, Date.now());
-        localGame.players = matches.map(function (s, idx) {
+        localGame.players = names.map(function (nm, idx) {
             return {
                 id: 'P' + (idx + 1),
                 seat: idx + 1,
-                name: formatShortStudentName(s.first_name, s.last_name),
+                name: nm,
                 isBot: false,
                 joinedAt: Date.now(),
                 alive: true,
@@ -1272,7 +1297,7 @@ footer.foot-bar {
             + '    <button class="btn btn-xs" onclick="fillLobbySeats(\'numbered\')">Seats 1..' + r.classSize + '</button>'
             + '    <select class="select-clean" onchange="loadHomeroomSeats(this.value)">'
             + '      <option value="">Load Room 8 Homeroom...</option>'
-            + ['801','802','803','804','901','902','903'].map(function (h) {
+            + ['703','801','802','803','804','901','902','903'].map(function (h) {
                 return '<option value="' + h + '"' + (selectedHomeroom === h ? ' selected' : '') + '>Homeroom ' + h + '</option>';
             }).join('')
             + '    </select>'

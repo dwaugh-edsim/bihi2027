@@ -708,11 +708,19 @@ body.night-theme .pill-mono.phase {
         syncFromLocalGame();
     };
 
+    var ROSTER_703 = [
+        'Eolann Ba.', 'Tyrese Be.', 'Ahmed Be.', 'Veronika Bo.', 'Tate Bo.', 'Oliver Br.',
+        'Sofiia Bu.', 'Gabriel Bu.', 'Ainsley Co.', 'Carson Do.', 'Lyla Go.', 'Malikee Gr.',
+        'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
+        'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
+    ];
+
     window.joinLiveServerSeat = function () {
         var nameVal = (el('displayNameInput') ? el('displayNameInput').value : '').trim();
         var codeVal = (el('roomCodeInput') ? el('roomCodeInput').value : targetGameId).trim().toUpperCase();
-        if (!nameVal) {
-            alert('Enter your First Name + Last Initial (for example: Jordan Th.).');
+        var parts = nameVal.split(/\s+/).filter(Boolean);
+        if (parts.length < 2) {
+            alert('Enter your First Name + Last Initials (for example: Oliver Br. or Carson Do.) so duplicate first names stay clear.');
             return;
         }
         postServer({
@@ -1314,11 +1322,15 @@ body.night-theme .pill-mono.phase {
             gb.innerHTML = '<button class="btn coral" style="width:100%; padding:11px; font-size:1rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
                 + '<button class="btn" style="width:100%;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>';
         } else {
+            var opts703 = '<option value="">Quick-pick your name (703) or type below...</option>'
+                + ROSTER_703.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
             el('whoLabel').textContent = identity.email;
             gb.innerHTML = '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
                 + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
-                + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initial:</label>'
-                + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Jordan Th." maxlength="22"></div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Class 703 Quick-Pick (optional):</label>'
+                + '<select class="input-clean" style="margin-top:3px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + opts703 + '</select></div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initials:</label>'
+                + '<input class="input-clean" id="displayNameInput" placeholder="e.g. Oliver Br. or Carson Do." maxlength="22"></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
