@@ -591,13 +591,22 @@ body {
         }).join('');
 
         // God Findings
-        if (v.god && v.god.secret) {
-            var findings = (v.god.secret.detectiveFindings || []).map(function (f) {
+        if (v.god) {
+            var findings = ((v.god.secret && v.god.secret.detectiveFindings) || []).map(function (f) {
                 return '<div>N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong style="color:var(--amber);">' + f.role + '</strong></div>';
             }).join('');
+            if (v.phase === 'NIGHT' && v.god.detectiveConsensus && v.god.detectiveConsensus.counts) {
+                var detPicks = Object.keys(v.god.detectiveConsensus.counts).map(function (tId) {
+                    var tp = v.players.find(function (x) { return x.id === tId; });
+                    return tp ? ('#' + tp.seat + ' ' + tp.name + ' (' + tp.role + ')') : tId;
+                }).join(', ');
+                if (detPicks) {
+                    findings = '<div style="color:#38bdf8; margin-bottom:4px;"><strong>Live Detective Target Tonight:</strong> ' + esc(detPicks) + '</div>' + findings;
+                }
+            }
             el('findingsBox').innerHTML = findings || '<span style="color:var(--text-muted);">No investigations yet.</span>';
 
-            var audit = (v.god.secret.auditLog || []).slice(-8).reverse().map(function (a) {
+            var audit = ((v.god.secret && v.god.secret.auditLog) || []).slice(-8).reverse().map(function (a) {
                 return '<div>[R' + a.round + '] ' + esc(a.text) + '</div>';
             }).join('');
             el('auditLogBox').innerHTML = audit || '<span>Audit log initialized.</span>';

@@ -1511,7 +1511,15 @@
           .map(function (x) { return { id: x.id, seat: x.seat, name: x.name, alive: x.alive, pick: game.currentNight.detectivePicks[x.id] || null }; });
         priv.consensus = computeGroupConsensus(game.currentNight.detectivePicks, dets);
         priv.myNightPick = game.currentNight.detectivePicks[me.id] || null;
-        priv.findings = game.secret.detectiveFindings;
+        priv.findings = game.secret.detectiveFindings || [];
+        if (priv.myNightPick) {
+          var curTarget = getPlayer(game, priv.myNightPick);
+          if (curTarget) {
+            priv.currentNightTargetRole = curTarget.role;
+            priv.currentNightTargetName = curTarget.name;
+            priv.currentNightTargetSeat = curTarget.seat;
+          }
+        }
       } else {
         priv.myNightPick = game.currentNight.villagerNotes[me.id] || null;
       }

@@ -1083,13 +1083,26 @@ body.night-theme .pill-mono.phase {
         }
 
         // Detective verified clues
-        if (me.role === 'DETECTIVE' && me.findings) {
-            var clueLines = me.findings.length
+        if (me.role === 'DETECTIVE') {
+            var clueLines = (me.findings && me.findings.length)
                 ? me.findings.map(function (f) {
-                    return 'N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' = <strong>' + esc(f.role) + '</strong>';
+                    var isWolf = f.role === 'WEREWOLF';
+                    var color = isWolf ? 'var(--red)' : 'var(--emerald)';
+                    return 'N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' = <strong style="color:' + color + ';">' + esc(f.role) + '</strong>';
                 }).join('<br>')
-                : 'None yet (unlocks at Dawn).';
-            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Case Clues</div>' + clueLines + '</div>';
+                : '';
+            if (v.phase === 'NIGHT' && me.myNightPick) {
+                var pickTarget = v.players.find(function (x) { return x.id === me.myNightPick; });
+                if (pickTarget) {
+                    var roleBadge = me.currentNightTargetRole
+                        ? (' = <strong style="color:' + (me.currentNightTargetRole === 'WEREWOLF' ? 'var(--red)' : 'var(--emerald)') + ';">' + me.currentNightTargetRole + '</strong>')
+                        : ' (inspecting...)';
+                    clueLines = 'Investigating Tonight: #' + pickTarget.seat + ' ' + esc(pickTarget.name) + roleBadge
+                        + (clueLines ? ('<br>' + clueLines) : '');
+                }
+            }
+            if (!clueLines) clueLines = 'Tap 1 suspect on screen to investigate.';
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--amber);"><div class="peek-note-label">🔍 Detective Dossier</div>' + clueLines + '</div>';
         }
 
         // Villager personal hunch log
@@ -1167,12 +1180,39 @@ body.night-theme .pill-mono.phase {
             html += renderCamouflagedNightConsole(v, me);
         } else if (v.phase === 'DAWN' || v.phase === 'DUSK') {
             var stTxt = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
+            var detDawnClue = '';
+            if (v.phase === 'DAWN' && me.role === 'DETECTIVE' && me.findings && me.findings.length) {
+                var latest = me.findings[me.findings.length - 1];
+                var isWolf = latest.role === 'WEREWOLF';
+                var col = isWolf ? 'var(--red)' : 'var(--emerald)';
+                detDawnClue = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
+                    + '<div style="font-weight:800; color:var(--amber); font-size:0.84rem; font-family:var(--font-mono); margin-bottom:4px;">🔍 NEW DETECTIVE FINDING (NIGHT ' + latest.round + ')</div>'
+                    + '<div style="font-size:0.95rem;">You investigated <strong>#' + latest.seat + ' ' + esc(latest.targetName) + '</strong>: Verified role is <strong style="color:' + col + ';">' + esc(latest.role) + '</strong>!</div>'
+                    + '</div>';
+            }
             html += '<div style="padding:8px 4px;">'
+                + detDawnClue
                 + (stTxt ? '<div style="background:#ffffff; border:1px solid var(--border-card); border-left:4px solid var(--coral); border-radius:8px; padding:12px 14px; font-family:var(--font-heading); font-size:0.95rem; font-style:italic; line-height:1.55; color:var(--text-heading); margin-bottom:12px;">"' + esc(stTxt) + '"</div>' : '')
                 + '<p style="font-size:0.94rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> as morning debate begins!</p>'
                 + '</div>';
         } else if (v.phase === 'DAY_DISCUSSION') {
+            var detClues = '';
+            if (me.role === 'DETECTIVE' && me.findings && me.findings.length) {
+                var cList = me.findings.map(function (f) {
+                    var isWolf = f.role === 'WEREWOLF';
+                    var col = isWolf ? 'var(--red)' : 'var(--emerald)';
+                    return '<div style="margin-top:3px;">Night ' + f.round + ': <strong>#' + f.seat + ' ' + esc(f.targetName) + '</strong> = <strong style="color:' + col + ';">' + esc(f.role) + '</strong></div>';
+                }).join('');
+                detClues = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<span style="font-weight:800; color:var(--amber); font-size:0.86rem; font-family:var(--font-mono);">🔍 DETECTIVE CASE INTEL (Private to You)</span>'
+                    + '<span style="font-size:0.75rem; color:var(--text-muted);">Guide debate quietly</span>'
+                    + '</div>'
+                    + cList
+                    + '</div>';
+            }
             html += '<div style="padding:8px 4px;">'
+                + detClues
                 + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Day ' + v.round + ' Council Discussion</h3>'
                 + '<p style="font-size:0.93rem; color:var(--text-muted); line-height:1.45;">'
                 + (v.rules.claimRule === 'quiet'
@@ -1206,8 +1246,12 @@ body.night-theme .pill-mono.phase {
         var leftStatus = subtleGuardNote
             ? subtleGuardNote
             : (pickedObj
-                ? ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name)
-                : 'Select 1 living seat below so every Chromebook records a quiet tap.');
+                ? ((me.role === 'DETECTIVE')
+                    ? ('Investigation locked: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Hold [ID] in corner to inspect finding)')
+                    : ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name))
+                : ((me.role === 'DETECTIVE')
+                    ? 'Select 1 suspect below to investigate their true role.'
+                    : 'Select 1 living seat below so every Chromebook records a quiet tap.'));
 
         // 100% identical badge across ALL 4 roles (zero group-count tells on open screen!)
         var rightMono = pickedObj ? 'SET' : 'WAITING';
