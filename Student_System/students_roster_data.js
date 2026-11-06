@@ -97,7 +97,7 @@ window.MASTER_ROSTER_DATA = [
   {"homeroom": "804", "grade": 8, "first_name": "Caspian", "last_name": "Doak", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "804", "grade": 8, "first_name": "Margot", "last_name": "Donaldson", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "804", "grade": 8, "first_name": "Kate", "last_name": "Doucette", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
-  {"homeroom": "804", "grade": 8, "first_name": "Heavenly", "last_name": "Duplessis-Backland", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
+  {"homeroom": "804", "grade": 8, "first_name": "Rose", "last_name": "Duplessis-Backland", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "804", "grade": 8, "first_name": "Molly", "last_name": "Gormley", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "804", "grade": 8, "first_name": "Marielle", "last_name": "Hickey", "courses": ["HL 8"], "course_label": "Healthy Living 8"},
   {"homeroom": "804", "grade": 8, "first_name": "Elizabeth", "last_name": "Letarte", "courses": ["HL 8"], "course_label": "Healthy Living 8"},

@@ -251,7 +251,7 @@ window.CLASS_SEATING = {
                 "4": "Vasylyna B.",
                 "5": "Arielle S.",
                 "6": "Habib B.",
-                "8": "Heavenly D.",
+                "8": "Rose D.",
                 "9": "Cameron M.",
                 "10": "Ezra O.",
                 "11": "Molly G.",
@@ -387,7 +387,7 @@ window.CLASS_SEATING = {
         "804": {
             seats: {
                 "1": "Timi A.", "2": "Taneil T.", "3": "Vasylyna B.", "4": "Arielle S.",
-                "5": "Habib B.", "7": "Rosie M.", "8": "Heavenly D.", "9": "Cameron M.",
+                "5": "Habib B.", "7": "Rosie M.", "8": "Rose D.", "9": "Cameron M.",
                 "10": "Hasan S.", "11": "Khovin Y.", "12": "Cora A.", "13": "Sophie R.",
                 "14": "Margot D.", "15": "Charles T.", "16": "Kate D.", "17": "Elizabeth L.",
                 "18": "Theo D.", "20": "Jeremiah S.", "21": "Max P.", "22": "Caspian D.",
@@ -467,7 +467,7 @@ window.CLASS_SEATING = {
         "804": {
             seats: {
                 "1": "Oritshetimehin A.", "2": "Taneil T.", "3": "Vasylyna B.", "4": "Arielle S.",
-                "5": "Habib B.", "7": "Rosie M.", "8": "Heavenly D.", "9": "Cameron M.",
+                "5": "Habib B.", "7": "Rosie M.", "8": "Rose D.", "9": "Cameron M.",
                 "10": "Hasan S.", "11": "Khovin Y.", "12": "Cora A.", "13": "Sophie R.",
                 "14": "Margot D.", "15": "Charles T.", "16": "Kate D.", "18": "Theo D.",
                 "19": "Artem P.", "20": "Jeremiah S.", "21": "Max P.", "22": "Caspian D.",
