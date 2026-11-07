@@ -685,10 +685,23 @@ body {
     var revealReadyTicks = 0; // how many auto-play ticks a 'ready' (not yet started) reveal has survived
 
     window.openRoomOnServer = function () {
-        postServer({ action: ACT.CREATE, god: true, rules: { classSize: 24, preset: 'classic' } }).then(function (res) {
-            if (res && res.status === 'ok') toast('Room opened on the server - seats are live.');
-            else toast('Could not open room: ' + ((res && res.message) || 'check connection'));
-            pollState();
+        postServer({ action: ACT.CREATE, god: true, gameId: targetGameId, rules: { classSize: 24, preset: 'classic' } }).then(function (res) {
+            if (res && res.status === 'ok') {
+                // Bind the console to the room that was actually opened (the server
+                // honours the pinned code, or mints one and reports it back).
+                targetGameId = String(res.gameId || targetGameId || '').toUpperCase();
+                el('roomCodeBadge').textContent = targetGameId;
+                el('roomCodeInput').value = targetGameId;
+                el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+                roomOpen = true;
+                var orb = el('openRoomBtn');
+                if (orb) orb.style.display = 'none';
+                if (res.view) { currentView = res.view; renderView(); }
+                toast('Room ' + targetGameId + ' opened on the server - seats are live.');
+            } else {
+                toast('Could not open room: ' + ((res && res.message) || 'check connection'));
+                pollState();
+            }
         });
     };
 
