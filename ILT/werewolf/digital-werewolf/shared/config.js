@@ -22,6 +22,8 @@
     NIGHT_DECISION: 'night_decision',
     REVEAL_CONTROL: 'reveal_control',
     KICK_PLAYER: 'kick_player',
+    ADD_PLAYER: 'add_player',
+    RENAME_PLAYER: 'rename_player',
     REMOVE_EMPTY_SEATS: 'remove_empty_seats',
     MODERATOR_OVERRIDE: 'moderator_override',
     LCD_HEARTBEAT: 'lcd_heartbeat',

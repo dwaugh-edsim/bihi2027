@@ -8,7 +8,7 @@
 (function (root) {
   'use strict';
 
-  var ENGINE_VERSION = '2.0.0';
+  var ENGINE_VERSION = '2.1.0';
 
   var ROLES = {
     WEREWOLF: 'WEREWOLF',
@@ -1484,6 +1484,55 @@
     return { ok: true };
   }
 
+  /** Fresh unique S<n> id for a teacher-added seat (never collides with live ids). */
+  function nextPlayerId_(game) {
+    var max = 0;
+    game.players.forEach(function (p) {
+      var m = /^S(\d+)$/.exec(String(p.id || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return 'S' + (max + 1);
+  }
+
+  /**
+   * Teacher adds a named seat in the Lobby (maximum-flexibility roster tool):
+   * claims the first unclaimed 'Seat N' placeholder if one exists, else takes
+   * an open slot, else replaces a demo bot. Renaming a placeholder is the
+   * normal path for a class that loaded Seats 1..N before students join.
+   */
+  function addPlayer(game, name, now) {
+    if (game.phase !== PHASES.LOBBY) return { ok: false, error: 'Students can only be added in the Lobby.' };
+    now = now || Date.now();
+    var cleanName = String(name || '').trim().slice(0, 28);
+    if (!cleanName) return { ok: false, error: 'Display name is required.' };
+    var placeholder = null;
+    for (var i = 0; i < game.players.length; i++) {
+      if (/^Seat \d+$/.test(String(game.players[i].name || ''))) { placeholder = game.players[i]; break; }
+    }
+    if (placeholder) {
+      placeholder.name = cleanName;
+      placeholder.isBot = false;
+      game.updatedAt = now;
+      return { ok: true, player: placeholder, claimedPlaceholder: true };
+    }
+    return addOrUpdatePlayer(game, { id: nextPlayerId_(game), name: cleanName, isBot: false }, now);
+  }
+
+  /**
+   * Teacher renames any seated player, any phase (names are never secret).
+   * Never changes isBot - use Remove empty seats / Fill demo bots for that.
+   */
+  function renamePlayer(game, playerId, name, now) {
+    now = now || Date.now();
+    var p = getPlayer(game, playerId);
+    if (!p) return { ok: false, error: 'Player not found.' };
+    var cleanName = String(name || '').trim().slice(0, 28);
+    if (!cleanName) return { ok: false, error: 'Display name is required.' };
+    p.name = cleanName;
+    game.updatedAt = now;
+    return { ok: true };
+  }
+
   /** Moderator override: eliminate or revive a player (confirmation handled client-side). */
   function setPlayerAlive(game, playerId, alive, now) {
     now = now || Date.now();
@@ -2143,6 +2192,25 @@
     simulateBotActions(g7, 500);
     check(Object.keys(g7.currentNight.wolfPicks).length === 0, 'Test Mode OFF: placeholder wolves pick nothing');
 
+    // 12. Teacher seat management: add claims placeholders first, rename works any phase
+    var g8 = createGame({ seed: 808080, rules: { classSize: 10, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1 } });
+    fillSeats(g8, 'numbered', 100); // 10 placeholders
+    var added = addPlayer(g8, 'Jordan He.', 150);
+    check(added.ok && added.claimedPlaceholder && g8.players[0].name === 'Jordan He.' && g8.players[0].isBot === false,
+      'addPlayer claims the first unclaimed placeholder seat');
+    var added2 = addPlayer(g8, 'Sofia Ku.', 160);
+    check(added2.ok && added2.claimedPlaceholder && g8.players[1].name === 'Sofia Ku.',
+      'addPlayer claims the next placeholder seat');
+    var idA = g8.players[0].id, idB = g8.players[1].id;
+    check(idA !== idB, 'teacher-added seats keep unique ids');
+    var added3 = addPlayer(g8, '', 170);
+    check(added3.ok === false, 'addPlayer rejects an empty name');
+    startGame(g8, 200);
+    var ren = renamePlayer(g8, idA, 'Jordan He. (moved)', 250);
+    check(ren.ok && g8.players[0].name === 'Jordan He. (moved)', 'renamePlayer works mid-game');
+    var renPh = renamePlayer(g8, idB, 'Seat 2', 260);
+    check(renPh.ok && /^Seat \d+$/.test(g8.players[1].name), 'renamePlayer can re-placeholder a seat');
+
     return { ok: true, passed: results.length, winner: g.winner, rounds: g.round, results: results };
   }
 
@@ -2168,6 +2236,8 @@
     submitModeratorNightOverride: submitModeratorNightOverride,
     removeEmptySeats: removeEmptySeats,
     kickPlayer: kickPlayer,
+    addPlayer: addPlayer,
+    renamePlayer: renamePlayer,
     setPlayerAlive: setPlayerAlive,
     advancePhase: advancePhase,
     resetToLobby: resetToLobby,

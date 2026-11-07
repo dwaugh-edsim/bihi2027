@@ -611,19 +611,12 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 <span class="clock-label" id="clockLabel">TIMER</span>
                 <span class="clock-digits" id="clockDigits">--:--</span>
             </div>
-            <button class="btn btn-xs" id="pauseBtn" onclick="onPauseClick()" title="Pause or resume phase timer">Pause</button>
-            <button class="btn btn-xs" id="plus30Btn" onclick="onAddTimeClick(30)" title="Add 30 seconds">+30s</button>
         </div>
 
         <div class="ops-cluster">
-            <button class="btn blue" id="cloudToggleBtn" onclick="onCloudToggleClick()" title="Start or switch between Chromebook Cloud Room and Instant Demo Mode">Go Live (Cloud)</button>
-            <button class="btn emerald" id="nextPhaseBtn" onclick="onNextPhaseClick()">Deal Roles &amp; Start -&gt;</button>
-            <button class="btn amber" id="resetLobbyBtn" onclick="promptResetLobby()" title="Reset game back to Lobby (Teacher PIN required)">Reset</button>
             <a class="btn" id="howToSlidesBtn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
-            <a class="btn purple" id="runHostBtn" href="run.html" target="_blank" title="Open Teacher Game Controller (Run the Game)" style="text-decoration:none;">Run Game (Host)</a>
-            <button class="btn btn-xs" id="sfxBtn" onclick="toggleSfx()">SFX: ON</button>
+            <a class="btn purple" id="runHostBtn" href="run.html" target="_blank" title="Open the one Teacher Console (run.html)" style="text-decoration:none;">Teacher Console</a>
             <button class="btn btn-xs" onclick="toggleFullscreen()" title="Fullscreen (F)">[F]</button>
-            <button class="btn btn-xs" onclick="openServerModal()" title="Server connection &amp; reset (Teacher PIN required)">Setup</button>
         </div>
     </header>
 
@@ -681,32 +674,6 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     <div class="th-hint">Space/Right next - Left back - S skip - P pause - T read-aloud</div>
 </div>
 
-<!-- SERVER / RESET MODAL -->
-<div class="modal-backdrop" id="serverModal">
-    <div class="modal-card">
-        <h3>Server &amp; Classroom Mode Settings</h3>
-        <p>Run right away in <strong>Local / Projector Mode</strong> (zero server setup; syncs instantly with Student Preview &amp; God View tabs on this machine), or paste your deployed Room 8 Digital Werewolf Server URL for 28-Chromebook cloud play.</p>
-        <div class="field-row">
-            <label for="serverUrlInput">Room 8 Werewolf Server URL (optional for local/projector play)</label>
-            <input type="text" id="serverUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
-        </div>
-        <div class="field-row">
-            <label for="teacherPinInput">Teacher PIN (for Server Moderator &amp; God View)</label>
-            <input type="password" id="teacherPinInput" placeholder="Enter Room 8 Teacher PIN">
-        </div>
-        <div style="display:flex; justify-content:space-between; gap:8px; margin-top:14px;">
-            <div style="display:flex; gap:6px;">
-                <button class="btn amber" onclick="resetGameToLobby(true)">Reset to Lobby (Keep Class)</button>
-                <button class="btn" onclick="resetGameToLobby(false)">Fresh Demo Class</button>
-            </div>
-            <div style="display:flex; gap:6px;">
-                <button class="btn" onclick="closeServerModal()">Close</button>
-                <button class="btn coral" onclick="saveServerConfig()">Save &amp; Connect</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="../../../Student_System/students_roster_data.js"></script>
 <script src="shared/config.js"></script>
 <script src="shared/sfx.js"></script>
@@ -724,19 +691,21 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     var CHANNEL_NAME = 'r8_werewolf_v1';
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
 
-    // Live server endpoint (pre-wired to Room 8 Digital Werewolf Web App; toggleable with Local/Demo Mode)
+    // DISPLAY-ONLY PROJECTOR PAGE. The one teacher console is run.html; this page
+    // renders game state and the Story Theatre and owns no controls. Cloud by
+    // default (auto-detects the server's active room); ?game=WOLF-XXXX pins a room,
+    // ?demo=1 runs the local BroadcastChannel demo game.
     var params = new URLSearchParams(location.search);
+    var isDemo = params.get('demo') === '1';
     var urlGameId = (params.get('game') || '').trim().toUpperCase();
     var urlClass = (params.get('class') || '').trim();
-    var forceCloud = params.get('cloud') === '1' || Boolean(urlGameId);
-    var configuredServerUrl = params.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
-    var serverUrl = (params.get('demo') === '1') ? '' : ((forceCloud || sessionStorage.getItem('ww_mode') === 'cloud') ? configuredServerUrl : '');
+    var serverUrl = isDemo ? '' : (params.get('server') || DEFAULT_SERVER_URL);
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
 
     var sfxEnabled = true;
-    // A2: Auto-Bots default OFF whenever a cloud server URL is set; ON only in Demo mode.
+    // Demo mode only: Auto-Bots drive the local game when a student demo tab steps it.
     var testMode = params.get('testmode') === '1';
-    var autoBotsEnabled = !serverUrl;
+    var autoBotsEnabled = isDemo;
     var nominatedIds = {}; // Day discussion spotlight seats (visual cue only)
     var selectedHomeroom = '';
     var audioCtx = null;
@@ -876,11 +845,13 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         broadcastLocalState();
     }
 
-    // Server RPC helper when connected to live Google Apps Script Web App
+    // Server RPC helper (cloud mode). Display-only: the only write this page ever
+    // sends is a reveal_control beat command from the Story Theatre, which is
+    // PIN-gated server-side - prompt once per projector browser session if needed.
     function callServer(payload) {
         if (!serverUrl) return Promise.resolve(null);
-        if (!teacherPin) {
-            var entered = prompt('Enter Room 8 Teacher PIN to control the Cloud Room:');
+        if (payload.action === 'reveal_control' && !teacherPin) {
+            var entered = prompt('Teacher PIN (drives the Story Theatre from this screen; the Teacher Console needs it too):');
             if (!entered) return Promise.resolve(null);
             teacherPin = entered.trim();
             try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
@@ -946,48 +917,6 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         }
     }
 
-    window.onCloudToggleClick = function () {
-        if (serverUrl) {
-            // Switch back to Local / Bot Demo Mode
-            serverUrl = '';
-            try { sessionStorage.setItem('ww_mode', 'local'); } catch (e) {}
-            refreshLocalView();
-            return;
-        }
-        var targetUrl = configuredServerUrl || DEFAULT_SERVER_URL;
-        fetch(targetUrl + '?action=get_health')
-            .then(function (r) { return r.json(); })
-            .then(function (h) {
-                if (h && h.engineVersion === 'missing') {
-                    alert('Server reachable (' + h.serverVersion + '), one quick update needed: re-paste the updated single-file Code.gs and click Manage Deployments -> Edit -> New Version -> Deploy so the game engine is bundled.');
-                    return;
-                }
-                serverUrl = targetUrl;
-                try {
-                    sessionStorage.setItem('ww_mode', 'cloud');
-                    sessionStorage.setItem('ww_server_url', serverUrl);
-                } catch (e) {}
-                if (h && h.activeGameId) {
-                    fetch(serverUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'poll_state', gameId: h.activeGameId, viewerKind: 'lcd' })
-                    }).then(function (r2) { return r2.json(); }).then(function (d) {
-                        if (d && d.status === 'ok' && d.view) {
-                            currentView = d.view;
-                            render();
-                        } else {
-                            callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
-                        }
-                    });
-                } else {
-                    callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
-                }
-            }).catch(function (err) {
-                alert('Could not reach Server health endpoint: ' + err);
-            });
-    };
-
     // Poll server every 3.5s + jitter when in Live Server Mode
     function scheduleServerPoll() {
         // B6: poll faster (1-1.5s) while a reveal is playing so beats stay in sync
@@ -1002,7 +931,11 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 }).then(function (r) { return r.json(); }).then(function (d) {
                     lastServerOkAt = Date.now();
                     if (d && d.status === 'ok' && d.view) {
+                        waitingForRoom = false;
                         currentView = d.view;
+                        render();
+                    } else if (d && d.status === 'no_game') {
+                        waitingForRoom = true;
                         render();
                     }
                 }).catch(function () { lastServerErrAt = Date.now(); updateConnPill(); }).finally(scheduleServerPoll);
@@ -1012,154 +945,11 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         }, delay);
     }
 
-    // Setup / Rules Helpers
-    function updateLobbyRule(patch) {
-        if (serverUrl) {
-            callServer({ action: 'update_rules', rules: patch });
-            return;
-        }
-        E.updateRules(localGame, patch, Date.now());
-        refreshLocalView();
-    }
-
-    // Audit fix: debounce the class-size slider so it does not POST per pixel in cloud mode
-    var classSizeTimer = null;
-    window.debounceClassSize = function (val) {
-        if (classSizeTimer) clearTimeout(classSizeTimer);
-        classSizeTimer = setTimeout(function () { window.setClassSize(val); }, 450);
-    };
-
-    window.setClassSize = function (n) {
-        n = Number(n);
-        var rec = E.recommendRoles(n, currentView.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
-        updateLobbyRule({
-            classSize: n,
-            wolvesCount: rec.wolvesCount,
-            doctorsCount: rec.doctorsCount,
-            detectivesCount: rec.detectivesCount
-        });
-    };
-
-    window.applyPreset = function (presetName) {
-        var rec = E.recommendRoles(currentView.rules.classSize, presetName);
-        updateLobbyRule({
-            preset: presetName,
-            wolvesCount: rec.wolvesCount,
-            doctorsCount: rec.doctorsCount,
-            detectivesCount: rec.detectivesCount
-        });
-    };
-
-    window.stepRoleCount = function (key, delta) {
-        var nextVal = (currentView.rules[key] || 0) + delta;
-        var patch = { preset: 'custom' };
-        patch[key] = nextVal;
-        updateLobbyRule(patch);
-    };
-
-    window.toggleRuleFlag = function (key) {
-        var patch = {};
-        if (key === 'claimRule') {
-            patch.claimRule = currentView.rules.claimRule === 'quiet' ? 'open' : 'quiet';
-        } else if (key === 'tieRule') {
-            patch.tieRule = currentView.rules.tieRule === 'revote_then_none' ? 'no_elimination' : 'revote_then_none';
-        } else {
-            patch[key] = !currentView.rules[key];
-        }
-        updateLobbyRule(patch);
-    };
-
-    window.fillLobbySeats = function (mode) {
-        selectedHomeroom = '';
-        if (serverUrl) {
-            callServer({ action: 'fill_seats', mode: mode });
-            return;
-        }
-        E.fillSeats(localGame, mode, Date.now());
-        refreshLocalView();
-    };
-
-    var ROSTER_703 = [
-        'Eolann Ba.', 'Tyrese Be.', 'Ahmed Be.', 'Veronika Bo.', 'Tate Bo.', 'Oliver Br.',
-        'Sofiia Bu.', 'Gabriel Bu.', 'Ainsley Co.', 'Carson Do.', 'Lyla Go.', 'Malikee Gr.',
-        'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
-        'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
-    ];
-
-    window.loadHomeroomSeats = function (hr) {
-        selectedHomeroom = hr;
-        if (!hr) return;
-        var names = [];
-        if (String(hr) === '703') {
-            names = ROSTER_703.slice();
-        } else if (window.MASTER_ROSTER_DATA) {
-            names = window.MASTER_ROSTER_DATA.filter(function (s) {
-                return String(s.homeroom || '').trim() === String(hr);
-            }).map(function (s) {
-                return formatShortStudentName(s.first_name, s.last_name);
-            });
-        }
-        if (!names.length) return;
-        if (serverUrl) {
-            var recSrv = E.recommendRoles(names.length, currentView.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
-            callServer({
-                action: 'update_rules',
-                rules: {
-                    classSize: names.length,
-                    wolvesCount: recSrv.wolvesCount,
-                    doctorsCount: recSrv.doctorsCount,
-                    detectivesCount: recSrv.detectivesCount
-                }
-            });
-            alert('Cloud Room resized to ' + names.length + ' seats for ' + hr + '! Students now claim their seats by signing in on their Chromebooks.');
-            return;
-        }
-        var rec = E.recommendRoles(names.length, localGame.rules.preset === 'student_pitch' ? 'student_pitch' : 'classic');
-        E.updateRules(localGame, {
-            classSize: names.length,
-            wolvesCount: rec.wolvesCount,
-            doctorsCount: rec.doctorsCount,
-            detectivesCount: rec.detectivesCount
-        }, Date.now());
-        localGame.players = names.map(function (nm, idx) {
-            return {
-                id: 'P' + (idx + 1),
-                seat: idx + 1,
-                name: nm,
-                isBot: false,
-                joinedAt: Date.now(),
-                alive: true,
-                eliminatedRound: null,
-                eliminatedHow: null,
-                role: null,
-                readyConfirmed: false
-            };
-        });
-        refreshLocalView();
-    };
-
-    window.toggleAutoBots = function () {
-        autoBotsEnabled = !autoBotsEnabled;
-        render();
-    };
-
-    window.runBotsNow = function () {
-        if (serverUrl) {
-            callServer({ action: 'simulate_bots' });
-            return;
-        }
-        E.simulateBotActions(localGame, Date.now());
-        refreshLocalView();
-    };
-
+    // DISPLAY-ONLY: all game control lives in run.html (the one teacher console).
+    // The only local advance this page performs is the ?demo=1 BroadcastChannel
+    // demo game, driven by a student demo tab's step button (GOD_ADVANCE).
     window.onNextPhaseClick = function () {
         nominatedIds = {};
-        if (serverUrl) {
-            // A2: bot simulation never runs in cloud mode unless the room is in Test Mode
-            var roomTestMode = testMode || Boolean(currentView.rules && currentView.rules.testMode);
-            callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && roomTestMode });
-            return;
-        }
         if (localGame.phase === E.PHASES.LOBBY && localGame.players.length === 0) {
             E.fillSeats(localGame, 'demo', Date.now());
         }
@@ -1173,21 +963,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         }
         var res = E.advancePhase(localGame, Date.now());
         if (!res.ok) {
-            alert(res.error);
             return;
         }
-        refreshLocalView();
-    };
-
-    window.onPauseClick = function () {
-        if (serverUrl) { callServer({ action: 'pause_timer' }); return; }
-        E.togglePause(localGame, Date.now());
-        refreshLocalView();
-    };
-
-    window.onAddTimeClick = function (sec) {
-        if (serverUrl) { callServer({ action: 'add_time', deltaSec: sec }); return; }
-        E.addTime(localGame, sec, Date.now());
         refreshLocalView();
     };
 
@@ -1196,68 +973,6 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             nominatedIds[playerId] = !nominatedIds[playerId];
             renderRoster();
         }
-    };
-
-    window.promptResetLobby = function () {
-        var pin = teacherPin || sessionStorage.getItem('ww_teacher_pin') || '';
-        if (!pin) {
-            var entered = prompt('Enter Room 8 Teacher PIN to Reset:');
-            if (!entered) return;
-            teacherPin = entered.trim();
-            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
-        }
-        var choice = prompt(
-            'Room 8 Werewolf Reset:\n\n' +
-            '1 = Reset to Lobby (Keep Class Seated - wipes dealt roles so you can re-deal)\n' +
-            '2 = Fresh Clean Room (Wipe all seats to 0 so students rejoin from scratch)\n\n' +
-            'Type 1 or 2 (or click Cancel):',
-            '1'
-        );
-        if (choice === '1') {
-            window.resetGameToLobby(true);
-        } else if (choice === '2') {
-            window.resetGameToLobby(false);
-        }
-    };
-
-    window.resetGameToLobby = function (keepPlayers) {
-        nominatedIds = {};
-        closeServerModal();
-        if (serverUrl) {
-            callServer({ action: 'reset_lobby', keepPlayers: keepPlayers });
-            return;
-        }
-        if (keepPlayers) {
-            localGame = E.resetToLobby(localGame, true, Date.now());
-        } else {
-            localGame = E.createGame({ populateDemo: true, rules: localGame.rules });
-        }
-        refreshLocalView();
-    };
-
-    window.playAgainInstant = function () {
-        if (serverUrl) {
-            var roomTestMode = testMode || Boolean(currentView.rules && currentView.rules.testMode);
-            callServer({ action: 'reset_lobby', keepPlayers: true }).then(function () {
-                callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && roomTestMode });
-            });
-            return;
-        }
-        localGame = E.resetToLobby(localGame, true, Date.now());
-        E.startGame(localGame, Date.now());
-        refreshLocalView();
-    };
-
-    window.openStudentPreview = function () {
-        var url = 'index.html?demo=1';
-        if (serverUrl) url = 'index.html?server=' + encodeURIComponent(serverUrl) + '&game=' + encodeURIComponent(currentView.gameId);
-        window.open(url, '_blank');
-    };
-
-    window.openGodConsole = function () {
-        var url = 'index.html?god=1';
-        if (serverUrl) url += '&server=' + encodeURIComponent(serverUrl) + '&game=' + encodeURIComponent(currentView.gameId);
-        window.open(url, 'r8_werewolf_god', 'width=980,height=740');
     };
 
     window.speakNarratorStory = function () {
@@ -1277,11 +992,6 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         window.speechSynthesis.speak(u);
     };
 
-    window.toggleSfx = function () {
-        sfxEnabled = !sfxEnabled;
-        el('sfxBtn').textContent = 'SFX: ' + (sfxEnabled ? 'ON' : 'OFF');
-    };
-
     window.toggleFullscreen = function () {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(function () {});
@@ -1293,55 +1003,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     document.addEventListener('keydown', function (ev) {
         if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT')) return;
         if (ev.key === 'f' || ev.key === 'F') toggleFullscreen();
-        if (ev.key === ' ') { ev.preventDefault(); onPauseClick(); }
-        // Hidden teacher strip on the projector: Ctrl+. toggles it during play
-        if (ev.ctrlKey && (ev.key === '.' || ev.key === '>')) {
-            ev.preventDefault();
-            document.body.classList.toggle('teacher-strip');
-        }
     });
-
-    window.openServerModal = function () {
-        var pin = teacherPin || sessionStorage.getItem('ww_teacher_pin') || '';
-        if (!pin) {
-            var entered = prompt('Enter Room 8 Teacher PIN for Server & Settings:');
-            if (!entered) return;
-            teacherPin = entered.trim();
-            try { sessionStorage.setItem('ww_teacher_pin', teacherPin); } catch (e) {}
-        }
-        el('serverUrlInput').value = serverUrl || configuredServerUrl || DEFAULT_SERVER_URL;
-        el('teacherPinInput').value = teacherPin;
-        el('serverModal').classList.add('open');
-    };
-    window.closeServerModal = function () {
-        el('serverModal').classList.remove('open');
-    };
-    window.saveServerConfig = function () {
-        var typedUrl = el('serverUrlInput').value.trim();
-        configuredServerUrl = typedUrl || DEFAULT_SERVER_URL;
-        serverUrl = typedUrl;
-        teacherPin = el('teacherPinInput').value.trim();
-        try {
-            if (serverUrl) {
-                sessionStorage.setItem('ww_server_url', serverUrl);
-                sessionStorage.setItem('ww_mode', 'cloud');
-            } else {
-                sessionStorage.setItem('ww_mode', 'local');
-            }
-            if (teacherPin) sessionStorage.setItem('ww_teacher_pin', teacherPin);
-        } catch (e) {}
-        closeServerModal();
-        if (serverUrl) {
-            // Audit fix: never create_game while a game is already live - poll it instead
-            if (currentView && currentView.gameId && currentView.phase && currentView.phase !== 'LOBBY') {
-                callServer({ action: 'poll_state', viewerKind: 'lcd' });
-            } else {
-                callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
-            }
-        } else {
-            refreshLocalView();
-        }
-    };
 
     // RENDER FUNCTIONS
     function phaseLabel(ph, round) {
@@ -1357,25 +1019,37 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         return ph;
     }
 
-    function nextBtnLabel(ph) {
-        if (ph === 'LOBBY') return 'Deal Roles & Start ->';
-        if (ph === 'ROLE_REVEAL') return 'Begin Night 1 ->';
-        if (ph === 'NIGHT') return 'Resolve Night -> Dawn';
-        if (ph === 'DAWN') return 'Open Town Debate ->';
-        if (ph === 'DAY_DISCUSSION') return 'Open Secret Ballot ->';
-        if (ph === 'DAY_VOTE' || ph === 'DAY_REVOTE') return 'Close & Tally Votes ->';
-        if (ph === 'DUSK') return 'Begin Next Night ->';
-        return 'New Shuffle ->';
+    function renderWaitingRoom() {
+        el('roomCodePill').textContent = urlGameId || 'WOLF-...';
+        el('phasePill').textContent = 'WAITING';
+        el('heroKicker').textContent = 'MOONHOLLOW HARBOUR';
+        el('heroHeadline').textContent = 'Waiting for the Teacher Console';
+        el('heroSubline').textContent = 'No room is open on the server yet. Open run.html (Teacher Console) and press "Open Room on Server" - this display will wake up automatically.';
+        el('leftBody').innerHTML = '<div class="cfg-block"><div class="cfg-header"><span class="cfg-title">This screen is the Class Display</span></div>'
+            + '<div style="font-size:0.95rem; color:var(--text-muted); line-height:1.5;">Once the room opens: students join on their Chromebooks, the teacher runs every phase from <strong>run.html</strong>, and the story plays here.</div></div>';
+        el('rosterGrid').innerHTML = '';
+        el('rosterTitle').textContent = 'Moonhollow Town Council';
+        el('aliveStat').textContent = '0 Alive';
+        el('outStat').textContent = '0 Out';
+        el('clockLabel').textContent = 'READY';
+        el('clockDigits').textContent = '--:--';
+        el('modeBadge').textContent = 'MODE: LIVE CLOUD SERVER';
+        el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/';
     }
 
     function render() {
         var v = currentView;
         var isNight = (v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
         document.body.classList.toggle('is-night', isNight);
-        // C: the LCD is projector-only during play; teacher strip hidden unless toggled with Ctrl+.
+        // C: the LCD is a pure projector display during play; every control lives in run.html.
         document.body.classList.toggle('in-play', v.phase !== 'LOBBY');
         if (theatre) theatre.update();
         updateConnPill();
+
+        if (waitingForRoom) {
+            renderWaitingRoom();
+            return;
+        }
 
         if (v.phase !== lastPhaseRendered) {
             if (v.phase === 'NIGHT') playCue('night');
@@ -1387,25 +1061,13 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         el('roomCodePill').textContent = v.gameId || 'WOLF-ROOM8';
         el('phasePill').textContent = phaseLabel(v.phase, v.round);
 
-        var nxt = el('nextPhaseBtn');
-        if (v.phase === 'GAME_OVER') {
-            nxt.textContent = 'Play Again (New Shuffle)';
-            nxt.onclick = window.playAgainInstant;
-        } else {
-            nxt.textContent = nextBtnLabel(v.phase);
-            nxt.onclick = window.onNextPhaseClick;
-        }
-
-        // Mode & URL footer + Cloud button state
-        var cBtn = el('cloudToggleBtn');
+        // Mode & URL footer
         if (serverUrl) {
-            if (cBtn) { cBtn.textContent = 'Cloud Room Active (Switch to Demo)'; cBtn.className = 'btn coral'; }
             el('modeBadge').textContent = 'MODE: LIVE CLOUD SERVER (GNSPES CHROMEBOOKS)';
             el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/?game=' + v.gameId;
         } else {
-            if (cBtn) { cBtn.textContent = 'Go Live (Cloud)'; cBtn.className = 'btn blue'; }
             el('modeBadge').textContent = 'MODE: INSTANT CLASSROOM / DEMO SYNC';
-            el('studentUrlDisplay').textContent = 'Click "Go Live (Cloud)" for 28 Chromebooks, or "Student Screen" for instant demo!';
+            el('studentUrlDisplay').textContent = 'Students: open index.html?demo=1 on this machine, or use the Teacher Console for cloud play!';
         }
 
         // Hero Banner Art + Copy
@@ -1435,93 +1097,34 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     }
 
     function renderLobbyPanel(v) {
+        // Display-only lobby: setup lives in run.html. Show the seating state and the join link.
         var r = v.rules;
-        var villagersCount = Math.max(0, r.classSize - r.wolvesCount - r.doctorsCount - r.detectivesCount);
-        var quickSizes = [20, 22, 24, 26, 28, 30];
-
-        var sizeButtons = quickSizes.map(function (sz) {
-            var act = r.classSize === sz ? ' active' : '';
-            return '<button class="pill-btn' + act + '" onclick="setClassSize(' + sz + ')">' + sz + '</button>';
-        }).join('');
-
+        var seated = (v.players || []).length;
+        var claimed = (v.players || []).filter(function (p) { return !p.isBot && !/^Seat \d+$/.test(p.name); }).length;
         var html = ''
             + '<div class="cfg-block">'
-            + '  <div class="cfg-header">'
-            + '    <span class="cfg-title">1. Class Size (20-30 Kids Quick Pick or Slider)</span>'
-            + '    <div class="size-pills">' + sizeButtons + '</div>'
-            + '  </div>'
-            + '  <div class="size-slider-row">'
-            + '    <input type="range" min="8" max="36" value="' + r.classSize + '" oninput="debounceClassSize(this.value)" onchange="setClassSize(this.value)">'
-            + '    <span class="size-readout">' + r.classSize + ' Kids</span>'
-            + '  </div>'
-            + '</div>'
-
-            + '<div class="cfg-block">'
-            + '  <div class="cfg-header">'
-            + '    <span class="cfg-title">2. Secret Role Balance</span>'
-            + '    <div class="size-pills">'
-            + '      <button class="pill-btn' + (r.preset === 'classic' ? ' active' : '') + '" onclick="applyPreset(\'classic\')">Classic (1 Doc / 1 Det)</button>'
-            + '      <button class="pill-btn' + (r.preset === 'student_pitch' ? ' active' : '') + '" onclick="applyPreset(\'student_pitch\')">Student Pitch (Multi-Role)</button>'
-            + '    </div>'
-            + '  </div>'
+            + '  <div class="cfg-header"><span class="cfg-title">Town Council Lobby - ' + r.classSize + ' Seats</span></div>'
             + '  <div class="role-strip">'
-            + roleCardHtml('Werewolves', 'assets/role_werewolf.jpg', r.wolvesCount, 'wolvesCount', true)
-            + roleCardHtml('Doctors', 'assets/role_doctor.jpg', r.doctorsCount, 'doctorsCount', true)
-            + roleCardHtml('Detectives', 'assets/role_detective.jpg', r.detectivesCount, 'detectivesCount', true)
-            + roleCardHtml('Villagers', 'assets/role_villager.jpg', villagersCount, '', false)
+            + roleCardHtml('Werewolves', 'assets/role_werewolf.jpg', r.wolvesCount)
+            + roleCardHtml('Doctors', 'assets/role_doctor.jpg', r.doctorsCount)
+            + roleCardHtml('Detectives', 'assets/role_detective.jpg', r.detectivesCount)
+            + roleCardHtml('Villagers', 'assets/role_villager.jpg', Math.max(0, r.classSize - r.wolvesCount - r.doctorsCount - r.detectivesCount))
             + '  </div>'
-            + '</div>'
-
-            + '<div class="cfg-block">'
-            + '  <div class="cfg-header"><span class="cfg-title">3. Classroom Rules (1-Click Toggles)</span></div>'
-            + '  <div class="rules-grid">'
-            + ruleChipHtml('Peaceful Night 1', r.peacefulNight1, "toggleRuleFlag('peacefulNight1')", r.peacefulNight1 ? 'ON' : 'LIVE KILL')
-            + ruleChipHtml('Role Claiming', r.claimRule === 'quiet', "toggleRuleFlag('claimRule')", r.claimRule === 'quiet' ? 'QUIET ONLY' : 'OPEN')
-            + ruleChipHtml('Doc Self-Save', r.doctorSelfSave, "toggleRuleFlag('doctorSelfSave')", r.doctorSelfSave ? 'ALLOWED' : 'NO')
-            + ruleChipHtml('Reveal Role on Exit', r.revealRoleOnDeath, "toggleRuleFlag('revealRoleOnDeath')", r.revealRoleOnDeath ? 'REVEAL' : 'HIDDEN')
-            + ruleChipHtml('Tie-Breaker Rule', r.tieRule === 'revote_then_none', "toggleRuleFlag('tieRule')", r.tieRule === 'revote_then_none' ? '1 RUNOFF' : 'NO EXILE')
-            + ruleChipHtml('Ghost Spectator View', r.spectatorReveal, "toggleRuleFlag('spectatorReveal')", r.spectatorReveal ? 'TRUTH ON' : 'OFF')
+            + '  <div style="margin-top:10px; font-size:0.95rem; color:var(--text-muted); line-height:1.5;">'
+            + '    <strong style="color:var(--text-heading);">' + claimed + ' of ' + r.classSize + ' seats claimed.</strong> '
+            + (serverUrl
+                ? 'Students join from their Chromebooks with their @gnspes.ca school account. The teacher sets up and deals from <strong>run.html</strong>.'
+                : 'Demo mode: open index.html?demo=1 on this machine to play a seat and step the game.')
             + '  </div>'
-            + '</div>'
-
-            + '<div class="cfg-block">'
-            + '  <div class="cfg-header"><span class="cfg-title">4. Seat Roster Source</span></div>'
-            + '  <div class="seat-loader-row">'
-            + '    <button class="btn btn-xs" onclick="fillLobbySeats(\'demo\')">Fill Demo Bots (' + r.classSize + ')</button>'
-            + '    <button class="btn btn-xs" onclick="fillLobbySeats(\'numbered\')">Seats 1..' + r.classSize + '</button>'
-            + '    <select class="select-clean" onchange="loadHomeroomSeats(this.value)">'
-            + '      <option value="">Load Room 8 Homeroom...</option>'
-            + ['703','801','802','803','804','901','902','903'].map(function (h) {
-                return '<option value="' + h + '"' + (selectedHomeroom === h ? ' selected' : '') + '>Homeroom ' + h + '</option>';
-            }).join('')
-            + '    </select>'
-            + '    <button class="btn btn-xs' + (autoBotsEnabled ? ' emerald' : '') + '" onclick="toggleAutoBots()">Auto-Bots: ' + (autoBotsEnabled ? 'ON' : 'OFF') + '</button>'
-            + '  </div>'
-            + '</div>'
-
-            + '<button class="start-cta" onclick="onNextPhaseClick()">DEAL SECRET ROLES &amp; START GAME (' + (v.players.length || r.classSize) + ' PLAYERS) -&gt;</button>';
-
+            + '</div>';
         el('leftBody').innerHTML = html;
     }
 
-    function roleCardHtml(title, imgSrc, count, key, editable) {
+    function roleCardHtml(title, imgSrc, count) {
         return '<div class="role-mini">'
             + '<img src="' + imgSrc + '" alt="' + esc(title) + '">'
             + '<div class="role-mini-name">' + esc(title) + '</div>'
-            + (editable
-                ? ('<div class="role-stepper">'
-                    + '<button class="step-btn" onclick="stepRoleCount(\'' + key + '\', -1)">-</button>'
-                    + '<span class="role-count-num">' + count + '</span>'
-                    + '<button class="step-btn" onclick="stepRoleCount(\'' + key + '\', 1)">+</button>'
-                    + '</div>')
-                : ('<div class="role-stepper"><span class="role-count-num">' + count + '</span></div>'))
-            + '</div>';
-    }
-
-    function ruleChipHtml(label, isOn, onclickJs, badgeTxt) {
-        return '<div class="rule-chip' + (isOn ? ' on' : '') + '" onclick="' + onclickJs + '">'
-            + '<span>' + esc(label) + '</span>'
-            + '<span class="state-tag">' + esc(badgeTxt) + '</span>'
+            + '<div class="role-stepper"><span class="role-count-num">' + count + '</span></div>'
             + '</div>';
     }
 
@@ -1590,7 +1193,6 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 + '<span style="font-size:0.8rem; color:var(--text-muted);">'
                 + (v.phase === 'NIGHT' ? 'Anti-tell active: individual night checkmarks are never shown on the projector.' : 'Waiting for remaining players or timer...')
                 + '</span>'
-                + (!serverUrl ? '<button class="btn btn-xs" onclick="runBotsNow()">Simulate Bot Clicks</button>' : '')
                 + '</div></div>');
         }
 
@@ -1640,10 +1242,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         if (v.phase === 'GAME_OVER') {
             parts.push('<div class="meter-box" style="border-color:var(--coral); background:var(--coral-bg);">'
                 + '<div style="font-family:var(--font-heading); font-size:1.05rem; font-weight:700; color:var(--text-heading); margin-bottom:6px;">All Secret Identities Revealed on the Board!</div>'
-                + '<div style="display:flex; gap:8px; margin-top:6px;">'
-                + '<button class="btn coral" onclick="playAgainInstant()">Play Again (Same Class, New Shuffle) -&gt;</button>'
-                + '<button class="btn" onclick="resetGameToLobby(true)">Return to Setup Lobby</button>'
-                + '</div></div>');
+                + '<div style="font-size:0.9rem; color:var(--text-muted); margin-top:4px;">The teacher starts the next game from the Teacher Console (run.html).</div>'
+                + '</div>');
         }
 
         // Recent public chronicle
@@ -1736,7 +1336,31 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         var m = Math.floor(rem / 60);
         var s = rem % 60;
         digits.textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-        el('pauseBtn').textContent = v.paused ? 'Resume' : 'Pause';
+    }
+
+    var waitingForRoom = false; // cloud mode, no game open on the server yet
+
+    function adoptServerView(d) {
+        if (d && d.status === 'ok' && d.view) {
+            waitingForRoom = false;
+            currentView = d.view;
+            render();
+            return true;
+        }
+        if (d && d.status === 'no_game') {
+            waitingForRoom = true;
+            render();
+        }
+        return false;
+    }
+
+    function pollGameId(gid) {
+        currentView.gameId = gid;
+        return fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'poll_state', gameId: gid, viewerKind: 'lcd' })
+        }).then(function (r) { return r.json(); }).then(adoptServerView).catch(function () {});
     }
 
     setInterval(updateClockDisplay, 500);
@@ -1750,38 +1374,21 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         el('howToSlidesBtn').href = 'Digital_Werewolf_Intro_Deck_902.html';
     }
     if (serverUrl) {
-        var initTargetId = urlGameId || (urlClass === '902' ? 'WOLF-BFJJ' : '');
-        if (initTargetId) {
-            currentView.gameId = initTargetId;
-            fetch(serverUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'poll_state', gameId: initTargetId, viewerKind: 'lcd' })
-            }).then(function (r) { return r.json(); }).then(function (d) {
-                if (d && d.status === 'ok' && d.view) {
-                    currentView = d.view;
-                    render();
-                }
-            }).catch(function () {});
+        // Display-only cloud mode: follow the pinned room (?game=) or the server's
+        // active room. Never creates a game - that is the Teacher Console's job.
+        if (urlGameId) {
+            pollGameId(urlGameId);
         } else {
             fetch(serverUrl + '?action=get_health')
                 .then(function (r) { return r.json(); })
                 .then(function (h) {
-                    if (h && h.activeGameId) {
-                        currentView.gameId = h.activeGameId;
-                        return fetch(serverUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'poll_state', gameId: h.activeGameId, viewerKind: 'lcd' })
-                        }).then(function (r2) { return r2.json(); });
-                    }
-                }).then(function (d2) {
-                    if (d2 && d2.status === 'ok' && d2.view) {
-                        currentView = d2.view;
-                        render();
-                    }
-                }).catch(function () {});
+                    if (h && h.activeGameId) return pollGameId(h.activeGameId);
+                    waitingForRoom = true;
+                })
+                .catch(function () { waitingForRoom = true; });
         }
+    } else {
+        waitingForRoom = false;
     }
     render();
     broadcastLocalState();

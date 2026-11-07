@@ -257,6 +257,7 @@ body {
         </div>
 
         <button class="btn emerald" id="primaryPhaseBtn" onclick="onHostAdvancePhase()">Deal Roles &amp; Start Night 1 -&gt;</button>
+        <button class="btn btn-xs" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto-play: OFF</button>
         <button class="btn amber btn-xs" onclick="onHostResetLobby()">Reset Game</button>
         <a class="btn blue btn-xs" id="lcdLink" href="lcd.html" target="_blank" title="Open Class Projector LCD Display">Open Projector LCD</a>
         <a class="btn btn-xs" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Student 2-Slide Instructions">How-To Slides</a>
@@ -264,11 +265,28 @@ body {
 </div>
 
 <div class="main-grid">
-    <!-- LEFT COLUMN: GAME SETTINGS & SERVER CONFIG -->
+    <!-- LEFT COLUMN: THE ONE TEACHER CONSOLE -->
     <div style="display:flex; flex-direction:column; gap:16px;">
         <div class="card">
             <div class="card-title">
-                <span>Class &amp; Room Preset</span>
+                <span>Room &amp; Server</span>
+                <span id="serverHealthBadge" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--emerald);">CONNECTED</span>
+            </div>
+            <div class="field">
+                <label for="roomCodeInput">Active Cloud Room Code:</label>
+                <input id="roomCodeInput" value="WOLF-E8SQ" onchange="switchRoomCode(this.value)">
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all;" id="serverUrlLabel"></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-xs" onclick="checkServerHealth()">Ping Server</button>
+                <button class="btn btn-xs" onclick="changeTeacherPin()">Change PIN</button>
+                <button class="btn btn-xs emerald" id="openRoomBtn" style="display:none;" onclick="openRoomOnServer()">Open Room on Server</button>
+            </div>
+        </div>
+
+        <div class="card" id="classCard" style="display:none;">
+            <div class="card-title">
+                <span>Class &amp; Roles</span>
                 <span id="seatCountBadge" class="pill-mono" style="font-size:0.72rem;">24 Seats</span>
             </div>
 
@@ -276,11 +294,6 @@ body {
                 <button type="button" class="btn btn-xs blue" id="btn703" onclick="selectClassPreset('703')">Class 703 (24)</button>
                 <button type="button" class="btn btn-xs" id="btn902" onclick="selectClassPreset('902')">Homeroom 902 (25)</button>
                 <button type="button" class="btn btn-xs" id="btn28" onclick="selectClassPreset('28')">Classic 28</button>
-            </div>
-
-            <div class="field">
-                <label for="roomCodeInput">Active Cloud Room Code:</label>
-                <input id="roomCodeInput" value="WOLF-E8SQ" onchange="switchRoomCode(this.value)">
             </div>
 
             <div class="card-title" style="margin-top:6px;">Role Distribution</div>
@@ -318,38 +331,25 @@ body {
             </div>
 
             <button class="btn coral" style="width:100%;" onclick="applyRoleSettings()">Update Room Rules</button>
-        </div>
 
-        <div class="card">
-            <div class="card-title">
-                <span>Cloud Server Status</span>
-                <span id="serverHealthBadge" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--emerald);">CONNECTED</span>
+            <div class="card-title" style="margin-top:6px;">Testing &amp; Bots</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-xs" id="testModeBtn" onclick="toggleTestMode()">Test Mode: OFF</button>
+                <button class="btn btn-xs blue" onclick="fillDemoBots()">Fill demo bots</button>
+                <button class="btn btn-xs" onclick="removeEmpty()">Remove empty seats</button>
             </div>
-            <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all;" id="serverUrlLabel"></div>
-            <div style="display:flex; gap:6px;">
-                <button class="btn btn-xs" onclick="checkServerHealth()">Ping Server</button>
-                <button class="btn btn-xs" onclick="changeTeacherPin()">Change PIN</button>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">
+                Test Mode = bot seats AND unclaimed Seat placeholders confirm roles, pick at night and vote by day on every phase advance, so a 100% bot class plays the whole game: <strong>Test Mode ON, then Deal Roles</strong> - that is all. Fill/remove are only for a humans-only roster or named bots. Test Mode can only be toggled in the Lobby.
             </div>
         </div>
 
-        <!-- DEMO CLASS + PREFLIGHT (Lobby only) -->
+        <!-- PREFLIGHT (Lobby only) -->
         <div class="card" id="demoCard" style="display:none; border-left:4px solid var(--blue);">
             <div class="card-title">
-                <span>Demo class &amp; preflight</span>
+                <span>Preflight checklist</span>
                 <span class="pill-mono" id="preflightBadge">-</span>
             </div>
             <div id="preflightList" style="font-size:0.84rem; display:flex; flex-direction:column; gap:5px;"></div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
-                <button class="btn btn-xs blue" onclick="fillDemoBots()">Fill demo bots</button>
-                <button class="btn btn-xs" onclick="removeEmpty()">Remove empty seats</button>
-                <button class="btn btn-xs" id="testModeBtn" onclick="toggleTestMode()">Test Mode: OFF</button>
-                <button class="btn btn-xs emerald" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto-play: OFF</button>
-            </div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">
-                Test Mode = bot seats AND unclaimed Seat placeholders confirm roles, pick at night and vote by day on every phase advance, so the whole game (including the LCD Story Theatre) plays through. Auto-play advances phases on a timer.
-                For a 100% bot class: turn <strong>Test Mode ON</strong>, then Deal Roles - that is all. (Remove empty seats / Fill demo bots are only for a humans-only roster or named bots.)
-                Test Mode can only be toggled in the Lobby - reset to Lobby if the game is already running.
-            </div>
         </div>
     </div>
 
@@ -412,6 +412,11 @@ body {
                 </div>
             </div>
 
+            <div id="addStudentRow" style="display:none; gap:6px;">
+                <input id="addStudentInput" placeholder="Add a student (First Ls.) - claims the first free seat" style="flex:1; background:#0f172a; border:1px solid #334155; color:#ffffff; font-family:var(--font-mono); font-size:0.85rem; padding:7px 10px; border-radius:6px;" onkeydown="if(event.key==='Enter')addStudentFromInput()">
+                <button class="btn btn-xs emerald" onclick="addStudentFromInput()">Add seat</button>
+            </div>
+
             <div class="roster-wrap">
                 <table class="seat-table">
                     <thead>
@@ -420,7 +425,7 @@ body {
                             <th>Student Name</th>
                             <th>Secret Role</th>
                             <th>Status</th>
-                            <th style="text-align:right;">Host Override</th>
+                            <th style="text-align:right;">Seat Actions</th>
                         </tr>
                     </thead>
                     <tbody id="rosterTbody">
@@ -483,6 +488,7 @@ body {
     var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
     var currentView = null;
+    var roomOpen = false; // false until the server reports a live game for this room code
     var pollInterval = null;
 
     function el(id) { return document.getElementById(id); }
@@ -678,7 +684,16 @@ body {
     var autoPlayTimer = null;
     var revealReadyTicks = 0; // how many auto-play ticks a 'ready' (not yet started) reveal has survived
 
+    window.openRoomOnServer = function () {
+        postServer({ action: ACT.CREATE, god: true, rules: { classSize: 24, preset: 'classic' } }).then(function (res) {
+            if (res && res.status === 'ok') toast('Room opened on the server - seats are live.');
+            else toast('Could not open room: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
     window.onHostAdvancePhase = function (force) {
+        if (!roomOpen) { window.openRoomOnServer(); return; }
         if (!currentView) return;
         var ph = currentView.phase;
         var testMode = Boolean(currentView.rules && currentView.rules.testMode);
@@ -705,6 +720,53 @@ body {
             else toast('Remove failed: ' + ((res && res.message) || 'check connection'));
             pollState();
         });
+    };
+
+    // Teacher seat management (roster flexibility): add / rename / kick
+    window.addStudentFromInput = function () {
+        var inp = el('addStudentInput');
+        var name = (inp && inp.value ? inp.value : '').trim();
+        if (!name) { toast('Type the student name first (e.g. Jordan He.).'); return; }
+        postServer({ action: ACT.ADD_PLAYER, displayName: name }).then(function (res) {
+            if (res && res.status === 'ok') { toast('Seat claimed: ' + name); if (inp) inp.value = ''; }
+            else toast('Add failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    window.renameStudentDialog = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Rename seat #' + (p ? ('0' + p.seat).slice(-2) : '?'), 'Names are never secret - this is safe to do at any point in the game.', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Save Name', cls: 'coral', fn: function () {
+                    var inp = el('modalNameInput');
+                    var name = inp ? inp.value.trim() : '';
+                    if (!name) return;
+                    postServer({ action: ACT.RENAME_PLAYER, playerId: pId, displayName: name }).then(function (res) {
+                        if (res && res.status !== 'ok') toast('Rename failed: ' + ((res && res.message) || ''));
+                        pollState();
+                    });
+                }
+            }
+        ], '<input type="text" id="modalNameInput" maxlength="28" placeholder="First Ls." value="' + esc(p ? p.name : '') + '">');
+        var inp2 = el('modalNameInput');
+        if (inp2) { inp2.focus(); inp2.select(); }
+    };
+
+    window.kickStudent = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Kick from lobby', 'Remove <strong>' + esc(p ? ('#' + p.seat + ' ' + p.name) : pId) + '</strong> from the seating chart? The seat frees up immediately.', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Kick', cls: 'coral', fn: function () {
+                    postServer({ action: ACT.KICK_PLAYER, playerId: pId }).then(function (res) {
+                        if (res && res.status !== 'ok') toast('Kick failed: ' + ((res && res.message) || ''));
+                        pollState();
+                    });
+                }
+            }
+        ]);
     };
 
     window.toggleTestMode = function () {
@@ -849,6 +911,22 @@ body {
             });
     };
 
+    function renderWaitingRoom() {
+        el('phaseBadge').textContent = 'NO ROOM';
+        el('primaryPhaseBtn').textContent = 'Open Room on Server ->';
+        var cc = el('classCard'); if (cc) cc.style.display = 'none';
+        var dc = el('demoCard'); if (dc) dc.style.display = 'none';
+        var orb = el('openRoomBtn'); if (orb) orb.style.display = 'inline-flex';
+        var addRow = el('addStudentRow'); if (addRow) addRow.style.display = 'none';
+        el('rosterTbody').innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px 8px;">No game is open for room <strong>' + esc(targetGameId) + '</strong> yet. Press <strong>Open Room on Server</strong> (or the big button) to create the lobby - then students can join from their Chromebooks.</td></tr>';
+        el('seatedStat').textContent = '0 / - Seated';
+        el('aliveStat').textContent = '- Alive';
+        el('nightReportCard').style.display = 'none';
+        el('packSplitCard').style.display = 'none';
+        el('theatreBarCard').style.display = 'none';
+        el('liveNightCard').style.display = 'none';
+    }
+
     function pollState() {
         postServer({
             action: ACT.POLL,
@@ -857,7 +935,9 @@ body {
         }).then(function (res) {
             if (!res) return;
             if (res.status === 'ok' && res.view) {
+                roomOpen = true;
                 currentView = res.view;
+                var orb = el('openRoomBtn'); if (orb) orb.style.display = 'none';
                 renderView();
             } else if (res.status === 'auth_failed' || (res.message && /PIN/i.test(res.message))) {
                 el('pinGate').style.display = 'flex';
@@ -866,7 +946,10 @@ body {
             } else if (res.status === 'busy') {
                 toast('Server busy - retrying.');
             } else if (res.status === 'no_game') {
-                toast('No active game on the server yet.');
+                if (roomOpen) toast('Room closed on the server - press Open Room to start a new lobby.');
+                roomOpen = false;
+                currentView = null;
+                renderWaitingRoom();
             }
         });
     }
@@ -921,6 +1004,8 @@ body {
     function renderView() {
         if (!currentView) return;
         var v = currentView;
+        var cc = el('classCard');
+        if (cc) cc.style.display = (v.phase === E.PHASES.LOBBY) ? 'flex' : 'none';
         renderDemoPreflight(v);
         el('roomCodeBadge').textContent = v.gameId;
         el('roomCodeInput').value = v.gameId;
@@ -968,21 +1053,30 @@ body {
         el('seatedStat').textContent = seated + ' / ' + (v.rules ? v.rules.classSize : 24) + ' Seated';
         el('aliveStat').textContent = alive + ' Alive';
 
-        // Roster Table
+        // Roster Table - seat actions by phase: Rename always; Kick in Lobby; Eliminate/Revive in game
+        var inLobby = v.phase === E.PHASES.LOBBY;
+        var addRow = el('addStudentRow');
+        if (addRow) addRow.style.display = inLobby ? 'flex' : 'none';
         var tbody = el('rosterTbody');
         tbody.innerHTML = (v.players || []).map(function (p) {
             var role = p.role || 'VILLAGER';
             var isDead = !p.alive;
-            var actionBtn = isDead
-                ? '<button class="btn btn-xs emerald" onclick="hostRevivePlayer(\'' + p.id + '\')">Revive</button>'
-                : '<button class="btn btn-xs" style="color:var(--coral);" onclick="hostEliminatePlayer(\'' + p.id + '\')">Eliminate</button>';
+            var isPlaceholder = /^Seat \d+$/.test(String(p.name || ''));
+            var actionBtn = '<button class="btn btn-xs" onclick="renameStudentDialog(\'' + p.id + '\')"' + (isPlaceholder ? ' title="Claim this seat for a student"' : '') + '>Rename</button>';
+            if (inLobby) {
+                actionBtn += ' <button class="btn btn-xs" style="color:var(--coral);" onclick="kickStudent(\'' + p.id + '\')">Kick</button>';
+            } else if (isDead) {
+                actionBtn += ' <button class="btn btn-xs emerald" onclick="hostRevivePlayer(\'' + p.id + '\')">Revive</button>';
+            } else {
+                actionBtn += ' <button class="btn btn-xs" style="color:var(--coral);" onclick="hostEliminatePlayer(\'' + p.id + '\')">Eliminate</button>';
+            }
 
             return '<tr class="' + (isDead ? 'dead' : '') + '">'
                 + '<td style="font-family:var(--font-mono); font-weight:800; color:var(--text-muted);">#' + (p.seat < 10 ? '0' + p.seat : p.seat) + '</td>'
                 + '<td><strong>' + esc(p.name) + '</strong>' + (p.email ? (' <span style="font-size:0.75rem; color:var(--text-muted);">&lt;' + esc(p.email) + '&gt;</span>') : '') + '</td>'
                 + '<td><span class="r-pill ' + role + '">' + role + '</span></td>'
                 + '<td>' + (isDead ? '<span style="color:var(--red); font-weight:700;">OUT</span>' : '<span style="color:var(--emerald);">ALIVE</span>') + '</td>'
-                + '<td style="text-align:right;">' + actionBtn + '</td>'
+                + '<td style="text-align:right; white-space:nowrap;">' + actionBtn + '</td>'
                 + '</tr>';
         }).join('');
 
