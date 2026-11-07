@@ -1155,8 +1155,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     window.onNextPhaseClick = function () {
         nominatedIds = {};
         if (serverUrl) {
-            // A2: bot simulation never runs in cloud mode unless explicit Test Mode is on
-            callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && testMode });
+            // A2: bot simulation never runs in cloud mode unless the room is in Test Mode
+            var roomTestMode = testMode || Boolean(currentView.rules && currentView.rules.testMode);
+            callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && roomTestMode });
             return;
         }
         if (localGame.phase === E.PHASES.LOBBY && localGame.players.length === 0) {
@@ -1236,8 +1237,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
     window.playAgainInstant = function () {
         if (serverUrl) {
+            var roomTestMode = testMode || Boolean(currentView.rules && currentView.rules.testMode);
             callServer({ action: 'reset_lobby', keepPlayers: true }).then(function () {
-                callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled });
+                callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && roomTestMode });
             });
             return;
         }

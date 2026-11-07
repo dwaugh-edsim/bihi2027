@@ -1462,7 +1462,8 @@
     if (game.phase !== PHASES.LOBBY) return { ok: false, error: 'Can only remove empty seats in the Lobby.' };
     now = now || Date.now();
     var before = game.players.length;
-    game.players = game.players.filter(function (p) { return !p.isBot; });
+    // Empty = bot OR unclaimed numbered placeholder ("Seat 12"); real joined students stay.
+    game.players = game.players.filter(function (p) { return !p.isBot && !/^Seat \d+$/.test(p.name); });
     game.players.forEach(function (p, i) { p.seat = i + 1; });
     game.updatedAt = now;
     return { ok: true, removed: before - game.players.length };

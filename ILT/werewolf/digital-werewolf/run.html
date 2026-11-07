@@ -331,6 +331,25 @@ body {
                 <button class="btn btn-xs" onclick="changeTeacherPin()">Change PIN</button>
             </div>
         </div>
+
+        <!-- DEMO CLASS + PREFLIGHT (Lobby only) -->
+        <div class="card" id="demoCard" style="display:none; border-left:4px solid var(--blue);">
+            <div class="card-title">
+                <span>Demo class &amp; preflight</span>
+                <span class="pill-mono" id="preflightBadge">-</span>
+            </div>
+            <div id="preflightList" style="font-size:0.84rem; display:flex; flex-direction:column; gap:5px;"></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                <button class="btn btn-xs blue" onclick="fillDemoBots()">Fill demo bots</button>
+                <button class="btn btn-xs" onclick="removeEmpty()">Remove empty seats</button>
+                <button class="btn btn-xs" id="testModeBtn" onclick="toggleTestMode()">Test Mode: OFF</button>
+                <button class="btn btn-xs emerald" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto-play: OFF</button>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">
+                Test Mode = bots confirm roles, pick at night and vote by day on every phase advance, so the whole game (including the LCD Story Theatre) plays through. Auto-play advances phases on a timer.
+                For a 100% bot class: <strong>Remove empty seats</strong> first, then <strong>Fill demo bots</strong>, then Deal Roles.
+            </div>
+        </div>
     </div>
 
     <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
@@ -654,20 +673,70 @@ body {
         return CFG.COPY.nightGateNone;
     }
 
-    window.onHostAdvancePhase = function () {
+    var autoPlayOn = false;
+    var autoPlayTimer = null;
+
+    window.onHostAdvancePhase = function (force) {
         if (!currentView) return;
         var ph = currentView.phase;
+        var testMode = Boolean(currentView.rules && currentView.rules.testMode);
         // F9 fix: drive labels from the engine's real PHASES (DAY_DISCUSSION / DAY_VOTE)
         var P = E.PHASES;
-        if (ph === P.LOBBY) {
-            postServer({ action: ACT.ADVANCE }).then(handleAdvance);
-        } else if (ph === P.NIGHT && currentView.god && currentView.god.wolfResolution && currentView.god.wolfResolution.mode === 'split' && !hasTeacherDecision(currentView, 'WEREWOLF')) {
+        if (ph === P.NIGHT && !testMode && !force && currentView.god && currentView.god.wolfResolution && currentView.god.wolfResolution.mode === 'split' && !hasTeacherDecision(currentView, 'WEREWOLF')) {
             toast('Pack is split - decide it in the Pack Split panel first (or end the night for no kill).');
             return;
-        } else {
-            postServer({ action: ACT.ADVANCE }).then(handleAdvance);
         }
+        postServer({ action: ACT.ADVANCE, simulateBots: testMode }).then(handleAdvance);
     };
+
+    window.fillDemoBots = function () {
+        postServer({ action: ACT.FILL_SEATS, mode: 'demo' }).then(function (res) {
+            if (res && res.status === 'ok') toast('Demo bot seats filled.');
+            else toast('Fill failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    window.removeEmpty = function () {
+        postServer({ action: ACT.REMOVE_EMPTY_SEATS }).then(function (res) {
+            if (res && res.status === 'ok') toast('Empty seats removed.');
+            else toast('Remove failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    window.toggleTestMode = function () {
+        if (!currentView || !currentView.rules) return;
+        var next = !currentView.rules.testMode;
+        postServer({ action: ACT.UPDATE_RULES, rules: { testMode: next } }).then(function (res) {
+            if (res && res.status === 'ok') toast('Test Mode ' + (next ? 'ON - bots will play' : 'OFF'));
+            else toast('Could not set Test Mode: ' + ((res && res.message) || ''));
+            pollState();
+        });
+    };
+
+    window.toggleAutoPlay = function () {
+        autoPlayOn = !autoPlayOn;
+        var b = el('autoPlayBtn');
+        if (b) { b.textContent = 'Auto-play: ' + (autoPlayOn ? 'ON' : 'OFF'); b.className = 'btn btn-xs' + (autoPlayOn ? ' emerald' : ''); }
+        if (autoPlayTimer) { clearTimeout(autoPlayTimer); autoPlayTimer = null; }
+        if (autoPlayOn) scheduleAutoPlay();
+    };
+
+    function scheduleAutoPlay() {
+        if (!autoPlayOn) return;
+        if (autoPlayTimer) clearTimeout(autoPlayTimer);
+        autoPlayTimer = setTimeout(function () {
+            if (!autoPlayOn || !currentView) return;
+            var testMode = Boolean(currentView.rules && currentView.rules.testMode);
+            var P = E.PHASES;
+            var revealBusy = currentView.reveal && currentView.reveal.control && currentView.reveal.control.status === 'playing';
+            if (testMode && currentView.phase !== P.LOBBY && currentView.phase !== P.GAME_OVER && !revealBusy) {
+                window.onHostAdvancePhase(true);
+            }
+            scheduleAutoPlay();
+        }, 11000);
+    }
 
     function hasTeacherDecision(v, roleKey) {
         var cn = v.god && v.god.currentNight;
@@ -809,9 +878,40 @@ body {
         window.speechSynthesis.speak(u);
     };
 
+    // C1 preflight + demo-class card (Lobby only): all green before Deal Roles
+    function renderDemoPreflight(v) {
+        var card = el('demoCard');
+        if (!card) return;
+        if (v.phase !== E.PHASES.LOBBY) { card.style.display = 'none'; return; }
+        card.style.display = 'flex';
+
+        var players = v.players || [];
+        var seated = players.length;
+        var emptySeats = players.filter(function (p) { return p.isBot || /^Seat \d+$/.test(p.name); }).length;
+        var humans = seated - emptySeats;
+        var r = v.rules || {};
+        var rolesOk = (r.wolvesCount || 0) >= 1 && (r.wolvesCount + r.doctorsCount + r.detectivesCount) < seated;
+        var serverOk = Boolean(serverUrl) && lastOkAt > lastErrAt;
+        var testMode = Boolean(r.testMode);
+
+        var rows = [];
+        rows.push((serverOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Server reachable (' + (serverOk ? 'live' : 'check URL/PIN') + ')');
+        rows.push('<span style="color:var(--emerald);">&#10003;</span> Teacher PIN accepted');
+        rows.push((seated >= 6 ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Seated: ' + seated + ' (min 6)');
+        rows.push((emptySeats === 0 || testMode ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--amber);">!</span>') + ' Empty seats: ' + emptySeats + (emptySeats && !testMode ? ' - remove them, or turn Test Mode on to keep them as bots' : ''));
+        rows.push((rolesOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Role counts: ' + r.wolvesCount + 'W/' + r.doctorsCount + 'D/' + r.detectivesCount + 'Det');
+        el('preflightList').innerHTML = rows.map(function (x) { return '<div>' + x + '</div>'; }).join('');
+        el('preflightBadge').textContent = (serverOk && seated >= 6 && rolesOk) ? 'READY' : 'CHECK';
+        el('preflightBadge').style.color = (serverOk && seated >= 6 && rolesOk) ? 'var(--emerald)' : 'var(--amber)';
+
+        var tBtn = el('testModeBtn');
+        if (tBtn) { tBtn.textContent = 'Test Mode: ' + (testMode ? 'ON' : 'OFF'); tBtn.className = 'btn btn-xs' + (testMode ? ' emerald' : ''); }
+    }
+
     function renderView() {
         if (!currentView) return;
         var v = currentView;
+        renderDemoPreflight(v);
         el('roomCodeBadge').textContent = v.gameId;
         el('roomCodeInput').value = v.gameId;
         el('phaseBadge').textContent = v.phase + (v.round ? (' R' + v.round) : '');
