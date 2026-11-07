@@ -351,6 +351,15 @@ body {
             </div>
             <div id="preflightList" style="font-size:0.84rem; display:flex; flex-direction:column; gap:5px;"></div>
         </div>
+
+        <!-- TEACHER COACH: what to do and say at every phase -->
+        <div class="card" id="coachCard" style="display:none; border-left:4px solid var(--emerald);">
+            <div class="card-title">
+                <span>Teacher Coach</span>
+                <span class="pill-mono" id="coachPhase" style="color:var(--emerald);">-</span>
+            </div>
+            <div id="coachBody" style="font-size:0.86rem; color:var(--text-main); display:flex; flex-direction:column; gap:7px; line-height:1.45;"></div>
+        </div>
     </div>
 
     <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
@@ -1015,6 +1024,63 @@ body {
         if (tBtn) { tBtn.textContent = 'Test Mode: ' + (testMode ? 'ON' : 'OFF'); tBtn.className = 'btn btn-xs' + (testMode ? ' emerald' : ''); }
     }
 
+    // Teacher Coach: per-phase "do this, say this" script for running the room.
+    // Deterministic on purpose - no LLM key needed, works with the projector offline.
+    function coachLines(v) {
+        var P = E.PHASES;
+        var testMode = Boolean(v.rules && v.rules.testMode);
+        var tm = testMode ? '<div style="color:var(--amber); font-weight:700;">REHEARSAL: Test Mode is ON - bots are playing every kid input. Turn it OFF in the Lobby for the real class.</div>' : '';
+        var revealWait = (v.reveal && v.reveal.control && (v.reveal.control.status === 'ready' || v.reveal.control.status === 'playing'))
+            ? '<div style="color:var(--amber);">The Story Theatre has the projector right now - let it play (Space/Right next, S skip), then continue.</div>' : '';
+        function say(t) { return '<div style="border-left:3px solid var(--coral); padding:4px 8px; font-style:italic; color:#fca5a5;">Say: "' + t + '"</div>'; }
+
+        if (v.phase === P.LOBBY) return { label: 'LOBBY', html: tm
+            + '<div>Students join on their Chromebooks at the link on the projector footer, signing in with their @gnspes.ca account. Use <strong>Add seat</strong> for anyone without a device.</div>'
+            + say('Grab your Chromebook, open the link on the board, and sign in with your school account. Sit at the seat number you claim!')
+            + '<div>Check the preflight below, then <strong>Deal Roles &amp; Start Night 1</strong>.</div>' };
+        if (v.phase === P.ROLE_REVEAL) return { label: 'SECRET ROLES', html: tm
+            + '<div>Room stays silent while everyone checks their corner card.</div>'
+            + say('Cup one hand over the small Hold [ID] badge in your corner, read your secret role, release to snap it shut - then press Ready. Never show your neighbour!')
+            + '<div>When the ready meter fills (or after about 2 minutes): <strong>Begin Night 1</strong>.</div>' };
+        if (v.phase === P.NIGHT) return { label: 'NIGHT ' + v.round, html: tm + revealWait
+            + '<div>Lights down if you can. Every player taps ONE seat - villagers too, so no click is a tell.</div>'
+            + say('Close your eyes and drop your heads. Everyone quietly taps one seat on your screen - no clicking sounds, no peeking.')
+            + '<div>The projector only shows the aggregate meter - individual night picks are hidden (anti-tell). Watch the <strong>Live Night Actions</strong> panel here for the truth. When all have tapped or the timer ends: <strong>End Night</strong>.</div>'
+            + '<div style="color:var(--text-muted);">If the pack is split, the Pack Split panel appears - you decide the target (never random), or choose No kill tonight.</div>' };
+        if (v.phase === P.DAWN) return { label: 'DAWN ' + v.round, html: tm + revealWait
+            + say('Eyes up! The night is ending...')
+            + '<div>Press <strong>Reveal Dawn</strong> - the Story Theatre tells what happened on the projector. Then <strong>Start Day Debate</strong>.</div>' };
+        if (v.phase === P.DAY_DISCUSSION) return { label: 'DAY ' + v.round + ' DEBATE', html: tm
+            + (v.rules.claimRule === 'quiet' ? say('Debate is open - but remember the Quiet Rule: nobody may claim a role, real or bluffing. Persuade with logic and voting patterns.')
+                                              : say('Debate is open - question suspects and defend yourselves before the ballot.'))
+            + '<div>Click seats on the projector to put suspects "On the Stand". 2-3 minutes, then <strong>Open Secret Ballot</strong>.</div>' };
+        if (v.phase === P.DAY_VOTE) return { label: 'DAY ' + v.round + ' BALLOT', html: tm
+            + say('Cast one secret ballot on your screen - choose a suspect, or vote Skip if you want no exile today. You can change it until I close the ballot.')
+            + '<div>When every living player has voted (or the timer ends): <strong>Close &amp; Tally Votes</strong>.</div>' };
+        if (v.phase === P.DAY_REVOTE) return { label: 'TIE RUNOFF', html: tm
+            + say('Deadlock! The top suspects get 15 seconds each to defend themselves - then everyone votes again between them only.')
+            + '<div>Runoff ballots only accept the tied seats. Then <strong>Close &amp; Tally</strong> again.</div>' };
+        if (v.phase === P.DUSK) return { label: 'DUSK ' + v.round, html: tm + revealWait
+            + '<div>Read the exile result from the projector. A quick beat for the drama - and remind ghosts: total poker face.</div>'
+            + say('The council has spoken. To the exiled: you are now a silent ghost - no hints, no reactions. And I mean NO reactions.')
+            + '<div>Then <strong>Begin Next Night</strong>.</div>' };
+        if (v.phase === P.GAME_OVER) return { label: 'GAME OVER', html: tm
+            + '<div>The roster flip reveals every role on the projector. Debrief while it is fresh:</div>'
+            + say('Wolves, stand up! Village: what was the tell that almost caught them - and what saved them?')
+            + '<div><strong>Play Again</strong> (Reset to Lobby, keep seats) re-deals in seconds. For the real class: reset to Lobby and turn Test Mode OFF first.</div>' };
+        return { label: v.phase, html: '' };
+    }
+
+    function renderCoach(v) {
+        var card = el('coachCard');
+        if (!card) return;
+        if (!roomOpen) { card.style.display = 'none'; return; }
+        var c = coachLines(v);
+        card.style.display = 'flex';
+        el('coachPhase').textContent = c.label;
+        el('coachBody').innerHTML = c.html;
+    }
+
     function renderView() {
         if (!currentView) return;
         var v = currentView;
@@ -1194,6 +1260,7 @@ body {
         renderNightReport(v);
         renderPackSplit(v);
         renderTheatreBar(v);
+        renderCoach(v);
     }
 
     // A4: "What happened tonight" card from game.secret.nightReports (teacher only), with history
