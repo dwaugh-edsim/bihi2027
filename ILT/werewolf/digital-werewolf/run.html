@@ -346,8 +346,9 @@ body {
                 <button class="btn btn-xs emerald" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto-play: OFF</button>
             </div>
             <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">
-                Test Mode = bots confirm roles, pick at night and vote by day on every phase advance, so the whole game (including the LCD Story Theatre) plays through. Auto-play advances phases on a timer.
-                For a 100% bot class: <strong>Remove empty seats</strong> first, then <strong>Fill demo bots</strong>, then Deal Roles.
+                Test Mode = bot seats AND unclaimed Seat placeholders confirm roles, pick at night and vote by day on every phase advance, so the whole game (including the LCD Story Theatre) plays through. Auto-play advances phases on a timer.
+                For a 100% bot class: turn <strong>Test Mode ON</strong>, then Deal Roles - that is all. (Remove empty seats / Fill demo bots are only for a humans-only roster or named bots.)
+                Test Mode can only be toggled in the Lobby - reset to Lobby if the game is already running.
             </div>
         </div>
     </div>
@@ -675,6 +676,7 @@ body {
 
     var autoPlayOn = false;
     var autoPlayTimer = null;
+    var revealReadyTicks = 0; // how many auto-play ticks a 'ready' (not yet started) reveal has survived
 
     window.onHostAdvancePhase = function (force) {
         if (!currentView) return;
@@ -730,7 +732,15 @@ body {
             if (!autoPlayOn || !currentView) return;
             var testMode = Boolean(currentView.rules && currentView.rules.testMode);
             var P = E.PHASES;
-            var revealBusy = currentView.reveal && currentView.reveal.control && currentView.reveal.control.status === 'playing';
+            // Let the LCD's Story Theatre have the stage: never advance while a
+            // reveal is 'playing', and give a 'ready' reveal two ticks (~22s) for
+            // the projector to auto-start it before the bot class moves on.
+            var ctl = currentView.reveal && currentView.reveal.control;
+            var revealBusy = Boolean(ctl) && (
+                ctl.status === 'playing' ||
+                (ctl.status === 'ready' && revealReadyTicks < 2)
+            );
+            revealReadyTicks = (ctl && ctl.status === 'ready') ? (revealReadyTicks + 1) : 0;
             if (testMode && currentView.phase !== P.LOBBY && currentView.phase !== P.GAME_OVER && !revealBusy) {
                 window.onHostAdvancePhase(true);
             }
@@ -887,8 +897,8 @@ body {
 
         var players = v.players || [];
         var seated = players.length;
-        var emptySeats = players.filter(function (p) { return p.isBot || /^Seat \d+$/.test(p.name); }).length;
-        var humans = seated - emptySeats;
+        var placeholders = players.filter(function (p) { return !p.isBot && /^Seat \d+$/.test(p.name); }).length;
+        var bots = players.filter(function (p) { return p.isBot; }).length;
         var r = v.rules || {};
         var rolesOk = (r.wolvesCount || 0) >= 1 && (r.wolvesCount + r.doctorsCount + r.detectivesCount) < seated;
         var serverOk = Boolean(serverUrl) && lastOkAt > lastErrAt;
@@ -898,7 +908,7 @@ body {
         rows.push((serverOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Server reachable (' + (serverOk ? 'live' : 'check URL/PIN') + ')');
         rows.push('<span style="color:var(--emerald);">&#10003;</span> Teacher PIN accepted');
         rows.push((seated >= 6 ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Seated: ' + seated + ' (min 6)');
-        rows.push((emptySeats === 0 || testMode ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--amber);">!</span>') + ' Empty seats: ' + emptySeats + (emptySeats && !testMode ? ' - remove them, or turn Test Mode on to keep them as bots' : ''));
+        rows.push((placeholders === 0 || testMode ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--amber);">!</span>') + ' Unclaimed seats: ' + placeholders + ' (demo bots: ' + bots + ')' + (placeholders && !testMode ? ' - Test Mode plays them as bots, or remove them for humans-only' : (testMode && placeholders ? ' - Test Mode ON: they act as bots' : '')));
         rows.push((rolesOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Role counts: ' + r.wolvesCount + 'W/' + r.doctorsCount + 'D/' + r.detectivesCount + 'Det');
         el('preflightList').innerHTML = rows.map(function (x) { return '<div>' + x + '</div>'; }).join('');
         el('preflightBadge').textContent = (serverOk && seated >= 6 && rolesOk) ? 'READY' : 'CHECK';

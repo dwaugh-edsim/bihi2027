@@ -1546,6 +1546,17 @@
   }
 
   /**
+   * In Test Mode, unclaimed 'Seat N' placeholder seats act as bots too, so a
+   * 100% bot demo class is ONE toggle (Test Mode on, then Deal Roles) instead
+   * of remove-empty-then-fill seat surgery. Real joined students are never
+   * driven by this - their names cannot match the placeholder pattern.
+   */
+  function isBotLike(game, p) {
+    return Boolean(p.isBot) ||
+      (Boolean(game.rules && game.rules.testMode) && /^Seat \d+$/.test(String(p.name || '')));
+  }
+
+  /**
    * Smart AI bot actions for Demo / Partial-Bot Classroom Testing!
    */
   function simulateBotActions(game, now) {
@@ -1553,7 +1564,7 @@
     var alive = livingPlayers(game);
     if (game.phase === PHASES.ROLE_REVEAL) {
       game.players.forEach(function (p) {
-        if (p.isBot) p.readyConfirmed = true;
+        if (isBotLike(game, p)) p.readyConfirmed = true;
       });
       game.updatedAt = now;
       return { ok: true };
@@ -1565,7 +1576,7 @@
       var nonWolves = alive.filter(function (p) { return p.role !== ROLES.WEREWOLF; });
       var humanWolfPick = null;
       wolves.forEach(function (w) {
-        if (!w.isBot && game.currentNight.wolfPicks[w.id]) {
+        if (!isBotLike(game, w) && game.currentNight.wolfPicks[w.id]) {
           humanWolfPick = game.currentNight.wolfPicks[w.id];
         }
       });
@@ -1574,7 +1585,7 @@
         : null);
 
       wolves.forEach(function (w) {
-        if (w.isBot && sharedWolfTarget) {
+        if (isBotLike(game, w) && sharedWolfTarget) {
           game.currentNight.wolfPicks[w.id] = sharedWolfTarget;
         }
       });
@@ -1583,7 +1594,7 @@
       var doctors = livingPlayers(game, ROLES.DOCTOR);
       var humanDocPick = null;
       doctors.forEach(function (d) {
-        if (!d.isBot && game.currentNight.doctorPicks[d.id]) humanDocPick = game.currentNight.doctorPicks[d.id];
+        if (!isBotLike(game, d) && game.currentNight.doctorPicks[d.id]) humanDocPick = game.currentNight.doctorPicks[d.id];
       });
       var validDocTargets = alive.filter(function (p) {
         if (!game.rules.doctorRepeatSave && game.secret.lastDoctorSavedId === p.id) return false;
@@ -1594,7 +1605,7 @@
         ? validDocTargets[Math.floor(nextRandom(game) * validDocTargets.length)].id
         : null);
       doctors.forEach(function (d) {
-        if (d.isBot && sharedDocTarget) {
+        if (isBotLike(game, d) && sharedDocTarget) {
           game.currentNight.doctorPicks[d.id] = sharedDocTarget;
         }
       });
@@ -1605,7 +1616,7 @@
       game.secret.detectiveFindings.forEach(function (f) { checkedIds[f.targetId] = true; });
       var humanDetPick = null;
       detectives.forEach(function (c) {
-        if (!c.isBot && game.currentNight.detectivePicks[c.id]) humanDetPick = game.currentNight.detectivePicks[c.id];
+        if (!isBotLike(game, c) && game.currentNight.detectivePicks[c.id]) humanDetPick = game.currentNight.detectivePicks[c.id];
       });
       var detCandidates = alive.filter(function (p) {
         return p.role !== ROLES.DETECTIVE && !checkedIds[p.id];
@@ -1617,14 +1628,14 @@
         ? detCandidates[Math.floor(nextRandom(game) * detCandidates.length)].id
         : null);
       detectives.forEach(function (c) {
-        if (c.isBot && sharedDetTarget) {
+        if (isBotLike(game, c) && sharedDetTarget) {
           game.currentNight.detectivePicks[c.id] = sharedDetTarget;
         }
       });
 
       // Bot villagers tap a decoy suspect
       alive.forEach(function (p) {
-        if (p.isBot && p.role === ROLES.VILLAGER) {
+        if (isBotLike(game, p) && p.role === ROLES.VILLAGER) {
           var others = alive.filter(function (x) { return x.id !== p.id; });
           if (others.length) {
             game.currentNight.villagerNotes[p.id] = others[Math.floor(nextRandom(game) * others.length)].id;
@@ -1651,7 +1662,7 @@
         .filter(function (id) { return pool.some(function (p) { return p.id === id; }); });
 
       alive.forEach(function (voter) {
-        if (!voter.isBot) return;
+        if (!isBotLike(game, voter)) return;
         if (voter.role === ROLES.DETECTIVE && knownWolves.length > 0) {
           game.currentVote.ballots[voter.id] = knownWolves[0];
           return;
@@ -2104,6 +2115,33 @@
       SE.applyControl(rv2, 'skip', 126);
       check(rv2.control.status === 'done' && rv2.control.beatIndex === rv2.beats.length - 1, 'reveal control: skip jumps to done');
     }
+
+    // 11. Test Mode: unclaimed 'Seat N' placeholders act as bots, so a
+    // placeholder-only class plays to completion with no bot seats at all
+    // (one-toggle demo class; regression guard for the stale-deploy incident).
+    var g6 = createGame({ seed: 606060, rules: { classSize: 9, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1, testMode: true } });
+    fillSeats(g6, 'numbered', 100); // 9 'Seat N' placeholders, zero isBot seats
+    startGame(g6, 200);
+    var phGuard = 0;
+    while (g6.phase !== PHASES.GAME_OVER && phGuard < 80) {
+      simulateBotActions(g6, 300 + phGuard * 100);
+      advancePhase(g6, 350 + phGuard * 100);
+      phGuard++;
+    }
+    check(g6.phase === PHASES.GAME_OVER && (g6.winner === 'VILLAGE' || g6.winner === 'WEREWOLVES'),
+      'Test Mode: placeholder-only class reaches a valid victory (' + g6.winner + ')');
+    check((g6.secret.nightReports || []).length >= 2, 'Test Mode placeholder game produced night reports');
+    check(g6.secret.nightReports.some(function (r) { return r.victimId; }), 'Test Mode placeholder wolves actually killed at night');
+
+    // ...and with Test Mode OFF those same placeholders must never be driven
+    var g7 = createGame({ seed: 707070, rules: { classSize: 9, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1, testMode: false } });
+    fillSeats(g7, 'numbered', 100);
+    startGame(g7, 200);
+    simulateBotActions(g7, 300);
+    check(g7.players.every(function (p) { return !p.readyConfirmed; }), 'Test Mode OFF: placeholders stay un-driven (humans only)');
+    advancePhase(g7, 400); // ROLE_REVEAL -> NIGHT
+    simulateBotActions(g7, 500);
+    check(Object.keys(g7.currentNight.wolfPicks).length === 0, 'Test Mode OFF: placeholder wolves pick nothing');
 
     return { ok: true, passed: results.length, winner: g.winner, rounds: g.round, results: results };
   }
