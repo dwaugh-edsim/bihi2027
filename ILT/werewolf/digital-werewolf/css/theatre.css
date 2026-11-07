@@ -1,0 +1,111 @@
+/* Digital Werewolf - Story Theatre overlay (LCD full-screen + student mirror) */
+.th-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: #05070d; color: #f8fafc;
+    display: none; flex-direction: column;
+    font-family: 'Source Sans 3', -apple-system, sans-serif;
+    overflow: hidden;
+}
+.th-overlay.open { display: flex; }
+.th-overlay.dim { background: #0b1120; }
+
+.th-stage { position: relative; flex: 1; min-height: 0; }
+.th-art {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0.9;
+}
+.th-overlay.blackout .th-art { opacity: 0.12; filter: brightness(0.4); }
+.th-vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.72) 100%);
+}
+
+.th-caption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 28px 6vw 34px;
+    font-family: 'Arvo', Georgia, serif;
+    font-size: clamp(1.15rem, 2.6vw, 2rem);
+    line-height: 1.5; font-style: italic;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+    background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    min-height: 96px;
+}
+.th-caption .th-kicker {
+    display: block; font-family: 'JetBrains Mono', monospace; font-style: normal;
+    font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em;
+    color: #fbbf24; margin-bottom: 8px; text-transform: uppercase;
+}
+
+.th-card {
+    position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+    width: min(430px, 86vw); border-radius: 18px; overflow: hidden;
+    background: #0f172a; border: 2px solid #f59e0b;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+    text-align: center;
+}
+.th-card img { width: 100%; height: 240px; object-fit: cover; display: block; }
+.th-card-body { padding: 18px 20px 22px; }
+.th-card-seat { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 2.2rem; color: #fbbf24; }
+.th-card-name { font-family: 'Arvo', Georgia, serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin-top: 2px; }
+.th-card-persona { font-size: 0.95rem; color: #94a3b8; font-style: italic; margin-top: 4px; }
+.th-card-role { margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #fca5a5; font-size: 1rem; }
+.th-card-sealed { padding: 26px 0 8px; font-family: 'Arvo', Georgia, serif; font-size: 1.05rem; color: #cbd5e1; font-style: italic; }
+
+.th-tally { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); width: min(560px, 88vw); }
+.th-tally-row {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(15,23,42,0.82); border: 1px solid #334155;
+    border-radius: 10px; padding: 10px 16px; margin-bottom: 8px;
+    font-size: 1.05rem;
+}
+.th-tally-row .votes { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #fbbf24; }
+
+.th-countdown {
+    position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace; font-weight: 800;
+    font-size: clamp(3rem, 9vw, 6rem); color: #f8fafc;
+    text-shadow: 0 4px 30px rgba(0,0,0,0.9);
+}
+.th-countdown-label { display: block; text-align: center; font-family: 'Arvo', Georgia, serif; font-size: 1.2rem; font-style: italic; color: #fbbf24; margin-top: 6px; }
+
+.th-roster-flip {
+    position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+    gap: 8px; padding: 24px; overflow: hidden;
+}
+.th-mini-card {
+    width: 150px; border-radius: 10px; overflow: hidden; background: #0f172a;
+    border: 1.5px solid #475569; text-align: center;
+}
+.th-mini-card img { width: 100%; height: 84px; object-fit: cover; display: block; }
+.th-mini-card .nm { font-size: 0.8rem; font-weight: 700; padding: 5px 6px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th-mini-card .rl { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 800; padding-bottom: 6px; color: #fbbf24; }
+
+.th-controls {
+    position: absolute; top: 14px; right: 16px; z-index: 5;
+    display: flex; gap: 6px; align-items: center;
+    background: rgba(11,17,32,0.8); border: 1px solid #334155;
+    border-radius: 10px; padding: 6px 8px;
+}
+.th-controls .btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 800;
+    background: #1e293b; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 6px; padding: 5px 9px; cursor: pointer;
+}
+.th-controls .btn:hover { background: #334155; }
+.th-beat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #94a3b8; padding: 0 6px; }
+
+.th-hint {
+    position: absolute; bottom: 8px; right: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: rgba(148,163,184,0.75);
+}
+
+/* Student device light mirror */
+.th-mirror { border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border-card, #334155); background: #0b1120; }
+.th-mirror img.th-art { position: static; width: 100%; height: 180px; object-fit: cover; display: block; opacity: 0.85; }
+.th-mirror .th-mirror-body { padding: 12px 14px 14px; }
+.th-mirror .th-mirror-headline { font-family: 'Arvo', Georgia, serif; font-weight: 700; font-size: 1.05rem; color: #fff; margin-bottom: 6px; }
+.th-mirror .th-mirror-text { font-size: 0.92rem; color: var(--text-main, #e2e8f0); font-style: italic; line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) {
+    .th-overlay, .th-card, .th-tally-row { transition: none !important; animation: none !important; }
+}

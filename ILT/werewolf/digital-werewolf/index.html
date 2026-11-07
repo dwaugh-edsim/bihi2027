@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theatre.css">
 <style>
 :root {
     --bg-page: #f0f2f5;
@@ -549,12 +550,19 @@ body.night-theme .pill-mono.phase {
     <pre id="selftest" style="display:none; padding:16px; font-family:monospace;"></pre>
 </div>
 
+<script src="shared/config.js"></script>
+<script src="shared/sfx.js"></script>
+<script src="shared/tts.js"></script>
+<script src="shared/theatre.js"></script>
+<script src="engine/story_content.js"></script>
+<script src="engine/story_engine.js"></script>
 <script src="engine/werewolf_engine.js"></script>
 <script>
 (function () {
     'use strict';
 
     var E = window.WerewolfEngine;
+    var CFG = window.WWConfig;
     var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbwBwSXL5Ma8koQ0JHgXrx01Avp3zvpjaDdSqG_RTFE9E19iqNETYdXru8ecXr7zkNlX/exec';
     var IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
     var ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
@@ -607,6 +615,12 @@ body.night-theme .pill-mono.phase {
         var pre = el('selftest');
         pre.style.display = 'block';
         pre.textContent = JSON.stringify(st, null, 2);
+        return;
+    }
+
+    // ?god=1 now lives in run.html (the single teacher cockpit)
+    if (IS_GOD) {
+        location.replace('run.html' + location.search);
         return;
     }
 
@@ -905,7 +919,7 @@ body.night-theme .pill-mono.phase {
         }
     };
 
-    window.submitMyAction = function (type, targetId) {
+    window.submitMyAction = function (type, targetId, line) {
         if (!currentView || !currentView.me) return;
         var me = currentView.me;
 
@@ -946,6 +960,7 @@ body.night-theme .pill-mono.phase {
                 gameId: targetGameId || currentView.gameId,
                 type: type,
                 targetId: targetId,
+                line: line || '',
                 requestId: 'req_' + Date.now() + '_' + Math.floor(Math.random() * 9999),
                 email: identity.email,
                 ts: identity.ts,
@@ -954,15 +969,19 @@ body.night-theme .pill-mono.phase {
                 if (res && res.status === 'ok' && res.view) {
                     currentView = res.view;
                     renderPlayerView();
+                } else if (res && res.status === 'stale') {
+                    setSubtleNote('The round just changed - tap again.');
                 } else if (res && res.message) {
                     setSubtleNote(res.message);
                 }
+            }).catch(function () {
+                setSubtleNote('No connection - tap not recorded. Retry in a moment.');
             });
             return;
         }
 
         if (activeLocalGame === fallbackDemoGame) {
-            var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId }, Date.now());
+            var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId, line: line || '' }, Date.now());
             if (!r.ok) setSubtleNote('Seat unavailable - pick another seat.');
             syncFromLocalGame();
         }
@@ -971,7 +990,7 @@ body.night-theme .pill-mono.phase {
                 type: 'PLAYER_ACTION',
                 playerId: joinedPlayerId,
                 requestId: 'demo_' + Date.now(),
-                actionPayload: { type: type, targetId: targetId }
+                actionPayload: { type: type, targetId: targetId, line: line || '' }
             });
         }
     };
@@ -1061,14 +1080,18 @@ body.night-theme .pill-mono.phase {
         if (me.role === 'WEREWOLF' && me.packmates) {
             var livingWolves = me.packmates.filter(function (m) { return m.alive; });
             var isSolo = livingWolves.length === 1;
-            var packHdr = '🐺 Packmates';
+            var lock = me.packLock || { state: 'coordinating', confirms: 0, totalWolves: livingWolves.length };
+            var packHdr = 'Packmates';
             if (v.phase === 'NIGHT') {
                 if (isSolo) {
-                    packHdr = '🐺 Solo Hunter (Your target will die at Dawn!)';
-                } else if (me.consensus && me.consensus.isUnanimous) {
-                    packHdr = '🐺 Pack Agreed (Kill strikes at Dawn!)';
+                    packHdr = 'Solo Hunter - your target strikes at Dawn';
+                } else if (lock.state === 'locked') {
+                    packHdr = 'Pack Locked on Seat #' + (lock.targetSeat != null ? (lock.targetSeat < 10 ? '0' + lock.targetSeat : lock.targetSeat) : '?') +
+                        (v.rules.wolfConfirmStrike ? ' (' + lock.confirms + '/' + lock.totalWolves + ' confirmed)' : '');
+                } else if (lock.state === 'split') {
+                    packHdr = 'Pack Split - teacher will decide the night';
                 } else {
-                    packHdr = '🐺 Pack Coordinating (Match 1 Seat to lock kill)';
+                    packHdr = 'Coordinating - match 1 seat to lock the kill';
                 }
             }
             var packLines = me.packmates.map(function (m) {
@@ -1077,22 +1100,26 @@ body.night-theme .pill-mono.phase {
                     var t = v.players.find(function (x) { return x.id === m.pick; });
                     pickSeat = t ? (' -> Target: #' + (t.seat < 10 ? '0' + t.seat : t.seat) + ' ' + esc(t.name)) : ' (waiting for tap...)';
                 }
-                return '#' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat);
+                var conf = (v.rules.wolfConfirmStrike && m.confirmed) ? ' [Confirmed]' : '';
+                return '#' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat + conf);
             }).join('<br>');
 
-            var lastStrikeNote = '';
-            if (v.phase !== 'NIGHT' && v.round > 1 && v.lastAnnouncement && v.lastAnnouncement.kind === 'dawn') {
-                if (v.lastAnnouncement.savedByDoctor) {
-                    lastStrikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">⚠️ Last Night: Doctor protected your pack\'s target!</div>';
-                } else if (v.lastAnnouncement.eliminatedId) {
-                    var elimP = v.players.find(function (p) { return p.id === v.lastAnnouncement.eliminatedId; });
-                    if (elimP) {
-                        lastStrikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--emerald);">⚔️ Last Night: Pack eliminated #' + elimP.seat + ' ' + esc(elimP.name) + '!</div>';
-                    }
-                }
+            var confirmBtn = '';
+            if (v.phase === 'NIGHT' && v.rules.wolfConfirmStrike && lock.state === 'locked' && !me.packmates.some(function (m) { return m.id === me.id && m.confirmed; })) {
+                confirmBtn = '<div style="margin-top:6px;"><button class="btn btn-xs emerald" onclick="submitMyAction(\'wolf_confirm\', \'\')">Confirm strike</button></div>';
             }
 
-            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label">' + packHdr + '</div>' + packLines + lastStrikeNote + '</div>';
+            // A6: private dawn confirmation of what the pack's strike did
+            var strikeNote = '';
+            if (v.phase === 'DAWN' && me.dawnStrikeResult === 'success') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--emerald);">Your strike on Seat #' + (me.dawnStrikeSeat != null ? me.dawnStrikeSeat : '?') + ' succeeded.</div>';
+            } else if (v.phase === 'DAWN' && me.dawnStrikeResult === 'protected') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">Your target was protected.</div>';
+            } else if (v.phase === 'DAWN' && me.dawnStrikeResult === 'teacher_decided') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">The pack could not agree, so the night was decided for you.</div>';
+            }
+
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label">' + packHdr + '</div>' + packLines + confirmBtn + strikeNote + '</div>';
         }
 
         // Doctor last protected reminder
@@ -1123,7 +1150,7 @@ body.night-theme .pill-mono.phase {
                 }
             }
             if (!clueLines) clueLines = 'Tap 1 suspect on screen to investigate.';
-            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--amber);"><div class="peek-note-label">🔍 Detective Dossier</div>' + clueLines + '</div>';
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--amber);"><div class="peek-note-label">Detective Dossier</div>' + clueLines + '</div>';
         }
 
         // Villager personal hunch log
@@ -1141,6 +1168,64 @@ body.night-theme .pill-mono.phase {
         }
 
         notesEl.innerHTML = notesHtml;
+    }
+
+    // B4: light synced mirror of the LCD Story Theatre on the student device.
+    // Full narration stays on the projector; here we show the art + current headline.
+    function renderRevealMirror(v) {
+        var r = v.reveal;
+        if (!r || !r.beats || !r.beats.length) return '';
+        if (r.control && r.control.status === 'ready') {
+            return '<div class="th-mirror" style="margin-bottom:12px; opacity:0.85;">'
+                + '<div class="th-mirror-body"><div class="th-mirror-headline">' + esc((CFG && CFG.COPY.eyesUp) || 'The night is ending. Eyes up.') + '</div></div></div>';
+        }
+        var idx = Math.min((r.control && r.control.beatIndex) || 0, r.beats.length - 1);
+        var b = r.beats[idx];
+        var artKey = b.art || (r.kind.indexOf('victory') === 0 ? r.kind.replace('victory_', 'banner_victory_') : 'bg_day_village');
+        var res = CFG ? CFG.ASSETS.resolve(artKey) : 'assets/bg_day_village.jpg';
+        var src = typeof res === 'string' ? res : res.src;
+        var fb = typeof res === 'string' ? '' : (res.fallback || '');
+        var kindHead = {
+            night_kill: 'Taken in the night',
+            night_save: 'Nobody was taken tonight',
+            night_quiet: 'A quiet dawn',
+            exile: 'The council has exiled',
+            no_exile: 'No verdict',
+            victory_village: 'The village wins',
+            victory_wolves: 'The werewolves win'
+        }[r.kind] || 'Moonhollow Harbour';
+        var onerr = fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\';"' : '';
+        return '<div class="th-mirror" style="margin-bottom:12px;">'
+            + '<img class="th-art" src="' + esc(src) + '" alt=""' + onerr + '>'
+            + '<div class="th-mirror-body"><div class="th-mirror-headline">' + esc(kindHead) + '</div>'
+            + '<div class="th-mirror-text">' + esc(b.text || '') + '</div></div></div>';
+    }
+
+    // B4: personal screen for the victim / exiled player, with preset-only epitaph picker (no free text).
+    function renderPersonalExit(v, me) {
+        var r = v.reveal || {};
+        var subj = r.subject || {};
+        var taken = r.kind === 'night_kill';
+        var meP = v.players.find(function (x) { return x.id === me.id; }) || {};
+        var persona = meP.persona ? ('You were ' + esc(meP.persona) + '.') : '';
+        var epitaphHtml = '';
+        var EP = (window.StoryContent && window.StoryContent.EPITAPHS) || [];
+        if (EP.length && (v.phase === 'DAWN' || v.phase === 'DUSK')) {
+            var chosen = meP.epitaph || '';
+            epitaphHtml = '<div style="margin-top:10px;"><div style="font-size:0.8rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">CHOOSE ONE LINE TO LEAVE BEHIND (PRESET ONLY):</div>'
+                + EP.map(function (line) {
+                    var sel = chosen === line;
+                    return '<button class="btn btn-xs' + (sel ? ' blue' : '') + '" style="margin:0 4px 6px 0;" onclick="submitMyAction(\'epitaph\', \'\', ' + JSON.stringify(line).replace(/"/g, '&quot;') + ')">' + esc(line) + '</button>';
+                }).join('') + '</div>';
+        } else if (meP.epitaph) {
+            epitaphHtml = '<div style="margin-top:10px; font-style:italic; color:var(--text-muted);">Your epitaph: "' + esc(meP.epitaph) + '"</div>';
+        }
+        return '<div class="spectator-notice" style="border-left:4px solid var(--coral);">'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.1rem; margin-bottom:4px;">' + esc(taken ? 'You were taken in the night' : 'The council has exiled you') + '</h3>'
+            + '<p style="font-size:0.9rem; color:var(--text-muted);">' + persona + ' You are now a silent ghost: stay quiet, keep a poker face, and do not signal the living.</p>'
+            + epitaphHtml
+            + '<p style="font-size:0.85rem; margin-top:8px;">Watch the <strong>Class LCD Display</strong> for the story. Hold <strong>[ID]</strong> in the corner for a quiet peek at the truth board.</p>'
+            + '</div>';
     }
 
     function renderPlayerView() {
@@ -1175,11 +1260,16 @@ body.night-theme .pill-mono.phase {
         // Eliminated player main view: clean, neutral, zero exposed roles on open screen!
         if (!me.alive && v.phase !== 'GAME_OVER') {
             var outRound = (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound || '?';
-            html += '<div class="spectator-notice">'
-                + '<h3 style="font-family:var(--font-heading); font-size:1.02rem; margin-bottom:4px;">Eliminated in Round ' + outRound + ' (Silent Observer)</h3>'
-                + '<p style="font-size:0.9rem; color:var(--text-muted);">Keep a poker face and stay silent so living classmates can solve the round fairly.'
-                + (me.isSpectatorTruthUnlocked ? ' Hold <strong>[ID]</strong> in the corner under your hand if you want a quiet peek.' : '')
-                + '</p></div>';
+            var isRevealSubject = v.reveal && v.reveal.subject && v.reveal.subject.id === me.id;
+            if (isRevealSubject) {
+                html += renderPersonalExit(v, me);
+            } else {
+                html += '<div class="spectator-notice">'
+                    + '<h3 style="font-family:var(--font-heading); font-size:1.02rem; margin-bottom:4px;">Eliminated in Round ' + outRound + ' (Silent Observer)</h3>'
+                    + '<p style="font-size:0.9rem; color:var(--text-muted);">Keep a poker face and stay silent so living classmates can solve the round fairly.'
+                    + (me.isSpectatorTruthUnlocked ? ' Hold <strong>[ID]</strong> in the corner under your hand if you want a quiet peek.' : '')
+                    + '</p></div>';
+            }
             el('actionConsole').innerHTML = html;
             return;
         }
@@ -1207,11 +1297,12 @@ body.night-theme .pill-mono.phase {
                 var isWolf = latest.role === 'WEREWOLF';
                 var col = isWolf ? 'var(--red)' : 'var(--emerald)';
                 detDawnClue = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
-                    + '<div style="font-weight:800; color:var(--amber); font-size:0.84rem; font-family:var(--font-mono); margin-bottom:4px;">🔍 NEW DETECTIVE FINDING (NIGHT ' + latest.round + ')</div>'
+                    + '<div style="font-weight:800; color:var(--amber); font-size:0.84rem; font-family:var(--font-mono); margin-bottom:4px;">NEW DETECTIVE FINDING (NIGHT ' + latest.round + ')</div>'
                     + '<div style="font-size:0.95rem;">You investigated <strong>#' + latest.seat + ' ' + esc(latest.targetName) + '</strong>: Verified role is <strong style="color:' + col + ';">' + esc(latest.role) + '</strong>!</div>'
                     + '</div>';
             }
             html += '<div style="padding:8px 4px;">'
+                + renderRevealMirror(v)
                 + detDawnClue
                 + (stTxt ? '<div style="background:#ffffff; border:1px solid var(--border-card); border-left:4px solid var(--coral); border-radius:8px; padding:12px 14px; font-family:var(--font-heading); font-size:0.95rem; font-style:italic; line-height:1.55; color:var(--text-heading); margin-bottom:12px;">"' + esc(stTxt) + '"</div>' : '')
                 + '<p style="font-size:0.94rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> as morning debate begins!</p>'
@@ -1226,7 +1317,7 @@ body.night-theme .pill-mono.phase {
                 }).join('');
                 detClues = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                    + '<span style="font-weight:800; color:var(--amber); font-size:0.86rem; font-family:var(--font-mono);">🔍 DETECTIVE CASE INTEL (Private to You)</span>'
+                    + '<span style="font-weight:800; color:var(--amber); font-size:0.86rem; font-family:var(--font-mono);">DETECTIVE CASE INTEL (Private to You)</span>'
                     + '<span style="font-size:0.75rem; color:var(--text-muted);">Guide debate quietly</span>'
                     + '</div>'
                     + cList
@@ -1244,6 +1335,7 @@ body.night-theme .pill-mono.phase {
             html += renderVoteConsoleForMe(v, me);
         } else if (v.phase === 'GAME_OVER') {
             html += '<div style="margin-top:8px;">'
+                + renderRevealMirror(v)
                 + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:8px;">Final Village Roster Reveal</h3>'
                 + '<div class="target-grid">'
                 + v.players.map(function (p) {
@@ -1264,23 +1356,12 @@ body.night-theme .pill-mono.phase {
         var actionType = (me.role === 'VILLAGER') ? 'villager_watch' : 'night';
 
         var pickedObj = aliveTargets.find(function (x) { return x.id === me.myNightPick; });
+        // A7: identical neutral wording for every role - role-specific detail lives only inside the corner peek
         var leftStatus = subtleGuardNote
             ? subtleGuardNote
             : (pickedObj
-                ? ((me.role === 'DETECTIVE')
-                    ? ('Investigation locked: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Hold [ID] in corner to inspect finding)')
-                    : (me.role === 'WEREWOLF')
-                        ? ('Wolf strike target: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Hold [ID] in corner to coordinate pack)')
-                        : (me.role === 'DOCTOR')
-                            ? ('Protection shield: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name + ' (Protected from wolf attack tonight)')
-                            : ('Night selection recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name))
-                : ((me.role === 'DETECTIVE')
-                    ? 'Select 1 suspect below to investigate their true role.'
-                    : (me.role === 'WEREWOLF')
-                        ? 'Select 1 villager target below for tonight\'s Werewolf strike.'
-                        : (me.role === 'DOCTOR')
-                            ? 'Select 1 player below to protect with your lantern shield.'
-                            : 'Select 1 living seat below so every Chromebook records a quiet tap.'));
+                ? ('Choice recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name)
+                : 'Waiting');
 
         // 100% identical badge across ALL 4 roles (zero group-count tells on open screen!)
         var rightMono = pickedObj ? 'SET' : 'WAITING';

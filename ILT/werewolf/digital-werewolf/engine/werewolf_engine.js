@@ -8,7 +8,7 @@
 (function (root) {
   'use strict';
 
-  var ENGINE_VERSION = '1.0.0';
+  var ENGINE_VERSION = '2.0.0';
 
   var ROLES = {
     WEREWOLF: 'WEREWOLF',
@@ -42,6 +42,12 @@
     claimRule: 'quiet',         // 'quiet' (no role claiming out loud) | 'open' (classic claiming allowed)
     tieRule: 'revote_then_none',// 'revote_then_none' | 'no_elimination'
     spectatorReveal: true,      // Dead players become full-reveal silent spectators on their device
+    packDecision: 'majority_then_teacher', // 'majority_then_teacher' | 'unanimous' | 'plurality' (never random)
+    nameSavedPlayer: false,     // Naming the Doctor's save target leaks info; default OFF
+    lastWordsSec: 20,           // Last-words moment after a night kill / before an exile (0 = off)
+    storyTone: 'spooky',        // 'spooky' | 'campfire' (neither includes gore)
+    wolfConfirmStrike: false,   // Pack must tap Confirm inside the peek before the kill locks
+    testMode: false,            // Cloud: allows simulateBotActions only when explicitly ON
     nightTimerSec: 45,
     discussionTimerSec: 150,
     voteTimerSec: 45,
@@ -181,6 +187,13 @@
     merged.spectatorReveal = Boolean(merged.spectatorReveal);
     merged.claimRule = merged.claimRule === 'open' ? 'open' : 'quiet';
     merged.tieRule = merged.tieRule === 'no_elimination' ? 'no_elimination' : 'revote_then_none';
+    merged.packDecision = ['majority_then_teacher', 'unanimous', 'plurality'].indexOf(merged.packDecision) !== -1
+      ? merged.packDecision : 'majority_then_teacher';
+    merged.storyTone = merged.storyTone === 'campfire' ? 'campfire' : 'spooky';
+    merged.nameSavedPlayer = Boolean(merged.nameSavedPlayer);
+    merged.wolfConfirmStrike = Boolean(merged.wolfConfirmStrike);
+    merged.testMode = Boolean(merged.testMode);
+    merged.lastWordsSec = clamp(merged.lastWordsSec, 0, 60);
     merged.nightTimerSec = clamp(merged.nightTimerSec, 15, 300);
     merged.discussionTimerSec = clamp(merged.discussionTimerSec, 30, 600);
     merged.voteTimerSec = clamp(merged.voteTimerSec, 15, 300);
@@ -230,6 +243,7 @@
     return {
       version: ENGINE_VERSION,
       gameId: gameId,
+      epoch: options.epoch || hashSeed(gameId + ':epoch:' + now + ':' + seedNum),
       seed: seedNum,
       rngStep: 0,
       createdAt: now,
@@ -248,7 +262,9 @@
         wolfPicks: {},       // actorId -> targetId
         doctorPicks: {},     // actorId -> targetId
         detectivePicks: {},  // actorId -> targetId
-        villagerNotes: {}    // actorId -> suspectId (classroom decoy tap so everyone taps once at night)
+        villagerNotes: {},   // actorId -> suspectId (classroom decoy tap so everyone taps once at night)
+        wolfConfirms: {},    // actorId -> true (Pack Lock confirmations)
+        teacherDecisions: {} // roleKey -> { targetId|null, noKill, at }
       },
       currentVote: {
         ballots: {},         // voterId -> targetId | 'SKIP'
@@ -259,8 +275,11 @@
         lastDoctorSavedId: null,
         detectiveFindings: [], // [{ round, targetId, targetName, role }]
         doctorSavesCount: 0,
+        nightReports: [],      // one entry per resolved night (teacher cockpit night report)
+        usedFragments: {},     // story fragment ids already used this game (no repeats)
         auditLog: []           // God-view full event trace
       },
+      reveal: null,
       publicFeed: [
         {
           id: 'evt_0',
@@ -482,6 +501,37 @@
       game.players[i].readyConfirmed = Boolean(game.players[i].isBot);
     }
 
+    // Bots never hold power roles in live play: swap any bot-held Werewolf/Doctor/Detective
+    // with a human-held Villager whenever enough humans are seated (A2).
+    var isPower = function (r) { return r === ROLES.WEREWOLF || r === ROLES.DOCTOR || r === ROLES.DETECTIVE; };
+    for (i = 0; i < game.players.length; i++) {
+      var bp = game.players[i];
+      if (!bp.isBot || !isPower(bp.role)) continue;
+      for (var j = 0; j < game.players.length; j++) {
+        var hp = game.players[j];
+        if (!hp.isBot && hp.role === ROLES.VILLAGER) {
+          var tmp = bp.role;
+          bp.role = hp.role;
+          hp.role = tmp;
+          break;
+        }
+      }
+    }
+
+    // Personas (visible to everyone, never linked to roles) for the story theatre (B2).
+    var SC = root.StoryContent;
+    if (SC && SC.JOBS && SC.JOBS.length) {
+      var jobs = shuffleWithRng(SC.JOBS, function () { return nextRandom(game); });
+      for (i = 0; i < game.players.length; i++) {
+        var home = SC.PLACES[Math.floor(nextRandom(game) * SC.PLACES.length)];
+        game.players[i].persona = { job: jobs[i % jobs.length], home: home };
+      }
+    } else {
+      for (i = 0; i < game.players.length; i++) {
+        game.players[i].persona = { job: 'villager', home: 'Market Square' };
+      }
+    }
+
     game.round = 1;
     game.phase = PHASES.ROLE_REVEAL;
     game.phaseStartedAt = now;
@@ -495,6 +545,8 @@
       lastDoctorSavedId: null,
       detectiveFindings: [],
       doctorSavesCount: 0,
+      nightReports: [],
+      usedFragments: {},
       auditLog: [
         {
           round: 1,
@@ -555,6 +607,34 @@
     };
   }
 
+  /**
+   * Resolve a multi-member role group's target under the packDecision rule.
+   * NEVER random: an unresolved split returns mode 'split' with the candidate
+   * seats, and the teacher decides via submitNightDecision (Pack Split).
+   */
+  function resolveGroupTarget(game, picksMap, livingActors, rule) {
+    var con = computeGroupConsensus(picksMap, livingActors);
+    if (con.submittedCount === 0) return { targetId: null, mode: 'none', consensus: con, tied: [] };
+    if (con.isUnanimous) return { targetId: con.unanimousTarget, mode: 'unanimous', consensus: con, tied: [] };
+    var keys = Object.keys(con.counts).sort(function (a, b) { return con.counts[b] - con.counts[a]; });
+    var topCount = con.counts[keys[0]];
+    var topTied = keys.filter(function (k) { return con.counts[k] === topCount; });
+    var r = rule || (game.rules && game.rules.packDecision) || 'majority_then_teacher';
+    if (r === 'unanimous') {
+      return { targetId: null, mode: 'split', consensus: con, tied: keys };
+    }
+    if (r === 'majority_then_teacher') {
+      if (topCount > con.totalActors / 2) {
+        return { targetId: keys[0], mode: 'majority', consensus: con, tied: [] };
+      }
+      return { targetId: null, mode: 'split', consensus: con, tied: keys };
+    }
+    // legacy plurality: single top wins; a tie becomes a teacher decision, never random
+    if (topTied.length === 1) return { targetId: topTied[0], mode: 'plurality', consensus: con, tied: [] };
+    return { targetId: null, mode: 'split', consensus: con, tied: topTied };
+  }
+
+  // Legacy shim: kept for API compatibility. Never calls nextRandom for resolution.
   function chooseFallbackTarget(game, consensus) {
     if (consensus.unanimousTarget) return { targetId: consensus.unanimousTarget, mode: 'unanimous' };
     var keys = Object.keys(consensus.counts);
@@ -563,8 +643,61 @@
     var topScore = consensus.counts[keys[0]];
     var tied = keys.filter(function (k) { return consensus.counts[k] === topScore; });
     if (tied.length === 1) return { targetId: tied[0], mode: 'plurality' };
-    var idx = Math.floor(nextRandom(game) * tied.length);
-    return { targetId: tied[idx], mode: 'tiebreak' };
+    return { targetId: null, mode: 'split', tied: tied };
+  }
+
+  /**
+   * Teacher Pack Split decision during NIGHT (A1): pick one of the tied seats or no kill.
+   * roleKey: ROLES.WEREWOLF | ROLES.DOCTOR | ROLES.DETECTIVE.
+   */
+  function submitNightDecision(game, roleKey, choice, now) {
+    if (game.phase !== PHASES.NIGHT) {
+      return { ok: false, error: 'Night decisions only apply during NIGHT.' };
+    }
+    now = now || Date.now();
+    choice = choice || {};
+    var targetId = choice.targetId ? String(choice.targetId) : null;
+    if (targetId) {
+      var t = getPlayer(game, targetId);
+      if (!t || !t.alive) return { ok: false, error: 'Chosen seat is not a living player.' };
+    }
+    game.currentNight.teacherDecisions[String(roleKey)] = {
+      targetId: targetId,
+      noKill: Boolean(choice.noKill),
+      at: now
+    };
+    game.updatedAt = now;
+    return { ok: true };
+  }
+
+  /**
+   * Pack Lock state for a wolf's private peek (A3): coordinating | locked | split.
+   */
+  function computePackLock(game, wolf) {
+    var wolves = livingPlayers(game, ROLES.WEREWOLF);
+    var res = resolveGroupTarget(game, game.currentNight.wolfPicks, wolves, game.rules.packDecision);
+    var state = 'coordinating';
+    var targetId = null;
+    if (res.mode === 'split') {
+      state = 'split';
+    } else if (res.targetId) {
+      state = 'locked';
+      targetId = res.targetId;
+      if (game.rules.wolfConfirmStrike) {
+        var confirmed = wolves.every(function (w) { return game.currentNight.wolfConfirms[w.id]; });
+        if (!confirmed) state = 'coordinating';
+      }
+    }
+    var target = targetId ? getPlayer(game, targetId) : null;
+    return {
+      state: state,
+      targetId: targetId,
+      targetSeat: target ? target.seat : null,
+      confirms: wolves.filter(function (w) { return game.currentNight.wolfConfirms[w.id]; }).length,
+      totalWolves: wolves.length,
+      decisionMode: res.mode,
+      tied: res.tied || []
+    };
   }
 
   /**
@@ -584,7 +717,23 @@
     }
 
     if (!actor.alive) {
+      // Dead players may only submit a preset epitaph during a reveal (B4); nothing else.
+      if (type === 'epitaph' && (game.phase === PHASES.DAWN || game.phase === PHASES.DUSK || game.phase === PHASES.GAME_OVER)) {
+        var line = String((actionPayload && actionPayload.line) || '');
+        var SC0 = root.StoryContent;
+        var allowed = SC0 && SC0.EPITAPHS ? SC0.EPITAPHS : [];
+        if (allowed.indexOf(line) === -1) return { ok: false, error: 'Choose one of the preset epitaph lines.' };
+        actor.epitaph = line;
+        game.updatedAt = now;
+        return { ok: true, roleAction: 'epitaph' };
+      }
       return { ok: false, error: 'Eliminated players are silent ghosts and cannot submit actions.' };
+    }
+
+    if (type === 'wolf_confirm' && game.phase === PHASES.NIGHT && actor.role === ROLES.WEREWOLF) {
+      game.currentNight.wolfConfirms[actor.id] = true;
+      game.updatedAt = now;
+      return { ok: true, roleAction: 'wolf_confirm' };
     }
 
     if (game.phase === PHASES.NIGHT) {
@@ -750,7 +899,9 @@
       wolfPicks: {},
       doctorPicks: {},
       detectivePicks: {},
-      villagerNotes: {}
+      villagerNotes: {},
+      wolfConfirms: {},
+      teacherDecisions: {}
     };
     var nightNote = (game.round === 1 && game.rules.peacefulNight1)
       ? 'Night 1 (Starter Night): Wolves coordinate silently, Detectives investigate 1 suspect, Villagers log a Night Watch hunch. Nobody dies tonight!'
@@ -773,43 +924,76 @@
     var doctors = livingPlayers(game, ROLES.DOCTOR);
     var detectives = livingPlayers(game, ROLES.DETECTIVE);
 
-    var wolfCon = computeGroupConsensus(game.currentNight.wolfPicks, wolves);
-    var docCon = computeGroupConsensus(game.currentNight.doctorPicks, doctors);
-    var detCon = computeGroupConsensus(game.currentNight.detectivePicks, detectives);
-
-    var wolfChoice = chooseFallbackTarget(game, wolfCon);
-    var docChoice = chooseFallbackTarget(game, docCon);
-    var detChoice = chooseFallbackTarget(game, detCon);
-
     var isPeaceful = (game.round === 1 && game.rules.peacefulNight1);
 
-    // 1. Doctor protection record (applies on real kill nights)
-    var protectedId = (!isPeaceful && doctors.length > 0) ? docChoice.targetId : null;
+    // Group targets under the packDecision rule - never random (A1).
+    var wolfRes = resolveGroupTarget(game, game.currentNight.wolfPicks, wolves, game.rules.packDecision);
+    var docRes = resolveGroupTarget(game, game.currentNight.doctorPicks, doctors, game.rules.packDecision);
+    var detRes = resolveGroupTarget(game, game.currentNight.detectivePicks, detectives, game.rules.packDecision);
+    var td = game.currentNight.teacherDecisions || {};
+
+    // Teacher Pack Split decisions override a split group (decidedBy: 'teacher').
+    var wolfTeacher = td[ROLES.WEREWOLF];
+    var docTeacher = td[ROLES.DOCTOR];
+    var detTeacher = td[ROLES.DETECTIVE];
+
+    var wolfVictimId = null;
+    var wolfDecisionMode = 'none';
+    if (wolfRes.mode === 'split') {
+      if (wolfTeacher && !wolfTeacher.noKill && wolfTeacher.targetId) {
+        wolfVictimId = wolfTeacher.targetId;
+        wolfDecisionMode = 'teacher';
+      } else {
+        wolfDecisionMode = wolfTeacher ? 'teacher' : 'none';
+      }
+    } else if (wolfRes.targetId) {
+      wolfVictimId = wolfRes.targetId;
+      wolfDecisionMode = wolfRes.mode;
+    }
+
+    var protectedId = null;
+    if (!isPeaceful && doctors.length > 0) {
+      if (docRes.mode === 'split') {
+        if (docTeacher && !docTeacher.noKill && docTeacher.targetId) protectedId = docTeacher.targetId;
+      } else {
+        protectedId = docRes.targetId;
+      }
+    }
     if (protectedId) {
       game.secret.lastDoctorSavedId = protectedId;
     }
 
-    // 2. Detective investigation (always active, including Night 1!)
-    if (detectives.length > 0 && detChoice.targetId) {
-      var checked = getPlayer(game, detChoice.targetId);
-      if (checked) {
-        game.secret.detectiveFindings.push({
-          round: game.round,
-          targetId: checked.id,
-          seat: checked.seat,
-          targetName: checked.name,
-          role: checked.role,
-          consensusMode: detChoice.mode
-        });
-        game.secret.auditLog.push({
-          round: game.round,
-          phase: PHASES.NIGHT,
-          text: 'Detective(s) investigated ' + checked.name + ' -> ' + checked.role + ' (' + detChoice.mode + ').'
-        });
+    // Detective investigation (always active, including Night 1!)
+    var finding = null;
+    if (detectives.length > 0) {
+      var detTargetId = null;
+      if (detRes.mode === 'split') {
+        if (detTeacher && detTeacher.targetId) detTargetId = detTeacher.targetId;
+      } else {
+        detTargetId = detRes.targetId;
+      }
+      if (detTargetId) {
+        var checked = getPlayer(game, detTargetId);
+        if (checked) {
+          finding = {
+            round: game.round,
+            targetId: checked.id,
+            seat: checked.seat,
+            targetName: checked.name,
+            role: checked.role,
+            consensusMode: detRes.mode
+          };
+          game.secret.detectiveFindings.push(finding);
+          game.secret.auditLog.push({
+            round: game.round,
+            phase: PHASES.NIGHT,
+            text: 'Detective(s) investigated ' + checked.name + ' -> ' + checked.role + ' (' + detRes.mode + ').'
+          });
+        }
       }
     }
 
-    // 3. Wolf attack vs Doctor save
+    // Wolf attack vs Doctor save
     var eliminatedPlayer = null;
     var savedByDoctor = false;
 
@@ -817,10 +1001,10 @@
       game.secret.auditLog.push({
         round: game.round,
         phase: PHASES.NIGHT,
-        text: 'Peaceful Starter Night 1 (wolf dry-run target: ' + (wolfChoice.targetId || 'none') + ').'
+        text: 'Peaceful Starter Night 1 (wolf dry-run target: ' + (wolfRes.targetId || 'none') + ').'
       });
-    } else if (wolfChoice.targetId) {
-      var victim = getPlayer(game, wolfChoice.targetId);
+    } else if (wolfVictimId) {
+      var victim = getPlayer(game, wolfVictimId);
       if (victim && victim.alive) {
         if (protectedId && protectedId === victim.id) {
           savedByDoctor = true;
@@ -838,7 +1022,7 @@
           game.secret.auditLog.push({
             round: game.round,
             phase: PHASES.NIGHT,
-            text: 'Wolves eliminated ' + victim.name + ' (' + victim.role + ') [' + wolfChoice.mode + '].'
+            text: 'Wolves eliminated ' + victim.name + ' (' + victim.role + ') [' + wolfDecisionMode + '].'
           });
         }
       }
@@ -846,9 +1030,27 @@
       game.secret.auditLog.push({
         round: game.round,
         phase: PHASES.NIGHT,
-        text: 'Wolves submitted no target; nobody died.'
+        text: wolfRes.mode === 'split'
+          ? 'Pack split with no teacher decision; nobody died.'
+          : 'Wolves submitted no target; nobody died.'
       });
     }
+
+    // Night report for the teacher cockpit (A4) - written every night.
+    var allWolvesBots = wolves.length > 0 && wolves.every(function (w) { return w.isBot; });
+    game.secret.nightReports.push({
+      round: game.round,
+      wolfPicksByActor: mergeObj({}, game.currentNight.wolfPicks),
+      decisionMode: wolfDecisionMode,
+      decidedBy: wolfDecisionMode === 'teacher' ? 'teacher' : (allWolvesBots ? 'bot-test' : 'pack'),
+      victimId: eliminatedPlayer ? eliminatedPlayer.id : null,
+      doctorPicksByActor: mergeObj({}, game.currentNight.doctorPicks),
+      protectedId: protectedId,
+      saved: savedByDoctor,
+      detectivePickByActor: mergeObj({}, game.currentNight.detectivePicks),
+      finding: finding ? { targetId: finding.targetId, targetName: finding.targetName, seat: finding.seat, role: finding.role } : null,
+      peaceful: isPeaceful
+    });
 
     game.phase = PHASES.DAWN;
     game.phaseStartedAt = now;
@@ -863,13 +1065,16 @@
       subline = 'Detectives gathered their first clue. Talk out loud in the room to spot subtle bluffs!';
       dawnStory = buildStoryNarration('dawn_peaceful', { round: game.round });
     } else if (savedByDoctor) {
-      var savedP = getPlayer(game, wolfChoice.targetId);
+      var savedP = getPlayer(game, wolfVictimId);
       headline = 'Dawn of Day ' + game.round + ': MIRACLE SAVE! Nobody Died!';
-      subline = 'The Werewolves struck in the dark, but the Town Doctor arrived right on time!';
+      // Naming the saved player leaks the Doctor's target; name them only if the rule toggle is on.
+      subline = game.rules.nameSavedPlayer && savedP
+        ? 'The Werewolves struck at ' + savedP.name + ', but the Town Doctor arrived right on time!'
+        : 'The Werewolves struck in the dark, but the Town Doctor arrived right on time!';
       dawnStory = buildStoryNarration('dawn_save', {
         round: game.round,
-        name: savedP ? savedP.name : 'a villager',
-        seat: savedP ? savedP.seat : 0
+        name: game.rules.nameSavedPlayer && savedP ? savedP.name : '',
+        seat: game.rules.nameSavedPlayer && savedP ? savedP.seat : 0
       });
     } else if (eliminatedPlayer) {
       var roleTag = game.rules.revealRoleOnDeath ? (' (' + eliminatedPlayer.role + ')') : '';
@@ -896,6 +1101,13 @@
     };
     game.lastStory = dawnStory;
     pushFeed(game, savedByDoctor ? 'save' : (eliminatedPlayer ? 'death' : 'dawn'), headline, subline);
+
+    // Story Theatre reveal for the LCD + student mirror (B1). Sanitized on projection.
+    if (root.StoryEngine) {
+      var kind = isPeaceful || (!eliminatedPlayer && !savedByDoctor) ? 'night_quiet'
+        : savedByDoctor ? 'night_save' : 'night_kill';
+      game.reveal = root.StoryEngine.buildReveal(game, kind, { player: eliminatedPlayer || null });
+    }
 
     checkAndApplyWinner(game, now);
   }
@@ -1068,6 +1280,15 @@
     game.lastStory = duskStory;
     pushFeed(game, 'exile', duskHeadline, roleRevealTxt);
 
+    if (root.StoryEngine) {
+      game.reveal = root.StoryEngine.buildReveal(game, 'exile', {
+        player: exiled,
+        breakdown: breakdown,
+        skipVotes: skipVotes,
+        totalCast: totalCast
+      });
+    }
+
     checkAndApplyWinner(game, now);
   }
 
@@ -1095,6 +1316,15 @@
     };
     game.lastStory = noExileStory;
     pushFeed(game, 'dusk', headline, subline);
+
+    if (root.StoryEngine) {
+      game.reveal = root.StoryEngine.buildReveal(game, 'no_exile', {
+        breakdown: breakdown,
+        skipVotes: skipVotes,
+        totalCast: totalCast
+      });
+    }
+
     checkAndApplyWinner(game, now);
   }
 
@@ -1117,6 +1347,7 @@
         savedByDoctor: false
       };
       pushFeed(game, 'win', 'VILLAGE WINS!', game.winReason);
+      if (root.StoryEngine) game.reveal = root.StoryEngine.buildReveal(game, 'victory_village', {});
       return 'VILLAGE';
     }
 
@@ -1134,6 +1365,7 @@
         savedByDoctor: false
       };
       pushFeed(game, 'win', 'WEREWOLVES WIN!', game.winReason);
+      if (root.StoryEngine) game.reveal = root.StoryEngine.buildReveal(game, 'victory_wolves', {});
       return 'WEREWOLVES';
     }
 
@@ -1217,8 +1449,55 @@
       rules: game.rules,
       now: now
     });
+    // New epoch per game so stale action keys from the previous game never fold in (F5/D2).
+    fresh.epoch = hashSeed(game.gameId + ':epoch:' + now + ':' + Math.random());
     fresh.players = kept;
     return fresh;
+  }
+
+  /**
+   * Remove bot / placeholder seats in LOBBY (cloud preflight: every seat must be human).
+   */
+  function removeEmptySeats(game, now) {
+    if (game.phase !== PHASES.LOBBY) return { ok: false, error: 'Can only remove empty seats in the Lobby.' };
+    now = now || Date.now();
+    var before = game.players.length;
+    game.players = game.players.filter(function (p) { return !p.isBot; });
+    game.players.forEach(function (p, i) { p.seat = i + 1; });
+    game.updatedAt = now;
+    return { ok: true, removed: before - game.players.length };
+  }
+
+  /** Teacher kick: remove a seated player in LOBBY (cloud mode, wrong seat etc.). */
+  function kickPlayer(game, playerId, now) {
+    if (game.phase !== PHASES.LOBBY) return { ok: false, error: 'Players can only be kicked in the Lobby.' };
+    now = now || Date.now();
+    var idx = -1;
+    for (var i = 0; i < game.players.length; i++) {
+      if (game.players[i].id === playerId) { idx = i; break; }
+    }
+    if (idx === -1) return { ok: false, error: 'Player not found.' };
+    game.players.splice(idx, 1);
+    game.players.forEach(function (p, i) { p.seat = i + 1; });
+    game.updatedAt = now;
+    return { ok: true };
+  }
+
+  /** Moderator override: eliminate or revive a player (confirmation handled client-side). */
+  function setPlayerAlive(game, playerId, alive, now) {
+    now = now || Date.now();
+    var p = getPlayer(game, playerId);
+    if (!p) return { ok: false, error: 'Player not found.' };
+    p.alive = Boolean(alive);
+    if (alive) {
+      p.eliminatedRound = null;
+      p.eliminatedHow = null;
+    } else if (p.alive === false) {
+      p.eliminatedRound = p.eliminatedRound || game.round;
+      p.eliminatedHow = p.eliminatedHow || 'moderator';
+    }
+    game.updatedAt = now;
+    return { ok: true };
   }
 
   function togglePause(game, now) {
@@ -1442,6 +1721,8 @@
         alive: p.alive,
         eliminatedRound: p.eliminatedRound,
         eliminatedHow: p.eliminatedHow,
+        persona: p.persona ? ('the ' + p.persona.job + ' of ' + p.persona.home) : null,
+        epitaph: p.epitaph || null,
         hasActed: showIndividualActed ? hasPlayerActedInCurrentPhase(game, p) : false,
         role: showRole ? p.role : null
       };
@@ -1452,6 +1733,7 @@
     var out = {
       version: game.version,
       gameId: game.gameId,
+      epoch: game.epoch || null,
       updatedAt: game.updatedAt,
       phase: game.phase,
       nightSubStep: game.nightSubStep || 'ALL',
@@ -1475,8 +1757,19 @@
       lastVoteSummary: game.lastVoteSummary,
       publicFeed: game.publicFeed,
       winner: game.winner,
-      winReason: game.winReason
+      winReason: game.winReason,
+      reveal: game.reveal ? sanitizeRevealForRules(game.reveal, game) : null
     };
+
+    function sanitizeRevealForRules(rev, g) {
+      var copy = JSON.parse(JSON.stringify(rev));
+      var hideRole = !g.rules.revealRoleOnDeath && g.phase !== PHASES.GAME_OVER;
+      if (hideRole && copy.subject && copy.subject.role &&
+          (copy.kind === 'night_kill' || copy.kind === 'exile')) {
+        copy.subject.role = null;
+      }
+      return copy;
+    }
 
     if (me) {
       var priv = {
@@ -1493,9 +1786,30 @@
         var wolves = livingPlayers(game, ROLES.WEREWOLF);
         priv.packmates = game.players
           .filter(function (x) { return x.role === ROLES.WEREWOLF; })
-          .map(function (x) { return { id: x.id, seat: x.seat, name: x.name, alive: x.alive, pick: game.currentNight.wolfPicks[x.id] || null }; });
+          .map(function (x) {
+            return {
+              id: x.id, seat: x.seat, name: x.name, alive: x.alive,
+              pick: game.currentNight.wolfPicks[x.id] || null,
+              confirmed: Boolean(game.currentNight.wolfConfirms[x.id])
+            };
+          });
         priv.consensus = computeGroupConsensus(game.currentNight.wolfPicks, wolves);
+        priv.packLock = computePackLock(game, me);
         priv.myNightPick = game.currentNight.wolfPicks[me.id] || null;
+        // A6: private dawn confirmation of what the pack's strike did
+        if (game.phase === PHASES.DAWN && game.secret.nightReports.length) {
+          var rep = game.secret.nightReports[game.secret.nightReports.length - 1];
+          if (rep.round === game.round) {
+            if (rep.victimId) {
+              priv.dawnStrikeResult = rep.saved ? 'protected' : 'success';
+              priv.dawnStrikeSeat = (getPlayer(game, rep.victimId) || {}).seat || null;
+            } else if (rep.decisionMode === 'teacher' || rep.decisionMode === 'none') {
+              priv.dawnStrikeResult = 'teacher_decided';
+            } else {
+              priv.dawnStrikeResult = 'none';
+            }
+          }
+        }
       } else if (me.role === ROLES.DOCTOR) {
         var docs = livingPlayers(game, ROLES.DOCTOR);
         priv.colleagues = game.players
@@ -1533,15 +1847,19 @@
     }
 
     if (isGod) {
+      var wolvesG = livingPlayers(game, ROLES.WEREWOLF);
       out.god = {
-        wolfConsensus: computeGroupConsensus(game.currentNight.wolfPicks, livingPlayers(game, ROLES.WEREWOLF)),
+        wolfConsensus: computeGroupConsensus(game.currentNight.wolfPicks, wolvesG),
         doctorConsensus: computeGroupConsensus(game.currentNight.doctorPicks, livingPlayers(game, ROLES.DOCTOR)),
         detectiveConsensus: computeGroupConsensus(game.currentNight.detectivePicks, livingPlayers(game, ROLES.DETECTIVE)),
+        wolfResolution: resolveGroupTarget(game, game.currentNight.wolfPicks, wolvesG, game.rules.packDecision),
+        packLock: wolvesG.length ? computePackLock(game, wolvesG[0]) : null,
         currentNight: game.currentNight,
         currentBallots: game.currentVote.ballots,
         secret: game.secret,
-        livingWolves: livingPlayers(game, ROLES.WEREWOLF).length,
-        livingTown: aliveCount - livingPlayers(game, ROLES.WEREWOLF).length
+        nightReports: game.secret.nightReports || [],
+        livingWolves: wolvesG.length,
+        livingTown: aliveCount - wolvesG.length
       };
     }
 
@@ -1647,6 +1965,145 @@
     }
     check(g.phase === PHASES.GAME_OVER && (g.winner === 'VILLAGE' || g.winner === 'WEREWOLVES'), 'Full 28-player game reaches valid victory (' + g.winner + ')');
 
+    // 6. A8: split pack picks never produce a random victim
+    var g2 = createGame({ seed: 424242, populateDemo: true, rules: { classSize: 10, preset: 'custom', wolvesCount: 3, doctorsCount: 1, detectivesCount: 1 } });
+    startGame(g2, 100);
+    g2.players[0].role = ROLES.WEREWOLF;
+    g2.players[1].role = ROLES.WEREWOLF;
+    g2.players[2].role = ROLES.WEREWOLF;
+    g2.players[3].role = ROLES.DOCTOR;
+    g2.players[4].role = ROLES.DETECTIVE;
+    for (var pi = 5; pi < g2.players.length; pi++) g2.players[pi].role = ROLES.VILLAGER;
+    advancePhase(g2, 200); // ROLE_REVEAL -> NIGHT
+    check(g2.phase === PHASES.NIGHT, 'g2 enters Night 1');
+    var vils2 = livingPlayers(g2, ROLES.VILLAGER);
+    submitPlayerAction(g2, 'P1', { type: 'night', targetId: vils2[0].id }, 300);
+    submitPlayerAction(g2, 'P2', { type: 'night', targetId: vils2[1].id }, 300);
+    submitPlayerAction(g2, 'P3', { type: 'night', targetId: vils2[2].id }, 300);
+    advancePhase(g2, 400); // -> DAWN
+    check(g2.phase === PHASES.DAWN, 'split night resolves to DAWN');
+    check(livingPlayers(g2).length === 10, 'split pack with no teacher decision kills nobody (never random)');
+    var rep2 = g2.secret.nightReports[g2.secret.nightReports.length - 1];
+    check(rep2 && rep2.decisionMode === 'none' && rep2.victimId === null, 'night report records split -> none with no victim');
+    check(g2.reveal && g2.reveal.kind === 'night_quiet', 'split night builds a night_quiet reveal');
+
+    // teacher Pack Split decision picks the victim explicitly
+    advancePhase(g2, 500); // DAWN -> DAY_DISCUSSION
+    advancePhase(g2, 600); // -> DAY_VOTE
+    advancePhase(g2, 700); // -> DUSK (no votes)
+    advancePhase(g2, 800); // -> NIGHT round 2
+    check(g2.phase === PHASES.NIGHT && g2.round === 2, 'g2 enters Night 2');
+    var vils3 = livingPlayers(g2, ROLES.VILLAGER);
+    submitPlayerAction(g2, 'P1', { type: 'night', targetId: vils3[0].id }, 900);
+    submitPlayerAction(g2, 'P2', { type: 'night', targetId: vils3[1].id }, 900);
+    var decRes = submitNightDecision(g2, ROLES.WEREWOLF, { targetId: vils3[0].id }, 950);
+    check(decRes.ok === true, 'teacher Pack Split decision accepted');
+    advancePhase(g2, 1000);
+    check(!vils3[0].alive && vils3[0].eliminatedHow === 'night', 'teacher-decided seat is the only victim');
+    var rep3 = g2.secret.nightReports[g2.secret.nightReports.length - 1];
+    check(rep3.decisionMode === 'teacher' && rep3.decidedBy === 'teacher' && rep3.victimId === vils3[0].id, 'night report records teacher decision + victim');
+    check(g2.reveal && g2.reveal.kind === 'night_kill', 'night kill builds a night_kill reveal');
+
+    // majority mode: 2 of 3 wolves agree -> majority kill without teacher
+    advancePhase(g2, 1100); advancePhase(g2, 1200); advancePhase(g2, 1300); advancePhase(g2, 1400); // to Night 3
+    check(g2.phase === PHASES.NIGHT && g2.round === 3, 'g2 enters Night 3');
+    var vils4 = livingPlayers(g2, ROLES.VILLAGER);
+    submitPlayerAction(g2, 'P1', { type: 'night', targetId: vils4[0].id }, 1500);
+    submitPlayerAction(g2, 'P2', { type: 'night', targetId: vils4[0].id }, 1500);
+    submitPlayerAction(g2, 'P3', { type: 'night', targetId: vils4[1].id }, 1500);
+    advancePhase(g2, 1600);
+    check(!vils4[0].alive, 'majority (2 of 3) pack pick is the kill');
+    var rep4 = g2.secret.nightReports[g2.secret.nightReports.length - 1];
+    check(rep4.decisionMode === 'majority' && rep4.victimId === vils4[0].id, 'night report decisionMode = majority');
+
+    // unanimous rule blocks a 2-of-3 majority
+    var g2b = createGame({ seed: 777, populateDemo: true, rules: { classSize: 8, preset: 'custom', wolvesCount: 3, doctorsCount: 0, detectivesCount: 0, packDecision: 'unanimous' } });
+    startGame(g2b, 100);
+    g2b.players[0].role = ROLES.WEREWOLF; g2b.players[1].role = ROLES.WEREWOLF; g2b.players[2].role = ROLES.WEREWOLF;
+    for (var qi = 3; qi < g2b.players.length; qi++) g2b.players[qi].role = ROLES.VILLAGER;
+    advancePhase(g2b, 200);
+    var vb = livingPlayers(g2b, ROLES.VILLAGER);
+    submitPlayerAction(g2b, 'P1', { type: 'night', targetId: vb[0].id }, 300);
+    submitPlayerAction(g2b, 'P2', { type: 'night', targetId: vb[0].id }, 300);
+    submitPlayerAction(g2b, 'P3', { type: 'night', targetId: vb[1].id }, 300);
+    advancePhase(g2b, 400);
+    check(livingPlayers(g2b).length === 8, 'unanimous rule: 2-of-3 majority is NOT a kill');
+
+    // 7. A8: bots never hold power roles when enough humans are seated
+    var g3 = createGame({ seed: 9001, rules: { classSize: 10, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1 } });
+    for (var hi = 1; hi <= 6; hi++) addOrUpdatePlayer(g3, { id: 'H' + hi, name: 'Human ' + hi, isBot: false }, 100 + hi);
+    fillSeats(g3, 'demo', 200); // pads to 10 with 4 bots
+    startGame(g3, 300);
+    var botsWithPower = g3.players.filter(function (p) { return p.isBot && p.role && p.role !== ROLES.VILLAGER; });
+    check(botsWithPower.length === 0, 'bots are never dealt Werewolf/Doctor/Detective when humans cover power roles');
+    var humansWithVillager = g3.players.filter(function (p) { return !p.isBot && p.role === ROLES.VILLAGER; }).length;
+    check(humansWithVillager >= 0 && g3.players.every(function (p) { return p.persona && p.persona.job; }), 'personas assigned to every seat at deal time');
+
+    // 8. A8: epoch changes on reset (cloud replay guard D2 mirror)
+    var eBefore = g3.epoch;
+    var g3r = resetToLobby(g3, true, 400);
+    check(g3r.epoch && g3r.epoch !== eBefore, 'resetToLobby mints a fresh epoch (Play Again cannot replay old picks)');
+
+    // 9. Story engine: every reveal kind builds valid beats; no fragment repeats; no role leak
+    var kindsSeen = {};
+    var leakFree = true;
+    var g4 = createGame({ seed: 31337, populateDemo: true, rules: { classSize: 12, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1, revealRoleOnDeath: false } });
+    startGame(g4, 1000);
+    var sguard = 0;
+    while (g4.phase !== PHASES.GAME_OVER && sguard < 60) {
+      simulateBotActions(g4, 2000 + sguard * 100);
+      advancePhase(g4, 2050 + sguard * 100);
+      sguard++;
+      if (g4.reveal) {
+        var rv = g4.reveal;
+        kindsSeen[rv.kind] = true;
+        check(rv.beats && rv.beats.length > 0, 'reveal ' + rv.kind + ' has beats');
+        check(rv.id && rv.control && rv.control.status === 'ready', 'reveal ' + rv.kind + ' has id + ready control');
+        if ((rv.kind === 'night_kill' || rv.kind === 'exile') && rv.subject) {
+          if (rv.subject.role !== null && rv.subject.role !== undefined) leakFree = false;
+        }
+      }
+    }
+    check(leakFree, 'no role leak in reveal subject when revealRoleOnDeath is off');
+    check(kindsSeen.night_kill || kindsSeen.night_save || kindsSeen.night_quiet, 'story: night outcomes produced reveals');
+    check((g4.secret.nightReports || []).length >= 1, 'a night report is written every night');
+    if (root.StoryEngine) {
+      ['night_kill', 'night_save', 'night_quiet', 'exile', 'no_exile', 'victory_village', 'victory_wolves'].forEach(function (k) {
+        var probe = root.StoryEngine.buildReveal(g4, k, { player: g4.players[0], breakdown: [{ seat: 1, name: 'A', votes: 2 }], skipVotes: 0, totalCast: 5 });
+        check(probe.beats.length > 0 && probe.id && probe.control, 'story: every reveal kind builds valid beats (' + k + ')');
+      });
+      // no story fragment repeats within a game (8-night synthetic run, pools hold 8+ entries)
+      var g5 = createGame({ seed: 555111, populateDemo: true, rules: { classSize: 10, preset: 'classic' } });
+      startGame(g5, 1000);
+      var fragSeen = {};
+      var fragDup = null;
+      for (var ni = 1; ni <= 8 && !fragDup; ni++) {
+        g5.round = ni;
+        var kinds8 = ['night_kill', 'night_save', 'night_quiet', 'exile', 'no_exile'];
+        var r8 = root.StoryEngine.buildReveal(g5, kinds8[ni % kinds8.length], { player: g5.players[1], breakdown: [], skipVotes: 0, totalCast: 0 });
+        r8.beats.forEach(function (b) {
+          (b.frags || []).forEach(function (fid) {
+            if (fragSeen[fid]) fragDup = fid;
+            fragSeen[fid] = true;
+          });
+        });
+      }
+      check(!fragDup, 'story: no fragment repeats within a game (dup=' + fragDup + ')');
+    }
+
+    // 10. reveal_control state machine (B6)
+    var SE = root.StoryEngine;
+    if (SE && g4.reveal) {
+      var rv2 = g4.reveal;
+      check(SE.applyControl(rv2, 'start', 123) === true && rv2.control.status === 'playing', 'reveal control: start');
+      SE.applyControl(rv2, 'next', 124);
+      check(rv2.control.beatIndex === 1, 'reveal control: next advances beatIndex');
+      SE.applyControl(rv2, 'back', 125);
+      check(rv2.control.beatIndex === 0, 'reveal control: back');
+      SE.applyControl(rv2, 'skip', 126);
+      check(rv2.control.status === 'done' && rv2.control.beatIndex === rv2.beats.length - 1, 'reveal control: skip jumps to done');
+    }
+
     return { ok: true, passed: results.length, winner: g.winner, rounds: g.round, results: results };
   }
 
@@ -1664,8 +2121,15 @@
     fillSeats: fillSeats,
     startGame: startGame,
     computeGroupConsensus: computeGroupConsensus,
+    resolveGroupTarget: resolveGroupTarget,
+    chooseFallbackTarget: chooseFallbackTarget,
+    submitNightDecision: submitNightDecision,
+    computePackLock: computePackLock,
     submitPlayerAction: submitPlayerAction,
     submitModeratorNightOverride: submitModeratorNightOverride,
+    removeEmptySeats: removeEmptySeats,
+    kickPlayer: kickPlayer,
+    setPlayerAlive: setPlayerAlive,
     advancePhase: advancePhase,
     resetToLobby: resetToLobby,
     togglePause: togglePause,

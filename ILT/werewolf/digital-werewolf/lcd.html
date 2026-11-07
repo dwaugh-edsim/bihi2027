@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theatre.css">
 <style>
 :root {
     /* Strongly Typed High-Contrast Projector Light Mode */
@@ -567,10 +568,32 @@ footer.foot-bar {
     width: 100%; padding: 8px 10px; border-radius: 6px;
     border: 1.5px solid var(--border-card); font-family: var(--font-mono); font-size: 0.84rem;
 }
+
+/* Projector-only during play: teacher controls hidden unless the hidden strip is toggled (Ctrl+.) */
+body.in-play .ops-cluster, body.in-play .timers-cluster .btn { display: none; }
+body.in-play.teacher-strip .ops-cluster, body.in-play.teacher-strip .timers-cluster .btn { display: inline-flex; }
+body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10px; z-index: 500; background: rgba(11,17,32,0.92); border: 1px solid #334155; border-radius: 10px; padding: 8px; flex-wrap: wrap; max-width: 46vw; }
+
+.conn-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.68rem;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid;
+}
+.conn-pill.live { color: #6ee7b7; border-color: #10b981; background: rgba(16,185,129,0.12); }
+.conn-pill.warn { color: #fcd34d; border-color: #f59e0b; background: rgba(245,158,11,0.12); }
+.conn-pill.demo { color: #93c5fd; border-color: #3b82f6; background: rgba(59,130,246,0.12); }
+
+#toastBar {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+    background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 9500;
+}
+#toastBar.show { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="bg-watermark"></div>
+<div id="toastBar"></div>
 
 <div class="app-shell">
     <!-- TOP COMMAND BAR -->
@@ -580,6 +603,7 @@ footer.foot-bar {
             <span class="brand-title">Moonhollow Werewolf</span>
             <span class="room-code-pill" id="roomCodePill">WOLF-DEMO</span>
             <span class="phase-pill" id="phasePill">LOBBY SETUP</span>
+            <span class="conn-pill demo" id="connPill">Offline (demo)</span>
         </div>
 
         <div class="timers-cluster">
@@ -650,6 +674,13 @@ footer.foot-bar {
     </footer>
 </div>
 
+<!-- STORY THEATRE OVERLAY (full-screen reveal events; teacher-paced) -->
+<div class="th-overlay" id="theatreOverlay">
+    <div class="th-stage"></div>
+    <div class="th-caption"></div>
+    <div class="th-hint">Space/Right next - Left back - S skip - P pause - T read-aloud</div>
+</div>
+
 <!-- SERVER / RESET MODAL -->
 <div class="modal-backdrop" id="serverModal">
     <div class="modal-card">
@@ -677,6 +708,12 @@ footer.foot-bar {
 </div>
 
 <script src="../../../Student_System/students_roster_data.js"></script>
+<script src="shared/config.js"></script>
+<script src="shared/sfx.js"></script>
+<script src="shared/tts.js"></script>
+<script src="shared/theatre.js"></script>
+<script src="engine/story_content.js"></script>
+<script src="engine/story_engine.js"></script>
 <script src="engine/werewolf_engine.js"></script>
 <script>
 (function () {
@@ -697,10 +734,14 @@ footer.foot-bar {
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
 
     var sfxEnabled = true;
-    var autoBotsEnabled = true;
+    // A2: Auto-Bots default OFF whenever a cloud server URL is set; ON only in Demo mode.
+    var testMode = params.get('testmode') === '1';
+    var autoBotsEnabled = !serverUrl;
     var nominatedIds = {}; // Day discussion spotlight seats (visual cue only)
     var selectedHomeroom = '';
     var audioCtx = null;
+    var lastServerOkAt = 0;
+    var lastServerErrAt = 0;
 
     // Local authoritative game state when running in Instant/Demo/Projector mode
     var localGame = E.createGame({
@@ -726,16 +767,16 @@ footer.foot-bar {
         return f + ' ' + init2 + '.';
     }
 
-    // Gentle synthesized classroom sound effects (zero external audio files needed)
+    // Gentle synthesized classroom sound effects (shared WebAudio cues; zero external audio files)
     function playCue(kind) {
         if (!sfxEnabled) return;
+        if (window.WWSfx) { window.WWSfx.setEnabled(true); window.WWSfx.play(kind); return; }
         try {
             var AudioContextCls = window.AudioContext || window.webkitAudioContext;
             if (!AudioContextCls) return;
             if (!audioCtx) audioCtx = new AudioContextCls();
             var now = audioCtx.currentTime;
             if (kind === 'night') {
-                // Mysterious low minor chord
                 [220, 261.6, 329.6].forEach(function (freq, idx) {
                     var o = audioCtx.createOscillator();
                     var g = audioCtx.createGain();
@@ -748,7 +789,6 @@ footer.foot-bar {
                     o.start(now + idx * 0.08); o.stop(now + 1.35);
                 });
             } else if (kind === 'dawn') {
-                // Warm town bell chime
                 [523.25, 659.25, 783.99].forEach(function (freq, idx) {
                     var o = audioCtx.createOscillator();
                     var g = audioCtx.createGain();
@@ -773,6 +813,30 @@ footer.foot-bar {
             }
         } catch (e) {}
     }
+
+    // Story Theatre controller: full-screen reveal on the projector (B3).
+    var theatre = window.WWTheatre ? window.WWTheatre.create({
+        overlay: document.getElementById('theatreOverlay'),
+        getReveal: function () { return currentView && currentView.reveal; },
+        autoStartReady: true,
+        autoAdvance: true,
+        keys: true,
+        controls: true,
+        onToggleTts: function () {
+            if (!window.WWTts) return;
+            window.WWTts.setEnabled(!window.WWTts.isEnabled());
+        },
+        onControl: function (cmd, reveal) {
+            if (serverUrl) {
+                callServer({ action: (window.WWConfig ? window.WWConfig.ACTIONS.REVEAL_CONTROL : 'reveal_control'), cmd: cmd, revealId: reveal ? reveal.id : null });
+                return;
+            }
+            if (localGame.reveal && window.StoryEngine) {
+                window.StoryEngine.applyControl(localGame.reveal, cmd, Date.now());
+                refreshLocalView();
+            }
+        }
+    }) : null;
 
     // Broadcast local state to any open Student Preview (?demo=1) or God View (?god=1) tabs
     function broadcastLocalState() {
@@ -830,6 +894,8 @@ footer.foot-bar {
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
         }).then(function (r) { return r.json(); }).then(function (data) {
+            lastServerOkAt = Date.now();
+            updateConnPill();
             if (data && data.engineVersion === 'missing') {
                 alert('Server connected, but WerewolfEngine is missing in Apps Script! Paste the updated single-file Code.gs -> Manage deployments -> Edit -> New version -> Deploy.');
                 return data;
@@ -842,12 +908,42 @@ footer.foot-bar {
                     teacherPin = '';
                     try { sessionStorage.removeItem('ww_teacher_pin'); } catch (e) {}
                 }
-                alert('Server message: ' + data.message);
+                toast('Server: ' + data.message);
             }
             return data;
         }).catch(function (err) {
+            lastServerErrAt = Date.now();
+            updateConnPill();
             console.warn('Server call error:', err);
+            toast('Server unreachable - retrying automatically.');
+            return null;
         });
+    }
+
+    var toastTimer = null;
+    function toast(msg) {
+        var t = el('toastBar');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.classList.remove('show'); }, 4200);
+    }
+
+    function updateConnPill() {
+        var p = el('connPill');
+        if (!p) return;
+        var C = window.WWConfig ? window.WWConfig.COPY : {};
+        if (!serverUrl) {
+            p.textContent = C.connOfflineDemo || 'Offline (demo)';
+            p.className = 'conn-pill demo';
+        } else if (lastServerErrAt > lastServerOkAt) {
+            p.textContent = C.connReconnecting || 'Reconnecting';
+            p.className = 'conn-pill warn';
+        } else {
+            p.textContent = C.connLive || 'Live';
+            p.className = 'conn-pill live';
+        }
     }
 
     window.onCloudToggleClick = function () {
@@ -894,7 +990,9 @@ footer.foot-bar {
 
     // Poll server every 3.5s + jitter when in Live Server Mode
     function scheduleServerPoll() {
-        var delay = 3300 + Math.floor(Math.random() * 1100);
+        // B6: poll faster (1-1.5s) while a reveal is playing so beats stay in sync
+        var revealPlaying = currentView && currentView.reveal && currentView.reveal.control && currentView.reveal.control.status === 'playing';
+        var delay = revealPlaying ? (1200 + Math.floor(Math.random() * 300)) : (3300 + Math.floor(Math.random() * 1100));
         setTimeout(function () {
             if (serverUrl) {
                 fetch(serverUrl, {
@@ -902,11 +1000,12 @@ footer.foot-bar {
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'poll_state', gameId: currentView.gameId, viewerKind: 'lcd' })
                 }).then(function (r) { return r.json(); }).then(function (d) {
+                    lastServerOkAt = Date.now();
                     if (d && d.status === 'ok' && d.view) {
                         currentView = d.view;
                         render();
                     }
-                }).catch(function () {}).finally(scheduleServerPoll);
+                }).catch(function () { lastServerErrAt = Date.now(); updateConnPill(); }).finally(scheduleServerPoll);
             } else {
                 scheduleServerPoll();
             }
@@ -922,6 +1021,13 @@ footer.foot-bar {
         E.updateRules(localGame, patch, Date.now());
         refreshLocalView();
     }
+
+    // Audit fix: debounce the class-size slider so it does not POST per pixel in cloud mode
+    var classSizeTimer = null;
+    window.debounceClassSize = function (val) {
+        if (classSizeTimer) clearTimeout(classSizeTimer);
+        classSizeTimer = setTimeout(function () { window.setClassSize(val); }, 450);
+    };
 
     window.setClassSize = function (n) {
         n = Number(n);
@@ -1049,7 +1155,8 @@ footer.foot-bar {
     window.onNextPhaseClick = function () {
         nominatedIds = {};
         if (serverUrl) {
-            callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled });
+            // A2: bot simulation never runs in cloud mode unless explicit Test Mode is on
+            callServer({ action: 'advance_phase', simulateBots: autoBotsEnabled && testMode });
             return;
         }
         if (localGame.phase === E.PHASES.LOBBY && localGame.players.length === 0) {
@@ -1154,7 +1261,13 @@ footer.foot-bar {
     window.speakNarratorStory = function () {
         var elTxt = document.getElementById('narratorStoryText');
         var txt = elTxt ? elTxt.textContent.replace(/^"|"$/g, '') : '';
-        if (!txt || !window.speechSynthesis) return;
+        if (!txt) return;
+        if (window.WWTts) {
+            window.WWTts.setEnabled(true);
+            window.WWTts.speak(txt);
+            return;
+        }
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         var u = new SpeechSynthesisUtterance(txt);
         u.rate = 0.92;
@@ -1179,6 +1292,11 @@ footer.foot-bar {
         if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT')) return;
         if (ev.key === 'f' || ev.key === 'F') toggleFullscreen();
         if (ev.key === ' ') { ev.preventDefault(); onPauseClick(); }
+        // Hidden teacher strip on the projector: Ctrl+. toggles it during play
+        if (ev.ctrlKey && (ev.key === '.' || ev.key === '>')) {
+            ev.preventDefault();
+            document.body.classList.toggle('teacher-strip');
+        }
     });
 
     window.openServerModal = function () {
@@ -1212,7 +1330,12 @@ footer.foot-bar {
         } catch (e) {}
         closeServerModal();
         if (serverUrl) {
-            callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
+            // Audit fix: never create_game while a game is already live - poll it instead
+            if (currentView && currentView.gameId && currentView.phase && currentView.phase !== 'LOBBY') {
+                callServer({ action: 'poll_state', viewerKind: 'lcd' });
+            } else {
+                callServer({ action: 'create_game', rules: localGame.rules, populateDemo: false });
+            }
         } else {
             refreshLocalView();
         }
@@ -1247,6 +1370,10 @@ footer.foot-bar {
         var v = currentView;
         var isNight = (v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
         document.body.classList.toggle('is-night', isNight);
+        // C: the LCD is projector-only during play; teacher strip hidden unless toggled with Ctrl+.
+        document.body.classList.toggle('in-play', v.phase !== 'LOBBY');
+        if (theatre) theatre.update();
+        updateConnPill();
 
         if (v.phase !== lastPhaseRendered) {
             if (v.phase === 'NIGHT') playCue('night');
@@ -1322,7 +1449,7 @@ footer.foot-bar {
             + '    <div class="size-pills">' + sizeButtons + '</div>'
             + '  </div>'
             + '  <div class="size-slider-row">'
-            + '    <input type="range" min="8" max="36" value="' + r.classSize + '" oninput="setClassSize(this.value)">'
+            + '    <input type="range" min="8" max="36" value="' + r.classSize + '" oninput="debounceClassSize(this.value)" onchange="setClassSize(this.value)">'
             + '    <span class="size-readout">' + r.classSize + ' Kids</span>'
             + '  </div>'
             + '</div>'
@@ -1418,8 +1545,8 @@ footer.foot-bar {
         if (storyTxt && (v.phase === 'DAWN' || v.phase === 'DUSK' || v.phase === 'DAY_DISCUSSION' || v.phase === 'NIGHT')) {
             parts.push('<div class="story-chronicle-card">'
                 + '<div class="story-chronicle-header">'
-                + '  <span class="story-chronicle-title">📜 The Moonhollow Chronicle</span>'
-                + '  <button class="btn btn-xs" onclick="speakNarratorStory()" title="Play narration out loud">🔊 Read Aloud</button>'
+                + '  <span class="story-chronicle-title">The Moonhollow Chronicle</span>'
+                + '  <button class="btn btn-xs" onclick="speakNarratorStory()" title="Play narration out loud">Read Aloud</button>'
                 + '</div>'
                 + '<div class="story-chronicle-text" id="narratorStoryText">"' + esc(storyTxt) + '"</div>'
                 + '</div>');
@@ -1433,18 +1560,18 @@ footer.foot-bar {
 
             if (isSaved) {
                 parts.push('<div class="meter-box" style="border-color:var(--emerald); background:rgba(5, 150, 105, 0.12);">'
-                    + '<div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:800; color:var(--emerald); margin-bottom:4px;">✨ MIRACLE SAVE! The Doctor Protected the Village!</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:800; color:var(--emerald); margin-bottom:4px;">MIRACLE SAVE! The Doctor Protected the Village!</div>'
                     + '<div style="font-size:0.95rem; color:var(--text-main);">The Werewolves struck in the dark, but the Town Doctor shielded the target! Nobody died overnight.</div>'
                     + '</div>');
             } else if (elimPlayer) {
                 parts.push('<div class="meter-box" style="border-color:var(--red); background:rgba(225, 29, 72, 0.1);">'
-                    + '<div style="font-family:var(--font-heading); font-size:1.18rem; font-weight:800; color:var(--red); margin-bottom:4px;">🐺 THE WEREWOLVES STRUCK OVERNIGHT!</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.18rem; font-weight:800; color:var(--red); margin-bottom:4px;">THE WEREWOLVES STRUCK OVERNIGHT!</div>'
                     + '<div style="font-size:1.02rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">Seat #' + (elimPlayer.seat < 10 ? '0' + elimPlayer.seat : elimPlayer.seat) + ' ' + esc(elimPlayer.name) + ' was eliminated!</div>'
                     + '<div style="font-size:0.88rem; color:var(--text-muted);">They must now maintain strict poker-face and follow the Silent Ghost Spectator rule.</div>'
                     + '</div>');
             } else {
                 parts.push('<div class="meter-box">'
-                    + '<div style="font-family:var(--font-heading); font-size:1.1rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">🌅 Peaceful Dawn Over Moonhollow</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.1rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">Peaceful Dawn Over Moonhollow</div>'
                     + '<div style="font-size:0.92rem; color:var(--text-muted);">All villagers woke safely this morning.</div>'
                     + '</div>');
             }
