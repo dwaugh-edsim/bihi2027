@@ -1427,8 +1427,7 @@
   /**
    * Reset back to Lobby keeping the seated roster intact for instant Round 2!
    */
-  function resetToLobby(game, keepPlayers, now) {
-    now = now || Date.now();
+  function resetToLobby(game, keepPlayers, now) {    now = now || Date.now();
     var kept = keepPlayers !== false ? game.players.map(function (p, i) {
       return {
         id: p.id,
@@ -1453,6 +1452,30 @@
     fresh.epoch = hashSeed(game.gameId + ':epoch:' + now + ':' + Math.random());
     fresh.players = kept;
     return fresh;
+  }
+
+  /**
+   * Bring a game created by an older engine up to the current state shape (idempotent).
+   * Needed when a v1.0.0 room survives a server redeploy in cache/props: the v2 engine
+   * reads fields v1 never wrote (currentNight.wolfConfirms / teacherDecisions,
+   * secret.nightReports, rules.testMode, ...), and the god-view projection would throw
+   * "Cannot read properties of undefined" on every teacher poll until this runs.
+   */
+  function migrateGame(game) {
+    if (!game || typeof game !== 'object') return game;
+    var fresh = createGame({
+      gameId: game.gameId || 'MIGRATE',
+      rules: game.rules && typeof game.rules === 'object' ? game.rules : {},
+      now: game.updatedAt || Date.now(),
+      seed: game.seed != null ? game.seed : undefined
+    });
+    game.rules = fresh.rules; // sanitized merge of DEFAULT_RULES + the game's own rules
+    game.currentNight = mergeObj(fresh.currentNight, game.currentNight || {});
+    game.currentVote = mergeObj(fresh.currentVote, game.currentVote || {});
+    game.secret = mergeObj(fresh.secret, game.secret || {});
+    if (!game.epoch) game.epoch = hashSeed(String(game.gameId) + ':epoch:' + (game.updatedAt || Date.now()));
+    game.version = ENGINE_VERSION;
+    return game;
   }
 
   /**
@@ -2211,6 +2234,36 @@
     var renPh = renamePlayer(g8, idB, 'Seat 2', 260);
     check(renPh.ok && /^Seat \d+$/.test(g8.players[1].name), 'renamePlayer can re-placeholder a seat');
 
+    // 13. Legacy v1.0.0 state migration - god view must not throw on old rooms
+    // (reproduces the exact "Cannot read properties of undefined (reading 'P2')"
+    // cockpit crash from the WOLF-E8SQ room that predated the v2 engine fields)
+    var g9 = createGame({ seed: 909090, populateDemo: true, rules: { classSize: 12, preset: 'custom', wolvesCount: 3, doctorsCount: 1, detectivesCount: 1 } });
+    startGame(g9, 100);
+    advancePhase(g9, 200); // NIGHT
+    delete g9.currentNight.wolfConfirms;
+    delete g9.currentNight.teacherDecisions;
+    delete g9.currentVote.nominations;
+    delete g9.secret.nightReports;
+    delete g9.secret.usedFragments;
+    delete g9.reveal;
+    delete g9.rules.testMode;
+    g9.version = '1.0.0';
+    g9.epoch = undefined;
+    var preThrew = null;
+    try { projectViewForViewer(g9, { kind: 'god' }); } catch (e) { preThrew = e; }
+    check(Boolean(preThrew), 'pre-migration god view on v1-shaped state throws (crash reproduced)');
+    var mig = migrateGame(g9);
+    check(mig.version === ENGINE_VERSION && Boolean(mig.epoch), 'migrateGame stamps current version + epoch');
+    check(mig.currentNight.wolfConfirms && mig.currentNight.teacherDecisions && mig.currentVote.nominations && mig.rules.testMode === false,
+      'migration restores v2 night/vote/secret fields and rules');
+    var postThrew = null;
+    var godViewMig = null;
+    try { godViewMig = projectViewForViewer(mig, { kind: 'god' }); } catch (e) { postThrew = e; }
+    check(!postThrew && godViewMig && godViewMig.god && godViewMig.god.packLock !== undefined, 'post-migration god view renders without throwing');
+    var plThrew = null;
+    try { projectViewForViewer(mig, { kind: 'player', playerId: mig.players[0].id }); } catch (e) { plThrew = e; }
+    check(!plThrew, 'post-migration player view renders without throwing');
+
     return { ok: true, passed: results.length, winner: g.winner, rounds: g.round, results: results };
   }
 
@@ -2238,6 +2291,7 @@
     kickPlayer: kickPlayer,
     addPlayer: addPlayer,
     renamePlayer: renamePlayer,
+    migrateGame: migrateGame,
     setPlayerAlive: setPlayerAlive,
     advancePhase: advancePhase,
     resetToLobby: resetToLobby,
