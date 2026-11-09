@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HL8 Germs Review: Station Walk Screen</title>
+<!--
+    On-screen companion for the germs review gallery walk (projector).
+    Left: giant station timer that the whole room can read.
+    Right: reference rail (routes, gates, cleaners, quick calls, words) so pairs
+    can check the science without leaving their station.
+    Controls: SPACE or click = next station and restart the timer.
+              P = pause / resume.  R = restart the current timer.
+    Edit WALK_SECONDS in the CONFIG block near the bottom to change the timing.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        /* Same palette as the Case 55 intro deck */
+        --paper: #eceff2;
+        --surface: #ffffff;
+        --surface-subtle: #f8fafc;
+        --line: #cbd5e1;
+        --line-soft: #e5e9f0;
+        --ink: #1e2530;
+        --ink-heading: #0f172a;
+        --ink-body: #2c3440;
+        --ink-muted: #475569;
+        --dim: #64748b;
+
+        --coral: #ed786a;
+        --coral-dark: #c95548;
+        --coral-pale: #fdf0ee;
+        --teal: #0f766e;
+        --teal-pale: #f0fdfa;
+        --navy: #1d4ed8;
+        --navy-pale: #eff6ff;
+        --amber: #b45309;
+        --amber-pale: #fef3c7;
+        --emerald: #15803d;
+        --emerald-pale: #dcfce7;
+
+        --font-display: 'Arvo', Georgia, serif;
+        --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    html, body {
+        height: 100%;
+        background: #14171d;
+        color: var(--ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden;
+    }
+
+    #stage {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    #canvas {
+        width: 1536px;
+        height: 864px;
+        flex: none;
+        background: var(--paper);
+        background-image:
+            repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform-origin: center center;
+        box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+
+    /* Header */
+    #header {
+        background: var(--surface);
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        gap: 16px;
+        border-bottom: 2px solid var(--line);
+    }
+    .brand-mark {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: .14em;
+        color: var(--coral-dark);
+        border: 2px solid var(--coral-dark);
+        border-radius: 6px;
+        padding: 4px 9px;
+        white-space: nowrap;
+    }
+    .brand-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 19px;
+        color: var(--ink-heading);
+        white-space: nowrap;
+    }
+    #stationCount {
+        font-family: var(--font-mono);
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--ink-heading);
+        background: var(--surface-subtle);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 14px;
+        white-space: nowrap;
+    }
+    .keys-hint {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        color: var(--dim);
+        white-space: nowrap;
+    }
+    .keys-hint b { color: var(--ink-heading); }
+
+    /* Main two-column area */
+    #main {
+        flex: 1;
+        display: flex;
+        gap: 24px;
+        padding: 28px 36px 26px;
+        overflow: hidden;
+    }
+
+    /* Left: timer column */
+    #timerCol {
+        flex: 1.25;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface);
+        border: 2px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    #stationBig {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 30px;
+        letter-spacing: .14em;
+        color: var(--ink-muted);
+        margin-bottom: 4px;
+    }
+    #clock {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 218px;
+        line-height: 1;
+        color: var(--ink-heading);
+        font-variant-numeric: tabular-nums;
+    }
+    #clock.warn { color: var(--amber); }
+    #clock.over { color: var(--coral-dark); }
+    #statusLine {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 22px;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: var(--teal-pale);
+        border: 2px solid var(--teal);
+        border-radius: 999px;
+        padding: 8px 26px;
+        margin-top: 18px;
+    }
+    #statusLine.warn { color: var(--amber); background: var(--amber-pale); border-color: var(--amber); }
+    #statusLine.over {
+        color: #fff;
+        background: var(--coral-dark);
+        border-color: var(--coral-dark);
+        animation: pulse .55s step-end infinite alternate;
+    }
+    @keyframes pulse { from { opacity: 1; } to { opacity: .55; } }
+    #nextLine {
+        margin-top: 16px;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink-muted);
+    }
+    #nextLine b { color: var(--ink-heading); }
+    #pausedTag {
+        display: none;
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: .14em;
+        color: #fff;
+        background: var(--ink-heading);
+        border-radius: 6px;
+        padding: 5px 12px;
+    }
+
+    /* Right: reference rail */
+    #rail {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+    }
+    .rail-card {
+        background: var(--surface);
+        border: 1.5px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 16px;
+    }
+    .rail-card .r-head {
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 800;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    .rail-card .r-body {
+        font-size: 17.5px;
+        font-weight: 600;
+        line-height: 1.32;
+        color: var(--ink-body);
+    }
+    .rail-card .r-body b { color: var(--ink-heading); }
+    .rc-routes { border-top: 6px solid var(--coral); }
+    .rc-routes .r-head { color: var(--coral-dark); }
+    .rc-gates { border-top: 6px solid var(--navy); }
+    .rc-gates .r-head { color: var(--navy); }
+    .rc-clean { border-top: 6px solid var(--teal); }
+    .rc-clean .r-head { color: var(--teal); }
+    .rc-calls { border-top: 6px solid var(--amber); }
+    .rc-calls .r-head { color: var(--amber); }
+    .rc-words { border-top: 6px solid var(--emerald); }
+    .rc-words .r-head { color: var(--emerald); }
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="canvas">
+
+    <div id="header">
+        <div class="header-brand" style="display:flex; align-items:center; gap:14px;">
+            <span class="brand-mark">CASE 55 &middot; REVIEW</span>
+            <span>
+                <span class="brand-title">Scenario Walk</span><br>
+                <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dim);">Healthy Living 8 &middot; Unit 2 &middot; Communicable Disease</span>
+            </span>
+        </div>
+        <span id="stationCount">STATION 1 / 18</span>
+        <span class="keys-hint"><b>SPACE</b> next station &middot; <b>P</b> pause &middot; <b>R</b> restart timer</span>
+    </div>
+
+    <div id="main">
+
+        <div id="timerCol">
+            <div id="pausedTag">PAUSED</div>
+            <div id="stationBig">STATION 01</div>
+            <div id="clock">85</div>
+            <div id="statusLine">Working together</div>
+            <div id="nextLine">Next: <b>station 2</b> when the timer hits zero</div>
+        </div>
+
+        <div id="rail">
+            <div class="rail-card rc-routes">
+                <div class="r-head">The five travel routes</div>
+                <div class="r-body"><b>Airborne</b> &middot; <b>Direct contact</b> &middot; <b>Indirect contact</b> (surfaces, food, water) &middot; <b>Bodily fluids</b> &middot; <b>Vectors</b> (ticks, mosquitoes)</div>
+            </div>
+            <div class="rail-card rc-gates">
+                <div class="r-head">Entry gates</div>
+                <div class="r-body"><b>Mouth</b> &middot; <b>Nose</b> &middot; <b>Eyes</b> &middot; <b>A cut or scrape</b>. Germs cannot soak through unbroken skin. Hands pick germs UP and carry them IN.</div>
+            </div>
+            <div class="rail-card rc-clean">
+                <div class="r-head">The three cleaners</div>
+                <div class="r-body"><b>Soap + 20 seconds of water</b> on hands: lifts germs off, rinses them down the drain. <b>Alcohol sanitizer</b>: kills, but fails on hard shells like norovirus. <b>Bleach</b> on surfaces only, trained adults.</div>
+            </div>
+            <div class="rail-card rc-calls">
+                <div class="r-head">Quick calls</div>
+                <div class="r-body">Spotty rash + fever = usually <b>virus</b>. Red, hot, swollen wound = usually <b>bacteria</b>. Antibiotics cure <b>bacteria only</b>, never viruses. Vaccines train you <b>before</b>.</div>
+            </div>
+            <div class="rail-card rc-words">
+                <div class="r-head">Case words</div>
+                <div class="r-body"><b>Fomite</b> (object that carries germs) &middot; <b>Incubation</b> (gap before symptoms) &middot; <b>Shedding</b> (still contagious after recovering) &middot; <b>Patient zero</b> (first case) &middot; <b>Hypothesis</b> (best guess)</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+<script>
+// ===================== CONFIG (edit here) =====================
+const TOTAL_STATIONS = 18;   // core stations (spares S1/S2 run manually)
+const WALK_SECONDS = 85;     // seconds per station
+// ==============================================================
+
+const clockEl = document.getElementById('clock');
+const statusEl = document.getElementById('statusLine');
+const stationBig = document.getElementById('stationBig');
+const stationCount = document.getElementById('stationCount');
+const nextLine = document.getElementById('nextLine');
+const pausedTag = document.getElementById('pausedTag');
+
+let station = 1;
+let remaining = WALK_SECONDS;
+let paused = false;
+let done = false;
+let lastTick = Date.now();
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function render() {
+    clockEl.textContent = remaining;
+    clockEl.className = remaining <= 10 ? 'over' : (remaining <= 20 ? 'warn' : '');
+    if (done) {
+        stationBig.textContent = 'WALK COMPLETE';
+        statusEl.textContent = 'Back to seats for the reveal';
+        statusEl.className = '';
+        nextLine.innerHTML = 'Spares <b>S1</b> and <b>S2</b> run whenever you call them. Press <b>SPACE</b> to restart the whole walk.';
+        return;
+    }
+    stationBig.textContent = 'STATION ' + pad(station);
+    stationCount.textContent = 'STATION ' + station + ' / ' + TOTAL_STATIONS;
+    if (paused) {
+        statusEl.textContent = 'Paused';
+        statusEl.className = '';
+    } else if (remaining <= 10) {
+        statusEl.textContent = 'Rotate now';
+        statusEl.className = 'over';
+    } else if (remaining <= 20) {
+        statusEl.textContent = 'Finish your why';
+        statusEl.className = 'warn';
+    } else {
+        statusEl.textContent = 'Working together';
+        statusEl.className = '';
+    }
+    const nxt = station < TOTAL_STATIONS ? station + 1 : null;
+    nextLine.innerHTML = nxt
+        ? 'Next: <b>station ' + nxt + '</b> when the timer hits zero'
+        : 'Last station. The reveal starts when you call everyone back.';
+}
+
+function tick() {
+    const now = Date.now();
+    if (!paused && !done && now - lastTick >= 1000) {
+        lastTick = now;
+        remaining--;
+        if (remaining <= 0) remaining = 0;
+        render();
+    }
+    requestAnimationFrame(tick);
+}
+
+function nextStation() {
+    if (done) {
+        station = 1;
+        done = false;
+    } else if (station < TOTAL_STATIONS) {
+        station++;
+    } else {
+        done = true;
+    }
+    remaining = WALK_SECONDS;
+    lastTick = Date.now();
+    paused = false;
+    pausedTag.style.display = 'none';
+    render();
+}
+
+function restartTimer() {
+    remaining = WALK_SECONDS;
+    lastTick = Date.now();
+    render();
+}
+
+function togglePause() {
+    if (done) return;
+    paused = !paused;
+    pausedTag.style.display = paused ? 'block' : 'none';
+    render();
+}
+
+document.getElementById('canvas').addEventListener('click', nextStation);
+
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextStation();
+    } else if (e.key === 'p' || e.key === 'P') {
+        togglePause();
+    } else if (e.key === 'r' || e.key === 'R') {
+        restartTimer();
+    }
+});
+
+render();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
