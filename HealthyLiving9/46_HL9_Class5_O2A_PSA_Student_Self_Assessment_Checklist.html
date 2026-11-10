@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O2-A PSA: Student Self-Assessment Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --line: #0f172a;
+        --navy: #1e40af;
+        --red: #991b1b;
+        --gold: #b45309;
+        --fill-head: #d9d9d9;
+        --fill-subtle: #f0f0f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; color: var(--ink); background: #e2e8f0; line-height: 1.45; padding: 20px; }
+
+    .bar { max-width: 960px; margin: 0 auto 16px auto; background: #fff; border: 2px solid var(--line); padding: 10px 16px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .bar-note { font-size: 0.84rem; color: var(--muted); }
+    .btn-print { background: #000; color: #fff; border: 2px solid #000; padding: 8px 16px; font-weight: 700; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+
+    .page { max-width: 960px; margin: 0 auto 22px auto; background: #fff; border: 2px solid var(--line); padding: 24px 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.13); page-break-after: always; }
+    .page:last-of-type { page-break-after: auto; }
+
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2.5px solid var(--line); padding-bottom: 8px; margin-bottom: 12px; }
+    .page-head h1 { font-family: 'Roboto Slab', Georgia, serif; font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
+    .page-head .k { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+    .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 800; border: 1.5px solid var(--line); padding: 4px 10px; background: var(--fill-subtle); text-align: right; white-space: nowrap; line-height: 1.3; }
+
+    h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; border-bottom: 1.5px solid var(--line); padding-bottom: 3px; margin: 13px 0 7px 0; }
+    h2 .s { color: var(--gold); }
+    .stepnote { font-size: 0.82rem; color: var(--muted); margin: -3px 0 7px 0; }
+    .stepnote strong { color: var(--navy); }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 9px; }
+    th, td { border: 1.5px solid var(--line); padding: 5px 8px; font-size: 0.77rem; text-align: left; vertical-align: top; }
+    th { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: var(--fill-head); }
+    td.write { height: 2.1em; background: #fff; }
+    td.write-tall { height: 3.2em; background: #fff; }
+    td.lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 800; background: var(--fill-subtle); }
+    .fine { color: var(--muted); font-size: 0.71rem; }
+
+    .gate-card { border: 2px solid var(--line); border-radius: 6px; padding: 8px 12px; background: var(--fill-subtle); margin-bottom: 10px; }
+    .gate-title { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--red); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    
+    ul.check { list-style: none; margin-bottom: 8px; }
+    ul.check li { font-size: 0.8rem; margin-bottom: 4px; padding-left: 1.6em; position: relative; line-height: 1.35; }
+    ul.check li::before { content: "\2610"; position: absolute; left: 0; font-weight: 700; font-size: 1rem; line-height: 1; top: -1px; }
+    ul.check li strong { color: var(--navy); }
+
+    .meta-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .meta-box { border: 1.5px solid var(--line); padding: 5px 8px; background: #fff; }
+    .meta-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--muted); display: block; }
+    .meta-val { font-size: 0.82rem; font-weight: 700; min-height: 1.2em; }
+
+    .ai-note { text-align: center; font-style: italic; font-size: 0.68rem; color: #94a3b8; margin-top: 10px; }
+
+    @media print {
+        @page { size: A4; margin: 9mm 8mm; }
+        body { background: #fff; padding: 0; }
+        .bar { display: none; }
+        .page { box-shadow: none; border: 1.5px solid #000; max-width: 100%; margin: 0; padding: 0; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; }
+        .page:last-of-type { page-break-after: auto; }
+        .page-head { padding-bottom: 6px; margin-bottom: 8px; }
+        .gate-card { padding: 6px 10px; margin-bottom: 8px; }
+        h2 { margin: 10px 0 5px 0; }
+        table { margin-bottom: 7px; }
+        th, td { padding: 4px 6px; font-size: 0.74rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-note"><strong>Nobody Told Me. Now You Tell Them. (Grade 8 PSA) : Student Self-Assessment.</strong> Print double-sided (1 sheet A4) per student or pair. Complete all checks, score your work, and write your pre-submission fix before submitting in Google Classroom.</div>
+    <button class="btn-print" onclick="window.print()">🖨 Print</button>
+</div>
+
+<!-- ==========================================================================
+     PAGE 1 · THE GATES, THE FACTS, AND THE GRADE 8 MESSAGE
+     ========================================================================== -->
+<div class="page">
+    <div class="page-head">
+        <div>
+            <h1>Student Self-Assessment &amp; Pre-Flight Checklist</h1>
+            <div class="k">HL9 · O2-A · Nobody Told Me. Now You Tell Them. · The Grade 8 PSA · Self-Audit</div>
+        </div>
+        <div class="tag">AUDIT BEFORE<br>SUBMITTING</div>
+    </div>
+
+    <div class="meta-grid">
+        <div class="meta-box">
+            <span class="meta-label">Student / Pair Names:</span>
+            <div class="meta-val">____________________________________________________</div>
+        </div>
+        <div class="meta-box">
+            <span class="meta-label">Class / Section:</span>
+            <div class="meta-val">HL9 · Period: ______</div>
+        </div>
+        <div class="meta-box">
+            <span class="meta-label">Submission Format:</span>
+            <div class="meta-val">☐ Slides &nbsp; ☐ Canva</div>
+        </div>
+    </div>
+
+    <!-- 1. MANDATORY REVIEW GATES -->
+    <div class="gate-card">
+        <div class="gate-title">
+            <span>Mandatory Review Gates (Zero-Tolerance Safety &amp; Privacy Holds)</span>
+            <span>4 OF 4 REQUIRED</span>
+        </div>
+        <ul class="check" style="margin-bottom:0;">
+            <li><strong>No Anatomy Diagrams or Medical Clip Art:</strong> Words, clean typography, and simple design only. (Canva decorative medical art declined).</li>
+            <li><strong>No Symptom Photos or Infection Pictures:</strong> Zero clinical photography, rashes, or graphic shock images.</li>
+            <li><strong>No Personal Stories or Peer Names:</strong> All claims discuss biological facts about bodies, never real people or private lives.</li>
+            <li><strong>Canon Verdict Key Trace:</strong> All 3 claims originate word-for-word from our class verdict keys (Myth Trials, Nobody Told Me, or The Fine Print).</li>
+        </ul>
+    </div>
+
+    <!-- 2. AUDIT: FACT SELECTION & THE DEPENDS CONDITION -->
+    <h2><span class="s">Audit 1</span> · Fact Selection &amp; The DEPENDS Condition (Criterion 1)</h2>
+    <p class="stepnote">Verify your trio against the compendium key. You need <strong>at least one DEPENDS</strong> with its exact condition written out.</p>
+
+    <table>
+        <tr>
+            <th style="width:7%;">Fact</th>
+            <th style="width:41%;">Claim Statement &amp; Compendium Card #</th>
+            <th style="width:22%;">Key Verdict &amp; Condition</th>
+            <th style="width:30%;">Why It Matters to Grade 8 (One Line)</th>
+        </tr>
+        <tr>
+            <td class="lbl">Fact 1</td>
+            <td>
+                Claim: _____________________________________<br>
+                <span class="fine">Wall: ☐ Myth Trials &nbsp; ☐ Nobody Told Me &nbsp; ☐ Fine Print &nbsp; (#____)</span>
+            </td>
+            <td>
+                ☐ TRUE &nbsp; ☐ FALSE &nbsp; ☐ DEPENDS<br>
+                <span class="fine">Condition (if Depends): __________________</span>
+            </td>
+            <td>What changes for them: __________________________________________</td>
+        </tr>
+        <tr>
+            <td class="lbl">Fact 2</td>
+            <td>
+                Claim: _____________________________________<br>
+                <span class="fine">Wall: ☐ Myth Trials &nbsp; ☐ Nobody Told Me &nbsp; ☐ Fine Print &nbsp; (#____)</span>
+            </td>
+            <td>
+                ☐ TRUE &nbsp; ☐ FALSE &nbsp; ☐ DEPENDS<br>
+                <span class="fine">Condition (if Depends): __________________</span>
+            </td>
+            <td>What changes for them: __________________________________________</td>
+        </tr>
+        <tr>
+            <td class="lbl">Fact 3</td>
+            <td>
+                Claim: _____________________________________<br>
+                <span class="fine">Wall: ☐ Myth Trials &nbsp; ☐ Nobody Told Me &nbsp; ☐ Fine Print &nbsp; (#____)</span>
+            </td>
+            <td>
+                ☐ TRUE &nbsp; ☐ FALSE &nbsp; ☐ DEPENDS<br>
+                <span class="fine">Condition (if Depends): __________________</span>
+            </td>
+            <td>What changes for them: __________________________________________</td>
+        </tr>
+    </table>
+
+    <!-- 3. AUDIT: TRUTH-FIRST HEADLINE & GRADE 8 MESSAGE -->
+    <h2><span class="s">Audit 2</span> · Truth-First Headline &amp; Grade 8 Communication (Criterion 3)</h2>
+    <p class="stepnote">Examine each slide as if you are a 12-13-year-old student reading it alone without a teacher present.</p>
+
+    <ul class="check">
+        <li><strong>Truth-First Headline Hierarchy:</strong> The main, bold headline on every slide states what is physically TRUE. The myth is NOT the headline (if mentioned at all, the myth is small, crossed out, or at the very top).</li>
+        <li><strong>Dual-Language Vocabulary:</strong> Every clinical or anatomical term is paired immediately with plain everyday words (example: <em>urethra</em> [the tube where urine leaves the body]; <em>asymptomatic</em> [having no visible signs]).</li>
+        <li><strong>Objective, Non-Preachy Tone:</strong> Information is delivered with calm clarity. No shock tactics, no fearmongering, and no lecturing about morality.</li>
+        <li><strong>Practical Understanding (Kills Panic):</strong> The information helps an 8th grader understand what is normal, what is a myth, and when they actually need help.</li>
+    </ul>
+
+    <table>
+        <tr>
+            <th style="width:12%;">Fact Slide</th>
+            <th style="width:48%;">My Main Truth Headline (Copy Exactly from Slide)</th>
+            <th>Clinical Term &rarr; Plain Everyday Definition Paired Beside It</th>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 1</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 2</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 3</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+    </table>
+
+    <p class="fine" style="text-align:right;">Turn page over for Sources, Support Resources, and Rubric Self-Score &rarr;</p>
+</div>
+
+<!-- ==========================================================================
+     PAGE 2 · SOURCES, HELP RESOURCES, AND RUBRIC SCORING
+     ========================================================================== -->
+<div class="page">
+    <div class="page-head">
+        <div>
+            <h1>Verification, Support Resources &amp; Scoring</h1>
+            <div class="k">HL9 · O2-A · Nobody Told Me. Now You Tell Them. · Self-Assessment · Page 2</div>
+        </div>
+        <div class="tag">PAGE 2 OF 2<br>SELF-SCORE</div>
+    </div>
+
+    <!-- 4. AUDIT: SOURCE SHELF & CREDIBILITY -->
+    <h2><span class="s">Audit 3</span> · Source Verification &amp; Credibility Check (Criterion 2)</h2>
+    <p class="stepnote">Every claim must cite an approved Source Shelf reference. The crucial sentence is <strong>what that source says about your claim</strong>.</p>
+
+    <table>
+        <tr>
+            <th style="width:12%;">Fact Slide</th>
+            <th style="width:25%;">Approved Shelf Source Named</th>
+            <th style="width:38%;">What the Source Says About the Claim (One Line)</th>
+            <th>Why That Source is Credible (From Source Slide)</th>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 1</td>
+            <td>☐ 811 NS &nbsp; ☐ KidsHealth<br>☐ SexandU &nbsp; ☐ PHAC<br>☐ IWK &nbsp; ☐ Approved: _____</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 2</td>
+            <td>☐ 811 NS &nbsp; ☐ KidsHealth<br>☐ SexandU &nbsp; ☐ PHAC<br>☐ IWK &nbsp; ☐ Approved: _____</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 3</td>
+            <td>☐ 811 NS &nbsp; ☐ KidsHealth<br>☐ SexandU &nbsp; ☐ PHAC<br>☐ IWK &nbsp; ☐ Approved: _____</td>
+            <td class="write"></td>
+            <td class="write"></td>
+        </tr>
+    </table>
+
+    <!-- 5. AUDIT: CONFIDENTIAL YOUTH SUPPORT RESOURCES -->
+    <h2><span class="s">Audit 4</span> · Confidential Where-to-Get-Help Access (Outcome 3)</h2>
+    <p class="stepnote">Grade 8s must know where to turn for confidential support. Check that each fact slide includes a direct access point.</p>
+
+    <table>
+        <tr>
+            <th style="width:12%;">Fact Slide</th>
+            <th style="width:38%;">Confidential Support Resource Named on This Slide</th>
+            <th>Did you note youth rights? (Free, confidential, no parental permission needed in NS)</th>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 1</td>
+            <td>☐ 811 NS &nbsp; ☐ School Youth Health Centre &nbsp; ☐ Clinic: ________</td>
+            <td>☐ Yes, clearly noted on slide &nbsp;&nbsp; ☐ Needs to be added</td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 2</td>
+            <td>☐ 811 NS &nbsp; ☐ School Youth Health Centre &nbsp; ☐ Clinic: ________</td>
+            <td>☐ Yes, clearly noted on slide &nbsp;&nbsp; ☐ Needs to be added</td>
+        </tr>
+        <tr>
+            <td class="lbl">Slide / Panel 3</td>
+            <td>☐ 811 NS &nbsp; ☐ School Youth Health Centre &nbsp; ☐ Clinic: ________</td>
+            <td>☐ Yes, clearly noted on slide &nbsp;&nbsp; ☐ Needs to be added</td>
+        </tr>
+    </table>
+
+    <!-- 6. RUBRIC SELF-SCORE & ACTION PLAN -->
+    <h2><span class="s">Audit 5</span> · Rubric Self-Score &amp; Pre-Submission Polish (Criterion 4)</h2>
+    <p class="stepnote">Score your work honestly against the 16-mark rubric before turning in your slides or poster.</p>
+
+    <table>
+        <tr>
+            <th style="width:25%;">Rubric Criterion</th>
+            <th style="width:12%; text-align:center;">Self-Mark</th>
+            <th>Evidence From Our Project (Why We Deserve This Score)</th>
+        </tr>
+        <tr>
+            <td><strong>1. Fact Selection &amp; Context</strong><br><span class="fine">3 verdict claims; 1 DEPENDS with condition; why it matters.</span></td>
+            <td style="text-align:center; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:0.95rem;">____ / 4</td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td><strong>2. Source Verification</strong><br><span class="fine">Shelf source cited; what source says; why source is legit.</span></td>
+            <td style="text-align:center; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:0.95rem;">____ / 4</td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td><strong>3. Grade 8 Communication</strong><br><span class="fine">Truth headline; plain words paired; help resource on each.</span></td>
+            <td style="text-align:center; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:0.95rem;">____ / 4</td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td><strong>4. Design &amp; Professionalism</strong><br><span class="fine">Clean layout; readable type; zero gate violations (no anatomy/photos).</span></td>
+            <td style="text-align:center; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:0.95rem;">____ / 4</td>
+            <td class="write"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:800; background:var(--fill-subtle);">TOTAL PROJECT SELF-SCORE:</td>
+            <td style="text-align:center; font-family:'JetBrains Mono',monospace; font-weight:900; font-size:1.1rem; background:var(--fill-subtle);">____ / 16</td>
+            <td style="background:var(--fill-subtle);"><span class="fine">Proficient = 14-16 &middot; Solid = 11-13 &middot; Getting There = 8-10</span></td>
+        </tr>
+    </table>
+
+    <div style="border:1.5px solid var(--line); border-radius:6px; padding:7px 10px; background:#fff; margin-top:6px;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:0.65rem; font-weight:800; text-transform:uppercase; color:var(--navy); display:block; margin-bottom:3px;">
+            Targeted Revision Action: One specific change or improvement we made after doing this checklist:
+        </span>
+        <div style="height:2.6em; border-bottom:1px dashed #94a3b8; margin-bottom:4px;"></div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.75rem; border-top:1.5px solid var(--line); padding-top:6px;">
+        <div><strong>Partner A Sign-off:</strong> _____________________________</div>
+        <div><strong>Partner B Sign-off:</strong> _____________________________</div>
+        <div><strong>Date:</strong> _________________</div>
+    </div>
+
+    <p class="ai-note">made with GLM5.3, Minimax 3 and Gemini</p>
+</div>
+
+</body>
+</html>
