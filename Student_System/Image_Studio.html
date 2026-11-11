@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bicentennial Image Studio · Room 8 Image Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Merriweather:ital,wght@0,700;0,900&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f1f5f9;
+  --panel: #ffffff;
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --accent: #0f172a;
+  --blue: #1d4ed8;
+  --emerald: #047857;
+  --amber: #b45309;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* ================= STUDIO SHELL ================= */
+.studio-header {
+  background: #0f172a;
+  color: #fff;
+  padding: 12px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 3px solid #334155;
+  flex-wrap: wrap;
+}
+.studio-header h1 {
+  font-family: 'Roboto Slab', serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.studio-header .sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.studio-grid {
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 16px 20px 36px;
+  display: grid;
+  grid-template-columns: 440px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1180px) {
+  .studio-grid { grid-template-columns: 1fr; }
+}
+
+/* ================= LEFT CONTROLS COLUMN ================= */
+.controls-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.card {
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.73rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.field:last-child { margin-bottom: 0; }
+.field label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.field label span.hint {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+input[type="text"], input[type="password"], input[type="number"], select, textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--ink);
+  transition: border-color 0.12s, background 0.12s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: #fff;
+}
+textarea {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.45;
+}
+
+/* Quick style chips */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+.qchip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.qchip:hover {
+  border-color: var(--blue);
+  background: #eff6ff;
+  color: var(--blue);
+}
+.qchip.active {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+/* Badges */
+.match-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  white-space: nowrap;
+}
+.match-badge.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+.match-badge.plain {
+  background: #e2e8f0;
+  color: #334155;
+}
+.match-badge.info {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Checkbox row */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.check-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.12s;
+  text-decoration: none;
+}
+.btn:hover {
+  border-color: var(--ink);
+  background: #f8fafc;
+}
+.btn.primary {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+  flex: 1;
+}
+.btn.primary:hover { background: #1e40af; }
+.btn.emerald {
+  background: #047857;
+  color: #fff;
+  border-color: #047857;
+}
+.btn.emerald:hover { background: #065f46; }
+.btn.dark {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
+}
+.btn.dark:hover { background: #1e293b; }
+.btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* Prompt preview box */
+.prompt-box {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 90px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+/* Status strip */
+.gen-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+/* ================= RIGHT STAGE COLUMN ================= */
+.stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stage-toolbar {
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Featured image stage (aspect follows the selected image) */
+.image-stage {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  border: 2px solid #334155;
+  position: relative;
+  background: #0f172a;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.image-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+  cursor: zoom-in;
+}
+.image-stage img.visible { display: block; }
+.stage-placeholder {
+  color: #cbd5e1;
+  text-align: center;
+  max-width: 480px;
+  padding: 24px;
+}
+.stage-placeholder h3 {
+  font-family: 'Roboto Slab', serif;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.stage-placeholder p {
+  font-size: 0.86rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+.stage-busy {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.82);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 5;
+  color: #fff;
+}
+.stage-busy.active { display: flex; }
+.stage-busy .spinner {
+  width: 34px;
+  height: 34px;
+  border: 4px solid #334155;
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+.stage-busy .busy-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.featured-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: none;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.featured-meta.visible { display: flex; }
+.featured-meta .meta-prompt {
+  flex: 1;
+  min-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: #334155;
+}
+
+/* Gallery thumbnails */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.thumb {
+  position: relative;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0f172a;
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.thumb:hover {
+  border-color: var(--blue);
+  transform: translateY(-2px);
+}
+.thumb.selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.35);
+}
+.thumb img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+.thumb .thumb-cap {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.85);
+  padding: 3px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.thumb .thumb-x {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fca5a5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+  display: none;
+}
+.thumb:hover .thumb-x { display: block; }
+.thumb .thumb-x:hover { background: #b91c1c; color: #fff; }
+.gallery-empty {
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding: 6px 2px;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.88);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+.lightbox.open { display: flex; }
+.lightbox img {
+  max-width: 96vw;
+  max-height: 94vh;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+/* Fullscreen projector preview (F key) */
+body.projector-mode .studio-header,
+body.projector-mode .controls-col,
+body.projector-mode .stage-toolbar,
+body.projector-mode .featured-meta,
+body.projector-mode .gallery-card,
+body.projector-mode .lightbox {
+  display: none !important;
+}
+body.projector-mode {
+  background: #000;
+  overflow: hidden;
+}
+body.projector-mode .studio-grid {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.projector-mode .stage-col {
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+body.projector-mode .image-stage {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+
+/* Details (endpoint settings) */
+details.settings {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+details.settings summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink);
+  user-select: none;
+}
+
+/* Aspect preview box */
+.aspect-preview {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 104px;
+  margin-bottom: 10px;
+}
+.aspect-shape {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 60%, #93c5fd 100%);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aspect-shape span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  white-space: nowrap;
+}
+
+#toast {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  background: #0f172a;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: none;
+  z-index: 200;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  max-width: 440px;
+}
+</style>
+</head>
+<body>
+
+<header class="studio-header">
+  <div>
+    <h1>&#128444;&#65039; Bicentennial Image Studio <span class="sub">Room 8 Image Generator &middot; Qwen &middot; Wan &middot; any aspect ratio &middot; <a href="Slide_Studio.html" style="color:#93c5fd">Slide Studio</a></span></h1>
+  </div>
+  <div class="header-actions">
+    <button class="btn emerald" onclick="copyPromptToClipboard()">&#128203; Copy Prompt</button>
+    <button class="btn dark" onclick="toggleProjectorMode()">&#128250; Project Fullscreen (F)</button>
+  </div>
+</header>
+
+<div class="studio-grid">
+  <!-- ================= LEFT COLUMN: INPUTS ================= -->
+  <div class="controls-col">
+
+    <!-- 1. PROMPT -->
+    <div class="card">
+      <div class="card-title"><span>1 &middot; Prompt</span><span>Describe the image</span></div>
+      <div class="field">
+        <label for="promptInp">Image Prompt <span class="hint">plain English, be specific</span></label>
+        <textarea id="promptInp" rows="4" placeholder="e.g. A friendly cartoon mitochondria character holding a clipboard, standing in a bright school hallway...">A cheerful cartoon diagram of a Nova Scotia tidal pool at low tide, sea stars, periwinkles and rock crab among barnacled rocks, clean flat classroom illustration, no text</textarea>
+      </div>
+      <div class="field" style="margin-bottom:6px">
+        <label for="historySel">Recent Prompts <span class="hint">last 24, saved in this browser</span></label>
+        <select id="historySel">
+          <option value="">Load a recent prompt...</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Style Presets <span class="hint">appended to your prompt</span></label>
+        <div class="chip-row" id="styleChips">
+          <button type="button" class="qchip" data-style="Clean flat-vector classroom illustration, bright cheerful colors, simple friendly shapes, no text, no words, no letters">&#127979; Classroom Art</button>
+          <button type="button" class="qchip" data-style="Simple black-and-white line art for a school worksheet, thick clean outlines, high contrast, prints well on a mono laser printer, no shading, no text">&#9998;&#65039; Worksheet Line Art</button>
+          <button type="button" class="qchip" data-style="Photorealistic photography, natural lighting, sharp focus, realistic textures, no text">&#128248; Photorealistic</button>
+          <button type="button" class="qchip" data-style="Warm children's storybook illustration, soft watercolor and pastel textures, gentle rounded shapes, no text">&#128214; Storybook</button>
+          <button type="button" class="qchip" data-style="Historical archival illustration, aged sepia tones, vintage document texture, period-accurate detail, no modern objects, no text">&#128220; Historical Archive</button>
+          <button type="button" class="qchip" data-style="Bold educational poster design, strong graphic shapes, vivid flat colors, clear visual hierarchy, no text">&#128396;&#65039; Poster</button>
+          <button type="button" class="qchip" data-style="">&#10006; Clear Style</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;margin-bottom:0">
+        <label for="negInp">Negative Prompt <span class="hint">things to avoid (optional)</span></label>
+        <input type="text" id="negInp" placeholder="e.g. text, watermark, extra fingers, blurry">
+      </div>
+    </div>
+
+    <!-- 2. ASPECT RATIO & BATCH -->
+    <div class="card">
+      <div class="card-title"><span>2 &middot; Aspect Ratio, Size &amp; Batch</span><span id="aspectBadge" class="match-badge plain">16:9 &middot; 1920&times;1080</span></div>
+      <div class="aspect-preview">
+        <div class="aspect-shape" id="aspectShape"><span id="aspectShapeLabel">16:9</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field" style="margin:0">
+          <label for="aspectSel">Aspect Ratio</label>
+          <select id="aspectSel">
+            <option value="1920*1080" selected>16:9 Widescreen &middot; 1920&times;1080</option>
+            <option value="1280*720">16:9 Compact &middot; 1280&times;720</option>
+            <option value="1440*1080">4:3 Classic &middot; 1440&times;1080</option>
+            <option value="1536*1024">3:2 Print &middot; 1536&times;1024</option>
+            <option value="1024*1024">1:1 Square &middot; 1024&times;1024</option>
+            <option value="1280*1600">4:5 Portrait &middot; 1280&times;1600</option>
+            <option value="1080*1440">3:4 Portrait &middot; 1080&times;1440</option>
+            <option value="1080*1920">9:16 Shorts / Phone &middot; 1080&times;1920</option>
+            <option value="custom">Custom size...</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label for="countSel">How Many Images</label>
+          <select id="countSel">
+            <option value="1" selected>1 image</option>
+            <option value="2">2 images</option>
+            <option value="3">3 images</option>
+            <option value="4">4 images</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row" id="customSizeRow" style="display:none;margin-bottom:10px">
+        <div class="field" style="margin:0">
+          <label for="customWInp">Width (px)</label>
+          <input type="number" id="customWInp" min="256" max="4096" step="16" value="1600">
+        </div>
+        <div class="field" style="margin:0">
+          <label for="customHInp">Height (px)</label>
+          <input type="number" id="customHInp" min="256" max="4096" step="16" value="900">
+        </div>
+      </div>
+      <div class="field-row" style="margin-bottom:0">
+        <div class="field" style="margin:0">
+          <label for="seedInp">Seed <span class="hint">same seed + prompt = same image</span></label>
+          <input type="text" id="seedInp" inputmode="numeric" placeholder="Auto (fresh random each image)">
+        </div>
+        <div class="field" style="margin:0;justify-content:flex-end">
+          <div class="btn-row" style="margin-top:2px">
+            <button type="button" class="btn" id="randSeedBtn" onclick="fillRandomSeed()" title="Fill the seed box with a fresh random number">&#127922; Random</button>
+            <button type="button" class="btn" id="lastSeedBtn" onclick="fillLastSeed()" title="Reuse the seed of the most recent generated image" disabled>&#9851;&#65039; Last Seed</button>
+          </div>
+        </div>
+      </div>
+      <label class="check-row" style="margin-top:10px" for="promptExtendInp">
+        <input type="checkbox" id="promptExtendInp" checked>
+        Auto prompt rewrite <span class="hint" style="font-weight:500">(prompt_extend: the model expands short prompts; uncheck for exact control)</span>
+      </label>
+    </div>
+
+    <!-- 3. ENGINE & KEY -->
+    <div class="card">
+      <div class="card-title">
+        <span>3 &middot; AI Image Engine (Qwen &amp; Wan)</span>
+        <span class="match-badge plain" id="keyStatus">Checking local key...</span>
+      </div>
+      <div class="field-row">
+        <div class="field" style="margin:0">
+          <label for="providerSel">Engine / Provider</label>
+          <select id="providerSel">
+            <option value="maas" selected>Alibaba MaaS (Qwen / Wan)</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="gemini">Google Gemini API (Direct)</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label for="modelSel">Image Model</label>
+          <select id="modelSel">
+            <option value="qwen-image-3.0-pro" selected>Qwen &middot; qwen-image-3.0-pro</option>
+            <option value="wan2.7-image-pro">Wan &middot; wan2.7-image-pro</option>
+            <option value="wan2.7-image">Wan &middot; wan2.7-image</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="customModelField" style="display:none">
+        <label for="modelInp">Custom Model ID</label>
+        <input type="text" id="modelInp" value="qwen-image-3.0-pro">
+      </div>
+      <details class="settings" id="endpointDetails">
+        <summary>Endpoint &amp; Local Key Settings</summary>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+          <div class="field" style="margin:0" id="baseUrlField">
+            <label for="baseUrlInp">MaaS Base URL <span class="hint">bridged via 127.0.0.1:8791</span></label>
+            <input type="text" id="baseUrlInp" value="https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1">
+          </div>
+          <div class="field" style="margin:0">
+            <label for="apiKeyInp">API Key <span class="hint" id="apiKeyHint">local machine config outside git</span></label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="password" id="apiKeyInp" placeholder="Stored locally on this machine (paste only to replace)..." style="flex:1">
+              <button type="button" class="btn" id="saveKeyBtn" onclick="saveEndpointConfig()" style="padding:7px 11px;white-space:nowrap">Save Key</button>
+            </div>
+          </div>
+          <div id="bridgeHelpNote" style="display:none;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;padding:7px 9px;border-radius:7px;font-size:0.74rem;line-height:1.4">
+            <b>Local bridge offline:</b> the bridge keeps your Alibaba MaaS key on this machine (outside git) and forwards requests to Qwen without CORS blocks. Run <code>%LOCALAPPDATA%\Room8\slide_studio_bridge.py</code> (on machines with the Startup launcher: <code>Room8_Slide_Studio_Bridge.vbs</code>), or start it from the repo: <code>bihipri-27/tools-priv/slide_studio_bridge.py</code>.
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- 4. GENERATE -->
+    <div class="card">
+      <div class="card-title"><span>4 &middot; Generate</span><span id="genCountBadge">1 &times; 1920&times;1080</span></div>
+      <div class="btn-row">
+        <button type="button" class="btn primary" id="genBtn" onclick="generateImages()">&#10024; Generate Image(s)</button>
+      </div>
+      <div class="gen-status" id="genStatus"></div>
+      <details class="settings" style="margin-top:6px">
+        <summary>Final prompt sent to the model</summary>
+        <textarea id="promptPreview" class="prompt-box" rows="5" readonly style="margin-top:8px;width:100%"></textarea>
+      </details>
+    </div>
+
+  </div>
+
+  <!-- ================= RIGHT COLUMN: FEATURED + GALLERY ================= -->
+  <div class="stage-col">
+    <div class="stage-toolbar">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.73rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)">
+        <span id="galleryCountLabel">Gallery: 0 images this session</span>
+      </div>
+      <div class="btn-row">
+        <label class="btn" style="cursor:pointer" title="Load any image from disk into the gallery">
+          &#128194; Load Image
+          <input type="file" id="uploadImgInp" accept="image/*" style="display:none">
+        </label>
+        <button type="button" class="btn emerald" id="downloadBtn" onclick="downloadFeatured()" style="display:none">&#128190; Save PNG</button>
+        <button type="button" class="btn" id="downloadAllBtn" onclick="downloadAllImages()" style="display:none">&#128190; Save All</button>
+        <button type="button" class="btn" id="reuseSeedBtn" onclick="reuseFeaturedSeed()" style="display:none" title="Put this image's seed into the Seed box">&#9851;&#65039; Use This Seed</button>
+        <button type="button" class="btn" id="clearBtn" onclick="clearGallery()" style="display:none">&#128465;&#65039; Clear</button>
+        <button type="button" class="btn dark" onclick="toggleProjectorMode()">&#9974; Fullscreen (F)</button>
+      </div>
+    </div>
+
+    <div class="image-stage" id="imageStage">
+      <img id="featuredImg" alt="Generated image" onclick="openLightbox()">
+      <div class="stage-placeholder" id="stagePlaceholder">
+        <h3>Ready to Generate</h3>
+        <p>Write a prompt on the left, pick an <b>aspect ratio</b> and model, then click <b>&#10024; Generate Image(s)</b>. Images render with <b>Qwen Image 3.0 Pro</b> (or Wan 2.7) via your local Alibaba MaaS key. Click any image to zoom it; press <b>F</b> for fullscreen projector preview.</p>
+      </div>
+      <div class="stage-busy" id="stageBusy">
+        <div class="spinner"></div>
+        <div class="busy-text" id="busyText">Generating...</div>
+      </div>
+    </div>
+
+    <div class="featured-meta" id="featuredMeta">
+      <span class="meta-prompt" id="metaPrompt"></span>
+      <span id="metaModel"></span>
+      <span id="metaSize"></span>
+      <span id="metaSeed"></span>
+      <span id="metaTime"></span>
+    </div>
+
+    <div class="card gallery-card" id="galleryCard" style="display:none">
+      <div class="card-title"><span>Session Gallery</span><span>click a thumbnail to feature it</span></div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" alt="Full view">
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================================
+   1. CONSTANTS: BRIDGE, PROVIDERS, MODELS
+   ============================================================================ */
+var LOCAL_BRIDGE_URL = "http://127.0.0.1:8791";
+var DEFAULT_MAAS_BASE = "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1";
+
+var PROVIDER_MODELS = {
+  "maas": [
+    { id: "qwen-image-3.0-pro", label: "Qwen · qwen-image-3.0-pro" },
+    { id: "wan2.7-image-pro", label: "Wan · wan2.7-image-pro" },
+    { id: "wan2.7-image", label: "Wan · wan2.7-image" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ],
+  "openrouter": [
+    { id: "qwen/qwen-image-2.1-turbo", label: "Qwen · qwen-image-2.1-turbo" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ],
+  "gemini": [
+    { id: "gemini-2.5-flash-image", label: "Gemini · gemini-2.5-flash-image" },
+    { id: "__custom__", label: "Custom model ID..." }
+  ]
+};
+
+/* Aspect ratio presets: value = "W*H" (bridge format) */
+var MAX_SEED = 2147483647;
+var MAX_HISTORY = 24;
+
+/* ============================================================================
+   2. STATE
+   ============================================================================ */
+var gallery = [];            /* {id, dataUrl, w, h, prompt, model, seed, when, uploaded} */
+var selectedId = null;
+var idCounter = 0;
+var localBridgeState = { online: false, hasKey: false, keyHint: "" };
+var lastSeedUsed = null;
+var isGenerating = false;
+
+/* ============================================================================
+   3. SETTINGS PERSISTENCE (localStorage, no keys ever stored from maas)
+   ============================================================================ */
+var SETTINGS_KEY = "r8_image_studio_settings_v1";
+var HISTORY_KEY = "r8_image_studio_history_v1";
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      provider: document.getElementById("providerSel").value,
+      model: getSelectedModel(),
+      aspect: document.getElementById("aspectSel").value,
+      customW: document.getElementById("customWInp").value,
+      customH: document.getElementById("customHInp").value,
+      count: document.getElementById("countSel").value,
+      promptExtend: document.getElementById("promptExtendInp").checked,
+      baseUrl: document.getElementById("baseUrlInp").value,
+      negative: document.getElementById("negInp").value
+    }));
+  } catch (e) {}
+}
+
+function loadSettings() {
+  var s = null;
+  try {
+    s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null");
+  } catch (e) {}
+  if (!s) return;
+  if (s.provider) {
+    document.getElementById("providerSel").value = s.provider;
+    populateModelSelect(s.provider, s.model || "");
+    if (s.provider !== "maas") {
+      try {
+        document.getElementById("apiKeyInp").value = localStorage.getItem("r8_image_studio_key_" + s.provider) || "";
+      } catch (e) {}
+    }
+  }
+  if (s.aspect) document.getElementById("aspectSel").value = s.aspect;
+  if (s.customW) document.getElementById("customWInp").value = s.customW;
+  if (s.customH) document.getElementById("customHInp").value = s.customH;
+  if (s.count) document.getElementById("countSel").value = s.count;
+  if (typeof s.promptExtend === "boolean") document.getElementById("promptExtendInp").checked = s.promptExtend;
+  if (s.baseUrl) document.getElementById("baseUrlInp").value = s.baseUrl;
+  if (typeof s.negative === "string") document.getElementById("negInp").value = s.negative;
+}
+
+function loadHistory() {
+  var hist = [];
+  try {
+    hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  } catch (e) {}
+  if (!Array.isArray(hist)) hist = [];
+  return hist;
+}
+
+function pushHistory(promptText) {
+  var p = (promptText || "").trim();
+  if (!p) return;
+  var hist = loadHistory();
+  var idx = hist.indexOf(p);
+  if (idx > -1) hist.splice(idx, 1);
+  hist.unshift(p);
+  if (hist.length > MAX_HISTORY) hist.length = MAX_HISTORY;
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+  } catch (e) {}
+  renderHistory();
+}
+
+function renderHistory() {
+  var sel = document.getElementById("historySel");
+  var hist = loadHistory();
+  sel.innerHTML = "";
+  var placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Load a recent prompt...";
+  sel.appendChild(placeholder);
+  for (var i = 0; i < hist.length; i++) {
+    var opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = hist[i].slice(0, 90) + (hist[i].length > 90 ? "..." : "");
+    sel.appendChild(opt);
+  }
+}
+
+/* ============================================================================
+   4. PROMPT ASSEMBLY & ASPECT HANDLING
+   ============================================================================ */
+function getActiveStyleSuffix() {
+  var chips = document.querySelectorAll("#styleChips .qchip");
+  for (var i = 0; i < chips.length; i++) {
+    if (chips[i].classList.contains("active")) {
+      return (chips[i].getAttribute("data-style") || "").trim();
+    }
+  }
+  return "";
+}
+
+function currentAspect() {
+  var v = document.getElementById("aspectSel").value;
+  if (v === "custom") {
+    var w = parseInt(document.getElementById("customWInp").value, 10);
+    var h = parseInt(document.getElementById("customHInp").value, 10);
+    if (!w || !h || w < 256 || h < 256) return null;
+    return { w: w, h: h, label: "Custom" };
+  }
+  var parts = v.split("*");
+  return { w: parseInt(parts[0], 10), h: parseInt(parts[1], 10), label: "" };
+}
+
+function aspectRatioLabel(w, h) {
+  var g = gcd(w, h);
+  var rw = Math.round(w / g);
+  var rh = Math.round(h / g);
+  if (rw > 40 || rh > 40) {
+    var r = w / h;
+    if (r > 1.02) return "landscape";
+    if (r < 0.98) return "portrait";
+    return "square";
+  }
+  return rw + ":" + rh;
+}
+
+function gcd(a, b) {
+  while (b) { var t = b; b = a % b; a = t; }
+  return a || 1;
+}
+
+function renderAspectPreview() {
+  var a = currentAspect();
+  var shape = document.getElementById("aspectShape");
+  var labelEl = document.getElementById("aspectShapeLabel");
+  var badge = document.getElementById("aspectBadge");
+  var genBadge = document.getElementById("genCountBadge");
+  var count = parseInt(document.getElementById("countSel").value, 10);
+  if (!a) {
+    labelEl.textContent = "Invalid size";
+    badge.textContent = "Check width / height";
+    genBadge.textContent = count + "\u00d7 custom";
+    return;
+  }
+  var ratio = a.w / a.h;
+  var boxH = 84;
+  var boxW = 84 * ratio;
+  var maxW = shape.parentElement.clientWidth - 24 || 400;
+  if (boxW > maxW) {
+    boxW = maxW;
+    boxH = maxW / ratio;
+  }
+  shape.style.width = Math.round(boxW) + "px";
+  shape.style.height = Math.round(boxH) + "px";
+  var rLabel = a.label === "Custom" ? aspectRatioLabel(a.w, a.h) : a.label;
+  if (!rLabel) rLabel = aspectRatioLabel(a.w, a.h);
+  labelEl.textContent = rLabel;
+  badge.innerHTML = rLabel + " &middot; " + a.w + "&times;" + a.h;
+  genBadge.innerHTML = count + " &times; " + a.w + "&times;" + a.h;
+  document.getElementById("customSizeRow").style.display =
+    (document.getElementById("aspectSel").value === "custom") ? "grid" : "none";
+  updateFinalPromptPreview();
+}
+
+function buildFinalPrompt() {
+  var p = (document.getElementById("promptInp").value || "").trim();
+  var style = getActiveStyleSuffix();
+  if (style) {
+    p = p ? (p + ". " + style) : style;
+  }
+  return p;
+}
+
+function orientationWord(w, h) {
+  var r = w / h;
+  if (r > 1.02) return "wide landscape orientation";
+  if (r < 0.98) return "tall portrait orientation";
+  return "square orientation";
+}
+
+function updateFinalPromptPreview() {
+  var a = currentAspect();
+  var provider = document.getElementById("providerSel").value;
+  var p = buildFinalPrompt();
+  var lines = [p || "(empty prompt)"];
+  var neg = (document.getElementById("negInp").value || "").trim();
+  if (neg) lines.push("");
+  if (neg) lines.push("NEGATIVE (avoid): " + neg);
+  if (a && provider === "gemini") {
+    lines.push("");
+    lines.push("[aspect " + aspectRatioLabel(a.w, a.h) + ", " + orientationWord(a.w, a.h) + " - appended to prompt for Gemini]");
+  }
+  document.getElementById("promptPreview").value = lines.join("\n");
+}
+
+/* ============================================================================
+   5. MODEL SELECT & BRIDGE / KEY MANAGEMENT
+   ============================================================================ */
+function populateModelSelect(provider, preferredModel) {
+  var sel = document.getElementById("modelSel");
+  var customField = document.getElementById("customModelField");
+  var customInp = document.getElementById("modelInp");
+  var list = PROVIDER_MODELS[provider] || PROVIDER_MODELS.maas;
+  sel.innerHTML = "";
+  var matched = false;
+  for (var i = 0; i < list.length; i++) {
+    var opt = document.createElement("option");
+    opt.value = list[i].id;
+    opt.textContent = list[i].label;
+    if (preferredModel && list[i].id === preferredModel) {
+      opt.selected = true;
+      matched = true;
+    }
+    sel.appendChild(opt);
+  }
+  if (preferredModel && !matched) {
+    sel.value = "__custom__";
+    customInp.value = preferredModel;
+    customField.style.display = "flex";
+  } else {
+    if (!preferredModel && list[0]) sel.value = list[0].id;
+    customInp.value = sel.value === "__custom__" ? customInp.value : sel.value;
+    customField.style.display = (sel.value === "__custom__") ? "flex" : "none";
+  }
+}
+
+function getSelectedModel() {
+  var selVal = document.getElementById("modelSel").value;
+  if (selVal === "__custom__") {
+    return (document.getElementById("modelInp").value || "").trim();
+  }
+  return selVal;
+}
+
+function setKeyBadge(text, cls) {
+  var badge = document.getElementById("keyStatus");
+  badge.textContent = text;
+  badge.className = "match-badge" + (cls ? " " + cls : "");
+}
+
+async function checkLocalBridge() {
+  var provider = document.getElementById("providerSel").value;
+  var baseField = document.getElementById("baseUrlField");
+  var helpNote = document.getElementById("bridgeHelpNote");
+  var keyInp = document.getElementById("apiKeyInp");
+  var keyHintEl = document.getElementById("apiKeyHint");
+
+  if (provider !== "maas") {
+    baseField.style.display = "none";
+    helpNote.style.display = "none";
+    keyHintEl.textContent = "saved only in this browser's localStorage";
+    keyInp.placeholder = provider === "openrouter" ? "Paste OpenRouter (sk-or-v1-...) key..." : "Paste Gemini API key...";
+    var hasLocalKey = !!(keyInp.value || "").trim();
+    setKeyBadge(hasLocalKey ? "Browser Key Set" : "Paste Key Below", hasLocalKey ? "" : "warn");
+    return;
+  }
+
+  baseField.style.display = "flex";
+  keyHintEl.textContent = "stored in %LOCALAPPDATA%\\Room8 (outside git)";
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function() { ctrl.abort(); }, 2500);
+    var resp = await fetch(LOCAL_BRIDGE_URL + "/health", { signal: ctrl.signal });
+    clearTimeout(timer);
+    var data = await resp.json();
+    localBridgeState.online = !!data.ok;
+    localBridgeState.hasKey = !!data.hasKey;
+    localBridgeState.keyHint = data.keyHint || "";
+    helpNote.style.display = "none";
+    if (data.baseUrl && !document.getElementById("baseUrlInp").dataset.dirty) {
+      document.getElementById("baseUrlInp").value = data.baseUrl;
+    }
+    if (data.hasKey) {
+      setKeyBadge("Local Key Ready" + (data.keyHint ? (" (" + data.keyHint + ")") : ""), "");
+      keyInp.placeholder = "Stored locally" + (data.keyHint ? (" (" + data.keyHint + ")") : "") + " - paste only to replace";
+      document.getElementById("genStatus").textContent = "Bridge online - ready to generate with " + getSelectedModel() + ".";
+    } else {
+      setKeyBadge("Paste MaaS Key", "warn");
+      keyInp.placeholder = "Paste Alibaba MaaS API key (sk-sp-...)";
+      document.getElementById("endpointDetails").open = true;
+    }
+  } catch (e) {
+    localBridgeState = { online: false, hasKey: false, keyHint: "" };
+    setKeyBadge("Bridge Offline", "warn");
+    helpNote.style.display = "block";
+    document.getElementById("endpointDetails").open = true;
+  }
+}
+
+async function saveEndpointConfig() {
+  var provider = document.getElementById("providerSel").value;
+  var keyInp = document.getElementById("apiKeyInp");
+  var key = (keyInp.value || "").trim();
+  var baseUrl = (document.getElementById("baseUrlInp").value || DEFAULT_MAAS_BASE).trim();
+
+  if (provider !== "maas") {
+    if (!key) {
+      toast("Paste an API key first.");
+      keyInp.focus();
+      return;
+    }
+    try {
+      localStorage.setItem("r8_image_studio_key_" + provider, key);
+    } catch (e) {}
+    await checkLocalBridge();
+    toast("Saved " + provider + " key in this browser's localStorage.");
+    return;
+  }
+
+  try {
+    var resp = await fetch(LOCAL_BRIDGE_URL + "/save-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey: key, baseUrl: baseUrl })
+    });
+    var data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.error || ("HTTP " + resp.status));
+    }
+    try {
+      localStorage.setItem("r8_image_studio_maas_base_v1", baseUrl);
+    } catch (e) {}
+    keyInp.value = "";
+    await checkLocalBridge();
+    toast("Saved Alibaba MaaS config locally" + (data.keyHint ? (" (" + data.keyHint + ")") : "") + "!");
+  } catch (err) {
+    toast("Could not save to local bridge: " + err.message);
+  }
+}
+
+/* ============================================================================
+   6. GENERATION
+   ============================================================================ */
+function setBusy(on, text) {
+  isGenerating = on;
+  document.getElementById("stageBusy").classList.toggle("active", !!on);
+  if (text) document.getElementById("busyText").textContent = text;
+  document.getElementById("genBtn").disabled = !!on;
+}
+
+async function generateImages() {
+  if (isGenerating) return;
+  var provider = document.getElementById("providerSel").value;
+  var model = getSelectedModel();
+  var prompt = buildFinalPrompt();
+  var neg = (document.getElementById("negInp").value || "").trim();
+  var aspect = currentAspect();
+  var count = parseInt(document.getElementById("countSel").value, 10);
+  var statusEl = document.getElementById("genStatus");
+  var key = (document.getElementById("apiKeyInp").value || "").trim();
+
+  if (!prompt) {
+    toast("Write a prompt first (card 1).");
+    document.getElementById("promptInp").focus();
+    return;
+  }
+  if (!aspect) {
+    toast("Custom size needs a width and height of 256 px or more.");
+    return;
+  }
+  if (provider === "maas") {
+    if (!localBridgeState.online) {
+      await checkLocalBridge();
+    }
+    if (!localBridgeState.online) {
+      toast("Local MaaS bridge is offline. Start slide_studio_bridge.py (see Endpoint & Local Key Settings).");
+      document.getElementById("endpointDetails").open = true;
+      return;
+    }
+    if (!localBridgeState.hasKey && !key) {
+      toast("Paste your Alibaba MaaS key in Endpoint & Local Key Settings first.");
+      document.getElementById("endpointDetails").open = true;
+      document.getElementById("apiKeyInp").focus();
+      return;
+    }
+  } else if (!key) {
+    toast("Paste your " + (provider === "openrouter" ? "OpenRouter" : "Gemini") + " key in Endpoint & Local Key Settings first.");
+    document.getElementById("endpointDetails").open = true;
+    document.getElementById("apiKeyInp").focus();
+    return;
+  }
+
+  try {
+    if (provider !== "maas" && key) {
+      localStorage.setItem("r8_image_studio_key_" + provider, key);
+    }
+  } catch (e) {}
+  saveSettings();
+
+  var seedInpVal = (document.getElementById("seedInp").value || "").trim();
+  var lockedSeed = /^\d+$/.test(seedInpVal) ? parseInt(seedInpVal, 10) : null;
+  var promptExtend = document.getElementById("promptExtendInp").checked;
+  var baseUrl = (document.getElementById("baseUrlInp").value || DEFAULT_MAAS_BASE).trim();
+  var made = 0;
+
+  setBusy(true, "Generating image 1 of " + count + "...");
+  statusEl.textContent = "Contacting " + model + " (" + aspect.w + "\u00d7" + aspect.h + ")...";
+
+  for (var i = 0; i < count; i++) {
+    var seed = lockedSeed !== null ? lockedSeed : Math.floor(Math.random() * MAX_SEED);
+    setBusy(true, "Generating image " + (i + 1) + " of " + count + "...");
+    statusEl.textContent = "Image " + (i + 1) + "/" + count + " - " + model + " - seed " + seed + "...";
+    try {
+      var dataUrl = null;
+      if (provider === "maas") {
+        var mResp = await fetch(LOCAL_BRIDGE_URL + "/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: model,
+            prompt: prompt,
+            size: aspect.w + "*" + aspect.h,
+            negativePrompt: neg,
+            seed: seed,
+            promptExtend: promptExtend,
+            baseUrl: baseUrl,
+            apiKey: key
+          })
+        });
+        var mData = await mResp.json();
+        if (!mResp.ok || !mData.ok) {
+          throw new Error(mData.error || ("HTTP " + mResp.status));
+        }
+        dataUrl = mData.dataUrl;
+        if (key) {
+          document.getElementById("apiKeyInp").value = "";
+          checkLocalBridge();
+        }
+      } else if (provider === "gemini") {
+        dataUrl = await generateWithGemini(model, prompt, neg, aspect);
+      } else {
+        dataUrl = await generateWithOpenRouter(model, prompt, aspect, key);
+      }
+      if (!dataUrl) {
+        throw new Error("Model replied without an image payload.");
+      }
+      addItemToGallery(dataUrl, prompt, model, seed, aspect.w, aspect.h);
+      made++;
+      lastSeedUsed = seed;
+      document.getElementById("lastSeedBtn").disabled = false;
+      statusEl.textContent = "Image " + (i + 1) + "/" + count + " done.";
+    } catch (err) {
+      statusEl.textContent = "Image " + (i + 1) + "/" + count + " failed: " + err.message;
+      toast("Image " + (i + 1) + " failed: " + err.message);
+    }
+  }
+
+  setBusy(false);
+  if (made > 0) {
+    pushHistory(prompt);
+    statusEl.textContent = "Done: " + made + " of " + count + " image" + (count > 1 ? "s" : "") + " generated with " + model + ".";
+    toast("\u2728 Generated " + made + " image" + (made > 1 ? "s" : "") + " (" + aspect.w + "\u00d7" + aspect.h + ")!");
+  } else {
+    statusEl.textContent = "No images generated. Check the error above.";
+  }
+}
+
+async function generateWithGemini(model, prompt, neg, aspect) {
+  var key = (document.getElementById("apiKeyInp").value || "").trim();
+  var fullPrompt = prompt;
+  if (neg) fullPrompt += "\n\nDo NOT include: " + neg;
+  fullPrompt += "\n\nCompose the image in " + orientationWord(aspect.w, aspect.h) + " (" + aspectRatioLabel(aspect.w, aspect.h) + ", " + aspect.w + "\u00d7" + aspect.h + " pixels).";
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+  var resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: fullPrompt }] }],
+      generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
+    })
+  });
+  var data = await resp.json();
+  if (!resp.ok) {
+    throw new Error((data.error && data.error.message) || ("HTTP " + resp.status));
+  }
+  var candidates = data.candidates || [];
+  for (var c = 0; c < candidates.length; c++) {
+    var parts = (candidates[c].content && candidates[c].content.parts) || [];
+    for (var p = 0; p < parts.length; p++) {
+      if (parts[p].inlineData && parts[p].inlineData.data) {
+        var mime = parts[p].inlineData.mimeType || "image/png";
+        return "data:" + mime + ";base64," + parts[p].inlineData.data;
+      }
+    }
+  }
+  return null;
+}
+
+async function generateWithOpenRouter(model, prompt, aspect, key) {
+  var ratio = aspectRatioLabel(aspect.w, aspect.h);
+  if (ratio.indexOf(":") === -1) ratio = (aspect.w > aspect.h) ? "16:9" : (aspect.w < aspect.h ? "9:16" : "1:1");
+  var imgResp = await fetch("https://openrouter.ai/api/v1/images/generations", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + key
+    },
+    body: JSON.stringify({
+      model: model,
+      prompt: prompt,
+      size: aspect.w + "x" + aspect.h,
+      aspect_ratio: ratio
+    })
+  });
+  var imgData = await imgResp.json();
+  if (!imgResp.ok) {
+    throw new Error((imgData.error && imgData.error.message) || ("HTTP " + imgResp.status));
+  }
+  var item = (imgData.data && imgData.data[0]) || {};
+  if (item.b64_json) {
+    return "data:image/png;base64," + item.b64_json;
+  }
+  if (item.url) {
+    return item.url;
+  }
+  return null;
+}
+
+/* ============================================================================
+   7. GALLERY
+   ============================================================================ */
+function addItemToGallery(dataUrl, prompt, model, seed, w, h) {
+  var item = {
+    id: ++idCounter,
+    dataUrl: dataUrl,
+    prompt: prompt,
+    model: model,
+    seed: seed,
+    w: w,
+    h: h,
+    when: new Date(),
+    uploaded: false
+  };
+  gallery.unshift(item);
+  featureItem(item.id);
+  renderGallery();
+}
+
+function addUploadedImage(dataUrl) {
+  var img = new Image();
+  img.onload = function() {
+    var item = {
+      id: ++idCounter,
+      dataUrl: dataUrl,
+      prompt: "(loaded from disk)",
+      model: "upload",
+      seed: null,
+      w: img.naturalWidth || 1024,
+      h: img.naturalHeight || 1024,
+      when: new Date(),
+      uploaded: true
+    };
+    gallery.unshift(item);
+    featureItem(item.id);
+    renderGallery();
+    toast("Loaded image into the gallery.");
+  };
+  img.src = dataUrl;
+}
+
+function getItem(id) {
+  for (var i = 0; i < gallery.length; i++) {
+    if (gallery[i].id === id) return gallery[i];
+  }
+  return null;
+}
+
+function featureItem(id) {
+  var item = getItem(id);
+  if (!item) return;
+  selectedId = id;
+  var img = document.getElementById("featuredImg");
+  img.src = item.dataUrl;
+  img.classList.add("visible");
+  document.getElementById("stagePlaceholder").style.display = "none";
+
+  var stage = document.getElementById("imageStage");
+  stage.style.aspectRatio = item.w + " / " + item.h;
+
+  var meta = document.getElementById("featuredMeta");
+  meta.classList.add("visible");
+  document.getElementById("metaPrompt").textContent = item.prompt;
+  document.getElementById("metaPrompt").title = item.prompt;
+  document.getElementById("metaModel").textContent = item.model;
+  document.getElementById("metaSize").textContent = item.w + "\u00d7" + item.h + " (" + aspectRatioLabel(item.w, item.h) + ")";
+  document.getElementById("metaSeed").textContent = item.seed === null || item.uploaded ? "seed: n/a" : "seed: " + item.seed;
+  var t = item.when;
+  document.getElementById("metaTime").textContent =
+    pad2(t.getHours()) + ":" + pad2(t.getMinutes()) + ":" + pad2(t.getSeconds());
+
+  document.getElementById("downloadBtn").style.display = "inline-flex";
+  document.getElementById("reuseSeedBtn").style.display = (item.seed !== null && !item.uploaded) ? "inline-flex" : "none";
+  renderGallery();
+}
+
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+function renderGallery() {
+  var grid = document.getElementById("galleryGrid");
+  var card = document.getElementById("galleryCard");
+  grid.innerHTML = "";
+  document.getElementById("galleryCountLabel").textContent =
+    "Gallery: " + gallery.length + " image" + (gallery.length === 1 ? "" : "s") + " this session";
+  document.getElementById("downloadAllBtn").style.display = gallery.length > 1 ? "inline-flex" : "none";
+  document.getElementById("clearBtn").style.display = gallery.length > 0 ? "inline-flex" : "none";
+  if (!gallery.length) {
+    card.style.display = "none";
+    return;
+  }
+  card.style.display = "block";
+  for (var i = 0; i < gallery.length; i++) {
+    (function(item, idx) {
+      var div = document.createElement("div");
+      div.className = "thumb" + (item.id === selectedId ? " selected" : "");
+      div.title = item.prompt + (item.seed !== null && !item.uploaded ? ("  [seed " + item.seed + "]") : "");
+      var img = document.createElement("img");
+      img.src = item.dataUrl;
+      img.alt = "Gallery image " + (idx + 1);
+      div.appendChild(img);
+      var cap = document.createElement("div");
+      cap.className = "thumb-cap";
+      cap.textContent = "#" + (idx + 1) + " " + (item.uploaded ? "upload" : (item.model.split("/").pop() + " \u00b7 s" + item.seed));
+      div.appendChild(cap);
+      var x = document.createElement("span");
+      x.className = "thumb-x";
+      x.textContent = "\u2715";
+      x.title = "Remove from gallery";
+      x.onclick = function(ev) {
+        ev.stopPropagation();
+        removeItem(item.id);
+      };
+      div.appendChild(x);
+      div.onclick = function() { featureItem(item.id); };
+      grid.appendChild(div);
+    })(gallery[i], i);
+  }
+}
+
+function removeItem(id) {
+  for (var i = 0; i < gallery.length; i++) {
+    if (gallery[i].id === id) {
+      gallery.splice(i, 1);
+      break;
+    }
+  }
+  if (selectedId === id) {
+    if (gallery.length) {
+      featureItem(gallery[0].id);
+    } else {
+      selectedId = null;
+      document.getElementById("featuredImg").classList.remove("visible");
+      document.getElementById("stagePlaceholder").style.display = "block";
+      document.getElementById("featuredMeta").classList.remove("visible");
+      document.getElementById("imageStage").style.aspectRatio = "16 / 9";
+      document.getElementById("downloadBtn").style.display = "none";
+      document.getElementById("reuseSeedBtn").style.display = "none";
+      renderGallery();
+    }
+  } else {
+    renderGallery();
+  }
+}
+
+function clearGallery() {
+  if (!gallery.length) return;
+  if (!confirm("Remove all " + gallery.length + " images from this session gallery? Downloaded files are not affected.")) return;
+  gallery = [];
+  selectedId = null;
+  document.getElementById("featuredImg").classList.remove("visible");
+  document.getElementById("stagePlaceholder").style.display = "block";
+  document.getElementById("featuredMeta").classList.remove("visible");
+  document.getElementById("imageStage").style.aspectRatio = "16 / 9";
+  document.getElementById("downloadBtn").style.display = "none";
+  document.getElementById("reuseSeedBtn").style.display = "none";
+  renderGallery();
+  toast("Gallery cleared.");
+}
+
+/* ============================================================================
+   8. DOWNLOADS, LIGHTBOX, PROJECTOR
+   ============================================================================ */
+function extForDataUrl(dataUrl) {
+  var m = dataUrl.match(/^data:image\/([a-z+]+)/i);
+  if (m && m[1] === "jpeg") return "jpg";
+  if (m) return m[1] === "svg+xml" ? "svg" : m[1];
+  return "png";
+}
+
+function timestampName(item, idx) {
+  var t = item.when;
+  var stamp = t.getFullYear() + pad2(t.getMonth() + 1) + pad2(t.getDate()) +
+    "_" + pad2(t.getHours()) + pad2(t.getMinutes()) + pad2(t.getSeconds());
+  return "Room8_Image_" + stamp + (idx !== null ? ("_" + idx) : "") + "." + extForDataUrl(item.dataUrl);
+}
+
+function triggerDownload(dataUrl, filename) {
+  var a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function downloadFeatured() {
+  var item = getItem(selectedId);
+  if (!item) return;
+  triggerDownload(item.dataUrl, timestampName(item, null));
+  toast("Saving " + timestampName(item, null) + " to your Downloads folder.");
+}
+
+async function downloadAllImages() {
+  if (!gallery.length) return;
+  toast("Saving all " + gallery.length + " images one by one...");
+  for (var i = gallery.length - 1; i >= 0; i--) {
+    triggerDownload(gallery[i].dataUrl, timestampName(gallery[i], i + 1));
+    await sleep(400);
+  }
+}
+
+function sleep(ms) {
+  return new Promise(function(res) { setTimeout(res, ms); });
+}
+
+function reuseFeaturedSeed() {
+  var item = getItem(selectedId);
+  if (!item || item.seed === null || item.uploaded) return;
+  document.getElementById("seedInp").value = String(item.seed);
+  toast("Seed " + item.seed + " placed in the Seed box. Same prompt + seed = same image.");
+}
+
+function fillRandomSeed() {
+  document.getElementById("seedInp").value = String(Math.floor(Math.random() * MAX_SEED));
+}
+
+function fillLastSeed() {
+  if (lastSeedUsed !== null) {
+    document.getElementById("seedInp").value = String(lastSeedUsed);
+  }
+}
+
+function openLightbox() {
+  var item = getItem(selectedId);
+  if (!item) return;
+  document.getElementById("lightboxImg").src = item.dataUrl;
+  document.getElementById("lightbox").classList.add("open");
+}
+
+function closeLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+}
+
+function toggleProjectorMode() {
+  closeLightbox();
+  var on = document.body.classList.toggle("projector-mode");
+  if (on && !document.fullscreenElement) {
+    try { document.documentElement.requestFullscreen(); } catch (e) {}
+  } else if (!on && document.fullscreenElement) {
+    try { document.exitFullscreen(); } catch (e) {}
+  }
+}
+
+function copyPromptToClipboard() {
+  var txt = buildFinalPrompt();
+  navigator.clipboard.writeText(txt).then(function() {
+    toast("\ud83d\udccb Copied the final prompt (with style preset) to the clipboard!");
+  });
+}
+
+function toast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(t._h);
+  t._h = setTimeout(function() { t.style.display = "none"; }, 3400);
+}
+
+/* ============================================================================
+   9. INIT & EVENT LISTENERS
+   ============================================================================ */
+(function init() {
+  loadSettings();
+  renderHistory();
+  renderAspectPreview();
+
+  try {
+    var savedBase = localStorage.getItem("r8_image_studio_maas_base_v1");
+    if (savedBase && !document.getElementById("baseUrlInp").dataset.dirty) {
+      document.getElementById("baseUrlInp").value = savedBase;
+    }
+  } catch (e) {}
+
+  checkLocalBridge();
+
+  document.getElementById("providerSel").addEventListener("change", function() {
+    var p = this.value;
+    populateModelSelect(p, "");
+    try {
+      document.getElementById("apiKeyInp").value = (p === "maas") ? "" : (localStorage.getItem("r8_image_studio_key_" + p) || "");
+    } catch (e) {}
+    checkLocalBridge();
+    updateFinalPromptPreview();
+    saveSettings();
+  });
+
+  document.getElementById("modelSel").addEventListener("change", function() {
+    var v = this.value;
+    var cf = document.getElementById("customModelField");
+    if (v === "__custom__") {
+      cf.style.display = "flex";
+      document.getElementById("modelInp").focus();
+    } else {
+      cf.style.display = "none";
+      document.getElementById("modelInp").value = v;
+    }
+    saveSettings();
+    checkLocalBridge();
+  });
+
+  document.getElementById("baseUrlInp").addEventListener("input", function() {
+    this.dataset.dirty = "1";
+  });
+
+  document.getElementById("apiKeyInp").addEventListener("input", function() {
+    if (document.getElementById("providerSel").value !== "maas") {
+      checkLocalBridge();
+    }
+  });
+  document.getElementById("apiKeyInp").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveEndpointConfig();
+    }
+  });
+
+  document.getElementById("promptInp").addEventListener("input", updateFinalPromptPreview);
+  document.getElementById("negInp").addEventListener("input", function() {
+    updateFinalPromptPreview();
+    saveSettings();
+  });
+  document.getElementById("countSel").addEventListener("change", function() {
+    renderAspectPreview();
+    saveSettings();
+    updateGenCountLabel();
+  });
+  document.getElementById("aspectSel").addEventListener("change", function() {
+    renderAspectPreview();
+    saveSettings();
+  });
+  document.getElementById("customWInp").addEventListener("input", renderAspectPreview);
+  document.getElementById("customHInp").addEventListener("input", renderAspectPreview);
+  document.getElementById("promptExtendInp").addEventListener("change", saveSettings);
+  document.getElementById("historySel").addEventListener("change", function() {
+    var idx = parseInt(this.value, 10);
+    if (isNaN(idx)) return;
+    var hist = loadHistory();
+    if (hist[idx]) {
+      document.getElementById("promptInp").value = hist[idx];
+      updateFinalPromptPreview();
+      toast("Loaded recent prompt #" + (idx + 1) + ".");
+    }
+    this.value = "";
+  });
+
+  // Style preset chips
+  var chips = document.querySelectorAll("#styleChips .qchip");
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].addEventListener("click", function() {
+      var isClear = !(this.getAttribute("data-style") || "").trim();
+      var chipsAll = document.querySelectorAll("#styleChips .qchip");
+      for (var j = 0; j < chipsAll.length; j++) chipsAll[j].classList.remove("active");
+      if (!isClear) this.classList.add("active");
+      updateFinalPromptPreview();
+      saveSettings();
+    });
+  }
+
+  // Image file loader
+  document.getElementById("uploadImgInp").addEventListener("change", function(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) {
+      addUploadedImage(ev.target.result);
+    };
+    r.readAsDataURL(f);
+    this.value = "";
+  });
+
+  document.getElementById("seedInp").addEventListener("input", function() {
+    var v = this.value.trim();
+    if (v && !/^\d+$/.test(v)) {
+      this.value = v.replace(/[^\d]/g, "");
+    }
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      if (document.getElementById("lightbox").classList.contains("open")) {
+        closeLightbox();
+        return;
+      }
+      if (document.body.classList.contains("projector-mode")) {
+        toggleProjectorMode();
+      }
+      return;
+    }
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable)) return;
+    if (e.key === "f" || e.key === "F") {
+      toggleProjectorMode();
+    }
+  });
+
+  window.addEventListener("resize", renderAspectPreview);
+
+  updateGenCountLabel();
+})();
+
+function updateGenCountLabel() {
+  var count = parseInt(document.getElementById("countSel").value, 10);
+  var label = count + " Image" + (count > 1 ? "s" : "");
+  document.getElementById("genBtn").innerHTML = "&#10024; Generate " + label;
+}
+</script>
+</body>
+</html>
