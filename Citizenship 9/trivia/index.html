@@ -558,6 +558,132 @@
       font-weight: 700;
     }
 
+    /* Topic Free Passes */
+    .pass-panel {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 11px 13px;
+      margin-bottom: 14px;
+    }
+
+    .pass-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pass-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pass-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface-3);
+      border: 1px solid var(--line-strong);
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .pass-badge.empty { color: var(--muted); }
+
+    .pass-rule {
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+
+    .pass-mini-btn {
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .topic-btn {
+      padding: 7px 6px;
+      border-radius: 7px;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink-soft);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .topic-btn .tp-name {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .topic-btn .tp-sub {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .topic-btn:hover:not(:disabled) {
+      background: var(--surface-3);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .topic-btn.active {
+      background: var(--surface-3);
+      border-color: var(--accent);
+    }
+
+    .topic-btn.active .tp-name { color: var(--accent); }
+
+    .topic-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .topic-pill-arena {
+      display: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--info);
+      border: 1px solid rgba(56, 189, 248, 0.34);
+    }
+
+    .res-pass-note {
+      display: none;
+      margin-top: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .res-pass-note.show { display: block; }
+
     .launch-btn {
       width: 100%;
       padding: 14px 20px;
@@ -1606,8 +1732,8 @@
           <div class="atlas-banner">
             <div class="atlas-banner-head">
               <div>
-                <h3>Borders, Flags, and World Trivia</h3>
-                <p>Every round pulls a balanced mix from the 270-item pool and ramps up in difficulty from Question 1 to Question 10.</p>
+                <h3>Borders, Flags, Culture, and World Trivia</h3>
+                <p>Every round pulls a balanced mix from the 315-item pool (including 20th-century history to 2020s pop culture) and ramps up from Question 1 to Question 10.</p>
               </div>
             </div>
             <div class="mini-flag-row" aria-hidden="true">
@@ -1648,8 +1774,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
               </div>
               <div>
-                <div class="pillar-num">110 Trivia</div>
-                <div class="pillar-lbl">Culture &amp; world facts</div>
+                <div class="pillar-num">155 Trivia</div>
+                <div class="pillar-lbl">Culture, eras &amp; facts</div>
               </div>
             </div>
           </div>
@@ -1670,6 +1796,38 @@
                 <button type="button" class="seg-btn active" data-pace="sprint" onclick="Arena.selectPace('sprint')">Timed</button>
                 <button type="button" class="seg-btn" data-pace="zen" onclick="Arena.selectPace('zen')">Untimed</button>
               </div>
+            </div>
+          </div>
+
+          <div class="pass-panel" id="passBox">
+            <div class="pass-head">
+              <div class="pass-title-row">
+                <span class="pass-badge empty" id="passCountBadge">0 Free Passes</span>
+                <span class="pass-rule" id="passEarnRule">Finish 2 Mixed rounds (or hit 7/10+) to unlock a Topic Pass</span>
+              </div>
+              <button type="button" class="pass-mini-btn" id="teacherPassBtn" style="display:none" onclick="Arena.teacherAddPass()">+1 Pass</button>
+            </div>
+            <div class="topic-grid" id="topicRow">
+              <button type="button" class="topic-btn active" data-topic="mixed" onclick="Arena.selectTopic('mixed')">
+                <span class="tp-name">Mixed</span>
+                <span class="tp-sub">Standard</span>
+              </button>
+              <button type="button" class="topic-btn" data-topic="culture" disabled onclick="Arena.selectTopic('culture')">
+                <span class="tp-name">Culture &amp; Era</span>
+                <span class="tp-sub">Needs 1 Pass</span>
+              </button>
+              <button type="button" class="topic-btn" data-topic="flag" disabled onclick="Arena.selectTopic('flag')">
+                <span class="tp-name">World Flags</span>
+                <span class="tp-sub">Needs 1 Pass</span>
+              </button>
+              <button type="button" class="topic-btn" data-topic="map" disabled onclick="Arena.selectTopic('map')">
+                <span class="tp-name">Maps &amp; Borders</span>
+                <span class="tp-sub">Needs 1 Pass</span>
+              </button>
+              <button type="button" class="topic-btn" data-topic="facts" disabled onclick="Arena.selectTopic('facts')">
+                <span class="tp-name">World Facts</span>
+                <span class="tp-sub">Needs 1 Pass</span>
+              </button>
             </div>
           </div>
 
@@ -1735,6 +1893,7 @@
         <span class="q-counter" id="qCounter">1 / 10</span>
         <div class="progress-dots" id="progressDots"></div>
         <span class="tier-chip easy" id="qTierChip">Easy &middot; 100 pts</span>
+        <span class="topic-pill-arena" id="qTopicChip">Culture Pass</span>
         <span class="combo-chip" id="qComboChip">Combo +50</span>
         <span class="arena-spacer"></span>
         <span class="streak-pill" id="streakPill">Streak 0 &middot; 1.0x</span>
@@ -1824,6 +1983,7 @@
               <span>Best Streak: <b id="resStreak">0</b></span>
               <span>XP Earned: <b id="resXpGain">+0 XP</b></span>
             </div>
+            <div class="res-pass-note" id="resPassNote"></div>
           </div>
 
           <div class="res-rank-box">
@@ -2034,6 +2194,8 @@
           v: 1,
           section: '',
           xp: 0,
+          passes: 0,
+          passProgress: 0,
           roundsPlayed: 0,
           totalCorrect: 0,
           totalAsked: 0,
@@ -2045,7 +2207,7 @@
       }
 
       var state = freshState();
-      var config = { pace: 'sprint' };
+      var config = { pace: 'sprint', topic: 'mixed' };
       var sessionSeenIds = [];
 
       function setSync(msg, kind) {
@@ -2090,6 +2252,8 @@
         if (raw && typeof raw === 'object') {
           if (raw.section) next.section = String(raw.section);
           next.xp = Number(raw.xp) || 0;
+          next.passes = Math.max(0, Number(raw.passes) || 0);
+          next.passProgress = Math.max(0, Number(raw.passProgress) || 0);
           next.roundsPlayed = Number(raw.roundsPlayed) || 0;
           next.totalCorrect = Number(raw.totalCorrect) || 0;
           next.totalAsked = Number(raw.totalAsked) || 0;
@@ -2298,6 +2462,7 @@
         el('hudWho').textContent = skipNet ? 'Demo Ex.' : GEO_ENGINE.formatDisplayName(identity.email);
         var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
         el('teacherResetBtn').style.display = isTeacher ? 'inline-block' : 'none';
+        el('teacherPassBtn').style.display = isTeacher ? 'inline-block' : 'none';
         restoreFromServer();
         if (Q.get('autostart') && OFFPROD) {
           setTimeout(startRound, 200);
@@ -2311,14 +2476,24 @@
       function teacherReset() {
         var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
         if (!isTeacher) return;
-        if (!confirm('Reset your World Atlas XP, best scores, and round history to zero?')) return;
+        if (!confirm('Reset your World Atlas XP, best scores, passes, and round history to zero?')) return;
         var savedSec = state.section || '';
         state = freshState();
         state.section = savedSec;
+        config.topic = 'mixed';
         sessionSeenIds = [];
         refreshLobbyStats();
         saveToServer();
         toast('Progress reset to zero.');
+      }
+
+      function teacherAddPass() {
+        var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
+        if (!isTeacher) return;
+        state.passes = (state.passes || 0) + 1;
+        refreshLobbyStats();
+        saveToServer();
+        toast('+1 Free Topic Pass added.');
       }
 
       /* ================= LOBBY CONTROLS & RENDERING ================= */
@@ -2334,6 +2509,56 @@
         btns.forEach(function (b) {
           b.classList.toggle('active', b.getAttribute('data-pace') === pace);
         });
+      }
+
+      function selectTopic(topic) {
+        if (topic !== 'mixed' && (state.passes || 0) <= 0) {
+          toast('Finish 2 Mixed rounds or score 7/10+ to earn a Free Topic Pass.');
+          return;
+        }
+        config.topic = (GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[topic]) ? topic : 'mixed';
+        refreshPassUi();
+      }
+
+      function refreshPassUi() {
+        var passes = Math.max(0, Number(state.passes) || 0);
+        if (passes <= 0 && config.topic !== 'mixed') config.topic = 'mixed';
+
+        var badge = el('passCountBadge');
+        if (badge) {
+          badge.textContent = passes + (passes === 1 ? ' Free Pass' : ' Free Passes');
+          badge.classList.toggle('empty', passes === 0);
+        }
+
+        var ruleEl = el('passEarnRule');
+        if (ruleEl) {
+          var prog = Math.min(1, Math.max(0, Number(state.passProgress) || 0));
+          ruleEl.textContent = passes > 0
+            ? 'Pick a topic below to spend 1 Pass (or play Mixed to save it)'
+            : ('Progress: ' + prog + '/2 Mixed rounds to next Pass (or score 7/10+ anytime)');
+        }
+
+        var topicBtns = el('topicRow') ? el('topicRow').querySelectorAll('.topic-btn') : [];
+        topicBtns.forEach(function (b) {
+          var t = b.getAttribute('data-topic');
+          var isMixed = t === 'mixed';
+          b.disabled = !isMixed && passes <= 0;
+          b.classList.toggle('active', config.topic === t);
+          var sub = b.querySelector('.tp-sub');
+          if (sub && !isMixed) {
+            sub.textContent = passes > 0 ? 'Use 1 Pass' : 'Needs 1 Pass';
+          }
+        });
+
+        var launch = el('startRoundBtn');
+        if (launch) {
+          if (config.topic === 'mixed') {
+            launch.textContent = 'Start 10-Question Round';
+          } else {
+            var meta = GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[config.topic];
+            launch.textContent = 'Start ' + (meta ? meta.label : 'Topic') + ' Round (Uses 1 Pass)';
+          }
+        }
       }
 
       function switchBoard(tab) {
@@ -2360,6 +2585,7 @@
         var acc = state.totalAsked ? Math.round((state.totalCorrect / state.totalAsked) * 100) : 0;
         el('bestAccStat').textContent = acc + '%';
         el('bestHitsStat').textContent = String(state.totalCorrect || 0);
+        refreshPassUi();
         renderBoard();
       }
 
@@ -2373,9 +2599,11 @@
             return;
           }
           box.innerHTML = state.history.map(function (h, idx) {
+            var topicMeta = h.topic && h.topic !== 'mixed' && GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[h.topic];
+            var topicLbl = topicMeta ? topicMeta.short : 'Mixed';
             return '<div class="board-row">' +
               '<span class="br-rank">#' + (idx + 1) + '</span>' +
-              '<span class="br-name">' + (h.pace === 'zen' ? 'Untimed' : 'Timed') + ' Round</span>' +
+              '<span class="br-name">' + esc(topicLbl) + ' \u00B7 ' + (h.pace === 'zen' ? 'Untimed' : 'Timed') + '</span>' +
               '<span class="br-meta">' + esc(h.hits + '/10') + '</span>' +
               '<span class="br-score">' + Number(h.score || 0).toLocaleString() + ' pts</span>' +
               '</div>';
@@ -2554,15 +2782,24 @@
 
       function startRound() {
         ensureAudio();
+        var roundTopic = (config.topic && config.topic !== 'mixed' && (state.passes || 0) > 0) ? config.topic : 'mixed';
+        if (roundTopic !== 'mixed') {
+          state.passes = Math.max(0, (state.passes || 0) - 1);
+          config.topic = 'mixed';
+          saveToServer();
+        }
+
         var items = GEO_ENGINE.buildRound({
           count: 10,
+          topic: roundTopic,
           seenIds: sessionSeenIds
         });
         items.forEach(function (it) { sessionSeenIds.push(it.id); });
-        if (sessionSeenIds.length > 160) sessionSeenIds = sessionSeenIds.slice(-90);
+        if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
 
         round = {
           items: items,
+          topic: roundTopic,
           idx: 0,
           score: 0,
           streak: 0,
@@ -2642,6 +2879,14 @@
         tierChip.className = 'tier-chip ' + q.diff;
         var tierLabel = q.diff.charAt(0).toUpperCase() + q.diff.slice(1);
         tierChip.textContent = tierLabel + ' \u00B7 ' + q.pts + ' pts';
+
+        var topicChip = el('qTopicChip');
+        if (round.topic && round.topic !== 'mixed' && GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[round.topic]) {
+          topicChip.textContent = GEO_ENGINE.TOPICS[round.topic].short;
+          topicChip.style.display = 'inline-block';
+        } else {
+          topicChip.style.display = 'none';
+        }
 
         el('qComboChip').classList.toggle('show', !!q.isCombo);
 
@@ -3020,6 +3265,23 @@
       }
 
       /* ================= ROUND SUMMARY & XP UPDATE ================= */
+      function updatePassesAfterRound(st, roundTopic, hits) {
+        if (roundTopic && roundTopic !== 'mixed') {
+          return { earned: 0, msg: '' };
+        }
+        if (hits >= 7) {
+          st.passes = (st.passes || 0) + 1;
+          return { earned: 1, msg: '+1 Free Topic Pass earned (' + hits + '/10 in Mixed mode)!' };
+        }
+        st.passProgress = (st.passProgress || 0) + 1;
+        if (st.passProgress >= 2) {
+          st.passProgress = 0;
+          st.passes = (st.passes || 0) + 1;
+          return { earned: 1, msg: '+1 Free Topic Pass earned (2 Mixed rounds completed)!' };
+        }
+        return { earned: 0, msg: '' };
+      }
+
       function finishRound() {
         stopTimer();
         var prevRank = GEO_ENGINE.getRank(state.xp || 0).current.level;
@@ -3031,12 +3293,15 @@
         if (round.maxStreak > (state.bestStreak || 0)) state.bestStreak = round.maxStreak;
         state.xp = (state.xp || 0) + round.xpEarned;
 
+        var passOutcome = updatePassesAfterRound(state, round.topic || 'mixed', round.hits);
+
         var isNewBest = round.score > prevOverallBest;
         if (isNewBest) state.best.overall = round.score;
 
         state.history.unshift({
           ts: Date.now(),
           mode: 'mixed',
+          topic: round.topic || 'mixed',
           diff: 'common',
           pace: config.pace,
           score: round.score,
@@ -3048,6 +3313,19 @@
         var rankedUp = newRankObj.current.level > prevRank;
 
         showScreen('resultsView');
+        var passNoteEl = el('resPassNote');
+        if (passOutcome.earned > 0) {
+          passNoteEl.textContent = passOutcome.msg;
+          passNoteEl.classList.add('show');
+        } else if ((state.passes || 0) > 0) {
+          passNoteEl.textContent = 'Free Passes saved: ' + state.passes + ' (use in Lobby to pick a topic)';
+          passNoteEl.classList.add('show');
+        } else if ((state.passProgress || 0) > 0) {
+          passNoteEl.textContent = 'Topic Pass progress: 1/2 Mixed rounds complete';
+          passNoteEl.classList.add('show');
+        } else {
+          passNoteEl.classList.remove('show');
+        }
         var accPct = Math.round((round.hits / round.items.length) * 100);
         el('resAccVal').textContent = accPct + '%';
         var circumference = 314.16;
@@ -3125,7 +3403,9 @@
         function ok(cond, msg) { out.push((cond ? 'PASS' : 'FAIL') + ': ' + msg); }
         try {
           var all = GEO_ENGINE.getAllItems();
-          ok(all.length === 270, 'Master pool has 270 items (' + all.length + ')');
+          ok(all.length === 315, 'Master pool has 315 items (' + all.length + ')');
+          var culturePool = all.filter(function (x) { return x.topic === 'culture'; });
+          ok(culturePool.length >= 70, 'Culture & Modern Era pool has ' + culturePool.length + ' items');
 
           var cn = GEO_ENGINE.getCountry('CN');
           ok(!!cn && cn.name === 'China' && cn.pop > 1000000000 && cn.center[1] > 70, 'China (CN) geometry is mainland China');
@@ -3151,6 +3431,21 @@
           }
           ok(badBalance === 0, '15 simulated mixed rounds obey PLAN.md balance & uniqueness');
           ok(badRamp === 0, '15 simulated rounds follow common Easy -> Medium -> Hard progression');
+
+          var cultureRound = GEO_ENGINE.buildRound({ count: 10, topic: 'culture' });
+          var cultureOk = cultureRound.length === 10 && cultureRound.every(function (x) { return x.type === 'trivia'; });
+          var flagRound = GEO_ENGINE.buildRound({ count: 10, topic: 'flag' });
+          var flagOk = flagRound.length === 10 && flagRound.every(function (x) { return x.type === 'flag'; });
+          ok(cultureOk && flagOk, 'Topic Pass round builders filter cleanly to culture and flag tracks');
+
+          var dummySt = { passes: 0, passProgress: 0 };
+          updatePassesAfterRound(dummySt, 'mixed', 5);
+          var p1 = dummySt.passProgress === 1 && dummySt.passes === 0;
+          updatePassesAfterRound(dummySt, 'mixed', 4);
+          var p2 = dummySt.passProgress === 0 && dummySt.passes === 1;
+          updatePassesAfterRound(dummySt, 'mixed', 8);
+          var p3 = dummySt.passes === 2;
+          ok(p1 && p2 && p3, 'Free Pass earning awards passes on 2 Mixed rounds or 7/10+ score');
 
           ok(GEO_ENGINE.formatDisplayName('alex.macdonald@gnspes.ca') === 'Alex Ma.', 'Display name formatter enforces First Ls.');
 
@@ -3216,8 +3511,10 @@
         startDemo: startDemo,
         switchAccount: switchAccount,
         teacherReset: teacherReset,
+        teacherAddPass: teacherAddPass,
         toggleSfx: toggleSfx,
         selectPace: selectPace,
+        selectTopic: selectTopic,
         switchBoard: switchBoard,
         startRound: startRound,
         quitRound: quitRound,

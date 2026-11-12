@@ -10,7 +10,7 @@ An engaging online geography game for Citizenship 9 (also useful for the NS/Cana
 |---|---|
 | `index.html` | World Atlas Arena game UI (gate, command lobby, Leaflet map stage, flag/trivia arena, Intel reveal card, Web Audio SFX, confetti, results) |
 | `geo_data.js` | Bank loader, country metadata index, same-continent distractor generator, round builder, and rank/XP definitions |
-| `trivia_90.js` | 110 country-trivia items (`window.GEO_TRIVIA`) across easy/medium/hard |
+| `trivia_90.js` | 155 country-trivia items (`window.GEO_TRIVIA`) across easy/medium/hard, covering World Facts & Landmarks + Culture & Modern Era (20th century to 2020s) |
 | `maps_60.js` | 80 map items (`window.GEO_MAPS`) - `iso`, `name`, `mode`, `maxZoom` |
 | `flags_60.js` | 80 flag items (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
 | `assets/leaflet/` | Vendored Leaflet 1.9.4 (`leaflet.js`, `leaflet.css`, MIT) |
@@ -38,7 +38,7 @@ Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforc
 - Leaderboard queries `get_leaderboard` gracefully and falls back cleanly to the student's personal board until `get_leaderboard` is deployed on the vault script. Screens show **first name + last two initials only** (`First Ls.`) - never full names or emails on any display.
 
 ## Scoring
-Per item: `pts` by tier + pace/accuracy bonus (scaled by streak multiplier `x1.0` -> `x2.0`). Timed **Sprint** mode adds countdown urgency; **Zen (Untimed)** mode awards an equivalent clean-solve bonus on first-try hits so untimed players have identical scoring potential (extra-time compatible, adapted silently - never labelled on a student's screen).
+Per item: `pts` by tier + pace/accuracy bonus (scaled by streak multiplier `x1.0` -> `x2.0`). Timed **Sprint** mode adds countdown urgency; **Zen (Untimed)** mode awards an equivalent clean-solve bonus on first-try hits so untimed players have identical scoring potential (extra-time compatible, adapted silently - never labelled on a student's screen). Completing 2 Mixed rounds (or scoring 7/10+ in Mixed mode) earns **+1 Free Topic Pass**, letting students run a focused 10-question round on **Culture & Modern Era**, **World Flags**, **Maps & Borders**, or **World Facts** with the same escalating tier curve.
 
 ## Adaptations (documented supports, built in silently)
 Untimed Zen pace toggle with equal score ceiling, chunked 10-item rounds, concise read-aloud-friendly trivia text, keyboard shortcuts (`1`-`4`, `Enter`), high-contrast SVG flags, microstate click-assist markers on tight borders, post-answer Intel reveal card for immediate learning feedback, no personal content, no hard fail states.

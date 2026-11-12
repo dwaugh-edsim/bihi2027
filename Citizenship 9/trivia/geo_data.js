@@ -250,6 +250,7 @@
         masterPool.push({
           id: item.id,
           type: 'map',
+          topic: 'map',
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
@@ -276,6 +277,7 @@
         masterPool.push({
           id: item.id,
           type: 'flag',
+          topic: 'flag',
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
@@ -301,6 +303,7 @@
         masterPool.push({
           id: item.id,
           type: 'trivia',
+          topic: item.topic === 'culture' ? 'culture' : 'facts',
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
@@ -389,8 +392,17 @@
     return out;
   }
 
+  var TOPICS = {
+    mixed: { id: 'mixed', label: 'Mixed (Standard)', short: 'Mixed' },
+    culture: { id: 'culture', label: 'Culture & Modern Era', short: 'Culture Pass' },
+    flag: { id: 'flag', label: 'World Flags', short: 'Flags Pass' },
+    map: { id: 'map', label: 'Maps & Borders', short: 'Maps Pass' },
+    facts: { id: 'facts', label: 'Landmarks & Facts', short: 'Facts Pass' }
+  };
+
   function buildRound(opts) {
     opts = opts || {};
+    var topic = TOPICS[opts.topic] ? opts.topic : 'mixed';
     var seenIds = opts.seenIds || [];
     var seenMap = {};
     for (var s = 0; s < seenIds.length; s++) seenMap[seenIds[s]] = true;
@@ -399,14 +411,28 @@
 
     function pickTierBlock(diff, totalWanted) {
       var tierPool = masterPool.filter(function (x) { return x.diff === diff; });
+      if (topic !== 'mixed') {
+        var focused = tierPool.filter(function (x) { return x.topic === topic; });
+        return shuffle(pickFresh(focused, totalWanted, seenMap, pickedIds));
+      }
+
       var maps = tierPool.filter(function (x) { return x.type === 'map'; });
       var flags = tierPool.filter(function (x) { return x.type === 'flag'; });
       var trivs = tierPool.filter(function (x) { return x.type === 'trivia'; });
 
       var block = []
         .concat(pickFresh(maps, 1, seenMap, pickedIds))
-        .concat(pickFresh(flags, 1, seenMap, pickedIds))
-        .concat(pickFresh(trivs, 1, seenMap, pickedIds));
+        .concat(pickFresh(flags, 1, seenMap, pickedIds));
+
+      if (totalWanted >= 4) {
+        var culture = trivs.filter(function (x) { return x.topic === 'culture'; });
+        var facts = trivs.filter(function (x) { return x.topic === 'facts'; });
+        block = block
+          .concat(pickFresh(culture, 1, seenMap, pickedIds))
+          .concat(pickFresh(facts, 1, seenMap, pickedIds));
+      } else {
+        block = block.concat(pickFresh(trivs, 1, seenMap, pickedIds));
+      }
 
       if (block.length < totalWanted) {
         block = block.concat(pickFresh(tierPool, totalWanted - block.length, seenMap, pickedIds));
@@ -420,10 +446,11 @@
     var hardBlock = pickTierBlock('hard', 3);
 
     var chosen = easyBlock.concat(medBlock).concat(hardBlock);
+    var allowCombo = topic !== 'map';
     var comboBudget = { left: 2 };
 
     return chosen.map(function (item) {
-      return cloneForRound(item, true, comboBudget);
+      return cloneForRound(item, allowCombo, comboBudget);
     });
   }
 
@@ -480,6 +507,7 @@
 
   window.GEO_ENGINE = {
     RANKS: RANKS,
+    TOPICS: TOPICS,
     TIER_PTS: TIER_PTS,
     countriesByIso: countriesByIso,
     isoByName: isoByName,
