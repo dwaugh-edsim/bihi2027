@@ -1,12 +1,12 @@
-// flags_60.js — 60 flag items: 20 easy / 20 medium / 20 hard.
+// flags_60.js - 60 flag items: 20 easy / 20 medium / 20 hard.
 // Each item: { id, iso, name, o:[4 country-name options], a } where `a` is the correct name.
-// Flag image is served from local assets (assets/flags/<iso>.svg), NOT emoji —
+// Flag image is served from local assets (assets/flags/<iso>.svg), NOT emoji -
 // Windows Chrome renders flag emoji as letter pairs, so SVG keeps teacher + student
 // screens identical. Hard-tier options deliberately include lookalike flags
 // (Romania/Chad, Monaco/Indonesia/Poland, Australia/New Zealand, Norway/Iceland...).
 // Loader tags type:'flag', diff from tier, pts by tier (easy 100 / medium 200 / hard 300),
 // shuffles `o` per round. A flag item can also be served as flag-map (answer by clicking
-// the country on the context map) — that is a hard-tier presentation choice at load time.
+// the country on the context map) - that is a hard-tier presentation choice at load time.
 window.GEO_FLAGS = {
 
   easy: [
@@ -71,7 +71,7 @@ window.GEO_FLAGS = {
     { id:'fh13', iso:'DK', name:'Denmark',         o:['Denmark','Switzerland','Sweden','Norway'], a:'Denmark' },
     { id:'fh14', iso:'RO', name:'Romania',         o:['Romania','Chad','Andorra','Moldova'], a:'Romania' },
     { id:'fh15', iso:'MC', name:'Monaco',          o:['Monaco','Indonesia','Poland','Singapore'], a:'Monaco' },
-    { id:'fh16', iso:'NZ', name:'New Zealand',     o:['New Zealand','Australia','United Kingdom','Canada'], a:'New Zealand' },
+    { id:'fh16', iso:'CI', name:'Ivory Coast',     o:['Ivory Coast','Ireland','Italy','Niger'], a:'Ivory Coast' },
     { id:'fh17', iso:'IS', name:'Iceland',         o:['Iceland','Norway','Denmark','Sweden'], a:'Iceland' },
     { id:'fh18', iso:'KH', name:'Cambodia',        o:['Cambodia','Thailand','Laos','Myanmar'], a:'Cambodia' },
     { id:'fh19', iso:'MN', name:'Mongolia',        o:['Mongolia','China','Russia','Kazakhstan'], a:'Mongolia' },

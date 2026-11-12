@@ -1,4 +1,4 @@
-// geo_trivia_90.js — 90 country-trivia items: 30 easy / 30 medium / 30 hard.
+// geo_trivia_90.js - 90 country-trivia items: 30 easy / 30 medium / 30 hard.
 // Each item: { id, q, o:[4 options], a } where `a` is the correct option string.
 // The game loader tags each item with type:'trivia', diff from the tier array,
 // and pts by tier (easy 100 / medium 200 / hard 300), then shuffles options.
@@ -43,11 +43,11 @@ window.GEO_TRIVIA = {
     { id:'m03', q:'Rolex watches are made in which country?', o:['Switzerland','Germany','United Kingdom','France'], a:'Switzerland' },
     { id:'m04', q:'The Nokia phone company is from which country?', o:['Finland','Sweden','Germany','Netherlands'], a:'Finland' },
     { id:'m05', q:'The Angry Birds game was created in which country?', o:['Finland','Sweden','Denmark','Norway'], a:'Finland' },
-    { id:'m06', q:'The Viking raids began in 793 at Lindisfarne, in which country?', o:['Norway','Sweden','Denmark','Finland'], a:'Norway' },
+    { id:'m06', q:'The Vikings who raided Lindisfarne in 793 sailed across the North Sea from which country?', o:['Norway','Sweden','Denmark','Finland'], a:'Norway' },
     { id:'m07', q:'Deep, narrow fjords are famous in which country?', o:['Norway','Chile','New Zealand','Canada'], a:'Norway' },
     { id:'m08', q:'Tulips and windmills are icons of which country?', o:['Netherlands','Belgium','France','Germany'], a:'Netherlands' },
     { id:'m09', q:'The Anne Frank House is in which country?', o:['Netherlands','Germany','Belgium','Poland'], a:'Netherlands' },
-    { id:'m10', q:'Belgian waffles and pral chocolates come from which country?', o:['Belgium','France','Switzerland','Netherlands'], a:'Belgium' },
+    { id:'m10', q:'Belgian waffles and praline chocolates come from which country?', o:['Belgium','France','Switzerland','Netherlands'], a:'Belgium' },
     { id:'m11', q:'The pop group ABBA is from which country?', o:['Sweden','Norway','Denmark','United Kingdom'], a:'Sweden' },
     { id:'m12', q:'The Spotify music service was founded in which country?', o:['Sweden','Finland','Norway','Estonia'], a:'Sweden' },
     { id:'m13', q:'The game Minecraft was created in which country?', o:['Sweden','USA','Finland','Canada'], a:'Sweden' },

@@ -1,81 +1,48 @@
-# CIT9 Geo Game — plan (maps + flags + country trivia)
+# CIT9 Geo Game - World Atlas Arena (maps + flags + country trivia)
 
-Status: **question banks drafted, game page not built yet.** Folder: `Citizenship 9/trivia/`.
+Status: **complete and playable** (`index.html`, `geo_data.js`, 3 question banks, and vendored `assets/`). Folder: `Citizenship 9/trivia/`.
 
 ## Goal
-A basic online geography game for Citizenship 9 (also useful for the NS/Canada map
-checkpoint): students sign in with their school Google account, play shuffled rounds of
-map, flag, and trivia questions, and compete on leaderboards. Single mixed pool — no
-separate local/Canada/world levels. Every item carries its own difficulty
-(easy / medium / hard), because recognizing the UK is easier than Thailand.
+An engaging online geography game for Citizenship 9 (also useful for the NS/Canada map checkpoint): students sign in with their school Google account, play fast-paced shuffled rounds of interactive map, flag, and country trivia challenges, earn rank emblems, and compete on personal and class leaderboards. Single mixed pool - no separate local/Canada/world levels. Every item carries its own difficulty (`easy` / `medium` / `hard`), because recognizing the UK is easier than Thailand.
 
 ## Files in this folder
 | File | Contents |
 |---|---|
+| `index.html` | World Atlas Arena game UI (gate, command lobby, Leaflet map stage, flag/trivia arena, Intel reveal card, Web Audio SFX, confetti, results) |
+| `geo_data.js` | Bank loader, country metadata index, same-continent distractor generator, round builder, and rank/XP definitions |
 | `trivia_90.js` | 90 country-trivia items, 30 per tier (`window.GEO_TRIVIA`) |
-| `maps_60.js` | 60 map items, 20 per tier (`window.GEO_MAPS`) — iso, name, mode, maxZoom |
-| `flags_60.js` | 60 flag items, 20 per tier (`window.GEO_FLAGS`) — iso, name, 4 options |
-| `PLAN.md` | this plan |
-| `index.html`, `geo_data.js`, `assets/` | **to be built** — game page, loader, vendored Leaflet + world GeoJSON + flag SVGs |
+| `maps_60.js` | 60 map items, 20 per tier (`window.GEO_MAPS`) - `iso`, `name`, `mode`, `maxZoom` |
+| `flags_60.js` | 60 flag items, 20 per tier (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
+| `assets/leaflet/` | Vendored Leaflet 1.9.4 (`leaflet.js`, `leaflet.css`, MIT) |
+| `assets/world_countries.js` | Merged Natural Earth 110m + 50m country borders (`window.WORLD_GEOJSON`, 236 countries) + `.geojson` source |
+| `assets/flags/` | 125 local `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) |
+| `assets/art/` | Custom dark-navy game illustrations: hero banner, 3 mode cards, and 4 rank crests |
+| `PLAN.md` | This architecture and design reference |
 
 ## Item model (all banks)
-`{ id, type, diff, pts, ... }` — `type` = `map` | `flag` | `trivia`; `diff` = easy/medium/hard;
-`pts` = 100/200/300 by tier. Round = shuffle of the combined pool, with a balance rule:
-a 10-item round guarantees at least 2 map, 2 flag, 1 trivia, rest random. Options are
-shuffled per round. Map-highlight and flag options may include documented lookalikes
-(Romania/Chad, Monaco/Indonesia, Australia/NZ) at the hard tier.
+`{ id, type, diff, pts, ... }` - `type` = `map` | `flag` | `trivia`; `diff` = `easy` / `medium` / `hard`; `pts` = `100` / `200` / `300` by tier. Round = 10-item shuffle of the combined pool (or a selected focus mode / difficulty filter), with a balance rule on Mixed Arena: at least 2 map, 2 flag, 1 trivia, rest random. Options are shuffled per round. Map-highlight and flag options include documented lookalikes (Romania/Chad, Monaco/Indonesia, Australia/New Zealand, Ivory Coast/Ireland) at the hard tier.
 
 ## Map rendering
-- **Leaflet (MIT), vendored locally** into `assets/` — no CDN at runtime, so school
-  Chromebook filtering can't break it and the repo stays zero-build standalone.
-- **Country borders: world-atlas 110m GeoJSON, committed locally** — one `L.geoJSON`
-  layer, no tile server (avoids OSM tile-policy issues and works offline-ish).
-- Every map item keeps **context**: `map.fitBounds(feature.getBounds().pad(0.6), {maxZoom})`
-  so the target is shown among its neighbours. `maxZoom` is the difficulty lever:
-  easy 6 (big), medium 4, hard 3 (small shape in a crowded region).
-- Modes: `click` (student clicks the named country) and `highlight` (target filled,
-  pick its name from 4 same-continent options). `flag-map` combo (flag shown, click the
-  country) and `trivia-map` (trivia question, click the answer country) are hard-tier
-  presentation choices made at load time.
+- **Leaflet (MIT), vendored locally** into `assets/leaflet/` - no CDN at runtime, so school Chromebook filtering cannot break it and the repo stays zero-build standalone.
+- **Country borders: Natural Earth 110m + microstate 50m GeoJSON, committed locally** - one `L.geoJSON` layer, no external tile server (avoids OSM tile-policy issues and works offline).
+- Every map item keeps **context**: `map.fitBounds(feature.getBounds().pad(0.6), { maxZoom })` so the target is shown among its neighbours. `maxZoom` is the difficulty lever: easy 6 (big), medium 4, hard 3 (small shape in a crowded region).
+- Modes: `click` (student clicks the named country on the map) and `highlight` (target filled, pick its name from 4 same-continent options). Hard-tier items in Mixed Arena can also upgrade into **Combo Strike** (`flag-map` or `trivia-map`: identify the flag or trivia clue by clicking the country on the map).
 
 ## Flags
-Local SVG per country at `assets/flags/<iso>.svg` (flag-icons set). **Not emoji** —
-Windows Chrome shows flag emoji as letter pairs, so the teacher's machine would look
-broken while ChromeOS looks fine. SVGs are identical everywhere.
+Local SVG per country at `assets/flags/<iso_lower>.svg` (`flag-icons` 4x3 set). **Not emoji** - Windows Chrome shows flag emoji as letter pairs, so the teacher's machine would look broken while ChromeOS looks fine. SVGs render identically everywhere.
 
 ## Sign-in (same pattern as the Centennial sim)
-Splash gate → popup to the school identity endpoint (`@gnspes.ca` domain-enforced,
-HMAC-signed `{email, ts, sig}` returned via postMessage) → stored in sessionStorage.
-Allowlisted to the GitHub Pages origin; `?demo=1` gives a local preview with a demo
-identity. Chromebooks wipe localStorage, so all real state lives server-side.
+Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforced, HMAC-signed `{ email, ts, sig }` returned via `postMessage` or `#r8id=`) -> stored in `sessionStorage`. Allowlisted to the GitHub Pages origin; `?demo=1` (or the off-origin Local Preview button) gives a local preview with a demo identity. Chromebooks wipe `localStorage`, so all real state lives server-side.
 
 ## Persistence + leaderboard
-- Save/load per student via the existing vault webhook (`submit_assignment` /
-  `load_assignment`) under a new task name (e.g. `CIT9-GeoGame`), storing
-  `best: { overall, easy, medium, hard }` and round history.
-- Leaderboard needs one new vault action, `get_leaderboard` (PIN-gated like
-  `get_submissions`), grouping rows by task + tier. Screens show **first name + last two
-  initials only** — never full names/emails on any display. Overall board + per-tier boards.
+- Save/load per student via the existing vault webhook (`submit_assignment` / `load_assignment`) under task `CIT9-GeoGame`, storing `best: { overall, easy, medium, hard }`, total XP, best streak, and recent round history.
+- Leaderboard queries `get_leaderboard` gracefully and falls back cleanly to the student's personal board until `get_leaderboard` is deployed on the vault script. Screens show **first name + last two initials only** (`First Ls.`) - never full names or emails on any display.
 
 ## Scoring
-Per item: `pts` by tier + time bonus (shrinks with tier and with elapsed time) −
-wrong-pick penalty. Timed sprint mode for competition; **untimed practice mode with
-identical scoring** always available (extra-time compatible, adapted silently — never
-labelled on a student's screen). Streak multiplier optional per round.
+Per item: `pts` by tier + pace/accuracy bonus (scaled by streak multiplier `x1.0` -> `x2.0`). Timed **Sprint** mode adds countdown urgency; **Zen (Untimed)** mode awards an equivalent clean-solve bonus on first-try hits so untimed players have identical scoring potential (extra-time compatible, adapted silently - never labelled on a student's screen).
 
 ## Adaptations (documented supports, built in silently)
-Untimed path, chunked short rounds, one-line read-aloud-friendly trivia text, high-contrast
-flags, no personal content, no hard fail states.
+Untimed Zen pace toggle with equal score ceiling, chunked 10-item rounds, concise read-aloud-friendly trivia text, keyboard shortcuts (`1`-`4`, `Enter`), high-contrast SVG flags, microstate click-assist markers on tight borders, post-answer Intel reveal card for immediate learning feedback, no personal content, no hard fail states.
 
 ## Conventions honoured
-Standalone zero-dependency HTML/JS on GitHub Pages, no build step; course-level naming
-only (no class numbers in filenames); student-facing labels say "Server"; colour is fine
-here (screen-only, not a printable); no PII/PINs in tracked files.
-
-## Next steps
-1. Vendor `leaflet.js`/`leaflet.css` + world-atlas 110m GeoJSON + flag SVGs into `assets/`.
-2. Build `index.html` + `geo_data.js`: gate → lobby (best scores, leaderboard) → round →
-   results; loader merges the three banks and tags type/diff/pts.
-3. Add `get_leaderboard` to the vault script (deploy separately) — until then the game
-   saves bests but shows only the student's own board.
-4. Wire into Classroom; add task to `Student_System/assignments_data.js` with outcome ref.
+Standalone zero-dependency HTML/JS on GitHub Pages, no build step; course-level naming only (no class numbers in filenames); student-facing labels say "Server"; colour is rich and screen-native (not a printable); zero em/en-dashes; no PII/PINs in tracked files.

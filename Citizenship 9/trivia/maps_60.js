@@ -1,8 +1,8 @@
-// maps_60.js — 60 map items: 20 easy / 20 medium / 20 hard.
+// maps_60.js - 60 map items: 20 easy / 20 medium / 20 hard.
 // Each item: { id, iso, name, mode, maxZoom }
 //   iso     -> ISO 3166-1 alpha-2 code; geometry comes from the local world GeoJSON layer
 //   mode    -> 'click' (student clicks the country on the context map)
-//              'highlight' (target is filled; student picks its name — loader builds
+//              'highlight' (target is filled; student picks its name - loader builds
 //               4 options from same-continent countries and shuffles)
 //   maxZoom -> Leaflet cap when framing the item with fitBounds(bounds.pad(0.6)):
 //              easy 6 (country is big on screen), medium 4, hard 3 (small shape in a
