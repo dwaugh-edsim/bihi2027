@@ -34,7 +34,20 @@
     'iran': 'IR',
     'syria': 'SY',
     'moldova': 'MD',
-    'eswatini': 'SZ'
+    'eswatini': 'SZ',
+    'brunei': 'BN',
+    'bahamas': 'BS',
+    'bhutan': 'BT',
+    'costa rica': 'CR',
+    'greenland': 'GL',
+    'liberia': 'LR',
+    'nicaragua': 'NI',
+    'panama': 'PA',
+    'puerto rico': 'PR',
+    'palau': 'PW',
+    'paraguay': 'PY',
+    'senegal': 'SN',
+    'uzbekistan': 'UZ'
   };
 
   // Microstates or tiny island territories that need a click-target halo marker
@@ -382,55 +395,39 @@
 
   function buildRound(opts) {
     opts = opts || {};
-    var mode = opts.mode || 'mixed';   // 'mixed' | 'map' | 'flag' | 'trivia'
-    var diff = opts.diff || 'all';     // 'all' | 'easy' | 'medium' | 'hard'
-    var count = opts.count || 10;
     var seenIds = opts.seenIds || [];
     var seenMap = {};
     for (var s = 0; s < seenIds.length; s++) seenMap[seenIds[s]] = true;
 
-    var pool = masterPool.filter(function (item) {
-      if (diff !== 'all' && item.diff !== diff) return false;
-      if (mode !== 'mixed' && item.type !== mode) return false;
-      return true;
-    });
-
     var pickedIds = {};
-    var chosen = [];
 
-    if (mode === 'mixed') {
-      var maps = pool.filter(function (x) { return x.type === 'map'; });
-      var flags = pool.filter(function (x) { return x.type === 'flag'; });
-      var trivs = pool.filter(function (x) { return x.type === 'trivia'; });
+    function pickTierBlock(diff, totalWanted) {
+      var tierPool = masterPool.filter(function (x) { return x.diff === diff; });
+      var maps = tierPool.filter(function (x) { return x.type === 'map'; });
+      var flags = tierPool.filter(function (x) { return x.type === 'flag'; });
+      var trivs = tierPool.filter(function (x) { return x.type === 'trivia'; });
 
-      // PLAN.md balance rule: >= 2 map, >= 2 flag, >= 1 trivia in a 10-item round
-      chosen = chosen
-        .concat(pickFresh(maps, Math.min(3, maps.length), seenMap, pickedIds))
-        .concat(pickFresh(flags, Math.min(3, flags.length), seenMap, pickedIds))
-        .concat(pickFresh(trivs, Math.min(2, trivs.length), seenMap, pickedIds));
+      var block = []
+        .concat(pickFresh(maps, 1, seenMap, pickedIds))
+        .concat(pickFresh(flags, 1, seenMap, pickedIds))
+        .concat(pickFresh(trivs, 1, seenMap, pickedIds));
 
-      var remNeeded = count - chosen.length;
-      if (remNeeded > 0) {
-        chosen = chosen.concat(pickFresh(pool, remNeeded, seenMap, pickedIds));
+      if (block.length < totalWanted) {
+        block = block.concat(pickFresh(tierPool, totalWanted - block.length, seenMap, pickedIds));
       }
-    } else {
-      chosen = pickFresh(pool, count, seenMap, pickedIds);
+      return shuffle(block);
     }
 
-    // If diff === 'all', gently progress round from accessible warmup toward harder items
-    chosen = shuffle(chosen);
-    if (diff === 'all' && chosen.length >= 6) {
-      var easyFirst = chosen.findIndex(function (x) { return x.diff === 'easy'; });
-      if (easyFirst > 0) {
-        var tmp = chosen[0];
-        chosen[0] = chosen[easyFirst];
-        chosen[easyFirst] = tmp;
-      }
-    }
+    // Common escalating progression: 3 Easy -> 4 Medium -> 3 Hard
+    var easyBlock = pickTierBlock('easy', 3);
+    var medBlock = pickTierBlock('medium', 4);
+    var hardBlock = pickTierBlock('hard', 3);
 
-    var comboBudget = { left: mode === 'mixed' ? 2 : 0 };
+    var chosen = easyBlock.concat(medBlock).concat(hardBlock);
+    var comboBudget = { left: 2 };
+
     return chosen.map(function (item) {
-      return cloneForRound(item, mode === 'mixed', comboBudget);
+      return cloneForRound(item, true, comboBudget);
     });
   }
 

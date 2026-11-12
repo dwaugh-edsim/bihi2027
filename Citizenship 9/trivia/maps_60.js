@@ -30,7 +30,13 @@ window.GEO_MAPS = {
     { id:'me17', iso:'NO', name:'Norway',          mode:'click',     maxZoom:6 },
     { id:'me18', iso:'SE', name:'Sweden',          mode:'highlight', maxZoom:6 },
     { id:'me19', iso:'FI', name:'Finland',         mode:'click',     maxZoom:6 },
-    { id:'me20', iso:'PL', name:'Poland',          mode:'click',     maxZoom:6 }
+    { id:'me20', iso:'PL', name:'Poland',          mode:'click',     maxZoom:6 },
+    { id:'me21', iso:'GL', name:'Greenland',       mode:'highlight', maxZoom:5 },
+    { id:'me22', iso:'CU', name:'Cuba',            mode:'click',     maxZoom:6 },
+    { id:'me23', iso:'IS', name:'Iceland',         mode:'highlight', maxZoom:6 },
+    { id:'me24', iso:'MG', name:'Madagascar',      mode:'click',     maxZoom:5 },
+    { id:'me25', iso:'JP', name:'Japan',           mode:'highlight', maxZoom:5 },
+    { id:'me26', iso:'CN', name:'China',           mode:'click',     maxZoom:5 }
   ],
 
   medium: [
@@ -53,7 +59,14 @@ window.GEO_MAPS = {
     { id:'mm17', iso:'TH', name:'Thailand',        mode:'highlight', maxZoom:4 },
     { id:'mm18', iso:'VN', name:'Vietnam',         mode:'click',     maxZoom:4 },
     { id:'mm19', iso:'ID', name:'Indonesia',       mode:'click',     maxZoom:4 },
-    { id:'mm20', iso:'SA', name:'Saudi Arabia',    mode:'click',     maxZoom:4 }
+    { id:'mm20', iso:'SA', name:'Saudi Arabia',    mode:'click',     maxZoom:4 },
+    { id:'mm21', iso:'KR', name:'South Korea',     mode:'click',     maxZoom:5 },
+    { id:'mm22', iso:'UA', name:'Ukraine',         mode:'highlight', maxZoom:4 },
+    { id:'mm23', iso:'PK', name:'Pakistan',        mode:'click',     maxZoom:4 },
+    { id:'mm24', iso:'IR', name:'Iran',            mode:'highlight', maxZoom:4 },
+    { id:'mm25', iso:'TZ', name:'Tanzania',        mode:'click',     maxZoom:4 },
+    { id:'mm26', iso:'PH', name:'Philippines',     mode:'click',     maxZoom:5 },
+    { id:'mm27', iso:'EC', name:'Ecuador',         mode:'highlight', maxZoom:5 }
   ],
 
   hard: [
@@ -75,7 +88,14 @@ window.GEO_MAPS = {
     { id:'mh16', iso:'LU', name:'Luxembourg',      mode:'click', maxZoom:3 },
     { id:'mh17', iso:'KH', name:'Cambodia',        mode:'click', maxZoom:3 },
     { id:'mh18', iso:'LA', name:'Laos',            mode:'click', maxZoom:3 },
-    { id:'mh19', iso:'MY', name:'Malaysia',        mode:'click', maxZoom:3 },
-    { id:'mh20', iso:'MN', name:'Mongolia',        mode:'click', maxZoom:3 }
+    { id:'mh19', iso:'MY', name:'Malaysia',        mode:'click', maxZoom:4 },
+    { id:'mh20', iso:'MN', name:'Mongolia',        mode:'click', maxZoom:4 },
+    { id:'mh21', iso:'PA', name:'Panama',          mode:'click', maxZoom:5 },
+    { id:'mh22', iso:'BO', name:'Bolivia',         mode:'highlight', maxZoom:4 },
+    { id:'mh23', iso:'UY', name:'Uruguay',         mode:'click', maxZoom:5 },
+    { id:'mh24', iso:'NP', name:'Nepal',           mode:'click', maxZoom:5 },
+    { id:'mh25', iso:'JO', name:'Jordan',          mode:'click', maxZoom:5 },
+    { id:'mh26', iso:'BW', name:'Botswana',        mode:'highlight', maxZoom:4 },
+    { id:'mh27', iso:'DK', name:'Denmark',         mode:'click', maxZoom:5 }
   ]
 };

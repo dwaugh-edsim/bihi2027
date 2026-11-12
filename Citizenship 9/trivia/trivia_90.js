@@ -34,7 +34,13 @@ window.GEO_TRIVIA = {
     { id:'e27', q:'Samba music and the Carnival celebration are most famous in which country?', o:['Brazil','Argentina','Cuba','Mexico'], a:'Brazil' },
     { id:'e28', q:'The Christ the Redeemer statue overlooks which country\u2019s city of Rio de Janeiro?', o:['Brazil','Portugal','Italy','Spain'], a:'Brazil' },
     { id:'e29', q:'The Inca citadel of Machu Picchu is in which country?', o:['Peru','Bolivia','Chile','Ecuador'], a:'Peru' },
-    { id:'e30', q:'Tacos originated in which country?', o:['Mexico','Spain','USA','Argentina'], a:'Mexico' }
+    { id:'e30', q:'Tacos originated in which country?', o:['Mexico','Spain','USA','Argentina'], a:'Mexico' },
+    { id:'e31', q:'Which country sends a giant Christmas tree to Boston every year from Nova Scotia?', o:['Canada','Norway','USA','United Kingdom'], a:'Canada' },
+    { id:'e32', q:'Which country won the first-ever FIFA World Cup in 1930?', o:['Uruguay','Brazil','Argentina','Italy'], a:'Uruguay' },
+    { id:'e33', q:'The Great Sphinx stands near Cairo in which country?', o:['Egypt','Jordan','Greece','Morocco'], a:'Egypt' },
+    { id:'e34', q:'Basketball was invented in 1891 by James Naismith, who was born in which country?', o:['Canada','USA','United Kingdom','Australia'], a:'Canada' },
+    { id:'e35', q:'Which country is shaped like a high-heeled boot on the map?', o:['Italy','Greece','Spain','Portugal'], a:'Italy' },
+    { id:'e36', q:'The Olympic Games returned for the first modern era in Athens, in which country?', o:['Greece','Italy','France','United Kingdom'], a:'Greece' }
   ],
 
   medium: [
@@ -67,7 +73,14 @@ window.GEO_TRIVIA = {
     { id:'m27', q:'The ancient Olympic Games began in which country?', o:['Greece','Italy','Egypt','Turkey'], a:'Greece' },
     { id:'m28', q:'Paella rice dish originated in which country?', o:['Spain','Italy','Portugal','France'], a:'Spain' },
     { id:'m29', q:'The Sagrada Fam\u00edlia basilica is in which country?', o:['Spain','Italy','France','Portugal'], a:'Spain' },
-    { id:'m30', q:'Port wine is named after a city in which country?', o:['Portugal','Spain','France','Italy'], a:'Portugal' }
+    { id:'m30', q:'Port wine is named after a city in which country?', o:['Portugal','Spain','France','Italy'], a:'Portugal' },
+    { id:'m31', q:'The Panama Canal connects the Atlantic and Pacific oceans through which country?', o:['Panama','Colombia','Costa Rica','Nicaragua'], a:'Panama' },
+    { id:'m32', q:'The Northern Lights and geothermal Blue Lagoon are famous in which island country?', o:['Iceland','Norway','Finland','Ireland'], a:'Iceland' },
+    { id:'m33', q:'Seoul is the capital city of which country?', o:['South Korea','Japan','China','Vietnam'], a:'South Korea' },
+    { id:'m34', q:'The Nile River flows north through Sudan and empties into the sea in which country?', o:['Egypt','Kenya','Ethiopia','Morocco'], a:'Egypt' },
+    { id:'m35', q:'Which country uses the Silver Fern as a famous national sports emblem?', o:['New Zealand','Australia','South Africa','Ireland'], a:'New Zealand' },
+    { id:'m36', q:'Vienna, famous for classical music composers like Mozart, is the capital of which country?', o:['Austria','Germany','Switzerland','Hungary'], a:'Austria' },
+    { id:'m37', q:'The Amazon Rainforest covers the largest share of which country?', o:['Brazil','Peru','Colombia','Venezuela'], a:'Brazil' }
   ],
 
   hard: [
@@ -100,6 +113,13 @@ window.GEO_TRIVIA = {
     { id:'h27', q:'Mount Kilimanjaro is in which country?', o:['Tanzania','Kenya','Uganda','Rwanda'], a:'Tanzania' },
     { id:'h28', q:'Table Mountain overlooks Cape Town in which country?', o:['South Africa','Australia','India','Switzerland'], a:'South Africa' },
     { id:'h29', q:'The Okavango Delta wetlands are mainly in which country?', o:['Botswana','Namibia','Angola','Zambia'], a:'Botswana' },
-    { id:'h30', q:'The ancient trading city of Timbuktu is in which country?', o:['Mali','Niger','Nigeria','Mauritania'], a:'Mali' }
+    { id:'h30', q:'The ancient trading city of Timbuktu is in which country?', o:['Mali','Niger','Nigeria','Mauritania'], a:'Mali' },
+    { id:'h31', q:'The United Nations headquarters is in New York City, in which country?', o:['USA','Switzerland','Belgium','United Kingdom'], a:'USA' },
+    { id:'h32', q:'Which country became the first in the world to grant women the right to vote in 1893?', o:['New Zealand','Canada','Norway','United Kingdom'], a:'New Zealand' },
+    { id:'h33', q:'Which landlocked South American country has two capitals: La Paz and Sucre?', o:['Bolivia','Paraguay','Uruguay','Ecuador'], a:'Bolivia' },
+    { id:'h34', q:'The Suez Canal, a major global shipping shortcut, runs through which country?', o:['Egypt','Jordan','Turkey','Saudi Arabia'], a:'Egypt' },
+    { id:'h35', q:'Which Southeast Asian city-state sits at the southern tip of the Malay Peninsula?', o:['Singapore','Malaysia','Brunei','Thailand'], a:'Singapore' },
+    { id:'h36', q:'Which country has the highest population in Africa (over 220 million people)?', o:['Nigeria','Ethiopia','Egypt','South Africa'], a:'Nigeria' },
+    { id:'h37', q:'The International Court of Justice (World Court) sits in The Hague, in which country?', o:['Netherlands','Switzerland','France','Austria'], a:'Netherlands' }
   ]
 };

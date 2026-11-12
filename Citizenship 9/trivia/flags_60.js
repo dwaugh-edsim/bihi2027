@@ -29,7 +29,13 @@ window.GEO_FLAGS = {
     { id:'fe17', iso:'NO', name:'Norway',          o:['Norway','Sweden','Iceland','Denmark'], a:'Norway' },
     { id:'fe18', iso:'NL', name:'Netherlands',     o:['Netherlands','Belgium','Germany','Luxembourg'], a:'Netherlands' },
     { id:'fe19', iso:'IE', name:'Ireland',         o:['Ireland','United Kingdom','France','USA'], a:'Ireland' },
-    { id:'fe20', iso:'PT', name:'Portugal',        o:['Portugal','Spain','Brazil','Italy'], a:'Portugal' }
+    { id:'fe20', iso:'PT', name:'Portugal',        o:['Portugal','Spain','Brazil','Italy'], a:'Portugal' },
+    { id:'fe21', iso:'JP', name:'Japan',           o:['Japan','South Korea','Bangladesh','Palau'], a:'Japan' },
+    { id:'fe22', iso:'JM', name:'Jamaica',         o:['Jamaica','Brazil','South Africa','Bahamas'], a:'Jamaica' },
+    { id:'fe23', iso:'CU', name:'Cuba',            o:['Cuba','USA','Puerto Rico','Chile'], a:'Cuba' },
+    { id:'fe24', iso:'DK', name:'Denmark',         o:['Denmark','Switzerland','Norway','Sweden'], a:'Denmark' },
+    { id:'fe25', iso:'FI', name:'Finland',         o:['Finland','Sweden','Iceland','Greece'], a:'Finland' },
+    { id:'fe26', iso:'BE', name:'Belgium',         o:['Belgium','Germany','France','Romania'], a:'Belgium' }
   ],
 
   medium: [
@@ -52,7 +58,14 @@ window.GEO_FLAGS = {
     { id:'fm17', iso:'SA', name:'Saudi Arabia',    o:['Saudi Arabia','Qatar','United Arab Emirates','Yemen'], a:'Saudi Arabia' },
     { id:'fm18', iso:'AE', name:'United Arab Emirates', o:['United Arab Emirates','Saudi Arabia','Qatar','Oman'], a:'United Arab Emirates' },
     { id:'fm19', iso:'NZ', name:'New Zealand',     o:['New Zealand','Australia','United Kingdom','Fiji'], a:'New Zealand' },
-    { id:'fm20', iso:'CH', name:'Switzerland',     o:['Switzerland','Austria','Sweden','Denmark'], a:'Switzerland' }
+    { id:'fm20', iso:'CH', name:'Switzerland',     o:['Switzerland','Austria','Sweden','Denmark'], a:'Switzerland' },
+    { id:'fm21', iso:'PH', name:'Philippines',     o:['Philippines','Czechia','Cuba','Malaysia'], a:'Philippines' },
+    { id:'fm22', iso:'MY', name:'Malaysia',        o:['Malaysia','USA','Liberia','Thailand'], a:'Malaysia' },
+    { id:'fm23', iso:'SG', name:'Singapore',       o:['Singapore','Indonesia','Turkey','Tunisia'], a:'Singapore' },
+    { id:'fm24', iso:'PK', name:'Pakistan',        o:['Pakistan','Turkey','Saudi Arabia','Algeria'], a:'Pakistan' },
+    { id:'fm25', iso:'GH', name:'Ghana',           o:['Ghana','Senegal','Cameroon','Ethiopia'], a:'Ghana' },
+    { id:'fm26', iso:'ET', name:'Ethiopia',        o:['Ethiopia','Ghana','Kenya','Bolivia'], a:'Ethiopia' },
+    { id:'fm27', iso:'NP', name:'Nepal',           o:['Nepal','Bhutan','India','Sri Lanka'], a:'Nepal' }
   ],
 
   hard: [
@@ -75,6 +88,13 @@ window.GEO_FLAGS = {
     { id:'fh17', iso:'IS', name:'Iceland',         o:['Iceland','Norway','Denmark','Sweden'], a:'Iceland' },
     { id:'fh18', iso:'KH', name:'Cambodia',        o:['Cambodia','Thailand','Laos','Myanmar'], a:'Cambodia' },
     { id:'fh19', iso:'MN', name:'Mongolia',        o:['Mongolia','China','Russia','Kazakhstan'], a:'Mongolia' },
-    { id:'fh20', iso:'QA', name:'Qatar',           o:['Qatar','Bahrain','Indonesia','Poland'], a:'Qatar' }
+    { id:'fh20', iso:'QA', name:'Qatar',           o:['Qatar','Bahrain','Indonesia','Poland'], a:'Qatar' },
+    { id:'fh21', iso:'UY', name:'Uruguay',         o:['Uruguay','Argentina','Greece','Israel'], a:'Uruguay' },
+    { id:'fh22', iso:'EC', name:'Ecuador',         o:['Ecuador','Colombia','Venezuela','Bolivia'], a:'Ecuador' },
+    { id:'fh23', iso:'KZ', name:'Kazakhstan',      o:['Kazakhstan','Ukraine','Uzbekistan','Mongolia'], a:'Kazakhstan' },
+    { id:'fh24', iso:'BD', name:'Bangladesh',      o:['Bangladesh','Japan','Pakistan','Palau'], a:'Bangladesh' },
+    { id:'fh25', iso:'NO', name:'Norway',          o:['Norway','Iceland','Denmark','Finland'], a:'Norway' },
+    { id:'fh26', iso:'JO', name:'Jordan',          o:['Jordan','Sudan','Kuwait','United Arab Emirates'], a:'Jordan' },
+    { id:'fh27', iso:'BT', name:'Bhutan',          o:['Bhutan','Nepal','Sri Lanka','Mongolia'], a:'Bhutan' }
   ]
 };

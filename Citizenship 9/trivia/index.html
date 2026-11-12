@@ -1035,6 +1035,10 @@
       font-family: var(--f-sans) !important;
     }
 
+    #mapWrap.click-active .leaflet-interactive {
+      cursor: pointer !important;
+    }
+
     .leaflet-bar {
       border: 1px solid rgba(56, 189, 248, 0.38) !important;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5) !important;
@@ -1551,9 +1555,9 @@
           <span class="gate-kicker">Citizenship 9 // Global Atlas</span>
           <h1>WORLD ATLAS ARENA</h1>
           <div class="gate-pills">
-            <span class="gate-pill">210 Challenges</span>
+            <span class="gate-pill">270 Challenges</span>
             <span class="gate-pill">Live Country Borders</span>
-            <span class="gate-pill">125 Vector Flags</span>
+            <span class="gate-pill">138 Vector Flags</span>
             <span class="gate-pill">4 Explorer Ranks</span>
           </div>
         </div>
@@ -1591,6 +1595,7 @@
       </span>
       <span class="hud-pill" id="syncPill">SERVER: <b id="syncTxt">READY</b></span>
       <span class="hud-spacer"></span>
+      <button id="teacherResetBtn" class="hud-btn" type="button" style="display:none;border-color:rgba(245,158,11,0.55);color:var(--gold)" onclick="Arena.teacherReset()">Reset Progress</button>
       <button id="sfxBtn" class="hud-btn" type="button" onclick="Arena.toggleSfx()">SFX: ON</button>
       <button class="hud-btn" type="button" onclick="Arena.switchAccount()">Switch account</button>
     </header>
@@ -1598,59 +1603,53 @@
     <!-- LOBBY VIEW -->
     <main id="lobbyView" class="view-screen active">
       <div class="lobby-grid">
-        <!-- Left: Mission Setup -->
+        <!-- Left: Unified Mission Briefing -->
         <section class="panel-card">
           <div class="sec-head">
-            <h2 class="sec-title">1. Choose Your Arena Mode</h2>
-            <span class="sec-sub">10 Questions Per Round</span>
+            <h2 class="sec-title">World Atlas Arena: Mixed Expedition</h2>
+            <span class="sec-sub">10 Escalating Questions</span>
           </div>
 
-          <div class="mode-grid" id="modeGrid">
-            <button type="button" class="mode-card selected" data-mode="mixed" onclick="Arena.selectMode('mixed')">
-              <div class="mc-bg" style="background-image:url('assets/art/hero_atlas.jpg')"></div>
-              <div class="mc-content">
-                <span class="mc-tag">Recommended</span>
-                <h3 class="mc-name">Mixed Arena</h3>
-                <p class="mc-desc">Balanced mix of interactive borders, world flags, trivia, and hard combo strikes.</p>
-              </div>
-            </button>
+          <div class="mode-card selected" style="min-height:158px;margin-bottom:14px;cursor:default">
+            <div class="mc-bg" style="background-image:url('assets/art/hero_atlas.jpg');opacity:0.58"></div>
+            <div class="mc-content">
+              <span class="mc-tag">270-Item Unified Pool</span>
+              <h3 class="mc-name" style="font-size:1.25rem;margin-bottom:4px">Borders + Flags + World Intel</h3>
+              <p class="mc-desc" style="font-size:0.84rem">Every round mixes interactive country maps, lookalike flags, and global citizenship trivia, ramping up in difficulty as you go.</p>
+            </div>
+          </div>
 
-            <button type="button" class="mode-card" data-mode="map" onclick="Arena.selectMode('map')">
-              <div class="mc-bg" style="background-image:url('assets/art/mode_map.jpg')"></div>
+          <div class="mode-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+            <div class="mode-card" style="min-height:92px;cursor:default">
+              <div class="mc-bg" style="background-image:url('assets/art/mode_map.jpg');opacity:0.48"></div>
               <div class="mc-content">
-                <span class="mc-tag">60 Borders</span>
-                <h3 class="mc-name">Border Strike</h3>
-                <p class="mc-desc">Pinpoint countries directly on the map or name highlighted territories.</p>
+                <span class="mc-tag">80 Borders</span>
+                <p class="mc-desc">Click or ID territory</p>
               </div>
-            </button>
-
-            <button type="button" class="mode-card" data-mode="flag" onclick="Arena.selectMode('flag')">
-              <div class="mc-bg" style="background-image:url('assets/art/mode_flag.jpg')"></div>
+            </div>
+            <div class="mode-card" style="min-height:92px;cursor:default">
+              <div class="mc-bg" style="background-image:url('assets/art/mode_flag.jpg');opacity:0.48"></div>
               <div class="mc-content">
-                <span class="mc-tag">60 Flags</span>
-                <h3 class="mc-name">Flag Blitz</h3>
-                <p class="mc-desc">Spot iconic banners and survive lookalike traps like Romania vs. Chad.</p>
+                <span class="mc-tag">80 Flags</span>
+                <p class="mc-desc">Spot lookalike traps</p>
               </div>
-            </button>
-
-            <button type="button" class="mode-card" data-mode="trivia" onclick="Arena.selectMode('trivia')">
-              <div class="mc-bg" style="background-image:url('assets/art/mode_trivia.jpg')"></div>
+            </div>
+            <div class="mode-card" style="min-height:92px;cursor:default">
+              <div class="mc-bg" style="background-image:url('assets/art/mode_trivia.jpg');opacity:0.48"></div>
               <div class="mc-content">
-                <span class="mc-tag">90 Clues</span>
-                <h3 class="mc-name">World Intel</h3>
-                <p class="mc-desc">Landmarks, inventions, food, sports, and global citizenship facts.</p>
+                <span class="mc-tag">110 Clues</span>
+                <p class="mc-desc">Global culture &amp; civics</p>
               </div>
-            </button>
+            </div>
           </div>
 
           <div class="config-row">
             <div class="cfg-group">
-              <span class="cfg-label">Difficulty Tier</span>
-              <div class="seg-row" id="diffRow">
-                <button type="button" class="seg-btn active" data-diff="all" onclick="Arena.selectDiff('all')">All Mixed</button>
-                <button type="button" class="seg-btn" data-diff="easy" onclick="Arena.selectDiff('easy')">Easy (100)</button>
-                <button type="button" class="seg-btn" data-diff="medium" onclick="Arena.selectDiff('medium')">Med (200)</button>
-                <button type="button" class="seg-btn" data-diff="hard" onclick="Arena.selectDiff('hard')">Hard (300)</button>
+              <span class="cfg-label">Common Escalating Difficulty</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;font-family:var(--f-mono);font-size:0.7rem">
+                <span class="tier-chip easy">Q1-3 Easy (100)</span>
+                <span class="tier-chip medium">Q4-7 Med (200)</span>
+                <span class="tier-chip hard">Q8-10 Hard (300+)</span>
               </div>
             </div>
 
@@ -1692,20 +1691,20 @@
 
           <div class="bests-grid">
             <div class="best-tile highlight">
-              <div class="bt-lbl">Best Overall</div>
+              <div class="bt-lbl">Best Score</div>
               <div class="bt-val" id="bestOverall">0</div>
             </div>
             <div class="best-tile">
-              <div class="bt-lbl">Easy Best</div>
-              <div class="bt-val" id="bestEasy">0</div>
+              <div class="bt-lbl">Best Streak</div>
+              <div class="bt-val" id="bestStreakStat">0</div>
             </div>
             <div class="best-tile">
-              <div class="bt-lbl">Med Best</div>
-              <div class="bt-val" id="bestMedium">0</div>
+              <div class="bt-lbl">Accuracy</div>
+              <div class="bt-val" id="bestAccStat">0%</div>
             </div>
             <div class="best-tile">
-              <div class="bt-lbl">Hard Best</div>
-              <div class="bt-val" id="bestHard">0</div>
+              <div class="bt-lbl">Total Hits</div>
+              <div class="bt-val" id="bestHitsStat">0</div>
             </div>
           </div>
 
@@ -2279,9 +2278,10 @@
         el('gate').style.display = 'none';
         el('app').style.display = 'flex';
         el('hudWho').textContent = skipNet ? 'Demo Ex.' : GEO_ENGINE.formatDisplayName(identity.email);
+        var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
+        el('teacherResetBtn').style.display = isTeacher ? 'inline-block' : 'none';
         restoreFromServer();
         if (Q.get('autostart') && OFFPROD) {
-          selectMode(Q.get('autostart'));
           setTimeout(startRound, 200);
           return;
         }
@@ -2290,26 +2290,23 @@
         }
       }
 
+      function teacherReset() {
+        var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
+        if (!isTeacher) return;
+        if (!confirm('Reset your World Atlas Arena XP, best scores, and round history to zero?')) return;
+        var savedSec = state.section || '';
+        state = freshState();
+        state.section = savedSec;
+        sessionSeenIds = [];
+        refreshLobbyStats();
+        saveToServer();
+        toast('Progress reset to zero.');
+      }
+
       /* ================= LOBBY CONTROLS & RENDERING ================= */
       function showScreen(screenId) {
         ['lobbyView', 'arenaView', 'resultsView'].forEach(function (id) {
           el(id).classList.toggle('active', id === screenId);
-        });
-      }
-
-      function selectMode(mode) {
-        config.mode = mode;
-        var cards = el('modeGrid').querySelectorAll('.mode-card');
-        cards.forEach(function (c) {
-          c.classList.toggle('selected', c.getAttribute('data-mode') === mode);
-        });
-      }
-
-      function selectDiff(diff) {
-        config.diff = diff;
-        var btns = el('diffRow').querySelectorAll('.seg-btn');
-        btns.forEach(function (b) {
-          b.classList.toggle('active', b.getAttribute('data-diff') === diff);
         });
       }
 
@@ -2341,9 +2338,10 @@
 
         el('statsRoundsLbl').textContent = (state.roundsPlayed || 0) + (state.roundsPlayed === 1 ? ' Round Played' : ' Rounds Played');
         el('bestOverall').textContent = (state.best.overall || 0).toLocaleString();
-        el('bestEasy').textContent = (state.best.easy || 0).toLocaleString();
-        el('bestMedium').textContent = (state.best.medium || 0).toLocaleString();
-        el('bestHard').textContent = (state.best.hard || 0).toLocaleString();
+        el('bestStreakStat').textContent = String(state.bestStreak || 0);
+        var acc = state.totalAsked ? Math.round((state.totalCorrect / state.totalAsked) * 100) : 0;
+        el('bestAccStat').textContent = acc + '%';
+        el('bestHitsStat').textContent = String(state.totalCorrect || 0);
         renderBoard();
       }
 
@@ -2452,7 +2450,10 @@
           attributionControl: false,
           minZoom: 1.4,
           maxZoom: 8,
-          worldCopyJump: true,
+          worldCopyJump: false,
+          maxBounds: [[-75, -185], [82, 185]],
+          maxBoundsViscosity: 0.7,
+          renderer: L.svg({ padding: 0.5 }),
           zoomSnap: 0.25
         }).setView([22, 10], 2);
 
@@ -2555,6 +2556,7 @@
           results: [],
           answered: false,
           wrongClicksThisQ: 0,
+          wrongClickedIsos: {},
           qStartMs: 0,
           qDurationMs: 18000
         };
@@ -2613,6 +2615,8 @@
         var q = round.items[round.idx];
         round.answered = false;
         round.wrongClicksThisQ = 0;
+        round.wrongClickedIsos = {};
+        el('mapWrap').classList.toggle('click-active', isClickMapMode(q));
 
         el('qCounter').textContent = 'Q' + (round.idx + 1) + ' / ' + round.items.length;
         buildProgressDots();
@@ -2741,8 +2745,9 @@
             }
             frameCountry(q.iso, q.maxZoom, 0.72);
           } else if (isClickMapMode(q)) {
-            // Frame neighbourhood per PLAN.md so target is centered among neighbours
-            frameCountry(q.iso, q.maxZoom, 0.75);
+            // Frame neighbourhood with comfortable click scale (hard tier min maxZoom 4.5)
+            var clickZoom = Math.max(q.maxZoom || 4, q.diff === 'hard' ? 4.5 : 5);
+            frameCountry(q.iso, clickZoom, 0.72);
             var countryMeta = GEO_ENGINE.getCountry(q.iso);
             if (countryMeta && countryMeta.isTiny && layerByIso[q.iso]) {
               var center = layerByIso[q.iso].getBounds().getCenter();
@@ -2822,6 +2827,10 @@
         if (!round || round.answered) return;
         var q = round.items[round.idx];
         if (!isClickMapMode(q)) return;
+        if (round.wrongClickedIsos && round.wrongClickedIsos[iso]) {
+          layer.setStyle(STYLE_WRONG);
+          return;
+        }
         layer.setStyle(STYLE_BASE);
       }
 
@@ -2836,15 +2845,18 @@
           var pts = computePoints(q, round.wrongClicksThisQ);
           finalizeAnswer(true, 'Pinpointed ' + q.name + '!', pts);
         } else {
-          // Allow 1 second-chance retry with a small penalty, or lock on 2nd miss!
+          // Allow 1 second-chance retry with a small penalty, keeping wrong territory tinted red
           round.wrongClicksThisQ++;
+          if (round.wrongClickedIsos) round.wrongClickedIsos[iso] = true;
           var clickedCountry = GEO_ENGINE.getCountry(iso);
           var clickedName = clickedCountry ? clickedCountry.name : iso;
           layer.setStyle(STYLE_WRONG);
+          if (layer.bringToFront) layer.bringToFront();
 
           if (round.wrongClicksThisQ === 1) {
             sfxMiss();
-            el('clickGuideText').innerHTML = 'That border is <b>' + esc(clickedName) + '</b> (-35 pt penalty). Try one more click to find <b>' + esc(q.name) + '</b>!';
+            var targetLabel = (q.renderMode === 'map-click') ? ('<b>' + esc(q.name) + '</b>') : 'the target country';
+            el('clickGuideText').innerHTML = 'That border is <b>' + esc(clickedName) + '</b> (-35 pt penalty). Try one more click to find ' + targetLabel + '!';
           } else {
             finalizeAnswer(false, 'Clicked ' + clickedName + ' - Target was ' + q.name, 0);
           }
@@ -2927,6 +2939,7 @@
           pts: ptsEarned
         });
 
+        el('mapWrap').classList.remove('click-active');
         el('giveUpBtn').style.display = 'none';
         buildProgressDots();
         updateStreakHud();
@@ -3091,21 +3104,32 @@
         function ok(cond, msg) { out.push((cond ? 'PASS' : 'FAIL') + ': ' + msg); }
         try {
           var all = GEO_ENGINE.getAllItems();
-          ok(all.length === 210, 'Master pool has 210 items (' + all.length + ')');
+          ok(all.length === 270, 'Master pool has 270 items (' + all.length + ')');
+
+          var cn = GEO_ENGINE.getCountry('CN');
+          ok(!!cn && cn.name === 'China' && cn.pop > 1000000000 && cn.center[1] > 70, 'China (CN) geometry is mainland China');
 
           var missingIso = all.filter(function (x) { return !x.iso || !GEO_ENGINE.getCountry(x.iso); });
           ok(missingIso.length === 0, 'Every item resolves to a GeoJSON country (' + missingIso.length + ' missing)');
 
           var badBalance = 0;
+          var badRamp = 0;
           for (var i = 0; i < 15; i++) {
-            var r = GEO_ENGINE.buildRound({ mode: 'mixed', diff: 'all', count: 10 });
+            var r = GEO_ENGINE.buildRound({ count: 10 });
             var mCount = r.filter(function (x) { return x.type === 'map'; }).length;
             var fCount = r.filter(function (x) { return x.type === 'flag'; }).length;
             var tCount = r.filter(function (x) { return x.type === 'trivia'; }).length;
             var uniq = new Set(r.map(function (x) { return x.id; })).size;
             if (r.length !== 10 || uniq !== 10 || mCount < 2 || fCount < 2 || tCount < 1) badBalance++;
+            var diffs = r.map(function (x) { return x.diff; });
+            if (diffs.slice(0, 3).some(function (d) { return d !== 'easy'; }) ||
+                diffs.slice(3, 7).some(function (d) { return d !== 'medium'; }) ||
+                diffs.slice(7, 10).some(function (d) { return d !== 'hard'; })) {
+              badRamp++;
+            }
           }
           ok(badBalance === 0, '15 simulated mixed rounds obey PLAN.md balance & uniqueness');
+          ok(badRamp === 0, '15 simulated rounds follow common Easy -> Medium -> Hard progression');
 
           ok(GEO_ENGINE.formatDisplayName('alex.macdonald@gnspes.ca') === 'Alex Ma.', 'Display name formatter enforces First Ls.');
 
@@ -3133,9 +3157,8 @@
         signIn: signIn,
         startDemo: startDemo,
         switchAccount: switchAccount,
+        teacherReset: teacherReset,
         toggleSfx: toggleSfx,
-        selectMode: selectMode,
-        selectDiff: selectDiff,
         selectPace: selectPace,
         switchBoard: switchBoard,
         startRound: startRound,
