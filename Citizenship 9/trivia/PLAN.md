@@ -10,17 +10,16 @@ An engaging online geography game for Citizenship 9 (also useful for the NS/Cana
 |---|---|
 | `index.html` | World Atlas Arena game UI (gate, command lobby, Leaflet map stage, flag/trivia arena, Intel reveal card, Web Audio SFX, confetti, results) |
 | `geo_data.js` | Bank loader, country metadata index, same-continent distractor generator, round builder, and rank/XP definitions |
-| `trivia_90.js` | 90 country-trivia items, 30 per tier (`window.GEO_TRIVIA`) |
-| `maps_60.js` | 60 map items, 20 per tier (`window.GEO_MAPS`) - `iso`, `name`, `mode`, `maxZoom` |
-| `flags_60.js` | 60 flag items, 20 per tier (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
+| `trivia_90.js` | 110 country-trivia items (`window.GEO_TRIVIA`) across easy/medium/hard |
+| `maps_60.js` | 80 map items (`window.GEO_MAPS`) - `iso`, `name`, `mode`, `maxZoom` |
+| `flags_60.js` | 80 flag items (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
 | `assets/leaflet/` | Vendored Leaflet 1.9.4 (`leaflet.js`, `leaflet.css`, MIT) |
-| `assets/world_countries.js` | Merged Natural Earth 110m + 50m country borders (`window.WORLD_GEOJSON`, 236 countries) + `.geojson` source |
-| `assets/flags/` | 125 local `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) |
-| `assets/art/` | Custom dark-navy game illustrations: hero banner, 3 mode cards, and 4 rank crests |
+| `assets/world_countries.js` | Merged Natural Earth 110m + 50m country borders (`window.WORLD_GEOJSON`, 235 countries) + `.geojson` source |
+| `assets/flags/` | 138 local `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) |
 | `PLAN.md` | This architecture and design reference |
 
 ## Item model (all banks)
-`{ id, type, diff, pts, ... }` - `type` = `map` | `flag` | `trivia`; `diff` = `easy` / `medium` / `hard`; `pts` = `100` / `200` / `300` by tier. Round = 10-item shuffle of the combined pool (or a selected focus mode / difficulty filter), with a balance rule on Mixed Arena: at least 2 map, 2 flag, 1 trivia, rest random. Options are shuffled per round. Map-highlight and flag options include documented lookalikes (Romania/Chad, Monaco/Indonesia, Australia/New Zealand, Ivory Coast/Ireland) at the hard tier.
+`{ id, type, diff, pts, ... }` - `type` = `map` | `flag` | `trivia`; `diff` = `easy` / `medium` / `hard`; `pts` = `100` / `200` / `300` by tier. Every round uses a single unified Mixed mode with a common escalating curve (`Q1-3` Easy -> `Q4-7` Medium -> `Q8-10` Hard, balancing maps, flags, and trivia). Options are shuffled per round. Map-highlight and flag options include documented lookalikes (Romania/Chad, Monaco/Indonesia, Australia/New Zealand, Ivory Coast/Ireland) at the hard tier.
 
 ## Map rendering
 - **Leaflet (MIT), vendored locally** into `assets/leaflet/` - no CDN at runtime, so school Chromebook filtering cannot break it and the repo stays zero-build standalone.

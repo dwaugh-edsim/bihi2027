@@ -61,38 +61,34 @@
     {
       id: 'scout',
       level: 1,
-      title: 'Bronze Scout',
-      subtitle: 'Field Recruit',
+      title: 'Traveller',
+      subtitle: 'Tier 1',
       minXp: 0,
-      art: 'assets/art/rank_1_scout.jpg',
-      accent: '#f59e0b'
+      accent: '#cd7f32'
     },
     {
       id: 'navigator',
       level: 2,
-      title: 'Silver Navigator',
-      subtitle: 'Wayfinder Class',
+      title: 'Navigator',
+      subtitle: 'Tier 2',
       minXp: 2000,
-      art: 'assets/art/rank_2_navigator.jpg',
-      accent: '#38bdf8'
+      accent: '#94a3b8'
     },
     {
       id: 'cartographer',
       level: 3,
-      title: 'Gold Cartographer',
-      subtitle: 'Master Mapper',
+      title: 'Cartographer',
+      subtitle: 'Tier 3',
       minXp: 5000,
-      art: 'assets/art/rank_3_cartographer.jpg',
-      accent: '#fbbf24'
+      accent: '#f59e0b'
     },
     {
       id: 'legend',
       level: 4,
-      title: 'Atlas Legend',
-      subtitle: 'Global Sovereign',
+      title: 'World Fellow',
+      subtitle: 'Tier 4',
       minXp: 10000,
-      art: 'assets/art/rank_4_legend.jpg',
-      accent: '#22d3ee'
+      accent: '#22c55e'
     }
   ];
 
