@@ -2548,6 +2548,10 @@
         return q && (q.renderMode === 'map-click' || q.renderMode === 'flag-map' || q.renderMode === 'trivia-map');
       }
 
+      function allowsMapClick(q) {
+        return isClickMapMode(q) || (q && (q.renderMode === 'flag' || q.renderMode === 'trivia'));
+      }
+
       function startRound() {
         ensureAudio();
         var items = GEO_ENGINE.buildRound({
@@ -2628,7 +2632,7 @@
         round.answered = false;
         round.wrongClicksThisQ = 0;
         round.wrongClickedIsos = {};
-        el('mapWrap').classList.toggle('click-active', isClickMapMode(q));
+        el('mapWrap').classList.toggle('click-active', allowsMapClick(q));
 
         el('qCounter').textContent = (round.idx + 1) + ' / ' + round.items.length;
         buildProgressDots();
@@ -2663,12 +2667,12 @@
           flagFrame.style.display = 'flex';
           el('flagImg').src = q.flagUrl;
           el('flagImg').alt = 'Flag challenge ' + (round.idx + 1);
-          el('mapRadarCaption').textContent = 'Answer to see this country on the map';
+          el('mapRadarCaption').textContent = 'Click the country on the map or pick an option on the right';
         } else if (q.renderMode === 'trivia') {
           showcase.classList.add('show-trivia');
           triviaHero.style.display = 'block';
           el('triviaHeroText').textContent = q.q;
-          el('mapRadarCaption').textContent = 'Answer to see this country on the map';
+          el('mapRadarCaption').textContent = 'Click the country on the map or pick an option on the right';
         } else if (q.renderMode === 'flag-map') {
           comboOverlay.classList.add('show');
           el('comboFlagImg').src = q.flagUrl;
@@ -2719,11 +2723,11 @@
           } else if (q.renderMode === 'flag') {
             el('promptKicker').textContent = 'World Flag';
             el('promptTitle').textContent = 'Which country flies this flag?';
-            el('promptSub').textContent = 'Choose one below or press 1-4.';
+            el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
           } else {
             el('promptKicker').textContent = 'World Trivia';
             el('promptTitle').textContent = q.q;
-            el('promptSub').textContent = 'Choose the correct country below or press 1-4.';
+            el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
           }
 
           (q.o || []).forEach(function (optName, idx) {
@@ -2822,17 +2826,28 @@
       }
 
       /* ================= MAP INTERACTION HANDLERS ================= */
+      function lockChoiceButtons(correctName, wrongName, clickedBtn) {
+        var buttons = el('optionsList').querySelectorAll('.opt-btn');
+        buttons.forEach(function (b) {
+          b.disabled = true;
+          b.classList.add('reveal-flag');
+          var val = b.getAttribute('data-opt');
+          if (val === correctName) b.classList.add('correct');
+          else if ((clickedBtn && b === clickedBtn) || (wrongName && val === wrongName)) b.classList.add('wrong');
+        });
+      }
+
       function onCountryHover(iso, layer) {
         if (!round || round.answered) return;
         var q = round.items[round.idx];
-        if (!isClickMapMode(q)) return;
+        if (!allowsMapClick(q)) return;
         layer.setStyle(STYLE_HOVER);
       }
 
       function onCountryOut(iso, layer) {
         if (!round || round.answered) return;
         var q = round.items[round.idx];
-        if (!isClickMapMode(q)) return;
+        if (!allowsMapClick(q)) return;
         if (round.wrongClickedIsos && round.wrongClickedIsos[iso]) {
           layer.setStyle(STYLE_WRONG);
           return;
@@ -2843,9 +2858,28 @@
       function onCountryClick(iso, layer) {
         if (!round || round.answered) return;
         var q = round.items[round.idx];
-        if (!isClickMapMode(q)) return;
+        if (!allowsMapClick(q)) return;
 
-        if (iso === q.iso) {
+        var clickedCountry = GEO_ENGINE.getCountry(iso);
+        var clickedName = clickedCountry ? clickedCountry.name : iso;
+        var isHit = iso === q.iso;
+
+        if (!isClickMapMode(q)) {
+          // Hybrid 4-choice mode (flag / trivia): clicking the map locks the options in one shot.
+          lockChoiceButtons(q.a, isHit ? null : clickedName, null);
+          if (isHit) {
+            layer.setStyle(STYLE_CORRECT);
+            if (layer.bringToFront) layer.bringToFront();
+            finalizeAnswer(true, 'Found on map! ' + q.name, computePoints(q, 0));
+          } else {
+            layer.setStyle(STYLE_WRONG);
+            if (layer.bringToFront) layer.bringToFront();
+            finalizeAnswer(false, 'Clicked ' + clickedName + '. Answer: ' + q.name, 0);
+          }
+          return;
+        }
+
+        if (isHit) {
           layer.setStyle(STYLE_CORRECT);
           if (layer.bringToFront) layer.bringToFront();
           var pts = computePoints(q, round.wrongClicksThisQ);
@@ -2853,8 +2887,6 @@
         } else {
           round.wrongClicksThisQ++;
           if (round.wrongClickedIsos) round.wrongClickedIsos[iso] = true;
-          var clickedCountry = GEO_ENGINE.getCountry(iso);
-          var clickedName = clickedCountry ? clickedCountry.name : iso;
           layer.setStyle(STYLE_WRONG);
           if (layer.bringToFront) layer.bringToFront();
 
@@ -2898,14 +2930,7 @@
         var q = round.items[round.idx];
         var isHit = pickedName === q.a;
 
-        var buttons = el('optionsList').querySelectorAll('.opt-btn');
-        buttons.forEach(function (b) {
-          b.disabled = true;
-          b.classList.add('reveal-flag');
-          var val = b.getAttribute('data-opt');
-          if (val === q.a) b.classList.add('correct');
-          else if (b === clickedBtn && !isHit) b.classList.add('wrong');
-        });
+        lockChoiceButtons(q.a, isHit ? null : pickedName, isHit ? null : clickedBtn);
 
         if (isHit) {
           var pts = computePoints(q, 0);
@@ -3132,9 +3157,46 @@
           var htmlText = document.documentElement.innerHTML;
           ok(!/[\u2013\u2014]/.test(htmlText), 'Zero em/en-dashes in rendered DOM');
 
+          ok(
+            allowsMapClick({ renderMode: 'flag' }) === true &&
+            allowsMapClick({ renderMode: 'trivia' }) === true &&
+            allowsMapClick({ renderMode: 'map-click' }) === true &&
+            allowsMapClick({ renderMode: 'map-highlight' }) === false,
+            'allowsMapClick enables hybrid map click on flag/trivia while keeping map-highlight option-only'
+          );
+
           startRound();
           setTimeout(function () {
             ok(!!map && Object.keys(layerByIso).length >= 230, 'Leaflet initialized with ' + Object.keys(layerByIso).length + ' country layers');
+            var brFlag = all.filter(function (x) { return x.iso === 'BR' && x.type === 'flag'; })[0];
+            if (brFlag && layerByIso.BR) {
+              var savedRound = round;
+              var hybridQ = Object.assign({}, brFlag, { renderMode: 'flag' });
+              round = {
+                items: [hybridQ],
+                idx: 0,
+                score: 0,
+                streak: 0,
+                maxStreak: 0,
+                hits: 0,
+                xpEarned: 0,
+                results: [],
+                answered: false,
+                timerLeft: 20,
+                wrongClicksThisQ: 0,
+                wrongClickedIsos: {}
+              };
+              renderQuestion();
+              onCountryClick('BR', layerByIso.BR);
+              var optBtns = Array.prototype.slice.call(el('optionsList').querySelectorAll('.opt-btn'));
+              var allDisabled = optBtns.length === 4 && optBtns.every(function (b) { return b.disabled; });
+              var correctMarked = optBtns.some(function (b) { return b.getAttribute('data-opt') === 'Brazil' && b.classList.contains('correct'); });
+              ok(round.answered === true && round.hits === 1 && allDisabled && correctMarked, 'Hybrid flag click on BR locks 4 buttons and awards hit');
+              round = savedRound;
+              renderQuestion();
+            } else {
+              ok(false, 'Brazil flag item & layer available for hybrid click check');
+            }
             var d = document.createElement('div');
             d.id = 'selftest';
             d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#052e16;color:#bbf7d0;font:12px monospace;padding:6px 10px;z-index:9999';
