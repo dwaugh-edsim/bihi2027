@@ -1186,11 +1186,11 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
         if (v.phase === 'LOBBY') {
             return {
-                bgImg: 'assets/bg_day_village.jpg',
-                title: 'STAGE: LOBBY OPEN',
-                action: 'Open the game link on your Chromebook, sign in with @gnspes.ca, and claim your seat.',
+                bgImg: 'assets/story/scene_town_gate.jpg',
+                title: 'ENTERING MOONHOLLOW HARBOUR',
+                action: '1. Open the Student Link below  ·  2. Sign in with @gnspes.ca  ·  3. Claim your seat & keep your card secret!',
                 fact: 'Stage: Lobby Setup. ' + claimed + ' of ' + (r.classSize || 28) + ' seats claimed. Direct students to sign in and claim a seat.',
-                fallback: 'The gates of Moonhollow Harbour stand open. Claim your seat on your screen before nightfall.'
+                fallback: 'The lantern-lit gates of Moonhollow Harbour creak open. Claim your seat before nightfall.'
             };
         }
         if (v.phase === 'ROLE_REVEAL') {
@@ -1316,7 +1316,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
     function render() {
         var v = currentView;
-        var isNight = (v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
+        var isNight = (v.phase === 'LOBBY' || v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
         document.body.classList.toggle('is-night', isNight);
         // C: the LCD is a pure projector display during play; every control lives in run.html.
         document.body.classList.toggle('in-play', v.phase !== 'LOBBY');
@@ -1391,9 +1391,14 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         var seated = (v.players || []).length;
         var claimed = (v.players || []).filter(function (p) { return !p.isBot && !/^Seat \d+$/.test(p.name); }).length;
         var html = ''
-            + (guide ? '<div class="meter-box" style="border-color:#38bdf8; background:rgba(14, 165, 233, 0.12); margin-bottom:10px;">'
-                + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#38bdf8; letter-spacing:0.06em;">' + esc(guide.title) + '</div>'
-                + '<div style="font-size:1.02rem; font-weight:700; color:var(--text-heading); margin-top:3px;">' + esc(guide.action) + '</div>'
+            + (guide ? '<div class="meter-box" style="border-color:#f59e0b; background:rgba(245, 158, 11, 0.10); margin-bottom:10px;">'
+                + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fbbf24; letter-spacing:0.06em;">' + esc(guide.title) + '</div>'
+                + '<div style="font-size:1.0rem; font-weight:700; color:var(--text-heading); margin-top:4px; line-height:1.4;">' + esc(guide.action) + '</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; font-size:0.8rem; color:var(--text-main);">'
+                + '  <div style="background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.22); border-radius:8px; padding:7px 9px;"><strong style="color:#fbbf24;">1. Join</strong><br>Open the Student Link at the bottom.</div>'
+                + '  <div style="background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.22); border-radius:8px; padding:7px 9px;"><strong style="color:#fbbf24;">2. Claim Seat</strong><br>Sign in with @gnspes.ca &amp; pick your name.</div>'
+                + '  <div style="background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.22); border-radius:8px; padding:7px 9px;"><strong style="color:#fbbf24;">3. Poker Face</strong><br>Tap/hold [ID] to peek privately!</div>'
+                + '</div>'
                 + '</div>' : '')
             + '<div class="cfg-block">'
             + '  <div class="cfg-header"><span class="cfg-title">Town Council Lobby - ' + r.classSize + ' Seats</span></div>'
