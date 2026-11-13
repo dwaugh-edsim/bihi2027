@@ -22,10 +22,12 @@
   }
 
   var DEFAULT_MODEL = 'mimo-v2.5-tts';
+  var DEFAULT_STORY_MODEL = 'mimo-v2.6-flash';
   var DEFAULT_VOICE = 'Dean';
   var DEFAULT_STYLE = 'Deep, low-pitched male baritone horror narrator in the style of Vincent Price: theatrical, sinister, cultured, at a brisk, crisp, engaging pace (not sluggish).';
 
   var audioCache = {};
+  var storyCache = {};
   var currentAudio = null;
   var speakSeq = 0;
 
@@ -191,8 +193,60 @@
     return Promise.resolve();
   }
 
+  function generateStageNarration(promptFact, fallbackText) {
+    var cfg = getConfig();
+    if (!cfg.apiKey || !root.fetch || !promptFact) {
+      return Promise.resolve(fallbackText || '');
+    }
+    if (storyCache[promptFact]) {
+      return Promise.resolve(storyCache[promptFact]);
+    }
+    var body = {
+      model: DEFAULT_STORY_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 classroom Werewolf game in Moonhollow Harbour. Write 1-2 brief, punchy sentences (max 30 words total). Combine dark gothic flair with the exact action students should take right now. Never invent names or reveal secret roles of living players.'
+        },
+        { role: 'user', content: String(promptFact) }
+      ],
+      max_tokens: 90,
+      temperature: 0.8
+    };
+    return root.fetch(endpointForKey(cfg.apiKey), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + cfg.apiKey
+      },
+      body: JSON.stringify(body)
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error('MiMo story HTTP ' + resp.status);
+      return resp.json();
+    }).then(function (data) {
+      var txt = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      txt = String(txt || '').trim().replace(/^["']|["']$/g, '');
+      if (!txt) return fallbackText || '';
+      storyCache[promptFact] = txt;
+      return txt;
+    }).catch(function () {
+      return fallbackText || '';
+    });
+  }
+
+  function speakStage(promptFact, fallbackText, onText) {
+    return generateStageNarration(promptFact, fallbackText).then(function (txt) {
+      if (onText && txt) {
+        try { onText(txt); } catch (e) {}
+      }
+      if (enabled && txt) return speakText(txt, false);
+    });
+  }
+
   root.WWTts = {
     speak: function (text) { return speakText(text, false); },
+    speakStage: speakStage,
+    generateStageNarration: generateStageNarration,
     testVoice: function (text) {
       return speakText(text || 'Night falls over Moonhollow Harbour. Lock your doors, and pray the pack passes you by.', true);
     },
