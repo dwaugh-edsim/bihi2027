@@ -471,7 +471,11 @@
   /**
    * Deal roles and transition LOBBY -> ROLE_REVEAL.
    */
-  function startGame(game, now) {
+  function playerFairKey(p) {
+    return String((p && (p.email || p.name || p.id)) || '').trim().toLowerCase();
+  }
+
+  function startGame(game, now, opts) {
     now = now || Date.now();
     if (game.players.length < 6) {
       return { ok: false, error: 'Need at least 6 players in seats to start Werewolf.' };
@@ -481,24 +485,53 @@
     game.rules = sanitizeRules(mergeObj(game.rules, { classSize: game.players.length, preset: 'custom' }));
 
     var n = game.players.length;
-    var deck = [];
-    var i;
-    for (i = 0; i < game.rules.wolvesCount; i++) deck.push(ROLES.WEREWOLF);
-    for (i = 0; i < game.rules.doctorsCount; i++) deck.push(ROLES.DOCTOR);
-    for (i = 0; i < game.rules.detectivesCount; i++) deck.push(ROLES.DETECTIVE);
-    while (deck.length < n) deck.push(ROLES.VILLAGER);
-
     game.rngStep = (game.rngStep || 0) + 1;
     var rng = mulberry32(hashSeed(game.seed + ':deal:' + game.rngStep));
-    var shuffled = shuffleWithRng(deck, rng);
 
+    // Wolf fairness rotation: prefer human players who haven't been Werewolf yet in priorWolfKeys
+    var priorSet = {};
+    var priorList = (opts && Array.isArray(opts.priorWolfKeys)) ? opts.priorWolfKeys : [];
+    for (var pk = 0; pk < priorList.length; pk++) {
+      var normK = String(priorList[pk] || '').trim().toLowerCase();
+      if (normK) priorSet[normK] = true;
+    }
+
+    var humans = [];
+    var bots = [];
+    var i;
     for (i = 0; i < n; i++) {
       game.players[i].seat = i + 1;
       game.players[i].alive = true;
       game.players[i].eliminatedRound = null;
       game.players[i].eliminatedHow = null;
-      game.players[i].role = shuffled[i];
       game.players[i].readyConfirmed = Boolean(game.players[i].isBot);
+      if (game.players[i].isBot) bots.push(game.players[i]);
+      else humans.push(game.players[i]);
+    }
+
+    var freshHumans = shuffleWithRng(humans.filter(function (p) { return !priorSet[playerFairKey(p)]; }), rng);
+    var repeatHumans = shuffleWithRng(humans.filter(function (p) { return Boolean(priorSet[playerFairKey(p)]); }), rng);
+    var wolfPoolReset = freshHumans.length < game.rules.wolvesCount;
+    var wolfCandidates = freshHumans.concat(repeatHumans).concat(shuffleWithRng(bots, rng));
+
+    var wolvesNeeded = Math.min(game.rules.wolvesCount, n);
+    var dealtWolves = wolfCandidates.slice(0, wolvesNeeded);
+    var wolfIds = {};
+    for (i = 0; i < dealtWolves.length; i++) {
+      dealtWolves[i].role = ROLES.WEREWOLF;
+      wolfIds[dealtWolves[i].id] = true;
+    }
+    game.lastDealtWolfKeys = dealtWolves.filter(function (p) { return !p.isBot; }).map(playerFairKey);
+    game.wolfPoolReset = wolfPoolReset;
+
+    var otherDeck = [];
+    for (i = 0; i < game.rules.doctorsCount; i++) otherDeck.push(ROLES.DOCTOR);
+    for (i = 0; i < game.rules.detectivesCount; i++) otherDeck.push(ROLES.DETECTIVE);
+    var remainingSeats = game.players.filter(function (p) { return !wolfIds[p.id]; });
+    while (otherDeck.length < remainingSeats.length) otherDeck.push(ROLES.VILLAGER);
+    var shuffledOthers = shuffleWithRng(otherDeck.slice(0, remainingSeats.length), rng);
+    for (i = 0; i < remainingSeats.length; i++) {
+      remainingSeats[i].role = shuffledOthers[i];
     }
 
     // Bots never hold power roles in live play: swap any bot-held Werewolf/Doctor/Detective
@@ -517,6 +550,8 @@
         }
       }
     }
+    game.lastWordsChoice = null;
+    game.lastWordsActorId = null;
 
     // Personas (visible to everyone, never linked to roles) for the story theatre (B2).
     var SC = root.StoryContent;
@@ -717,6 +752,24 @@
     }
 
     if (!actor.alive) {
+      if (type === 'last_words_choice' && (game.phase === PHASES.DAWN || game.phase === PHASES.DUSK) && actor.id === game.lastWordsActorId) {
+        var choice = String((actionPayload && actionPayload.targetId) || '');
+        if (choice === 'take') {
+          game.lastWordsChoice = 'take';
+          game.phaseStartedAt = now;
+          game.phaseDurationSec = 20;
+          game.paused = false;
+          game.pauseRemainingSec = null;
+          game.updatedAt = now;
+          return { ok: true, roleAction: 'last_words_take' };
+        }
+        if (choice === 'skip') {
+          game.lastWordsChoice = 'skip';
+          game.updatedAt = now;
+          advancePhase(game, now);
+          return { ok: true, roleAction: 'last_words_skip', autoAdvanced: true };
+        }
+      }
       // Dead players may only submit a preset epitaph during a reveal (B4); nothing else.
       if (type === 'epitaph' && (game.phase === PHASES.DAWN || game.phase === PHASES.DUSK || game.phase === PHASES.GAME_OVER)) {
         var line = String((actionPayload && actionPayload.line) || '');
@@ -1054,9 +1107,11 @@
 
     game.phase = PHASES.DAWN;
     game.phaseStartedAt = now;
-    game.phaseDurationSec = 20;
+    game.phaseDurationSec = eliminatedPlayer ? 25 : 15;
     game.paused = false;
     game.pauseRemainingSec = null;
+    game.lastWordsChoice = eliminatedPlayer ? 'pending' : null;
+    game.lastWordsActorId = eliminatedPlayer ? eliminatedPlayer.id : null;
 
     var headline, subline;
     var dawnStory = '';
@@ -1277,6 +1332,8 @@
       eliminatedId: exiled.id,
       savedByDoctor: false
     };
+    game.lastWordsChoice = 'pending';
+    game.lastWordsActorId = exiled.id;
     game.lastStory = duskStory;
     pushFeed(game, 'exile', duskHeadline, roleRevealTxt);
 
@@ -1392,6 +1449,8 @@
   function advancePhase(game, now) {
     now = now || Date.now();
     game.updatedAt = now;
+    game.lastWordsChoice = null;
+    game.lastWordsActorId = null;
 
     if (game.phase === PHASES.LOBBY) {
       return startGame(game, now);
@@ -1422,6 +1481,34 @@
       return { ok: true, phase: game.phase };
     }
     return { ok: false, error: 'Game is already over. Reset to Lobby or Play Again.' };
+  }
+
+  function maybeAutoAdvance(game, now) {
+    now = now || Date.now();
+    if (!game) return false;
+    var expected = game.phase === PHASES.ROLE_REVEAL
+      ? game.players.length
+      : livingPlayers(game).length;
+    if (expected <= 0) return false;
+    var acted = 0;
+    for (var i = 0; i < game.players.length; i++) {
+      if (hasPlayerActedInCurrentPhase(game, game.players[i])) acted++;
+    }
+    if (acted < expected) return false;
+
+    if (game.phase === PHASES.ROLE_REVEAL || game.phase === PHASES.DAY_VOTE || game.phase === PHASES.DAY_REVOTE) {
+      advancePhase(game, now);
+      return true;
+    }
+    if (game.phase === PHASES.NIGHT) {
+      var wolves = livingPlayers(game, ROLES.WEREWOLF);
+      if (wolves.length >= 2 && computePackLock(game, wolves[0]).state === 'split') {
+        return false;
+      }
+      advancePhase(game, now);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -1791,9 +1878,10 @@
       if (me && me.role === ROLES.DETECTIVE && p.role === ROLES.DETECTIVE) showRole = true;
       if (me && !me.alive && game.rules.spectatorReveal) showRole = true;
 
-      // CRITICAL ANTI-TELL: On the front LCD during NIGHT, do NOT reveal per-seat checkmarks!
+      // Show per-seat acted checkmarks on LCD during ROLE_REVEAL, NIGHT (everyone taps 1 seat), DAY_VOTE, DAY_REVOTE
       var showIndividualActed = isGod ||
         game.phase === PHASES.ROLE_REVEAL ||
+        game.phase === PHASES.NIGHT ||
         game.phase === PHASES.DAY_VOTE ||
         game.phase === PHASES.DAY_REVOTE;
 
@@ -1823,6 +1911,8 @@
       nightSubStep: game.nightSubStep || 'ALL',
       round: game.round,
       phaseStartedAt: game.phaseStartedAt,
+      lastWordsChoice: game.lastWordsChoice || null,
+      lastWordsActorId: game.lastWordsActorId || null,
       phaseDurationSec: game.phaseDurationSec,
       paused: game.paused,
       pauseRemainingSec: game.pauseRemainingSec,
@@ -2156,6 +2246,28 @@
         var probe = root.StoryEngine.buildReveal(g4, k, { player: g4.players[0], breakdown: [{ seat: 1, name: 'A', votes: 2 }], skipVotes: 0, totalCast: 5 });
         check(probe.beats.length > 0 && probe.id && probe.control, 'story: every reveal kind builds valid beats (' + k + ')');
       });
+      // Elimination drama pack: kill/exile/save reveals carry the dramatic beats.
+      var killProbe = root.StoryEngine.buildReveal(g4, 'night_kill', { player: g4.players[0] });
+      var killTypes = killProbe.beats.map(function (b) { return b.type; });
+      check(killTypes.indexOf('tension') !== -1 && killTypes.indexOf('flatline') !== -1 &&
+        killTypes.indexOf('epitaph') !== -1 && killTypes.indexOf('survivors') !== -1,
+        'drama: night_kill has tension + flatline + epitaph + survivors beats');
+      check(killProbe.beats.some(function (b) { return b.type === 'card_reveal' && b.drama === 'kill'; }),
+        'drama: night_kill card_reveal carries drama=kill');
+      var survBeat = killProbe.beats.filter(function (b) { return b.type === 'survivors'; })[0];
+      check(survBeat && typeof survBeat.count === 'number' &&
+        survBeat.count === g4.players.filter(function (p) { return p.alive; }).length,
+        'drama: survivors beat count matches living players');
+      var exileProbe = root.StoryEngine.buildReveal(g4, 'exile', { player: g4.players[0], breakdown: [], skipVotes: 0, totalCast: 5 });
+      var exileTypes = exileProbe.beats.map(function (b) { return b.type; });
+      check(exileTypes.indexOf('tension') !== -1 && exileTypes.indexOf('gate_shut') !== -1 &&
+        exileTypes.indexOf('epitaph') !== -1 && exileTypes.indexOf('survivors') !== -1,
+        'drama: exile has tension + gate_shut + epitaph + survivors beats');
+      check(exileProbe.beats.some(function (b) { return b.drama === 'exile'; }),
+        'drama: exile verdict/card carry drama=exile');
+      var saveProbe = root.StoryEngine.buildReveal(g4, 'night_save', {});
+      check(saveProbe.beats.some(function (b) { return b.type === 'miracle'; }),
+        'drama: night_save has a miracle beat');
       // no story fragment repeats within a game (8-night synthetic run, pools hold 8+ entries)
       var g5 = createGame({ seed: 555111, populateDemo: true, rules: { classSize: 10, preset: 'classic' } });
       startGame(g5, 1000);
@@ -2294,6 +2406,7 @@
     migrateGame: migrateGame,
     setPlayerAlive: setPlayerAlive,
     advancePhase: advancePhase,
+    maybeAutoAdvance: maybeAutoAdvance,
     resetToLobby: resetToLobby,
     togglePause: togglePause,
     addTime: addTime,

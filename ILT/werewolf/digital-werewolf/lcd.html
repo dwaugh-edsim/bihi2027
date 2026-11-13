@@ -477,6 +477,23 @@ main.stage-grid {
 .roster-grid.dense-3col {
     grid-template-columns: repeat(3, 1fr);
 }
+body.night-layout .stage-grid {
+    grid-template-columns: 72fr 28fr;
+}
+body.night-layout .roster-grid {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 6px 8px;
+}
+body.night-layout .seat-card {
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    border-radius: 5px;
+    min-height: 0;
+}
+body.night-layout .seat-num { font-size: 0.66rem; }
+body.night-layout .seat-name { font-size: 0.72rem; }
+body.night-layout .s-tag { font-size: 0.6rem; padding: 1px 5px; }
 
 .seat-card {
     background: #ffffff;
@@ -1176,6 +1193,10 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/';
     }
 
+    function firstNameOnly(name) {
+        return String(name || '').trim().split(/\s+/)[0] || 'Someone';
+    }
+
     function stageGuideForView(v) {
         var r = v.rules || {};
         var ann = v.lastAnnouncement || {};
@@ -1204,11 +1225,11 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         }
         if (v.phase === 'NIGHT') {
             return {
-                bgImg: 'assets/bg_night_village.jpg',
+                bgImg: 'assets/story/scene_night_hunt.jpg',
                 title: 'STAGE: NIGHT ' + v.round + ' (SILENT)',
-                action: 'Every player taps 1 seat quietly. If you\'re a Werewolf: tap [ID] in the corner (or press P) to see & match your packmate.',
-                fact: 'Stage: Night ' + v.round + '. ' + aliveCount + ' players alive. Tell everyone to tap 1 seat quietly, and remind Werewolves to tap [ID] or press P to match their packmate.',
-                fallback: 'Night falls over Moonhollow Harbour. Every soul taps one seat in silence; Werewolves, tap ID or press P to unite your strike.'
+                action: '1. Everyone: tap 1 seat quietly.  2. Werewolves: agree on 1 target! Tap [ID] in the corner (or press P) to see what the other picked.',
+                fact: 'Stage: Night ' + v.round + '. ' + aliveCount + ' alive. Tell everyone to tap 1 seat quietly, and remind wolves to tap ID to agree.',
+                fallback: 'Night falls over Moonhollow. Tap one seat in silence; wolves, peek at ID to agree.'
             };
         }
         if (v.phase === 'DAWN') {
@@ -1217,80 +1238,82 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 return {
                     bgImg: 'assets/story/scene_doctor_lantern.jpg',
                     title: 'STAGE: DAWN ' + v.round + ' (MIRACLE SAVE)',
-                    action: 'Nobody was eliminated! Read the Dawn report, then get ready to debate.',
-                    fact: 'Stage: Dawn ' + v.round + '. Miracle save! The Doctor shielded the wolves target, so nobody died. ' + aliveCount + ' alive. Tell the town to prepare for debate.',
-                    fallback: 'A lantern flickers through the fog! The Doctor shielded the target, and all ' + aliveCount + ' villagers survive to debate.'
+                    action: 'Nobody was eliminated! Look at the screen and get ready to debate.',
+                    fact: 'Stage: Dawn ' + v.round + '. Miracle save! The Doctor shielded the target, so nobody died. ' + aliveCount + ' alive.',
+                    fallback: 'A lantern saves the night! All ' + aliveCount + ' villagers survive to debate.'
                 };
             }
             if (elimP) {
+                var eFirst = firstNameOnly(elimP.name);
                 return {
-                    bgImg: 'assets/story/scene_wolf_silhouettes.jpg',
+                    bgImg: 'assets/story/scene_kill_strike.jpg',
                     title: 'STAGE: DAWN ' + v.round + ' (VICTIM FOUND)',
-                    action: 'Seat #' + elimP.seat + ' ' + elimP.name + ' is now a Silent Ghost (no talking). Everyone else: prepare to debate.',
-                    fact: 'Stage: Dawn ' + v.round + '. Seat #' + elimP.seat + ' ' + elimP.name + ' was taken in the night. ' + aliveCount + ' alive. Remind them to stay silent and prepare for debate.',
-                    fallback: 'Dawn breaks over an empty doorstep: ' + elimP.name + ' is gone. Keep silent, ghost, while the living prepare to debate.'
+                    action: eFirst + ' (Seat #' + elimP.seat + ') was taken! Victim: choose 20s Last Words or Skip on your screen.',
+                    fact: 'Stage: Dawn ' + v.round + '. ' + eFirst + ' was taken in the night. ' + aliveCount + ' alive.',
+                    fallback: 'Dawn breaks dark: ' + eFirst + ' was taken in the night.'
                 };
             }
             return {
                 bgImg: 'assets/story/scene_dawn_empty_house.jpg',
                 title: 'STAGE: DAWN ' + v.round + ' (QUIET MORNING)',
                 action: 'All players survived the night. Prepare for Day Debate.',
-                fact: 'Stage: Dawn ' + v.round + '. Quiet morning, no deaths. ' + aliveCount + ' alive. Prepare for debate.',
-                fallback: 'The sun rises on a quiet harbour. All ' + aliveCount + ' souls survive to face the council.'
+                fact: 'Stage: Dawn ' + v.round + '. Quiet morning, no deaths. ' + aliveCount + ' alive.',
+                fallback: 'A quiet dawn. All ' + aliveCount + ' souls survive.'
             };
         }
         if (v.phase === 'DAY_DISCUSSION') {
             var stand = (v.players || []).filter(function (p) { return nominatedIds[p.id] && p.alive; })
-                .map(function (p) { return '#' + p.seat + ' ' + p.name; });
+                .map(function (p) { return firstNameOnly(p.name); });
             return {
                 bgImg: 'assets/story/scene_council_trial.jpg',
                 title: 'STAGE: DAY ' + v.round + ' DEBATE',
                 action: 'Debate out loud! Share clues, question suspects, and watch the spotlighted seats before voting opens.',
-                fact: 'Stage: Day ' + v.round + ' Debate. ' + aliveCount + ' alive. ' + (stand.length ? ('On the stand: ' + stand.join(', ') + '. ') : '') + 'Tell students to debate and question suspects before the ballot.',
-                fallback: 'The council floor is open! Speak your suspicions aloud before the secret ballot begins.'
+                fact: 'Stage: Day ' + v.round + ' Debate. ' + aliveCount + ' alive. ' + (stand.length ? ('Suspects: ' + stand.join(', ') + '. ') : '') + 'Tell students to debate.',
+                fallback: 'The council floor is open! Question suspects before the secret ballot.'
             };
         }
         if (v.phase === 'DAY_VOTE') {
             return {
                 bgImg: 'assets/story/scene_council_trial.jpg',
                 title: 'STAGE: DAY ' + v.round + ' SECRET BALLOT',
-                action: 'Tap 1 suspect (or Skip) on your Chromebook now. You can change your vote until the timer ends.',
-                fact: 'Stage: Day ' + v.round + ' Secret Ballot. ' + acted + ' of ' + expected + ' voted. Tell students to cast their secret vote on their Chromebook now.',
-                fallback: 'Silence falls upon the hall. Cast your secret ballot on your screen before the sand runs out.'
+                action: 'Tap 1 suspect (or Skip) on your Chromebook now. Moves on automatically once everyone votes!',
+                fact: 'Stage: Day ' + v.round + ' Secret Ballot. ' + acted + ' of ' + expected + ' voted. Tell students to cast their vote now.',
+                fallback: 'Silence falls. Cast your secret ballot on your screen now.'
             };
         }
         if (v.phase === 'DAY_REVOTE') {
             var sumR = v.lastVoteSummary || {};
             var tiedNames = (sumR.tiedCandidates || []).map(function (id) {
                 var tp = (v.players || []).find(function (p) { return p.id === id; });
-                return tp ? ('#' + tp.seat + ' ' + tp.name) : id;
+                return tp ? firstNameOnly(tp.name) : id;
             });
             return {
                 bgImg: 'assets/story/scene_deadlock.jpg',
                 title: 'STAGE: TIE RUNOFF VOTE',
                 action: 'Deadlock! Vote again between the tied suspects on your Chromebook right now.',
-                fact: 'Stage: Tie Runoff Vote. Tied suspects: ' + (tiedNames.join(' vs ') || 'top contenders') + '. Tell students to break the tie on their screen now.',
-                fallback: 'A deadlocked council! Cast your runoff vote now to break the tie.'
+                fact: 'Stage: Tie Runoff Vote. Tied: ' + (tiedNames.join(' vs ') || 'top suspects') + '. Tell students to break the tie now.',
+                fallback: 'A deadlocked council! Cast your runoff vote now.'
             };
         }
         if (v.phase === 'DUSK') {
             var sum = v.lastVoteSummary || {};
             var topLine = (sum.breakdown || []).slice(0, 3).map(function (b) {
-                return b.name + ' (' + b.votes + ')';
+                return firstNameOnly(b.name) + ' (' + b.votes + ')';
             }).join(', ');
             var exiled = sum.eliminatedId ? (v.players || []).find(function (p) { return p.id === sum.eliminatedId; }) : null;
+            var exFirst = exiled ? firstNameOnly(exiled.name) : '';
             return {
-                bgImg: 'assets/story/scene_town_gate.jpg',
+                bgImg: exiled ? 'assets/story/scene_exile_verdict.jpg' : 'assets/story/scene_town_gate.jpg',
                 title: 'STAGE: DUSK ' + v.round + ' VERDICT',
                 action: exiled
-                    ? ('Seat #' + exiled.seat + ' ' + exiled.name + ' was exiled (Silent Ghost). Watch the tally, then get ready for Night.')
+                    ? (exFirst + ' (Seat #' + exiled.seat + ') was exiled! Victim: choose 20s Last Words or Skip on your screen.')
                     : 'No one was exiled today. Watch the tally, then get ready for Night.',
-                fact: 'Stage: Dusk ' + v.round + ' Verdict. Votes: ' + (topLine || 'none') + ', Skip: ' + (sum.skipVotes || 0) + '. '
-                    + (exiled ? (exiled.name + ' was exiled and revealed as ' + (exiled.role || 'a villager') + '. ') : 'No exile today. ')
-                    + aliveCount + ' alive. Tell them night approaches.',
+                fact: 'Stage: Dusk ' + v.round + ' Verdict. Votes: ' + (topLine || 'none') + '. '
+                    + (exiled ? (exFirst + ' was exiled as ' + (exiled.role || 'a villager') + '. ') : 'No exile today. ')
+                    + aliveCount + ' alive.',
                 fallback: exiled
-                    ? ('The council has spoken: ' + exiled.name + ' is exiled at dusk. Brace yourselves, for night returns.')
-                    : 'Mercy or hesitation spares the town today. Prepare yourselves, for night returns.'
+                    ? ('The council exiles ' + exFirst + ' at dusk.')
+                    : 'Mercy spares the town today. Night returns.'
             };
         }
         if (v.phase === 'GAME_OVER') {
@@ -1316,8 +1339,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
     function render() {
         var v = currentView;
-        var isNight = (v.phase === 'LOBBY' || v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
+        var isNight = (v.phase === 'LOBBY' || v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL' || v.phase === 'DAWN' || v.phase === 'DUSK');
         document.body.classList.toggle('is-night', isNight);
+        document.body.classList.toggle('night-layout', v.phase === 'NIGHT');
         // C: the LCD is a pure projector display during play; every control lives in run.html.
         document.body.classList.toggle('in-play', v.phase !== 'LOBBY');
         if (theatre) theatre.update();
@@ -1462,6 +1486,16 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 + '</div>');
         }
 
+        if (v.phase === 'NIGHT') {
+            parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:240px; display:flex; flex-direction:column; justify-content:flex-end; padding:20px 22px; background:linear-gradient(180deg, rgba(6,9,19,0.22) 0%, rgba(6,9,19,0.88) 65%, rgba(6,9,19,0.97) 100%), url(\'assets/story/scene_night_hunt.jpg\') center/cover no-repeat; border:1px solid rgba(251,191,36,0.35);">'
+                + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fbbf24; letter-spacing:0.08em; margin-bottom:4px;">NIGHT ' + v.round + ' · EYES ON YOUR OWN SCREEN</div>'
+                + '<div style="font-family:var(--font-heading); font-size:1.55rem; font-weight:900; color:#f8fafc; line-height:1.15; margin-bottom:8px;">The harbour sleeps... and the pack hunts.</div>'
+                + '<div style="font-size:0.96rem; color:#e2e8f0; line-height:1.45;">'
+                + '<strong>1. Everyone:</strong> Tap 1 seat quietly on your Chromebook.<br>'
+                + '<strong>2. Werewolves:</strong> Agree on 1 target! Click <strong>[ID]</strong> in the corner (or press <strong>P</strong>) to see what your packmate picked.'
+                + '</div></div>');
+        }
+
         if (v.phase === 'DAWN') {
             var ann = v.lastAnnouncement || {};
             var isSaved = ann.savedByDoctor;
@@ -1469,20 +1503,42 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             var elimPlayer = elimId ? (v.players || []).find(function (p) { return p.id === elimId; }) : null;
 
             if (isSaved) {
-                parts.push('<div class="meter-box" style="border-color:var(--emerald); background:rgba(5, 150, 105, 0.12);">'
-                    + '<div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:800; color:var(--emerald); margin-bottom:4px;">MIRACLE SAVE! The Doctor Protected the Village!</div>'
-                    + '<div style="font-size:0.95rem; color:var(--text-main);">The Werewolves struck in the dark, but the Town Doctor shielded the target! Nobody died overnight.</div>'
+                parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:190px; display:flex; flex-direction:column; justify-content:flex-end; padding:18px 20px; background:linear-gradient(180deg, rgba(6,9,19,0.25) 0%, rgba(6,78,59,0.92) 75%), url(\'assets/story/scene_doctor_lantern.jpg\') center/cover no-repeat; border:1.5px solid var(--emerald);">'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#6ee7b7;">MIRACLE SAVE</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.4rem; font-weight:900; color:#ffffff; margin-bottom:4px;">The Town Doctor Protected the Village!</div>'
+                    + '<div style="font-size:0.94rem; color:#d1fae5;">The Werewolves struck in the dark, but the target survived. Nobody died overnight!</div>'
                     + '</div>');
             } else if (elimPlayer) {
-                parts.push('<div class="meter-box" style="border-color:var(--red); background:rgba(225, 29, 72, 0.1);">'
-                    + '<div style="font-family:var(--font-heading); font-size:1.18rem; font-weight:800; color:var(--red); margin-bottom:4px;">THE WEREWOLVES STRUCK OVERNIGHT!</div>'
-                    + '<div style="font-size:1.02rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">Seat #' + (elimPlayer.seat < 10 ? '0' + elimPlayer.seat : elimPlayer.seat) + ' ' + esc(elimPlayer.name) + ' was eliminated!</div>'
-                    + '<div style="font-size:0.88rem; color:var(--text-muted);">They must now maintain strict poker-face and follow the Silent Ghost Spectator rule.</div>'
+                var lwStatus = v.lastWordsChoice === 'take'
+                    ? (firstNameOnly(elimPlayer.name) + ' chose 20s Last Words - listen up!')
+                    : (v.lastWordsChoice === 'pending'
+                        ? ('Waiting for ' + firstNameOnly(elimPlayer.name) + ': Take 20s Last Words or Skip on their screen...')
+                        : 'Silent Ghost rule active.');
+                parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:230px; display:flex; flex-direction:column; justify-content:flex-end; padding:20px 22px; background:linear-gradient(180deg, rgba(15,5,10,0.20) 0%, rgba(69,10,10,0.90) 68%, rgba(20,5,10,0.97) 100%), url(\'assets/story/scene_kill_strike.jpg\') center/cover no-repeat; border:2px solid #ef4444;">'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fca5a5; letter-spacing:0.08em;">KILL SCREEN · TAKEN IN THE NIGHT</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:900; color:#ffffff; line-height:1.15; margin:4px 0;">Seat #' + (elimPlayer.seat < 10 ? '0' + elimPlayer.seat : elimPlayer.seat) + ' · ' + esc(elimPlayer.name) + '</div>'
+                    + '<div style="font-size:0.95rem; color:#fecaca; font-weight:700;">' + esc(lwStatus) + '</div>'
                     + '</div>');
             } else {
                 parts.push('<div class="meter-box">'
                     + '<div style="font-family:var(--font-heading); font-size:1.1rem; font-weight:700; color:var(--text-heading); margin-bottom:4px;">Peaceful Dawn Over Moonhollow</div>'
                     + '<div style="font-size:0.92rem; color:var(--text-muted);">All villagers woke safely this morning.</div>'
+                    + '</div>');
+            }
+        }
+
+        if (v.phase === 'DUSK' && v.lastAnnouncement && v.lastAnnouncement.eliminatedId) {
+            var exP = (v.players || []).find(function (p) { return p.id === v.lastAnnouncement.eliminatedId; });
+            if (exP) {
+                var lwDusk = v.lastWordsChoice === 'take'
+                    ? (firstNameOnly(exP.name) + ' chose 20s Last Words - listen up!')
+                    : (v.lastWordsChoice === 'pending'
+                        ? ('Waiting for ' + firstNameOnly(exP.name) + ': Take 20s Last Words or Skip on their screen...')
+                        : 'Silent Ghost rule active.');
+                parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:210px; display:flex; flex-direction:column; justify-content:flex-end; padding:18px 20px; background:linear-gradient(180deg, rgba(15,10,15,0.22) 0%, rgba(69,10,25,0.90) 68%, rgba(15,10,15,0.97) 100%), url(\'assets/story/scene_exile_verdict.jpg\') center/cover no-repeat; border:2px solid #f59e0b;">'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fde68a; letter-spacing:0.08em;">EXILE VERDICT' + (exP.role ? (' · REVEALED: ' + esc(exP.role)) : '') + '</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.65rem; font-weight:900; color:#ffffff; line-height:1.15; margin:4px 0;">Seat #' + (exP.seat < 10 ? '0' + exP.seat : exP.seat) + ' · ' + esc(exP.name) + '</div>'
+                    + '<div style="font-size:0.92rem; color:#fef3c7; font-weight:700;">' + esc(lwDusk) + '</div>'
                     + '</div>');
             }
         }
@@ -1611,8 +1667,10 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 } else if (nominatedIds[p.id] && v.phase === 'DAY_DISCUSSION') {
                     badges.push('<span class="s-tag stand">ON STAND</span>');
                 }
-                if (p.hasActed && (v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE' || v.phase === 'ROLE_REVEAL')) {
-                    badges.push('<span class="s-tag voted">' + (v.phase === 'ROLE_REVEAL' ? 'READY' : 'VOTED') + '</span>');
+                if (p.hasActed && (v.phase === 'NIGHT' || v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE' || v.phase === 'ROLE_REVEAL')) {
+                    badges.push('<span class="s-tag voted">' + (v.phase === 'ROLE_REVEAL' ? 'READY' : (v.phase === 'NIGHT' ? '✓' : 'VOTED')) + '</span>');
+                } else if (v.phase === 'NIGHT') {
+                    badges.push('<span class="s-tag" style="opacity:0.55;">·</span>');
                 } else if (!p.role) {
                     badges.push('<span class="s-tag alive">ALIVE</span>');
                 }

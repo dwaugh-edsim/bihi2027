@@ -1086,6 +1086,7 @@ body.night-theme .pill-mono.phase {
         if (activeLocalGame === fallbackDemoGame) {
             var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId, line: line || '' }, Date.now());
             if (!r.ok) setSubtleNote('Seat unavailable - pick another seat.');
+            else if (type !== 'last_words_choice') E.maybeAutoAdvance(activeLocalGame, Date.now());
             syncFromLocalGame();
         }
         if (bc) {
@@ -1400,6 +1401,15 @@ body.night-theme .pill-mono.phase {
 
         // Eliminated player main view: clean, neutral, zero exposed roles on open screen!
         if (!me.alive && v.phase !== 'GAME_OVER') {
+            if ((v.phase === 'DAWN' || v.phase === 'DUSK') && v.lastWordsActorId === me.id && v.lastWordsChoice === 'pending') {
+                html += '<div style="background:#0f172a; color:#f8fafc; border:2px solid #f59e0b; border-radius:10px; padding:14px 16px; margin-bottom:12px;">'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fbbf24; margin-bottom:4px;">YOUR FINAL CHOICE</div>'
+                    + '<div style="font-size:0.96rem; margin-bottom:10px;">Do you want 20 seconds of Last Words before the class moves on?</div>'
+                    + '<div style="display:flex; gap:8px; flex-wrap:wrap;">'
+                    + '<button type="button" class="btn emerald" onclick="submitMyAction(\'last_words_choice\', \'take\')">Take 20s Last Words</button>'
+                    + '<button type="button" class="btn coral" onclick="submitMyAction(\'last_words_choice\', \'skip\')">Skip / Move On</button>'
+                    + '</div></div>';
+            }
             var outRound = (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound || '?';
             var isRevealSubject = v.reveal && v.reveal.subject && v.reveal.subject.id === me.id;
             if (isRevealSubject) {

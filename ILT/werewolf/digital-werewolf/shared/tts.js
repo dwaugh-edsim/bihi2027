@@ -220,11 +220,11 @@
       messages: [
         {
           role: 'system',
-          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 classroom Werewolf game in Moonhollow Harbour. Write 1-2 brief, punchy sentences (max 30 words total). Combine dark gothic flair with the exact action students should take right now. Never invent names or reveal secret roles of living players.'
+          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 Werewolf game in Moonhollow Harbour. Write ONE brief, punchy sentence (max 16 words). Use FIRST NAMES ONLY (never last names or initials). Combine gothic flair with the exact student action. Never reveal living roles.'
         },
         { role: 'user', content: String(promptFact) }
       ],
-      max_tokens: 90,
+      max_tokens: 55,
       temperature: 0.8
     };
     return root.fetch(endpointForKey(cfg.apiKey), {
