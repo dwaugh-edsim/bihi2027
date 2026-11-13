@@ -676,7 +676,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         <div class="join-strip">
             <span id="modeBadge" style="font-family:var(--font-mono); font-weight:800; color:var(--emerald);">MODE: INSTANT CLASSROOM / DEMO SYNC</span>
             <span>Student Link:</span>
-            <span class="join-url" id="studentUrlDisplay">ILT/werewolf/digital-werewolf/index.html</span>
+            <span class="join-url" id="studentUrlDisplay" onclick="copyStudentLink()" title="Click to copy student link" style="cursor:pointer; user-select:all;">ILT/werewolf/digital-werewolf/index.html</span>
+            <button type="button" class="btn btn-xs" id="copyStudentUrlBtn" onclick="copyStudentLink()" title="Copy student link to clipboard" style="padding:3px 8px; font-size:0.75rem;">Copy</button>
         </div>
         <div>
             <span>Projector Safe: Secret roles &amp; night clicks are hidden on this display.</span>
@@ -782,6 +783,38 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     var liveNarratedLine = '';
 
     function el(id) { return document.getElementById(id); }
+
+    window.copyStudentLink = function () {
+        var urlEl = el('studentUrlDisplay');
+        var btn = el('copyStudentUrlBtn');
+        var txt = urlEl ? (urlEl.textContent || '').trim() : '';
+        if (!txt) return;
+        function done() {
+            if (btn) {
+                btn.textContent = 'Copied!';
+                setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+            }
+            if (typeof toast === 'function') toast('Student link copied to clipboard!');
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+        function fallbackCopy() {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = txt;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                done();
+            } catch (e) {}
+        }
+    };
     function esc(s) {
         return String(s == null ? '' : s)
             .replace(/&/g, '&amp;').replace(/</g, '&lt;')
