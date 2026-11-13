@@ -33,6 +33,14 @@ Local SVG per country at `assets/flags/<iso_lower>.svg` (`flag-icons` 4x3 set). 
 ## Sign-in (same pattern as the Centennial sim)
 Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforced, HMAC-signed `{ email, ts, sig }` returned via `postMessage` or `#r8id=`) -> stored in `sessionStorage`. Allowlisted to the GitHub Pages origin; `?demo=1` (or the off-origin Local Preview button) gives a local preview with a demo identity. Chromebooks wipe `localStorage`, so all real state lives server-side.
 
+### Privacy invariant (emails never in the repo)
+Verified 2026-11-12: `git grep` for real student emails (`initials+digits@gnspes.ca`)
+across all tracked files = 0 matches; `trivia/` = 0. Emails exist ONLY server-side
+(GAS roster script property + vault sheet as storage key) and in the signed identity
+object in the student's own sessionStorage. Hardening: the vault `get_leaderboard`
+action should return pre-formatted `First Ls.` labels resolved server-side from the
+private roster, NOT raw emails, so other players' emails never reach the client.
+Keep the repo copy of `vault.gs` in sync with the deployed action (get_leaderboard).
 ### Display names (First L.)
 GNSPES emails are `initials+number@gnspes.ca`, so names are NOT derivable client-side;
 the public roster is names-only by design. Add a `lookup` action to the identity
