@@ -33,6 +33,17 @@ Local SVG per country at `assets/flags/<iso_lower>.svg` (`flag-icons` 4x3 set). 
 ## Sign-in (same pattern as the Centennial sim)
 Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforced, HMAC-signed `{ email, ts, sig }` returned via `postMessage` or `#r8id=`) -> stored in `sessionStorage`. Allowlisted to the GitHub Pages origin; `?demo=1` (or the off-origin Local Preview button) gives a local preview with a demo identity. Chromebooks wipe `localStorage`, so all real state lives server-side.
 
+### Display names (First L.)
+GNSPES emails are `initials+number@gnspes.ca`, so names are NOT derivable client-side;
+the public roster is names-only by design. Add a `lookup` action to the identity
+endpoint: verify the signed `{email, ts, sig}`, map email -> `{firstName, lastInitial,
+homeroom}` from the private roster (script property, never in a repo), return only
+`First L.` for the requester's own email. Leaderboard rows (keyed by email in the vault)
+are resolved to `First L.` the same way at render time — full names/emails stay
+server-side; the vault stores only email + scores. All sections 801-804 / 901-903 are
+in the roster, so per-homeroom boards work. Matches the existing `resolve_student`
+convention (`firstName` + `lastInitial`).
+
 ## Persistence + leaderboard
 - Save/load per student via the existing vault webhook (`submit_assignment` / `load_assignment`) under task `CIT9-GeoGame`, storing `best: { overall, easy, medium, hard }`, total XP, best streak, and recent round history.
 - Leaderboard queries `get_leaderboard` gracefully and falls back cleanly to the student's personal board until `get_leaderboard` is deployed on the vault script. Screens show **first name + last two initials only** (`First Ls.`) - never full names or emails on any display.
