@@ -24,7 +24,7 @@
   var DEFAULT_MODEL = 'mimo-v2.5-tts';
   var DEFAULT_STORY_MODEL = 'mimo-v2.6-flash';
   var DEFAULT_VOICE = 'Dean';
-  var DEFAULT_STYLE = 'Deep, low-pitched male baritone horror narrator in the style of Vincent Price: theatrical, sinister, cultured, at a brisk, crisp, engaging pace (not sluggish).';
+  var DEFAULT_STYLE = 'Speak ONLY in English, in the deep, low-pitched male baritone of a Vincent Price horror narrator: theatrical, sinister, cultured, at a brisk, crisp, engaging pace (not sluggish).';
 
   var audioCache = {};
   var storyCache = {};
@@ -220,7 +220,7 @@
       messages: [
         {
           role: 'system',
-          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 Werewolf game in Moonhollow Harbour. Write ONE brief, punchy sentence (max 16 words). Use FIRST NAMES ONLY (never last names or initials). Combine gothic flair with the exact student action. Never reveal living roles.'
+          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 Werewolf game set in haunted Dartmouth, Nova Scotia (feel free to weave in local spots like Banook Lake, Sullivan\'s Pond, Crichton Park, Woodside, Albro Lake, The Narrows, Tuft\'s Cove, or Downtown Dartmouth). Respond ONLY in English, even if a name looks French or foreign. Write ONE brief, punchy sentence (max 18 words). Use FIRST NAMES ONLY (never last names or initials). Combine gothic flair with the exact student action. Never reveal living roles.'
         },
         { role: 'user', content: String(promptFact) }
       ],
