@@ -1715,6 +1715,7 @@
       <span class="sync-status" id="syncPill"><span class="sync-dot"></span><span id="syncTxt">Server Ready</span></span>
       <span class="hud-spacer"></span>
       <button id="teacherResetBtn" class="hud-btn warn-btn" type="button" style="display:none" onclick="Arena.teacherReset()">Reset Progress</button>
+      <button id="teacherPanelBtn" class="hud-btn" type="button" style="display:none" onclick="Arena.toggleTeacherPanel()">Teacher</button>
       <button id="sfxBtn" class="hud-btn" type="button" onclick="Arena.toggleSfx()">Sound: On</button>
       <button class="hud-btn" type="button" onclick="Arena.switchAccount()">Switch account</button>
     </header>
@@ -1882,6 +1883,17 @@
           <div class="board-list" id="boardList"></div>
         </aside>
       </div>
+
+      <section id="teacherPanel" style="display:none; margin:0 0 14px; border:1.5px solid var(--amber, #f59e0b); border-radius:12px; padding:12px 14px; background:rgba(245,158,11,.07);">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <strong>Teacher controls</strong>
+          <span>
+            <button type="button" class="hud-btn" onclick="Arena.teacherLoadUsers()">Refresh list</button>
+            <button type="button" class="hud-btn warn-btn" onclick="Arena.teacherResetAll()">Reset ALL scores</button>
+          </span>
+        </div>
+        <div class="board-list" id="teacherUserList" style="margin-top:8px;"><div class="board-row"><span class="br-name" style="color:var(--muted)">Press Refresh list.</span></div></div>
+      </section>
 
       <div class="app-footer"><em>made with GLM5.3, Minimax 3 and Gemini</em></div>
     </main>
@@ -2463,6 +2475,7 @@
         var isTeacher = skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
         el('teacherResetBtn').style.display = isTeacher ? 'inline-block' : 'none';
         el('teacherPassBtn').style.display = isTeacher ? 'inline-block' : 'none';
+        el('teacherPanelBtn').style.display = isTeacher ? 'inline-block' : 'none';
         restoreFromServer();
         if (Q.get('autostart') && OFFPROD) {
           setTimeout(startRound, 200);
@@ -2494,6 +2507,78 @@
         refreshLobbyStats();
         saveToServer();
         toast('+1 Free Topic Pass added.');
+      }
+
+      var teacherEntries = [];
+
+      function isTeacherNow() {
+        return skipNet || (identity && identity.email && identity.email.toLowerCase() === 'dwaugh@gnspes.ca');
+      }
+
+      function toggleTeacherPanel() {
+        if (!isTeacherNow()) return;
+        var p = el('teacherPanel');
+        var show = p.style.display === 'none';
+        p.style.display = show ? 'block' : 'none';
+        if (show) teacherLoadUsers();
+      }
+
+      function teacherLoadUsers() {
+        if (!isTeacherNow() || !identity) return;
+        var box = el('teacherUserList');
+        box.innerHTML = '<div class="board-row"><span class="br-name" style="color:var(--muted)">Loading&hellip;</span></div>';
+        post(VAULT_URL, { action: 'teacher_list', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
+          .then(function (j) {
+            if (!j || j.status !== 'ok') {
+              box.innerHTML = '<div class="board-row"><span class="br-name" style="color:var(--muted)">Server refused (teacher allowlist not set on the vault, or vault not redeployed).</span></div>';
+              return;
+            }
+            var entries = j.entries || [];
+            if (!entries.length) {
+              box.innerHTML = '<div class="board-row"><span class="br-name" style="color:var(--muted)">No saved rows for this game yet.</span></div>';
+              return;
+            }
+            teacherEntries = entries;
+            box.innerHTML = entries.map(function (e, i) {
+              var name = GEO_ENGINE.formatDisplayName(e.email);
+              var when = String(e.savedAt || '').replace('T', ' ').slice(0, 16);
+              return '<div class="board-row"><span class="br-name">' + esc(name) +
+                ' <span style="color:var(--muted)">' + esc(e.section || '') + '</span></span>' +
+                '<span class="br-meta">' + esc(when) + '</span>' +
+                '<span class="br-score"><button type="button" class="hud-btn warn-btn" onclick="Arena.teacherDeleteUserIdx(' + i + ')">Delete</button></span></div>';
+            }).join('');
+          })
+          .catch(function () {
+            box.innerHTML = '<div class="board-row"><span class="br-name" style="color:var(--muted)">Network error.</span></div>';
+          });
+      }
+
+      function teacherDeleteUserIdx(i) {
+        var e = teacherEntries[i];
+        if (e) teacherDeleteUser(e.email);
+      }
+
+      function teacherDeleteUser(targetEmail) {
+        if (!isTeacherNow() || !identity) return;
+        if (!confirm('Delete ALL saved rows for ' + GEO_ENGINE.formatDisplayName(targetEmail) + ' in this game?')) return;
+        post(VAULT_URL, { action: 'teacher_delete_user', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME, targetEmail: targetEmail })
+          .then(function (j) {
+            toast(j && j.status === 'ok' ? ('Deleted ' + (j.deleted || 0) + ' row(s).') : 'Server refused.');
+            teacherLoadUsers();
+          })
+          .catch(function () { toast('Network error.'); });
+      }
+
+      function teacherResetAll() {
+        if (!isTeacherNow() || !identity) return;
+        if (!confirm('RESET EVERYONE: delete ALL saved rows for this game for ALL students?')) return;
+        post(VAULT_URL, { action: 'teacher_reset_all', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME })
+          .then(function (j) {
+            toast(j && j.status === 'ok' ? ('Reset complete - ' + (j.deleted || 0) + ' row(s) deleted.') : 'Server refused.');
+            teacherLoadUsers();
+            fetchLeaderboard();
+          })
+          .catch(function () { toast('Network error.'); });
       }
 
       /* ================= LOBBY CONTROLS & RENDERING ================= */
@@ -3512,6 +3597,11 @@
         switchAccount: switchAccount,
         teacherReset: teacherReset,
         teacherAddPass: teacherAddPass,
+        toggleTeacherPanel: toggleTeacherPanel,
+        teacherLoadUsers: teacherLoadUsers,
+        teacherDeleteUser: teacherDeleteUser,
+        teacherDeleteUserIdx: teacherDeleteUserIdx,
+        teacherResetAll: teacherResetAll,
         toggleSfx: toggleSfx,
         selectPace: selectPace,
         selectTopic: selectTopic,

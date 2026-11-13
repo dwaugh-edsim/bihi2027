@@ -52,6 +52,17 @@ server-side; the vault stores only email + scores. All sections 801-804 / 901-90
 in the roster, so per-homeroom boards work. Matches the existing `resolve_student`
 convention (`firstName` + `lastInitial`).
 
+## Teacher controls (dwaugh@gnspes.ca)
+The identity endpoint HMAC-signs the email, so a signed `dwaugh@gnspes.ca` is
+cryptographically the teacher. The page reveals teacher UI on that client-side check
+ONLY; every mutation is re-authorized server-side: vault.gs (R8-VAULT-0.4.0) adds
+`teacher_list` / `teacher_delete_user` / `teacher_reset_all`, each verifying the sig
+AND checking a server-side `TEACHER_EMAILS` script property (never in any repo).
+Client: HUD "Teacher" button -> panel in the lobby lists saved rows (shown as First Ls.
+via formatDisplayName; email used only as an opaque handle for delete calls) with
+per-user Delete and a confirm-guarded Reset-ALL. Deploy note: set `TEACHER_EMAILS` on
+the vault project and redeploy the web app for the actions to go live.
+
 ## Persistence + leaderboard
 - Save/load per student via the existing vault webhook (`submit_assignment` / `load_assignment`) under task `CIT9-GeoGame`, storing `best: { overall, easy, medium, hard }`, total XP, best streak, and recent round history.
 - Leaderboard queries `get_leaderboard` gracefully and falls back cleanly to the student's personal board until `get_leaderboard` is deployed on the vault script. Screens show **first name + last two initials only** (`First Ls.`) - never full names or emails on any display.

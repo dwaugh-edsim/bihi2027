@@ -13,6 +13,10 @@
  *   3. Project Settings -> Script Properties:
  *        R8_IDENTITY_KEY = <the SAME value you set in the Identity project>
  *        GA_TEACHER_PIN  = <a PIN you choose, for reading data back>
+ *        TEACHER_EMAILS  = <comma-separated teacher emails, e.g. dwaugh@gnspes.ca>
+ *                          (gates teacher_list / teacher_delete_user / teacher_reset_all;
+ *                           the client-side email check only reveals UI, the server
+ *                           re-verifies the signed identity against this allowlist)
  *   4. Run setup() once (authorize; creates the Submissions tab).
  *   5. Deploy -> New deployment -> Web app:
  *        Execute as:  Me
@@ -24,7 +28,7 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.3.0';
+var VAULT_VERSION   = 'R8-VAULT-0.4.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 // Path B mints the identity at the page's sign-in handoff and keeps it for the
 // session, so the window must outlast a class period (not 10 minutes).
@@ -196,6 +200,54 @@ function doPost(e) {
     var sh2 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
     var rows = (sh2 && sh2.getLastRow() > 1) ? sh2.getRange(2, 1, sh2.getLastRow() - 1, 7).getValues() : [];
     return jsonOut_({ status: 'ok', count: rows.length, rows: rows });
+  }
+
+  // ---- Teacher controls -----------------------------------------------------
+  // Client pages reveal teacher UI when the signed-in email matches a teacher
+  // address, but EVERY mutation here re-verifies the HMAC identity AND checks the
+  // server-side TEACHER_EMAILS allowlist (script property, never in any repo).
+  if (action === 'teacher_list' || action === 'teacher_delete_user' || action === 'teacher_reset_all') {
+    var vT = verifyIdentity_(payload.email, payload.ts, payload.sig);
+    if (!vT.ok) return jsonOut_({ status: 'auth_failed', reason: vT.reason });
+    var allowRaw = String(PropertiesService.getScriptProperties().getProperty('TEACHER_EMAILS') || '').toLowerCase();
+    var allowList = allowRaw.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (allowList.indexOf(vT.email) === -1) {
+      return jsonOut_({ status: 'error', message: 'Teacher account required.' });
+    }
+    var taskT = String(payload.task || '');
+    var shT = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
+    if (!shT || shT.getLastRow() < 2) {
+      return jsonOut_({ status: 'ok', count: 0, entries: [], deleted: 0 });
+    }
+    var lockT = LockService.getScriptLock();
+    lockT.waitLock(30000);
+    try {
+      var all = shT.getRange(2, 1, shT.getLastRow() - 1, 7).getValues();
+      var entries = [];
+      var rowsToDelete = [];
+      var target = String(payload.targetEmail || '').toLowerCase();
+      for (var i = 0; i < all.length; i++) {
+        if (String(all[i][3]) !== taskT) continue;
+        if (action === 'teacher_list') {
+          entries.push({
+            email: String(all[i][1]), section: String(all[i][2] || ''),
+            summary: String(all[i][4] || ''), savedAt: all[i][0],
+            requestId: String(all[i][6] || '')
+          });
+        } else if (action === 'teacher_delete_user') {
+          if (target && String(all[i][1]).toLowerCase() === target) rowsToDelete.push(i + 2);
+        } else { // teacher_reset_all
+          rowsToDelete.push(i + 2);
+        }
+      }
+      if (action === 'teacher_list') {
+        return jsonOut_({ status: 'ok', count: entries.length, entries: entries });
+      }
+      for (var d = rowsToDelete.length - 1; d >= 0; d--) shT.deleteRow(rowsToDelete[d]);
+      return jsonOut_({ status: 'ok', deleted: rowsToDelete.length, action: action, task: taskT });
+    } finally {
+      lockT.releaseLock();
+    }
   }
 
   return jsonOut_({ status: 'error', message: 'Unknown action: ' + action });
