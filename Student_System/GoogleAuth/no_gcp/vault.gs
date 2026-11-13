@@ -28,12 +28,13 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.4.0';
+var VAULT_VERSION   = 'R8-VAULT-0.4.1';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 // Path B mints the identity at the page's sign-in handoff and keeps it for the
 // session, so the window must outlast a class period (not 10 minutes).
 var FRESH_MS         = 4 * 60 * 60 * 1000;   // signatures valid for 4 hours
 var SUBMISSIONS_TAB  = 'Submissions';
+var ROSTER_TAB       = 'Roster';
 
 function identityKey_() {
   return PropertiesService.getScriptProperties().getProperty('R8_IDENTITY_KEY') || '';
@@ -103,9 +104,61 @@ function ensureSubmissionsSheet_(ss) {
   return sh;
 }
 
+function formatFirstLastTwo_(first, last) {
+  var f = String(first || '').trim();
+  var l = String(last || '').replace(/[^a-zA-Z]/g, '');
+  if (!f) return '';
+  if (!l) return f;
+  var two = l.slice(0, 2);
+  two = two.charAt(0).toUpperCase() + (two.charAt(1) ? two.charAt(1).toLowerCase() : '');
+  return f + ' ' + two + '.';
+}
+
+function getRosterMap_(ss) {
+  var out = {};
+  var sh = ss.getSheetByName(ROSTER_TAB);
+  if (!sh || sh.getLastRow() < 2) return out;
+  var cols = Math.min(4, sh.getLastColumn());
+  if (cols < 2) return out;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, cols).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var em = String(rows[i][0] || '').trim().toLowerCase();
+    if (!em) continue;
+    var label = '';
+    var sec = '';
+    if (cols >= 4 && String(rows[i][2] || '').trim() && String(rows[i][3] || '').trim()) {
+      // 4-col format: Email | First Name | Last Name | Class
+      label = formatFirstLastTwo_(rows[i][1], rows[i][2]);
+      sec = String(rows[i][3] || '').trim();
+    } else {
+      // 3-col format: Email | Display Name (e.g. First Ls.) | Class
+      label = String(rows[i][1] || '').trim();
+      sec = cols >= 3 ? String(rows[i][2] || '').trim() : '';
+    }
+    out[em] = { label: label, section: sec };
+  }
+  return out;
+}
+
+function ensureRosterSheet_(ss) {
+  var sh = ss.getSheetByName(ROSTER_TAB);
+  if (!sh) {
+    sh = ss.insertSheet(ROSTER_TAB);
+    sh.appendRow(['Email', 'Display Name', 'Class']);
+    sh.getRange('A1:C1').setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(1, 220);
+    sh.setColumnWidth(2, 160);
+    sh.setColumnWidth(3, 100);
+  }
+  return sh;
+}
+
 function setup() {
-  ensureSubmissionsSheet_(SpreadsheetApp.getActiveSpreadsheet());
-  return 'Setup complete — "' + SUBMISSIONS_TAB + '" ready. Version ' + VAULT_VERSION;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ensureSubmissionsSheet_(ss);
+  ensureRosterSheet_(ss);
+  return 'Setup complete — "' + SUBMISSIONS_TAB + '" & "' + ROSTER_TAB + '" ready. Version ' + VAULT_VERSION;
 }
 
 function doGet(e) {
@@ -227,6 +280,7 @@ function doPost(e) {
     var sectionL = String(payload.section || '');
     var shL = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
     if (!shL || shL.getLastRow() < 2) return jsonOut_({ status: 'ok', entries: [] });
+    var rosterL = getRosterMap_(SpreadsheetApp.getActiveSpreadsheet());
     var rowsL = shL.getRange(2, 1, shL.getLastRow() - 1, 7).getValues();
     var best = {};
     for (var i = 0; i < rowsL.length; i++) {
@@ -245,16 +299,22 @@ function doPost(e) {
       }
     }
     var entries = Object.keys(best).map(function (em) {
+      var rInfo = rosterL[em];
       return {
-        label: labelFromEmail_(em),
+        label: (rInfo && rInfo.label) ? rInfo.label : labelFromEmail_(em),
         me: em === vL.email,
-        section: best[em].section,
+        section: best[em].section || (rInfo && rInfo.section) || '',
         score: best[em].score,
         best: best[em].best,
         savedAt: best[em].savedAt
       };
     });
-    if (sectionL) entries = entries.filter(function (e) { return e.section === sectionL; });
+    if (sectionL) {
+      var secBase = sectionL.replace(/-CIT$/i, '');
+      entries = entries.filter(function (e) {
+        return e.section === sectionL || e.section === secBase;
+      });
+    }
     entries.sort(function (a, b) { return b.score - a.score; });
     return jsonOut_({ status: 'ok', entries: entries.slice(0, 250) });
   }
