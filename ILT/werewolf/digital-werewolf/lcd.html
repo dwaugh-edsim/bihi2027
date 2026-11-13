@@ -500,6 +500,21 @@ main.stage-grid {
 .seat-card.dead {
     background: #f1f5f9; border-color: #e2e8f0; opacity: 0.68;
 }
+/* Elimination spotlight: the freshly eliminated seat glows while the rest dim (DAWN/DUSK). */
+.roster-grid.spotlighting .seat-card { opacity: 0.4; }
+.seat-card.spotlight {
+    opacity: 1 !important;
+    border-color: var(--coral); background: var(--coral-bg);
+    box-shadow: 0 0 0 3px rgba(237,120,106,0.35);
+    animation: seatSpotPulse 1.1s ease-in-out infinite alternate;
+}
+@keyframes seatSpotPulse {
+    from { box-shadow: 0 0 0 2px rgba(237,120,106,0.25); }
+    to   { box-shadow: 0 0 0 7px rgba(237,120,106,0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .seat-card.spotlight { animation: none !important; }
+}
 .seat-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .seat-num {
     font-family: var(--font-mono); font-weight: 800; font-size: 0.78rem;
@@ -614,6 +629,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         </div>
 
         <div class="ops-cluster">
+            <button class="btn btn-xs" id="voiceToggleBtn" onclick="toggleVoiceOfGod()" title="Toggle Voice of God Narration (T)">Voice: Off</button>
+            <button class="btn btn-xs" onclick="openVoiceModal()" title="Xiaomi MiMo TTS Settings (Vincent Price Voice of God)">Voice &#9881;</button>
             <a class="btn" id="howToSlidesBtn" href="Digital_Werewolf_Intro_Deck.html" target="_blank" title="Open 2-Slide Student Instructions Deck" style="text-decoration:none;">How-To Slides</a>
             <a class="btn purple" id="runHostBtn" href="run.html" target="_blank" title="Open the one Teacher Console (run.html)" style="text-decoration:none;">Teacher Console</a>
             <button class="btn btn-xs" onclick="toggleFullscreen()" title="Fullscreen (F)">[F]</button>
@@ -672,6 +689,41 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     <div class="th-stage"></div>
     <div class="th-caption"></div>
     <div class="th-hint">Space/Right next - Left back - S skip - P pause - T read-aloud</div>
+</div>
+
+<!-- VOICE OF GOD MODAL (Xiaomi MiMo TTS - key stored in this browser only) -->
+<div id="voiceModal" style="display:none; position:fixed; inset:0; z-index:9600; background:rgba(5,7,13,0.78); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#0f172a; color:#f8fafc; border:2px solid #475569; border-radius:12px; width:min(540px, 94vw); padding:18px 20px; box-shadow:0 24px 60px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-family:var(--font-heading); font-size:1.1rem;">Voice of God (Xiaomi MiMo TTS)</strong>
+            <button class="btn btn-xs" onclick="closeVoiceModal()" style="background:#1e293b; color:#e2e8f0; border-color:#475569;">Close</button>
+        </div>
+        <div style="font-size:0.82rem; color:#94a3b8;">Your API key is saved only in this browser's localStorage and never uploaded to GitHub. Without a key, the browser's built-in voice is used as fallback.</div>
+        <div>
+            <label style="display:block; font-size:0.78rem; font-weight:700; color:#cbd5e1; margin-bottom:3px;">Xiaomi MiMo API Key</label>
+            <input id="mimoKeyInput" type="password" placeholder="sk-..." style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; font-family:var(--font-mono); font-size:0.84rem;">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#cbd5e1; margin-bottom:3px;">Model</label>
+                <input id="mimoModelInput" value="mimo-v2.5-tts" style="width:100%; padding:7px 9px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; font-family:var(--font-mono); font-size:0.8rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#cbd5e1; margin-bottom:3px;">Voice</label>
+                <input id="mimoVoiceInput" value="mimo_default" style="width:100%; padding:7px 9px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; font-family:var(--font-mono); font-size:0.8rem;">
+            </div>
+        </div>
+        <div>
+            <label style="display:block; font-size:0.78rem; font-weight:700; color:#cbd5e1; margin-bottom:3px;">Narrator Style Prompt (Vincent Price Voice of God)</label>
+            <textarea id="mimoStyleInput" rows="3" style="width:100%; padding:7px 9px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; font-size:0.82rem; line-height:1.35;"></textarea>
+        </div>
+        <div id="voiceTestStatus" style="font-family:var(--font-mono); font-size:0.76rem; color:#94a3b8;"></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="btn btn-xs" onclick="clearVoiceKey()" style="background:#334155; color:#fca5a5; border-color:#475569;">Clear Key</button>
+            <button class="btn btn-xs" onclick="testVoiceOfGod()" style="background:#1e40af; color:#fff; border-color:#3b82f6;">Test Voice</button>
+            <button class="btn btn-xs" onclick="saveVoiceSettings()" style="background:#15803d; color:#fff; border-color:#22c55e;">Save &amp; Enable</button>
+        </div>
+    </div>
 </div>
 
 <script src="../../../Student_System/students_roster_data.js"></script>
@@ -787,6 +839,12 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     var theatre = window.WWTheatre ? window.WWTheatre.create({
         overlay: document.getElementById('theatreOverlay'),
         getReveal: function () { return currentView && currentView.reveal; },
+        getEpitaph: function (playerId) {
+            var v = currentView;
+            if (!v || !playerId) return null;
+            var p = (v.players || []).find(function (x) { return x.id === playerId; });
+            return p && p.epitaph ? p.epitaph : null;
+        },
         autoStartReady: true,
         autoAdvance: true,
         keys: true,
@@ -794,6 +852,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         onToggleTts: function () {
             if (!window.WWTts) return;
             window.WWTts.setEnabled(!window.WWTts.isEnabled());
+            refreshVoiceBtn();
         },
         onControl: function (cmd, reveal) {
             if (serverUrl) {
@@ -1268,9 +1327,14 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         var tiedSet = {};
         (v.tiedCandidates || []).forEach(function (id) { tiedSet[id] = true; });
 
+        // Elimination spotlight: during DAWN/DUSK, the seat named in the announcement glows.
+        var spotId = (v.phase === 'DAWN' || v.phase === 'DUSK') && v.lastAnnouncement ? v.lastAnnouncement.eliminatedId : null;
+        grid.classList.toggle('spotlighting', Boolean(spotId));
+
         var cards = players.map(function (p) {
             var cls = ['seat-card'];
             if (!p.alive) cls.push('dead');
+            if (spotId && p.id === spotId) cls.push('spotlight');
             if (p.alive && nominatedIds[p.id] && v.phase === 'DAY_DISCUSSION') cls.push('nominated');
             if (p.alive && tiedSet[p.id] && v.phase === 'DAY_REVOTE') cls.push('tied-runoff');
 
@@ -1390,6 +1454,72 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     } else {
         waitingForRoom = false;
     }
+    function refreshVoiceBtn() {
+        var b = el('voiceToggleBtn');
+        if (!b || !window.WWTts) return;
+        var on = window.WWTts.isEnabled();
+        var mimo = window.WWTts.hasXiaomiKey();
+        b.textContent = on ? (mimo ? 'Voice: MiMo' : 'Voice: Browser') : 'Voice: Off';
+        b.style.borderColor = on ? '#10b981' : '';
+        b.style.color = on ? '#15803d' : '';
+    }
+    window.toggleVoiceOfGod = function () {
+        if (!window.WWTts) return;
+        window.WWTts.setEnabled(!window.WWTts.isEnabled());
+        refreshVoiceBtn();
+        toast(window.WWTts.isEnabled() ? (window.WWTts.hasXiaomiKey() ? 'Voice of God (Xiaomi MiMo) ON' : 'Read-aloud (Browser Voice) ON') : 'Voice of God OFF');
+    };
+    window.openVoiceModal = function () {
+        if (!window.WWTts) return;
+        var cfg = window.WWTts.getConfig();
+        el('mimoKeyInput').value = cfg.apiKey || '';
+        el('mimoModelInput').value = cfg.model || window.WWTts.DEFAULT_MODEL;
+        el('mimoVoiceInput').value = cfg.voice || window.WWTts.DEFAULT_VOICE;
+        el('mimoStyleInput').value = cfg.style || window.WWTts.DEFAULT_STYLE;
+        el('voiceTestStatus').textContent = cfg.apiKey ? 'Xiaomi key saved in this browser.' : 'No Xiaomi key saved yet (using browser fallback).';
+        el('voiceModal').style.display = 'flex';
+    };
+    window.closeVoiceModal = function () {
+        el('voiceModal').style.display = 'none';
+    };
+    window.saveVoiceSettings = function () {
+        if (!window.WWTts) return;
+        window.WWTts.setConfig({
+            apiKey: el('mimoKeyInput').value,
+            model: el('mimoModelInput').value,
+            voice: el('mimoVoiceInput').value,
+            style: el('mimoStyleInput').value
+        });
+        refreshVoiceBtn();
+        closeVoiceModal();
+        toast(window.WWTts.hasXiaomiKey() ? 'Xiaomi MiMo Voice of God saved!' : 'Voice settings saved (browser voice).');
+    };
+    window.clearVoiceKey = function () {
+        if (!window.WWTts) return;
+        el('mimoKeyInput').value = '';
+        window.WWTts.setConfig({ apiKey: '' });
+        refreshVoiceBtn();
+        el('voiceTestStatus').textContent = 'Xiaomi key cleared from this browser.';
+    };
+    window.testVoiceOfGod = function () {
+        if (!window.WWTts) return;
+        window.WWTts.setConfig({
+            apiKey: el('mimoKeyInput').value,
+            model: el('mimoModelInput').value,
+            voice: el('mimoVoiceInput').value,
+            style: el('mimoStyleInput').value
+        });
+        refreshVoiceBtn();
+        var st = el('voiceTestStatus');
+        st.textContent = window.WWTts.hasXiaomiKey() ? 'Generating Vincent Price voice via Xiaomi MiMo...' : 'Testing browser fallback voice...';
+        window.WWTts.testVoice().then(function () {
+            st.textContent = window.WWTts.hasXiaomiKey() ? 'Playing Xiaomi MiMo Voice of God!' : 'Playing browser fallback voice.';
+        }).catch(function (err) {
+            st.textContent = 'MiMo error (fell back to browser voice): ' + (err && err.message ? err.message : err);
+        });
+    };
+
+    refreshVoiceBtn();
     render();
     broadcastLocalState();
     scheduleServerPoll();
