@@ -290,9 +290,15 @@ body {
                 <span id="seatCountBadge" class="pill-mono" style="font-size:0.72rem;">24 Seats</span>
             </div>
 
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button type="button" class="btn btn-xs blue" id="btn703" onclick="selectClassPreset('703')">Class 703 (24)</button>
-                <button type="button" class="btn btn-xs" id="btn902" onclick="selectClassPreset('902')">Homeroom 902 (25)</button>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;" id="classPresetBtns">
+                <button type="button" class="btn btn-xs blue" id="btn703" onclick="selectClassPreset('703')">703 (24)</button>
+                <button type="button" class="btn btn-xs" id="btn801" onclick="selectClassPreset('801')">801 (29)</button>
+                <button type="button" class="btn btn-xs" id="btn802" onclick="selectClassPreset('802')">802 (28)</button>
+                <button type="button" class="btn btn-xs" id="btn803" onclick="selectClassPreset('803')">803 (28)</button>
+                <button type="button" class="btn btn-xs" id="btn804" onclick="selectClassPreset('804')">804 (26)</button>
+                <button type="button" class="btn btn-xs" id="btn901" onclick="selectClassPreset('901')">901 (27)</button>
+                <button type="button" class="btn btn-xs" id="btn902" onclick="selectClassPreset('902')">902 (25)</button>
+                <button type="button" class="btn btn-xs" id="btn903" onclick="selectClassPreset('903')">903 (29)</button>
                 <button type="button" class="btn btn-xs" id="btn28" onclick="selectClassPreset('28')">Classic 28</button>
             </div>
 
@@ -476,6 +482,7 @@ body {
     <span id="verEpoch">epoch: -</span>
 </div>
 
+<script src="../../../Student_System/students_roster_data.js"></script>
 <script src="shared/config.js"></script>
 <script src="shared/sfx.js"></script>
 <script src="shared/tts.js"></script>
@@ -490,10 +497,29 @@ body {
     var CFG = window.WWConfig;
     var ACT = CFG.ACTIONS;
 
+    var CLASS_ROOM_CODES = {
+        '703': 'WOLF-E8SQ',
+        '801': 'WOLF-0801',
+        '802': 'WOLF-0802',
+        '803': 'WOLF-0803',
+        '804': 'WOLF-0804',
+        '901': 'WOLF-0901',
+        '902': 'WOLF-BFJJ',
+        '903': 'WOLF-0903'
+    };
+    var CLASS_DEFAULT_SIZES = { '703': 24, '801': 29, '802': 28, '803': 28, '804': 26, '901': 27, '902': 25, '903': 29, '28': 28 };
+    if (Array.isArray(window.MASTER_ROSTER_DATA)) {
+        var counts = {};
+        window.MASTER_ROSTER_DATA.forEach(function (r) {
+            var hr = String(r.homeroom || '').trim();
+            if (hr) counts[hr] = (counts[hr] || 0) + 1;
+        });
+        Object.keys(counts).forEach(function (hr) { CLASS_DEFAULT_SIZES[hr] = counts[hr]; });
+    }
     var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbz6RDat46u0UG6ATRiXIc8IGtRj19s1yUoByTvhm3lZg7o1Yf-8RpDYXaY9kDCIECY2ZA/exec';
     var Q = new URLSearchParams(location.search);
     var targetClass = Q.get('class') || '703';
-    var targetGameId = Q.get('game') || (targetClass === '902' ? 'WOLF-BFJJ' : 'WOLF-E8SQ');
+    var targetGameId = Q.get('game') || CLASS_ROOM_CODES[targetClass] || 'WOLF-E8SQ';
     var serverUrl = Q.get('server') || sessionStorage.getItem('ww_server_url') || DEFAULT_SERVER_URL;
     var teacherPin = sessionStorage.getItem('ww_teacher_pin') || '';
     var currentView = null;
@@ -624,15 +650,15 @@ body {
 
     window.selectClassPreset = function (cls) {
         targetClass = cls;
-        if (cls === '703') {
-            switchRoomCode('WOLF-E8SQ');
-            updatePresetRules(24, 3, 1, 1);
-        } else if (cls === '902') {
-            switchRoomCode('WOLF-BFJJ');
-            updatePresetRules(25, 3, 1, 1);
-        } else {
-            updatePresetRules(28, 3, 1, 1);
+        ['703', '801', '802', '803', '804', '901', '902', '903', '28'].forEach(function (c) {
+            var b = el('btn' + c);
+            if (b) b.className = 'btn btn-xs' + (c === cls ? ' blue' : '');
+        });
+        if (CLASS_ROOM_CODES[cls]) {
+            switchRoomCode(CLASS_ROOM_CODES[cls]);
         }
+        var sz = CLASS_DEFAULT_SIZES[cls] || 28;
+        updatePresetRules(sz, 3, 1, 1);
     };
 
     function updatePresetRules(size, w, doc, det) {

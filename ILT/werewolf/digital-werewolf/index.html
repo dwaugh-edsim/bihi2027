@@ -550,6 +550,7 @@ body.night-theme .pill-mono.phase {
     <pre id="selftest" style="display:none; padding:16px; font-family:monospace;"></pre>
 </div>
 
+<script src="../../../Student_System/students_roster_data.js"></script>
 <script src="shared/config.js"></script>
 <script src="shared/sfx.js"></script>
 <script src="shared/tts.js"></script>
@@ -577,8 +578,19 @@ body.night-theme .pill-mono.phase {
     var SELFTEST = Q.has('selftest') && OFFPROD;
     var IS_GOD = Q.get('god') === '1';
     var serverUrl = Q.get('server') || sGet('ww_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
+    var CLASS_ROOM_CODES = {
+        '703': 'WOLF-E8SQ',
+        '801': 'WOLF-0801',
+        '802': 'WOLF-0802',
+        '803': 'WOLF-0803',
+        '804': 'WOLF-0804',
+        '901': 'WOLF-0901',
+        '902': 'WOLF-BFJJ',
+        '903': 'WOLF-0903'
+    };
+    var QUICK_CLASSES = ['703', '801', '802', '803', '804', '901', '902', '903'];
     var urlClass = (Q.get('class') || '').trim();
-    var targetGameId = Q.get('game') || (urlClass === '902' ? 'WOLF-BFJJ' : (urlClass === '703' ? 'WOLF-E8SQ' : ''));
+    var targetGameId = Q.get('game') || CLASS_ROOM_CODES[urlClass] || '';
     var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
 
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
@@ -763,29 +775,66 @@ body.night-theme .pill-mono.phase {
         'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
         'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
     ];
-    var ROSTER_902 = [
+    var ROSTER_902_FALLBACK = [
         'Anna Ta.', 'Arlo Ja.', 'Chelsea Re.', 'Douglas La.', 'Gemma Br.',
         'Hannah St.', 'Jax Ma.', 'John Bo.', 'Jordan He.', 'Jordan Sk.',
         'Lyla Fl.', 'Marla Ll.', 'Mhareon Ol.', 'Mona Al.', 'Noah Bu.',
         'Nolan Ca.', 'Nova Tu.', 'Oscar Pi.', 'Seb Ha.', 'Simon Ma.',
         'Sofia Ku.', 'Sofie St.', 'Thomas Ov.', 'Tristan Ha.', 'Zackory Ne.'
     ];
-    var activeQuickClass = (urlClass === '902') ? '902' : '703';
+    function formatRosterTag(firstName, lastName) {
+        var fn = String(firstName || '').trim();
+        var cleanLast = String(lastName || '').replace(/[^A-Za-z]/g, '');
+        var two = cleanLast.slice(0, 2);
+        if (two.length === 2) two = two.charAt(0).toUpperCase() + two.charAt(1).toLowerCase();
+        else if (two.length === 1) two = two.toUpperCase();
+        return (fn && two) ? (fn + ' ' + two + '.') : fn;
+    }
+    var ROSTER_BY_CLASS = { '703': ROSTER_703, '902': ROSTER_902_FALLBACK };
+    if (Array.isArray(window.MASTER_ROSTER_DATA)) {
+        var built = {};
+        window.MASTER_ROSTER_DATA.forEach(function (r) {
+            var hr = String(r.homeroom || '').trim();
+            if (!hr) return;
+            var tag = formatRosterTag(r.first_name, r.last_name);
+            if (!tag) return;
+            if (!built[hr]) built[hr] = [];
+            built[hr].push(tag);
+        });
+        Object.keys(built).forEach(function (hr) {
+            built[hr].sort(function (a, b) { return a.localeCompare(b); });
+            ROSTER_BY_CLASS[hr] = built[hr];
+        });
+    }
+    var activeQuickClass = CLASS_ROOM_CODES[urlClass] ? urlClass : '703';
 
-    window.switchQuickClass = function (cls) {
+    function classForRoomCode(code) {
+        var up = String(code || '').trim().toUpperCase();
+        for (var i = 0; i < QUICK_CLASSES.length; i++) {
+            if (CLASS_ROOM_CODES[QUICK_CLASSES[i]] === up) return QUICK_CLASSES[i];
+        }
+        return '';
+    }
+
+    window.switchQuickClass = function (cls, keepRoomCode) {
+        if (!ROSTER_BY_CLASS[cls]) return;
         activeQuickClass = cls;
         var sel = el('quickNameSelect');
-        var b703 = el('qpBtn703');
-        var b902 = el('qpBtn902');
-        if (b703) b703.className = 'btn btn-xs' + (cls === '703' ? ' blue' : '');
-        if (b902) b902.className = 'btn btn-xs' + (cls === '902' ? ' blue' : '');
+        QUICK_CLASSES.forEach(function (c) {
+            var b = el('qpBtn' + c);
+            if (b) b.className = 'btn btn-xs' + (c === cls ? ' blue' : '');
+        });
         if (sel) {
-            var list = cls === '902' ? ROSTER_902 : ROSTER_703;
+            var list = ROSTER_BY_CLASS[cls] || [];
             sel.innerHTML = '<option value="">Quick-pick your name (' + cls + ') or type below...</option>'
                 + list.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
         }
-        if (!Q.get('game') && el('roomCodeInput')) {
-            targetGameId = (cls === '902') ? 'WOLF-BFJJ' : 'WOLF-E8SQ';
+        var inp = el('displayNameInput');
+        if (inp && list && list.length >= 2) {
+            inp.placeholder = 'e.g. ' + list[0] + ' or ' + list[1];
+        }
+        if (!keepRoomCode && !Q.get('game') && el('roomCodeInput')) {
+            targetGameId = CLASS_ROOM_CODES[cls] || targetGameId;
             el('roomCodeInput').value = targetGameId;
         }
     };
@@ -1194,6 +1243,16 @@ body.night-theme .pill-mono.phase {
             victory_village: 'The village wins',
             victory_wolves: 'The werewolves win'
         }[r.kind] || 'Moonhollow Harbour';
+        // Drama pack: mirror headline reflects the dramatic beat type.
+        var dramaHead = {
+            tension: 'Hold your breath...',
+            flatline: 'Silence.',
+            epitaph: 'Last words',
+            survivors: 'The count',
+            miracle: 'A miracle at dawn!',
+            gate_shut: 'The gate slams shut'
+        }[b.type];
+        if (dramaHead) kindHead = dramaHead;
         var onerr = fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\';"' : '';
         return '<div class="th-mirror" style="margin-bottom:12px;">'
             + '<img class="th-art" src="' + esc(src) + '" alt=""' + onerr + '>'
@@ -1202,12 +1261,20 @@ body.night-theme .pill-mono.phase {
     }
 
     // B4: personal screen for the victim / exiled player, with preset-only epitaph picker (no free text).
+    // Drama pack: full-width art header, big verdict, survivors count, prominent epitaph picker.
     function renderPersonalExit(v, me) {
         var r = v.reveal || {};
         var subj = r.subject || {};
         var taken = r.kind === 'night_kill';
         var meP = v.players.find(function (x) { return x.id === me.id; }) || {};
         var persona = meP.persona ? ('You were ' + esc(meP.persona) + '.') : '';
+        // Role art only when the projection actually reveals it (revealRoleOnDeath / game over) - never a leak.
+        var artKey = subj.role ? ('role_' + subj.role) : 'card_sealed';
+        var res = (window.WWConfig && WWConfig.ASSETS.resolve(artKey)) || 'assets/card_sealed.jpg';
+        var src = typeof res === 'string' ? res : res.src;
+        var fb = typeof res === 'string' ? '' : (res.fallback || '');
+        var onerr = fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\';"' : '';
+        var aliveCount = v.counts ? v.counts.alive : '';
         var epitaphHtml = '';
         var EP = (window.StoryContent && window.StoryContent.EPITAPHS) || [];
         if (EP.length && (v.phase === 'DAWN' || v.phase === 'DUSK')) {
@@ -1220,12 +1287,15 @@ body.night-theme .pill-mono.phase {
         } else if (meP.epitaph) {
             epitaphHtml = '<div style="margin-top:10px; font-style:italic; color:var(--text-muted);">Your epitaph: "' + esc(meP.epitaph) + '"</div>';
         }
-        return '<div class="spectator-notice" style="border-left:4px solid var(--coral);">'
-            + '<h3 style="font-family:var(--font-heading); font-size:1.1rem; margin-bottom:4px;">' + esc(taken ? 'You were taken in the night' : 'The council has exiled you') + '</h3>'
+        return '<div class="spectator-notice" style="border-left:4px solid var(--coral); padding:0; overflow:hidden;">'
+            + '<img src="' + esc(src) + '" alt="" style="width:100%; height:150px; object-fit:cover; display:block;"' + onerr + '>'
+            + '<div style="padding:12px 14px 14px;">'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:4px; color:var(--coral);">' + esc(taken ? 'You were taken in the night' : 'The council has exiled you') + '</h3>'
             + '<p style="font-size:0.9rem; color:var(--text-muted);">' + persona + ' You are now a silent ghost: stay quiet, keep a poker face, and do not signal the living.</p>'
+            + (aliveCount !== '' ? '<p style="font-size:0.9rem; font-weight:700; margin-top:6px;"><strong>' + esc(aliveCount) + ' souls remain in Moonhollow.</strong></p>' : '')
             + epitaphHtml
             + '<p style="font-size:0.85rem; margin-top:8px;">Watch the <strong>Class LCD Display</strong> for the story. Hold <strong>[ID]</strong> in the corner for a quiet peek at the truth board.</p>'
-            + '</div>';
+            + '</div></div>';
     }
 
     function renderPlayerView() {
@@ -1542,25 +1612,25 @@ body.night-theme .pill-mono.phase {
                 + (Q.get('demo') === '1' ? '<button class="btn" style="width:100%; margin-top:8px;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>' : '');
         } else {
             if (el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
-            var startList = activeQuickClass === '902' ? ROSTER_902 : ROSTER_703;
+            var startList = ROSTER_BY_CLASS[activeQuickClass] || ROSTER_703;
             var optsList = '<option value="">Quick-pick your name (' + activeQuickClass + ') or type below...</option>'
                 + startList.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
-            var phSample = activeQuickClass === '902' ? 'e.g. Jordan He. or Sofia Ku.' : 'e.g. Oliver Br. or Carson Do.';
+            var phSample = startList.length >= 2 ? ('e.g. ' + startList[0] + ' or ' + startList[1]) : 'e.g. First La.';
+            var qpBtns = QUICK_CLASSES.map(function (c) {
+                return '<button type="button" id="qpBtn' + c + '" class="btn btn-xs' + (activeQuickClass === c ? ' blue' : '') + '" onclick="switchQuickClass(\'' + c + '\')">' + c + '</button>';
+            }).join('');
             el('whoLabel').textContent = identity.email;
             gb.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">'
                 + '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
                 + '<button type="button" class="btn btn-xs" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>'
                 + '</div>'
                 + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
-                + '<div><div style="display:flex; justify-content:space-between; align-items:center;">'
-                + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick (optional):</label>'
-                + '<span style="display:inline-flex; gap:4px;">'
-                + '<button type="button" id="qpBtn703" class="btn btn-xs' + (activeQuickClass === '703' ? ' blue' : '') + '" onclick="switchQuickClass(\'703\')">703</button>'
-                + '<button type="button" id="qpBtn902" class="btn btn-xs' + (activeQuickClass === '902' ? ' blue' : '') + '" onclick="switchQuickClass(\'902\')">902</button>'
-                + '</span></div>'
+                + '<div><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">'
+                + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick:</label>'
+                + '<span style="display:inline-flex; gap:4px; flex-wrap:wrap;">' + qpBtns + '</span></div>'
                 + '<select id="quickNameSelect" class="input-clean" style="margin-top:4px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + optsList + '</select></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initials:</label>'
-                + '<input class="input-clean" id="displayNameInput" placeholder="' + phSample + '" maxlength="22"></div>'
+                + '<input class="input-clean" id="displayNameInput" placeholder="' + esc(phSample) + '" maxlength="22"></div>'
                 + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
                 + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
@@ -1573,6 +1643,10 @@ body.night-theme .pill-mono.phase {
                         targetGameId = h.activeGameId;
                         if (el('roomCodeInput') && !el('roomCodeInput').value) {
                             el('roomCodeInput').value = h.activeGameId;
+                        }
+                        if (!urlClass) {
+                            var matchedCls = classForRoomCode(h.activeGameId);
+                            if (matchedCls) switchQuickClass(matchedCls, true);
                         }
                     }
                     if (targetGameId) {
