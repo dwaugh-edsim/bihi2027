@@ -30,6 +30,13 @@
   var storyCache = {};
   var currentAudio = null;
   var speakSeq = 0;
+  var speakingListeners = [];
+
+  function notifySpeaking(flag) {
+    for (var i = 0; i < speakingListeners.length; i++) {
+      try { speakingListeners[i](Boolean(flag)); } catch (e) {}
+    }
+  }
 
   function store() {
     try { return root.localStorage || null; } catch (e) { return null; }
@@ -78,6 +85,7 @@
       currentAudio = null;
     }
     try { if (root.speechSynthesis) root.speechSynthesis.cancel(); } catch (e) {}
+    notifySpeaking(false);
   }
 
   function pickVoice() {
@@ -109,6 +117,9 @@
       if (v) u.voice = v;
       u.rate = 0.96;
       u.pitch = 0.65;
+      u.onstart = function () { notifySpeaking(true); };
+      u.onend = function () { notifySpeaking(false); };
+      u.onerror = function () { notifySpeaking(false); };
       root.speechSynthesis.speak(u);
     } catch (e) {}
   }
@@ -126,7 +137,10 @@
     stopAudio();
     var a = new root.Audio(url);
     currentAudio = a;
-    a.play().catch(function () {});
+    notifySpeaking(true);
+    a.onended = function () { if (currentAudio === a) notifySpeaking(false); };
+    a.onerror = function () { if (currentAudio === a) notifySpeaking(false); };
+    a.play().catch(function () { if (currentAudio === a) notifySpeaking(false); });
     return a;
   }
 
@@ -247,6 +261,7 @@
     speak: function (text) { return speakText(text, false); },
     speakStage: speakStage,
     generateStageNarration: generateStageNarration,
+    onSpeakingChange: function (fn) { if (typeof fn === 'function') speakingListeners.push(fn); },
     testVoice: function (text) {
       return speakText(text || 'Night falls over Moonhollow Harbour. Lock your doors, and pray the pack passes you by.', true);
     },

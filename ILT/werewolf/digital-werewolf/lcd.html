@@ -796,6 +796,45 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         return f + ' ' + init2 + '.';
     }
 
+    // Looping nocturnal background music during NIGHT, auto-ducked under Vincent Dean narration
+    var nightBgm = new Audio('assets/night_music.mp3');
+    nightBgm.loop = true;
+    nightBgm.preload = 'auto';
+    nightBgm.volume = 0;
+    var bgmTargetVol = 0;
+    var ttsIsSpeaking = false;
+
+    function syncNightMusic(phase) {
+        var shouldPlay = sfxEnabled && phase === 'NIGHT';
+        bgmTargetVol = shouldPlay ? (ttsIsSpeaking ? 0.08 : 0.26) : 0;
+        if (shouldPlay && nightBgm.paused) {
+            nightBgm.play().catch(function () {});
+        }
+    }
+
+    setInterval(function () {
+        var cur = nightBgm.volume || 0;
+        var diff = bgmTargetVol - cur;
+        if (Math.abs(diff) <= 0.015) {
+            if (cur !== bgmTargetVol) nightBgm.volume = bgmTargetVol;
+            if (bgmTargetVol === 0 && !nightBgm.paused) nightBgm.pause();
+            return;
+        }
+        nightBgm.volume = Math.max(0, Math.min(1, cur + (diff > 0 ? 0.025 : -0.025)));
+    }, 80);
+
+    if (window.WWTts && typeof window.WWTts.onSpeakingChange === 'function') {
+        window.WWTts.onSpeakingChange(function (sp) {
+            ttsIsSpeaking = Boolean(sp);
+            syncNightMusic(currentView && currentView.phase);
+        });
+    }
+    document.addEventListener('pointerdown', function () {
+        if (currentView && currentView.phase === 'NIGHT') {
+            syncNightMusic('NIGHT');
+        }
+    }, { passive: true });
+
     // Gentle synthesized classroom sound effects (shared WebAudio cues; zero external audio files)
     function playCue(kind) {
         if (!sfxEnabled) return;
@@ -1265,6 +1304,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             else if (v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') playCue('vote');
             lastPhaseRendered = v.phase;
         }
+        syncNightMusic(v.phase);
 
         if (stageKey !== lastNarratedStageKey) {
             lastNarratedStageKey = stageKey;
