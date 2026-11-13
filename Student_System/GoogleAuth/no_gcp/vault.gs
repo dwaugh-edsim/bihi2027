@@ -68,6 +68,22 @@ function verifyIdentity_(email, ts, sig) {
   return { ok: true, email: email };
 }
 
+/** Display label from an email local-part: 'alex.macdonald@x' -> 'Alex Ma.' (First + last-two-initials). */
+function labelFromEmail_(email) {
+  var s = String(email || '').split('@')[0];
+  s = s.replace(/[0-9_]+/g, ' ').replace(/[.\-]+/g, ' ').trim();
+  if (!s) return 'Explorer';
+  var parts = s.split(/\s+/).filter(Boolean);
+  var cap = function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); };
+  var first = cap(parts[0]);
+  if (parts.length === 1) return first;
+  var last = parts[parts.length - 1].replace(/[^a-zA-Z]/g, '');
+  if (!last) return first;
+  var two = last.slice(0, 2);
+  two = two.charAt(0).toUpperCase() + (two.charAt(1) ? two.charAt(1).toLowerCase() : '');
+  return first + ' ' + two + '.';
+}
+
 function jsonOut_(obj) {
   obj.version = VAULT_VERSION;
   return ContentService.createTextOutput(JSON.stringify(obj))
@@ -200,6 +216,47 @@ function doPost(e) {
     var sh2 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
     var rows = (sh2 && sh2.getLastRow() > 1) ? sh2.getRange(2, 1, sh2.getLastRow() - 1, 7).getValues() : [];
     return jsonOut_({ status: 'ok', count: rows.length, rows: rows });
+  }
+
+  // ---- Class leaderboard: any signed-in student may read it. The response
+  //      carries display labels + a `me` flag and NEVER raw emails.
+  if (action === 'get_leaderboard') {
+    var vL = verifyIdentity_(payload.email, payload.ts, payload.sig);
+    if (!vL.ok) return jsonOut_({ status: 'auth_failed', reason: vL.reason });
+    var taskL = String(payload.task || '');
+    var sectionL = String(payload.section || '');
+    var shL = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
+    if (!shL || shL.getLastRow() < 2) return jsonOut_({ status: 'ok', entries: [] });
+    var rowsL = shL.getRange(2, 1, shL.getLastRow() - 1, 7).getValues();
+    var best = {};
+    for (var i = 0; i < rowsL.length; i++) {
+      if (String(rowsL[i][3]) !== taskL) continue;
+      var em = String(rowsL[i][1]).toLowerCase();
+      var dataL = {};
+      try { dataL = JSON.parse(rowsL[i][5] || '{}'); } catch (e) {}
+      var score = Number(dataL.xp || 0);
+      if (!best[em] || score >= best[em].score) {
+        best[em] = {
+          score: score,
+          best: Number((dataL.best && dataL.best.overall) || 0),
+          section: String(rowsL[i][2] || ''),
+          savedAt: rowsL[i][0]
+        };
+      }
+    }
+    var entries = Object.keys(best).map(function (em) {
+      return {
+        label: labelFromEmail_(em),
+        me: em === vL.email,
+        section: best[em].section,
+        score: best[em].score,
+        best: best[em].best,
+        savedAt: best[em].savedAt
+      };
+    });
+    if (sectionL) entries = entries.filter(function (e) { return e.section === sectionL; });
+    entries.sort(function (a, b) { return b.score - a.score; });
+    return jsonOut_({ status: 'ok', entries: entries.slice(0, 50) });
   }
 
   // ---- Teacher controls -----------------------------------------------------

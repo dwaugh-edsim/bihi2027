@@ -61,7 +61,14 @@ AND checking a server-side `TEACHER_EMAILS` script property (never in any repo).
 Client: HUD "Teacher" button -> panel in the lobby lists saved rows (shown as First Ls.
 via formatDisplayName; email used only as an opaque handle for delete calls) with
 per-user Delete and a confirm-guarded Reset-ALL. Deploy note: set `TEACHER_EMAILS` on
-the vault project and redeploy the web app for the actions to go live.
+the vault project and redeploy the web app for the actions to go live. Update 2026-11-12: `TEACHER_EMAILS=dwaugh@gnspes.ca` is SET on the vault project
+(script properties survive redeploys). Repo `vault.gs` now also contains `get_leaderboard`
+(previously only in the deployed editor) returning server-side `First Ls.` labels + `me`
+flag and NO raw emails; the page renders `row.label`/`row.me`. Redeploy the vault web app
+from this repo file (Deploy > Manage deployments > Edit > New version) to activate both
+get_leaderboard and the teacher actions. Verify the PIN property name: the screenshot shows
+`TEACHER_PIN` but the repo code reads `GA_TEACHER_PIN` - align one side if `get_submissions`
+ever reports 'Teacher PIN required'.
 
 ## Persistence + leaderboard
 - Save/load per student via the existing vault webhook (`submit_assignment` / `load_assignment`) under task `CIT9-GeoGame`, storing `best: { overall, easy, medium, hard }`, total XP, best streak, and recent round history.
