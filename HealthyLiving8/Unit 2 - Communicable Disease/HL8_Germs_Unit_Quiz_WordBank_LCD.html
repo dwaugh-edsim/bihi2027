@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HL8 Unit 2 Quiz - In-Room Word Bank (LCD)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f0f2f5;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --border-card: #d5dbe3;
+      --border-subtle: #e5e9f0;
+      --border-highlight: #ed786a;
+      --text-main: #1e2530;
+      --text-heading: #181f2b;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --coral: #ed786a;
+      --coral-hover: #fd887a;
+      --coral-dark: #d65b4c;
+      --coral-bg: #fff1f0;
+      --coral-border: #fecdd3;
+      --blue: #1d4ed8;
+      --blue-bg: #eff6ff;
+      --blue-border: #bfdbfe;
+      --font-heading: 'Arvo', Georgia, serif;
+      --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow: hidden;
+    }
+
+    .screen {
+      height: 100vh;
+      width: 100vw;
+      padding: 20px 32px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .topbar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 14px 22px 18px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .double-rule-bottom {
+      border-bottom: 2px solid var(--border-subtle);
+      box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card), 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .badge-room {
+      background: var(--coral);
+      color: #ffffff;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 6px;
+      padding: 6px 14px;
+      letter-spacing: 0.6px;
+      box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
+      white-space: nowrap;
+    }
+
+    .title-text h1 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: clamp(1.45rem, 2.2vw, 2.1rem);
+      color: var(--text-heading);
+      text-shadow: 0.04em 0.06em 0 rgba(0, 0, 0, 0.08);
+      line-height: 1.15;
+    }
+
+    .title-text p {
+      font-size: clamp(0.95rem, 1.1vw, 1.12rem);
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .rule-pill {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.4px;
+      color: var(--blue);
+      background: var(--blue-bg);
+      border: 1px solid var(--blue-border);
+      border-radius: 6px;
+      padding: 7px 13px;
+      white-space: nowrap;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--coral);
+    }
+
+    .btn.active {
+      background: var(--coral-bg);
+      border-color: var(--coral);
+      color: var(--coral-dark);
+    }
+
+    .bank-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .word-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-left: 6px solid var(--coral);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .word-num {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: clamp(0.85rem, 1vw, 1.05rem);
+      color: var(--text-dim);
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .word-term {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: clamp(1.25rem, 1.85vw, 2.05rem);
+      color: var(--text-heading);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      overflow-wrap: break-word;
+    }
+
+    .foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1100px) {
+      .bank-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(10, minmax(0, 1fr));
+      }
+      .rule-pill {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <header class="topbar double-rule-bottom">
+      <div class="title-group">
+        <span class="badge-room">ROOM 8 · HL8</span>
+        <div class="title-text">
+          <h1>Unit 2 Quiz: In-Room Word Bank</h1>
+          <p>20 Unit Terms · Check exact spelling before writing on your paper</p>
+        </div>
+      </div>
+      <div class="controls">
+        <span class="rule-pill">NOT ALL TERMS WILL BE USED</span>
+        <button class="btn active" id="btnSort" type="button" onclick="toggleOrder()">A-Z ORDER</button>
+        <button class="btn" id="btnFs" type="button" onclick="toggleFullscreen()">FULLSCREEN</button>
+      </div>
+    </header>
+
+    <section class="bank-grid" id="bankGrid" aria-label="20 unit vocabulary terms"></section>
+
+    <footer class="foot">
+      <span>HL8 UNIT 2 · COMMUNICABLE DISEASE &amp; OUTBREAKS</span>
+      <span>made with GLM5.3, Minimax 3 and Gemini</span>
+    </footer>
+  </main>
+
+  <script>
+    const TERMS = [
+      'Antibiotic',
+      'Antibiotic Resistance',
+      'Antibody',
+      'Bacteria',
+      'Chain of Infection',
+      'Communicable Disease',
+      'Direct Contact',
+      'Droplet Transmission',
+      'Epidemiology',
+      'Fomite',
+      'Herd Immunity',
+      'Host',
+      'Immune System',
+      'Incubation Period',
+      'Pathogen',
+      'Portal of Entry',
+      'Reservoir',
+      'Vaccine',
+      'Vector',
+      'Virus'
+    ];
+
+    let shuffled = false;
+
+    function renderGrid(list) {
+      const grid = document.getElementById('bankGrid');
+      grid.innerHTML = '';
+      list.forEach((term, idx) => {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        const num = String(idx + 1).padStart(2, '0');
+        card.innerHTML =
+          '<span class="word-num">' + num + '</span>' +
+          '<span class="word-term">' + term + '</span>';
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleOrder() {
+      const btn = document.getElementById('btnSort');
+      if (shuffled) {
+        shuffled = false;
+        btn.textContent = 'A-Z ORDER';
+        btn.classList.add('active');
+        renderGrid(TERMS);
+      } else {
+        shuffled = true;
+        btn.textContent = 'SHUFFLED (RESET A-Z)';
+        btn.classList.remove('active');
+        const copy = TERMS.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        renderGrid(copy);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    renderGrid(TERMS);
+  </script>
+</body>
+</html>
