@@ -256,7 +256,7 @@ function doPost(e) {
     });
     if (sectionL) entries = entries.filter(function (e) { return e.section === sectionL; });
     entries.sort(function (a, b) { return b.score - a.score; });
-    return jsonOut_({ status: 'ok', entries: entries.slice(0, 50) });
+    return jsonOut_({ status: 'ok', entries: entries.slice(0, 250) });
   }
 
   // ---- Teacher controls -----------------------------------------------------

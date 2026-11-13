@@ -827,11 +827,75 @@
       color: #fff;
     }
 
+    .board-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .scope-pills {
+      display: inline-flex;
+      gap: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 2px;
+    }
+
+    .scope-pill {
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .scope-pill:hover:not(:disabled) { color: #fff; }
+    .scope-pill:disabled { opacity: 0.4; cursor: not-allowed; }
+    .scope-pill.active {
+      background: rgba(245, 158, 11, 0.16);
+      color: var(--accent);
+    }
+
+    .board-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+      display: inline-block;
+    }
+
+    .board-refresh-btn {
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-size: 0.74rem;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .board-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
     .board-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 215px;
+      max-height: 290px;
       overflow-y: auto;
     }
 
@@ -1706,6 +1770,11 @@
       <label class="hud-meta" for="sectionSel">Section
         <select id="sectionSel" class="hud-select" aria-label="Class section">
           <option value="">Pick...</option>
+          <option value="703">703</option>
+          <option value="801">801</option>
+          <option value="802">802</option>
+          <option value="803">803</option>
+          <option value="804">804</option>
           <option value="901-CIT">901-CIT</option>
           <option value="902-CIT">902-CIT</option>
           <option value="903-CIT">903-CIT</option>
@@ -1879,6 +1948,17 @@
           <div class="board-tabs">
             <button type="button" class="board-tab active" id="tabBoardClass" onclick="Arena.switchBoard('class')">Leaderboard</button>
             <button type="button" class="board-tab" id="tabBoardHistory" onclick="Arena.switchBoard('history')">Recent Rounds</button>
+          </div>
+          <div class="board-controls" id="boardControls">
+            <div class="scope-pills">
+              <button type="button" class="scope-pill active" id="scopeAllBtn" onclick="Arena.switchBoardScope('all')">All Kids</button>
+              <button type="button" class="scope-pill" id="scopeSecBtn" onclick="Arena.switchBoardScope('section')" disabled>My Section</button>
+            </div>
+            <span class="board-live">
+              <span class="live-dot" title="Auto-refreshes every 15s"></span>
+              <span id="boardCount">0 kids</span>
+              <button type="button" class="board-refresh-btn" onclick="Arena.refreshLeaderboard()" title="Refresh leaderboard">&#x21bb;</button>
+            </span>
           </div>
           <div class="board-list" id="boardList"></div>
         </aside>
@@ -2196,9 +2276,45 @@
       }
 
       /* ================= PLAYER STATE & PERSISTENCE ================= */
+      var QUICK_CLASSES = ['703', '801', '802', '803', '804', '901', '902', '903'];
+
+      function sectionCodeForClass(c) {
+        var s = String(c || '').trim().toUpperCase();
+        if (!s) return '';
+        if (s === '901' || s === '902' || s === '903') return s + '-CIT';
+        return s;
+      }
+
+      function populateSectionSelect() {
+        var sel = el('sectionSel');
+        if (!sel) return;
+        var cur = sel.value;
+        var html = '<option value="">Pick...</option>';
+        QUICK_CLASSES.forEach(function (c) {
+          var val = sectionCodeForClass(c);
+          html += '<option value="' + esc(val) + '">' + esc(val) + '</option>';
+        });
+        sel.innerHTML = html;
+        if (cur) sel.value = cur;
+      }
+
+      function ensureSectionOption(sec) {
+        var sel = el('sectionSel');
+        if (!sel || !sec) return;
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value === sec) return;
+        }
+        var opt = document.createElement('option');
+        opt.value = sec;
+        opt.textContent = sec;
+        sel.appendChild(opt);
+      }
+
       var identity = null;
       var popupRef = null;
       var boardTab = 'class';
+      var boardScope = 'all';
+      var leaderboardTimer = null;
       var remoteLeaderboard = null;
 
       function freshState() {
@@ -2281,7 +2397,13 @@
           }
         }
         state = next;
+        if (!state.section) {
+          var urlSec = sectionCodeForClass(Q.get('section') || Q.get('class') || '');
+          if (urlSec) state.section = urlSec;
+        }
+        ensureSectionOption(state.section);
         el('sectionSel').value = state.section || '';
+        updateScopePills();
         refreshLobbyStats();
       }
 
@@ -2366,18 +2488,42 @@
         });
       }
 
+      function updateScopePills() {
+        var allBtn = el('scopeAllBtn');
+        var secBtn = el('scopeSecBtn');
+        if (!allBtn || !secBtn) return;
+        var hasSec = !!(state && state.section);
+        secBtn.disabled = !hasSec;
+        secBtn.textContent = hasSec ? state.section : 'My Section';
+        if (!hasSec && boardScope === 'section') boardScope = 'all';
+        allBtn.classList.toggle('active', boardScope === 'all');
+        secBtn.classList.toggle('active', boardScope === 'section' && hasSec);
+      }
+
+      function switchBoardScope(scope) {
+        if (scope === 'section' && !(state && state.section)) return;
+        boardScope = scope === 'section' ? 'section' : 'all';
+        updateScopePills();
+        fetchLeaderboard();
+      }
+
+      function refreshLeaderboard() {
+        fetchLeaderboard();
+      }
+
       function fetchLeaderboard() {
         if (skipNet || !identity) {
           renderBoard();
           return;
         }
+        var targetSec = (boardScope === 'section' && state.section) ? state.section : '';
         post(VAULT_URL, {
           action: 'get_leaderboard',
           email: identity.email,
           ts: identity.ts,
           sig: identity.sig,
           task: TASK_NAME,
-          section: state.section || ''
+          section: targetSec
         }).then(function (j) {
           if (j && j.status === 'ok' && Array.isArray(j.entries)) {
             remoteLeaderboard = j.entries;
@@ -2386,6 +2532,16 @@
         }).catch(function () {
           renderBoard();
         });
+      }
+
+      function startLeaderboardPoll() {
+        if (leaderboardTimer) clearInterval(leaderboardTimer);
+        leaderboardTimer = setInterval(function () {
+          var lobby = el('lobbyView');
+          if (!skipNet && identity && !document.hidden && boardTab === 'class' && lobby && lobby.classList.contains('active')) {
+            fetchLeaderboard();
+          }
+        }, 15000);
       }
 
       function handleAuthExpired() {
@@ -2416,10 +2572,28 @@
           identity = { email: 'demo.explorer@gnspes.ca', ts: Date.now(), sig: 'demo' };
         }
 
+        populateSectionSelect();
+        var initUrlSec = sectionCodeForClass(Q.get('section') || Q.get('class') || '');
+        if (initUrlSec && !state.section) {
+          state.section = initUrlSec;
+          ensureSectionOption(initUrlSec);
+          el('sectionSel').value = initUrlSec;
+        }
+        updateScopePills();
+
         el('sectionSel').addEventListener('change', function () {
           state.section = el('sectionSel').value;
+          updateScopePills();
           saveToServer();
         });
+
+        document.addEventListener('visibilitychange', function () {
+          var lobby = el('lobbyView');
+          if (!document.hidden && !skipNet && identity && boardTab === 'class' && lobby && lobby.classList.contains('active')) {
+            fetchLeaderboard();
+          }
+        });
+        startLeaderboardPoll();
 
         if (identity && identity.email && identity.sig) {
           enterApp();
@@ -2650,7 +2824,9 @@
         boardTab = tab;
         el('tabBoardClass').classList.toggle('active', tab === 'class');
         el('tabBoardHistory').classList.toggle('active', tab === 'history');
-        renderBoard();
+        if (el('boardControls')) el('boardControls').style.display = tab === 'class' ? 'flex' : 'none';
+        if (tab === 'class') fetchLeaderboard();
+        else renderBoard();
       }
 
       function refreshLobbyStats() {
@@ -2696,8 +2872,13 @@
           return;
         }
 
+        if (el('boardControls')) el('boardControls').style.display = boardTab === 'class' ? 'flex' : 'none';
+
         if (remoteLeaderboard && remoteLeaderboard.length) {
-          box.innerHTML = remoteLeaderboard.slice(0, 12).map(function (row, idx) {
+          if (el('boardCount')) {
+            el('boardCount').textContent = remoteLeaderboard.length + (remoteLeaderboard.length === 1 ? ' kid' : ' kids');
+          }
+          box.innerHTML = remoteLeaderboard.map(function (row, idx) {
             var disp = row.label || GEO_ENGINE.formatDisplayName(row.name || row.email || 'Player');
             var isMe = row.me === true || (identity && row.email && row.email === identity.email);
             return '<div class="board-row' + (isMe ? ' me' : '') + '">' +
@@ -2709,6 +2890,7 @@
           }).join('');
           return;
         }
+        if (el('boardCount')) el('boardCount').textContent = '0 kids';
 
         var myName = skipNet ? 'Demo Ex.' : GEO_ENGINE.formatDisplayName(identity ? identity.email : 'Player');
         var topRuns = (state.history || []).slice().sort(function (a, b) { return (b.score || 0) - (a.score || 0); }).slice(0, 5);
@@ -2916,6 +3098,7 @@
         stopTimer();
         showScreen('lobbyView');
         refreshLobbyStats();
+        if (boardTab === 'class') fetchLeaderboard();
       }
 
       function buildProgressDots() {
@@ -3591,6 +3774,8 @@
         selectPace: selectPace,
         selectTopic: selectTopic,
         switchBoard: switchBoard,
+        switchBoardScope: switchBoardScope,
+        refreshLeaderboard: refreshLeaderboard,
         startRound: startRound,
         quitRound: quitRound,
         goLobby: goLobby,
