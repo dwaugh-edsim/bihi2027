@@ -276,6 +276,13 @@ body {
                 <label for="roomCodeInput">Active Cloud Room Code:</label>
                 <input id="roomCodeInput" value="WOLF-E8SQ" onchange="switchRoomCode(this.value)">
             </div>
+            <div class="field">
+                <label>Student Game URL:</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <input id="studentUrlRunDisplay" readonly onclick="this.select(); copyRunStudentLink();" title="Click to copy student game URL" style="flex:1; font-family:var(--font-mono); font-size:0.74rem; cursor:pointer;">
+                    <button type="button" class="btn btn-xs" id="copyStudentUrlRunBtn" onclick="copyRunStudentLink()">Copy</button>
+                </div>
+            </div>
             <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all;" id="serverUrlLabel"></div>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <button class="btn btn-xs" onclick="checkServerHealth()">Ping Server</button>
@@ -640,11 +647,47 @@ body {
         });
     }
 
+    function updateStudentGameUrl(gid) {
+        var inp = el('studentUrlRunDisplay');
+        if (!inp) return;
+        var base = (location.origin && location.origin.indexOf('http') === 0)
+            ? (location.href.split('?')[0].replace(/\/[^\/]*$/, '/') )
+            : 'https://dwaugh-edsim.github.io/bihi2027/ILT/werewolf/digital-werewolf/';
+        inp.value = base + '?game=' + encodeURIComponent(gid || targetGameId);
+    }
+
+    window.copyRunStudentLink = function () {
+        var inp = el('studentUrlRunDisplay');
+        var btn = el('copyStudentUrlRunBtn');
+        var txt = inp ? (inp.value || '').trim() : '';
+        if (!txt) return;
+        function done() {
+            if (btn) {
+                btn.textContent = 'Copied!';
+                setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+            }
+            toast('Student game URL copied!');
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+        function fallbackCopy() {
+            try {
+                inp.select();
+                document.execCommand('copy');
+                done();
+            } catch (e) {}
+        }
+    };
+
     window.switchRoomCode = function (val) {
         targetGameId = (val || '').trim().toUpperCase();
         el('roomCodeBadge').textContent = targetGameId;
         el('roomCodeInput').value = targetGameId;
         el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        updateStudentGameUrl(targetGameId);
         pollState();
     };
 
@@ -1115,6 +1158,7 @@ body {
         renderDemoPreflight(v);
         el('roomCodeBadge').textContent = v.gameId;
         el('roomCodeInput').value = v.gameId;
+        updateStudentGameUrl(v.gameId);
         el('phaseBadge').textContent = v.phase + (v.round ? (' R' + v.round) : '');
 
         // Narrator Story Script
@@ -1383,6 +1427,7 @@ body {
         el('roomCodeBadge').textContent = targetGameId;
         el('roomCodeInput').value = targetGameId;
         el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        updateStudentGameUrl(targetGameId);
         pollState();
         if (pollInterval) clearInterval(pollInterval);
         pollInterval = setInterval(pollState, 3500);
