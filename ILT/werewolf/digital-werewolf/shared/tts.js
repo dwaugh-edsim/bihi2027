@@ -15,10 +15,15 @@
   var MIMO_VOICE_STORAGE = 'ww_xiaomi_tts_voice';
   var MIMO_STYLE_STORAGE = 'ww_xiaomi_tts_style';
   var MIMO_ENDPOINT = 'https://api.xiaomimimo.com/v1/chat/completions';
+  var MIMO_TP_ENDPOINT = 'https://token-plan-sgp.xiaomimimo.com/v1/chat/completions';
+
+  function endpointForKey(key) {
+    return String(key || '').trim().indexOf('tp-') === 0 ? MIMO_TP_ENDPOINT : MIMO_ENDPOINT;
+  }
 
   var DEFAULT_MODEL = 'mimo-v2.5-tts';
-  var DEFAULT_VOICE = 'mimo_default';
-  var DEFAULT_STYLE = 'Speak in the theatrical, sinister, velvety baritone of a classic 1960s Vincent Price horror narrator: deliberate, resonant, ominous, with dramatic pauses and a chilling, cultured cadence.';
+  var DEFAULT_VOICE = 'Dean';
+  var DEFAULT_STYLE = 'Deep, low-pitched male baritone horror narrator in the style of Vincent Price: theatrical, sinister, cultured, at a brisk, crisp, engaging pace (not sluggish).';
 
   var audioCache = {};
   var currentAudio = null;
@@ -100,8 +105,8 @@
       var u = new root.SpeechSynthesisUtterance(String(text));
       var v = pickVoice();
       if (v) u.voice = v;
-      u.rate = 0.86;
-      u.pitch = 0.78;
+      u.rate = 0.96;
+      u.pitch = 0.65;
       root.speechSynthesis.speak(u);
     } catch (e) {}
   }
@@ -140,7 +145,7 @@
       },
       stream: false
     };
-    return root.fetch(MIMO_ENDPOINT, {
+    return root.fetch(endpointForKey(cfg.apiKey), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

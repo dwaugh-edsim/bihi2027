@@ -886,13 +886,16 @@ body.night-theme .pill-mono.phase {
         applyCornerSide();
     };
 
-    function openCornerPeek() {
-        if (rolePeekOpen) return;
+    var peekLatched = false;
+    var peekDownAt = 0;
+
+    function openCornerPeek(latched) {
+        peekLatched = Boolean(latched);
         rolePeekOpen = true;
         if (peekSafetyTimer) clearTimeout(peekSafetyTimer);
         peekSafetyTimer = setTimeout(function () {
             closeCornerPeek();
-        }, 3200);
+        }, 5000);
         renderCornerPocket();
     }
 
@@ -901,6 +904,7 @@ body.night-theme .pill-mono.phase {
             clearTimeout(peekSafetyTimer);
             peekSafetyTimer = null;
         }
+        peekLatched = false;
         if (!rolePeekOpen) return;
         rolePeekOpen = false;
         renderCornerPocket();
@@ -908,32 +912,75 @@ body.night-theme .pill-mono.phase {
 
     (function wireHoldToPeek() {
         var btn = el('peekHoldBtn');
+        var pocket = el('cornerPocket');
         if (!btn) return;
         btn.addEventListener('pointerdown', function (ev) {
             ev.preventDefault();
-            openCornerPeek();
+            if (rolePeekOpen && peekLatched) {
+                peekDownAt = 0;
+                closeCornerPeek();
+                return;
+            }
+            peekDownAt = Date.now();
+            openCornerPeek(false);
         });
-        btn.addEventListener('pointerup', closeCornerPeek);
-        btn.addEventListener('pointercancel', closeCornerPeek);
-        btn.addEventListener('pointerleave', closeCornerPeek);
+        btn.addEventListener('pointerup', function () {
+            if (!peekDownAt) return;
+            var heldMs = Date.now() - peekDownAt;
+            peekDownAt = 0;
+            if (heldMs < 240) {
+                openCornerPeek(true);
+            } else {
+                closeCornerPeek();
+            }
+        });
+        btn.addEventListener('pointercancel', function () {
+            if (!peekLatched) closeCornerPeek();
+        });
+        btn.addEventListener('pointerleave', function () {
+            if (peekDownAt && !peekLatched) closeCornerPeek();
+        });
         btn.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
 
-        window.addEventListener('pointerup', closeCornerPeek);
+        document.addEventListener('pointerdown', function (ev) {
+            if (rolePeekOpen && peekLatched && pocket && !pocket.contains(ev.target)) {
+                closeCornerPeek();
+            }
+        });
+        window.addEventListener('pointerup', function () {
+            if (peekDownAt && !peekLatched) {
+                var heldMs = Date.now() - peekDownAt;
+                peekDownAt = 0;
+                if (heldMs < 240) openCornerPeek(true);
+                else closeCornerPeek();
+            }
+        });
         window.addEventListener('blur', closeCornerPeek);
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) closeCornerPeek();
         });
 
-        // Optional discreet keyboard hold: hold 'P' key to peek, release 'P' to snap shut
+        // Optional discreet keyboard peek: tap 'P' for 5s auto-hide, or hold 'P' to snap shut on release
+        var pDownAt = 0;
         document.addEventListener('keydown', function (ev) {
             if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
             if ((ev.key === 'p' || ev.key === 'P') && !ev.repeat) {
-                openCornerPeek();
+                if (rolePeekOpen && peekLatched) {
+                    pDownAt = 0;
+                    closeCornerPeek();
+                    return;
+                }
+                pDownAt = Date.now();
+                openCornerPeek(false);
             }
         });
         document.addEventListener('keyup', function (ev) {
             if (ev.key === 'p' || ev.key === 'P') {
-                closeCornerPeek();
+                if (!pDownAt) return;
+                var heldMs = Date.now() - pDownAt;
+                pDownAt = 0;
+                if (heldMs < 240) openCornerPeek(true);
+                else closeCornerPeek();
             }
         });
     })();
@@ -1096,7 +1143,9 @@ body.night-theme .pill-mono.phase {
         var v = currentView;
         var me = v.me;
         pocket.classList.toggle('peeking', rolePeekOpen);
-        el('peekBtnLabel').textContent = rolePeekOpen ? 'Release to Hide' : 'Hold [ID] to Peek';
+        el('peekBtnLabel').textContent = rolePeekOpen
+            ? (peekLatched ? 'Tap to Hide (5s)' : 'Release to Hide')
+            : 'Tap / Hold [ID] to Peek';
 
         if (!rolePeekOpen) {
             return;
@@ -1131,26 +1180,41 @@ body.night-theme .pill-mono.phase {
             var isSolo = livingWolves.length === 1;
             var lock = me.packLock || { state: 'coordinating', confirms: 0, totalWolves: livingWolves.length };
             var packHdr = 'Packmates';
+            var packHdrColor = '';
             if (v.phase === 'NIGHT') {
                 if (isSolo) {
                     packHdr = 'Solo Hunter - your target strikes at Dawn';
                 } else if (lock.state === 'locked') {
-                    packHdr = 'Pack Locked on Seat #' + (lock.targetSeat != null ? (lock.targetSeat < 10 ? '0' + lock.targetSeat : lock.targetSeat) : '?') +
+                    packHdr = 'PACK LOCKED: Seat #' + (lock.targetSeat != null ? (lock.targetSeat < 10 ? '0' + lock.targetSeat : lock.targetSeat) : '?') +
                         (v.rules.wolfConfirmStrike ? ' (' + lock.confirms + '/' + lock.totalWolves + ' confirmed)' : '');
+                    packHdrColor = ' style="color:var(--emerald);"';
                 } else if (lock.state === 'split') {
-                    packHdr = 'Pack Split - teacher will decide the night';
+                    packHdr = 'PACK SPLIT - pick the same seat!';
+                    packHdrColor = ' style="color:var(--amber);"';
                 } else {
-                    packHdr = 'Coordinating - match 1 seat to lock the kill';
+                    packHdr = 'COORDINATING - match 1 seat to lock';
                 }
             }
+            var matchButtons = [];
+            var seenMatchIds = {};
             var packLines = me.packmates.map(function (m) {
+                var whoTag = (m.id === me.id) ? 'You' : 'Packmate';
                 var pickSeat = '';
                 if (v.phase === 'NIGHT' && m.alive) {
                     var t = v.players.find(function (x) { return x.id === m.pick; });
-                    pickSeat = t ? (' -> Target: #' + (t.seat < 10 ? '0' + t.seat : t.seat) + ' ' + esc(t.name)) : ' (waiting for tap...)';
+                    var tSeatPad = t ? (t.seat < 10 ? '0' + t.seat : t.seat) : '';
+                    pickSeat = t ? (' -> <strong>#' + tSeatPad + ' ' + esc(t.name) + '</strong>') : ' (waiting for tap...)';
+                    if (m.id !== me.id && t && m.pick !== me.myNightPick && !seenMatchIds[t.id]) {
+                        seenMatchIds[t.id] = true;
+                        matchButtons.push(
+                            '<button type="button" class="btn btn-xs emerald" style="margin-top:6px; width:100%;" onclick="submitMyAction(\'night\', \'' + esc(t.id) + '\')">'
+                            + 'Match #' + tSeatPad + ' ' + esc(t.name)
+                            + '</button>'
+                        );
+                    }
                 }
                 var conf = (v.rules.wolfConfirmStrike && m.confirmed) ? ' [Confirmed]' : '';
-                return '#' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat + conf);
+                return whoTag + ' #' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat + conf);
             }).join('<br>');
 
             var confirmBtn = '';
@@ -1168,7 +1232,7 @@ body.night-theme .pill-mono.phase {
                 strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">The pack could not agree, so the night was decided for you.</div>';
             }
 
-            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label">' + packHdr + '</div>' + packLines + confirmBtn + strikeNote + '</div>';
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label"' + packHdrColor + '>' + esc(packHdr) + '</div>' + packLines + matchButtons.join('') + confirmBtn + strikeNote + '</div>';
         }
 
         // Doctor last protected reminder
@@ -1448,7 +1512,7 @@ body.night-theme .pill-mono.phase {
 
         return '<div>'
             + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:4px;">Night Council Selection</h3>'
-            + '<p style="font-size:0.87rem; color:var(--text-muted); margin-bottom:10px;">Every player taps 1 seat quietly during Night. Cup your hand over <strong>Hold [ID]</strong> in the corner if you need to check private details.</p>'
+            + '<p style="font-size:0.87rem; color:var(--text-muted); margin-bottom:10px;">Every player taps 1 seat quietly during Night. Tap or hold <strong>[ID]</strong> in the corner (auto-hides in 5s) to check private details.</p>'
             + '<div class="neutral-status-bar"><span>' + esc(leftStatus) + '</span><span class="neutral-status-mono">' + esc(rightMono) + '</span></div>'
             + '<div class="target-grid">' + buttons + '</div>'
             + '</div>';
