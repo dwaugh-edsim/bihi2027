@@ -2849,7 +2849,7 @@
         if (currentFraming) {
           map.fitBounds(currentFraming.bounds, { maxZoom: currentFraming.maxZoom, padding: [24, 24], animate: true, duration: 0.45 });
         } else {
-          map.setView([22, 10], 2);
+          map.setView([22, 12], 1.75, { animate: true });
         }
       }
 
@@ -3086,24 +3086,9 @@
               if (lyr.bringToFront) lyr.bringToFront();
             }
             frameCountry(q.iso, q.maxZoom, 0.72);
-          } else if (isClickMapMode(q)) {
-            var clickZoom = Math.max(q.maxZoom || 4, q.diff === 'hard' ? 4.5 : 5);
-            frameCountry(q.iso, clickZoom, 0.72);
-            var countryMeta = GEO_ENGINE.getCountry(q.iso);
-            if (countryMeta && countryMeta.isTiny && layerByIso[q.iso]) {
-              var center = layerByIso[q.iso].getBounds().getCenter();
-              tinyAssistMarker = L.circleMarker(center, {
-                radius: 9,
-                color: '#f59e0b',
-                weight: 2,
-                fillColor: '#f59e0b',
-                fillOpacity: 0.25
-              }).addTo(map);
-              tinyAssistMarker.on('click', function () {
-                onCountryClick(q.iso, layerByIso[q.iso]);
-              });
-            }
           } else {
+            // Keep click-map, flag, and trivia questions on a neutral world view
+            // so the camera never centers on or circles the answer before guessing.
             currentFraming = null;
             map.setView([22, 12], 1.75, { animate: true });
           }
