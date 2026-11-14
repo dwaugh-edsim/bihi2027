@@ -1960,6 +1960,10 @@
               <button type="button" class="board-refresh-btn" onclick="Arena.refreshLeaderboard()" title="Refresh leaderboard">&#x21bb;</button>
             </span>
           </div>
+          <label id="boardPrivacyRow" style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--muted);margin:0 0 8px 2px;cursor:pointer;user-select:none;">
+            <input type="checkbox" id="hideBoardChk" onchange="Arena.toggleHideBoard(this.checked)" style="accent-color:var(--amber,#f59e0b);cursor:pointer;">
+            <span>Hide my score from leaderboard</span>
+          </label>
           <div class="board-list" id="boardList"></div>
         </aside>
       </div>
@@ -2330,6 +2334,7 @@
           bestStreak: 0,
           best: { overall: 0, easy: 0, medium: 0, hard: 0 },
           history: [],
+          hideFromLeaderboard: false,
           lastActive: Date.now()
         };
       }
@@ -2395,6 +2400,7 @@
           if (Array.isArray(raw.history)) {
             next.history = raw.history.slice(0, 15);
           }
+          next.hideFromLeaderboard = !!raw.hideFromLeaderboard;
         }
         state = next;
         if (!state.section) {
@@ -2846,13 +2852,25 @@
         var acc = state.totalAsked ? Math.round((state.totalCorrect / state.totalAsked) * 100) : 0;
         el('bestAccStat').textContent = acc + '%';
         el('bestHitsStat').textContent = String(state.totalCorrect || 0);
+        if (el('hideBoardChk')) el('hideBoardChk').checked = !!state.hideFromLeaderboard;
         refreshPassUi();
         renderBoard();
+      }
+
+      function toggleHideBoard(checked) {
+        state.hideFromLeaderboard = !!checked;
+        saveToServer();
+        toast(state.hideFromLeaderboard
+          ? 'Your score is hidden from the leaderboard.'
+          : 'Your score is visible on the leaderboard.');
       }
 
       function renderBoard() {
         var box = el('boardList');
         if (!box) return;
+
+        if (el('boardControls')) el('boardControls').style.display = boardTab === 'class' ? 'flex' : 'none';
+        if (el('boardPrivacyRow')) el('boardPrivacyRow').style.display = boardTab === 'class' ? 'flex' : 'none';
 
         if (boardTab === 'history') {
           if (!state.history || !state.history.length) {
@@ -3776,6 +3794,7 @@
         switchBoard: switchBoard,
         switchBoardScope: switchBoardScope,
         refreshLeaderboard: refreshLeaderboard,
+        toggleHideBoard: toggleHideBoard,
         startRound: startRound,
         quitRound: quitRound,
         goLobby: goLobby,

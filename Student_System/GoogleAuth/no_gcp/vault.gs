@@ -283,11 +283,13 @@ function doPost(e) {
     var rosterL = getRosterMap_(SpreadsheetApp.getActiveSpreadsheet());
     var rowsL = shL.getRange(2, 1, shL.getLastRow() - 1, 7).getValues();
     var best = {};
+    var hiddenByEmail = {};
     for (var i = 0; i < rowsL.length; i++) {
       if (String(rowsL[i][3]) !== taskL) continue;
       var em = String(rowsL[i][1]).toLowerCase();
       var dataL = {};
       try { dataL = JSON.parse(rowsL[i][5] || '{}'); } catch (e) {}
+      hiddenByEmail[em] = !!dataL.hideFromLeaderboard;
       var score = Number(dataL.xp || 0);
       if (!best[em] || score >= best[em].score) {
         best[em] = {
@@ -298,7 +300,9 @@ function doPost(e) {
         };
       }
     }
-    var entries = Object.keys(best).map(function (em) {
+    var entries = Object.keys(best).filter(function (em) {
+      return !hiddenByEmail[em];
+    }).map(function (em) {
       var rInfo = rosterL[em];
       return {
         label: (rInfo && rInfo.label) ? rInfo.label : labelFromEmail_(em),
