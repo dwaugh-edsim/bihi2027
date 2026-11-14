@@ -1,4 +1,4 @@
-// maps_60.js - 60 map items: 20 easy / 20 medium / 20 hard.
+// maps_60.js - 80 map items: 26 easy / 27 medium / 27 hard.
 // Each item: { id, iso, name, mode, maxZoom }
 //   iso     -> ISO 3166-1 alpha-2 code; geometry comes from the local world GeoJSON layer
 //   mode    -> 'click' (student clicks the country on the context map)

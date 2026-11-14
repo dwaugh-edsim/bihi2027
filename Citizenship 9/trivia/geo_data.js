@@ -241,7 +241,7 @@
     masterPool = [];
     var tiers = ['easy', 'medium', 'hard'];
 
-    // 1. Maps (60)
+    // 1. Maps (80)
     var mapsSrc = window.GEO_MAPS || {};
     tiers.forEach(function (diff) {
       var list = mapsSrc[diff] || [];
@@ -268,7 +268,7 @@
       });
     });
 
-    // 2. Flags (60)
+    // 2. Flags (80)
     var flagsSrc = window.GEO_FLAGS || {};
     tiers.forEach(function (diff) {
       var list = flagsSrc[diff] || [];
@@ -293,7 +293,7 @@
       });
     });
 
-    // 3. Trivia (90)
+    // 3. Trivia (244 = 155 base + 89 extra)
     var triviaSrc = window.GEO_TRIVIA || {};
     tiers.forEach(function (diff) {
       var list = triviaSrc[diff] || [];
@@ -321,7 +321,7 @@
     });
   }
 
-  function cloneForRound(item, allowCombo, comboBudgetRef) {
+  function cloneForRound(item, allowCombo, comboBudgetRef, rng) {
     var q = {
       id: item.id,
       type: item.type,
@@ -363,7 +363,7 @@
       !TINY_ISOS[item.iso] &&
       countriesByIso[item.iso].pop >= 1500000;
 
-    if (canCombo && Math.random() < 0.32) {
+    if (canCombo && (rng ? rng() : Math.random()) < 0.32) {
       comboBudgetRef.left--;
       q.isCombo = true;
       q.comboBonus = 50;
@@ -373,11 +373,42 @@
       return q;
     }
 
-    q.o = item.o ? shuffle(item.o) : null;
+    q.o = item.o ? (rng ? seededShuffle(item.o, rng) : shuffle(item.o)) : null;
     return q;
   }
 
-  function pickFresh(candidates, needed, seenMap, pickedIds) {
+  // Deterministic RNG so a whole class can play the same seeded Daily Challenge.
+  function hashSeed(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seededShuffle(arr, rng) {
+    var copy = arr.slice();
+    for (var i = copy.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var tmp = copy[i];
+      copy[i] = copy[j];
+      copy[j] = tmp;
+    }
+    return copy;
+  }
+
+  function pickFresh(candidates, needed, seenMap, pickedIds, shuf) {
     var unseen = [];
     var seen = [];
     for (var i = 0; i < candidates.length; i++) {
@@ -386,7 +417,7 @@
       if (seenMap && seenMap[it.id]) seen.push(it);
       else unseen.push(it);
     }
-    var ordered = shuffle(unseen).concat(shuffle(seen));
+    var ordered = shuf(unseen).concat(shuf(seen));
     var out = ordered.slice(0, needed);
     for (var j = 0; j < out.length; j++) pickedIds[out[j].id] = true;
     return out;
@@ -408,50 +439,67 @@
     for (var s = 0; s < seenIds.length; s++) seenMap[seenIds[s]] = true;
 
     var pickedIds = {};
+    var rng = opts.rng || null;
+    var shuf = rng ? function (a) { return seededShuffle(a, rng); } : shuffle;
 
-    function pickTierBlock(diff, totalWanted) {
+    function pickMixedBlock(diff, totalWanted) {
       var tierPool = masterPool.filter(function (x) { return x.diff === diff; });
-      if (topic !== 'mixed') {
-        var focused = tierPool.filter(function (x) { return x.topic === topic; });
-        return shuffle(pickFresh(focused, totalWanted, seenMap, pickedIds));
-      }
-
       var maps = tierPool.filter(function (x) { return x.type === 'map'; });
       var flags = tierPool.filter(function (x) { return x.type === 'flag'; });
       var trivs = tierPool.filter(function (x) { return x.type === 'trivia'; });
 
       var block = []
-        .concat(pickFresh(maps, 1, seenMap, pickedIds))
-        .concat(pickFresh(flags, 1, seenMap, pickedIds));
+        .concat(pickFresh(maps, 1, seenMap, pickedIds, shuf))
+        .concat(pickFresh(flags, 1, seenMap, pickedIds, shuf));
 
       if (totalWanted >= 4) {
         var culture = trivs.filter(function (x) { return x.topic === 'culture'; });
         var facts = trivs.filter(function (x) { return x.topic === 'facts'; });
         block = block
-          .concat(pickFresh(culture, 1, seenMap, pickedIds))
-          .concat(pickFresh(facts, 1, seenMap, pickedIds));
+          .concat(pickFresh(culture, 1, seenMap, pickedIds, shuf))
+          .concat(pickFresh(facts, 1, seenMap, pickedIds, shuf));
       } else {
-        block = block.concat(pickFresh(trivs, 1, seenMap, pickedIds));
+        block = block.concat(pickFresh(trivs, 1, seenMap, pickedIds, shuf));
       }
 
       if (block.length < totalWanted) {
-        block = block.concat(pickFresh(tierPool, totalWanted - block.length, seenMap, pickedIds));
+        block = block.concat(pickFresh(tierPool, totalWanted - block.length, seenMap, pickedIds, shuf));
       }
-      return shuffle(block);
+      return shuf(block);
     }
 
-    // Common escalating progression: 3 Easy -> 4 Medium -> 3 Hard
-    var easyBlock = pickTierBlock('easy', 3);
-    var medBlock = pickTierBlock('medium', 4);
-    var hardBlock = pickTierBlock('hard', 3);
+    function pickTierBlock(diff, totalWanted) {
+      var tierPool = masterPool.filter(function (x) { return x.diff === diff; });
+      if (topic !== 'mixed') {
+        var focused = tierPool.filter(function (x) { return x.topic === topic; });
+        return shuf(pickFresh(focused, totalWanted, seenMap, pickedIds, shuf));
+      }
+      return pickMixedBlock(diff, totalWanted);
+    }
 
-    var chosen = easyBlock.concat(medBlock).concat(hardBlock);
-    var allowCombo = topic !== 'map';
+    // Challenge mode: ten hard items with the same type balance, no Combo upgrade.
+    var chosen;
+    if (opts.allHard) {
+      chosen = pickMixedBlock('hard', 10);
+    } else {
+      // Common escalating progression: 3 Easy -> 4 Medium -> 3 Hard
+      chosen = pickTierBlock('easy', 3)
+        .concat(pickTierBlock('medium', 4))
+        .concat(pickTierBlock('hard', 3));
+    }
+
+    var allowCombo = topic !== 'map' && !opts.allHard && !opts.noCombo;
     var comboBudget = { left: 2 };
 
     return chosen.map(function (item) {
-      return cloneForRound(item, allowCombo, comboBudget);
+      return cloneForRound(item, allowCombo, comboBudget, rng);
     });
+  }
+
+  // Same ten items for everyone on a given date, with a fixed presentation.
+  function buildDailyRound(dateStr) {
+    var rng = mulberry32(hashSeed('CIT9-DAILY:' + dateStr));
+    return buildRound({ topic: 'mixed', rng: rng, noCombo: true });
   }
 
   function getRank(xp) {
@@ -518,6 +566,9 @@
     getRank: getRank,
     getAllItems: function () { return masterPool.slice(); },
     buildHighlightOptions: buildHighlightOptions,
-    buildRound: buildRound
+    buildRound: buildRound,
+    buildDailyRound: buildDailyRound,
+    hashSeed: hashSeed,
+    mulberry32: mulberry32
   };
 })();

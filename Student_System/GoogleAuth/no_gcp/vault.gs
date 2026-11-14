@@ -28,7 +28,7 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.4.1';
+var VAULT_VERSION   = 'R8-VAULT-0.5.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 // Path B mints the identity at the page's sign-in handoff and keeps it for the
 // session, so the window must outlast a class period (not 10 minutes).
@@ -278,8 +278,18 @@ function doPost(e) {
     if (!vL.ok) return jsonOut_({ status: 'auth_failed', reason: vL.reason });
     var taskL = String(payload.task || '');
     var sectionL = String(payload.section || '');
+    var boardL = String(payload.board || 'best');
+    if (boardL !== 'xp' && boardL !== 'daily') boardL = 'best';
+
+    // Daily board key: the script's local date. Clients send the same key in
+    // their saved state, so a student only appears once they have played today.
+    var nowL = new Date();
+    var todayL = nowL.getFullYear() + '-' +
+      ('0' + (nowL.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + nowL.getDate()).slice(-2);
+
     var shL = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SUBMISSIONS_TAB);
-    if (!shL || shL.getLastRow() < 2) return jsonOut_({ status: 'ok', entries: [] });
+    if (!shL || shL.getLastRow() < 2) return jsonOut_({ status: 'ok', board: boardL, entries: [] });
     var rosterL = getRosterMap_(SpreadsheetApp.getActiveSpreadsheet());
     var rowsL = shL.getRange(2, 1, shL.getLastRow() - 1, 7).getValues();
     var best = {};
@@ -290,11 +300,19 @@ function doPost(e) {
       var dataL = {};
       try { dataL = JSON.parse(rowsL[i][5] || '{}'); } catch (e) {}
       hiddenByEmail[em] = !!dataL.hideFromLeaderboard;
-      var score = Number(dataL.xp || 0);
+
+      var bestScore = Number((dataL.best && dataL.best.overall) || 0);
+      var xpScore = Number(dataL.xp || 0);
+      var dailyScore = (dataL.daily && dataL.daily.date === todayL) ? (Number(dataL.daily.score) || 0) : -1;
+      var score = boardL === 'xp' ? xpScore : (boardL === 'daily' ? dailyScore : bestScore);
+      if (boardL === 'daily' && dailyScore < 0) continue;
+
       if (!best[em] || score >= best[em].score) {
         best[em] = {
           score: score,
-          best: Number((dataL.best && dataL.best.overall) || 0),
+          best: bestScore,
+          xp: xpScore,
+          dailyScore: dailyScore,
           section: String(rowsL[i][2] || ''),
           savedAt: rowsL[i][0]
         };
@@ -310,6 +328,8 @@ function doPost(e) {
         section: best[em].section || (rInfo && rInfo.section) || '',
         score: best[em].score,
         best: best[em].best,
+        xp: best[em].xp,
+        dailyScore: best[em].dailyScore,
         savedAt: best[em].savedAt
       };
     });
@@ -320,7 +340,7 @@ function doPost(e) {
       });
     }
     entries.sort(function (a, b) { return b.score - a.score; });
-    return jsonOut_({ status: 'ok', entries: entries.slice(0, 250) });
+    return jsonOut_({ status: 'ok', board: boardL, entries: entries.slice(0, 250) });
   }
 
   // ---- Teacher controls -----------------------------------------------------

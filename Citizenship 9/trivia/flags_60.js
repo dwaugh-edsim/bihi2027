@@ -1,4 +1,4 @@
-// flags_60.js - 60 flag items: 20 easy / 20 medium / 20 hard.
+// flags_60.js - 80 flag items: 26 easy / 27 medium / 27 hard.
 // Each item: { id, iso, name, o:[4 country-name options], a } where `a` is the correct name.
 // Flag image is served from local assets (assets/flags/<iso>.svg), NOT emoji -
 // Windows Chrome renders flag emoji as letter pairs, so SVG keeps teacher + student

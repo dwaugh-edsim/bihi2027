@@ -127,20 +127,77 @@
       gap: 20px;
     }
 
-    .flag-mosaic {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      opacity: 0.92;
+    .gate-globe {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 8px 0;
     }
 
-    .flag-mosaic img {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: block;
+    .gate-globe-sphere {
+      position: relative;
+      width: clamp(140px, 17vw, 185px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 28%, rgba(56, 189, 248, 0.5), rgba(15, 23, 32, 0) 48%),
+        radial-gradient(circle at 68% 72%, rgba(245, 158, 11, 0.32), rgba(15, 23, 32, 0) 54%),
+        #0f1720;
+      border: 1px solid var(--line-strong);
+      box-shadow: inset -20px -20px 44px rgba(0, 0, 0, 0.62), 0 18px 40px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    .gate-globe-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      transform: rotate(-16deg) scaleY(0.42);
+      animation: globeSpin 16s linear infinite;
+    }
+
+    .gate-globe-ring.two {
+      border-color: rgba(245, 158, 11, 0.3);
+      transform: rotate(28deg) scaleY(0.62);
+      animation-duration: 22s;
+      animation-direction: reverse;
+    }
+
+    .gate-globe-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 9px;
+      height: 9px;
+      margin: -4.5px 0 0 -4.5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px 4px rgba(245, 158, 11, 0.6);
+      animation: pulseDot 2.4s ease-in-out infinite;
+    }
+
+    .gate-globe-caption {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes globeSpin {
+      from { transform: rotate(-16deg) scaleY(0.42); }
+      to { transform: rotate(344deg) scaleY(0.42); }
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gate-globe-ring, .gate-globe-dot { animation: none; }
     }
 
     .gate-course-tag {
@@ -403,16 +460,8 @@
       background-size: 32px 32px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
-    }
-
-    .atlas-banner-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
     }
 
     .atlas-banner h3 {
@@ -427,22 +476,6 @@
       font-size: 0.85rem;
       color: var(--ink-soft);
       line-height: 1.45;
-    }
-
-    .mini-flag-row {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 6px;
-      margin-top: 12px;
-    }
-
-    .mini-flag-row img {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-radius: 3px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      display: block;
     }
 
     .mix-pillars {
@@ -831,6 +864,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 8px;
       font-size: 0.74rem;
@@ -1634,7 +1668,15 @@
       border-radius: 8px;
       background: var(--surface-2);
       border: 1px solid var(--line);
+      width: 100%;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.12s ease, background 0.12s ease;
     }
+
+    .rev-item:hover { border-color: var(--accent); }
+    .rev-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     .rev-item.missed {
       border-color: rgba(239, 68, 68, 0.55);
@@ -1667,6 +1709,49 @@
       font-size: 0.68rem;
       color: var(--muted);
     }
+
+    .tier-breakdown {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tier-tile {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-size: 0.76rem;
+    }
+
+    .tier-tile.easy { border-left: 3px solid var(--ok); }
+    .tier-tile.medium { border-left: 3px solid var(--info); }
+    .tier-tile.hard { border-left: 3px solid var(--accent); }
+    .tier-tile .tt-lbl { color: var(--muted); font-weight: 600; }
+    .tier-tile .tt-val { font-family: var(--f-mono); font-weight: 700; color: #fff; }
+
+    .review-detail {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 9px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+
+    .review-detail:empty { display: none; }
+    .review-detail .rd-hint { color: var(--muted); font-size: 0.78rem; }
+    .review-detail .rd-q { font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .review-detail .rd-answer { margin-bottom: 8px; }
+    .review-detail .rd-answer b { color: var(--accent); }
+    .review-detail .rd-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.8rem; }
+    .review-detail .rd-row span { color: var(--muted); }
 
     .results-actions {
       display: flex;
@@ -1706,6 +1791,24 @@
       #mapWrap { min-height: 300px; }
       .results-hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
     }
+
+    /* Short Chromebook screens: keep the HUD and arena usable at 1366x768 and below. */
+    @media (max-height: 800px) {
+      #hud { height: 42px; padding: 0 12px; gap: 8px; }
+      .brand-link { font-size: 0.95rem; }
+      .hud-meta { font-size: 0.74rem; }
+      #arenaView.active { height: calc(100vh - 42px); min-height: 480px; }
+      .action-col { padding: 14px; gap: 9px; }
+      .prompt-title { font-size: 1.16rem; }
+      .opt-btn { padding: 10px 12px; font-size: 0.9rem; }
+    }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
@@ -1715,25 +1818,19 @@
   <div id="gate">
     <div class="gate-card">
       <div class="gate-atlas">
-        <div class="flag-mosaic" aria-hidden="true">
-          <img src="assets/flags/ca.svg" alt="">
-          <img src="assets/flags/jp.svg" alt="">
-          <img src="assets/flags/br.svg" alt="">
-          <img src="assets/flags/no.svg" alt="">
-          <img src="assets/flags/ke.svg" alt="">
-          <img src="assets/flags/fr.svg" alt="">
-          <img src="assets/flags/au.svg" alt="">
-          <img src="assets/flags/in.svg" alt="">
-          <img src="assets/flags/mx.svg" alt="">
-          <img src="assets/flags/eg.svg" alt="">
-          <img src="assets/flags/kr.svg" alt="">
-          <img src="assets/flags/is.svg" alt="">
+        <div class="gate-globe" aria-hidden="true">
+          <div class="gate-globe-sphere">
+            <div class="gate-globe-ring"></div>
+            <div class="gate-globe-ring two"></div>
+            <div class="gate-globe-dot"></div>
+          </div>
+          <div class="gate-globe-caption">Live country borders &middot; flags &middot; capitals &middot; oceans</div>
         </div>
         <div>
           <span class="gate-course-tag">Bicentennial Jr High</span>
           <h1>World Atlas</h1>
           <div class="gate-facts">
-            <span>270 Questions</span>
+            <span id="gateQuestionCount">404 Questions</span>
             <span>Interactive Borders</span>
             <span>138 SVG Flags</span>
           </div>
@@ -1800,24 +1897,8 @@
           </div>
 
           <div class="atlas-banner">
-            <div class="atlas-banner-head">
-              <div>
-                <h3>Borders, Flags, Culture, and World Trivia</h3>
-                <p>Every round pulls a balanced mix from the 315-item pool (including 20th-century history to 2020s pop culture) and ramps up from Question 1 to Question 10.</p>
-              </div>
-            </div>
-            <div class="mini-flag-row" aria-hidden="true">
-              <img src="assets/flags/ca.svg" alt="">
-              <img src="assets/flags/gb.svg" alt="">
-              <img src="assets/flags/jp.svg" alt="">
-              <img src="assets/flags/br.svg" alt="">
-              <img src="assets/flags/ke.svg" alt="">
-              <img src="assets/flags/de.svg" alt="">
-              <img src="assets/flags/au.svg" alt="">
-              <img src="assets/flags/in.svg" alt="">
-              <img src="assets/flags/cn.svg" alt="">
-              <img src="assets/flags/ua.svg" alt="">
-            </div>
+            <h3>Borders, Flags, Capitals, Oceans, and World Trivia</h3>
+            <p>Every round pulls a balanced mix from the 404-item pool and ramps up from Question 1 to Question 10.</p>
           </div>
 
           <div class="mix-pillars">
@@ -1844,8 +1925,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
               </div>
               <div>
-                <div class="pillar-num">155 Trivia</div>
-                <div class="pillar-lbl">Culture, eras &amp; facts</div>
+                <div class="pillar-num" id="pillarTriviaCount">244 Trivia</div>
+                <div class="pillar-lbl">Capitals, oceans, facts &amp; culture</div>
               </div>
             </div>
           </div>
@@ -1853,7 +1934,7 @@
           <div class="config-row">
             <div class="cfg-group">
               <span class="cfg-label">Round Difficulty Curve</span>
-              <div class="ramp-row">
+              <div class="ramp-row" id="rampRow">
                 <span class="ramp-step s1">Q1-3 Easy (100)</span>
                 <span class="ramp-step s2">Q4-7 Med (200)</span>
                 <span class="ramp-step s3">Q8-10 Hard (300+)</span>
@@ -1866,6 +1947,22 @@
                 <button type="button" class="seg-btn active" data-pace="sprint" onclick="Arena.selectPace('sprint')">Timed</button>
                 <button type="button" class="seg-btn" data-pace="zen" onclick="Arena.selectPace('zen')">Untimed</button>
               </div>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="cfg-group">
+              <span class="cfg-label">Round Type</span>
+              <div class="seg-row" id="modeRow">
+                <button type="button" class="seg-btn active" data-mode="standard" onclick="Arena.selectMode('standard')">Standard</button>
+                <button type="button" class="seg-btn" data-mode="challenge" onclick="Arena.selectMode('challenge')">Challenge</button>
+              </div>
+            </div>
+
+            <div class="cfg-group">
+              <span class="cfg-label">Daily Challenge</span>
+              <button type="button" class="btn-secondary" id="dailyBtn" onclick="Arena.startDaily()" style="width:100%">Play Today's Round</button>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:6px" id="dailyStatus">One shared round per day</div>
             </div>
           </div>
 
@@ -1944,12 +2041,18 @@
               <div class="bt-val" id="bestHitsStat">0</div>
             </div>
           </div>
+          <div style="font-size:0.78rem;color:var(--muted);margin:-6px 0 14px" id="challengeBestLbl">Challenge Best: 0 pts</div>
 
           <div class="board-tabs">
             <button type="button" class="board-tab active" id="tabBoardClass" onclick="Arena.switchBoard('class')">Leaderboard</button>
             <button type="button" class="board-tab" id="tabBoardHistory" onclick="Arena.switchBoard('history')">Recent Rounds</button>
           </div>
           <div class="board-controls" id="boardControls">
+            <div class="scope-pills" id="boardTypePills">
+              <button type="button" class="scope-pill active" data-board="best" onclick="Arena.switchBoardType('best')">Best Round</button>
+              <button type="button" class="scope-pill" data-board="xp" onclick="Arena.switchBoardType('xp')">XP</button>
+              <button type="button" class="scope-pill" data-board="daily" onclick="Arena.switchBoardType('daily')">Today</button>
+            </div>
             <div class="scope-pills">
               <button type="button" class="scope-pill active" id="scopeAllBtn" onclick="Arena.switchBoardScope('all')">All Kids</button>
               <button type="button" class="scope-pill" id="scopeSecBtn" onclick="Arena.switchBoardScope('section')" disabled>My Section</button>
@@ -2030,7 +2133,7 @@
         <div class="action-col">
           <div class="prompt-box">
             <div class="prompt-kicker" id="promptKicker">Map Pinpoint</div>
-            <h2 class="prompt-title" id="promptTitle">Where is Canada?</h2>
+            <h2 class="prompt-title" id="promptTitle" aria-live="polite">Where is Canada?</h2>
             <p class="prompt-sub" id="promptSub">Click directly inside the country's borders on the map.</p>
           </div>
 
@@ -2041,7 +2144,7 @@
             <button type="button" class="skip-btn" id="giveUpBtn" onclick="Arena.giveUpMapClick()">Not sure? Show country on map</button>
           </div>
 
-          <div id="intelCard">
+          <div id="intelCard" role="status" aria-live="polite">
             <div class="intel-top">
               <span class="intel-verdict ok" id="intelVerdict">Correct!</span>
               <span class="intel-pts" id="intelPts">+140 pts</span>
@@ -2080,6 +2183,7 @@
               <span>XP Earned: <b id="resXpGain">+0 XP</b></span>
             </div>
             <div class="res-pass-note" id="resPassNote"></div>
+            <div class="tier-breakdown" id="resTierBreakdown"></div>
           </div>
 
           <div class="res-rank-box">
@@ -2095,6 +2199,7 @@
             <span class="sec-sub">Missed countries are highlighted first for review</span>
           </div>
           <div class="review-grid" id="reviewGrid"></div>
+          <div class="review-detail" id="reviewDetail"></div>
         </section>
 
         <div class="results-actions">
@@ -2111,6 +2216,7 @@
   <script src="assets/leaflet/leaflet.js"></script>
   <script src="assets/world_countries.js"></script>
   <script src="trivia_90.js"></script>
+  <script src="trivia_extra.js"></script>
   <script src="maps_60.js"></script>
   <script src="flags_60.js"></script>
   <script src="geo_data.js"></script>
@@ -2318,6 +2424,7 @@
       var popupRef = null;
       var boardTab = 'class';
       var boardScope = 'all';
+      var boardType = 'best';
       var leaderboardTimer = null;
       var remoteLeaderboard = null;
 
@@ -2332,7 +2439,11 @@
           totalCorrect: 0,
           totalAsked: 0,
           bestStreak: 0,
-          best: { overall: 0, easy: 0, medium: 0, hard: 0 },
+          carryStreak: 0,
+          xpDate: '',
+          xpToday: 0,
+          daily: { date: '', score: 0, hits: 0, played: false },
+          best: { overall: 0, challenge: 0, easy: 0, medium: 0, hard: 0 },
           history: [],
           hideFromLeaderboard: false,
           lastActive: Date.now()
@@ -2391,8 +2502,20 @@
           next.totalCorrect = Number(raw.totalCorrect) || 0;
           next.totalAsked = Number(raw.totalAsked) || 0;
           next.bestStreak = Number(raw.bestStreak) || 0;
+          next.carryStreak = Number(raw.carryStreak) || 0;
+          next.xpDate = String(raw.xpDate || '');
+          next.xpToday = Number(raw.xpToday) || 0;
+          if (raw.daily && typeof raw.daily === 'object') {
+            next.daily = {
+              date: String(raw.daily.date || ''),
+              score: Number(raw.daily.score) || 0,
+              hits: Number(raw.daily.hits) || 0,
+              played: !!raw.daily.played
+            };
+          }
           if (raw.best && typeof raw.best === 'object') {
             next.best.overall = Number(raw.best.overall) || 0;
+            next.best.challenge = Number(raw.best.challenge) || 0;
             next.best.easy = Number(raw.best.easy) || 0;
             next.best.medium = Number(raw.best.medium) || 0;
             next.best.hard = Number(raw.best.hard) || 0;
@@ -2513,6 +2636,15 @@
         fetchLeaderboard();
       }
 
+      function switchBoardType(type) {
+        boardType = (type === 'xp' || type === 'daily') ? type : 'best';
+        var pills = document.querySelectorAll('#boardTypePills .scope-pill');
+        pills.forEach(function (p) {
+          p.classList.toggle('active', p.getAttribute('data-board') === boardType);
+        });
+        fetchLeaderboard();
+      }
+
       function refreshLeaderboard() {
         fetchLeaderboard();
       }
@@ -2529,7 +2661,8 @@
           ts: identity.ts,
           sig: identity.sig,
           task: TASK_NAME,
-          section: targetSec
+          section: targetSec,
+          board: boardType
         }).then(function (j) {
           if (j && j.status === 'ok' && Array.isArray(j.entries)) {
             remoteLeaderboard = j.entries;
@@ -2776,6 +2909,25 @@
         });
       }
 
+      function selectMode(mode) {
+        config.mode = mode === 'challenge' ? 'challenge' : 'standard';
+        var btns = el('modeRow').querySelectorAll('.seg-btn');
+        btns.forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-mode') === config.mode);
+        });
+        var ramp = el('rampRow');
+        if (config.mode === 'challenge') {
+          ramp.innerHTML = '<span class="ramp-step s3">All 10 Hard \u00B7 14s each \u00B7 1.5x points</span>';
+          el('startRoundBtn').textContent = 'Start Challenge Round';
+        } else {
+          ramp.innerHTML =
+            '<span class="ramp-step s1">Q1-3 Easy (100)</span>' +
+            '<span class="ramp-step s2">Q4-7 Med (200)</span>' +
+            '<span class="ramp-step s3">Q8-10 Hard (300+)</span>';
+          el('startRoundBtn').textContent = 'Start 10-Question Round';
+        }
+      }
+
       function selectTopic(topic) {
         if (topic !== 'mixed' && (state.passes || 0) <= 0) {
           toast('Finish 2 Mixed rounds or score 7/10+ to earn a Free Topic Pass.');
@@ -2852,6 +3004,23 @@
         var acc = state.totalAsked ? Math.round((state.totalCorrect / state.totalAsked) * 100) : 0;
         el('bestAccStat').textContent = acc + '%';
         el('bestHitsStat').textContent = String(state.totalCorrect || 0);
+        if (el('challengeBestLbl')) {
+          el('challengeBestLbl').textContent = 'Challenge Best: ' + (state.best.challenge || 0).toLocaleString() + ' pts';
+        }
+        var dailyBtn = el('dailyBtn');
+        var dailyStatus = el('dailyStatus');
+        if (dailyBtn && dailyStatus) {
+          var playedToday = state.daily && state.daily.date === todayKey() && state.daily.played;
+          if (playedToday) {
+            dailyBtn.textContent = "Today's Round Complete";
+            dailyBtn.disabled = true;
+            dailyStatus.textContent = 'Done today: ' + state.daily.hits + '/10 \u00B7 ' + Number(state.daily.score || 0).toLocaleString() + ' pts';
+          } else {
+            dailyBtn.textContent = "Play Today's Round";
+            dailyBtn.disabled = false;
+            dailyStatus.textContent = 'One shared round per day';
+          }
+        }
         if (el('hideBoardChk')) el('hideBoardChk').checked = !!state.hideFromLeaderboard;
         refreshPassUi();
         renderBoard();
@@ -2880,9 +3049,11 @@
           box.innerHTML = state.history.map(function (h, idx) {
             var topicMeta = h.topic && h.topic !== 'mixed' && GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[h.topic];
             var topicLbl = topicMeta ? topicMeta.short : 'Mixed';
+            var modeLbl = h.mode === 'challenge' ? 'Challenge' : (h.mode === 'daily' ? 'Daily' : null);
+            var label = modeLbl ? (modeLbl + ' \u00B7 ' + topicLbl) : topicLbl;
             return '<div class="board-row">' +
               '<span class="br-rank">#' + (idx + 1) + '</span>' +
-              '<span class="br-name">' + esc(topicLbl) + ' \u00B7 ' + (h.pace === 'zen' ? 'Untimed' : 'Timed') + '</span>' +
+              '<span class="br-name">' + esc(label) + ' \u00B7 ' + (h.pace === 'zen' ? 'Untimed' : 'Timed') + '</span>' +
               '<span class="br-meta">' + esc(h.hits + '/10') + '</span>' +
               '<span class="br-score">' + Number(h.score || 0).toLocaleString() + ' pts</span>' +
               '</div>';
@@ -2899,11 +3070,12 @@
           box.innerHTML = remoteLeaderboard.map(function (row, idx) {
             var disp = row.label || GEO_ENGINE.formatDisplayName(row.name || row.email || 'Player');
             var isMe = row.me === true || (identity && row.email && row.email === identity.email);
+            var unit = boardType === 'xp' ? ' XP' : ' pts';
             return '<div class="board-row' + (isMe ? ' me' : '') + '">' +
               '<span class="br-rank">#' + (idx + 1) + '</span>' +
               '<span class="br-name">' + esc(disp) + (isMe ? ' (You)' : '') + '</span>' +
               '<span class="br-meta">' + esc(row.section || '') + '</span>' +
-              '<span class="br-score">' + Number(row.score || 0).toLocaleString() + ' pts</span>' +
+              '<span class="br-score">' + Number(row.score || 0).toLocaleString() + unit + '</span>' +
               '</div>';
           }).join('');
           return;
@@ -3056,17 +3228,71 @@
       /* ================= LIVE ROUND ENGINE ================= */
       var round = null;
       var tickInterval = null;
+      var reviewItems = [];
+
+      function showReviewDetail(idx) {
+        var r = reviewItems[idx];
+        if (!r) return;
+        var c = GEO_ENGINE.getCountry(r.iso || r.a);
+        var html = '<div class="rd-q">' + esc(r.q || ('Where is ' + r.name + '?')) + '</div>';
+        html += '<div class="rd-answer">Answer: <b>' + esc(r.a) + '</b></div>';
+        if (c) {
+          html += '<div class="rd-row"><span>Region</span><b>' + esc(c.subregion || c.continent) + '</b></div>';
+          html += '<div class="rd-row"><span>Population</span><b>' + GEO_ENGINE.formatPop(c.pop) + '</b></div>';
+        }
+        el('reviewDetail').innerHTML = html;
+      }
 
       function isClickMapMode(q) {
         return q && (q.renderMode === 'map-click' || q.renderMode === 'flag-map' || q.renderMode === 'trivia-map');
       }
 
       function allowsMapClick(q) {
-        return isClickMapMode(q) || (q && (q.renderMode === 'flag' || q.renderMode === 'trivia'));
+        if (!q || !q.iso) return false;
+        return isClickMapMode(q) || q.renderMode === 'flag' || q.renderMode === 'trivia';
+      }
+
+      function todayKey() {
+        var d = new Date();
+        var m = String(d.getMonth() + 1); if (m.length < 2) m = '0' + m;
+        var day = String(d.getDate()); if (day.length < 2) day = '0' + day;
+        return d.getFullYear() + '-' + m + '-' + day;
+      }
+
+      function beginRound(items, topic, extra) {
+        extra = extra || {};
+        var carry = (state.carryStreak || 0);
+        round = {
+          items: items,
+          topic: topic,
+          idx: 0,
+          score: 0,
+          streak: carry,
+          maxStreak: carry,
+          hits: 0,
+          xpEarned: 0,
+          results: [],
+          answered: false,
+          wrongClicksThisQ: 0,
+          wrongClickedIsos: {},
+          qStartMs: 0,
+          qDurationMs: 18000,
+          challengeMult: extra.challengeMult || 1,
+          isChallenge: !!extra.isChallenge,
+          isDaily: !!extra.isDaily,
+          dailyDate: extra.dailyDate || ''
+        };
+
+        showScreen('arenaView');
+        setTimeout(function () {
+          ensureMap();
+          renderQuestion();
+        }, 40);
       }
 
       function startRound() {
         ensureAudio();
+        if (config.mode === 'challenge') { startChallenge(); return; }
         var roundTopic = (config.topic && config.topic !== 'mixed' && (state.passes || 0) > 0) ? config.topic : 'mixed';
         if (roundTopic !== 'mixed') {
           state.passes = Math.max(0, (state.passes || 0) - 1);
@@ -3082,28 +3308,36 @@
         items.forEach(function (it) { sessionSeenIds.push(it.id); });
         if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
 
-        round = {
-          items: items,
-          topic: roundTopic,
-          idx: 0,
-          score: 0,
-          streak: 0,
-          maxStreak: 0,
-          hits: 0,
-          xpEarned: 0,
-          results: [],
-          answered: false,
-          wrongClicksThisQ: 0,
-          wrongClickedIsos: {},
-          qStartMs: 0,
-          qDurationMs: 18000
-        };
+        beginRound(items, roundTopic, {});
+      }
 
-        showScreen('arenaView');
-        setTimeout(function () {
-          ensureMap();
-          renderQuestion();
-        }, 40);
+      function startChallenge() {
+        ensureAudio();
+        var items = GEO_ENGINE.buildRound({
+          count: 10,
+          topic: 'mixed',
+          allHard: true,
+          seenIds: sessionSeenIds
+        });
+        items.forEach(function (it) {
+          it.timeLimit = 14;
+          sessionSeenIds.push(it.id);
+        });
+        if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
+        toast('Challenge Round: 10 hard questions, 14 seconds each, 1.5x points.');
+        beginRound(items, 'mixed', { challengeMult: 1.5, isChallenge: true });
+      }
+
+      function startDaily() {
+        ensureAudio();
+        var key = todayKey();
+        if (state.daily && state.daily.date === key && state.daily.played) {
+          toast('Daily Challenge already played today. Come back tomorrow!');
+          return;
+        }
+        var items = GEO_ENGINE.buildDailyRound(key);
+        toast('Daily Challenge: the same 10 questions for everyone today.');
+        beginRound(items, 'mixed', { isDaily: true, dailyDate: key });
       }
 
       function quitRound() {
@@ -3203,7 +3437,9 @@
           showcase.classList.add('show-trivia');
           triviaHero.style.display = 'block';
           el('triviaHeroText').textContent = q.q;
-          el('mapRadarCaption').textContent = 'Click the country on the map or pick an option on the right';
+          el('mapRadarCaption').textContent = q.iso
+            ? 'Click the country on the map or pick an option on the right'
+            : 'Pick an option on the right';
         } else if (q.renderMode === 'flag-map') {
           comboOverlay.classList.add('show');
           el('comboFlagImg').src = q.flagUrl;
@@ -3256,9 +3492,11 @@
             el('promptTitle').textContent = 'Which country flies this flag?';
             el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
           } else {
-            el('promptKicker').textContent = 'World Trivia';
-            el('promptTitle').textContent = q.q;
-            el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
+          el('promptKicker').textContent = 'World Trivia';
+          el('promptTitle').textContent = q.q;
+          el('promptSub').textContent = q.iso
+            ? 'Choose an option (1-4) or click the country directly on the map.'
+            : 'Choose an option (1-4).';
           }
 
           (q.o || []).forEach(function (optName, idx) {
@@ -3406,10 +3644,12 @@
           layer.setStyle(STYLE_WRONG);
           if (layer.bringToFront) layer.bringToFront();
 
-          if (round.wrongClicksThisQ === 1) {
+          if (round.wrongClicksThisQ < 3) {
             sfxMiss();
             var targetLabel = (q.renderMode === 'map-click') ? ('<b>' + esc(q.name) + '</b>') : 'the target country';
-            el('clickGuideText').innerHTML = 'That country is <b>' + esc(clickedName) + '</b> (-35 pt penalty). Try one more click to find ' + targetLabel + '.';
+            var triesLeft = 3 - round.wrongClicksThisQ;
+            el('clickGuideText').innerHTML = 'That country is <b>' + esc(clickedName) + '</b> (-35 pt penalty). ' +
+              (triesLeft === 1 ? 'Last try' : 'Try one more click') + ' to find ' + targetLabel + '.';
           } else {
             finalizeAnswer(false, 'Clicked ' + clickedName + '. Target was ' + q.name + '.', 0);
           }
@@ -3438,7 +3678,8 @@
         var penalty = (wrongAttempts || 0) * 35;
         var nextStreak = round.streak + 1;
         var mult = getStreakMultiplier(nextStreak);
-        return Math.max(25, Math.round((base + paceBonus - penalty) * mult));
+        var challengeMult = (round && round.challengeMult) || 1;
+        return Math.max(25, Math.round((base + paceBonus - penalty) * mult * challengeMult));
       }
 
       function submitChoice(pickedName, clickedBtn) {
@@ -3470,14 +3711,17 @@
           sfxHit(round.streak);
         } else {
           round.streak = 0;
-          round.xpEarned += 20;
           sfxMiss();
         }
 
         round.results.push({
           id: q.id,
+          type: q.type,
+          diff: q.diff,
           iso: q.iso,
           name: q.name || q.a,
+          q: q.q || '',
+          a: q.a,
           continent: q.continent,
           flagUrl: q.flagUrl,
           hit: isHit,
@@ -3505,7 +3749,7 @@
         vEl.className = 'intel-verdict ' + (isHit ? 'ok' : 'bad');
         vEl.textContent = verdictMsg;
 
-        el('intelPts').textContent = isHit ? ('+' + ptsEarned + ' pts') : '+20 XP';
+        el('intelPts').textContent = isHit ? ('+' + ptsEarned + ' pts') : 'No XP';
 
         var cMeta = GEO_ENGINE.getCountry(q.iso || q.a);
         if (cMeta && cMeta.flagUrl) {
@@ -3562,16 +3806,38 @@
         state.totalCorrect = (state.totalCorrect || 0) + round.hits;
         state.totalAsked = (state.totalAsked || 0) + round.items.length;
         if (round.maxStreak > (state.bestStreak || 0)) state.bestStreak = round.maxStreak;
-        state.xp = (state.xp || 0) + round.xpEarned;
+        state.carryStreak = round.streak >= 3 ? round.streak : 0;
+
+        // Perfect-round bonus: a clean sweep is worth an extra 250 pts and XP.
+        var perfectBonus = (round.hits === round.items.length && round.items.length > 0) ? 250 : 0;
+        if (perfectBonus) {
+          round.score += perfectBonus;
+          round.xpEarned += perfectBonus;
+        }
+
+        // Anti-grind: only the first 2,000 XP earned in a calendar day counts.
+        var dayKey = todayKey();
+        if (state.xpDate !== dayKey) { state.xpDate = dayKey; state.xpToday = 0; }
+        var xpCap = 2000;
+        var xpToAdd = Math.max(0, round.xpEarned);
+        if (state.xpToday >= xpCap) xpToAdd = 0;
+        else if (state.xpToday + xpToAdd > xpCap) xpToAdd = xpCap - state.xpToday;
+        state.xpToday += xpToAdd;
+        round.xpEarned = xpToAdd;
+        state.xp = (state.xp || 0) + xpToAdd;
 
         var passOutcome = updatePassesAfterRound(state, round.topic || 'mixed', round.hits);
 
-        var isNewBest = round.score > prevOverallBest;
+        var isNewBest = !round.isChallenge && round.score > prevOverallBest;
         if (isNewBest) state.best.overall = round.score;
+        if (round.isChallenge && round.score > (state.best.challenge || 0)) state.best.challenge = round.score;
+        if (round.isDaily) {
+          state.daily = { date: round.dailyDate, score: round.score, hits: round.hits, played: true };
+        }
 
         state.history.unshift({
           ts: Date.now(),
-          mode: 'mixed',
+          mode: round.isChallenge ? 'challenge' : (round.isDaily ? 'daily' : 'mixed'),
           topic: round.topic || 'mixed',
           diff: 'common',
           pace: config.pace,
@@ -3607,7 +3873,10 @@
         }, 40);
 
         var pbBadge = el('resPbBadge');
-        if (rankedUp) {
+        if (perfectBonus) {
+          pbBadge.textContent = 'Perfect Round! +' + perfectBonus + ' bonus';
+          pbBadge.classList.add('show');
+        } else if (rankedUp) {
           pbBadge.textContent = 'Promoted to ' + newRankObj.current.title;
           pbBadge.classList.add('show');
         } else if (isNewBest && round.score > 0) {
@@ -3617,10 +3886,13 @@
           pbBadge.classList.remove('show');
         }
 
-        el('resHeadline').textContent = 'Round Score: ' + round.score.toLocaleString() + ' pts';
+        var roundLabel = round.isChallenge ? 'Challenge Score' : (round.isDaily ? 'Daily Score' : 'Round Score');
+        el('resHeadline').textContent = roundLabel + ': ' + round.score.toLocaleString() + ' pts';
         el('resHits').textContent = round.hits + ' / ' + round.items.length;
         el('resStreak').textContent = String(round.maxStreak);
-        el('resXpGain').textContent = '+' + round.xpEarned.toLocaleString() + ' XP';
+        var xpText = '+' + round.xpEarned.toLocaleString() + ' XP';
+        if (xpToAdd <= 0 && (state.xpToday || 0) >= 2000) xpText += ' (daily cap reached)';
+        el('resXpGain').textContent = xpText;
 
         el('resRankEmblem').innerHTML = getRankIconSvg(newRankObj.current);
         el('resRankKicker').textContent = rankedUp ? 'Tier Unlocked' : newRankObj.current.subtitle.toUpperCase();
@@ -3629,14 +3901,28 @@
         var sortedRev = round.results.slice().sort(function (a, b) {
           return (a.hit === b.hit) ? 0 : (a.hit ? 1 : -1);
         });
-        el('reviewGrid').innerHTML = sortedRev.map(function (r) {
+        reviewItems = sortedRev;
+        el('reviewGrid').innerHTML = sortedRev.map(function (r, i) {
           var flagHtml = r.flagUrl ? '<img src="' + esc(r.flagUrl) + '" alt="">' : '';
-          return '<div class="rev-item ' + (r.hit ? 'hit' : 'missed') + '">' +
+          return '<button type="button" class="rev-item ' + (r.hit ? 'hit' : 'missed') + '" onclick="Arena.showReviewDetail(' + i + ')">' +
             flagHtml +
             '<div class="rev-txt">' +
               '<div class="rev-name">' + esc(r.name) + '</div>' +
               '<div class="rev-sub">' + (r.hit ? ('Hit \u00B7 +' + r.pts) : ('Missed \u00B7 ' + esc(r.continent))) + '</div>' +
             '</div>' +
+            '</button>';
+        }).join('');
+        el('reviewDetail').innerHTML = '<span class="rd-hint">Tap a country or fact above to see it again.</span>';
+
+        var tierCounts = { easy: [0, 0], medium: [0, 0], hard: [0, 0] };
+        round.results.forEach(function (r) {
+          if (tierCounts[r.diff]) { tierCounts[r.diff][1]++; if (r.hit) tierCounts[r.diff][0]++; }
+        });
+        el('resTierBreakdown').innerHTML = ['easy', 'medium', 'hard'].map(function (d) {
+          var c = tierCounts[d];
+          return '<div class="tier-tile ' + d + '">' +
+            '<span class="tt-lbl">' + d.charAt(0).toUpperCase() + d.slice(1) + '</span>' +
+            '<span class="tt-val">' + c[0] + '/' + c[1] + '</span>' +
             '</div>';
         }).join('');
 
@@ -3674,15 +3960,19 @@
         function ok(cond, msg) { out.push((cond ? 'PASS' : 'FAIL') + ': ' + msg); }
         try {
           var all = GEO_ENGINE.getAllItems();
-          ok(all.length === 315, 'Master pool has 315 items (' + all.length + ')');
+          ok(all.length === 404, 'Master pool has 404 items (' + all.length + ')');
           var culturePool = all.filter(function (x) { return x.topic === 'culture'; });
           ok(culturePool.length >= 70, 'Culture & Modern Era pool has ' + culturePool.length + ' items');
 
           var cn = GEO_ENGINE.getCountry('CN');
           ok(!!cn && cn.name === 'China' && cn.pop > 1000000000 && cn.center[1] > 70, 'China (CN) geometry is mainland China');
 
-          var missingIso = all.filter(function (x) { return !x.iso || !GEO_ENGINE.getCountry(x.iso); });
-          ok(missingIso.length === 0, 'Every item resolves to a GeoJSON country (' + missingIso.length + ' missing)');
+          var missingGeo = all.filter(function (x) {
+            return (x.type === 'map' || x.type === 'flag') && (!x.iso || !GEO_ENGINE.getCountry(x.iso));
+          });
+          ok(missingGeo.length === 0, 'Every map/flag item resolves to a GeoJSON country (' + missingGeo.length + ' missing)');
+          var nonCountry = all.filter(function (x) { return x.type === 'trivia' && !x.iso; });
+          ok(nonCountry.length >= 40, 'Trivia bank includes ' + nonCountry.length + ' non-country items (capitals, oceans, map skills)');
 
           var badBalance = 0;
           var badRamp = 0;
@@ -3724,12 +4014,23 @@
           ok(!/[\u2013\u2014]/.test(htmlText), 'Zero em/en-dashes in rendered DOM');
 
           ok(
-            allowsMapClick({ renderMode: 'flag' }) === true &&
-            allowsMapClick({ renderMode: 'trivia' }) === true &&
-            allowsMapClick({ renderMode: 'map-click' }) === true &&
-            allowsMapClick({ renderMode: 'map-highlight' }) === false,
-            'allowsMapClick enables hybrid map click on flag/trivia while keeping map-highlight option-only'
+            allowsMapClick({ renderMode: 'flag', iso: 'BR' }) === true &&
+            allowsMapClick({ renderMode: 'trivia', iso: 'BR' }) === true &&
+            allowsMapClick({ renderMode: 'trivia', iso: '' }) === false &&
+            allowsMapClick({ renderMode: 'map-click', iso: 'BR' }) === true &&
+            allowsMapClick({ renderMode: 'map-highlight', iso: 'BR' }) === false,
+            'allowsMapClick requires a country and keeps map-highlight option-only'
           );
+
+          var dailyA = GEO_ENGINE.buildDailyRound('2026-11-14');
+          var dailyB = GEO_ENGINE.buildDailyRound('2026-11-14');
+          var dailyIds = function (r) { return r.map(function (x) { return x.id; }).join(','); };
+          ok(dailyA.length === 10 && dailyIds(dailyA) === dailyIds(dailyB), 'Daily Challenge picks the same 10 items for a given date');
+          ok(dailyA.every(function (x) { return !x.isCombo; }), 'Daily Challenge never upgrades an item to Combo');
+
+          var challenge = GEO_ENGINE.buildRound({ count: 10, allHard: true });
+          ok(challenge.length === 10 && challenge.every(function (x) { return x.diff === 'hard'; }) &&
+            challenge.every(function (x) { return !x.isCombo; }), 'Challenge round is 10 hard items with no Combo upgrade');
 
           startRound();
           setTimeout(function () {
@@ -3790,12 +4091,16 @@
         teacherResetAll: teacherResetAll,
         toggleSfx: toggleSfx,
         selectPace: selectPace,
+        selectMode: selectMode,
         selectTopic: selectTopic,
+        startDaily: startDaily,
         switchBoard: switchBoard,
         switchBoardScope: switchBoardScope,
+        switchBoardType: switchBoardType,
         refreshLeaderboard: refreshLeaderboard,
         toggleHideBoard: toggleHideBoard,
         startRound: startRound,
+        showReviewDetail: showReviewDetail,
         quitRound: quitRound,
         goLobby: goLobby,
         reframeMap: reframeMap,

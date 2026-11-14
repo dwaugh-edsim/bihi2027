@@ -1,4 +1,7 @@
 // trivia_90.js - 155 country-trivia items (World Facts & Culture / Modern Era).
+// A second bank, trivia_extra.js (capitals, oceans/seas, Africa & South Asia,
+// Canada/Nova Scotia, map skills), is merged into window.GEO_TRIVIA after this
+// file loads, bringing the trivia pool to 244 items.
 // Each item: { id, q, o:[4 options], a, topic? } where `a` is the correct option string
 // and `topic` is 'culture' (20th C. - 2020s pop culture, sports, gaming, modern history)
 // or omitted/'facts' (landmarks, capitals, inventions, geography).
@@ -37,7 +40,7 @@ window.GEO_TRIVIA = {
     { id:'e28', q:'The Christ the Redeemer statue overlooks which country\u2019s city of Rio de Janeiro?', o:['Brazil','Portugal','Italy','Spain'], a:'Brazil' },
     { id:'e29', q:'The Inca citadel of Machu Picchu is in which country?', o:['Peru','Bolivia','Chile','Ecuador'], a:'Peru' },
     { id:'e30', q:'Tacos originated in which country?', o:['Mexico','Spain','USA','Argentina'], a:'Mexico' },
-    { id:'e31', q:'Which country sends a giant Christmas tree to Boston every year from Nova Scotia?', o:['Canada','Norway','USA','United Kingdom'], a:'Canada' },
+    { id:'e31', q:'Which city receives a giant Christmas tree from Nova Scotia every year?', o:['Boston','New York','London','Dublin'], a:'Boston' },
     { id:'e32', topic:'culture', q:'Which country won the first-ever FIFA World Cup in 1930?', o:['Uruguay','Brazil','Argentina','Italy'], a:'Uruguay' },
     { id:'e33', q:'The Great Sphinx stands near Cairo in which country?', o:['Egypt','Jordan','Greece','Morocco'], a:'Egypt' },
     { id:'e34', topic:'culture', q:'Basketball was invented in 1891 by James Naismith, who was born in which country?', o:['Canada','USA','United Kingdom','Australia'], a:'Canada' },
