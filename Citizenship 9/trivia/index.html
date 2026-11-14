@@ -2665,7 +2665,21 @@
           board: boardType
         }).then(function (j) {
           if (j && j.status === 'ok' && Array.isArray(j.entries)) {
-            remoteLeaderboard = j.entries;
+            var entries = j.entries;
+            if (!j.board) {
+              // Older vault (pre-0.5.0) ignores `board` and always ranks lifetime
+              // XP. Re-rank client-side so the new boards still mean something
+              // until the GAS deployment is updated.
+              entries = entries.map(function (row) {
+                var r = Object.assign({}, row);
+                r.score = boardType === 'xp' ? Number(r.xp || r.score || 0)
+                  : boardType === 'daily' ? -1
+                  : Number(r.best || 0);
+                return r;
+              }).filter(function (r) { return r.score >= 0; });
+              entries.sort(function (a, b) { return b.score - a.score; });
+            }
+            remoteLeaderboard = entries;
           }
           renderBoard();
         }).catch(function () {
