@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O4: How to Say No - Launch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --text-main:#0f172a; --text-muted:#475569; --bg:#e2e8f0;
+        --accent:#2563eb; --amber:#b45309; --red:#b91c1c; --green:#15803d;
+        --line:#cbd5e1;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--text-main); background:var(--bg); line-height:1.45; }
+
+    .top-toolbar { position:sticky; top:0; z-index:50; background:#0f172a; color:#fff; padding:10px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .tb-title { font-family:'Roboto Slab',serif; font-weight:800; font-size:1rem; }
+    .tb-count { font-family:'JetBrains Mono',monospace; font-size:.8rem; color:#94a3b8; margin-left:auto; }
+    .progress-container { height:4px; background:#1e293b; }
+    .progress-bar-fill { height:100%; background:var(--accent); width:0; transition:width .18s ease; }
+
+    .stage { max-width:1280px; margin:26px auto 30px auto; padding:0 20px; }
+    .slide { background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 6px 22px rgba(15,23,42,.10); padding:64px 72px; display:none; min-height:620px; }
+    .slide.active { display:block; }
+
+    .slide-num { font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:800; letter-spacing:.1em; color:var(--text-muted); text-transform:uppercase; margin-bottom:26px; }
+
+    .big { font-family:'Roboto Slab',serif; font-size:4.2rem; font-weight:900; line-height:1.15; }
+    .big-sub { font-size:1.25rem; color:var(--text-muted); font-weight:600; margin-top:14px; }
+
+    .pill-row { display:flex; gap:14px; flex-wrap:wrap; margin-top:36px; }
+    .word-card { flex:1; min-width:220px; border:2px solid var(--line); border-radius:10px; padding:22px 24px; }
+    .word-card .w { font-family:'Roboto Slab',serif; font-size:1.9rem; font-weight:900; }
+    .word-card .d { font-size:1.15rem; color:var(--text-muted); margin-top:8px; font-weight:600; }
+    .word-card .x { font-size:1.2rem; font-weight:700; font-style:italic; margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+    .setup-line { font-size:1.3rem; color:var(--text-muted); font-weight:600; font-style:italic; margin-top:18px; }
+    .setup-line b { color:var(--text-main); font-style:normal; }
+    .wc-pass { border-top:8px solid var(--amber); }
+    .wc-agg  { border-top:8px solid var(--red); }
+    .wc-assert { border-top:8px solid var(--green); }
+
+    .formula { font-family:'Roboto Slab',serif; font-size:3rem; font-weight:900; line-height:1.5; margin-top:20px; }
+    .formula .blank { color:var(--accent); border-bottom:4px solid var(--accent); padding:0 18px; }
+
+    .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:34px; }
+    .tech-card { border:2px solid var(--line); border-radius:10px; padding:26px 24px; }
+    .tech-card .n { font-family:'JetBrains Mono',monospace; font-size:.8rem; font-weight:800; color:var(--accent); letter-spacing:.08em; }
+    .tech-card .t { font-family:'Roboto Slab',serif; font-size:1.75rem; font-weight:800; margin:8px 0 12px 0; }
+    .tech-card .x { font-size:1.25rem; color:var(--text-muted); font-weight:600; font-style:italic; }
+
+    .steps { margin-top:36px; }
+    .step-row { display:flex; align-items:baseline; gap:20px; padding:16px 0; border-bottom:1px solid var(--line); }
+    .step-row:last-child { border-bottom:none; }
+    .step-k { font-family:'JetBrains Mono',monospace; font-size:1.5rem; font-weight:800; color:var(--accent); min-width:60px; }
+    .step-v { font-family:'Roboto Slab',serif; font-size:2rem; font-weight:800; }
+
+    .nav-foot { max-width:1280px; margin:0 auto 40px auto; padding:0 20px; display:flex; justify-content:space-between; align-items:center; gap:14px; }
+    .nav-btn { background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:11px 22px; cursor:pointer; font-weight:700; font-size:.9rem; color:var(--text-main); }
+    .nav-btn:hover:not(:disabled) { background:#f1f5f9; border-color:var(--text-main); }
+    .nav-btn:disabled { opacity:.4; cursor:default; }
+    .nav-outcome { font-size:.82rem; color:var(--text-muted); font-weight:600; display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line); padding:6px 14px; border-radius:6px; }
+    .nav-outcome-tag { font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:800; background:#f1f5f9; color:var(--accent); border:1px solid #bfdbfe; padding:2px 6px; border-radius:3px; }
+
+    .course-pill { font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:800; background:#eff6ff; color:var(--accent); border:1.5px solid #bfdbfe; padding:4px 12px; border-radius:6px; letter-spacing:.08em; text-transform:uppercase; display:inline-block; margin-bottom:26px; }
+
+    @media print { .top-toolbar,.nav-foot,.progress-container { display:none; } .slide { display:block !important; page-break-after:always; box-shadow:none; min-height:auto; } }
+</style>
+</head>
+<body>
+
+<div class="top-toolbar">
+    <div class="tb-title">HL9 &middot; How to Say No</div>
+    <div class="tb-count" id="count"></div>
+</div>
+<div class="progress-container"><div class="progress-bar-fill" id="prog"></div></div>
+
+<div class="stage" id="deck"></div>
+
+<div class="nav-foot">
+    <button class="nav-btn" id="prev">&larr; Back</button>
+    <div class="nav-outcome"><span class="nav-outcome-tag">O4</span> Use assertiveness, negotiation, and refusal skills</div>
+    <button class="nav-btn" id="next">Next &rarr;</button>
+</div>
+
+<script>
+var DECK = [
+  // 1 TITLE
+  '<div class="slide"><div class="course-pill">HL9 &middot; O4 Communication</div>' +
+  '<div class="big">How to<br>Say No</div>' +
+  '<div class="big-sub">Refusal skills. One formula. Six moves.</div></div>',
+
+  // 2 THE THREE LANES
+  '<div class="slide"><div class="slide-num">The three lanes</div>' +
+  '<div class="big">You can refuse<br>and keep your friends.</div>' +
+  '<div class="setup-line"><b>The setup:</b> &ldquo;Come to the party. Everyone&rsquo;s going.&rdquo;</div>' +
+  '<div class="pill-row">' +
+  '<div class="word-card wc-pass"><div class="w">PASSIVE</div><div class="d">caves</div><div class="x">&ldquo;Okay&hellip; just for a bit.&rdquo;</div></div>' +
+  '<div class="word-card wc-agg"><div class="w">AGGRESSIVE</div><div class="d">burns the bridge</div><div class="x">&ldquo;Get lost, I&rsquo;m not a baby.&rdquo;</div></div>' +
+  '<div class="word-card wc-assert"><div class="w">ASSERTIVE</div><div class="d">clear + respectful</div><div class="x">&ldquo;Nah, not tonight. Next one I&rsquo;m in.&rdquo;</div></div>' +
+  '</div></div>',
+
+  // 3 THE FORMULA
+  '<div class="slide"><div class="slide-num">The formula</div>' +
+  '<div class="formula">I feel <span class="blank">&nbsp;</span><br>' +
+  'when <span class="blank">&nbsp;</span><br>' +
+  'because <span class="blank">&nbsp;</span>.<br>' +
+  'I would like <span class="blank">&nbsp;</span>.</div></div>',
+
+  // 4 MOVES 1-3
+  '<div class="slide"><div class="slide-num">The six moves &middot; part 1</div>' +
+  '<div class="big">Say it.<br>Or leave it.</div>' +
+  '<div class="tech-grid">' +
+  '<div class="tech-card"><div class="n">MOVE 1</div><div class="t">Direct no</div><div class="x">&ldquo;No. I&rsquo;m good.&rdquo;</div></div>' +
+  '<div class="tech-card"><div class="n">MOVE 2</div><div class="t">Reasoned no</div><div class="x">&ldquo;No thanks, I&rsquo;ve got practice.&rdquo;</div></div>' +
+  '<div class="tech-card"><div class="n">MOVE 3</div><div class="t">Walk away</div><div class="x">&ldquo;Nope.&rdquo; (then go)</div></div>' +
+  '</div></div>',
+
+  // 5 MOVES 4-6
+  '<div class="slide"><div class="slide-num">The six moves &middot; part 2</div>' +
+  '<div class="big">Slow it.<br>Repeat it.<br>Swap it.</div>' +
+  '<div class="tech-grid">' +
+  '<div class="tech-card"><div class="n">MOVE 4</div><div class="t">Delay</div><div class="x">&ldquo;Not deciding right now.&rdquo;</div></div>' +
+  '<div class="tech-card"><div class="n">MOVE 5</div><div class="t">Broken record</div><div class="x">&ldquo;Nah, I&rsquo;m good.&rdquo; &ldquo;Nah, I&rsquo;m good.&rdquo;</div></div>' +
+  '<div class="tech-card"><div class="n">MOVE 6</div><div class="t">Swap the plan</div><div class="x">&ldquo;Let&rsquo;s do this instead.&rdquo;</div></div>' +
+  '</div></div>',
+
+  // 6 HOW THE ROOM WORKS
+  '<div class="slide"><div class="slide-num">How this class works</div>' +
+  '<div class="big">Eight cards.<br>Around the room.</div>' +
+  '<div class="steps">' +
+  '<div class="step-row"><div class="step-k">1</div><div class="step-v">Pairs</div></div>' +
+  '<div class="step-row"><div class="step-k">2</div><div class="step-v">Read the card</div></div>' +
+  '<div class="step-row"><div class="step-k">3</div><div class="step-v">Write your script</div></div>' +
+  '<div class="step-row"><div class="step-k">4</div><div class="step-v">Circle your move</div></div>' +
+  '</div></div>',
+
+  // 7 THE RULES OF A GOOD SCRIPT
+  '<div class="slide"><div class="slide-num">A good script</div>' +
+  '<div class="pill-row">' +
+  '<div class="word-card"><div class="w">CLEAR</div><div class="d">an actual no</div></div>' +
+  '<div class="word-card"><div class="w">RESPECTFUL</div><div class="d">no insults</div></div>' +
+  '<div class="word-card"><div class="w">A MOVE</div><div class="d">one of the six</div></div>' +
+  '</div></div>',
+
+  // 8 COLLECTED
+  '<div class="slide"><div class="slide-num">The deal</div>' +
+  '<div class="big">Sheets in<br>at the end.</div>' +
+  '<div class="big-sub">Marked out of 12. Shows up on your Term 1 report.</div></div>'
+];
+
+var cur = 0;
+function render() {
+  document.getElementById('deck').innerHTML = DECK.join('');
+  var s = document.querySelectorAll('.slide');
+  for (var i = 0; i < s.length; i++) { s[i].classList.add('i' + i); }
+}
+function show(i) {
+  var s = document.querySelectorAll('.slide');
+  if (i < 0) i = 0;
+  if (i >= s.length) i = s.length - 1;
+  for (var k = 0; k < s.length; k++) s[k].classList.remove('active');
+  s[i].classList.add('active');
+  cur = i;
+  document.getElementById('prog').style.width = ((i + 1) / s.length * 100) + '%';
+  document.getElementById('count').textContent = (i + 1) + ' / ' + s.length;
+  document.getElementById('prev').disabled = (i === 0);
+  document.getElementById('next').disabled = (i === s.length - 1);
+}
+function step(d) { show(cur + d); }
+document.getElementById('prev').onclick = function() { step(-1); };
+document.getElementById('next').onclick = function() { step(1); };
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); step(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); step(-1); }
+});
+render();
+show(0);
+</script>
+</body>
+</html>
