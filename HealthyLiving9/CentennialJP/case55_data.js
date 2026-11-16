@@ -252,7 +252,7 @@ var CASE55 = {
             "Both spread it across grades equally": { ok: false, msg: "Nurse Chen: WHERE/WHEN: the spill was 2:00 PM Wednesday in Grade 8 (Thursday's Grade 8 spike), but Grade 7s were ALREADY sick Wednesday morning! Which clue crossed all 3 grades from Monday?" }
           }
         },
-        { type: "text", f: "judgments.s2.why", label: "Justify using WHEN or WHERE from Tabs 1 and 3.", rows: 2, placeholder: "I picked ___ because on Tuesday/Wednesday..." },
+        { type: "text", f: "judgments.s2.why", label: "Justify using TIME (when cases started) and LOCATION (which wings/grades got sick) from Tabs 1 and 3.", rows: 2, placeholder: "I picked ___ because (time/day) ___ and (location/wing) ___..." },
         { type: "grid", f: "partB", label: "Compare: Vaccines vs Antibiotics", cols: ["Vaccines (shots)", "Antibiotics (medicine)"],
           rows: [ { k: "does", label: "What does it do?" }, { k: "when", label: "Before or after you get sick?" }, { k: "which", label: "Which germs does it fight?" }, { k: "others", label: "Effect on others / overuse risk?" } ] },
         { type: "text", f: "responses.q6", label: "TWO reasons soap and running water work when sanitizer fails on a stomach virus.", rows: 3, placeholder: "Reason 1 (sanitizer can't break): ... Reason 2 (soap + water do): ..." }
@@ -308,7 +308,8 @@ var CASE55 = {
       },
       task: "Number the 5 duck-chain steps 1 to 5, then explain the fountain pathway, the penicillin problem, and protecting Marcus.",
       fields: [
-        { type: "order", f: "responses.chain", label: "Number the 5 duck-chain steps 1 (first) to 5 (last). Follow the virus from one person's hands to another person's mouth:",
+        { type: "order", f: "responses.chain", label: "Steps 1 and 5 are given. Number the middle 3 duck-chain steps (2, 3, and 4) to follow the virus from one person's hands to another person's mouth:",
+          preset: { b: "1", c: "5" },
           expectOrder: { b: "1", e: "2", d: "3", a: "4", c: "5" },
           stepHints: {
             "1": "Step 1: germs first reach the toy when a student with virus on their hands picks up a resin duck.",

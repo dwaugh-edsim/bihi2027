@@ -1093,6 +1093,13 @@ function buildField(spec){
       const row=document.createElement('div'); row.className='order-row';
       const sel=document.createElement('select'); sel.setAttribute('data-f', spec.f+'.'+it.k);
       sel.innerHTML='<option value="">#</option>'+[1,2,3,4,5].map(o=>'<option value="'+o+'">Step '+o+'</option>').join('');
+      const presetVal = spec.preset && spec.preset[it.k];
+      if(presetVal){
+        if(!getPath(state, spec.f+'.'+it.k)) setPath(state, spec.f+'.'+it.k, presetVal);
+        sel.value = presetVal;
+        sel.disabled = true;
+        sel.title = 'Given step';
+      }
       sel.addEventListener('change', ()=>{ setPath(state, spec.f+'.'+it.k, sel.value); renderOrderPreview(spec, prev); refreshFieldCoach(w, false); onChange(); });
       const span=document.createElement('span'); span.textContent=it.t;
       row.appendChild(sel); row.appendChild(span); w.appendChild(row);
