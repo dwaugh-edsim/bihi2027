@@ -23,7 +23,7 @@ var CASE55 = {
     hud: "OUTBREAK HUD // CASE 55",
     taskName: "HL9-Centennial-Case55-Sim-JP",
     outcomeLabel: "Learning Outcome // Healthy Living 9 (CO1)",
-    outcome: "Learners will evaluate health behaviours that promote short-term and long-term health.",
+    outcome: "Learners will evaluate health behaviours that promote short-term and long-term health. Indicator: Investigate healthy behaviours that contribute to disease prevention.",
     defaultTabLabels: { dispatch: "1. Story", evidence: "2. Evidence", toolkit: "3. Science & Words" }
   },
 

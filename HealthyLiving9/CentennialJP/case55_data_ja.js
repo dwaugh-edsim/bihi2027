@@ -26,8 +26,8 @@ window.CASE55_JA = {
     taskName: "HL9-Centennial-Case55-Sim-JP",
     lang: "ja",
     outcomeLabel: "学習目標 // Healthy Living 9 (CO1)",
-    outcome: "Learners will evaluate health behaviours that promote short-term and long-term health.",
-    outcomeJa: "生徒は、短期的な健康と長期的な健康を促進する健康行動を評価する。",
+    outcome: "Learners will evaluate health behaviours that promote short-term and long-term health. Indicator: Investigate healthy behaviours that contribute to disease prevention.",
+    outcomeJa: "生徒は、短期的な健康と長期的な健康を促進する健康行動を評価する。指標: 疾病予防につながる健康行動を調査する。",
     defaultTabLabels: { dispatch: "1. ストーリー", evidence: "2. 証拠", toolkit: "3. 科学と用語" }
   },
 
