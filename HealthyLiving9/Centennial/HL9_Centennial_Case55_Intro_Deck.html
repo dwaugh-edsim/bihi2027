@@ -1,0 +1,1224 @@
+<!DOCTYPE HTML>
+<!--
+    Healthy Living 9 • Outcome 1: Disease Prevention
+    "CASE 55: The Centennial Outbreak" - Assignment Introduction Deck
+
+    Mr. Waugh • Room 8 • Bicentennial Junior High School
+    Usable across all HL9 cohorts: 901-HL, 902-HL, 903-HL
+
+    Purpose: introduce the Centennial Case 55 investigation sim and walk students
+    through HOW it works. This deck teaches NO content: the suspects, the science,
+    the entry gates and the Monday rules all stay inside the sim so the evidence
+    investigation is not spoiled in advance.
+
+    Design System: Strongly Typed (Room 8 Default)
+    Arvo slab display, Source Sans 3 body, JetBrains Mono labels,
+    High-contrast projector light mode, double-rule borders, signature coral (#ed786a).
+
+    Layout: a fixed 1536x864 canvas scaled to fit the screen (PowerPoint-style),
+    so the deck is pixel-identical on every projector in the building.
+
+    House rule for this unit: no em dashes or en dashes in student-facing strings.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>HL9 Outcome 1 • Case 55: The Centennial Outbreak</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Strongly Typed light palette */
+            --paper: #eceff2;
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --line: #cbd5e1;
+            --line-soft: #e5e9f0;
+            --line-dark: #94a3b8;
+            --ink: #1e2530;
+            --ink-heading: #0f172a;
+            --ink-body: #2c3440;
+            --ink-muted: #475569;
+            --dim: #64748b;
+
+            /* Signature + structured accents */
+            --coral: #ed786a;
+            --coral-dark: #c95548;
+            --coral-pale: #fdf0ee;
+            --teal: #0f766e;
+            --teal-pale: #f0fdfa;
+            --navy: #1d4ed8;
+            --navy-pale: #eff6ff;
+            --amber: #b45309;
+            --amber-pale: #fef3c7;
+            --emerald: #15803d;
+            --emerald-pale: #dcfce7;
+
+            --font-display: 'Arvo', Georgia, serif;
+            --font-body: 'Source Sans 3', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            font-size: 16px;
+        }
+
+        html, body {
+            height: 100%;
+            background: #14171d;
+            color: var(--ink);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* ══ Fixed stage: 1536 x 864, scaled to fit any screen ══ */
+        #stage {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #canvas {
+            width: 1536px;
+            height: 864px;
+            flex: none;
+            background: var(--paper);
+            background-image:
+                repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform-origin: center center;
+            box-shadow: 0 18px 60px rgba(0,0,0,.45);
+        }
+        :fullscreen #canvas, :-webkit-full-screen #canvas {
+            box-shadow: none;
+        }
+
+        /* ── Signature double-rule ── */
+        .double-rule-bottom {
+            border-bottom: 2px solid var(--line-soft);
+            box-shadow: inset 0 -6px 0 0 var(--surface), inset 0 -8px 0 0 var(--line);
+        }
+        .double-rule-top {
+            border-top: 2px solid var(--line-soft);
+            box-shadow: inset 0 6px 0 0 var(--surface), inset 0 8px 0 0 var(--line);
+        }
+
+        /* ── Header ── */
+        #header {
+            background: var(--surface);
+            padding: 9px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            gap: 16px;
+        }
+        .header-brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .header-logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .header-logo span { color: var(--coral); }
+        .header-sep { color: var(--line-dark); font-size: 1.2rem; font-weight: 300; }
+        .header-sub {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .badge-pill {
+            background: var(--coral-pale);
+            color: var(--coral-dark);
+            border: 1px solid #f9c2bc;
+            font-family: var(--font-mono);
+            font-size: .88rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+        .badge-pill.hot { background: var(--amber-pale); color: var(--amber); border-color: #fde68a; }
+        .slide-counter {
+            font-family: var(--font-mono);
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+        /* ── Viewport + slides ── */
+        #viewport { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+        .slide, .cover {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .slide {
+            padding: 18px 44px 16px;
+            background: var(--paper);
+            background-image: repeating-linear-gradient(135deg, rgba(30,58,138,.020) 0 2px, transparent 2px 14px);
+        }
+        .slide.plain { background: var(--paper); padding: 0; }
+        .cover {
+            background: #05080f;
+        }
+        .slide.active, .cover.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 2;
+        }
+        #viewport.ready .slide,
+        #viewport.ready .cover {
+            transition: opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
+        }
+
+        /* ── Slide typography ── */
+        .slide-eyebrow {
+            font-size: 1.02rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2.8px;
+            color: #64748b;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .slide-eyebrow .eyebrow-num {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: .95rem;
+            color: #ffffff;
+            background: var(--coral);
+            border-radius: 4px;
+            padding: 2px 9px;
+            margin-right: 8px;
+            letter-spacing: 0;
+        }
+        .slide-h1 {
+            font-family: var(--font-display);
+            font-size: 3.0rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--ink-heading);
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+            text-shadow: 0.04em 0.05em 0 rgba(0,0,0,.07);
+            flex-shrink: 0;
+        }
+        .slide-h1 em { color: var(--coral-dark); font-style: normal; }
+        .slide-sub {
+            font-size: 1.45rem;
+            line-height: 1.38;
+            color: var(--ink-body);
+            max-width: 1380px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        .slide-sub strong { color: var(--ink-heading); }
+
+        .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+        .mid { margin: auto 0; flex-shrink: 0; }
+        .fill { flex: 1; min-height: 0; }
+        .body > .callout-box, .body > .commit-strip, .body > .timeline { flex-shrink: 0; }
+
+        /* ── Grids ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; }
+        .split { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; width: 100%; align-items: stretch; }
+        .col { display: flex; flex-direction: column; min-height: 0; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-top-width: 5px;
+            border-radius: 6px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        }
+        .card.coral { border-top-color: var(--coral); }
+        .card.teal  { border-top-color: var(--teal); }
+        .card.navy  { border-top-color: var(--navy); }
+        .card.amber { border-top-color: var(--amber); }
+        .card.emerald { border-top-color: var(--emerald); }
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: .88rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: #788496;
+        }
+        .card-h2 {
+            font-family: var(--font-display);
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--ink-heading);
+            line-height: 1.18;
+        }
+        .card-p { font-size: 1.28rem; line-height: 1.44; color: var(--ink-body); }
+        .card-p strong { color: var(--ink-heading); }
+        .card-num {
+            font-family: var(--font-mono);
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--coral);
+            line-height: 1;
+        }
+        .card-foot {
+            margin-top: auto; border-top: 1px dashed var(--line); padding-top: 10px;
+            font-size: 1.08rem; line-height: 1.4; color: var(--ink-muted);
+        }
+        .card-foot b { color: var(--ink-heading); }
+
+        /* Mini answer box: mirrors the real Friday 3:15 input fields */
+        .ansbox {
+            background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 4px;
+            padding: 8px 10px; font-size: 1.05rem; line-height: 1.35; color: #64748b; font-style: italic;
+        }
+        .ansbox b {
+            display: block; font-style: normal; font-family: var(--font-mono); font-size: .82rem;
+            letter-spacing: .12em; color: var(--teal); margin-bottom: 2px;
+        }
+        .ansbox + .ansbox { margin-top: 6px; }
+        .card > .ansbox { flex: 1 1 0; min-height: 52px; }
+
+        /* ── Callout ── */
+        .callout-box {
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-left: 6px solid var(--coral);
+            border-radius: 5px;
+            padding: 14px 20px;
+            font-size: 1.30rem;
+            line-height: 1.44;
+            color: var(--ink-body);
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .callout-box.amber { border-left-color: var(--amber); }
+        .callout-box.teal  { border-left-color: var(--teal); }
+        .callout-box strong { color: var(--ink-heading); }
+
+        /* ── Photo panel with viewfinder brackets ── */
+        .photo {
+            position: relative;
+            border: 2px solid var(--ink-heading);
+            border-radius: 5px;
+            overflow: hidden;
+            background: var(--ink-heading);
+            box-shadow: 0 4px 14px rgba(0,0,0,.18);
+            flex: 1;
+            min-height: 0;
+        }
+        .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .photo::before, .photo::after {
+            content: "";
+            position: absolute;
+            width: 22px; height: 22px;
+            border: 3px solid rgba(255,255,255,.85);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .photo::before { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+        .photo::after  { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+        .photo-cap {
+            font-family: var(--font-mono);
+            font-size: .95rem;
+            color: var(--dim);
+            margin-top: 7px;
+            letter-spacing: .02em;
+            flex-shrink: 0;
+        }
+
+        /* ── Numbered step list ── */
+        .steps { display: flex; flex-direction: column; gap: 16px; }
+        .step { display: flex; gap: 14px; align-items: flex-start; }
+        .step-n {
+            flex: none;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: var(--ink-heading);
+            color: #fff;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 1.05rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .step-n.coral { background: var(--coral); }
+        .step-t { font-size: 1.34rem; line-height: 1.44; color: var(--ink-body); padding-top: 4px; }
+        .step-t strong { color: var(--ink-heading); }
+        .steps.boxed .step {
+            background: var(--surface); border: 1.5px solid var(--line);
+            border-left: 5px solid var(--coral); border-radius: 5px;
+            padding: 12px 16px; box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .startcard { flex: 1; gap: 10px; }
+        .startcard .steps { flex: 1; justify-content: space-around; gap: 8px; }
+
+        /* ══════════ SLIDE 1: COVER ══════════ */
+        .cover-img {
+            position: absolute; inset: 0;
+            background: url('../../HealthyLiving8/Unit 2 - Communicable Disease/Centennial/assets/case55_cover.png') center/cover no-repeat;
+        }
+        .cover-scrim {
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(100deg, rgba(5,8,15,.96) 0%, rgba(5,8,15,.90) 40%, rgba(5,8,15,.58) 64%, rgba(5,8,15,.34) 100%);
+        }
+        .cover-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 74px 150px;
+        }
+        .cover-stamp {
+            display: inline-flex;
+            align-self: flex-start;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: .98rem;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: #ffd7d1;
+            border: 2px solid var(--coral);
+            background: rgba(237,120,106,.14);
+            padding: 7px 15px;
+            border-radius: 4px;
+            transform: rotate(-1.2deg);
+            margin-bottom: 20px;
+        }
+        .cover-stamp .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+        .cover-kicker {
+            font-family: var(--font-mono);
+            font-size: 1.10rem;
+            font-weight: 700;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: #2dd4bf;
+            margin-bottom: 8px;
+        }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: 5.6rem;
+            font-weight: 700;
+            line-height: .98;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            text-shadow: 0.03em 0.04em 0 rgba(0,0,0,.5);
+            margin-bottom: 12px;
+        }
+        .cover-title .thin { color: var(--coral); }
+        .cover-rule { width: 120px; height: 5px; background: var(--coral); margin-bottom: 16px; border-radius: 2px; }
+        .cover-lede {
+            font-size: 1.55rem;
+            line-height: 1.48;
+            color: #d7dde7;
+            max-width: 860px;
+            margin-bottom: 22px;
+        }
+        .cover-lede strong { color: #ffffff; }
+        .cover-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .cover-chip {
+            font-family: var(--font-mono);
+            font-size: .95rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #cbd5e1;
+            border: 1px solid #3d4b63;
+            background: rgba(255,255,255,.06);
+            padding: 7px 14px;
+            border-radius: 4px;
+        }
+        .cover-chip.hot { color: #ffd7d1; border-color: var(--coral); background: rgba(237,120,106,.14); }
+
+        /* ══════════ MAIN LEARNING OUTCOME ══════════ */
+        .cover-outcome {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+            padding: 24px 74px 18px;
+            background: linear-gradient(180deg, rgba(5,8,15,0) 0%, rgba(5,8,15,.82) 34%, rgba(5,8,15,.95) 100%);
+            border-top: 1px solid rgba(45,212,191,.42);
+        }
+        .co-kicker {
+            font-family: var(--font-mono); font-size: .95rem; font-weight: 800;
+            letter-spacing: .16em; text-transform: uppercase; color: #2dd4bf;
+            margin-bottom: 6px;
+        }
+        .co-txt {
+            font-size: 1.48rem; line-height: 1.34; color: #e8edf3; font-weight: 600;
+            max-width: 1400px;
+        }
+        .co-txt b { color: #ffffff; }
+
+        /* ══════════ SURGE HERO ══════════ */
+        .surge {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            padding: 12px 16px 0;
+            background: var(--surface);
+            border: 1.5px solid var(--line);
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .surge-b {
+            flex: 1;
+            height: var(--h);
+            min-height: 48px;
+            background: linear-gradient(180deg, #f39083 0%, var(--coral) 100%);
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 6px;
+            border: 1px solid var(--coral-dark);
+            border-bottom: 0;
+        }
+        .surge-b b { font-family: var(--font-display); font-size: 2.0rem; color: #fff; line-height: 1; }
+        .surge-b span {
+            font-family: var(--font-mono);
+            font-size: .88rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: #fff;
+            opacity: .95;
+            margin-top: 4px;
+        }
+        .surge-b.cold { background: linear-gradient(180deg, #7fb3ee 0%, var(--navy) 100%); border-color: #16369c; }
+        .surge-axis { display: flex; gap: 12px; padding: 0 16px; flex-shrink: 0; }
+        .surge-axis div {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: .90rem;
+            font-weight: 700;
+            letter-spacing: .09em;
+            color: var(--dim);
+            text-align: center;
+            padding: 6px 0 0;
+        }
+
+        /* ══════════ TIMELINE ══════════ */
+        .timeline { display: flex; align-items: stretch; gap: 0; flex-shrink: 0; margin-top: 14px; }
+        .tl-node { flex: 1; position: relative; padding: 24px 6px 0; text-align: center; }
+        .tl-node::before {
+            content: ""; position: absolute; top: 10px; left: 0; right: 0; height: 3px; background: var(--line);
+        }
+        .tl-node::after {
+            content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+            width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--coral);
+        }
+        .tl-node.locked::after { border-color: var(--amber); }
+        .tl-node.locked::before { background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 15px); }
+        .tl-label {
+            font-family: var(--font-mono); font-size: .88rem; font-weight: 800; letter-spacing: .05em;
+            text-transform: uppercase; color: var(--ink-heading); line-height: 1.2;
+        }
+        .tl-sub { font-size: .90rem; color: var(--dim); margin-top: 2px; }
+        .tl-node.locked .tl-label { color: var(--amber); }
+
+        /* ══════════ UI MOCKUP (Slide 5) ══════════ */
+        .mock-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+        .mock {
+            flex: 0 0 auto;
+            height: 460px;
+            display: grid;
+            grid-template-rows: 28px 1fr;
+            grid-template-columns: 180px 1fr 280px;
+            border: 2px solid var(--ink-heading);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0b1220;
+            box-shadow: 0 6px 20px rgba(0,0,0,.28);
+        }
+        .mock-hud {
+            grid-column: 1 / -1;
+            background: #0e1729;
+            border-bottom: 2px solid #243352;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            font-family: var(--font-mono);
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+        .mock-hud .brand { color: #ffffff; font-family: var(--font-display); font-size: .78rem; letter-spacing: .02em; }
+        .mock-hud .pill { border: 1px solid #243352; border-radius: 999px; padding: 1px 7px; }
+        .mock-hud .pill b { color: #e2e8f0; }
+        .mock-hud .ok { color: #22c55e; border-color: #22c55e; }
+        .mock-hud .spacer { flex: 1; }
+        .mock-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+        .mock-rail { background: #0e1729; border-right: 2px solid #243352; padding: 8px; }
+        .mock-centre { background: #0b1220; padding: 8px 12px; overflow: hidden; }
+        .mock-log { background: #0e1729; border-left: 2px solid #243352; padding: 8px; }
+        .mock-h {
+            font-family: var(--font-mono); font-size: .74rem; font-weight: 800; letter-spacing: .12em;
+            text-transform: uppercase; color: #788496; margin-bottom: 5px;
+        }
+        .mock-nav {
+            display: flex; justify-content: space-between; gap: 5px;
+            background: #111c33; border: 1px solid #243352; border-radius: 4px; padding: 4px 6px; margin-bottom: 3px;
+            font-family: var(--font-mono); font-size: .74rem; font-weight: 700; letter-spacing: .05em;
+            color: #e2e8f0; text-transform: uppercase;
+        }
+        .mock-nav.on { border-color: #f59e0b; background: #1a2542; color: #f59e0b; }
+        .mock-nav.lock { opacity: .55; color: #f59e0b; }
+        .mock-surge { margin-top: 5px; padding: 6px; border: 1px solid #243352; border-radius: 5px; background: #111c33; }
+        .mock-surge-row { display: flex; gap: 3px; }
+        .mock-surge-cell {
+            flex: 1; text-align: center; border: 1px solid #243352; border-radius: 3px; background: #0e1729; padding: 2px 0;
+        }
+        .mock-surge-cell b { display: block; font-family: var(--font-display); font-size: .95rem; color: #fb7185; line-height: 1.15; }
+        .mock-surge-cell i { font-family: var(--font-mono); font-style: normal; font-size: .62rem; color: #788496; }
+        .mock-kicker { font-family: var(--font-mono); font-size: .74rem; font-weight: 700; letter-spacing: .14em; color: #2dd4bf; text-transform: uppercase; }
+        .mock-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .mock-read { flex: none; border: 1px solid #2dd4bf; color: #2dd4bf; border-radius: 4px; padding: 2px 8px; font-family: var(--font-mono); font-size: .70rem; font-weight: 700; }
+        .mock-title { font-family: var(--font-display); font-size: 1.1rem; color: #fff; margin: 1px 0 4px; line-height: 1.2; }
+        .mock-char { display: flex; gap: 8px; background: #111c33; border: 1px solid #243352; border-radius: 6px; padding: 5px 7px; margin-bottom: 5px; }
+        .mock-char img { width: 38px; height: 38px; border-radius: 5px; object-fit: cover; border: 2px solid #f59e0b; flex: none; }
+        .mock-char .who { font-family: var(--font-mono); font-size: .70rem; font-weight: 800; letter-spacing: .07em; color: #f59e0b; text-transform: uppercase; }
+        .mock-char .q { font-size: .76rem; color: #e2e8f0; line-height: 1.3; margin-top: 2px; }
+        .mock-tabs { display: flex; gap: 5px; margin-bottom: 4px; }
+        .mock-tab {
+            font-family: var(--font-mono); font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+            background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 3px 8px;
+        }
+        .mock-tab.on { background: #2dd4bf; color: #06251f; border-color: #2dd4bf; }
+        .mock-body { background: #111c33; border: 1px solid #243352; border-radius: 5px; padding: 5px 8px; font-size: .78rem; color: #cbd5e1; line-height: 1.38; }
+        .mock-body b { color: #fff; }
+        .mock-exhibit { margin-top: 5px; border: 1px solid #243352; border-radius: 5px; overflow: hidden; }
+        .mock-exhibit img { width: 100%; height: 80px; object-fit: cover; display: block; }
+        .mock-exhibit .cap { font-family: var(--font-mono); font-size: .68rem; color: #8896aa; padding: 3px 7px; border-top: 1px solid #243352; }
+        .mock-log-h { font-family: var(--font-mono); font-size: .74rem; font-weight: 800; letter-spacing: .1em; color: #2dd4bf; text-transform: uppercase; margin-bottom: 4px; }
+        .mock-prompt { background: #111c33; border: 1px solid #243352; border-left: 3px solid #2dd4bf; border-radius: 5px; padding: 5px 7px; font-size: .76rem; color: #e2e8f0; line-height: 1.32; margin-bottom: 5px; }
+        .mock-opt { display: block; width: 100%; text-align: left; background: #111c33; color: #e2e8f0; border: 1px solid #243352; border-radius: 4px; padding: 4px 7px; font-size: .74rem; margin-bottom: 3px; line-height: 1.25; }
+        .mock-opt.on { background: #f59e0b; color: #1a1206; border-color: #f59e0b; font-weight: 700; }
+        .mock-area { background: #111c33; border: 1px solid #243352; border-radius: 4px; padding: 5px 7px; font-size: .74rem; color: #8896aa; font-style: italic; margin-bottom: 5px; }
+        .mock-hist { margin-top: auto; border-top: 1px solid #243352; padding-top: 5px; font-family: var(--font-mono); font-size: .68rem; color: #8896aa; line-height: 1.5; }
+        .mock-hist b { color: #2dd4bf; }
+
+        .abc-key { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; flex-shrink: 0; }
+        .abc-item {
+            display: flex; gap: 12px; align-items: flex-start; font-size: 1.10rem; line-height: 1.4; color: var(--ink-body);
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 5px; padding: 12px 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .abc-badge {
+            flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--ink-heading); color: #fff;
+            font-family: var(--font-mono); font-weight: 800; font-size: .95rem; display: flex; align-items: center; justify-content: center;
+        }
+        .abc-item strong { color: var(--ink-heading); display: block; font-size: 1.18rem; margin-bottom: 2px; }
+
+        /* ══════════ SIGN-IN GATE MOCK (Slide 11) ══════════ */
+        .gate-mock {
+            flex: 1; min-height: 0; display: flex; align-items: center;
+            border: 2px solid var(--ink-heading); border-radius: 6px; overflow: hidden;
+            background: linear-gradient(rgba(11,18,32,.72), rgba(11,18,32,.86)), url('../../HealthyLiving8/Unit 2 - Communicable Disease/Centennial/assets/s0_normal_school.png') center/cover no-repeat;
+            box-shadow: 0 4px 14px rgba(0,0,0,.2);
+        }
+        .gate-mock-inner { padding: 16px 18px; text-align: center; width: 100%; }
+        .gate-mock-k { font-family: var(--font-mono); font-size: .90rem; letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; }
+        .gate-mock-h { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+        .gate-mock-btn { background: var(--amber); color: #1a1206; font-weight: 800; border-radius: 6px; padding: 11px; font-size: 1.10rem; }
+        .gate-mock-hint { font-family: var(--font-mono); font-size: .88rem; color: #cbd5e1; margin-top: 10px; line-height: 1.45; }
+
+        /* ══════════ TAB CARDS (Slide 6) ══════════ */
+        .tabcard {
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1.5px solid var(--line);
+            background: var(--surface);
+            box-shadow: 0 3px 10px rgba(0,0,0,.06);
+            display: flex;
+            flex-direction: column;
+        }
+        .tabcard-bar {
+            padding: 11px 18px;
+            font-family: var(--font-mono);
+            font-size: 1.22rem;
+            font-weight: 800;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .tabcard.navy .tabcard-bar { background: var(--navy); }
+        .tabcard.teal .tabcard-bar { background: var(--teal); }
+        .tabcard.amber .tabcard-bar { background: var(--amber); }
+        .tabcard-body {
+            padding: 18px 20px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .tab-focus {
+            font-family: var(--font-display);
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--ink-heading);
+            line-height: 1.15;
+        }
+        .tab-desc {
+            font-size: 1.30rem;
+            line-height: 1.44;
+            color: var(--ink-body);
+        }
+        .tab-call {
+            margin-top: auto;
+            background: var(--surface-subtle);
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            padding: 10px 12px;
+            font-size: 1.15rem;
+            line-height: 1.40;
+            color: var(--ink-body);
+        }
+        .tab-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+            color: var(--teal);
+            background: var(--teal-pale);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            padding: 2px 7px;
+            margin-right: 6px;
+        }
+
+        /* ══════════ COMMIT (Slide 9) ══════════ */
+        .commit-strip {
+            margin-top: 14px; flex-shrink: 0;
+            background: var(--amber-pale); border: 2px solid var(--amber); border-radius: 6px; padding: 14px 22px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .commit-btn {
+            flex: none; background: var(--amber); color: #ffffff; border: 2px solid #8a4008; border-radius: 5px;
+            padding: 12px 24px; font-family: var(--font-mono); font-size: 1.18rem; font-weight: 800; letter-spacing: .07em; white-space: nowrap;
+        }
+        .commit-note { font-size: 1.25rem; line-height: 1.4; color: var(--ink-body); }
+        .commit-note strong { color: var(--ink-heading); }
+
+        /* ══════════ CAST CARDS (Slide 3) ══════════ */
+        .castcard {
+            background: var(--surface); border: 1.5px solid var(--line); border-radius: 6px; overflow: hidden;
+            display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,.06); min-height: 0;
+        }
+        .castcard img { width: 100%; height: 0; flex: 1 1 0; min-height: 0; object-fit: cover; object-position: center 20%; display: block; }
+        .castcard .cap { padding: 9px 14px 11px; border-top: 3px solid var(--coral); }
+        .castcard.teal .cap { border-top-color: var(--teal); }
+        .castcard.navy .cap { border-top-color: var(--navy); }
+        .castcard.amber .cap { border-top-color: var(--amber); }
+        .castcard.emerald .cap { border-top-color: var(--emerald); }
+        .castcard .nm { font-family: var(--font-display); font-size: 1.34rem; font-weight: 700; color: var(--ink-heading); line-height: 1.15; }
+        .castcard .rl { font-family: var(--font-mono); font-size: .88rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+
+        /* ══════════ CLOSING (Slide 12) ══════════ */
+        .closing { display: grid; grid-template-columns: 1.05fr .95fr; height: 100%; }
+        .closing-l { display: flex; flex-direction: column; justify-content: center; padding: 0 36px 0 56px; }
+        .closing-r { position: relative; overflow: hidden; }
+        .closing-r img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .closing-r::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(236,239,242,.97) 0%, rgba(236,239,242,.20) 24%, rgba(236,239,242,0) 52%);
+        }
+
+        /* ── Footer ── */
+        #footer {
+            background: var(--surface); padding: 9px 28px; display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; z-index: 10; gap: 14px;
+        }
+        .footer-hint { font-size: .98rem; color: var(--ink-muted); font-weight: 600; }
+        .footer-hint kbd {
+            background: var(--paper); border: 1px solid var(--line-dark); border-radius: 3px; padding: 2px 6px;
+            font-family: var(--font-mono); font-size: .92rem; color: var(--ink); box-shadow: 0 1px 0 rgba(0,0,0,.1);
+        }
+        .footer-nav { display: flex; gap: 10px; align-items: center; }
+        .nav-btn {
+            background: var(--surface); border: 1.5px solid var(--line-dark); color: var(--ink); font-family: var(--font-body);
+            font-size: .98rem; font-weight: 700; padding: 6px 16px; border-radius: 4px; cursor: pointer; transition: all .15s;
+        }
+        .nav-btn:hover { border-color: var(--coral); color: var(--coral-dark); background: var(--coral-pale); }
+        .nav-btn.primary { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
+        .nav-btn.primary:hover { background: var(--coral-dark); }
+        .nav-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+        .tiny { font-size: .95rem; color: var(--dim); line-height: 1.35; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+<div id="canvas">
+
+    <!-- ══════════ HEADER ══════════ -->
+    <header id="header" class="double-rule-bottom">
+        <div class="header-brand">
+            <div class="header-logo">Room 8 &bull; <span>Healthy Living 9</span></div>
+            <div class="header-sep">/</div>
+            <div class="header-sub">Outcome 1 &bull; Disease Prevention &bull; Case 55: The Centennial Outbreak</div>
+        </div>
+        <div class="header-meta">
+            <span class="badge-pill">NS HL9 OUTCOME CO1</span>
+            <span class="badge-pill hot">CASE 55 &bull; ACTIVE</span>
+            <span class="slide-counter" id="slideCount">1 / 5</span>
+        </div>
+    </header>
+
+    <!-- ══════════ SLIDES ══════════ -->
+    <main id="viewport">
+
+        <!-- ─────────── 01 COVER ─────────── -->
+        <section class="cover" data-slide="1">
+            <div class="cover-img"></div>
+            <div class="cover-scrim"></div>
+            <div class="cover-inner">
+                <div class="cover-stamp"><span class="dot"></span> Centennial Junior High &bull; Health Office &bull; Case File 55</div>
+                <div class="cover-kicker">A Healthy Living 9 Investigation</div>
+                <h1 class="cover-title">Case 55<br><span class="thin">The Centennial Outbreak</span></h1>
+                <div class="cover-rule"></div>
+                <p class="cover-lede">
+                    By Friday morning, <strong>55 of 400 students</strong> are home sick.
+                    You have one week of evidence and one job:
+                    <strong>write the three rules that stop it</strong> before Monday's bell.
+                </p>
+                <div class="cover-meta">
+                    <span class="cover-chip hot">You are the Health Officer</span>
+                    <span class="cover-chip">9 stops &bull; Monday to Friday</span>
+                    <span class="cover-chip">Saves itself to the server</span>
+                    <span class="cover-chip">Link in Google Classroom</span>
+                </div>
+            </div>
+            <div class="cover-outcome">
+                <div class="co-kicker">Main Learning Outcome &bull; NS HL9 CO1 &bull; Disease Prevention</div>
+                <div class="co-txt">Learners will evaluate health behaviours that promote short-term and long-term health.</div>
+            </div>
+        </section>
+
+        <!-- ─────────── 02 YOUR JOB + YOUR WEEK ─────────── -->
+        <section class="slide" data-slide="2">
+            <div class="slide-eyebrow"><span class="eyebrow-num">01</span> The Assignment</div>
+            <h1 class="slide-h1">You are the school <em>Health Officer</em></h1>
+            <p class="slide-sub">
+                Not a doctor. A detective with a clipboard. New evidence lands each morning: 3 students out on Monday,
+                55 by Friday. You cannot skip ahead, but finished days stay open to re-read.
+            </p>
+            <div class="body">
+                <div class="grid-2 fill" style="grid-template-columns: .9fr 1.1fr; gap: 20px;">
+                    <div class="col" style="justify-content: center; gap: 16px;">
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-n coral">01</div>
+                                <div class="step-t"><strong>Read the evidence.</strong> Attendance numbers, symptom logs, staff reports, and lab tests arrive each morning.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">02</div>
+                                <div class="step-t"><strong>Make your call.</strong> Log your daily hypothesis. Update your thinking as new facts arrive.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">03</div>
+                                <div class="step-t"><strong>Stop the outbreak.</strong> Hand Vice-Principal Raman the three rules that protect the school on Monday.</div>
+                            </div>
+                        </div>
+                        <div class="callout-box teal">
+                            <strong>Work at your own pace.</strong> Case Closed is the only locked door, and it opens when you commit on Friday.
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="surge">
+                            <div class="surge-b cold" style="--h: 22%;"><b>3</b><span>MON</span></div>
+                            <div class="surge-b cold" style="--h: 34%;"><b>7</b><span>TUE</span></div>
+                            <div class="surge-b" style="--h: 52%;"><b>18</b><span>WED</span></div>
+                            <div class="surge-b" style="--h: 76%;"><b>34</b><span>THU</span></div>
+                            <div class="surge-b" style="--h: 100%;"><b>55</b><span>FRI</span></div>
+                        </div>
+                        <div class="surge-axis">
+                            <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="tl-node"><div class="tl-label">Briefing</div><div class="tl-sub">Mon 8:15</div></div>
+                    <div class="tl-node"><div class="tl-label">Monday</div><div class="tl-sub">3 out</div></div>
+                    <div class="tl-node"><div class="tl-label">Tuesday</div><div class="tl-sub">7 out</div></div>
+                    <div class="tl-node"><div class="tl-label">Wednesday</div><div class="tl-sub">18 out</div></div>
+                    <div class="tl-node"><div class="tl-label">Thursday</div><div class="tl-sub">34 out</div></div>
+                    <div class="tl-node"><div class="tl-label">Friday AM</div><div class="tl-sub">55 out</div></div>
+                    <div class="tl-node"><div class="tl-label">Friday Noon</div><div class="tl-sub">Reconstruct</div></div>
+                    <div class="tl-node"><div class="tl-label">Friday 3:15</div><div class="tl-sub">Commit</div></div>
+                    <div class="tl-node locked"><div class="tl-label">Case Closed</div><div class="tl-sub">Verdict</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- (the six case characters appear one at a time inside the sim) -->
+
+        <!-- ─────────── 03 ANATOMY OF A STOP ─────────── -->
+        <section class="slide" data-slide="3">
+            <div class="slide-eyebrow"><span class="eyebrow-num">02</span> How It Works</div>
+            <h1 class="slide-h1">Every stop looks the same</h1>
+            <p class="slide-sub">
+                Three panels, and you will never get lost. Learn this once and the whole week is easy.
+            </p>
+            <div class="body">
+                <div class="mock-wrap">
+                    <div class="mock">
+                        <div class="mock-hud">
+                            <span class="brand">CASE 55</span>
+                            <span class="pill">CENTENNIAL JR HIGH</span>
+                            <span class="pill ok">SYNC: SERVER OK</span>
+                            <span class="spacer"></span>
+                            <span class="pill">HEALTH OFFICER: <b>you@gnspes.ca</b></span>
+                            <span class="pill">SECTION <b>902-HL</b></span>
+                        </div>
+
+                        <!-- A: left rail -->
+                        <div class="mock-col mock-rail">
+                            <div class="mock-h">Days of the outbreak</div>
+                            <div class="mock-nav on"><span>Monday</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Tuesday</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Wednesday</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Thursday</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Friday AM</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Friday Noon</span><span>&bull;</span></div>
+                            <div class="mock-nav"><span>Friday 3:15</span><span>&bull;</span></div>
+                            <div class="mock-nav lock"><span>Case Closed</span><span>LOCK</span></div>
+                            <div class="mock-surge">
+                                <div class="mock-h">Sick students home</div>
+                                <div class="mock-surge-row">
+                                    <div class="mock-surge-cell"><b>3</b><i>MON</i></div>
+                                    <div class="mock-surge-cell"><b>7</b><i>TUE</i></div>
+                                    <div class="mock-surge-cell"><b>18</b><i>WED</i></div>
+                                    <div class="mock-surge-cell"><b>34</b><i>THU</i></div>
+                                    <div class="mock-surge-cell"><b>55</b><i>FRI</i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- B: centre -->
+                        <div class="mock-col mock-centre">
+                            <div class="mock-head">
+                                <div>
+                                    <div class="mock-kicker">Day 1 // A totally normal Monday?</div>
+                                    <div class="mock-title">Monday: Scraped knees, ice packs, and 3 kids home</div>
+                                </div>
+                                <span class="mock-read">Read this tab</span>
+                            </div>
+                            <div class="mock-char">
+                                <img src="../../HealthyLiving8/Unit 2 - Communicable Disease/Centennial/assets/char_vp_raman.png" alt="" />
+                                <div>
+                                    <div class="who">Vice-Principal Priya Raman</div>
+                                    <div class="q">"Pretty normal Monday so far. The only thing on the absence slip is three Grade 8 kids who went home throwing up. Probably nothing, right?"</div>
+                                </div>
+                            </div>
+                            <div class="mock-tabs">
+                                <span class="mock-tab on">1. Story</span>
+                                <span class="mock-tab">2. Evidence</span>
+                                <span class="mock-tab">3. Science &amp; Words</span>
+                            </div>
+                            <div class="mock-body">
+                                <b>Monday's Health Office Log:</b> gym class visits 2, sent home sick <b>3 students</b>,
+                                all with lockers and homerooms in the <b>Grade 8 West Wing</b>.
+                            </div>
+                            <div class="mock-body" style="margin-top:5px;">
+                                <b>Word Bank for Today</b> &nbsp;&middot;&nbsp; <b>outbreak</b>: more people sick than usual, in one place, at one time
+                                &nbsp;&middot;&nbsp; <b>symptom</b>: a sign of sickness you can feel or see
+                            </div>
+                            <div class="mock-exhibit">
+                                <img src="../../HealthyLiving8/Unit 2 - Communicable Disease/Centennial/assets/s0_normal_school.png" alt="" />
+                                <div class="cap">Centennial Junior High on Monday: classes humming along like any normal week. (click picture to zoom)</div>
+                            </div>
+                            <div class="mock-exhibit">
+                                <img src="../../HealthyLiving8/Unit 2 - Communicable Disease/Centennial/assets/s1_normal_office.png" alt="" />
+                                <div class="cap">Your Health Officer desk on Monday morning: bandages, a gym-class ice pack, and today's absence clipboard.</div>
+                            </div>
+                        </div>
+
+                        <!-- C: right log -->
+                        <div class="mock-col mock-log">
+                            <div class="mock-log-h">Health Officer Log // Your Calls</div>
+                            <div class="mock-prompt">It looks like an ordinary Monday except for those 3 West Wing students. Log your first hypothesis: if something IS going around, what is your early guess?</div>
+                            <span class="mock-opt">A virus that attacks the stomach</span>
+                            <span class="mock-opt">A virus that attacks the lungs, like the flu</span>
+                            <span class="mock-opt">Bacteria from food</span>
+                            <span class="mock-opt">Something in the West Wing drinking water</span>
+                            <span class="mock-opt on">Too early to name one cause yet (watch Tuesday's log)</span>
+                            <div class="mock-area">Based on Monday's evidence, I picked this because...</div>
+                            <div class="mock-hist">
+                                <b>SAVED ENTRIES ACROSS THE WEEK</b><br>
+                                Mon &bull; hypothesis recorded<br>
+                                Tue &bull; body system + proof<br>
+                                Wed &bull; 4 entry gates matched<br>
+                                Thu &bull; pattern + main spreader
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abc-key">
+                        <div class="abc-item">
+                            <span class="abc-badge">A</span>
+                            <span><strong>The Week</strong> Navigate Monday to Friday. Completed days stay unlocked so you can review clues.</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">B</span>
+                            <span><strong>The Evidence</strong> Read the three tabs and inspect photos: Story, Evidence, Science &amp; Words. The proof is usually in Tab 2.</span>
+                        </div>
+                        <div class="abc-item">
+                            <span class="abc-badge">C</span>
+                            <span><strong>Your Log</strong> Enter your daily call and reasoning. Everything you type saves automatically.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 04 THE LOG: WHAT COUNTS ─────────── -->
+        <section class="slide" data-slide="4">
+            <div class="slide-eyebrow"><span class="eyebrow-num">03</span> How You Will Be Marked</div>
+            <h1 class="slide-h1">The Log: what counts</h1>
+            <p class="slide-sub">
+                Your Log is a daily worksheet, not an essay. Four keys to full marks:
+            </p>
+            <div class="body">
+                <div class="grid-2" style="grid-template-rows: auto auto; gap: 16px;">
+                    <div class="card coral">
+                        <div class="card-tag">Expectation 01</div>
+                        <div class="card-h2">Short &amp; Focused</div>
+                        <div class="card-p">A clear pick from the list, or 1 to 2 sharp sentences. Saying "too early to tell" is allowed; guessing without a reason is not.</div>
+                    </div>
+                    <div class="card teal">
+                        <div class="card-tag">Expectation 02</div>
+                        <div class="card-h2">Cite Real Evidence</div>
+                        <div class="card-p">Put an actual number, date, room, or quote from the Evidence tab into your answer.</div>
+                    </div>
+                    <div class="card navy">
+                        <div class="card-tag">Expectation 03</div>
+                        <div class="card-h2">Always Explain Why</div>
+                        <div class="card-p">Most marks live in your reasoning: <em>"Because [fact], which means [conclusion]."</em></div>
+                    </div>
+                    <div class="card amber">
+                        <div class="card-tag">Expectation 04</div>
+                        <div class="card-h2">Update Your Hypothesis</div>
+                        <div class="card-p">Detectives change their minds as evidence builds. Early guesses are never penalized: you are marked on how your thinking evolves.</div>
+                    </div>
+                </div>
+                <div class="callout-box" style="margin-top: 18px;">
+                    <strong>Everything saves automatically.</strong> Look for <strong>SYNC: SERVER OK</strong> in the top bar. You cannot lose your work.
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────── 05 GET STARTED ─────────── -->
+        <section class="slide" data-slide="5">
+            <div class="slide-eyebrow"><span class="eyebrow-num">04</span> Get Started</div>
+            <h1 class="slide-h1">Five steps and you are in the case</h1>
+            <p class="slide-sub">
+                Built-in supports on every stop: <strong>Read this tab</strong> reads aloud, and <strong>Text A+ / A-</strong> gives bigger type.
+                Your work saves to the server, so you can resume on any device.
+            </p>
+            <div class="body">
+                <div class="split fill">
+                    <div class="card coral startcard">
+                        <div class="card-tag">Quick Start</div>
+                        <div class="steps boxed">
+                            <div class="step">
+                                <div class="step-n coral">1</div>
+                                <div class="step-t"><strong>Open Google Classroom</strong> and click the Case 55 link.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">2</div>
+                                <div class="step-t"><strong>Sign In</strong> using your school account (@gnspes.ca).</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">3</div>
+                                <div class="step-t"><strong>Select your class section</strong> (901-HL, 902-HL, or 903-HL).</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">4</div>
+                                <div class="step-t"><strong>Press "Ready: Open the Health Office"</strong> to launch.</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-n coral">5</div>
+                                <div class="step-t"><strong>Start at Monday</strong> and investigate at your own pace.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col" style="gap: 16px;">
+                        <div class="gate-mock">
+                            <div class="gate-mock-inner">
+                                <div class="gate-mock-k">Centennial Junior High &bull; Health Office</div>
+                                <div class="gate-mock-h">CASE 55: CENTENNIAL OUTBREAK</div>
+                                <div class="gate-mock-btn">Sign in with your school account</div>
+                                <div class="gate-mock-hint">One click, then you are in the case.</div>
+                            </div>
+                        </div>
+                        <div class="card amber">
+                            <div class="card-tag">Friday 3:15</div>
+                            <div class="card-h2">The Commit Gate</div>
+                            <div class="card-p">
+                                You hand Vice-Principal Raman a Monday Morning Game Plan: <strong>three rules</strong>, each with
+                                what people must do and why it stops the spread. Committing locks your week,
+                                opens <strong>Case Closed</strong>, and shows the verdict. There is no peeking first.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <footer id="footer" class="double-rule-top">
+        <div class="footer-hint">
+            Press <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>Space</kbd> to navigate &bull; <kbd>F</kbd> for fullscreen
+        </div>
+        <div class="footer-nav">
+            <button class="nav-btn" id="fsBtn" title="Toggle Fullscreen (F)">&#x26F6; Fullscreen</button>
+            <button class="nav-btn" id="prevBtn">&larr; Previous</button>
+            <button class="nav-btn primary" id="nextBtn">Next &rarr;</button>
+        </div>
+    </footer>
+
+</div>
+</div>
+
+    <script>
+        const slides = document.querySelectorAll('[data-slide]');
+        const totalSlides = slides.length;
+        let currentSlide = 1;
+
+        const countDisplay = document.getElementById('slideCount');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const fsBtn = document.getElementById('fsBtn');
+        const stage = document.getElementById('stage');
+        const canvas = document.getElementById('canvas');
+
+        /* Scale the fixed 1536x864 canvas to fit whatever screen we are on. */
+        function fitCanvas() {
+            const s = Math.min(stage.clientWidth / 1536, stage.clientHeight / 864);
+            canvas.style.transform = 'scale(' + s + ')';
+        }
+        fitCanvas();
+        window.addEventListener('resize', fitCanvas);
+
+        function updateSlide(n) {
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            slides.forEach(s => {
+                const sNum = parseInt(s.dataset.slide, 10);
+                s.classList.toggle('active', sNum === currentSlide);
+            });
+
+            countDisplay.innerText = currentSlide + ' / ' + totalSlides;
+            prevBtn.disabled = (currentSlide === 1);
+            nextBtn.innerText = (currentSlide === totalSlides) ? 'Finish' : 'Next →';
+        }
+
+        prevBtn.addEventListener('click', () => updateSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides) updateSlide(currentSlide + 1);
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        if (fsBtn) {
+            fsBtn.addEventListener('click', toggleFullscreen);
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (fsBtn) {
+                const isFs = Boolean(document.fullscreenElement);
+                fsBtn.innerHTML = isFs ? '&times; Exit Fullscreen' : '&#x26F6; Fullscreen';
+                fsBtn.title = isFs ? 'Exit Fullscreen (F or Esc)' : 'Toggle Fullscreen (F)';
+            }
+            fitCanvas();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                updateSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                updateSlide(currentSlide - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                updateSlide(1);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                updateSlide(totalSlides);
+            } else if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        const viewport = document.getElementById('viewport');
+        /* Deep link: ?slide=7 opens straight on slide 7 (handy for "start here" links) */
+        const requested = parseInt(new URLSearchParams(location.search).get('slide'), 10);
+        updateSlide(Number.isFinite(requested) && requested >= 1 && requested <= totalSlides ? requested : 1);
+        requestAnimationFrame(() => {
+            if (viewport) viewport.classList.add('ready');
+        });
+    </script>
+</body>
+</html>

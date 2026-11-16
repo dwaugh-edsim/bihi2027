@@ -78,6 +78,14 @@ window.COURSE_ASSIGNMENTS = {
         active: "hl9-operation-addictive",
         items: [
             {
+                id: "hl9-centennial-case55",
+                taskName: "HL9-Centennial-Case55-Sim",
+                short: "Case 55 · Centennial Outbreak Sim",
+                match: /centennial|case.?55|outbreak|norovirus|germs|disease.?prevention/i,
+                outcome: "Learners will evaluate health behaviours that promote short-term and long-term health",
+                ref: "HL9 CO1 — Disease Prevention theme (Investigate healthy behaviours that contribute to disease prevention: bacteria vs virus, vaccines vs antibiotics, soap vs sanitizer, 48-hour exclusion, surface disinfection)"
+            },
+            {
                 id: "hl9-operation-addictive",
                 taskName: "HL9 Operation Addictive by Design (Class 2)",
                 short: "Operation Addictive · by Design",
