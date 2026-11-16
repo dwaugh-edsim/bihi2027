@@ -363,6 +363,7 @@
 /* ================= CONFIG ================= */
 const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
 const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbwO6rPhp8e8T7-PLJhTkL1cKHd3W8DeufUKmFwpKsgZZhdSDXwRgRWrqp_2dlxQXiwp0w/exec';
+const BE_FALLBACK_URL = 'https://script.google.com/macros/s/AKfycbz73P9FG2HLIJMl9NY9iex9y1TIm1E8cRglvgrsNVAtrrtUJGXgtP3hwKanl_aWJHuMcw/exec';
 const TASK_NAME    = (window.CASE55 && CASE55.meta.taskName) || 'HL9-Centennial-Case55-Sim-JP';
 const DEFAULT_TABS = (window.CASE55 && CASE55.meta.defaultTabLabels) || { dispatch:'1. Story', evidence:'2. Evidence', toolkit:'3. Science & Words' };
 const SECTIONS     = ['901-HL', '902-HL', '903-HL'];
@@ -517,12 +518,28 @@ function verify(rid,h){
     .catch(()=>setSync('RETRYING...','warn'));
 }
 let restoreTimer = null;
+function stateRichness(d){
+  if(!d || typeof d!=='object') return 0;
+  return Object.keys(d.visited||{}).length * 10000 + (+d.station||0) * 1000 + JSON.stringify(d).length;
+}
 function restore(attempt=1){
   if(SKIPNET){ setSync('DEMO MODE','warn'); finishLoad(); loadStation(Math.max(0,Math.min(STATIONS.length-1, +(Q.get('st')||0)))); return; }
   setSync('LOADING...','warn');
-  post(VAULT_URL, { action:'load_assignment', email:identity.email, ts:identity.ts, sig:identity.sig, task:TASK_NAME })
-    .then(j=>{
-      if(j && j.status==='ok' && j.found){
+  const req = { action:'load_assignment', email:identity.email, ts:identity.ts, sig:identity.sig, task:TASK_NAME };
+  Promise.all([
+    post(VAULT_URL, req),
+    post(BE_FALLBACK_URL, req).catch(()=>null)
+  ]).then(([jVault, jBe])=>{
+      if(jVault && jVault.status==='auth_failed'){ onAuthFailed(jVault.reason); el('loadingVeil').style.display='none'; return; }
+      const hasV = jVault && jVault.status==='ok' && jVault.found;
+      const hasB = jBe && jBe.status==='ok' && jBe.found;
+      let j = null, fromBe = false;
+      if(hasV && hasB){
+        if(stateRichness(jBe.data) > stateRichness(jVault.data)){ j = jBe; fromBe = true; }
+        else { j = jVault; }
+      } else if(hasV){ j = jVault; }
+      else if(hasB){ j = jBe; fromBe = true; }
+      if(j){
         finishLoad();
         applyState(j.data||{});
         el('restored').className='ok'; el('restored').style.display='flex';
@@ -531,8 +548,9 @@ function restore(attempt=1){
         clearTimeout(restoreTimer);
         restoreTimer = setTimeout(()=>{ const r=el('restored'); if(r && r.classList.contains('ok')) r.style.display='none'; }, 4200);
         setSync('SERVER OK','ok');
-        lastSavedHash = JSON.stringify(state);
-      } else if(j && j.status==='auth_failed'){ onAuthFailed(j.reason); el('loadingVeil').style.display='none'; }
+        if(fromBe){ lastSavedHash = ''; saveNow(); }
+        else { lastSavedHash = JSON.stringify(state); }
+      }
       else { setSync('READY',''); finishLoad(); loadStation(0); lastSavedHash = JSON.stringify(state); }
     })
     .catch(()=>{
