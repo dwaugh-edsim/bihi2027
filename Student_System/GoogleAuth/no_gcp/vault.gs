@@ -247,31 +247,28 @@ function doPost(e) {
     } finally {
       lock3.releaseLock();
     }
-    var fallback = null;
+    var best = null;
+    var bestScore = -1;
     for (var r = rows.length - 1; r >= 0; r--) {
       if (String(rows[r][1]).toLowerCase() === v3.email && String(rows[r][3]) === task) {
         var data = {};
         try { data = JSON.parse(rows[r][5] || '{}'); } catch (e) { data = {}; }
-        var sumStr = String(rows[r][4] || '');
-        var cand = {
-          status: 'ok', found: true,
-          data: data, summary: sumStr,
-          section: String(rows[r][2] || ''), savedAt: rows[r][0]
-        };
-        if (!fallback) fallback = cand;
-        var hasWork = Boolean(
-          data.committed ||
-          (data.station && Number(data.station) > 0) ||
-          (data.responses && Object.keys(data.responses).length > 0) ||
-          (data.judgments && Object.keys(data.judgments).length > 0) ||
-          (data.partB && Object.keys(data.partB).length > 0)
-        );
-        if (hasWork || sumStr.indexOf('BRIEFING culprit=-') !== 0) {
-          return jsonOut_(cand);
+        var ansCount =
+          (data.responses ? Object.keys(data.responses).length : 0) +
+          (data.judgments ? Object.keys(data.judgments).length : 0) +
+          (data.partB ? Object.keys(data.partB).length : 0);
+        var score = (data.committed ? 10000 : 0) + (ansCount * 100) + (Number(data.station) || 0);
+        if (score > bestScore) {
+          bestScore = score;
+          best = {
+            status: 'ok', found: true,
+            data: data, summary: String(rows[r][4] || ''),
+            section: String(rows[r][2] || ''), savedAt: rows[r][0]
+          };
         }
       }
     }
-    if (fallback) return jsonOut_(fallback);
+    if (best) return jsonOut_(best);
     return jsonOut_({ status: 'ok', found: false });
   }
 
