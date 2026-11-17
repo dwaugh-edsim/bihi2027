@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CENTENNIAL JUNIOR HIGH // CASE 55: OUTBREAK AT CENTENNIAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theatre.css">
+<style>
+:root {
+    --bg-page: #f0f2f5;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+
+    --border-card: #d5dbe3;
+    --border-subtle: #e5e9f0;
+    --border-highlight: #ed786a;
+
+    --text-main: #1e2530;
+    --text-heading: #181f2b;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+
+    --coral: #ed786a;
+    --coral-hover: #fd887a;
+    --coral-dark: #d65b4c;
+    --coral-bg: #fff1f0;
+    --coral-border: #fecdd3;
+
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+
+    --emerald: #15803d;
+    --emerald-bg: #dcfce7;
+    --emerald-border: #86efac;
+
+    --amber: #b45309;
+    --amber-bg: #fef3c7;
+    --amber-border: #fde68a;
+
+    --purple: #6d28d9;
+    --purple-bg: #f5f3ff;
+    --purple-border: #ddd6fe;
+
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --red-border: #fca5a5;
+
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    min-height: 100vh;
+    background: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-body);
+}
+
+.bg-fx {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url('assets/bg_day_school.jpg');
+    background-size: cover; background-position: center;
+    opacity: 0.12; pointer-events: none;
+    transition: background-image 0.5s ease;
+}
+body.night-theme .bg-fx {
+    background-image: url('assets/bg_night_school.jpg');
+    opacity: 0.16;
+}
+
+.double-rule-bottom {
+    border-bottom: 2px solid var(--border-subtle);
+    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border-card);
+}
+
+.shell {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column;
+    min-height: 100vh;
+}
+
+/* TOP BAR */
+header.topbar {
+    background: rgba(255,255,255,0.97);
+    padding: 8px 16px 11px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap;
+}
+.brand-row { display: flex; align-items: center; gap: 8px; }
+.badge-room {
+    background: var(--coral); color: #ffffff;
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.82rem;
+    border-radius: 6px; padding: 4px 10px;
+    box-shadow: 0 2px 6px rgba(237,120,106,0.3);
+}
+.top-title {
+    font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem;
+    color: var(--text-heading);
+}
+.pill-mono {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.76rem;
+    padding: 4px 9px; border-radius: 6px;
+    background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border);
+}
+body.night-theme .pill-mono.phase {
+    background: #1e293b; color: #fde68a; border-color: #0f172a;
+}
+
+.btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.85rem;
+    color: var(--text-heading); background: #ffffff;
+    border: 1.5px solid var(--border-card); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; transition: all 0.12s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:hover { background: var(--bg-card-hover); border-color: #94a3b8; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.coral { background: var(--coral); color: #ffffff; border-color: var(--coral-dark); }
+.btn.coral:hover { background: var(--coral-hover); }
+.btn.emerald { background: var(--emerald); color: #ffffff; border-color: var(--emerald); }
+.btn.blue { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+.btn.purple { background: var(--purple); color: #ffffff; border-color: var(--purple); }
+.btn-xs { font-family: var(--font-mono); font-size: 0.74rem; padding: 4px 8px; }
+
+/* DEMO SWITCHER RIBBON */
+.demo-ribbon {
+    background: #1e293b; color: #f8fafc;
+    padding: 6px 16px;
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap; font-size: 0.82rem;
+}
+.demo-ribbon.show { display: flex; }
+.demo-ribbon select {
+    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid #475569;
+    background: #0f172a; color: #f8fafc;
+}
+
+/* SIGN-IN / JOIN SPLASH GATE */
+.gate-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.gate-card {
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 14px; width: min(500px, 95vw);
+    overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+}
+.gate-art {
+    height: 185px; background-image: url('assets/bg_night_school.jpg');
+    background-size: cover; background-position: center;
+    position: relative; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px 20px; color: #ffffff;
+}
+.gate-art::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.88) 100%);
+}
+.gate-art > * { position: relative; z-index: 1; }
+.gate-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.input-clean {
+    width: 100%; padding: 9px 12px; border-radius: 8px;
+    border: 1.5px solid var(--border-card); font-family: var(--font-body);
+    font-size: 0.96rem; font-weight: 600;
+}
+
+/* CAMOUFLAGED SINGLE-COLUMN STUDENT CONSOLE (IDENTICAL FOR ALL ROLES) */
+.player-stage {
+    flex: 1;
+    max-width: 980px; width: 100%; margin: 0 auto;
+    padding: 12px 16px 76px; /* bottom room for corner micro-pocket */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card-box {
+    background: #ffffff; border: 1px solid var(--border-card);
+    border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 14px 16px;
+}
+
+.identity-strip {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 14px;
+    background: #ffffff; border: 1px solid var(--border-card);
+    border-radius: 9px;
+    font-size: 0.88rem;
+}
+.seat-tag-main {
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.96rem;
+    color: var(--text-heading);
+}
+.stealth-hint {
+    font-size: 0.8rem; color: var(--text-dim);
+}
+
+/* PHASE BANNER */
+.phase-banner {
+    border-radius: 10px; overflow: hidden;
+    background-size: cover; background-position: center;
+    position: relative; padding: 14px 18px; color: #ffffff;
+    margin-bottom: 12px; border: 1.5px solid var(--border-card);
+}
+.phase-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 100%);
+}
+.phase-banner > * { position: relative; z-index: 1; }
+.phase-banner h2 {
+    font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 3px;
+}
+.phase-banner p { font-size: 0.9rem; color: #e2e8f0; }
+
+/* UNIFORM NEUTRAL STATUS BAR (ZERO COLOUR GIVEAWAYS ACROSS ROLES) */
+.neutral-status-bar {
+    padding: 8px 12px; border-radius: 7px; margin-bottom: 10px;
+    background: #f8fafc; border: 1px solid var(--border-card);
+    color: var(--text-muted);
+    font-size: 0.84rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.neutral-status-mono {
+    font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700;
+    color: var(--text-dim);
+}
+
+/* UNIFORM SEAT GRID (ALL LIVING SEATS LOOK IDENTICAL TO NEIGHBOURS) */
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 8px;
+}
+.target-btn {
+    background: #ffffff; border: 1.5px solid var(--border-card);
+    border-radius: 8px; padding: 8px 11px;
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    transition: border-color 0.1s ease, background 0.1s ease;
+}
+.target-btn:hover:not(:disabled) {
+    border-color: #94a3b8; background: #f8fafc;
+}
+.target-btn.selected {
+    border-color: #475569; background: #f1f5f9;
+}
+.target-btn:disabled {
+    opacity: 0.48; cursor: not-allowed; background: #f1f5f9;
+}
+.t-seat {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.73rem;
+    color: var(--text-dim);
+}
+.t-name { font-weight: 700; font-size: 0.92rem; color: var(--text-heading); }
+.t-chip {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.66rem;
+    padding: 2px 5px; border-radius: 4px;
+    background: #cbd5e1; color: #1e293b;
+}
+
+.spectator-notice {
+    background: #f8fafc; color: var(--text-main);
+    border: 1.5px solid var(--border-card); border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 10px;
+}
+
+/* ==========================================================================
+   ANTI-CHEAT CORNER MICRO-PEEK ("CUP YOUR HAND OVER THE CORNER")
+   Tiny, low-contrast, monochrome slate palette. Press-and-hold ONLY.
+   ========================================================================== */
+.corner-pocket {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 60;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.corner-pocket.right-side {
+    left: auto;
+    right: 10px;
+    align-items: flex-end;
+}
+
+/* Tiny discreet popover shown ONLY while finger/mouse/key is held down */
+.peek-popover {
+    display: none;
+    width: 216px;
+    margin-bottom: 6px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #94a3b8;
+    box-shadow: 0 4px 14px rgba(15,23,42,0.16);
+    color: #1e293b;
+    font-size: 0.75rem;
+    line-height: 1.32;
+}
+.corner-pocket.peeking .peek-popover {
+    display: block;
+}
+.peek-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #cbd5e1;
+}
+.peek-thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 5px;
+    object-fit: cover;
+    flex-shrink: 0;
+    /* Desaturated low-contrast filter so zero bright red/green glow leaks sideways */
+    filter: grayscale(0.55) contrast(0.92);
+    border: 1px solid #94a3b8;
+}
+.peek-role-code {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.74rem;
+    color: #0f172a;
+    letter-spacing: 0.03em;
+}
+.peek-role-sub {
+    font-size: 0.7rem;
+    color: #475569;
+}
+.peek-notes {
+    font-size: 0.72rem;
+    color: #334155;
+    max-height: 190px;
+    overflow-y: auto;
+}
+.peek-note-block {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #cbd5e1;
+}
+.peek-note-label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+/* Compact corner trigger bar */
+.corner-trigger-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.peek-hold-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: rgba(248, 250, 252, 0.94);
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: none;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.08);
+}
+.peek-hold-btn:hover {
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+.corner-pocket.peeking .peek-hold-btn {
+    background: #e2e8f0;
+    border-color: #64748b;
+    color: #0f172a;
+}
+.peek-mini-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: cover;
+    opacity: 0.75;
+    filter: grayscale(0.4);
+}
+.corner-swap-btn {
+    padding: 5px 6px;
+    border-radius: 6px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.corner-swap-btn:hover {
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+
+/* SUB BOX FOR GOD VIEW */
+.sub-box {
+    margin-top: 10px; padding: 10px 12px;
+    border-radius: 8px; background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+}
+.sub-box-title {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.72rem;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 5px;
+}
+
+/* GOD VIEW TABLE (?god=1 teacher private window only) */
+.god-wrap {
+    max-width: 1240px; width: 100%; margin: 0 auto; padding: 14px 18px;
+    display: grid; grid-template-columns: 360px 1fr; gap: 14px;
+}
+@media (max-width: 900px) { .god-wrap { grid-template-columns: 1fr; } }
+.god-seat-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.god-row {
+    background: #ffffff; border: 1px solid var(--border-card); border-radius: 7px;
+    padding: 6px 10px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.86rem;
+}
+.god-row.dead { opacity: 0.55; background: #f1f5f9; }
+.r-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.7rem;
+    padding: 2px 6px; border-radius: 4px; color: #ffffff;
+}
+.r-pill.CARRIER { background: var(--red); }
+.r-pill.NURSE { background: var(--emerald); }
+.r-pill.INVESTIGATOR { background: var(--amber); }
+.r-pill.STUDENT { background: #64748b; }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+
+<div class="shell">
+    <!-- TOP HEADER -->
+    <header class="topbar double-rule-bottom">
+        <div class="brand-row">
+            <span class="badge-room">ROOM 8</span>
+            <span class="top-title" id="headerTitle">Centennial Outbreak</span>
+            <span class="pill-mono" id="gameCodeBadge">CARRIER</span>
+            <span class="pill-mono phase" id="phaseBadge">LOBBY</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span id="whoLabel" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);"></span>
+            <button class="btn btn-xs" id="leaveSeatBtn" style="display:none;" onclick="leaveMySeat()" title="Leave current seat and return to name select">Switch Seat</button>
+            <button class="btn btn-xs" id="logoutBtn" style="display:none;" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>
+        </div>
+    </header>
+
+    <!-- DEMO SEAT SWITCHER RIBBON (shown in ?demo=1 / local preview mode) -->
+    <div class="demo-ribbon" id="demoRibbon">
+        <div>
+            <strong>INTERACTIVE DEMO MODE:</strong> Synced live with <code>lcd.html</code> (or standalone 28-player bot class). Switch seats anytime to test every role!
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <label for="demoSeatSelect">Viewing Seat:</label>
+            <select id="demoSeatSelect" onchange="onDemoSeatChange(this.value)"></select>
+            <button class="btn btn-xs coral" onclick="demoStepPhase()">Advance Phase -&gt;</button>
+        </div>
+    </div>
+
+    <!-- 1. SIGN-IN & ROOM JOIN GATE -->
+    <div class="gate-wrap" id="gateView" style="display:none;">
+        <div class="gate-card">
+            <div class="gate-art">
+                <div style="font-family:var(--font-mono); font-size:0.74rem; font-weight:800; color:#fde68a;">BICENTENNIAL ROOM 8 // CLASS GAME</div>
+                <h1 style="font-family:var(--font-heading); font-size:1.45rem;">Centennial Junior High: Outbreak</h1>
+                <div style="font-size:0.9rem; color:#e2e8f0;">One misty school. Hidden carriers. Trust nobody blindly.</div>
+            </div>
+            <div style="background:#0f172a; color:#cbd5e1; padding:10px 18px; font-size:0.79rem; line-height:1.45; border-bottom:1px solid #334155;">
+                <strong style="color:#fde68a;">How to Play:</strong>
+                1. Sign in &amp; claim your seat. &nbsp;·&nbsp;
+                2. Tap/hold <strong>[ID]</strong> in the corner (or press <strong>P</strong>) to peek secretly. &nbsp;·&nbsp;
+                3. Keep a strict poker face!
+            </div>
+            <div class="gate-body" id="gateBody">
+                <!-- Populated dynamically based on Live Server vs Local Demo -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CAMOUFLAGED STUDENT PER-DEVICE VIEW (LOOKS IDENTICAL FOR ALL ROLES) -->
+    <div class="player-stage" id="playerView" style="display:none;">
+        <div class="identity-strip">
+            <span class="seat-tag-main" id="mySeatHeader">Seat #01</span>
+            <span class="stealth-hint">Anti-Peek Mode: Cup hand over bottom corner &amp; hold <strong>[ID]</strong> (or hold <strong>P</strong> key)</span>
+        </div>
+
+        <div class="card-box" id="actionConsole">
+            <!-- Populated per phase with role-neutral headings & buttons -->
+        </div>
+    </div>
+
+    <!-- DISCREET CUP-YOUR-HAND CORNER POCKET (PRESS & HOLD ONLY, AUTO-HIDES) -->
+    <div class="corner-pocket" id="cornerPocket" style="display:none;">
+        <div class="peek-popover" id="peekPopover" aria-live="polite">
+            <div class="peek-top">
+                <img class="peek-thumb" id="secretCardImg" src="assets/card_back.jpg" alt="">
+                <div>
+                    <div class="peek-role-code" id="secretBadge">WAITING</div>
+                    <div class="peek-role-sub" id="secretTitle">Lobby Open</div>
+                </div>
+            </div>
+            <div id="secretDesc" style="color:#334155;">Your role unlocks once the deck is dealt.</div>
+            <div class="peek-notes" id="privateNotesArea"></div>
+        </div>
+
+        <div class="corner-trigger-row">
+            <button type="button" class="peek-hold-btn" id="peekHoldBtn"
+                    title="Cup your hand over this corner and hold down to check your role">
+                <img class="peek-mini-dot" src="assets/card_back.jpg" alt="">
+                <span id="peekBtnLabel">Hold [ID] to Peek</span>
+            </button>
+            <button type="button" class="corner-swap-btn" id="cornerSwapBtn"
+                    onclick="toggleCornerSide()"
+                    title="Move secret corner away from your closest pod neighbour">
+                -&gt; R
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. PRIVATE TEACHER GOD-VIEW CONSOLE (?god=1) -->
+    <div class="god-wrap" id="godView" style="display:none;">
+        <div class="card-box" id="godControlsBox"></div>
+        <div class="card-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h2 style="font-family:var(--font-heading); font-size:1.1rem;">Teacher God-View (Private Window - Do Not Project!)</h2>
+                <span class="pill-mono" id="godCountsBadge"></span>
+            </div>
+            <div class="god-seat-grid" id="godSeatGrid"></div>
+        </div>
+    </div>
+
+    <!-- 4. HEADLESS SELFTEST OUTPUT (?selftest=1 off-prod) -->
+    <pre id="selftest" style="display:none; padding:16px; font-family:monospace;"></pre>
+</div>
+
+<script src="../../../../Student_System/students_roster_data.js"></script>
+<script src="shared/config.js"></script>
+<script src="shared/sfx.js"></script>
+<script src="shared/tts.js"></script>
+<script src="shared/theatre.js"></script>
+<script src="engine/story_content.js"></script>
+<script src="engine/story_engine.js"></script>
+<script src="engine/outbreak_engine.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    var E = window.OutbreakEngine;
+    var CFG = window.OBConfig;
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbz6RDat46u0UG6ATRiXIc8IGtRj19s1yUoByTvhm3lZg7o1Yf-8RpDYXaY9kDCIECY2ZA/exec';
+    var IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwob__k9f5L0Rw/exec';
+    var ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
+    var ID_SESSION_KEY = 'r8id';
+    var CHANNEL_NAME = 'r8_outbreak_v1';
+
+    function sGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+    function sSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+    var Q = new URLSearchParams(location.search);
+    var OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
+    var SELFTEST = Q.has('selftest') && OFFPROD;
+    var IS_GOD = Q.get('god') === '1';
+    var serverUrl = Q.get('server') || sGet('ob_server_url') || (!OFFPROD ? DEFAULT_SERVER_URL : '');
+    var CLASS_ROOM_CODES = {
+        '703': 'OUT-E8SQ',
+        '801': 'OUT-0801',
+        '802': 'OUT-0802',
+        '803': 'OUT-0803',
+        '804': 'OUT-0804',
+        '901': 'OUT-0901',
+        '902': 'OUT-BFJJ',
+        '903': 'OUT-0903'
+    };
+    var QUICK_CLASSES = ['703', '801', '802', '803', '804', '901', '902', '903'];
+    var urlClass = (Q.get('class') || '').trim();
+    var targetGameId = Q.get('game') || CLASS_ROOM_CODES[urlClass] || '';
+    var isDemo = Q.get('demo') === '1' || (!serverUrl && !IS_GOD);
+
+    var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
+    var identity = null;
+    var popupRef = null;
+    var joinedPlayerId = sGet('ob_player_id') || 'P1';
+    var rolePeekOpen = false;
+    var peekSafetyTimer = null;
+    var cornerRight = sGet('ob_corner_side') === 'R';
+    var subtleGuardNote = '';
+    var personalSuspectHistory = [];
+
+    // Standalone fallback local game if student opens index.html?demo=1 without lcd.html open
+    var fallbackDemoGame = E.createGame({ populateDemo: true, rules: { classSize: 28, preset: 'classic' } });
+    var activeLocalGame = fallbackDemoGame;
+    var currentView = null;
+
+    function el(id) { return document.getElementById(id); }
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function atobUrl(s) {
+        s = s.replace(/-/g, '+').replace(/_/g, '/');
+        while (s.length % 4) s += '=';
+        return atob(s);
+    }
+
+    // 0. SELFTEST MODE
+    if (SELFTEST) {
+        var st = E.runSelfTest();
+        var pre = el('selftest');
+        pre.style.display = 'block';
+        pre.textContent = JSON.stringify(st, null, 2);
+        return;
+    }
+
+    // ?god=1 now lives in run.html (the single teacher cockpit)
+    if (IS_GOD) {
+        location.replace('run.html' + location.search);
+        return;
+    }
+
+    // Read Path B Google Identity token from URL hash or sessionStorage
+    var hashMatch = (location.hash || '').match(/[#&]r8id=([^&]+)/);
+    if (hashMatch) {
+        try {
+            identity = JSON.parse(atobUrl(hashMatch[1]));
+            sessionStorage.setItem(ID_SESSION_KEY, JSON.stringify(identity));
+        } catch (e) {}
+        history.replaceState(null, '', location.pathname + location.search);
+    }
+    if (!identity) {
+        try {
+            var savedId = sessionStorage.getItem(ID_SESSION_KEY);
+            if (savedId) identity = JSON.parse(savedId);
+        } catch (e) {}
+    }
+
+    window.addEventListener('message', function (ev) {
+        if (!ev.data || ev.data.type !== 'r8id' || !ev.data.id) return;
+        identity = ev.data.id;
+        try { sessionStorage.setItem(ID_SESSION_KEY, JSON.stringify(identity)); } catch (e) {}
+        try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (e) {}
+        boot();
+    });
+
+    if (bc) {
+        bc.onmessage = function (ev) {
+            var msg = ev.data || {};
+            if (serverUrl) return;
+            if (msg.type === 'STATE_SYNC' && msg.game) {
+                activeLocalGame = msg.game;
+                syncFromLocalGame();
+            } else if ((msg.type === 'ACTION_RESULT' || msg.type === 'JOIN_RESULT') && msg.game) {
+                activeLocalGame = msg.game;
+                if (msg.result && !msg.result.ok && msg.result.error) {
+                    setSubtleNote('Seat unavailable right now - choose another seat.');
+                }
+                syncFromLocalGame();
+            }
+        };
+    }
+
+    function setSubtleNote(msg) {
+        subtleGuardNote = msg;
+        renderPlayerView();
+        setTimeout(function () {
+            if (subtleGuardNote === msg) {
+                subtleGuardNote = '';
+                renderPlayerView();
+            }
+        }, 2600);
+    }
+
+    function syncFromLocalGame() {
+        if (IS_GOD) {
+            currentView = E.projectViewForViewer(activeLocalGame, { kind: 'god' });
+            renderGodView();
+            return;
+        }
+        if (activeLocalGame.players.length > 0) {
+            var exists = activeLocalGame.players.some(function (p) { return p.id === joinedPlayerId; });
+            if (!exists) joinedPlayerId = activeLocalGame.players[0].id;
+        }
+        currentView = E.projectViewForViewer(activeLocalGame, { kind: 'player', playerId: joinedPlayerId });
+        renderDemoRibbon();
+        renderPlayerView();
+    }
+
+    function postServer(payload) {
+        return fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); });
+    }
+
+    window.signInWithSchoolAccount = function () {
+        if (location.origin.indexOf(ALLOWED_ORIGIN) !== 0) {
+            alert('School Google sign-in requires the hosted dwaugh-edsim.github.io link. Use Interactive Demo Mode locally!');
+            return;
+        }
+        var ret = location.href.split('#')[0];
+        popupRef = window.open(IDENTITY_URL + '?return=' + encodeURIComponent(ret), 'r8signin', 'width=520,height=700');
+    };
+
+    function showSeatedWorkspace() {
+        el('gateView').style.display = 'none';
+        el('playerView').style.display = 'flex';
+        el('cornerPocket').style.display = 'flex';
+        if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'inline-flex';
+        if (identity && el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
+        applyCornerSide();
+    }
+
+    window.leaveMySeat = function () {
+        if (confirm('Leave your seat and return to the name selection screen?')) {
+            try { sessionStorage.removeItem('ob_player_id'); } catch (e) {}
+            joinedPlayerId = '';
+            el('playerView').style.display = 'none';
+            el('cornerPocket').style.display = 'none';
+            if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'none';
+            el('gateView').style.display = 'flex';
+            boot();
+        }
+    };
+
+    window.signOutGoogle = function () {
+        if (confirm('Sign out of your school account on this Chromebook?')) {
+            try {
+                sessionStorage.removeItem(ID_SESSION_KEY);
+                sessionStorage.removeItem('ob_player_id');
+            } catch (e) {}
+            identity = null;
+            joinedPlayerId = '';
+            currentView = null;
+            el('whoLabel').textContent = '';
+            if (el('leaveSeatBtn')) el('leaveSeatBtn').style.display = 'none';
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'none';
+            if (el('cornerPocket')) el('cornerPocket').style.display = 'none';
+            if (el('playerView')) el('playerView').style.display = 'none';
+            el('gateView').style.display = 'flex';
+            boot();
+        }
+    };
+
+    window.enterInteractiveDemo = function () {
+        isDemo = true;
+        serverUrl = '';
+        showSeatedWorkspace();
+        el('demoRibbon').classList.add('show');
+        if (bc) bc.postMessage({ type: 'REQUEST_SYNC' });
+        syncFromLocalGame();
+    };
+
+    var ROSTER_703 = [
+        'Eolann Ba.', 'Tyrese Be.', 'Ahmed Be.', 'Veronika Bo.', 'Tate Bo.', 'Oliver Br.',
+        'Sofiia Bu.', 'Gabriel Bu.', 'Ainsley Co.', 'Carson Do.', 'Lyla Go.', 'Malikee Gr.',
+        'Oscar Hi.', 'Sadie Hu.', 'Mykyta Mo.', 'Taonga Mu.', 'Ruby Ng.', 'Ava Ni.',
+        'Elle Re.', 'Madison Ro.', 'Zacharia Sa.', 'Carson To.', 'Oliver Wh.', 'Veronika Zh.'
+    ];
+    var ROSTER_902_FALLBACK = [
+        'Anna Ta.', 'Arlo Ja.', 'Chelsea Re.', 'Douglas La.', 'Gemma Br.',
+        'Hannah St.', 'Jax Ma.', 'John Bo.', 'Jordan He.', 'Jordan Sk.',
+        'Lyla Fl.', 'Marla Ll.', 'Mhareon Ol.', 'Mona Al.', 'Noah Bu.',
+        'Nolan Ca.', 'Nova Tu.', 'Oscar Pi.', 'Seb Ha.', 'Simon Ma.',
+        'Sofia Ku.', 'Sofie St.', 'Thomas Ov.', 'Tristan Ha.', 'Zackory Ne.'
+    ];
+    function formatRosterTag(firstName, lastName) {
+        var fn = String(firstName || '').trim();
+        var cleanLast = String(lastName || '').replace(/[^A-Za-z]/g, '');
+        var two = cleanLast.slice(0, 2);
+        if (two.length === 2) two = two.charAt(0).toUpperCase() + two.charAt(1).toLowerCase();
+        else if (two.length === 1) two = two.toUpperCase();
+        return (fn && two) ? (fn + ' ' + two + '.') : fn;
+    }
+    var ROSTER_BY_CLASS = { '703': ROSTER_703, '902': ROSTER_902_FALLBACK };
+    if (Array.isArray(window.MASTER_ROSTER_DATA)) {
+        var built = {};
+        window.MASTER_ROSTER_DATA.forEach(function (r) {
+            var hr = String(r.homeroom || '').trim();
+            if (!hr) return;
+            var tag = formatRosterTag(r.first_name, r.last_name);
+            if (!tag) return;
+            if (!built[hr]) built[hr] = [];
+            built[hr].push(tag);
+        });
+        Object.keys(built).forEach(function (hr) {
+            built[hr].sort(function (a, b) { return a.localeCompare(b); });
+            ROSTER_BY_CLASS[hr] = built[hr];
+        });
+    }
+    var activeQuickClass = CLASS_ROOM_CODES[urlClass] ? urlClass : '703';
+
+    function classForRoomCode(code) {
+        var up = String(code || '').trim().toUpperCase();
+        for (var i = 0; i < QUICK_CLASSES.length; i++) {
+            if (CLASS_ROOM_CODES[QUICK_CLASSES[i]] === up) return QUICK_CLASSES[i];
+        }
+        return '';
+    }
+
+    window.switchQuickClass = function (cls, keepRoomCode) {
+        if (!ROSTER_BY_CLASS[cls]) return;
+        activeQuickClass = cls;
+        var sel = el('quickNameSelect');
+        QUICK_CLASSES.forEach(function (c) {
+            var b = el('qpBtn' + c);
+            if (b) b.className = 'btn btn-xs' + (c === cls ? ' blue' : '');
+        });
+        if (sel) {
+            var list = ROSTER_BY_CLASS[cls] || [];
+            sel.innerHTML = '<option value="">Quick-pick your name (' + cls + ') or type below...</option>'
+                + list.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+        }
+        var inp = el('displayNameInput');
+        if (inp && list && list.length >= 2) {
+            inp.placeholder = 'e.g. ' + list[0] + ' or ' + list[1];
+        }
+        if (!keepRoomCode && !Q.get('game') && el('roomCodeInput')) {
+            targetGameId = CLASS_ROOM_CODES[cls] || targetGameId;
+            el('roomCodeInput').value = targetGameId;
+        }
+    };
+
+    window.joinLiveServerSeat = function () {
+        var nameVal = (el('displayNameInput') ? el('displayNameInput').value : '').trim();
+        var codeVal = (el('roomCodeInput') ? el('roomCodeInput').value : targetGameId).trim().toUpperCase();
+        var parts = nameVal.split(/\s+/).filter(Boolean);
+        if (parts.length < 2) {
+            alert('Enter your First Name + Last Initials (for example: Oliver Br. or Carson Do.) so duplicate first names stay clear.');
+            return;
+        }
+        postServer({
+            action: 'join_game',
+            gameId: codeVal,
+            displayName: nameVal,
+            email: identity.email,
+            ts: identity.ts,
+            sig: identity.sig
+        }).then(function (res) {
+            if (res && res.status === 'ok' && res.view) {
+                joinedPlayerId = res.playerId;
+                targetGameId = res.view.gameId;
+                try { sessionStorage.setItem('ob_player_id', joinedPlayerId); } catch (e) {}
+                currentView = res.view;
+                showSeatedWorkspace();
+                renderPlayerView();
+            } else {
+                var errTxt = (res && (res.message || (res.reason ? ('Identity check failed: ' + res.reason) : ''))) || 'Could not join lobby yet.';
+                alert(errTxt);
+            }
+        });
+    };
+
+    // =========================================================================
+    // PRESS-AND-HOLD CORNER MICRO-PEEK (INSTANT AUTO-HIDE + 3.2s MAX SAFETY)
+    // =========================================================================
+    function applyCornerSide() {
+        var pocket = el('cornerPocket');
+        var swapBtn = el('cornerSwapBtn');
+        if (!pocket || !swapBtn) return;
+        pocket.classList.toggle('right-side', cornerRight);
+        swapBtn.textContent = cornerRight ? '<- L' : '-> R';
+    }
+
+    window.toggleCornerSide = function () {
+        cornerRight = !cornerRight;
+        try { sessionStorage.setItem('ob_corner_side', cornerRight ? 'R' : 'L'); } catch (e) {}
+        applyCornerSide();
+    };
+
+    var peekLatched = false;
+    var peekDownAt = 0;
+
+    function openCornerPeek(latched) {
+        peekLatched = Boolean(latched);
+        rolePeekOpen = true;
+        if (peekSafetyTimer) clearTimeout(peekSafetyTimer);
+        peekSafetyTimer = setTimeout(function () {
+            closeCornerPeek();
+        }, 4000);
+        renderCornerPocket();
+    }
+
+    function closeCornerPeek() {
+        if (peekSafetyTimer) {
+            clearTimeout(peekSafetyTimer);
+            peekSafetyTimer = null;
+        }
+        peekLatched = false;
+        if (!rolePeekOpen) return;
+        rolePeekOpen = false;
+        renderCornerPocket();
+    }
+    window.closeCornerPeek = closeCornerPeek;
+
+    (function wireHoldToPeek() {
+        var btn = el('peekHoldBtn');
+        var pocket = el('cornerPocket');
+        if (!btn) return;
+        btn.addEventListener('pointerdown', function (ev) {
+            ev.preventDefault();
+            if (rolePeekOpen && peekLatched) {
+                peekDownAt = 0;
+                closeCornerPeek();
+                return;
+            }
+            peekDownAt = Date.now();
+            openCornerPeek(false);
+        });
+        btn.addEventListener('pointerup', function () {
+            if (!peekDownAt) return;
+            var heldMs = Date.now() - peekDownAt;
+            peekDownAt = 0;
+            if (heldMs < 240) {
+                openCornerPeek(true);
+            } else {
+                closeCornerPeek();
+            }
+        });
+        btn.addEventListener('pointercancel', function () {
+            if (!peekLatched) closeCornerPeek();
+        });
+        btn.addEventListener('pointerleave', function () {
+            if (peekDownAt && !peekLatched) closeCornerPeek();
+        });
+        btn.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+
+        document.addEventListener('pointerdown', function (ev) {
+            if (rolePeekOpen && peekLatched && pocket && !pocket.contains(ev.target)) {
+                closeCornerPeek();
+            }
+        });
+        window.addEventListener('pointerup', function () {
+            if (peekDownAt && !peekLatched) {
+                var heldMs = Date.now() - peekDownAt;
+                peekDownAt = 0;
+                if (heldMs < 240) openCornerPeek(true);
+                else closeCornerPeek();
+            }
+        });
+        window.addEventListener('blur', closeCornerPeek);
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) closeCornerPeek();
+        });
+
+        // Optional discreet keyboard peek: tap 'P' for 5s auto-hide, or hold 'P' to snap shut on release
+        var pDownAt = 0;
+        document.addEventListener('keydown', function (ev) {
+            if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
+            if ((ev.key === 'p' || ev.key === 'P') && !ev.repeat) {
+                if (rolePeekOpen && peekLatched) {
+                    pDownAt = 0;
+                    closeCornerPeek();
+                    return;
+                }
+                pDownAt = Date.now();
+                openCornerPeek(false);
+            }
+        });
+        document.addEventListener('keyup', function (ev) {
+            if (ev.key === 'p' || ev.key === 'P') {
+                if (!pDownAt) return;
+                var heldMs = Date.now() - pDownAt;
+                pDownAt = 0;
+                if (heldMs < 240) openCornerPeek(true);
+                else closeCornerPeek();
+            }
+        });
+    })();
+
+    window.onDemoSeatChange = function (pid) {
+        joinedPlayerId = pid;
+        subtleGuardNote = '';
+        closeCornerPeek();
+        if (activeLocalGame && activeLocalGame.players) {
+            activeLocalGame.players.forEach(function (p) { p.isBot = (p.id !== pid); });
+        }
+        syncFromLocalGame();
+    };
+
+    window.demoStepPhase = function () {
+        subtleGuardNote = '';
+        if (bc) {
+            if (activeLocalGame === fallbackDemoGame) {
+                if (activeLocalGame.phase === 'ROLE_REVEAL' || activeLocalGame.phase === 'NIGHT' || activeLocalGame.phase === 'DAY_VOTE' || activeLocalGame.phase === 'DAY_REVOTE') {
+                    E.simulateBotActions(activeLocalGame, Date.now());
+                }
+                if (activeLocalGame.phase === 'GAME_OVER') {
+                    activeLocalGame = E.resetToLobby(activeLocalGame, true, Date.now());
+                    fallbackDemoGame = activeLocalGame;
+                } else {
+                    E.advancePhase(activeLocalGame, Date.now());
+                }
+                syncFromLocalGame();
+            } else {
+                bc.postMessage({ type: 'GOD_ADVANCE' });
+            }
+        }
+    };
+
+    window.submitMyAction = function (type, targetId, line) {
+        if (!currentView || !currentView.me) return;
+        var me = currentView.me;
+
+        // Client-side stealth guard so all 28 buttons look identical on screen (zero greyed-out packmate tells!)
+        if (currentView.phase === 'NIGHT' && type !== 'confirm_role') {
+            var targetObj = (currentView.players || []).find(function (x) { return x.id === targetId; });
+            if (me.role === 'CARRIER' && targetObj && targetObj.role === 'CARRIER') {
+                setSubtleNote('Seat #' + targetObj.seat + ' unavailable - select a different seat.');
+                return;
+            }
+            if (me.role === 'NURSE') {
+                if (!currentView.rules.nurseSelfSave && targetId === me.id) {
+                    setSubtleNote('Self-selection disabled by house rule - pick another seat.');
+                    return;
+                }
+                if (!currentView.rules.nurseRepeatSave && me.lastNurseSavedId === targetId) {
+                    setSubtleNote('Cannot select the same seat two nights in a row.');
+                    return;
+                }
+            }
+            if ((me.role === 'INVESTIGATOR' || me.role === 'STUDENT') && targetId === me.id) {
+                setSubtleNote('Select another classmate seat rather than your own.');
+                return;
+            }
+        }
+
+        if (type === 'student_watch') {
+            var pObj = (currentView.players || []).find(function (x) { return x.id === targetId; });
+            if (pObj) {
+                personalSuspectHistory.unshift('N' + currentView.round + ' watch: #' + pObj.seat + ' ' + pObj.name);
+                personalSuspectHistory = personalSuspectHistory.slice(0, 5);
+            }
+        }
+
+        if (serverUrl && !isDemo) {
+            postServer({
+                action: 'submit_action',
+                gameId: targetGameId || currentView.gameId,
+                type: type,
+                targetId: targetId,
+                line: line || '',
+                requestId: 'req_' + Date.now() + '_' + Math.floor(Math.random() * 9999),
+                email: identity.email,
+                ts: identity.ts,
+                sig: identity.sig
+            }).then(function (res) {
+                if (res && res.status === 'ok' && res.view) {
+                    currentView = res.view;
+                    renderPlayerView();
+                } else if (res && res.status === 'stale') {
+                    setSubtleNote('The round just changed - tap again.');
+                } else if (res && res.message) {
+                    setSubtleNote(res.message);
+                }
+            }).catch(function () {
+                setSubtleNote('No connection - tap not recorded. Retry in a moment.');
+            });
+            return;
+        }
+
+        if (activeLocalGame === fallbackDemoGame) {
+            var r = E.submitPlayerAction(activeLocalGame, joinedPlayerId, { type: type, targetId: targetId, line: line || '' }, Date.now());
+            if (!r.ok) setSubtleNote('Seat unavailable - pick another seat.');
+            else if (type !== 'last_words_choice') E.maybeAutoAdvance(activeLocalGame, Date.now());
+            syncFromLocalGame();
+        }
+        if (bc) {
+            bc.postMessage({
+                type: 'PLAYER_ACTION',
+                playerId: joinedPlayerId,
+                requestId: 'demo_' + Date.now(),
+                actionPayload: { type: type, targetId: targetId, line: line || '' }
+            });
+        }
+    };
+
+    function roleInfo(role) {
+        if (role === 'CARRIER') {
+            return {
+                label: 'ROLE: CARRIER',
+                title: 'Carrier',
+                img: 'assets/role_carrier.jpg',
+                desc: 'Agree with your fellow Carriers on 1 seat each night to quietly expose them. Blend in during Day votes.'
+            };
+        }
+        if (role === 'NURSE') {
+            return {
+                label: 'ROLE: NURSE',
+                title: 'Nurse',
+                img: 'assets/role_nurse.jpg',
+                desc: 'Select 1 seat each night to shield from infection.'
+            };
+        }
+        if (role === 'INVESTIGATOR') {
+            return {
+                label: 'ROLE: INVESTIGATOR',
+                title: 'Investigator (Health Officer)',
+                img: 'assets/role_investigator.jpg',
+                desc: 'Select 1 seat each night to test - their true status is revealed to you at Dawn.'
+            };
+        }
+        return {
+            label: 'ROLE: STUDENT',
+            title: 'Student',
+            img: 'assets/role_student.jpg',
+            desc: 'Tap 1 hunch at night, watch patterns, and vote to isolate a Carrier by day.'
+        };
+    }
+
+    function renderDemoRibbon() {
+        if (!isDemo || IS_GOD || !currentView) return;
+        el('demoRibbon').classList.add('show');
+        var sel = el('demoSeatSelect');
+        var opts = (activeLocalGame.players || []).map(function (p) {
+            var deadTag = !p.alive ? ' (OUT)' : '';
+            return '<option value="' + esc(p.id) + '"' + (p.id === joinedPlayerId ? ' selected' : '') + '>#'
+                + (p.seat < 10 ? '0' + p.seat : p.seat) + ' ' + esc(p.name) + deadTag + '</option>';
+        }).join('');
+        sel.innerHTML = opts;
+    }
+
+    function renderCornerPocket() {
+        var pocket = el('cornerPocket');
+        if (!pocket || !currentView || !currentView.me) return;
+
+        var v = currentView;
+        var me = v.me;
+        pocket.classList.toggle('peeking', rolePeekOpen);
+        el('peekBtnLabel').textContent = rolePeekOpen
+            ? (peekLatched ? 'Tap to Hide (4s)' : 'Release to Hide')
+            : 'Tap / Hold [ID] to Peek';
+
+        if (!rolePeekOpen) {
+            return;
+        }
+
+        var img = el('secretCardImg');
+        var badge = el('secretBadge');
+        var title = el('secretTitle');
+        var desc = el('secretDesc');
+        var notesEl = el('privateNotesArea');
+
+        if (!me.role) {
+            img.src = 'assets/card_back.jpg';
+            badge.textContent = 'LOBBY SEAT';
+            title.textContent = 'Waiting for Deal';
+            desc.textContent = 'Your secret status unlocks here once the teacher deals the cards.';
+            notesEl.innerHTML = '';
+            return;
+        }
+
+        var info = roleInfo(me.role);
+        img.src = info.img;
+        badge.textContent = info.label;
+        title.textContent = 'Seat #' + (me.seat < 10 ? '0' + me.seat : me.seat) + ' · ' + info.title;
+        desc.textContent = info.desc;
+
+        var notesHtml = '';
+
+        // Outbreak private pack & live target picks (kept strictly inside corner peek!)
+        if (me.role === 'CARRIER' && me.packmates) {
+            var livingCarriers = me.packmates.filter(function (m) { return m.alive; });
+            var isSolo = livingCarriers.length === 1;
+            var lock = me.packLock || { state: 'coordinating', confirms: 0, totalCarriers: livingCarriers.length };
+            var packHdr = 'Fellow Carriers';
+            var packHdrColor = '';
+            if (v.phase === 'NIGHT') {
+                if (isSolo) {
+                    packHdr = 'Solo Carrier - your spread lands at Dawn';
+                } else if (lock.state === 'locked') {
+                    packHdr = 'CARRIERS LOCKED: Seat #' + (lock.targetSeat != null ? (lock.targetSeat < 10 ? '0' + lock.targetSeat : lock.targetSeat) : '?') +
+                        (v.rules.carrierConfirmStrike ? ' (' + lock.confirms + '/' + lock.totalCarriers + ' confirmed)' : '');
+                    packHdrColor = ' style="color:var(--emerald);"';
+                } else if (lock.state === 'split') {
+                    packHdr = 'CARRIERS SPLIT - pick the same seat!';
+                    packHdrColor = ' style="color:var(--amber);"';
+                } else {
+                    packHdr = 'COORDINATING - match 1 seat to lock';
+                }
+            }
+            var matchButtons = [];
+            var seenMatchIds = {};
+            var packLines = me.packmates.map(function (m) {
+                var whoTag = (m.id === me.id) ? 'You' : 'Fellow Carrier';
+                var pickSeat = '';
+                if (v.phase === 'NIGHT' && m.alive) {
+                    var t = v.players.find(function (x) { return x.id === m.pick; });
+                    var tSeatPad = t ? (t.seat < 10 ? '0' + t.seat : t.seat) : '';
+                    pickSeat = t ? (' -> <strong>#' + tSeatPad + ' ' + esc(t.name) + '</strong>') : ' (waiting for tap...)';
+                    if (m.id !== me.id && t && m.pick !== me.myNightPick && !seenMatchIds[t.id]) {
+                        seenMatchIds[t.id] = true;
+                        matchButtons.push(
+                            '<button type="button" class="btn btn-xs" style="margin-top:6px; width:100%; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; font-weight:700;" onclick="submitMyAction(\'night\', \'' + esc(t.id) + '\'); closeCornerPeek();">'
+                            + 'Match #' + tSeatPad + ' ' + esc(t.name)
+                            + '</button>'
+                        );
+                    }
+                }
+                var conf = (v.rules.carrierConfirmStrike && m.confirmed) ? ' [Confirmed]' : '';
+                return whoTag + ' #' + (m.seat < 10 ? '0' + m.seat : m.seat) + ' ' + esc(m.name) + (!m.alive ? ' [Eliminated]' : pickSeat + conf);
+            }).join('<br>');
+
+            var confirmBtn = '';
+            if (v.phase === 'NIGHT' && v.rules.carrierConfirmStrike && lock.state === 'locked' && !me.packmates.some(function (m) { return m.id === me.id && m.confirmed; })) {
+                confirmBtn = '<div style="margin-top:6px;"><button class="btn btn-xs emerald" onclick="submitMyAction(\'carrier_confirm\', \'\')">Confirm spread</button></div>';
+            }
+
+            // A6: private dawn confirmation of what the pack's strike did
+            var strikeNote = '';
+            if (v.phase === 'DAWN' && me.dawnStrikeResult === 'success') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--emerald);">Your spread to Seat #' + (me.dawnStrikeSeat != null ? me.dawnStrikeSeat : '?') + ' succeeded.</div>';
+            } else if (v.phase === 'DAWN' && me.dawnStrikeResult === 'protected') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">Your target was shielded by the Nurse.</div>';
+            } else if (v.phase === 'DAWN' && me.dawnStrikeResult === 'teacher_decided') {
+                strikeNote = '<div style="margin-top:4px; font-size:0.76rem; color:var(--amber);">The carriers could not agree, so the teacher decided the night.</div>';
+            }
+
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--red);"><div class="peek-note-label"' + packHdrColor + '>' + esc(packHdr) + '</div>' + packLines + matchButtons.join('') + confirmBtn + strikeNote + '</div>';
+        }
+
+        // Nurse last protected reminder
+        if (me.role === 'NURSE' && me.lastNurseSavedId) {
+            var lastP = v.players.find(function (x) { return x.id === me.lastNurseSavedId; });
+            if (lastP) {
+                notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Last Shielded</div>#' + lastP.seat + ' ' + esc(lastP.name) + '</div>';
+            }
+        }
+
+        // Investigator verified clues
+        if (me.role === 'INVESTIGATOR') {
+            var clueLines = (me.findings && me.findings.length)
+                ? me.findings.map(function (f) {
+                    var isCarrier = f.role === 'CARRIER';
+                    var color = isCarrier ? 'var(--red)' : 'var(--emerald)';
+                    return 'N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' = <strong style="color:' + color + ';">' + esc(f.role) + '</strong>';
+                }).join('<br>')
+                : '';
+            if (v.phase === 'NIGHT' && me.myNightPick) {
+                var pickTarget = v.players.find(function (x) { return x.id === me.myNightPick; });
+                if (pickTarget) {
+                    var roleBadge = me.currentNightTargetRole
+                        ? (' = <strong style="color:' + (me.currentNightTargetRole === 'CARRIER' ? 'var(--red)' : 'var(--emerald)') + ';">' + me.currentNightTargetRole + '</strong>')
+                        : ' (inspecting...)';
+                    clueLines = 'Investigating Tonight: #' + pickTarget.seat + ' ' + esc(pickTarget.name) + roleBadge
+                        + (clueLines ? ('<br>' + clueLines) : '');
+                }
+            }
+            if (!clueLines) clueLines = 'Tap 1 suspect on screen to investigate.';
+            notesHtml += '<div class="peek-note-block" style="border-left:3px solid var(--amber);"><div class="peek-note-label">Investigator Dossier</div>' + clueLines + '</div>';
+        }
+
+        // Student personal hunch log
+        if (personalSuspectHistory.length > 0) {
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">My Notes</div>'
+                + personalSuspectHistory.map(esc).join('<br>') + '</div>';
+        }
+
+        // Eliminated Ghost Truth (kept strictly inside cupped-hand corner instead of full-screen splash!)
+        if (!me.alive && me.isSpectatorTruthUnlocked && v.phase !== 'GAME_OVER') {
+            var specialSeats = v.players.filter(function (p) { return p.role && p.role !== 'STUDENT'; }).map(function (p) {
+                return '#' + p.seat + ' ' + esc(p.name) + ': ' + esc(p.role) + (!p.alive ? ' [Out]' : '');
+            }).join('<br>');
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Ghost Truth (Keep Secret)</div>' + specialSeats + '</div>';
+        }
+
+        notesEl.innerHTML = notesHtml;
+    }
+
+    // B4: light synced mirror of the LCD Story Theatre on the student device.
+    // Full narration stays on the projector; here we show the art + current headline.
+    function renderRevealMirror(v) {
+        var r = v.reveal;
+        if (!r || !r.beats || !r.beats.length) return '';
+        if (r.control && r.control.status === 'ready') {
+            return '<div class="th-mirror" style="margin-bottom:12px; opacity:0.85;">'
+                + '<div class="th-mirror-body"><div class="th-mirror-headline">' + esc((CFG && CFG.COPY.eyesUp) || 'The night is ending. Eyes up.') + '</div></div></div>';
+        }
+        var idx = Math.min((r.control && r.control.beatIndex) || 0, r.beats.length - 1);
+        var b = r.beats[idx];
+        var artKey = b.art || (r.kind.indexOf('victory') === 0 ? r.kind.replace('victory_', 'banner_victory_') : 'bg_day_school');
+        var res = CFG ? CFG.ASSETS.resolve(artKey) : 'assets/bg_day_school.jpg';
+        var src = typeof res === 'string' ? res : res.src;
+        var fb = typeof res === 'string' ? '' : (res.fallback || '');
+        var kindHead = {
+            night_kill: 'A new case overnight',
+            night_save: 'No new case tonight',
+            night_quiet: 'A quiet dawn',
+            exile: 'The class has isolated',
+            no_exile: 'No isolation order',
+            victory_school: 'The school wins',
+            victory_carriers: 'The outbreak wins'
+        }[r.kind] || 'Centennial Junior High';
+        // Drama pack: mirror headline reflects the dramatic beat type.
+        var dramaHead = {
+            tension: 'Hold your breath...',
+            flatline: 'Silence.',
+            epitaph: 'Last words',
+            survivors: 'The count',
+            miracle: 'A miracle at dawn!',
+            gate_shut: 'The gate slams shut'
+        }[b.type];
+        if (dramaHead) kindHead = dramaHead;
+        var onerr = fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\';"' : '';
+        return '<div class="th-mirror" style="margin-bottom:12px;">'
+            + '<img class="th-art" src="' + esc(src) + '" alt=""' + onerr + '>'
+            + '<div class="th-mirror-body"><div class="th-mirror-headline">' + esc(kindHead) + '</div>'
+            + '<div class="th-mirror-text">' + esc(b.text || '') + '</div></div></div>';
+    }
+
+    // B4: personal screen for the victim / exiled player, with preset-only epitaph picker (no free text).
+    // Drama pack: full-width art header, big verdict, survivors count, prominent epitaph picker.
+    function renderPersonalExit(v, me) {
+        var r = v.reveal || {};
+        var subj = r.subject || {};
+        var taken = r.kind === 'night_kill';
+        var meP = v.players.find(function (x) { return x.id === me.id; }) || {};
+        var persona = meP.persona ? ('You were ' + esc(meP.persona) + '.') : '';
+        // Role art only when the projection actually reveals it (revealRoleOnDeath / game over) - never a leak.
+        var artKey = subj.role ? ('role_' + subj.role) : 'card_sealed';
+        var res = (window.OBConfig && OBConfig.ASSETS.resolve(artKey)) || 'assets/card_sealed.jpg';
+        var src = typeof res === 'string' ? res : res.src;
+        var fb = typeof res === 'string' ? '' : (res.fallback || '');
+        var onerr = fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\';"' : '';
+        var aliveCount = v.counts ? v.counts.alive : '';
+        var epitaphHtml = '';
+        var EP = (window.StoryContent && window.StoryContent.EPITAPHS) || [];
+        if (EP.length && (v.phase === 'DAWN' || v.phase === 'DUSK')) {
+            var chosen = meP.epitaph || '';
+            epitaphHtml = '<div style="margin-top:10px;"><div style="font-size:0.8rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">CHOOSE ONE LINE TO LEAVE BEHIND (PRESET ONLY):</div>'
+                + EP.map(function (line) {
+                    var sel = chosen === line;
+                    return '<button class="btn btn-xs' + (sel ? ' blue' : '') + '" style="margin:0 4px 6px 0;" onclick="submitMyAction(\'epitaph\', \'\', ' + JSON.stringify(line).replace(/"/g, '&quot;') + ')">' + esc(line) + '</button>';
+                }).join('') + '</div>';
+        } else if (meP.epitaph) {
+            epitaphHtml = '<div style="margin-top:10px; font-style:italic; color:var(--text-muted);">Your epitaph: "' + esc(meP.epitaph) + '"</div>';
+        }
+        return '<div class="spectator-notice" style="border-left:4px solid var(--coral); padding:0; overflow:hidden;">'
+            + '<img src="' + esc(src) + '" alt="" style="width:100%; height:150px; object-fit:cover; display:block;"' + onerr + '>'
+            + '<div style="padding:12px 14px 14px;">'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:4px; color:var(--coral);">' + esc(taken ? 'You woke up sick - you are a case' : 'The class has sent you home to isolate') + '</h3>'
+            + '<p style="font-size:0.9rem; color:var(--text-muted);">' + persona + ' You are now a silent ghost: stay quiet, keep a poker face, and do not signal the living.</p>'
+            + (aliveCount !== '' ? '<p style="font-size:0.9rem; font-weight:700; margin-top:6px;"><strong>' + esc(aliveCount) + ' classmates remain at Centennial.</strong></p>' : '')
+            + epitaphHtml
+            + '<p style="font-size:0.85rem; margin-top:8px;">Watch the <strong>Class LCD Display</strong> for the story. Hold <strong>[ID]</strong> in the corner for a quiet peek at the truth board.</p>'
+            + '</div></div>';
+    }
+
+    function renderPlayerView() {
+        var v = currentView;
+        if (!v) return;
+        var isNight = (v.phase === 'NIGHT' || v.phase === 'ROLE_REVEAL');
+        document.body.classList.toggle('night-theme', isNight);
+
+        el('gameCodeBadge').textContent = v.gameId || 'CARRIER';
+        el('phaseBadge').textContent = v.phase === 'LOBBY' ? 'LOBBY' : ('R' + v.round + ' · ' + v.phase);
+
+        var me = v.me;
+        if (!me) {
+            el('mySeatHeader').textContent = 'Spectator / Unseated';
+            el('actionConsole').innerHTML = '<p>Waiting to claim a seat in the Lobby...</p>';
+            return;
+        }
+
+        el('mySeatHeader').textContent = 'Seat #' + (me.seat < 10 ? '0' + me.seat : me.seat) + ' · ' + me.name;
+        renderCornerPocket();
+
+        var bgBanner = isNight ? 'assets/bg_night_school.jpg' : 'assets/bg_day_school.jpg';
+        if (v.phase === 'GAME_OVER') {
+            bgBanner = v.winner === 'CARRIERS' ? 'assets/banner_victory_carriers.jpg' : 'assets/banner_victory_school.jpg';
+        }
+
+        var html = '<div class="phase-banner" style="background-image:url(\'' + bgBanner + '\');">'
+            + '<h2>' + esc((v.lastAnnouncement && v.lastAnnouncement.headline) || v.phase) + '</h2>'
+            + '<p>' + esc((v.lastAnnouncement && v.lastAnnouncement.subline) || '') + '</p>'
+            + '</div>';
+
+        // Eliminated player main view: clean, neutral, zero exposed roles on open screen!
+        if (!me.alive && v.phase !== 'GAME_OVER') {
+            if ((v.phase === 'DAWN' || v.phase === 'DUSK') && v.lastWordsActorId === me.id && v.lastWordsChoice === 'pending') {
+                html += '<div style="background:#0f172a; color:#f8fafc; border:2px solid #f59e0b; border-radius:10px; padding:14px 16px; margin-bottom:12px;">'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fbbf24; margin-bottom:4px;">YOUR FINAL CHOICE</div>'
+                    + '<div style="font-size:0.96rem; margin-bottom:10px;">Do you want 20 seconds of Last Words before the class moves on?</div>'
+                    + '<div style="display:flex; gap:8px; flex-wrap:wrap;">'
+                    + '<button type="button" class="btn emerald" onclick="submitMyAction(\'last_words_choice\', \'take\')">Take 20s Last Words</button>'
+                    + '<button type="button" class="btn coral" onclick="submitMyAction(\'last_words_choice\', \'skip\')">Skip / Move On</button>'
+                    + '</div></div>';
+            }
+            var outRound = (v.players.find(function (x) { return x.id === me.id; }) || {}).eliminatedRound || '?';
+            var isRevealSubject = v.reveal && v.reveal.subject && v.reveal.subject.id === me.id;
+            if (isRevealSubject) {
+                html += renderPersonalExit(v, me);
+            } else {
+                html += '<div class="spectator-notice">'
+                    + '<h3 style="font-family:var(--font-heading); font-size:1.02rem; margin-bottom:4px;">Eliminated in Round ' + outRound + ' (Silent Observer)</h3>'
+                    + '<p style="font-size:0.9rem; color:var(--text-muted);">Keep a poker face and stay silent so living classmates can solve the round fairly.'
+                    + (me.isSpectatorTruthUnlocked ? ' Hold <strong>[ID]</strong> in the corner under your hand if you want a quiet peek.' : '')
+                    + '</p></div>';
+            }
+            el('actionConsole').innerHTML = html;
+            return;
+        }
+
+        if (v.phase === 'LOBBY') {
+            html += '<div style="padding:8px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Seated in Class (' + v.counts.seated + ' Players)</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.93rem;">Watch the front Class LCD Display. Once roles are dealt, cup your hand over the small <strong>Hold [ID] to Peek</strong> badge in your bottom corner to check your role privately.</p>'
+                + '</div>';
+        } else if (v.phase === 'ROLE_REVEAL') {
+            html += '<div style="padding:8px 4px;">'
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Step 1: Private Corner Check</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:12px;">Cup one hand over the small <strong>Hold [ID] to Peek</strong> badge in the bottom corner of your screen, read your role, release to snap it shut, then click Ready below.</p>'
+                + (me.hasActed
+                    ? '<div class="neutral-status-bar"><span>Ready recorded. Waiting for classmates...</span><span class="neutral-status-mono">' + v.counts.acted + '/' + v.counts.expectedActors + '</span></div>'
+                    : '<button class="btn emerald" style="padding:10px 18px; font-size:0.98rem;" onclick="submitMyAction(\'confirm_role\', \'\')">I Checked My Corner Card (Ready) -&gt;</button>')
+                + '</div>';
+        } else if (v.phase === 'NIGHT') {
+            html += renderCamouflagedNightConsole(v, me);
+        } else if (v.phase === 'DAWN' || v.phase === 'DUSK') {
+            var stTxt = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
+            var detDawnClue = '';
+            if (v.phase === 'DAWN' && me.role === 'INVESTIGATOR' && me.findings && me.findings.length) {
+                var latest = me.findings[me.findings.length - 1];
+                var isCarrier = latest.role === 'CARRIER';
+                var col = isCarrier ? 'var(--red)' : 'var(--emerald)';
+                detDawnClue = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
+                    + '<div style="font-weight:800; color:var(--amber); font-size:0.84rem; font-family:var(--font-mono); margin-bottom:4px;">NEW INVESTIGATOR FINDING (NIGHT ' + latest.round + ')</div>'
+                    + '<div style="font-size:0.95rem;">You investigated <strong>#' + latest.seat + ' ' + esc(latest.targetName) + '</strong>: Verified role is <strong style="color:' + col + ';">' + esc(latest.role) + '</strong>!</div>'
+                    + '</div>';
+            }
+            html += '<div style="padding:8px 4px;">'
+                + renderRevealMirror(v)
+                + detDawnClue
+                + (stTxt ? '<div style="background:#ffffff; border:1px solid var(--border-card); border-left:4px solid var(--coral); border-radius:8px; padding:12px 14px; font-family:var(--font-heading); font-size:0.95rem; font-style:italic; line-height:1.55; color:var(--text-heading); margin-bottom:12px;">"' + esc(stTxt) + '"</div>' : '')
+                + '<p style="font-size:0.94rem; color:var(--text-main); line-height:1.45;">Look up at the <strong>Class LCD Display</strong> as morning debate begins!</p>'
+                + '</div>';
+        } else if (v.phase === 'DAY_DISCUSSION') {
+            var detClues = '';
+            if (me.role === 'INVESTIGATOR' && me.findings && me.findings.length) {
+                var cList = me.findings.map(function (f) {
+                    var isCarrier = f.role === 'CARRIER';
+                    var col = isCarrier ? 'var(--red)' : 'var(--emerald)';
+                    return '<div style="margin-top:3px;">Night ' + f.round + ': <strong>#' + f.seat + ' ' + esc(f.targetName) + '</strong> = <strong style="color:' + col + ';">' + esc(f.role) + '</strong></div>';
+                }).join('');
+                detClues = '<div style="background:#fffbeb; border:1.5px solid var(--amber-border); border-left:4px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:12px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<span style="font-weight:800; color:var(--amber); font-size:0.86rem; font-family:var(--font-mono);">INVESTIGATOR CASE INTEL (Private to You)</span>'
+                    + '<span style="font-size:0.75rem; color:var(--text-muted);">Guide debate quietly</span>'
+                    + '</div>'
+                    + cList
+                    + '</div>';
+            }
+            html += '<div style="padding:8px 4px;">'
+                + detClues
+                + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:6px;">Day ' + v.round + ' Class Discussion</h3>'
+                + '<p style="font-size:0.93rem; color:var(--text-muted); line-height:1.45;">'
+                + (v.rules.claimRule === 'quiet'
+                    ? '<strong>Quiet Inference Rule Active:</strong> Debate suspects out loud using behaviour and voting patterns, without claiming special roles.'
+                    : 'Debate suspects out loud in the classroom. Secret class voting opens shortly.')
+                + '</p></div>';
+        } else if (v.phase === 'DAY_VOTE' || v.phase === 'DAY_REVOTE') {
+            html += renderVoteConsoleForMe(v, me);
+        } else if (v.phase === 'GAME_OVER') {
+            html += '<div style="margin-top:8px;">'
+                + renderRevealMirror(v)
+                + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:8px;">Final School Roster Reveal</h3>'
+                + '<div class="target-grid">'
+                + v.players.map(function (p) {
+                    return '<div class="target-btn" style="cursor:default;">'
+                        + '<div><div class="t-seat">#' + p.seat + (!p.alive ? ' · OUT' : ' · SURVIVED') + '</div><div class="t-name">' + esc(p.name) + '</div></div>'
+                        + '<span class="r-pill ' + (p.role || 'STUDENT') + '">' + esc(p.role || 'STUDENT') + '</span></div>';
+                }).join('')
+                + '</div></div>';
+        }
+
+        el('actionConsole').innerHTML = html;
+    }
+
+    // 100% ROLE-CAMOUFLAGED NIGHT CONSOLE:
+    // Identical title, neutral bar, and plain white seat buttons for ALL roles!
+    function renderCamouflagedNightConsole(v, me) {
+        var aliveTargets = v.players.filter(function (p) { return p.alive; });
+        var actionType = (me.role === 'STUDENT') ? 'student_watch' : 'night';
+
+        var pickedObj = aliveTargets.find(function (x) { return x.id === me.myNightPick; });
+        // A7: identical neutral wording for every role - role-specific detail lives only inside the corner peek
+        var leftStatus = subtleGuardNote
+            ? subtleGuardNote
+            : (pickedObj
+                ? ('Choice recorded: Seat #' + (pickedObj.seat < 10 ? '0' + pickedObj.seat : pickedObj.seat) + ' ' + pickedObj.name)
+                : 'Waiting');
+
+        // 100% identical badge across ALL 4 roles (zero group-count tells on open screen!)
+        var rightMono = pickedObj ? 'SET' : 'WAITING';
+
+        var buttons = aliveTargets.map(function (t) {
+            var isSel = me.myNightPick === t.id;
+            return '<button class="target-btn' + (isSel ? ' selected' : '') + '"'
+                + ' onclick="submitMyAction(\'' + actionType + '\', \'' + esc(t.id) + '\')">'
+                + '<div><div class="t-seat">Seat #' + (t.seat < 10 ? '0' + t.seat : t.seat) + '</div>'
+                + '<div class="t-name">' + esc(t.name) + '</div></div>'
+                + (isSel ? '<span class="t-chip">SET</span>' : '')
+                + '</button>';
+        }).join('');
+
+        return '<div>'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:4px;">Night Phase - Secret Picks</h3>'
+            + '<p style="font-size:0.87rem; color:var(--text-muted); margin-bottom:10px;">Every player taps 1 seat quietly during Night. Tap or hold <strong>[ID]</strong> in the corner (auto-hides in 4s) to check private details.</p>'
+            + '<div class="neutral-status-bar"><span>' + esc(leftStatus) + '</span><span class="neutral-status-mono">' + esc(rightMono) + '</span></div>'
+            + '<div class="target-grid">' + buttons + '</div>'
+            + '</div>';
+    }
+
+    function renderVoteConsoleForMe(v, me) {
+        var tiedSet = {};
+        (v.tiedCandidates || []).forEach(function (id) { tiedSet[id] = true; });
+        var candidates = v.players.filter(function (p) {
+            if (!p.alive) return false;
+            if (v.phase === 'DAY_REVOTE') return Boolean(tiedSet[p.id]);
+            return true;
+        });
+
+        var curPick = me.myCurrentVote;
+        var buttons = candidates.map(function (c) {
+            var sel = curPick === c.id;
+            return '<button class="target-btn' + (sel ? ' selected' : '') + '" onclick="submitMyAction(\'vote\', \'' + esc(c.id) + '\')">'
+                + '<div><div class="t-seat">Seat #' + (c.seat < 10 ? '0' + c.seat : c.seat) + '</div>'
+                + '<div class="t-name">' + esc(c.name) + '</div></div>'
+                + (sel ? '<span class="t-chip">SET</span>' : '')
+                + '</button>';
+        }).join('');
+
+        var skipBtn = v.phase === 'DAY_VOTE'
+            ? ('<button class="btn' + (curPick === 'SKIP' ? ' blue' : '') + '" style="margin-top:10px;" onclick="submitMyAction(\'vote\', \'SKIP\')">'
+                + (curPick === 'SKIP' ? 'Voted: Skip / Hold (No Isolation)' : 'Vote Skip / Hold (No Isolation Today)') + '</button>')
+            : '';
+
+        return '<div>'
+            + '<h3 style="font-family:var(--font-heading); font-size:1.06rem; margin-bottom:4px;">'
+            + (v.phase === 'DAY_REVOTE' ? 'Instant Runoff Ballot - Choose Between Tied Suspects' : 'Cast Your Secret Class Ballot')
+            + '</h3>'
+            + '<p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">Your vote is secret. You can change your selection until the teacher closes the ballot.</p>'
+            + '<div class="target-grid">' + buttons + '</div>'
+            + skipBtn
+            + '</div>';
+    }
+
+    // TEACHER GOD-VIEW CONSOLE (?god=1)
+    window.godOverrideNight = function (roleKey, targetId) {
+        if (serverUrl) {
+            var pin = sessionStorage.getItem('ob_teacher_pin') || prompt('Teacher PIN:') || '';
+            sessionStorage.setItem('ob_teacher_pin', pin);
+            postServer({
+                action: 'god_override_night',
+                gameId: targetGameId || (currentView && currentView.gameId),
+                teacherPin: pin,
+                roleKey: roleKey,
+                targetId: targetId,
+                god: true
+            }).then(function (r) {
+                if (r && r.view) { currentView = r.view; renderGodView(); }
+            });
+            return;
+        }
+        if (activeLocalGame === fallbackDemoGame) {
+            E.submitModeratorNightOverride(activeLocalGame, roleKey, targetId, Date.now());
+            syncFromLocalGame();
+        }
+        if (bc) {
+            bc.postMessage({ type: 'GOD_NIGHT_OVERRIDE', roleKey: roleKey, targetId: targetId });
+        }
+    };
+
+    function renderGodView() {
+        el('gateView').style.display = 'none';
+        el('playerView').style.display = 'none';
+        el('cornerPocket').style.display = 'none';
+        el('godView').style.display = 'grid';
+        el('headerTitle').textContent = 'Teacher God-View Console';
+
+        var v = currentView;
+        if (!v || !v.god) return;
+
+        el('gameCodeBadge').textContent = v.gameId;
+        el('phaseBadge').textContent = 'R' + v.round + ' · ' + v.phase;
+        el('godCountsBadge').textContent = v.god.livingCarriers + ' Carriers vs ' + v.god.livingTown + ' Town';
+
+        var aliveOpts = '<option value="">-- Select Living Seat --</option>' + v.players.filter(function (p) { return p.alive; }).map(function (p) {
+            return '<option value="' + esc(p.id) + '">#' + p.seat + ' ' + esc(p.name) + ' (' + p.role + ')</option>';
+        }).join('');
+
+        var ctrlHtml = '<h3 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:8px;">Moderator Controls &amp; Live Secrets</h3>'
+            + '<button class="btn emerald" style="width:100%; margin-bottom:10px;" onclick="demoStepPhase()">Advance Game Phase -&gt;</button>';
+
+        if (v.phase === 'NIGHT') {
+            ctrlHtml += '<div class="sub-box">'
+                + '<div class="sub-box-title">Projector-Mode Night Entry (Optional Override)</div>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:4px;">Carriers Target (' + (v.god.carrierConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'CARRIER\', this.value)">' + aliveOpts + '</select>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:6px;">Nurse Save (' + (v.god.nurseConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'NURSE\', this.value)">' + aliveOpts + '</select>'
+                + '<label style="font-size:0.8rem; font-weight:700; display:block; margin-top:6px;">Investigator Check (' + (v.god.investigatorConsensus.unanimousTarget || 'pending') + '):</label>'
+                + '<select class="input-clean" style="padding:5px; font-size:0.84rem;" onchange="godOverrideNight(\'INVESTIGATOR\', this.value)">' + aliveOpts + '</select>'
+                + '</div>';
+        }
+
+        var findingsHtml = (v.god.secret.investigatorFindings || []).map(function (f) {
+            return '<div style="font-size:0.82rem;">N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong>' + f.role + '</strong></div>';
+        }).join('') || '<div style="font-size:0.8rem; color:var(--text-muted);">None yet</div>';
+
+        var auditHtml = (v.god.secret.auditLog || []).slice(-6).reverse().map(function (a) {
+            return '<div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">[R' + a.round + '] ' + esc(a.text) + '</div>';
+        }).join('');
+
+        ctrlHtml += '<div class="sub-box"><div class="sub-box-title">Investigator Findings</div>' + findingsHtml + '</div>'
+            + '<div class="sub-box"><div class="sub-box-title">Secret Audit Log</div>' + auditHtml + '</div>';
+
+        el('godControlsBox').innerHTML = ctrlHtml;
+
+        el('godSeatGrid').innerHTML = v.players.map(function (p) {
+            return '<div class="god-row' + (!p.alive ? ' dead' : '') + '">'
+                + '<span><strong>#' + (p.seat < 10 ? '0' + p.seat : p.seat) + '</strong> ' + esc(p.name) + (!p.alive ? ' (OUT)' : '') + '</span>'
+                + '<span class="r-pill ' + (p.role || 'STUDENT') + '">' + esc(p.role || 'LOBBY') + '</span>'
+                + '</div>';
+        }).join('');
+    }
+
+    function boot() {
+        if (IS_GOD) {
+            if (serverUrl) {
+                var pin = sessionStorage.getItem('ob_teacher_pin') || prompt('Enter Room 8 Teacher PIN for God View:') || '';
+                sessionStorage.setItem('ob_teacher_pin', pin);
+                var pollGod = function () {
+                    postServer({ action: 'poll_state', gameId: targetGameId, viewerKind: 'god', teacherPin: pin })
+                        .then(function (d) { if (d && d.view) { currentView = d.view; renderGodView(); } })
+                        .catch(function () {});
+                };
+                pollGod();
+                setInterval(pollGod, 3500);
+            } else {
+                if (bc) bc.postMessage({ type: 'REQUEST_SYNC' });
+                syncFromLocalGame();
+            }
+            return;
+        }
+
+        if (isDemo) {
+            if (OFFPROD && Q.get('preview') === 'night') {
+                E.startGame(fallbackDemoGame, Date.now());
+                E.advancePhase(fallbackDemoGame, Date.now());
+                E.simulateBotActions(fallbackDemoGame, Date.now());
+                var carrierSeat = fallbackDemoGame.players.find(function (p) { return p.role === 'CARRIER'; });
+                if (carrierSeat) joinedPlayerId = carrierSeat.id;
+                if (Q.get('peek') === '1') {
+                    rolePeekOpen = true;
+                }
+            }
+            enterInteractiveDemo();
+            return;
+        }
+
+        // Live Server Mode: show Google Sign-In or Join Room Gate
+        el('gateView').style.display = 'flex';
+        var gb = el('gateBody');
+        if (!identity || !identity.email) {
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'none';
+            el('whoLabel').textContent = '';
+            gb.innerHTML = '<button class="btn coral" style="width:100%; padding:13px; font-size:1.02rem;" onclick="signInWithSchoolAccount()">Sign in with your school account (@gnspes.ca)</button>'
+                + (Q.get('demo') === '1' ? '<button class="btn" style="width:100%; margin-top:8px;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>' : '');
+        } else {
+            if (el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
+            var startList = ROSTER_BY_CLASS[activeQuickClass] || ROSTER_703;
+            var optsList = '<option value="">Quick-pick your name (' + activeQuickClass + ') or type below...</option>'
+                + startList.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+            var phSample = startList.length >= 2 ? ('e.g. ' + startList[0] + ' or ' + startList[1]) : 'e.g. First La.';
+            var qpBtns = QUICK_CLASSES.map(function (c) {
+                return '<button type="button" id="qpBtn' + c + '" class="btn btn-xs' + (activeQuickClass === c ? ' blue' : '') + '" onclick="switchQuickClass(\'' + c + '\')">' + c + '</button>';
+            }).join('');
+            el('whoLabel').textContent = identity.email;
+            gb.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">'
+                + '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
+                + '<button type="button" class="btn btn-xs" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>'
+                + '</div>'
+                + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
+                + '<div><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">'
+                + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick:</label>'
+                + '<span style="display:inline-flex; gap:4px; flex-wrap:wrap;">' + qpBtns + '</span></div>'
+                + '<select id="quickNameSelect" class="input-clean" style="margin-top:4px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + optsList + '</select></div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initials:</label>'
+                + '<input class="input-clean" id="displayNameInput" placeholder="' + esc(phSample) + '" maxlength="22"></div>'
+                + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
+                + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="OUT-XXXX"></div>'
+                + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join the Outbreak -&gt;</button>'
+                + (Q.get('demo') === '1' ? '<button class="btn btn-xs" style="margin-top:6px;" onclick="enterInteractiveDemo()">Offline Demo Mode</button>' : '');
+
+            fetch(serverUrl + '?action=get_health')
+                .then(function (r) { return r.json(); })
+                .then(function (h) {
+                    if (h && h.activeGameId && !targetGameId) {
+                        targetGameId = h.activeGameId;
+                        if (el('roomCodeInput') && !el('roomCodeInput').value) {
+                            el('roomCodeInput').value = h.activeGameId;
+                        }
+                        if (!urlClass) {
+                            var matchedCls = classForRoomCode(h.activeGameId);
+                            if (matchedCls) switchQuickClass(matchedCls, true);
+                        }
+                    }
+                    if (targetGameId) {
+                        postServer({
+                            action: 'poll_state',
+                            gameId: targetGameId,
+                            viewerKind: 'player',
+                            email: identity.email,
+                            ts: identity.ts,
+                            sig: identity.sig
+                        }).then(function (pRes) {
+                            var sb = el('sigVerifyBadge');
+                            if (pRes && pRes.status === 'ok') {
+                                if (sb) {
+                                    sb.style.color = 'var(--emerald)';
+                                    sb.textContent = 'Server Identity Check: VERIFIED (Lobby ' + targetGameId + ' ready)';
+                                }
+                                if (pRes.joined && pRes.view) {
+                                    joinedPlayerId = pRes.playerId;
+                                    currentView = pRes.view;
+                                    showSeatedWorkspace();
+                                    renderPlayerView();
+                                }
+                            } else if (pRes && pRes.status === 'auth_failed' && sb) {
+                                sb.style.color = 'var(--red)';
+                                sb.textContent = 'Server Identity Check FAILED: ' + (pRes.reason || 'bad_sig') + ' (check R8_IDENTITY_KEY)';
+                            }
+                        }).catch(function () {});
+                    }
+                }).catch(function () {});
+        }
+
+        // Poll server when seated
+        setInterval(function () {
+            if (!serverUrl || isDemo || !identity || el('playerView').style.display === 'none') return;
+            postServer({
+                action: 'poll_state',
+                gameId: targetGameId,
+                viewerKind: 'player',
+                email: identity.email,
+                ts: identity.ts,
+                sig: identity.sig
+            }).then(function (d) {
+                if (d && d.status === 'ok' && d.view) {
+                    currentView = d.view;
+                    renderPlayerView();
+                }
+            }).catch(function () {});
+        }, 3600 + Math.floor(Math.random() * 900));
+    }
+
+    boot();
+})();
+</script>
+</body>
+</html>

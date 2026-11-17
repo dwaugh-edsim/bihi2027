@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room 8 Outbreak - Run the Game (Teacher Host)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theatre.css">
+<style>
+:root {
+    --bg-page: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --border-card: #334155;
+    --border-subtle: #475569;
+    --text-main: #f8fafc;
+    --text-heading: #ffffff;
+    --text-muted: #94a3b8;
+    --coral: #ed786a;
+    --coral-hover: #fd887a;
+    --coral-dark: #d65b4c;
+    --blue: #3b82f6;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --red: #ef4444;
+    --font-heading: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--bg-page); color: var(--text-main);
+    font-family: var(--font-body); min-height: 100vh;
+    display: flex; flex-direction: column;
+}
+.topbar {
+    background: #0b1120; border-bottom: 2px solid #334155;
+    padding: 10px 18px; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.brand-cluster { display: flex; align-items: center; gap: 10px; }
+.badge-room {
+    background: var(--coral); color: #ffffff;
+    font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
+    padding: 4px 10px; border-radius: 6px;
+}
+.top-title {
+    font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;
+    color: var(--text-heading);
+}
+.pill-mono {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.8rem;
+    padding: 3px 8px; border-radius: 5px;
+    background: #1e293b; color: #93c5fd; border: 1px solid #3b82f6;
+}
+.pill-mono.phase {
+    background: #312e81; color: #fde68a; border-color: #f59e0b;
+}
+
+.btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.86rem;
+    color: #ffffff; background: #334155; border: 1px solid #475569;
+    border-radius: 7px; padding: 7px 14px; cursor: pointer;
+    transition: all 0.12s ease; display: inline-flex; align-items: center;
+    justify-content: center; gap: 6px; text-decoration: none;
+}
+.btn:hover { background: #475569; }
+.btn.coral { background: var(--coral); border-color: var(--coral-dark); }
+.btn.coral:hover { background: var(--coral-hover); }
+.btn.emerald { background: var(--emerald); border-color: #059669; }
+.btn.blue { background: var(--blue); border-color: #2563eb; }
+.btn.amber { background: var(--amber); border-color: #d97706; color: #0f172a; }
+.btn.purple { background: var(--purple); border-color: #7c3aed; }
+.btn-xs { font-family: var(--font-mono); font-size: 0.74rem; padding: 4px 8px; }
+
+/* TIMER CLUSTER */
+.timer-box {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #0f172a; border: 1px solid #334155;
+    border-radius: 8px; padding: 4px 10px;
+}
+.timer-digits {
+    font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem;
+    color: #38bdf8; min-width: 58px; text-align: center;
+}
+
+/* LAYOUT */
+.main-grid {
+    flex: 1; display: grid; grid-template-columns: 360px 1fr;
+    gap: 16px; padding: 16px; max-width: 1440px; margin: 0 auto; width: 100%;
+}
+@media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; }
+}
+
+.card {
+    background: var(--bg-card); border: 1px solid var(--border-card);
+    border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;
+}
+.card-title {
+    font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700;
+    color: #ffffff; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155; padding-bottom: 8px;
+}
+
+/* SETTINGS FORM */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
+.field select, .field input {
+    background: #0f172a; border: 1px solid #334155; color: #ffffff;
+    font-family: var(--font-mono); font-size: 0.85rem; padding: 7px 10px;
+    border-radius: 6px;
+}
+.role-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0f172a; border: 1px solid #334155; padding: 6px 12px;
+    border-radius: 6px; font-size: 0.86rem;
+}
+.role-controls { display: flex; align-items: center; gap: 6px; }
+
+/* ROSTER TABLE */
+.roster-wrap {
+    overflow-y: auto; max-height: calc(100vh - 230px);
+}
+.seat-table {
+    width: 100%; border-collapse: collapse; font-size: 0.86rem;
+}
+.seat-table th {
+    text-align: left; padding: 8px; font-size: 0.76rem;
+    font-family: var(--font-mono); color: var(--text-muted);
+    border-bottom: 1px solid #334155;
+}
+.seat-table td {
+    padding: 8px; border-bottom: 1px solid #273549; vertical-align: middle;
+}
+.seat-table tr:hover { background: #273549; }
+.seat-table tr.dead td { opacity: 0.55; text-decoration: line-through; }
+.r-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.72rem;
+    padding: 2px 7px; border-radius: 4px; color: #ffffff;
+}
+.r-pill.CARRIER { background: var(--red); }
+.r-pill.NURSE { background: var(--emerald); }
+.r-pill.INVESTIGATOR { background: var(--amber); color: #0f172a; }
+.r-pill.STUDENT { background: #475569; }
+
+/* PIN GATE OVERLAY */
+.pin-gate {
+    position: fixed; inset: 0; z-index: 100;
+    background: #0b1120; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.pin-card {
+    background: #1e293b; border: 2px solid #334155; border-radius: 14px;
+    width: min(440px, 92vw); padding: 24px; text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+.pin-card h2 {
+    font-family: var(--font-heading); font-size: 1.35rem; margin-bottom: 8px;
+    color: #ffffff;
+}
+.pin-card p { font-size: 0.88rem; color: #94a3b8; margin-bottom: 16px; }
+.pin-input {
+    width: 100%; padding: 10px; font-family: var(--font-mono);
+    font-size: 1.1rem; text-align: center; border-radius: 8px;
+    border: 1.5px solid #475569; background: #0f172a; color: #ffffff;
+    margin-bottom: 12px;
+}
+
+/* MODALS (replace all confirm()/prompt() dialogs) */
+.modal-backdrop {
+    position: fixed; inset: 0; z-index: 200; background: rgba(2,6,23,0.72);
+    display: none; align-items: center; justify-content: center; padding: 18px;
+}
+.modal-backdrop.open { display: flex; }
+.modal-card {
+    background: #1e293b; border: 2px solid #334155; border-radius: 14px;
+    width: min(480px, 94vw); padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.modal-card h3 { font-family: var(--font-heading); color: #fff; font-size: 1.15rem; margin-bottom: 8px; }
+.modal-card p { font-size: 0.88rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.45; }
+.modal-card input {
+    width: 100%; padding: 9px; border-radius: 7px; border: 1.5px solid #475569;
+    background: #0f172a; color: #fff; font-family: var(--font-mono); margin-bottom: 12px;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+.conn-pill {
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.68rem;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid;
+}
+.conn-pill.live { color: #6ee7b7; border-color: #10b981; background: rgba(16,185,129,0.12); }
+.conn-pill.warn { color: #fcd34d; border-color: #f59e0b; background: rgba(245,158,11,0.12); }
+.conn-pill.demo { color: #93c5fd; border-color: #3b82f6; background: rgba(59,130,246,0.12); }
+
+#toastBar {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+    background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 300;
+}
+#toastBar.show { opacity: 1; }
+
+.foot-versions {
+    padding: 6px 18px; font-family: var(--font-mono); font-size: 0.68rem;
+    color: #64748b; display: flex; gap: 14px; border-top: 1px solid #1e293b;
+}
+
+.theatre-bar {
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    background: #0b1120; border: 1px solid #f59e0b; border-radius: 10px;
+    padding: 8px 10px; font-size: 0.82rem;
+}
+.theatre-bar .beat-label { font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24; margin-right: 4px; }
+
+.report-card { font-size: 0.86rem; display: flex; flex-direction: column; gap: 6px; }
+.report-card .rep-line { background: #0f172a; border: 1px solid #334155; border-radius: 7px; padding: 7px 10px; }
+.report-card .rep-mode { font-family: var(--font-mono); font-weight: 800; color: #fbbf24; }
+.report-history { font-size: 0.78rem; color: #94a3b8; }
+.report-history details { margin-top: 6px; }
+.report-history summary { cursor: pointer; font-weight: 700; color: #cbd5e1; }
+</style>
+</head>
+<body>
+
+<!-- TEACHER PIN GATE (Default Room 8 Teacher PIN: Dartmouth) -->
+<div class="pin-gate" id="pinGate" style="display:none;">
+    <div class="pin-card">
+        <div style="font-family:var(--font-mono); font-size:0.76rem; font-weight:800; color:var(--coral); margin-bottom:6px;">ROOM 8 TEACHER HOST CONTROL</div>
+        <h2>Run Centennial Outbreak</h2>
+        <p>This controller is for the teacher only. Enter the Room 8 Teacher PIN to manage roles, advance phases, and view the secret God-View.</p>
+        <input type="password" id="pinInput" class="pin-input" placeholder="Enter Teacher PIN" autofocus onkeydown="if(event.key==='Enter')unlockHostWithPin()">
+        <button class="btn coral" style="width:100%; padding:10px; font-size:0.95rem;" onclick="unlockHostWithPin()">Unlock Host Console -&gt;</button>
+        <div id="pinError" style="margin-top:10px; font-size:0.8rem; color:var(--red); display:none;">Incorrect Teacher PIN. Try again.</div>
+    </div>
+</div>
+
+<div class="topbar">
+    <div class="brand-cluster">
+        <span class="badge-room">ROOM 8</span>
+        <span class="top-title">Outbreak Host Controller</span>
+        <span class="pill-mono" id="roomCodeBadge">OUT-E8SQ</span>
+        <span class="pill-mono phase" id="phaseBadge">LOBBY</span>
+        <span class="conn-pill demo" id="connPill">Offline (demo)</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="timer-box">
+            <span style="font-family:var(--font-mono); font-size:0.74rem; color:var(--text-muted);">TIMER</span>
+            <span class="timer-digits" id="timerDigits">--:--</span>
+            <button class="btn btn-xs" onclick="togglePauseTimer()" id="pauseBtn">Pause</button>
+            <button class="btn btn-xs" onclick="addSeconds(30)">+30s</button>
+        </div>
+
+        <button class="btn emerald" id="primaryPhaseBtn" onclick="onHostAdvancePhase()">Deal Roles &amp; Start Night 1 -&gt;</button>
+        <button class="btn btn-xs" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto-play: OFF</button>
+        <button class="btn amber btn-xs" onclick="onHostResetLobby()">Reset Game</button>
+        <a class="btn blue btn-xs" id="lcdLink" href="lcd.html" target="_blank" title="Open Class Projector LCD Display">Open Projector LCD</a>
+        <a class="btn btn-xs" href="Digital_Outbreak_Intro_Deck.html" target="_blank" title="Student 2-Slide Instructions">How-To Slides</a>
+    </div>
+</div>
+
+<div class="main-grid">
+    <!-- LEFT COLUMN: THE ONE TEACHER CONSOLE -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+            <div class="card-title">
+                <span>Room &amp; Server</span>
+                <span id="serverHealthBadge" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--emerald);">CONNECTED</span>
+            </div>
+            <div class="field">
+                <label for="roomCodeInput">Active Cloud Room Code:</label>
+                <input id="roomCodeInput" value="OUT-E8SQ" onchange="switchRoomCode(this.value)">
+            </div>
+            <div class="field">
+                <label>Student Game URL:</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <input id="studentUrlRunDisplay" readonly onclick="this.select(); copyRunStudentLink();" title="Click to copy student game URL" style="flex:1; font-family:var(--font-mono); font-size:0.74rem; cursor:pointer;">
+                    <button type="button" class="btn btn-xs" id="copyStudentUrlRunBtn" onclick="copyRunStudentLink()">Copy</button>
+                </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all;" id="serverUrlLabel"></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-xs" onclick="checkServerHealth()">Ping Server</button>
+                <button class="btn btn-xs" onclick="changeTeacherPin()">Change PIN</button>
+                <button class="btn btn-xs emerald" id="openRoomBtn" style="display:none;" onclick="openRoomOnServer()">Open Room on Server</button>
+            </div>
+        </div>
+
+        <div class="card" id="classCard" style="display:none;">
+            <div class="card-title">
+                <span>Class &amp; Roles</span>
+                <span id="seatCountBadge" class="pill-mono" style="font-size:0.72rem;">24 Seats</span>
+            </div>
+
+            <div style="display:flex; gap:5px; flex-wrap:wrap;" id="classPresetBtns">
+                <button type="button" class="btn btn-xs blue" id="btn703" onclick="selectClassPreset('703')">703 (24)</button>
+                <button type="button" class="btn btn-xs" id="btn801" onclick="selectClassPreset('801')">801 (29)</button>
+                <button type="button" class="btn btn-xs" id="btn802" onclick="selectClassPreset('802')">802 (28)</button>
+                <button type="button" class="btn btn-xs" id="btn803" onclick="selectClassPreset('803')">803 (28)</button>
+                <button type="button" class="btn btn-xs" id="btn804" onclick="selectClassPreset('804')">804 (26)</button>
+                <button type="button" class="btn btn-xs" id="btn901" onclick="selectClassPreset('901')">901 (27)</button>
+                <button type="button" class="btn btn-xs" id="btn902" onclick="selectClassPreset('902')">902 (25)</button>
+                <button type="button" class="btn btn-xs" id="btn903" onclick="selectClassPreset('903')">903 (29)</button>
+                <button type="button" class="btn btn-xs" id="btn28" onclick="selectClassPreset('28')">Classic 28</button>
+            </div>
+
+            <div class="card-title" style="margin-top:6px;">Role Distribution</div>
+
+            <div class="role-row">
+                <span>Carriers</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('carriersCount', -1)">-</button>
+                    <span id="cntCarriers" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">3</span>
+                    <button class="btn btn-xs" onclick="adjustRole('carriersCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>Nurse</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('nursesCount', -1)">-</button>
+                    <span id="cntNurses" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">1</span>
+                    <button class="btn btn-xs" onclick="adjustRole('nursesCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>Investigator</span>
+                <div class="role-controls">
+                    <button class="btn btn-xs" onclick="adjustRole('investigatorsCount', -1)">-</button>
+                    <span id="cntInvestigators" style="font-family:var(--font-mono); font-weight:800; min-width:20px; text-align:center;">1</span>
+                    <button class="btn btn-xs" onclick="adjustRole('investigatorsCount', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="role-row">
+                <span>Students</span>
+                <span id="cntStudents" style="font-family:var(--font-mono); font-weight:800; color:var(--text-muted);">19</span>
+            </div>
+
+            <button class="btn coral" style="width:100%;" onclick="applyRoleSettings()">Update Room Rules</button>
+
+            <div class="card-title" style="margin-top:6px;">Testing &amp; Bots</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-xs" id="testModeBtn" onclick="toggleTestMode()">Test Mode: OFF</button>
+                <button class="btn btn-xs blue" onclick="fillDemoBots()">Fill demo bots</button>
+                <button class="btn btn-xs" onclick="removeEmpty()">Remove empty seats</button>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">
+                Test Mode = bot seats AND unclaimed Seat placeholders confirm roles, pick at night and vote by day on every phase advance, so a 100% bot class plays the whole game: <strong>Test Mode ON, then Deal Roles</strong> - that is all. Fill/remove are only for a humans-only roster or named bots. Test Mode can only be toggled in the Lobby.
+            </div>
+        </div>
+
+        <!-- PREFLIGHT (Lobby only) -->
+        <div class="card" id="demoCard" style="display:none; border-left:4px solid var(--blue);">
+            <div class="card-title">
+                <span>Preflight checklist</span>
+                <span class="pill-mono" id="preflightBadge">-</span>
+            </div>
+            <div id="preflightList" style="font-size:0.84rem; display:flex; flex-direction:column; gap:5px;"></div>
+        </div>
+
+        <!-- TEACHER COACH: what to do and say at every phase -->
+        <div class="card" id="coachCard" style="display:none; border-left:4px solid var(--emerald);">
+            <div class="card-title">
+                <span>Teacher Coach</span>
+                <span class="pill-mono" id="coachPhase" style="color:var(--emerald);">-</span>
+            </div>
+            <div id="coachBody" style="font-size:0.86rem; color:var(--text-main); display:flex; flex-direction:column; gap:7px; line-height:1.45;"></div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE ROSTER & SECRET GOD-VIEW -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- LIVE NIGHT ACTIONS INTELLIGENCE (HOST GOD-VIEW) -->
+        <div class="card" id="liveNightCard" style="display:none; border-left:4px solid var(--red); background:#1e1b4b;">
+            <div class="card-title" style="color:#f87171;">
+                <span>Live Night Actions (Teacher Eyes Only)</span>
+                <span class="pill-mono" id="nightActedBadge" style="background:#312e81; color:#c7d2fe;">0 / 0 Tapped</span>
+            </div>
+            <div id="liveNightBody" style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <!-- NARRATOR STORY SCRIPT (TEACHER READ ALOUD) -->
+        <div class="card" id="narratorCard" style="display:none; border-left:4px solid var(--amber); background:#1e293b;">
+            <div class="card-title" style="color:var(--amber);">
+                <span>Narrator Story (Read Aloud to Class)</span>
+                <button class="btn btn-xs" onclick="speakNarratorStory()" title="Play narration out loud">Read Aloud</button>
+            </div>
+            <div id="narratorScriptText" style="font-family:var(--font-heading); font-size:1.02rem; line-height:1.55; color:#f8fafc; font-style:italic;"></div>
+        </div>
+
+        <!-- A4: NIGHT REPORT (what happened tonight, before the reveal plays) -->
+        <div class="card" id="nightReportCard" style="display:none; border-left:4px solid var(--amber); background:#1e293b;">
+            <div class="card-title" style="color:var(--amber);">
+                <span>What happened tonight</span>
+                <button class="btn btn-xs emerald" id="revealDawnBtn" onclick="startReveal()">Reveal Dawn -&gt;</button>
+            </div>
+            <div class="report-card" id="nightReportBody"></div>
+            <div class="report-history" id="nightReportHistory"></div>
+        </div>
+
+        <!-- A1: PACK SPLIT decision (teacher decides the night, never random) -->
+        <div class="card" id="packSplitCard" style="display:none; border-left:4px solid var(--red); background:#1e1b4b;">
+            <div class="card-title" style="color:#f87171;">
+                <span>Carrier Split - decide the night</span>
+            </div>
+            <div id="packSplitBody" style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem;"></div>
+        </div>
+
+        <!-- B6: THEATRE CONTROLS while a reveal is playing on the LCD -->
+        <div class="card" id="theatreBarCard" style="display:none;">
+            <div class="card-title"><span>LCD Story Theatre</span><span class="pill-mono" id="theatreBeatLabel"></span></div>
+            <div class="theatre-bar">
+                <button class="btn btn-xs" onclick="revealCmd('back')">Back</button>
+                <button class="btn btn-xs emerald" onclick="revealCmd('next')">Next</button>
+                <button class="btn btn-xs" onclick="revealCmd('pause')" id="thPauseBtn">Pause</button>
+                <button class="btn btn-xs amber" onclick="revealCmd('skip')">Skip</button>
+                <button class="btn btn-xs blue" onclick="toggleReadAloud()" id="thTtsBtn">Read-aloud</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Live Class Roster</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span class="pill-mono" id="seatedStat" style="color:var(--emerald);">0 / 24 Seated</span>
+                    <span class="pill-mono" id="aliveStat">24 Alive</span>
+                </div>
+            </div>
+
+            <div id="addStudentRow" style="display:none; gap:6px;">
+                <input id="addStudentInput" placeholder="Add a student (First Ls.) - claims the first free seat" style="flex:1; background:#0f172a; border:1px solid #334155; color:#ffffff; font-family:var(--font-mono); font-size:0.85rem; padding:7px 10px; border-radius:6px;" onkeydown="if(event.key==='Enter')addStudentFromInput()">
+                <button class="btn btn-xs emerald" onclick="addStudentFromInput()">Add seat</button>
+            </div>
+
+            <div class="roster-wrap">
+                <table class="seat-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">Seat</th>
+                            <th>Student Name</th>
+                            <th>Secret Role</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Seat Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterTbody">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECRET NIGHT & AUDIT LOG -->
+        <div class="card">
+            <div class="card-title">
+                <span>Secret Audit &amp; Investigator Findings (Teacher Eyes Only)</span>
+            </div>
+            <div id="findingsBox" style="font-size:0.84rem; display:flex; flex-direction:column; gap:4px;">
+                <span style="color:var(--text-muted);">No night investigations yet.</span>
+            </div>
+            <div id="auditLogBox" style="font-size:0.78rem; color:var(--text-muted); border-top:1px solid #334155; padding-top:8px; display:flex; flex-direction:column; gap:3px;">
+                <span>Audit log initialized.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GENERIC MODAL (replaces confirm()/prompt()) -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card">
+        <h3 id="modalTitle">Confirm</h3>
+        <p id="modalBody"></p>
+        <div id="modalExtra"></div>
+        <div class="modal-actions" id="modalActions"></div>
+    </div>
+</div>
+<div id="toastBar"></div>
+
+<div class="foot-versions">
+    <span id="verServer">server: -</span>
+    <span id="verEngine">engine: -</span>
+    <span id="verEpoch">epoch: -</span>
+</div>
+
+<script src="../../../../Student_System/students_roster_data.js"></script>
+<script src="shared/config.js"></script>
+<script src="shared/sfx.js"></script>
+<script src="shared/tts.js"></script>
+<script src="engine/story_content.js"></script>
+<script src="engine/story_engine.js"></script>
+<script src="engine/outbreak_engine.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    var E = window.OutbreakEngine;
+    var CFG = window.OBConfig;
+    var ACT = CFG.ACTIONS;
+
+    var CLASS_ROOM_CODES = {
+        '703': 'OUT-E8SQ',
+        '801': 'OUT-0801',
+        '802': 'OUT-0802',
+        '803': 'OUT-0803',
+        '804': 'OUT-0804',
+        '901': 'OUT-0901',
+        '902': 'OUT-BFJJ',
+        '903': 'OUT-0903'
+    };
+    var CLASS_DEFAULT_SIZES = { '703': 24, '801': 29, '802': 28, '803': 28, '804': 26, '901': 27, '902': 25, '903': 29, '28': 28 };
+    if (Array.isArray(window.MASTER_ROSTER_DATA)) {
+        var counts = {};
+        window.MASTER_ROSTER_DATA.forEach(function (r) {
+            var hr = String(r.homeroom || '').trim();
+            if (hr) counts[hr] = (counts[hr] || 0) + 1;
+        });
+        Object.keys(counts).forEach(function (hr) { CLASS_DEFAULT_SIZES[hr] = counts[hr]; });
+    }
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbz6RDat46u0UG6ATRiXIc8IGtRj19s1yUoByTvhm3lZg7o1Yf-8RpDYXaY9kDCIECY2ZA/exec';
+    var Q = new URLSearchParams(location.search);
+    var targetClass = Q.get('class') || '703';
+    var targetGameId = Q.get('game') || CLASS_ROOM_CODES[targetClass] || 'OUT-E8SQ';
+    var serverUrl = Q.get('server') || sessionStorage.getItem('ob_server_url') || DEFAULT_SERVER_URL;
+    var teacherPin = sessionStorage.getItem('ob_teacher_pin') || '';
+    var currentView = null;
+    var roomOpen = false; // false until the server reports a live game for this room code
+    var pollInterval = null;
+
+    function el(id) { return document.getElementById(id); }
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    // PIN Gate
+    function verifyPinState() {
+        if (!teacherPin) {
+            el('pinGate').style.display = 'flex';
+        } else {
+            el('pinGate').style.display = 'none';
+            boot();
+        }
+    }
+
+    window.unlockHostWithPin = function () {
+        var val = (el('pinInput').value || '').trim();
+        if (!val) return;
+        teacherPin = val;
+        try { sessionStorage.setItem('ob_teacher_pin', teacherPin); } catch (e) {}
+        el('pinGate').style.display = 'none';
+        boot();
+    };
+
+    window.changeTeacherPin = function () {
+        showModal('Change Teacher PIN', 'Enter the new Room 8 Teacher PIN (stored only in this browser session).', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Save PIN', cls: 'coral', fn: function () {
+                    var inp = el('modalPinInput');
+                    var p = inp ? inp.value.trim() : '';
+                    if (!p) return;
+                    teacherPin = p;
+                    try { sessionStorage.setItem('ob_teacher_pin', teacherPin); } catch (e) {}
+                    pollState();
+                }
+            }
+        ], '<input type="password" id="modalPinInput" placeholder="New Teacher PIN">');
+        var inp = el('modalPinInput');
+        if (inp) inp.focus();
+    };
+
+    var lastOkAt = 0;
+    var lastErrAt = 0;
+
+    function updateConnPill() {
+        var p = el('connPill');
+        if (!p) return;
+        if (!serverUrl) {
+            p.textContent = CFG.COPY.connOfflineDemo;
+            p.className = 'conn-pill demo';
+        } else if (lastErrAt > lastOkAt) {
+            p.textContent = CFG.COPY.connReconnecting;
+            p.className = 'conn-pill warn';
+        } else {
+            p.textContent = CFG.COPY.connLive;
+            p.className = 'conn-pill live';
+        }
+    }
+
+    var toastTimer = null;
+    function toast(msg) {
+        var t = el('toastBar');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.classList.remove('show'); }, 4500);
+    }
+
+    function showVersions(res) {
+        if (!res) return;
+        if (res.serverVersion) el('verServer').textContent = 'server: ' + res.serverVersion;
+        if (res.engineVersion) el('verEngine').textContent = 'engine: ' + res.engineVersion;
+    }
+
+    function showModal(title, bodyHtml, buttons, extraHtml) {
+        el('modalTitle').textContent = title;
+        el('modalBody').innerHTML = bodyHtml || '';
+        el('modalExtra').innerHTML = extraHtml || '';
+        var box = el('modalActions');
+        box.innerHTML = '';
+        (buttons || []).forEach(function (b) {
+            var btn = document.createElement('button');
+            btn.className = 'btn ' + (b.cls || '');
+            btn.textContent = b.label;
+            btn.onclick = function () {
+                el('modalBackdrop').classList.remove('open');
+                if (b.fn) b.fn();
+            };
+            box.appendChild(btn);
+        });
+        el('modalBackdrop').classList.add('open');
+    }
+
+    function postServer(payload) {
+        payload.teacherPin = teacherPin;
+        payload.gameId = payload.gameId || targetGameId;
+        payload.god = true; // teacher console: moderator responses project god views (night intel, night reports)
+        return fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            lastOkAt = Date.now();
+            updateConnPill();
+            showVersions(res);
+            return res;
+        }).catch(function (err) {
+            lastErrAt = Date.now();
+            updateConnPill();
+            toast('Server unreachable - will retry on next poll.');
+            return null;
+        });
+    }
+
+    function updateStudentGameUrl(gid) {
+        var inp = el('studentUrlRunDisplay');
+        if (!inp) return;
+        var base = (location.origin && location.origin.indexOf('http') === 0)
+            ? (location.href.split('?')[0].replace(/\/[^\/]*$/, '/') )
+            : 'https://dwaugh-edsim.github.io/bihi2027/ILT/outbreak/digital-outbreak/';
+        inp.value = base + '?game=' + encodeURIComponent(gid || targetGameId);
+    }
+
+    window.copyRunStudentLink = function () {
+        var inp = el('studentUrlRunDisplay');
+        var btn = el('copyStudentUrlRunBtn');
+        var txt = inp ? (inp.value || '').trim() : '';
+        if (!txt) return;
+        function done() {
+            if (btn) {
+                btn.textContent = 'Copied!';
+                setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+            }
+            toast('Student game URL copied!');
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+        function fallbackCopy() {
+            try {
+                inp.select();
+                document.execCommand('copy');
+                done();
+            } catch (e) {}
+        }
+    };
+
+    window.switchRoomCode = function (val) {
+        targetGameId = (val || '').trim().toUpperCase();
+        el('roomCodeBadge').textContent = targetGameId;
+        el('roomCodeInput').value = targetGameId;
+        el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        updateStudentGameUrl(targetGameId);
+        pollState();
+    };
+
+    window.selectClassPreset = function (cls) {
+        targetClass = cls;
+        ['703', '801', '802', '803', '804', '901', '902', '903', '28'].forEach(function (c) {
+            var b = el('btn' + c);
+            if (b) b.className = 'btn btn-xs' + (c === cls ? ' blue' : '');
+        });
+        if (CLASS_ROOM_CODES[cls]) {
+            switchRoomCode(CLASS_ROOM_CODES[cls]);
+        }
+        var sz = CLASS_DEFAULT_SIZES[cls] || 28;
+        updatePresetRules(sz, 3, 1, 1);
+    };
+
+    function updatePresetRules(size, w, doc, det) {
+        postServer({
+            action: 'update_rules',
+            rules: {
+                classSize: size,
+                carriersCount: w,
+                nursesCount: doc,
+                investigatorsCount: det
+            }
+        }).then(function () { pollState(); });
+    }
+
+    window.adjustRole = function (key, delta) {
+        if (!currentView || !currentView.rules) return;
+        var r = currentView.rules;
+        var cur = r[key] || 0;
+        var next = Math.max(0, cur + delta);
+        var patch = {};
+        patch[key] = next;
+        postServer({ action: 'update_rules', rules: patch }).then(function () { pollState(); });
+    };
+
+    window.applyRoleSettings = function () {
+        if (!currentView || !currentView.rules) return;
+        postServer({
+            action: ACT.UPDATE_RULES,
+            rules: {
+                carriersCount: Number(el('cntCarriers').textContent) || 0,
+                nursesCount: Number(el('cntNurses').textContent) || 0,
+                investigatorsCount: Number(el('cntInvestigators').textContent) || 0,
+                preset: 'custom'
+            }
+        }).then(function (res) {
+            if (res && res.status === 'ok') toast('Room rules updated.');
+            else toast('Rules update failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    function nightGateLabel(v) {
+        // A5: the primary button states exactly what ending the night will cause
+        var g = v.god || {};
+        var res = g.carrierResolution;
+        if (res && res.mode === 'split') {
+            return CFG.COPY.nightGateSplit
+                .replace('{picked}', (res.consensus ? res.consensus.submittedCount : 0))
+                .replace('{total}', (res.consensus ? res.consensus.totalActors : 0));
+        }
+        if (res && res.targetId) {
+            var t = (v.players || []).find(function (p) { return p.id === res.targetId; });
+            return CFG.COPY.nightGateReady.replace('{seat}', t ? (t.seat < 10 ? '0' + t.seat : t.seat) : '?');
+        }
+        return CFG.COPY.nightGateNone;
+    }
+
+    var autoPlayOn = false;
+    var autoPlayTimer = null;
+    var revealReadyTicks = 0; // how many auto-play ticks a 'ready' (not yet started) reveal has survived
+
+    window.openRoomOnServer = function () {
+        postServer({ action: ACT.CREATE, god: true, gameId: targetGameId, rules: { classSize: 24, preset: 'classic' } }).then(function (res) {
+            if (res && res.status === 'ok') {
+                // Bind the console to the room that was actually opened (the server
+                // honours the pinned code, or mints one and reports it back).
+                targetGameId = String(res.gameId || targetGameId || '').toUpperCase();
+                el('roomCodeBadge').textContent = targetGameId;
+                el('roomCodeInput').value = targetGameId;
+                el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+                roomOpen = true;
+                var orb = el('openRoomBtn');
+                if (orb) orb.style.display = 'none';
+                if (res.view) { currentView = res.view; renderView(); }
+                toast('Room ' + targetGameId + ' opened on the server - seats are live.');
+            } else {
+                toast('Could not open room: ' + ((res && res.message) || 'check connection'));
+                pollState();
+            }
+        });
+    };
+
+    window.onHostAdvancePhase = function (force) {
+        if (!roomOpen) { window.openRoomOnServer(); return; }
+        if (!currentView) return;
+        var ph = currentView.phase;
+        var testMode = Boolean(currentView.rules && currentView.rules.testMode);
+        // F9 fix: drive labels from the engine's real PHASES (DAY_DISCUSSION / DAY_VOTE)
+        var P = E.PHASES;
+        if (ph === P.NIGHT && !testMode && !force && currentView.god && currentView.god.carrierResolution && currentView.god.carrierResolution.mode === 'split' && !hasTeacherDecision(currentView, 'CARRIER')) {
+            toast('Carriers are split - decide in the Carrier Split panel first (or end the night for no new case).');
+            return;
+        }
+        postServer({ action: ACT.ADVANCE, simulateBots: testMode }).then(handleAdvance);
+    };
+
+    window.fillDemoBots = function () {
+        postServer({ action: ACT.FILL_SEATS, mode: 'demo' }).then(function (res) {
+            if (res && res.status === 'ok') toast('Demo bot seats filled.');
+            else toast('Fill failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    window.removeEmpty = function () {
+        postServer({ action: ACT.REMOVE_EMPTY_SEATS }).then(function (res) {
+            if (res && res.status === 'ok') toast('Empty seats removed.');
+            else toast('Remove failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    // Teacher seat management (roster flexibility): add / rename / kick
+    window.addStudentFromInput = function () {
+        var inp = el('addStudentInput');
+        var name = (inp && inp.value ? inp.value : '').trim();
+        if (!name) { toast('Type the student name first (e.g. Jordan He.).'); return; }
+        postServer({ action: ACT.ADD_PLAYER, displayName: name }).then(function (res) {
+            if (res && res.status === 'ok') { toast('Seat claimed: ' + name); if (inp) inp.value = ''; }
+            else toast('Add failed: ' + ((res && res.message) || 'check connection'));
+            pollState();
+        });
+    };
+
+    window.renameStudentDialog = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Rename seat #' + (p ? ('0' + p.seat).slice(-2) : '?'), 'Names are never secret - this is safe to do at any point in the game.', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Save Name', cls: 'coral', fn: function () {
+                    var inp = el('modalNameInput');
+                    var name = inp ? inp.value.trim() : '';
+                    if (!name) return;
+                    postServer({ action: ACT.RENAME_PLAYER, playerId: pId, displayName: name }).then(function (res) {
+                        if (res && res.status !== 'ok') toast('Rename failed: ' + ((res && res.message) || ''));
+                        pollState();
+                    });
+                }
+            }
+        ], '<input type="text" id="modalNameInput" maxlength="28" placeholder="First Ls." value="' + esc(p ? p.name : '') + '">');
+        var inp2 = el('modalNameInput');
+        if (inp2) { inp2.focus(); inp2.select(); }
+    };
+
+    window.kickStudent = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Kick from lobby', 'Remove <strong>' + esc(p ? ('#' + p.seat + ' ' + p.name) : pId) + '</strong> from the seating chart? The seat frees up immediately.', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Kick', cls: 'coral', fn: function () {
+                    postServer({ action: ACT.KICK_PLAYER, playerId: pId }).then(function (res) {
+                        if (res && res.status !== 'ok') toast('Kick failed: ' + ((res && res.message) || ''));
+                        pollState();
+                    });
+                }
+            }
+        ]);
+    };
+
+    window.toggleTestMode = function () {
+        if (!currentView || !currentView.rules) return;
+        var next = !currentView.rules.testMode;
+        postServer({ action: ACT.UPDATE_RULES, rules: { testMode: next } }).then(function (res) {
+            if (res && res.status === 'ok') toast('Test Mode ' + (next ? 'ON - bots will play' : 'OFF'));
+            else toast('Could not set Test Mode: ' + ((res && res.message) || ''));
+            pollState();
+        });
+    };
+
+    window.toggleAutoPlay = function () {
+        autoPlayOn = !autoPlayOn;
+        var b = el('autoPlayBtn');
+        if (b) { b.textContent = 'Auto-play: ' + (autoPlayOn ? 'ON' : 'OFF'); b.className = 'btn btn-xs' + (autoPlayOn ? ' emerald' : ''); }
+        if (autoPlayTimer) { clearTimeout(autoPlayTimer); autoPlayTimer = null; }
+        if (autoPlayOn) scheduleAutoPlay();
+    };
+
+    function scheduleAutoPlay() {
+        if (!autoPlayOn) return;
+        if (autoPlayTimer) clearTimeout(autoPlayTimer);
+        autoPlayTimer = setTimeout(function () {
+            if (!autoPlayOn || !currentView) return;
+            var testMode = Boolean(currentView.rules && currentView.rules.testMode);
+            var P = E.PHASES;
+            // Let the LCD's Story Theatre have the stage: never advance while a
+            // reveal is 'playing', and give a 'ready' reveal two ticks (~22s) for
+            // the projector to auto-start it before the bot class moves on.
+            var ctl = currentView.reveal && currentView.reveal.control;
+            var revealBusy = Boolean(ctl) && (
+                ctl.status === 'playing' ||
+                (ctl.status === 'ready' && revealReadyTicks < 2)
+            );
+            revealReadyTicks = (ctl && ctl.status === 'ready') ? (revealReadyTicks + 1) : 0;
+            if (testMode && currentView.phase !== P.LOBBY && currentView.phase !== P.GAME_OVER && !revealBusy) {
+                window.onHostAdvancePhase(true);
+            }
+            scheduleAutoPlay();
+        }, 11000);
+    }
+
+    function hasTeacherDecision(v, roleKey) {
+        var cn = v.god && v.god.currentNight;
+        return Boolean(cn && cn.teacherDecisions && cn.teacherDecisions[roleKey]);
+    }
+
+    function handleAdvance(res) {
+        if (res && res.status === 'ok') {
+            pollState();
+        } else {
+            toast('Advance failed: ' + ((res && res.message) || 'check connection'));
+        }
+    }
+
+    window.onHostResetLobby = function () {
+        showModal('Reset the room', 'Choose what to reset. A reset mints a fresh game epoch, so old taps can never fold into the next game.', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Reset to Lobby (keep class seated)', cls: 'amber', fn: function () {
+                    postServer({ action: ACT.RESET_LOBBY, keepPlayers: true }).then(function () { pollState(); });
+                }
+            },
+            {
+                label: 'Fresh clean room (wipe seats)', cls: '', fn: function () {
+                    postServer({ action: ACT.RESET_LOBBY, keepPlayers: false }).then(function () { pollState(); });
+                }
+            }
+        ]);
+    };
+
+    window.togglePauseTimer = function () {
+        postServer({ action: ACT.PAUSE_TIMER }).then(function () { pollState(); });
+    };
+
+    window.addSeconds = function (sec) {
+        postServer({ action: ACT.ADD_TIME, deltaSec: sec }).then(function () { pollState(); });
+    };
+
+    window.hostEliminatePlayer = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Eliminate player', 'Mark <strong>' + esc(p ? ('#' + p.seat + ' ' + p.name) : pId) + '</strong> as out (moderator override)?', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Eliminate', cls: 'coral', fn: function () {
+                    postServer({ action: ACT.MODERATOR_OVERRIDE, playerId: pId, field: 'alive', value: false })
+                        .then(function () { pollState(); });
+                }
+            }
+        ]);
+    };
+
+    window.hostRevivePlayer = function (pId) {
+        var p = currentView && (currentView.players || []).find(function (x) { return x.id === pId; });
+        showModal('Revive player', 'Bring <strong>' + esc(p ? ('#' + p.seat + ' ' + p.name) : pId) + '</strong> back into the game?', [
+            { label: 'Cancel', cls: '' },
+            {
+                label: 'Revive', cls: 'emerald', fn: function () {
+                    postServer({ action: ACT.MODERATOR_OVERRIDE, playerId: pId, field: 'alive', value: true })
+                        .then(function () { pollState(); });
+                }
+            }
+        ]);
+    };
+
+    // A1: teacher Pack Split decision (choose a tied seat, or no kill tonight)
+    window.nightDecision = function (roleKey, choice) {
+        postServer({ action: ACT.NIGHT_DECISION, roleKey: roleKey, choice: choice }).then(function (res) {
+            if (res && res.status !== 'ok') toast((res && res.message) || 'Decision failed');
+            pollState();
+        });
+    };
+
+    // B6: drive the LCD theatre
+    window.revealCmd = function (cmd) {
+        if (!currentView || !currentView.reveal) return;
+        postServer({ action: ACT.REVEAL_CONTROL, cmd: cmd, revealId: currentView.reveal.id }).then(function () { pollState(); });
+    };
+
+    window.startReveal = function () {
+        if (!currentView || !currentView.reveal) return;
+        postServer({ action: ACT.REVEAL_CONTROL, cmd: 'start', revealId: currentView.reveal.id }).then(function () { pollState(); });
+    };
+
+    window.toggleReadAloud = function () {
+        if (!window.WWTts) return;
+        window.WWTts.setEnabled(!window.WWTts.isEnabled());
+        var b = el('thTtsBtn');
+        if (b) b.textContent = window.WWTts.isEnabled() ? 'Read-aloud ON' : 'Read-aloud';
+    };
+
+    window.checkServerHealth = function () {
+        fetch(serverUrl + '?action=' + ACT.HEALTH)
+            .then(function (r) { return r.json(); })
+            .then(function (h) {
+                lastOkAt = Date.now(); updateConnPill();
+                toast('Server online: ' + (h.serverVersion || '?') + ' | active game: ' + (h.activeGameId || 'none'));
+            }).catch(function (e) {
+                lastErrAt = Date.now(); updateConnPill();
+                toast('Could not reach server.');
+            });
+    };
+
+    function renderWaitingRoom() {
+        el('phaseBadge').textContent = 'NO ROOM';
+        el('primaryPhaseBtn').textContent = 'Open Room on Server ->';
+        var cc = el('classCard'); if (cc) cc.style.display = 'none';
+        var dc = el('demoCard'); if (dc) dc.style.display = 'none';
+        var orb = el('openRoomBtn'); if (orb) orb.style.display = 'inline-flex';
+        var addRow = el('addStudentRow'); if (addRow) addRow.style.display = 'none';
+        el('rosterTbody').innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px 8px;">No game is open for room <strong>' + esc(targetGameId) + '</strong> yet. Press <strong>Open Room on Server</strong> (or the big button) to create the lobby - then students can join from their Chromebooks.</td></tr>';
+        el('seatedStat').textContent = '0 / - Seated';
+        el('aliveStat').textContent = '- Alive';
+        el('nightReportCard').style.display = 'none';
+        el('packSplitCard').style.display = 'none';
+        el('theatreBarCard').style.display = 'none';
+        el('liveNightCard').style.display = 'none';
+    }
+
+    function pollState() {
+        postServer({
+            action: ACT.POLL,
+            viewerKind: 'god',
+            teacherPin: teacherPin
+        }).then(function (res) {
+            if (!res) return;
+            if (res.status === 'ok' && res.view) {
+                roomOpen = true;
+                currentView = res.view;
+                var orb = el('openRoomBtn'); if (orb) orb.style.display = 'none';
+                renderView();
+            } else if (res.status === 'auth_failed' || (res.message && /PIN/i.test(res.message))) {
+                el('pinGate').style.display = 'flex';
+                el('pinError').style.display = 'block';
+                el('pinError').textContent = res.status === 'auth_failed' ? 'Session expired - re-enter Teacher PIN.' : res.message;
+            } else if (res.status === 'busy') {
+                toast('Server busy - retrying.');
+            } else if (res.status === 'no_game') {
+                if (roomOpen) toast('Room closed on the server - press Open Room to start a new lobby.');
+                roomOpen = false;
+                currentView = null;
+                renderWaitingRoom();
+            }
+        });
+    }
+
+    window.speakNarratorStory = function () {
+        var elTxt = document.getElementById('narratorScriptText');
+        var txt = elTxt ? elTxt.textContent.replace(/^"|"$/g, '') : '';
+        if (!txt) return;
+        if (window.WWTts) {
+            window.WWTts.setEnabled(true);
+            window.WWTts.speak(txt);
+            return;
+        }
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(txt);
+        u.rate = 0.92;
+        u.pitch = 0.95;
+        window.speechSynthesis.speak(u);
+    };
+
+    // C1 preflight + demo-class card (Lobby only): all green before Deal Roles
+    function renderDemoPreflight(v) {
+        var card = el('demoCard');
+        if (!card) return;
+        if (v.phase !== E.PHASES.LOBBY) { card.style.display = 'none'; return; }
+        card.style.display = 'flex';
+
+        var players = v.players || [];
+        var seated = players.length;
+        var placeholders = players.filter(function (p) { return !p.isBot && /^Seat \d+$/.test(p.name); }).length;
+        var bots = players.filter(function (p) { return p.isBot; }).length;
+        var r = v.rules || {};
+        var rolesOk = (r.carriersCount || 0) >= 1 && (r.carriersCount + r.nursesCount + r.investigatorsCount) < seated;
+        var serverOk = Boolean(serverUrl) && lastOkAt > lastErrAt;
+        var testMode = Boolean(r.testMode);
+
+        var rows = [];
+        rows.push((serverOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Server reachable (' + (serverOk ? 'live' : 'check URL/PIN') + ')');
+        rows.push('<span style="color:var(--emerald);">&#10003;</span> Teacher PIN accepted');
+        rows.push((seated >= 6 ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Seated: ' + seated + ' (min 6)');
+        rows.push((placeholders === 0 || testMode ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--amber);">!</span>') + ' Unclaimed seats: ' + placeholders + ' (demo bots: ' + bots + ')' + (placeholders && !testMode ? ' - Test Mode plays them as bots, or remove them for humans-only' : (testMode && placeholders ? ' - Test Mode ON: they act as bots' : '')));
+        rows.push((rolesOk ? '<span style="color:var(--emerald);">&#10003;</span>' : '<span style="color:var(--red);">&#10007;</span>') + ' Role counts: ' + r.carriersCount + 'W/' + r.nursesCount + 'D/' + r.investigatorsCount + 'Det');
+        el('preflightList').innerHTML = rows.map(function (x) { return '<div>' + x + '</div>'; }).join('');
+        el('preflightBadge').textContent = (serverOk && seated >= 6 && rolesOk) ? 'READY' : 'CHECK';
+        el('preflightBadge').style.color = (serverOk && seated >= 6 && rolesOk) ? 'var(--emerald)' : 'var(--amber)';
+
+        var tBtn = el('testModeBtn');
+        if (tBtn) { tBtn.textContent = 'Test Mode: ' + (testMode ? 'ON' : 'OFF'); tBtn.className = 'btn btn-xs' + (testMode ? ' emerald' : ''); }
+    }
+
+    // Teacher Coach: per-phase "do this, say this" script for running the room.
+    // Deterministic on purpose - no LLM key needed, works with the projector offline.
+    function coachLines(v) {
+        var P = E.PHASES;
+        var testMode = Boolean(v.rules && v.rules.testMode);
+        var tm = testMode ? '<div style="color:var(--amber); font-weight:700;">REHEARSAL: Test Mode is ON - bots are playing every kid input. Turn it OFF in the Lobby for the real class.</div>' : '';
+        var revealWait = (v.reveal && v.reveal.control && (v.reveal.control.status === 'ready' || v.reveal.control.status === 'playing'))
+            ? '<div style="color:var(--amber);">The Story Theatre has the projector right now - let it play (Space/Right next, S skip), then continue.</div>' : '';
+        function say(t) { return '<div style="border-left:3px solid var(--coral); padding:4px 8px; font-style:italic; color:#fca5a5;">Say: "' + t + '"</div>'; }
+
+        if (v.phase === P.LOBBY) return { label: 'LOBBY', html: tm
+            + '<div>Students join on their Chromebooks at the link on the projector footer, signing in with their @gnspes.ca account. Use <strong>Add seat</strong> for anyone without a device.</div>'
+            + say('Grab your Chromebook, open the link on the board, and sign in with your school account. Sit at the seat number you claim!')
+            + '<div>Check the preflight below, then <strong>Deal Roles &amp; Start Night 1</strong>.</div>' };
+        if (v.phase === P.ROLE_REVEAL) return { label: 'SECRET ROLES', html: tm
+            + '<div>Room stays silent while everyone checks their corner card.</div>'
+            + say('Cup one hand over the small Hold [ID] badge in your corner, read your secret role, release to snap it shut - then press Ready. Never show your neighbour!')
+            + '<div>When the ready meter fills (or after about 2 minutes): <strong>Begin Night 1</strong>.</div>' };
+        if (v.phase === P.NIGHT) return { label: 'NIGHT ' + v.round, html: tm + revealWait
+            + '<div>Lights down if you can. Every player taps ONE seat - students too, so no click is a tell.</div>'
+            + say('Close your eyes and drop your heads. Everyone quietly taps one seat on your screen - no clicking sounds, no peeking.')
+            + '<div>The projector only shows the aggregate meter - individual night picks are hidden (anti-tell). Watch the <strong>Live Night Actions</strong> panel here for the truth. When all have tapped or the timer ends: <strong>End Night</strong>.</div>'
+            + '<div style="color:var(--text-muted);">If the carriers are split, the Carrier Split panel appears - you decide the target (never random), or choose No new case tonight.</div>' };
+        if (v.phase === P.DAWN) return { label: 'DAWN ' + v.round, html: tm + revealWait
+            + say('Eyes up! The night is ending...')
+            + '<div>Press <strong>Reveal Dawn</strong> - the Story Theatre tells what happened on the projector. Then <strong>Start Day Debate</strong>.</div>' };
+        if (v.phase === P.DAY_DISCUSSION) return { label: 'DAY ' + v.round + ' DEBATE', html: tm
+            + (v.rules.claimRule === 'quiet' ? say('Debate is open - but remember the Quiet Rule: nobody may claim a role, real or bluffing. Persuade with logic and voting patterns.')
+                                              : say('Debate is open - question suspects and defend yourselves before the ballot.'))
+            + '<div>Click seats on the projector to put suspects "On the Stand". 2-3 minutes, then <strong>Open Secret Ballot</strong>.</div>' };
+        if (v.phase === P.DAY_VOTE) return { label: 'DAY ' + v.round + ' BALLOT', html: tm
+            + say('Cast one secret ballot on your screen - choose a suspect, or vote Skip if you want no isolation today. You can change it until I close the ballot.')
+            + '<div>When every living player has voted (or the timer ends): <strong>Close &amp; Tally Votes</strong>.</div>' };
+        if (v.phase === P.DAY_REVOTE) return { label: 'TIE RUNOFF', html: tm
+            + say('Deadlock! The top suspects get 15 seconds each to defend themselves - then everyone votes again between them only.')
+            + '<div>Runoff ballots only accept the tied seats. Then <strong>Close &amp; Tally</strong> again.</div>' };
+        if (v.phase === P.DUSK) return { label: 'DUSK ' + v.round, html: tm + revealWait
+            + '<div>Read the isolation result from the projector. A quick beat for the drama - and remind ghosts: total poker face.</div>'
+            + say('The class has voted. To the isolated: you are now a silent ghost - no hints, no reactions. And I mean NO reactions.')
+            + '<div>Then <strong>Begin Next Night</strong>.</div>' };
+        if (v.phase === P.GAME_OVER) return { label: 'GAME OVER', html: tm
+            + '<div>The roster flip reveals every role on the projector. Debrief while it is fresh:</div>'
+            + say('Carriers, stand up! Class: what was the tell that almost caught you - and what saved you?')
+            + '<div><strong>Play Again</strong> (Reset to Lobby, keep seats) re-deals in seconds. For the real class: reset to Lobby and turn Test Mode OFF first.</div>' };
+        return { label: v.phase, html: '' };
+    }
+
+    function renderCoach(v) {
+        var card = el('coachCard');
+        if (!card) return;
+        if (!roomOpen) { card.style.display = 'none'; return; }
+        var c = coachLines(v);
+        card.style.display = 'flex';
+        el('coachPhase').textContent = c.label;
+        el('coachBody').innerHTML = c.html;
+    }
+
+    function renderView() {
+        if (!currentView) return;
+        var v = currentView;
+        var cc = el('classCard');
+        if (cc) cc.style.display = (v.phase === E.PHASES.LOBBY) ? 'flex' : 'none';
+        renderDemoPreflight(v);
+        el('roomCodeBadge').textContent = v.gameId;
+        el('roomCodeInput').value = v.gameId;
+        updateStudentGameUrl(v.gameId);
+        el('phaseBadge').textContent = v.phase + (v.round ? (' R' + v.round) : '');
+
+        // Narrator Story Script
+        var story = v.lastStory || (v.lastAnnouncement && v.lastAnnouncement.story) || '';
+        var nCard = el('narratorCard');
+        if (nCard) {
+            if (story) {
+                nCard.style.display = 'flex';
+                el('narratorScriptText').textContent = '"' + story + '"';
+            } else {
+                nCard.style.display = 'none';
+            }
+        }
+
+        el('verEpoch').textContent = 'epoch: ' + (v.epoch ? String(v.epoch).slice(0, 8) : '-');
+
+        // Primary Phase Button - labels keyed off the engine's real PHASES (F9 fix)
+        var btn = el('primaryPhaseBtn');
+        var P = E.PHASES;
+        if (v.phase === P.LOBBY) btn.textContent = 'Deal Roles & Start Night 1 ->';
+        else if (v.phase === P.ROLE_REVEAL) btn.textContent = 'Begin Night 1 ->';
+        else if (v.phase === P.NIGHT) btn.textContent = nightGateLabel(v) + ' ->';
+        else if (v.phase === P.DAWN) btn.textContent = 'Start Day Debate ->';
+        else if (v.phase === P.DAY_DISCUSSION) btn.textContent = 'Open Secret Ballot ->';
+        else if (v.phase === P.DAY_VOTE || v.phase === P.DAY_REVOTE) btn.textContent = 'Close & Tally Votes ->';
+        else if (v.phase === P.DUSK) btn.textContent = 'Begin Next Night ->';
+        else if (v.phase === P.GAME_OVER) btn.textContent = 'New Game / Reset Lobby';
+
+        // Rules
+        if (v.rules) {
+            el('seatCountBadge').textContent = v.rules.classSize + ' Seats';
+            el('cntCarriers').textContent = v.rules.carriersCount;
+            el('cntNurses').textContent = v.rules.nursesCount;
+            el('cntInvestigators').textContent = v.rules.investigatorsCount;
+            var vill = Math.max(0, v.rules.classSize - (v.rules.carriersCount + v.rules.nursesCount + v.rules.investigatorsCount));
+            el('cntStudents').textContent = vill;
+        }
+
+        // Stats
+        var seated = (v.players || []).filter(function (p) { return !p.isPlaceholder; }).length;
+        var alive = (v.players || []).filter(function (p) { return p.alive; }).length;
+        el('seatedStat').textContent = seated + ' / ' + (v.rules ? v.rules.classSize : 24) + ' Seated';
+        el('aliveStat').textContent = alive + ' Alive';
+
+        // Roster Table - seat actions by phase: Rename always; Kick in Lobby; Eliminate/Revive in game
+        var inLobby = v.phase === E.PHASES.LOBBY;
+        var addRow = el('addStudentRow');
+        if (addRow) addRow.style.display = inLobby ? 'flex' : 'none';
+        var tbody = el('rosterTbody');
+        tbody.innerHTML = (v.players || []).map(function (p) {
+            var role = p.role || 'STUDENT';
+            var isDead = !p.alive;
+            var isPlaceholder = /^Seat \d+$/.test(String(p.name || ''));
+            var actionBtn = '<button class="btn btn-xs" onclick="renameStudentDialog(\'' + p.id + '\')"' + (isPlaceholder ? ' title="Claim this seat for a student"' : '') + '>Rename</button>';
+            if (inLobby) {
+                actionBtn += ' <button class="btn btn-xs" style="color:var(--coral);" onclick="kickStudent(\'' + p.id + '\')">Kick</button>';
+            } else if (isDead) {
+                actionBtn += ' <button class="btn btn-xs emerald" onclick="hostRevivePlayer(\'' + p.id + '\')">Revive</button>';
+            } else {
+                actionBtn += ' <button class="btn btn-xs" style="color:var(--coral);" onclick="hostEliminatePlayer(\'' + p.id + '\')">Eliminate</button>';
+            }
+
+            return '<tr class="' + (isDead ? 'dead' : '') + '">'
+                + '<td style="font-family:var(--font-mono); font-weight:800; color:var(--text-muted);">#' + (p.seat < 10 ? '0' + p.seat : p.seat) + '</td>'
+                + '<td><strong>' + esc(p.name) + '</strong>' + (p.email ? (' <span style="font-size:0.75rem; color:var(--text-muted);">&lt;' + esc(p.email) + '&gt;</span>') : '') + '</td>'
+                + '<td><span class="r-pill ' + role + '">' + role + '</span></td>'
+                + '<td>' + (isDead ? '<span style="color:var(--red); font-weight:700;">OUT</span>' : '<span style="color:var(--emerald);">ALIVE</span>') + '</td>'
+                + '<td style="text-align:right; white-space:nowrap;">' + actionBtn + '</td>'
+                + '</tr>';
+        }).join('');
+
+        // God Findings & Live Night Intel
+        if (v.god) {
+            var nightCard = el('liveNightCard');
+            if (v.phase === 'NIGHT') {
+                nightCard.style.display = 'block';
+                el('nightActedBadge').textContent = v.counts.acted + ' / ' + v.counts.expectedActors + ' Tapped';
+
+                var carrierPicksMap = (v.god.currentNight && v.god.currentNight.carrierPicks) || {};
+                var livingCarriers = (v.players || []).filter(function (p) { return p.role === 'CARRIER' && p.alive; });
+                var carrierPickDescs = livingCarriers.map(function (w) {
+                    var tId = carrierPicksMap[w.id];
+                    var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                    return '<span style="font-weight:700; color:#fca5a5;">#' + (w.seat < 10 ? '0' + w.seat : w.seat) + ' ' + esc(w.name) + '</span>'
+                        + (tp ? (' -> <strong>#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name) + '</strong> (' + tp.role + ')') : ' <em style="color:#94a3b8;">(waiting for tap...)</em>');
+                });
+
+                var carrierRes = v.god.carrierResolution || { mode: 'none', consensus: v.god.carrierConsensus, tied: [] };
+                var carrierStatusHtml = '';
+                var chosenVictimId = null;
+
+                if (carrierRes.mode === 'split') {
+                    var tiedDescs = (carrierRes.tied || []).map(function (tId) {
+                        var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                        return '#' + (tp ? (tp.seat < 10 ? '0' + tp.seat : tp.seat) : tId) + ' ' + (tp ? esc(tp.name) : '');
+                    }).join(', ');
+                    carrierStatusHtml = '<span style="color:#fbbf24; font-weight:800;">CARRIERS SPLIT: ' + esc(tiedDescs) + '</span> (teacher decides - nothing random)';
+                } else if (carrierRes.targetId) {
+                    var uTarget = (v.players || []).find(function (p) { return p.id === carrierRes.targetId; });
+                    chosenVictimId = uTarget ? uTarget.id : null;
+                    carrierStatusHtml = '<span style="color:#4ade80; font-weight:800;">LOCKED [' + esc(carrierRes.mode).toUpperCase() + ']: Seat #' + (uTarget ? (uTarget.seat < 10 ? '0' + uTarget.seat : uTarget.seat) + ' ' + esc(uTarget.name) : 'Unknown') + '</span>';
+                } else if (carrierRes.consensus && carrierRes.consensus.submittedCount > 0) {
+                    carrierStatusHtml = '<span style="color:#fbbf24; font-weight:800;">PICKS IN, NO DECISION YET</span>';
+                } else {
+                    carrierStatusHtml = '<span style="color:#f87171; font-weight:800;">WAITING FOR CARRIER TAP</span> (' + livingCarriers.length + ' living carriers)';
+                }
+
+                // Nurse
+                var docCons = v.god.nurseConsensus;
+                var docDesc = '<em style="color:#94a3b8;">Waiting for Nurse tap...</em>';
+                var shieldedTargetId = null;
+                if (docCons && docCons.counts) {
+                    var dPicks = Object.keys(docCons.counts).map(function (tId) {
+                        var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                        shieldedTargetId = tId;
+                        return tp ? ('#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name)) : tId;
+                    }).join(', ');
+                    if (dPicks) docDesc = '<strong style="color:var(--emerald);">Shielding: ' + dPicks + '</strong>';
+                }
+
+                var conflictHtml = '';
+                if (chosenVictimId && shieldedTargetId && chosenVictimId === shieldedTargetId) {
+                    conflictHtml = '<div style="background:rgba(52, 211, 153, 0.2); border:1px solid #34d399; border-radius:6px; padding:6px 10px; color:#6ee7b7; font-weight:700;">'
+                        + 'NURSE INTERCEPT! The Nurse is shielding the Carrier target! No new case at Dawn.'
+                        + '</div>';
+                }
+
+                // Investigator
+                var detCons = v.god.investigatorConsensus;
+                var detDesc = '<em style="color:#94a3b8;">Waiting for Investigator tap...</em>';
+                if (detCons && detCons.counts) {
+                    var detPicks = Object.keys(detCons.counts).map(function (tId) {
+                        var tp = (v.players || []).find(function (p) { return p.id === tId; });
+                        return tp ? ('#' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + esc(tp.name) + ' = <strong style="color:var(--amber);">' + tp.role + '</strong>') : tId;
+                    }).join(', ');
+                    if (detPicks) detDesc = '<strong style="color:var(--amber);">Investigating: ' + detPicks + '</strong>';
+                }
+
+                el('liveNightBody').innerHTML = ''
+                    + '<div><div style="font-weight:800; color:#fca5a5; margin-bottom:2px;">Outbreak Attack: ' + carrierStatusHtml + '</div>'
+                    + '<div style="font-size:0.82rem; margin-left:8px; line-height:1.4;">' + (carrierPickDescs.length ? carrierPickDescs.join('<br>') : '<em style="color:#94a3b8;">No carriers living</em>') + '</div></div>'
+                    + '<div><div style="font-weight:800; color:#a7f3d0; margin-bottom:2px;">Nurse Shield: ' + docDesc + '</div></div>'
+                    + conflictHtml
+                    + '<div><div style="font-weight:800; color:#fde68a; margin-bottom:2px;">Investigator Check: ' + detDesc + '</div></div>';
+            } else {
+                nightCard.style.display = 'none';
+            }
+
+            var findings = ((v.god.secret && v.god.secret.investigatorFindings) || []).map(function (f) {
+                return '<div>N' + f.round + ': #' + f.seat + ' ' + esc(f.targetName) + ' -> <strong style="color:var(--amber);">' + f.role + '</strong></div>';
+            }).join('');
+            if (v.phase === 'NIGHT' && v.god.investigatorConsensus && v.god.investigatorConsensus.counts) {
+                var detPicks2 = Object.keys(v.god.investigatorConsensus.counts).map(function (tId) {
+                    var tp = v.players.find(function (x) { return x.id === tId; });
+                    return tp ? ('#' + tp.seat + ' ' + tp.name + ' (' + tp.role + ')') : tId;
+                }).join(', ');
+                if (detPicks2) {
+                    findings = '<div style="color:#38bdf8; margin-bottom:4px;"><strong>Live Investigator Target Tonight:</strong> ' + esc(detPicks2) + '</div>' + findings;
+                }
+            }
+            el('findingsBox').innerHTML = findings || '<span style="color:var(--text-muted);">No investigations yet.</span>';
+
+            var audit = ((v.god.secret && v.god.secret.auditLog) || []).slice(-8).reverse().map(function (a) {
+                return '<div>[R' + a.round + '] ' + esc(a.text) + '</div>';
+            }).join('');
+            el('auditLogBox').innerHTML = audit || '<span>Audit log initialized.</span>';
+        }
+
+        renderNightReport(v);
+        renderPackSplit(v);
+        renderTheatreBar(v);
+        renderCoach(v);
+    }
+
+    // A4: "What happened tonight" card from game.secret.nightReports (teacher only), with history
+    function renderNightReport(v) {
+        var card = el('nightReportCard');
+        var reports = (v.god && v.god.nightReports) || [];
+        var latest = reports.length ? reports[reports.length - 1] : null;
+        var show = latest && (v.phase === E.PHASES.DAWN || v.phase === E.PHASES.NIGHT || v.phase === E.PHASES.DUSK);
+        if (!show) { card.style.display = 'none'; return; }
+        card.style.display = 'flex';
+
+        var nameOf = function (id) {
+            var p = (v.players || []).find(function (x) { return x.id === id; });
+            return p ? ('#' + (p.seat < 10 ? '0' + p.seat : p.seat) + ' ' + p.name) : (id || '?');
+        };
+        var pickLine = function (map) {
+            var keys = Object.keys(map || {});
+            if (!keys.length) return 'no picks';
+            return keys.map(function (actorId) {
+                var a = (v.players || []).find(function (x) { return x.id === actorId; });
+                return (a ? ('#' + (a.seat < 10 ? '0' + a.seat : a.seat)) : actorId) + ' -> ' + nameOf(map[actorId]);
+            }).join('; ');
+        };
+
+        var lines = [];
+        lines.push('<div class="rep-line"><span class="rep-mode">Night ' + latest.round + ' - decided by ' + esc(latest.decidedBy) + ' (' + esc(latest.decisionMode) + ')</span></div>');
+        lines.push('<div class="rep-line">Carriers: ' + esc(pickLine(latest.carrierPicksByActor)) + '</div>');
+        if (latest.victimId) {
+            lines.push('<div class="rep-line" style="color:#fca5a5; font-weight:700;">Case: ' + esc(nameOf(latest.victimId)) + (latest.saved ? ' (SHIELDED by Nurse)' : '') + '</div>');
+        } else {
+            lines.push('<div class="rep-line">No new case' + (latest.saved ? ' (the spread was blocked)' : '') + '.</div>');
+        }
+        lines.push('<div class="rep-line">Nurse: ' + esc(pickLine(latest.nursePicksByActor)) + (latest.protectedId ? (' -> protected ' + esc(nameOf(latest.protectedId))) : '') + '</div>');
+        if (latest.finding) {
+            lines.push('<div class="rep-line">Investigator: ' + esc(nameOf(latest.finding.targetId)) + ' is <strong>' + esc(latest.finding.role) + '</strong></div>');
+        } else {
+            lines.push('<div class="rep-line">Investigator: ' + esc(pickLine(latest.investigatorPickByActor)) + '</div>');
+        }
+        el('nightReportBody').innerHTML = lines.join('');
+
+        var hist = reports.slice(-6).reverse().map(function (r) {
+            return 'N' + r.round + ' ' + esc(r.decisionMode) + (r.victimId ? ' -> taken' : '') + (r.saved ? ' (saved)' : '');
+        }).join('<br>');
+        el('nightReportHistory').innerHTML = reports.length > 1
+            ? '<details><summary>Recent nights (' + reports.length + ')</summary>' + hist + '</details>'
+            : '';
+
+        var rdn = el('revealDawnBtn');
+        if (rdn) rdn.style.display = (v.phase === E.PHASES.DAWN && v.reveal) ? 'inline-flex' : 'none';
+    }
+
+    // A1: Pack Split decision panel during NIGHT
+    function renderPackSplit(v) {
+        var card = el('packSplitCard');
+        var g = v.god;
+        var res = g && g.carrierResolution;
+        var show = v.phase === E.PHASES.NIGHT && res && res.mode === 'split' && !hasTeacherDecision(v, 'CARRIER');
+        if (!show) { card.style.display = 'none'; return; }
+        card.style.display = 'flex';
+        var tied = res.tied || [];
+        var btns = tied.map(function (tId) {
+            var tp = (v.players || []).find(function (p) { return p.id === tId; });
+            var label = tp ? ('Seat #' + (tp.seat < 10 ? '0' + tp.seat : tp.seat) + ' ' + tp.name) : tId;
+            return '<button class="btn btn-xs coral" onclick="nightDecision(\'CARRIER\', { targetId: \'' + esc(tId) + '\' })">Choose ' + esc(label) + '</button>';
+        }).join('');
+        el('packSplitBody').innerHTML = ''
+            + '<div style="color:#c7d2fe;">The carriers picked different seats (' + esc((res.consensus ? res.consensus.submittedCount : 0) + ' of ' + (res.consensus ? res.consensus.totalActors : 0)) + '). Nothing is random - you decide.</div>'
+            + '<div style="display:flex; gap:6px; flex-wrap:wrap;">' + btns + '</div>'
+            + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
+            + '<button class="btn btn-xs amber" onclick="addSeconds(20)">' + esc(CFG.COPY.packSplitMore) + '</button>'
+            + '<button class="btn btn-xs" onclick="nightDecision(\'CARRIER\', { noKill: true })">' + esc(CFG.COPY.packSplitNoKill) + '</button>'
+            + '</div>';
+    }
+
+    // B6: theatre control bar while a reveal is ready/playing on the LCD
+    function renderTheatreBar(v) {
+        var card = el('theatreBarCard');
+        var r = v.reveal;
+        var show = r && (v.phase === E.PHASES.DAWN || v.phase === E.PHASES.DUSK || v.phase === E.PHASES.GAME_OVER) && r.control && (r.control.status === 'ready' || r.control.status === 'playing');
+        if (!show) { card.style.display = 'none'; return; }
+        card.style.display = 'flex';
+        var n = r.beats.length;
+        var i = (r.control.beatIndex || 0) + 1;
+        var beat = r.beats[Math.min(i - 1, n - 1)] || {};
+        el('theatreBeatLabel').textContent = CFG.COPY.beatLabel
+            .replace('{i}', i).replace('{n}', n).replace('{type}', beat.type || '');
+        var pb = el('thPauseBtn');
+        if (pb) pb.textContent = r.control.paused ? 'Resume' : 'Pause';
+    }
+
+    function boot() {
+        el('serverUrlLabel').textContent = serverUrl || '(no server URL - demo/offline)';
+        updateConnPill();
+        el('roomCodeBadge').textContent = targetGameId;
+        el('roomCodeInput').value = targetGameId;
+        el('lcdLink').href = 'lcd.html?game=' + encodeURIComponent(targetGameId);
+        updateStudentGameUrl(targetGameId);
+        pollState();
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(pollState, 3500);
+    }
+
+    verifyPinState();
+})();
+</script>
+</body>
+</html>
