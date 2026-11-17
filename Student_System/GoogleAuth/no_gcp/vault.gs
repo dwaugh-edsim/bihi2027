@@ -247,17 +247,31 @@ function doPost(e) {
     } finally {
       lock3.releaseLock();
     }
+    var fallback = null;
     for (var r = rows.length - 1; r >= 0; r--) {
       if (String(rows[r][1]).toLowerCase() === v3.email && String(rows[r][3]) === task) {
         var data = {};
         try { data = JSON.parse(rows[r][5] || '{}'); } catch (e) { data = {}; }
-        return jsonOut_({
+        var sumStr = String(rows[r][4] || '');
+        var cand = {
           status: 'ok', found: true,
-          data: data, summary: String(rows[r][4] || ''),
+          data: data, summary: sumStr,
           section: String(rows[r][2] || ''), savedAt: rows[r][0]
-        });
+        };
+        if (!fallback) fallback = cand;
+        var hasWork = Boolean(
+          data.committed ||
+          (data.station && Number(data.station) > 0) ||
+          (data.responses && Object.keys(data.responses).length > 0) ||
+          (data.judgments && Object.keys(data.judgments).length > 0) ||
+          (data.partB && Object.keys(data.partB).length > 0)
+        );
+        if (hasWork || sumStr.indexOf('BRIEFING culprit=-') !== 0) {
+          return jsonOut_(cand);
+        }
       }
     }
+    if (fallback) return jsonOut_(fallback);
     return jsonOut_({ status: 'ok', found: false });
   }
 
