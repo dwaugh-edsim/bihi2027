@@ -17,8 +17,8 @@
  *      remove_empty_seats, moderator_override, lcd_heartbeat
  *  D9  SERVER_VERSION and ENGINE_VERSION bumped together
  *
- * LIVE DEPLOYED URL: (none yet - deploy this file as a NEW Apps Script web app;
- *   do NOT reuse the Werewolf deployment, it runs the old bundled engine)
+ * LIVE DEPLOYED URL (2026-11-17, smoke-tested PASS - see DEPLOY_README.md):
+ *  https://script.google.com/macros/s/AKfycbxIr11bV0iBWBluZHESIqBXuZlxaXl-am7A_yIWV0oYGHHTW2UZSo3l0pqTYTOW8eba/exec
  *
  * SINGLE-FILE DEPLOYMENT:
  *  - Run tools-priv/bundle_outbreak_gas.py, then paste the whole Code.gs into

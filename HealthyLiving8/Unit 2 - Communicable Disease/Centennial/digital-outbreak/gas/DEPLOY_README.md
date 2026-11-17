@@ -5,8 +5,15 @@ All student UI and the standalone client engine live PII-free in `bihi2027/Healt
 
 ## Live Deployed Web App URL
 
-- **Exec URL:** (none yet - deploy `Code.gs` as a NEW Apps Script web app and paste the /exec URL here)
-- **Health Probe:** `<EXEC_URL>?action=get_health`
+- **Exec URL:** `https://script.google.com/macros/s/AKfycbxIr11bV0iBWBluZHESIqBXuZlxaXl-am7A_yIWV0oYGHHTW2UZSo3l0pqTYTOW8eba/exec`
+- **Health Probe:** `https://script.google.com/macros/s/AKfycbxIr11bV0iBWBluZHESIqBXuZlxaXl-am7A_yIWV0oYGHHTW2UZSo3l0pqTYTOW8eba/exec?action=get_health`
+
+Deployed 2026-11-17 and smoke-tested live: health reports `R8-OUTBREAK-1.0.0` / engine `1.0.0`;
+teacher PIN gate, HMAC student join, lcd/god/player polls, reveal_control, and a full
+Test-Mode bot game to GAME_OVER all PASS. Script Properties on this project: `R8_IDENTITY_KEY`,
+`TEACHER_PIN` (secrets live server-side only - never in git).
+NOTE: the currently deployed build is an older engine snapshot; re-paste the repo `Code.gs`
+(with the anti-tell LCD night checkmarks + death-slide masking) at the next deploy.
 
 ## Single-File Update / Redeploy Steps (No Separate `Engine.gs` Needed!)
 
