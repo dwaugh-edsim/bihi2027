@@ -693,7 +693,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         <div class="join-strip">
             <span id="modeBadge" style="font-family:var(--font-mono); font-weight:800; color:var(--emerald);">MODE: INSTANT CLASSROOM / DEMO SYNC</span>
             <span>Student Link:</span>
-            <span class="join-url" id="studentUrlDisplay" onclick="copyStudentLink()" title="Click to copy student link" style="cursor:pointer; user-select:all;">ILT/outbreak/digital-outbreak/index.html</span>
+            <span class="join-url" id="studentUrlDisplay" onclick="copyStudentLink()" title="Click to copy student link" style="cursor:pointer; user-select:all;">https://dwaugh-edsim.github.io/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/Centennial/digital-outbreak/index.html</span>
             <button type="button" class="btn btn-xs" id="copyStudentUrlBtn" onclick="copyStudentLink()" title="Copy student link to clipboard" style="padding:3px 8px; font-size:0.75rem;">Copy</button>
         </div>
         <div>
@@ -764,6 +764,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
     var E = window.OutbreakEngine;
     var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbxIr11bV0iBWBluZHESIqBXuZlxaXl-am7A_yIWV0oYGHHTW2UZSo3l0pqTYTOW8eba/exec';
+    var STUDENT_PAGE_URL = 'https://dwaugh-edsim.github.io/bihi2027/HealthyLiving8/Unit%202%20-%20Communicable%20Disease/Centennial/digital-outbreak/';
+    function num(n) { n = Number(n); return isFinite(n) ? n : 0; }
     var CHANNEL_NAME = 'r8_outbreak_v1';
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
 
@@ -1190,7 +1192,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         el('clockLabel').textContent = 'READY';
         el('clockDigits').textContent = '--:--';
         el('modeBadge').textContent = 'MODE: LIVE CLOUD SERVER';
-        el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/outbreak/digital-outbreak/';
+        el('studentUrlDisplay').textContent = STUDENT_PAGE_URL;
     }
 
     function firstNameOnly(name) {
@@ -1211,7 +1213,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 title: 'ENTERING CENTENNIAL JUNIOR HIGH',
                 action: '1. Open the Student Link below  ·  2. Sign in with @gnspes.ca  ·  3. Claim your seat & keep your card secret!',
                 fact: 'Stage: Lobby Setup. ' + claimed + ' of ' + (r.classSize || 28) + ' seats claimed. Direct students to sign in and claim a seat.',
-                fallback: 'The lantern-lit gates of Centennial Junior High creak open. Claim your seat before nightfall.'
+                fallback: 'The gates of Centennial Junior High swing open. Claim your seat before the first bell.'
             };
         }
         if (v.phase === 'ROLE_REVEAL') {
@@ -1240,7 +1242,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                     title: 'STAGE: DAWN ' + v.round + ' (MIRACLE SAVE)',
                     action: 'Nobody was eliminated! Look at the screen and get ready to debate.',
                     fact: 'Stage: Dawn ' + v.round + '. Miracle save! The Nurse shielded the target, so nobody died. ' + aliveCount + ' alive.',
-                    fallback: 'A lantern saves the night! All ' + aliveCount + ' students survive to debate.'
+                    fallback: 'The school nurse shielded the target! All ' + aliveCount + ' students survive to debate.'
                 };
             }
             if (elimP) {
@@ -1256,9 +1258,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             return {
                 bgImg: 'assets/story/scene_dawn_empty_hallway.jpg',
                 title: 'STAGE: DAWN ' + v.round + ' (QUIET MORNING)',
-                action: 'All players survived the night. Prepare for Day Debate.',
+                action: 'All students made it through the night. Prepare for the Day Debate.',
                 fact: 'Stage: Dawn ' + v.round + '. Quiet morning, no deaths. ' + aliveCount + ' alive.',
-                fallback: 'A quiet dawn. All ' + aliveCount + ' souls survive.'
+                fallback: 'A quiet dawn. All ' + aliveCount + ' classmates are still in class.'
             };
         }
         if (v.phase === 'DAY_DISCUSSION') {
@@ -1269,7 +1271,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 title: 'STAGE: DAY ' + v.round + ' DEBATE',
                 action: 'Debate out loud! Share clues, question suspects, and watch the spotlighted seats before voting opens.',
                 fact: 'Stage: Day ' + v.round + ' Debate. ' + aliveCount + ' alive. ' + (stand.length ? ('Suspects: ' + stand.join(', ') + '. ') : '') + 'Tell students to debate.',
-                fallback: 'The council floor is open! Question suspects before the secret ballot.'
+                fallback: 'The debate floor is open! Question suspects before the secret ballot.'
             };
         }
         if (v.phase === 'DAY_VOTE') {
@@ -1292,7 +1294,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 title: 'STAGE: TIE RUNOFF VOTE',
                 action: 'Deadlock! Vote again between the tied suspects on your Chromebook right now.',
                 fact: 'Stage: Tie Runoff Vote. Tied: ' + (tiedNames.join(' vs ') || 'top suspects') + '. Tell students to break the tie now.',
-                fallback: 'A deadlocked council! Cast your runoff vote now.'
+                fallback: 'A deadlocked ballot! Cast your runoff vote now.'
             };
         }
         if (v.phase === 'DUSK') {
@@ -1382,7 +1384,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         // Mode & URL footer
         if (serverUrl) {
             el('modeBadge').textContent = 'MODE: LIVE CLOUD SERVER (GNSPES CHROMEBOOKS)';
-            el('studentUrlDisplay').textContent = 'https://dwaugh-edsim.github.io/bihi2027/ILT/outbreak/digital-outbreak/?game=' + v.gameId;
+            el('studentUrlDisplay').textContent = STUDENT_PAGE_URL + '?game=' + v.gameId;
         } else {
             el('modeBadge').textContent = 'MODE: INSTANT CLASSROOM / DEMO SYNC';
             el('studentUrlDisplay').textContent = 'Students: open index.html?demo=1 on this machine, or use the Teacher Console for cloud play!';
@@ -1427,10 +1429,10 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             + '<div class="cfg-block">'
             + '  <div class="cfg-header"><span class="cfg-title">Class Lobby - ' + r.classSize + ' Seats</span></div>'
             + '  <div class="role-strip">'
-            + roleCardHtml('Werecarriers', 'assets/role_carrier.jpg', r.carriersCount)
-            + roleCardHtml('Nurses', 'assets/role_nurse.jpg', r.nursesCount)
-            + roleCardHtml('Investigators', 'assets/role_investigator.jpg', r.investigatorsCount)
-            + roleCardHtml('Students', 'assets/role_student.jpg', Math.max(0, r.classSize - r.carriersCount - r.nursesCount - r.investigatorsCount))
+            + roleCardHtml('Carriers', 'assets/role_carrier.jpg', num(r.carriersCount))
+            + roleCardHtml('Nurses', 'assets/role_nurse.jpg', num(r.nursesCount))
+            + roleCardHtml('Investigators', 'assets/role_investigator.jpg', num(r.investigatorsCount))
+            + roleCardHtml('Students', 'assets/role_student.jpg', Math.max(0, num(r.classSize) - num(r.carriersCount) - num(r.nursesCount) - num(r.investigatorsCount)))
             + '  </div>'
             + '  <div style="margin-top:10px; font-size:0.95rem; color:var(--text-muted); line-height:1.5;">'
             + '    <strong style="color:var(--text-heading);">' + claimed + ' of ' + r.classSize + ' seats claimed.</strong> '
@@ -1452,7 +1454,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
     function renderActivePanel(v, guide) {
         var r = v.rules;
-        var studentsStart = Math.max(0, v.counts.seated - r.carriersCount - r.nursesCount - r.investigatorsCount);
+        var studentsStart = Math.max(0, num(v.counts && v.counts.seated) - num(r.carriersCount) - num(r.nursesCount) - num(r.investigatorsCount));
         var pct = v.counts.expectedActors > 0
             ? Math.min(100, Math.round((v.counts.acted / v.counts.expectedActors) * 100))
             : 100;
@@ -1468,9 +1470,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
 
         // Starting deck reminder strip
         parts.push('<div class="role-hud-pills">'
-            + '<div class="hud-role-card"><img src="assets/role_carrier.jpg" alt=""><div><div class="hud-role-count">' + r.carriersCount + '</div><div class="hud-role-lbl">Carriers</div></div></div>'
-            + '<div class="hud-role-card"><img src="assets/role_nurse.jpg" alt=""><div><div class="hud-role-count">' + r.nursesCount + '</div><div class="hud-role-lbl">Nurse(s)</div></div></div>'
-            + '<div class="hud-role-card"><img src="assets/role_investigator.jpg" alt=""><div><div class="hud-role-count">' + r.investigatorsCount + '</div><div class="hud-role-lbl">Investigator(s)</div></div></div>'
+            + '<div class="hud-role-card"><img src="assets/role_carrier.jpg" alt=""><div><div class="hud-role-count">' + num(r.carriersCount) + '</div><div class="hud-role-lbl">Carriers</div></div></div>'
+            + '<div class="hud-role-card"><img src="assets/role_nurse.jpg" alt=""><div><div class="hud-role-count">' + num(r.nursesCount) + '</div><div class="hud-role-lbl">Nurse(s)</div></div></div>'
+            + '<div class="hud-role-card"><img src="assets/role_investigator.jpg" alt=""><div><div class="hud-role-count">' + num(r.investigatorsCount) + '</div><div class="hud-role-lbl">Investigator(s)</div></div></div>'
             + '<div class="hud-role-card"><img src="assets/role_student.jpg" alt=""><div><div class="hud-role-count">' + studentsStart + '</div><div class="hud-role-lbl">Students</div></div></div>'
             + '</div>');
 
@@ -1492,7 +1494,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 + '<div style="font-family:var(--font-heading); font-size:1.55rem; font-weight:900; color:#f8fafc; line-height:1.15; margin-bottom:8px;">The school sleeps... and the outbreak spreads.</div>'
                 + '<div style="font-size:0.96rem; color:#e2e8f0; line-height:1.45;">'
                 + '<strong>1. Everyone:</strong> Tap 1 seat quietly on your Chromebook.<br>'
-                + '<strong>2. Werecarriers:</strong> Agree on 1 target! Click <strong>[ID]</strong> in the corner (or press <strong>P</strong>) to see what your packmate picked.'
+                + '<strong>2. Carriers:</strong> Agree on 1 target! Click <strong>[ID]</strong> in the corner (or press <strong>P</strong>) to see what your fellow carrier picked.'
                 + '</div></div>');
         }
 
@@ -1505,8 +1507,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             if (isSaved) {
                 parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:190px; display:flex; flex-direction:column; justify-content:flex-end; padding:18px 20px; background:linear-gradient(180deg, rgba(6,9,19,0.25) 0%, rgba(6,78,59,0.92) 75%), url(\'assets/story/scene_nurse_lantern.jpg\') center/cover no-repeat; border:1.5px solid var(--emerald);">'
                     + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#6ee7b7;">MIRACLE SAVE</div>'
-                    + '<div style="font-family:var(--font-heading); font-size:1.4rem; font-weight:900; color:#ffffff; margin-bottom:4px;">The Town Nurse Protected the School!</div>'
-                    + '<div style="font-size:0.94rem; color:#d1fae5;">The Werecarriers struck in the dark, but the target survived. Nobody died overnight!</div>'
+                    + '<div style="font-family:var(--font-heading); font-size:1.4rem; font-weight:900; color:#ffffff; margin-bottom:4px;">The School Nurse Protected the Target!</div>'
+                    + '<div style="font-size:0.94rem; color:#d1fae5;">The carriers struck in the dark, but the target survived. Nobody was taken overnight!</div>'
                     + '</div>');
             } else if (elimPlayer) {
                 var lwStatus = v.lastWordsChoice === 'take'
@@ -1515,7 +1517,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                         ? ('Waiting for ' + firstNameOnly(elimPlayer.name) + ': Take 20s Last Words or Skip on their screen...')
                         : 'Silent Ghost rule active.');
                 parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:230px; display:flex; flex-direction:column; justify-content:flex-end; padding:20px 22px; background:linear-gradient(180deg, rgba(15,5,10,0.20) 0%, rgba(69,10,10,0.90) 68%, rgba(20,5,10,0.97) 100%), url(\'assets/story/scene_case_strike.jpg\') center/cover no-repeat; border:2px solid #ef4444;">'
-                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fca5a5; letter-spacing:0.08em;">KILL SCREEN · TAKEN IN THE NIGHT</div>'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fca5a5; letter-spacing:0.08em;">CASE REPORT · TAKEN IN THE NIGHT</div>'
                     + '<div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:900; color:#ffffff; line-height:1.15; margin:4px 0;">Seat #' + (elimPlayer.seat < 10 ? '0' + elimPlayer.seat : elimPlayer.seat) + ' · ' + esc(elimPlayer.name) + '</div>'
                     + '<div style="font-size:0.95rem; color:#fecaca; font-weight:700;">' + esc(lwStatus) + '</div>'
                     + '</div>');
@@ -1536,7 +1538,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                         ? ('Waiting for ' + firstNameOnly(exP.name) + ': Take 20s Last Words or Skip on their screen...')
                         : 'Silent Ghost rule active.');
                 parts.push('<div style="border-radius:12px; overflow:hidden; position:relative; min-height:210px; display:flex; flex-direction:column; justify-content:flex-end; padding:18px 20px; background:linear-gradient(180deg, rgba(15,10,15,0.22) 0%, rgba(69,10,25,0.90) 68%, rgba(15,10,15,0.97) 100%), url(\'assets/story/scene_isolation_verdict.jpg\') center/cover no-repeat; border:2px solid #f59e0b;">'
-                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fde68a; letter-spacing:0.08em;">EXILE VERDICT' + (exP.role ? (' · REVEALED: ' + esc(exP.role)) : '') + '</div>'
+                    + '<div style="font-family:var(--font-mono); font-size:0.78rem; font-weight:800; color:#fde68a; letter-spacing:0.08em;">ISOLATION VERDICT' + (exP.role ? (' · REVEALED: ' + esc(exP.role)) : '') + '</div>'
                     + '<div style="font-family:var(--font-heading); font-size:1.65rem; font-weight:900; color:#ffffff; line-height:1.15; margin:4px 0;">Seat #' + (exP.seat < 10 ? '0' + exP.seat : exP.seat) + ' · ' + esc(exP.name) + '</div>'
                     + '<div style="font-size:0.92rem; color:#fef3c7; font-weight:700;">' + esc(lwDusk) + '</div>'
                     + '</div>');
@@ -1561,7 +1563,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             var standNames = v.players.filter(function (p) { return nominatedIds[p.id] && p.alive; })
                 .map(function (p) { return '#' + p.seat + ' ' + p.name; });
             parts.push('<div class="meter-box" style="border-color:var(--amber-border); background:var(--amber-bg);">'
-                + '<div style="font-family:var(--font-heading); font-weight:700; color:var(--amber); font-size:0.98rem; margin-bottom:4px;">Town Floor Open - Voice Discussion</div>'
+                + '<div style="font-family:var(--font-heading); font-weight:700; color:var(--amber); font-size:0.98rem; margin-bottom:4px;">Class Floor Open - Voice Discussion</div>'
                 + '<div style="font-size:0.9rem; color:var(--text-main); line-height:1.35;">'
                 + (r.claimRule === 'quiet'
                     ? '<strong>Quiet Inference Rule:</strong> Use voting patterns and logic to persuade the school. Nobody (real or bluffing) may claim a special role out loud!'
@@ -1594,7 +1596,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                     + '</div>';
             }
             parts.push('<div class="meter-box">'
-                + '<div class="meter-top"><span class="meter-label">Council Ballot Breakdown</span>'
+                + '<div class="meter-top"><span class="meter-label">Class Ballot Breakdown</span>'
                 + '<span class="meter-nums">' + sum.totalCast + ' Cast</span></div>'
                 + '<div class="tally-list">' + (barsHtml || '<div style="font-size:0.86rem; color:var(--text-muted);">No ballots cast.</div>') + '</div>'
                 + '</div>');
@@ -1611,7 +1613,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         var feedRows = (v.publicFeed || []).slice(0, 3).map(function (f) {
             return '<div class="feed-item"><strong>[R' + f.round + '] ' + esc(f.headline) + ':</strong> ' + esc(f.detail) + '</div>';
         }).join('');
-        parts.push('<div class="feed-box"><div class="feed-kicker">Town Chronicle</div>' + feedRows + '</div>');
+        parts.push('<div class="feed-box"><div class="feed-kicker">Centennial Chronicle</div>' + feedRows + '</div>');
 
         el('leftBody').innerHTML = parts.join('');
     }

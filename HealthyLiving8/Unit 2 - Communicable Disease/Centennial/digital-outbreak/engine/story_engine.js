@@ -205,7 +205,7 @@
       var quietText = [fragText(game, 'weather', f5), fragText(game, 'setting', f5), copy.quietDawn || 'A quiet dawn.'].join(' ');
       beats.push({ type: 'narration', text: quietText, frags: f5, art: 'scene_dawn_empty_hallway', sfx: 'bell', holdMs: holdFor(quietText, 6000) });
     } else if (kind === 'exile') {
-      beats.push({ type: 'narration', text: copy.councilVoted || 'The council has voted.', art: 'scene_council_trial', sfx: 'bell', holdMs: 4000 });
+      beats.push({ type: 'narration', text: copy.councilVoted || 'The class has voted.', art: 'scene_council_trial', sfx: 'bell', holdMs: 4000 });
       var breakdown = (ctx.breakdown || []).slice(0, 6);
       breakdown.forEach(function (item) {
         beats.push({
@@ -221,7 +221,7 @@
       }
       beats.push({
         type: 'verdict',
-        text: fill(copy.chosen || 'The council has chosen Seat #{seat}.', { seat: ctx.player ? seatStr(ctx.player) : '?' }) + ' ' + (ctx.player ? ctx.player.name : ''),
+        text: fill(copy.chosen || 'The class has chosen Seat #{seat}.', { seat: ctx.player ? seatStr(ctx.player) : '?' }) + ' ' + (ctx.player ? ctx.player.name : ''),
         subject: subject,
         art: 'scene_school_gate',
         sfx: 'gavel',
