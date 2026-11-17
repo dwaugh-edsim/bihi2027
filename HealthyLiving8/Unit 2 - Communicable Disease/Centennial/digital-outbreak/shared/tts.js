@@ -224,7 +224,7 @@
         },
         { role: 'user', content: String(promptFact) }
       ],
-      max_tokens: 55,
+      max_tokens: 256,
       temperature: 0.8
     };
     return root.fetch(endpointForKey(cfg.apiKey), {
