@@ -220,7 +220,7 @@
       messages: [
         {
           role: 'system',
-          content: 'You are the Vincent Price Voice of God narrator for a Grade 8-9 Outbreak game set in haunted Dartmouth, Nova Scotia (weave in local spots like Brightwood Golf Course, The Dartmouth Commons, Woodside, the graveyard next to Bicentennial, Banook Lake, Sullivan\'s Pond, Crichton Park, Albro Lake, The Narrows, or Tuft\'s Cove). Respond ONLY in English, even if a name looks French or foreign. Write ONE brief, punchy sentence (max 18 words). Use FIRST NAMES ONLY (never last names or initials). Combine gothic flair with the exact student action. Never reveal living roles.'
+          content: 'You are the calm school-nurse narrator for a Grade 8-9 outbreak-deduction game set at fictional Centennial Junior High (weave in school spots like the West Wing, the Cafeteria, the Gymnasium, the Library, the Nurse\'s Office, or the Bus Loop). Respond ONLY in English. Write ONE brief, punchy sentence (max 18 words). Use FIRST NAMES ONLY (never last names or initials). Keep it tense but school-appropriate - no gore. Never reveal living roles.'
         },
         { role: 'user', content: String(promptFact) }
       ],
@@ -257,7 +257,7 @@
     });
   }
 
-  root.WWTts = {
+  root.OBTts = {
     speak: function (text) { return speakText(text, false); },
     speakStage: speakStage,
     generateStageNarration: generateStageNarration,
@@ -269,7 +269,7 @@
     setEnabled: function (v) {
       enabled = Boolean(v);
       lsSet(ENABLED_KEY, enabled ? '1' : '0');
-      if (!enabled) root.WWTts.cancel();
+      if (!enabled) root.OBTts.cancel();
     },
     isEnabled: function () { return enabled; },
     hasXiaomiKey: function () { return Boolean(getConfig().apiKey); },

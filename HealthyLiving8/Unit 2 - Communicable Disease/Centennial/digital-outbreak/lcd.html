@@ -763,7 +763,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     'use strict';
 
     var E = window.OutbreakEngine;
-    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbz6RDat46u0UG6ATRiXIc8IGtRj19s1yUoByTvhm3lZg7o1Yf-8RpDYXaY9kDCIECY2ZA/exec';
+    var DEFAULT_SERVER_URL = 'https://script.google.com/macros/s/AKfycbxIr11bV0iBWBluZHESIqBXuZlxaXl-am7A_yIWV0oYGHHTW2UZSo3l0pqTYTOW8eba/exec';
     var CHANNEL_NAME = 'r8_outbreak_v1';
     var bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(CHANNEL_NAME) : null;
 
@@ -873,8 +873,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         nightBgm.volume = Math.max(0, Math.min(1, cur + (diff > 0 ? 0.025 : -0.025)));
     }, 80);
 
-    if (window.WWTts && typeof window.WWTts.onSpeakingChange === 'function') {
-        window.WWTts.onSpeakingChange(function (sp) {
+    if (window.OBTts && typeof window.OBTts.onSpeakingChange === 'function') {
+        window.OBTts.onSpeakingChange(function (sp) {
             ttsIsSpeaking = Boolean(sp);
             syncNightMusic(currentView && currentView.phase);
         });
@@ -947,8 +947,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         keys: true,
         controls: true,
         onToggleTts: function () {
-            if (!window.WWTts) return;
-            window.WWTts.setEnabled(!window.WWTts.isEnabled());
+            if (!window.OBTts) return;
+            window.OBTts.setEnabled(!window.OBTts.isEnabled());
             refreshVoiceBtn();
         },
         onControl: function (cmd, reveal) {
@@ -1135,9 +1135,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         var elTxt = document.getElementById('narratorStoryText');
         var txt = elTxt ? elTxt.textContent.replace(/^"|"$/g, '') : '';
         if (!txt) return;
-        if (window.WWTts) {
-            window.WWTts.setEnabled(true);
-            window.WWTts.speak(txt);
+        if (window.OBTts) {
+            window.OBTts.setEnabled(true);
+            window.OBTts.speak(txt);
             return;
         }
         if (!window.speechSynthesis) return;
@@ -1367,8 +1367,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
             lastNarratedStageKey = stageKey;
             liveNarratedLine = guide.fallback || '';
             var theatreOpen = theatre && typeof theatre.isOpen === 'function' && theatre.isOpen();
-            if (window.WWTts && v.phase !== 'LOBBY' && !theatreOpen) {
-                window.WWTts.speakStage(guide.fact, guide.fallback, function (txt) {
+            if (window.OBTts && v.phase !== 'LOBBY' && !theatreOpen) {
+                window.OBTts.speakStage(guide.fact, guide.fallback, function (txt) {
                     liveNarratedLine = txt;
                     var elTxt = el('narratorStoryText');
                     if (elTxt) elTxt.textContent = '"' + txt + '"';
@@ -1773,26 +1773,26 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
     }
     function refreshVoiceBtn() {
         var b = el('voiceToggleBtn');
-        if (!b || !window.WWTts) return;
-        var on = window.WWTts.isEnabled();
-        var mimo = window.WWTts.hasXiaomiKey();
+        if (!b || !window.OBTts) return;
+        var on = window.OBTts.isEnabled();
+        var mimo = window.OBTts.hasXiaomiKey();
         b.textContent = on ? (mimo ? 'Voice: MiMo' : 'Voice: Browser') : 'Voice: Off';
         b.style.borderColor = on ? '#10b981' : '';
         b.style.color = on ? '#15803d' : '';
     }
     window.toggleVoiceOfGod = function () {
-        if (!window.WWTts) return;
-        window.WWTts.setEnabled(!window.WWTts.isEnabled());
+        if (!window.OBTts) return;
+        window.OBTts.setEnabled(!window.OBTts.isEnabled());
         refreshVoiceBtn();
-        toast(window.WWTts.isEnabled() ? (window.WWTts.hasXiaomiKey() ? 'Voice of God (Xiaomi MiMo) ON' : 'Read-aloud (Browser Voice) ON') : 'Voice of God OFF');
+        toast(window.OBTts.isEnabled() ? (window.OBTts.hasXiaomiKey() ? 'Voice of God (Xiaomi MiMo) ON' : 'Read-aloud (Browser Voice) ON') : 'Voice of God OFF');
     };
     window.openVoiceModal = function () {
-        if (!window.WWTts) return;
-        var cfg = window.WWTts.getConfig();
+        if (!window.OBTts) return;
+        var cfg = window.OBTts.getConfig();
         el('mimoKeyInput').value = cfg.apiKey || '';
-        el('mimoModelInput').value = cfg.model || window.WWTts.DEFAULT_MODEL;
-        el('mimoVoiceInput').value = cfg.voice || window.WWTts.DEFAULT_VOICE;
-        el('mimoStyleInput').value = cfg.style || window.WWTts.DEFAULT_STYLE;
+        el('mimoModelInput').value = cfg.model || window.OBTts.DEFAULT_MODEL;
+        el('mimoVoiceInput').value = cfg.voice || window.OBTts.DEFAULT_VOICE;
+        el('mimoStyleInput').value = cfg.style || window.OBTts.DEFAULT_STYLE;
         el('voiceTestStatus').textContent = cfg.apiKey ? 'Xiaomi key saved in this browser.' : 'No Xiaomi key saved yet (using browser fallback).';
         el('voiceModal').style.display = 'flex';
     };
@@ -1800,8 +1800,8 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         el('voiceModal').style.display = 'none';
     };
     window.saveVoiceSettings = function () {
-        if (!window.WWTts) return;
-        window.WWTts.setConfig({
+        if (!window.OBTts) return;
+        window.OBTts.setConfig({
             apiKey: el('mimoKeyInput').value,
             model: el('mimoModelInput').value,
             voice: el('mimoVoiceInput').value,
@@ -1809,18 +1809,18 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         });
         refreshVoiceBtn();
         closeVoiceModal();
-        toast(window.WWTts.hasXiaomiKey() ? 'Xiaomi MiMo Voice of God saved!' : 'Voice settings saved (browser voice).');
+        toast(window.OBTts.hasXiaomiKey() ? 'Xiaomi MiMo Voice of God saved!' : 'Voice settings saved (browser voice).');
     };
     window.clearVoiceKey = function () {
-        if (!window.WWTts) return;
+        if (!window.OBTts) return;
         el('mimoKeyInput').value = '';
-        window.WWTts.setConfig({ apiKey: '' });
+        window.OBTts.setConfig({ apiKey: '' });
         refreshVoiceBtn();
         el('voiceTestStatus').textContent = 'Xiaomi key cleared from this browser.';
     };
     window.testVoiceOfGod = function () {
-        if (!window.WWTts) return;
-        window.WWTts.setConfig({
+        if (!window.OBTts) return;
+        window.OBTts.setConfig({
             apiKey: el('mimoKeyInput').value,
             model: el('mimoModelInput').value,
             voice: el('mimoVoiceInput').value,
@@ -1828,9 +1828,9 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
         });
         refreshVoiceBtn();
         var st = el('voiceTestStatus');
-        st.textContent = window.WWTts.hasXiaomiKey() ? 'Generating Vincent Price voice via Xiaomi MiMo...' : 'Testing browser fallback voice...';
-        window.WWTts.testVoice().then(function () {
-            st.textContent = window.WWTts.hasXiaomiKey() ? 'Playing Xiaomi MiMo Voice of God!' : 'Playing browser fallback voice.';
+        st.textContent = window.OBTts.hasXiaomiKey() ? 'Generating Vincent Price voice via Xiaomi MiMo...' : 'Testing browser fallback voice...';
+        window.OBTts.testVoice().then(function () {
+            st.textContent = window.OBTts.hasXiaomiKey() ? 'Playing Xiaomi MiMo Voice of God!' : 'Playing browser fallback voice.';
         }).catch(function (err) {
             st.textContent = 'MiMo error (fell back to browser voice): ' + (err && err.message ? err.message : err);
         });

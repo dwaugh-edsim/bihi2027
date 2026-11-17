@@ -168,7 +168,7 @@
       if (ctrl) ctrl.innerHTML = renderControls(r);
 
       if (root.WWSfx && b.sfx) root.WWSfx.play(b.sfx);
-      if (root.WWTts && root.WWTts.isEnabled() && b.text) root.WWTts.speak(b.text);
+      if (root.OBTts && root.OBTts.isEnabled() && b.text) root.OBTts.speak(b.text);
 
       scheduleAuto(r, b);
     }
