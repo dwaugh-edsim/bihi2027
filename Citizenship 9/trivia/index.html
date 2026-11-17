@@ -1956,6 +1956,7 @@
               <div class="seg-row" id="modeRow">
                 <button type="button" class="seg-btn active" data-mode="standard" onclick="Arena.selectMode('standard')">Standard</button>
                 <button type="button" class="seg-btn" data-mode="challenge" onclick="Arena.selectMode('challenge')">Challenge</button>
+                <button type="button" class="seg-btn" data-mode="endless" onclick="Arena.selectMode('endless')">Endless</button>
               </div>
             </div>
 
@@ -2092,6 +2093,7 @@
         <span class="q-counter" id="qCounter">1 / 10</span>
         <div class="progress-dots" id="progressDots"></div>
         <span class="tier-chip easy" id="qTierChip">Easy &middot; 100 pts</span>
+        <span id="strikeHearts" style="display:none; font-size:0.8rem;"></span>
         <span class="topic-pill-arena" id="qTopicChip">Culture Pass</span>
         <span class="combo-chip" id="qComboChip">Combo +50</span>
         <span class="arena-spacer"></span>
@@ -2924,7 +2926,7 @@
       }
 
       function selectMode(mode) {
-        config.mode = mode === 'challenge' ? 'challenge' : 'standard';
+        config.mode = (mode === 'challenge' || mode === 'endless') ? mode : 'standard';
         var btns = el('modeRow').querySelectorAll('.seg-btn');
         btns.forEach(function (b) {
           b.classList.toggle('active', b.getAttribute('data-mode') === config.mode);
@@ -2933,6 +2935,12 @@
         if (config.mode === 'challenge') {
           ramp.innerHTML = '<span class="ramp-step s3">All 10 Hard \u00B7 14s each \u00B7 1.5x points</span>';
           el('startRoundBtn').textContent = 'Start Challenge Round';
+        } else if (config.mode === 'endless') {
+          ramp.innerHTML =
+            '<span class="ramp-step s1">Q1-3 Easy</span>' +
+            '<span class="ramp-step s2">Q4-7 Med</span>' +
+            '<span class="ramp-step s3">Q8+ Hard forever · timer shrinks · 3 strikes ends the run</span>';
+          el('startRoundBtn').textContent = 'Start Endless Run';
         } else {
           ramp.innerHTML =
             '<span class="ramp-step s1">Q1-3 Easy (100)</span>' +
@@ -3294,7 +3302,10 @@
           challengeMult: extra.challengeMult || 1,
           isChallenge: !!extra.isChallenge,
           isDaily: !!extra.isDaily,
-          dailyDate: extra.dailyDate || ''
+          dailyDate: extra.dailyDate || '',
+          isEndless: !!extra.isEndless,
+          maxStrikes: extra.maxStrikes || 3,
+          strikes: 0
         };
 
         showScreen('arenaView');
@@ -3307,6 +3318,7 @@
       function startRound() {
         ensureAudio();
         if (config.mode === 'challenge') { startChallenge(); return; }
+        if (config.mode === 'endless') { startEndless(); return; }
         var roundTopic = (config.topic && config.topic !== 'mixed' && (state.passes || 0) > 0) ? config.topic : 'mixed';
         if (roundTopic !== 'mixed') {
           state.passes = Math.max(0, (state.passes || 0) - 1);
@@ -3340,6 +3352,15 @@
         if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
         toast('Challenge Round: 10 hard questions, 14 seconds each, 1.5x points.');
         beginRound(items, 'mixed', { challengeMult: 1.5, isChallenge: true });
+      }
+
+      function startEndless() {
+        ensureAudio();
+        var first = GEO_ENGINE.nextEndlessItem({ count: 0, seenIds: sessionSeenIds });
+        if (first) sessionSeenIds.push(first.id);
+        if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
+        beginRound(first ? [first] : [], 'mixed', { isEndless: true, maxStrikes: 3 });
+        toast('Endless run: Easy -> Med -> Hard, 3 strikes and it ends!');
       }
 
       function startDaily() {
@@ -3405,7 +3426,8 @@
         round.wrongClickedIsos = {};
         el('mapWrap').classList.toggle('click-active', allowsMapClick(q));
 
-        el('qCounter').textContent = (round.idx + 1) + ' / ' + round.items.length;
+        el('qCounter').textContent = round.isEndless ? (String(round.idx + 1) + ' / ∞') : ((round.idx + 1) + ' / ' + round.items.length);
+        renderStrikes();
         buildProgressDots();
         updateStreakHud();
 
@@ -3726,6 +3748,10 @@
         } else {
           round.streak = 0;
           sfxMiss();
+          if (round.isEndless) {
+            round.strikes = (round.strikes || 0) + 1;
+            renderStrikes();
+          }
         }
 
         round.results.push({
@@ -3785,12 +3811,33 @@
 
       function nextQuestion() {
         if (!round || !round.answered) return;
+        if (round.isEndless && (round.strikes || 0) >= (round.maxStrikes || 3)) {
+          finishRound();
+          return;
+        }
         round.idx++;
+        if (round.isEndless && round.idx >= round.items.length) {
+          var nxt = GEO_ENGINE.nextEndlessItem({ count: round.items.length, seenIds: sessionSeenIds });
+          if (!nxt) { finishRound(); return; }
+          round.items.push(nxt);
+          sessionSeenIds.push(nxt.id);
+          if (sessionSeenIds.length > 180) sessionSeenIds = sessionSeenIds.slice(-100);
+        }
         if (round.idx >= round.items.length) {
           finishRound();
         } else {
           renderQuestion();
         }
+      }
+
+      function renderStrikes() {
+        var h = el('strikeHearts');
+        if (!h || !round) return;
+        if (!round.isEndless) { h.style.display = 'none'; return; }
+        h.style.display = 'inline';
+        var left = Math.max(0, (round.maxStrikes || 3) - (round.strikes || 0));
+        h.textContent = 'Strikes ' + '●'.repeat(left) + '○'.repeat(round.strikes || 0) + ' (' + (round.strikes || 0) + '/' + (round.maxStrikes || 3) + ')';
+        h.style.color = left <= 1 ? 'var(--bad, #e5484d)' : 'var(--muted)';
       }
 
       /* ================= ROUND SUMMARY & XP UPDATE ================= */
@@ -4114,6 +4161,7 @@
         refreshLeaderboard: refreshLeaderboard,
         toggleHideBoard: toggleHideBoard,
         startRound: startRound,
+        startEndless: startEndless,
         showReviewDetail: showReviewDetail,
         quitRound: quitRound,
         goLobby: goLobby,

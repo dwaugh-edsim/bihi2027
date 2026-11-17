@@ -75,6 +75,13 @@ server-side, NOT raw emails. Keep the repo copy of `vault.gs` in sync with the
 deployed action.
 
 ## Scoring
+Modes: Standard (fixed 10, 3E/4M/3H ramp), Challenge (10 hard, 14s, 1.5x), Daily (same 10
+for everyone), and **Endless** (added 2026-11-12): keeps dealing fresh questions with
+difficulty ramping by question number (Q1-3 easy, Q4-7 medium, Q8+ hard), the per-question
+timer shrinking after Q12 (min 6s), and the run ends only on **3 strikes** (missed
+questions) or when the player quits; counter shows Q / infinity and a strike meter.
+`GEO_ENGINE.nextEndlessItem` draws one fresh item per call (repeats allowed only when a
+tier is exhausted).
 Per item: `pts` by tier + pace/accuracy bonus (Sprint up to 30%, Zen 25% on a clean
 first-try hit), minus 35 per wrong attempt, times the streak multiplier
 (`x1.0` / `x1.2` / `x1.5` / `x2.0`), times the Challenge multiplier (`1.5`).
