@@ -214,6 +214,8 @@ body.night-theme .pill-mono.phase {
     background: linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 100%);
 }
 .phase-banner > * { position: relative; z-index: 1; }
+.llm-line { margin-top:6px; font-size:0.86rem; font-style:italic; color:#cbd5e1; }
+.llm-line:empty { display:none; }
 .phase-banner h2 {
     font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 3px;
 }
@@ -1332,6 +1334,27 @@ body.night-theme .pill-mono.phase {
             + '<div class="th-mirror-text">' + esc(b.text || '') + '</div></div></div>';
     }
 
+    // Optional local LLM flavor line: if this browser has a MiMo key in localStorage
+    // (ob_xiaomi_tts_key), generate one short public-safe sentence for the phase banner.
+    // No key -> line stays empty. The key never leaves this device; prompt uses only the
+    // public announcement text (same info the LCD projects to the whole class).
+    var llmLineCache = {};
+    function paintLlmLine(v) {
+        var slot = el('llmLine');
+        if (!slot) return;
+        if (!(window.OBTts && window.OBTts.hasXiaomiKey && window.OBTts.hasXiaomiKey())) { slot.textContent = ''; return; }
+        var ann = (v && v.lastAnnouncement) || {};
+        var fact = 'Round ' + (v.round || '?') + ' ' + (v.phase || '') + '. Public announcement: '
+            + ((ann.headline || '') + ' ' + (ann.subline || '')).trim().slice(0, 160);
+        if (llmLineCache[fact] !== undefined) { slot.textContent = llmLineCache[fact]; return; }
+        slot.textContent = '';
+        window.OBTts.generateStageNarration(fact, '').then(function (txt) {
+            llmLineCache[fact] = txt || '';
+            var s2 = el('llmLine');
+            if (s2 && txt) s2.textContent = txt;
+        }).catch(function () { llmLineCache[fact] = ''; });
+    }
+
     // B4: personal screen for the victim / exiled player, with preset-only epitaph picker (no free text).
     // Drama pack: full-width art header, big verdict, survivors count, prominent epitaph picker.
     function renderPersonalExit(v, me) {
@@ -1397,6 +1420,7 @@ body.night-theme .pill-mono.phase {
         var html = '<div class="phase-banner" style="background-image:url(\'' + bgBanner + '\');">'
             + '<h2>' + esc((v.lastAnnouncement && v.lastAnnouncement.headline) || v.phase) + '</h2>'
             + '<p>' + esc((v.lastAnnouncement && v.lastAnnouncement.subline) || '') + '</p>'
+            + '<div class="llm-line" id="llmLine"></div>'
             + '</div>';
 
         // Eliminated player main view: clean, neutral, zero exposed roles on open screen!
@@ -1422,6 +1446,7 @@ body.night-theme .pill-mono.phase {
                     + '</p></div>';
             }
             el('actionConsole').innerHTML = html;
+            paintLlmLine(v);
             return;
         }
 
@@ -1498,6 +1523,7 @@ body.night-theme .pill-mono.phase {
         }
 
         el('actionConsole').innerHTML = html;
+        paintLlmLine(v);
     }
 
     // 100% ROLE-CAMOUFLAGED NIGHT CONSOLE:
