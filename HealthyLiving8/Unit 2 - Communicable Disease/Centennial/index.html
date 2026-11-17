@@ -536,8 +536,9 @@ function restore(attempt=1){
       if(attempt < 3) { setTimeout(()=>restore(attempt+1), 1400); return; }
       setSync('LOAD FAILED','bad');
       el('restored').className='bad'; el('restored').style.display='flex';
-      el('restored').textContent = 'Could not reach the server to check for earlier work. If you worked on this before, refresh the page before typing so you do not overwrite it.';
-      finishLoad(); loadStation(0);
+      el('restored').innerHTML = '<span>Could not reach the server to restore your saved work. Autosave is paused so your earlier work is not overwritten.</span><button type="button" class="btn" style="margin-left:auto;padding:4px 10px;font-size:.78rem" onclick="restore(1)">Retry</button>';
+      const v=el('loadingVeil'); if(v) v.style.display='none';
+      loadStation(0);
     });
 }
 function finishLoad(){ loaded=true; const v=el('loadingVeil'); if(v) v.style.display='none'; }
