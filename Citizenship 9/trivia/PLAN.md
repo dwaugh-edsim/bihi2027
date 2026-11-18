@@ -39,6 +39,13 @@ resolve to no ISO: they carry no flag, are never offered as a Combo or click-on-
 item, and the map is not clickable for them.
 
 ## Round modes
+**Endless is the default Round Type** (2026-11-18); Standard and Challenge are one
+click away and the choice sticks for the session.
+- **Endless (default)** - deals one fresh item per call (`GEO_ENGINE.nextEndlessItem`):
+  Q1-3 Easy, Q4-7 Medium, Q8+ Hard forever, per-question timer shrinking after Q12
+  (min 6s). The run ends only on **3 strikes** (wrong or timed-out answers) or when
+  the player quits; counter shows Q / infinity and a strike meter. Repeats only
+  when a tier is exhausted.
 - **Standard Mixed** - 10 items on the common escalating curve (Q1-3 Easy, Q4-7
   Medium, Q8-10 Hard), balanced to 3 maps / 3 flags / 4 trivia.
 - **Challenge** - 10 hard items, 14 seconds each, 1.5x points, no Combo upgrade.

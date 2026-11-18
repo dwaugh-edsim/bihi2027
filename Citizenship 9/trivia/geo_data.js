@@ -502,6 +502,24 @@
     return buildRound({ topic: 'mixed', rng: rng, noCombo: true });
   }
 
+  // Endless runs draw one item per call. Difficulty follows the question
+  // number: Q1-3 easy, Q4-7 medium, Q8+ hard. Repeats are allowed only when
+  // the current tier is exhausted (pickFresh prefers unseen first).
+  function nextEndlessItem(opts) {
+    opts = opts || {};
+    var count = Number(opts.count) || 0;
+    var seenIds = opts.seenIds || [];
+    var seenMap = {};
+    for (var s = 0; s < seenIds.length; s++) seenMap[seenIds[s]] = true;
+    var pickedIds = {};
+    var tier = count < 3 ? 'easy' : (count < 7 ? 'medium' : 'hard');
+    var tierPool = masterPool.filter(function (x) { return x.diff === tier; });
+    var picked = pickFresh(tierPool, 1, seenMap, pickedIds, shuffle);
+    if (!picked.length) picked = pickFresh(masterPool, 1, seenMap, pickedIds, shuffle);
+    if (!picked.length) return null;
+    return cloneForRound(picked[0], true, { left: 1 }, null);
+  }
+
   function getRank(xp) {
     var val = Math.max(0, Number(xp) || 0);
     var current = RANKS[0];
@@ -568,6 +586,7 @@
     buildHighlightOptions: buildHighlightOptions,
     buildRound: buildRound,
     buildDailyRound: buildDailyRound,
+    nextEndlessItem: nextEndlessItem,
     hashSeed: hashSeed,
     mulberry32: mulberry32
   };

@@ -1967,9 +1967,9 @@
             <div class="cfg-group">
               <span class="cfg-label">Round Type</span>
               <div class="seg-row" id="modeRow">
-                <button type="button" class="seg-btn active" data-mode="standard" onclick="Arena.selectMode('standard')">Standard</button>
+                <button type="button" class="seg-btn" data-mode="standard" onclick="Arena.selectMode('standard')">Standard</button>
                 <button type="button" class="seg-btn" data-mode="challenge" onclick="Arena.selectMode('challenge')">Challenge</button>
-                <button type="button" class="seg-btn" data-mode="endless" onclick="Arena.selectMode('endless')">Endless</button>
+                <button type="button" class="seg-btn active" data-mode="endless" onclick="Arena.selectMode('endless')">Endless</button>
               </div>
             </div>
 
@@ -2234,7 +2234,7 @@
   <script src="trivia_extra.js"></script>
   <script src="maps_60.js"></script>
   <script src="flags_60.js"></script>
-  <script src="geo_data.js"></script>
+  <script src="geo_data.js?v=2"></script>
   <script>
     (function () {
       'use strict';
@@ -2756,6 +2756,8 @@
           saveToServer();
         });
 
+        selectMode('endless'); /* default round type; selection sticks for the session */
+
         document.addEventListener('visibilitychange', function () {
           var lobby = el('lobbyView');
           if (!document.hidden && !skipNet && identity && boardTab === 'class' && lobby && lobby.classList.contains('active')) {
@@ -2945,6 +2947,10 @@
         btns.forEach(function (b) {
           b.classList.toggle('active', b.getAttribute('data-mode') === config.mode);
         });
+        refreshModeUi();
+      }
+
+      function refreshModeUi() {
         var ramp = el('rampRow');
         if (config.mode === 'challenge') {
           ramp.innerHTML = '<span class="ramp-step s3">All 10 Hard \u00B7 14s each \u00B7 1.5x points</span>';
@@ -3006,7 +3012,7 @@
         var launch = el('startRoundBtn');
         if (launch) {
           if (config.topic === 'mixed') {
-            launch.textContent = 'Start 10-Question Round';
+            refreshModeUi();
           } else {
             var meta = GEO_ENGINE.TOPICS && GEO_ENGINE.TOPICS[config.topic];
             launch.textContent = 'Start ' + (meta ? meta.label : 'Topic') + ' Round (Uses 1 Pass)';
