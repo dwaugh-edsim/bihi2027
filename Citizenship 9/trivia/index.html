@@ -364,6 +364,17 @@
 
     .hud-select:focus { border-color: var(--accent); }
 
+    .hud-select.section-pulse {
+      animation: section-pulse 0.9s ease-in-out 2;
+      border-color: var(--amber, #f59e0b);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+    }
+
+    @keyframes section-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35); }
+      50% { box-shadow: 0 0 0 7px rgba(245, 158, 11, 0.08); }
+    }
+
     .sync-status {
       display: inline-flex;
       align-items: center;
@@ -2740,6 +2751,7 @@
 
         el('sectionSel').addEventListener('change', function () {
           state.section = el('sectionSel').value;
+          el('sectionSel').classList.remove('section-pulse');
           updateScopePills();
           saveToServer();
         });
@@ -3317,8 +3329,25 @@
         }, 40);
       }
 
+      /* A section must be picked before any round can start: scores land on the
+         class leaderboard by section, so an empty section loses the round. */
+      function requireSection() {
+        if (state.section) return true;
+        var sel = el('sectionSel');
+        toast('Pick your class first: choose your Section at the top of the page.');
+        if (sel) {
+          try { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+          sel.classList.remove('section-pulse');
+          void sel.offsetWidth; /* restart the animation */
+          sel.classList.add('section-pulse');
+          sel.focus();
+        }
+        return false;
+      }
+
       function startRound() {
         ensureAudio();
+        if (!requireSection()) return;
         if (config.mode === 'challenge') { startChallenge(); return; }
         if (config.mode === 'endless') { startEndless(); return; }
         var roundTopic = (config.topic && config.topic !== 'mixed' && (state.passes || 0) > 0) ? config.topic : 'mixed';
@@ -3367,6 +3396,7 @@
 
       function startDaily() {
         ensureAudio();
+        if (!requireSection()) return;
         var key = todayKey();
         if (state.daily && state.daily.date === key && state.daily.played) {
           toast('Daily Challenge already played today. Come back tomorrow!');

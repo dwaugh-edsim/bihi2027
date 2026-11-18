@@ -66,6 +66,9 @@ identical.
 Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforced,
 HMAC-signed `{ email, ts, sig }` returned via `postMessage` or `#r8id=`) -> stored in
 `sessionStorage`. `?demo=1` gives a local preview with a demo identity.
+**A section must be picked before any round starts** (`requireSection()` guards
+`startRound`/`startDaily`; blocked starts toast + pulse the Section dropdown): scores
+land on the class leaderboard by section, so an empty section loses the round.
 
 ### Privacy invariant (emails never in the repo)
 Emails exist ONLY server-side (GAS roster script property + vault sheet as storage
