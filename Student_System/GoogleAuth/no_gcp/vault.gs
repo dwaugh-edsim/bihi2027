@@ -14,7 +14,8 @@
  *        R8_IDENTITY_KEY = <the SAME value you set in the Identity project>
  *        GA_TEACHER_PIN  = <a PIN you choose, for reading data back>
  *        TEACHER_EMAILS  = <comma-separated teacher emails, e.g. dwaugh@gnspes.ca>
- *                          (gates teacher_list / teacher_delete_user / teacher_reset_all;
+ *                          (gates teacher_list / teacher_delete_user /
+ *                           teacher_reset_user / teacher_reset_all;
  *                           the client-side email check only reveals UI, the server
  *                           re-verifies the signed identity against this allowlist)
  *   4. Run setup() once (authorize; creates the Submissions tab).
@@ -28,7 +29,7 @@
  * ============================================================================
  */
 
-var VAULT_VERSION   = 'R8-VAULT-0.5.0';
+var VAULT_VERSION   = 'R8-VAULT-0.6.0';
 var ALLOWED_DOMAIN   = 'gnspes.ca';
 // Path B mints the identity at the page's sign-in handoff and keeps it for the
 // session, so the window must outlast a class period (not 10 minutes).
@@ -358,7 +359,8 @@ function doPost(e) {
   // Client pages reveal teacher UI when the signed-in email matches a teacher
   // address, but EVERY mutation here re-verifies the HMAC identity AND checks the
   // server-side TEACHER_EMAILS allowlist (script property, never in any repo).
-  if (action === 'teacher_list' || action === 'teacher_delete_user' || action === 'teacher_reset_all') {
+  if (action === 'teacher_list' || action === 'teacher_delete_user' ||
+      action === 'teacher_reset_user' || action === 'teacher_reset_all') {
     var vT = verifyIdentity_(payload.email, payload.ts, payload.sig);
     if (!vT.ok) return jsonOut_({ status: 'auth_failed', reason: vT.reason });
     var allowRaw = String(PropertiesService.getScriptProperties().getProperty('TEACHER_EMAILS') || '').toLowerCase();
@@ -378,6 +380,7 @@ function doPost(e) {
       var entries = [];
       var rowsToDelete = [];
       var target = String(payload.targetEmail || '').toLowerCase();
+      var targetSection = '';
       for (var i = 0; i < all.length; i++) {
         if (String(all[i][3]) !== taskT) continue;
         if (action === 'teacher_list') {
@@ -386,8 +389,11 @@ function doPost(e) {
             summary: String(all[i][4] || ''), savedAt: all[i][0],
             requestId: String(all[i][6] || '')
           });
-        } else if (action === 'teacher_delete_user') {
-          if (target && String(all[i][1]).toLowerCase() === target) rowsToDelete.push(i + 2);
+        } else if (action === 'teacher_delete_user' || action === 'teacher_reset_user') {
+          if (target && String(all[i][1]).toLowerCase() === target) {
+            rowsToDelete.push(i + 2);
+            targetSection = String(all[i][2] || '') || targetSection;
+          }
         } else { // teacher_reset_all
           rowsToDelete.push(i + 2);
         }
@@ -396,6 +402,23 @@ function doPost(e) {
         return jsonOut_({ status: 'ok', count: entries.length, entries: entries });
       }
       for (var d = rowsToDelete.length - 1; d >= 0; d--) shT.deleteRow(rowsToDelete[d]);
+      // teacher_reset_user: after wiping the student's rows, plant ONE zeroed row
+      // so they stay visible on the leaderboard at 0 (roster label still resolves
+      // via the Roster tab) and their next honest play overwrites it.
+      if (action === 'teacher_reset_user' && rowsToDelete.length) {
+        var zeroState = {
+          v: 1, section: targetSection,
+          xp: 0, passes: 0, passProgress: 0,
+          roundsPlayed: 0, totalCorrect: 0, totalAsked: 0, bestStreak: 0, carryStreak: 0,
+          xpDate: '', xpToday: 0,
+          daily: { date: '', score: 0, hits: 0, played: false },
+          best: { overall: 0, challenge: 0, easy: 0, medium: 0, hard: 0 },
+          history: [], hideFromLeaderboard: false, lastActive: Date.now()
+        };
+        shT.appendRow([new Date(), target, targetSection, taskT,
+          'Best=0 XP=0 [Reset by teacher]', JSON.stringify(zeroState),
+          'teacher-reset-' + Date.now()]);
+      }
       return jsonOut_({ status: 'ok', deleted: rowsToDelete.length, action: action, task: taskT });
     } finally {
       lockT.releaseLock();

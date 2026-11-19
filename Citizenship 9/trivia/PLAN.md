@@ -97,6 +97,21 @@ vault `get_leaderboard` action returns pre-formatted `First Ls.` labels resolved
 server-side, NOT raw emails. Keep the repo copy of `vault.gs` in sync with the
 deployed action.
 
+### Teacher score controls (2026-11-19)
+Teacher panel actions are server-gated twice: HMAC-signed identity + the vault's
+`TEACHER_EMAILS` script property (never in any repo). The panel lists ONE row per
+student (aggregated from the vault's one-row-per-save history) with:
+- **Reset scores** (`teacher_reset_user`, vault 0.6.0) - cheating cleanup: wipes
+  every saved row for that student, then plants one zeroed row so they stay
+  visible on the board at 0. Their next sign-in restores the zero state.
+  If the student's game tab is open mid-round it can re-save old scores until
+  they refresh the page.
+- **Delete** (`teacher_delete_user`) - wipes their rows with no zero row; the
+  name leaves the board until they play again.
+- **Reset ALL scores** (`teacher_reset_all`) - wipes the whole task's rows.
+Deploying changes: paste the repo `vault.gs` into the vault sheet's Apps Script
+and use Deploy -> Manage deployments -> Edit -> New version (same /exec URL).
+
 ## Scoring
 Modes: Standard (fixed 10, 3E/4M/3H ramp), Challenge (10 hard, 14s, 1.5x), Daily (same 10
 for everyone), and **Endless** (added 2026-11-12): keeps dealing fresh questions with

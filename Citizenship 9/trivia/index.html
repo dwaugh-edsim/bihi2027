@@ -2874,6 +2874,36 @@
         if (show) teacherLoadUsers();
       }
 
+      // Fold the vault's one-row-per-save list into one row per student, keeping
+      // the latest section, the best Best/XP seen in any summary, and save counts.
+      function aggregateTeacherRows(entries) {
+        var byEmail = {};
+        var order = [];
+        for (var i = 0; i < entries.length; i++) {
+          var e = entries[i];
+          var em = String(e.email || '').toLowerCase();
+          if (!em) continue;
+          if (!byEmail[em]) {
+            byEmail[em] = { email: em, section: '', savedAt: '', saves: 0, best: 0, xp: 0 };
+            order.push(em);
+          }
+          var rec = byEmail[em];
+          rec.saves++;
+          if (e.section) rec.section = String(e.section);
+          if (String(e.savedAt || '') > String(rec.savedAt || '')) rec.savedAt = String(e.savedAt);
+          var mb = /Best=(\d+)/.exec(String(e.summary || ''));
+          if (mb) rec.best = Math.max(rec.best, Number(mb[1]) || 0);
+          var mx = /XP=(\d+)/.exec(String(e.summary || ''));
+          if (mx) rec.xp = Math.max(rec.xp, Number(mx[1]) || 0);
+        }
+        var out = order.map(function (em) { return byEmail[em]; });
+        out.sort(function (a, b) {
+          if (a.section !== b.section) return String(a.section).localeCompare(String(b.section));
+          return GEO_ENGINE.formatDisplayName(a.email).localeCompare(GEO_ENGINE.formatDisplayName(b.email));
+        });
+        return out;
+      }
+
       function teacherLoadUsers() {
         if (!isTeacherNow() || !identity) return;
         var box = el('teacherUserList');
@@ -2889,14 +2919,20 @@
               box.innerHTML = '<div class="board-row"><span class="br-name" style="color:var(--muted)">No saved rows for this game yet.</span></div>';
               return;
             }
-            teacherEntries = entries;
-            box.innerHTML = entries.map(function (e, i) {
+            teacherEntries = aggregateTeacherRows(entries);
+            box.innerHTML = teacherEntries.map(function (e, i) {
               var name = GEO_ENGINE.formatDisplayName(e.email);
               var when = String(e.savedAt || '').replace('T', ' ').slice(0, 16);
+              var meta = 'Best=' + e.best + ' XP=' + e.xp +
+                ' &middot; ' + e.saves + (e.saves === 1 ? ' save' : ' saves') +
+                (when ? ' &middot; last ' + esc(when) : '');
               return '<div class="board-row"><span class="br-name">' + esc(name) +
                 ' <span style="color:var(--muted)">' + esc(e.section || '') + '</span></span>' +
-                '<span class="br-meta">' + esc(when) + '</span>' +
-                '<span class="br-score"><button type="button" class="hud-btn warn-btn" onclick="Arena.teacherDeleteUserIdx(' + i + ')">Delete</button></span></div>';
+                '<span class="br-meta">' + meta + '</span>' +
+                '<span class="br-score">' +
+                '<button type="button" class="hud-btn warn-btn" onclick="Arena.teacherResetUserIdx(' + i + ')">Reset scores</button> ' +
+                '<button type="button" class="hud-btn" onclick="Arena.teacherDeleteUserIdx(' + i + ')">Delete</button>' +
+                '</span></div>';
             }).join('');
           })
           .catch(function () {
@@ -2909,13 +2945,41 @@
         if (e) teacherDeleteUser(e.email);
       }
 
+      function teacherResetUserIdx(i) {
+        var e = teacherEntries[i];
+        if (e) teacherResetUser(e.email);
+      }
+
+      // Cheating cleanup: wipe every saved row for one student, then the vault
+      // plants a single zeroed row so they stay on the board at 0. Their device
+      // also loses the inflated restore (load_assignment finds only the zero row).
+      function teacherResetUser(targetEmail) {
+        if (!isTeacherNow() || !identity) return;
+        var name = GEO_ENGINE.formatDisplayName(targetEmail);
+        if (!confirm('Reset ' + name + '? All their saved scores are wiped and they show 0 on the board until they play again.')) return;
+        post(VAULT_URL, { action: 'teacher_reset_user', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME, targetEmail: targetEmail })
+          .then(function (j) {
+            if (j && j.status === 'ok') {
+              toast('Reset ' + name + ' - ' + (j.deleted || 0) + ' row(s) wiped, now at 0.');
+              teacherLoadUsers();
+              fetchLeaderboard();
+            } else if (j && j.message && String(j.message).indexOf('Unknown action') !== -1) {
+              toast('Vault needs the new version redeployed (teacher_reset_user missing).');
+            } else {
+              toast('Server refused (teacher allowlist not set on the vault?).');
+            }
+          })
+          .catch(function () { toast('Network error.'); });
+      }
+
       function teacherDeleteUser(targetEmail) {
         if (!isTeacherNow() || !identity) return;
-        if (!confirm('Delete ALL saved rows for ' + GEO_ENGINE.formatDisplayName(targetEmail) + ' in this game?')) return;
+        if (!confirm('Delete ' + GEO_ENGINE.formatDisplayName(targetEmail) + ' from this game entirely? (Their name leaves the board until they play again - use Reset scores to zero them instead.)')) return;
         post(VAULT_URL, { action: 'teacher_delete_user', email: identity.email, ts: identity.ts, sig: identity.sig, task: TASK_NAME, targetEmail: targetEmail })
           .then(function (j) {
             toast(j && j.status === 'ok' ? ('Deleted ' + (j.deleted || 0) + ' row(s).') : 'Server refused.');
             teacherLoadUsers();
+            fetchLeaderboard();
           })
           .catch(function () { toast('Network error.'); });
       }
@@ -4208,6 +4272,8 @@
         teacherLoadUsers: teacherLoadUsers,
         teacherDeleteUser: teacherDeleteUser,
         teacherDeleteUserIdx: teacherDeleteUserIdx,
+        teacherResetUser: teacherResetUser,
+        teacherResetUserIdx: teacherResetUserIdx,
         teacherResetAll: teacherResetAll,
         toggleSfx: toggleSfx,
         selectPace: selectPace,
