@@ -537,8 +537,18 @@ const Clinic = (function(){
       requestId: rid
     };
     post(VAULT_URL, payload)
-      .then(()=>{ setSync('SAVED','ok'); loadLeaderboard(); })
-      .catch(()=>{ setSync('SAVE RETRY','warn'); });
+      .then(j=>{
+        if(j && j.status === 'ok'){
+          setSync('SAVED','ok');
+          loadLeaderboard();
+        } else {
+          setSync('ERR: ' + ((j && (j.reason || j.status)) || 'reject'), 'warn');
+        }
+      })
+      .catch(()=>{
+        try{ fetch(VAULT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true}); }catch(e){}
+        setSync('SAVE RETRY','warn');
+      });
   }
 
   function loadLeaderboard(){
@@ -825,21 +835,30 @@ const Clinic = (function(){
     const fb = el('cFeed');
     if(ok){
       shift.treated++;
+      profile.totalTreated = (profile.totalTreated || 0) + 1;
       shift.streak++;
       shift.bestStreak = Math.max(shift.bestStreak, shift.streak);
       const streakMult = shift.streak >= 6 ? 3 : (shift.streak >= 3 ? 2 : (shift.streak >= 2 ? 1.5 : 1));
       const basePts = 100 * c.tier;
       const pts = Math.round(basePts * streakMult * shift.mult * (bonusMult || 1));
       shift.score += pts;
+      if(shift.score > (profile.bestScore || 0)) profile.bestScore = shift.score;
+      const rankOrder = { Intern:1, Resident:2, Attending:3, 'Chief of Medicine':4 };
+      const curRank = TIER_NAMES[shift.maxTier] || 'Intern';
+      if((rankOrder[curRank] || 1) >= (rankOrder[profile.bestRank] || 1)) profile.bestRank = curRank;
       el('gScore').textContent = shift.score;
       fb.className = 'feedback show ok';
       el('fHead').textContent = (bonusMult > 1 ? 'CHALLENGE CLEARED  +' : 'PATIENT TREATED  +') + pts + ' PTS';
       el('fBody').textContent = 'Clinical Pearl: ' + c.pearl;
       el('nextBtn').textContent = 'Next Patient \u2192';
+      saveProfile();
     } else {
       shift.streak = 0;
       shift.strikesLeft--;
       shift.misses.push({ patient: c.patient, q: c.q, right: rightDesc, pearl: c.pearl });
+      if(!Array.isArray(profile.recentMisses)) profile.recentMisses = [];
+      profile.recentMisses.unshift({ patient: c.patient, q: c.q });
+      profile.recentMisses = profile.recentMisses.slice(0, 15);
       let hearts = '';
       for(let k=0;k<shift.maxStrikes;k++) hearts += (k < shift.strikesLeft ? '\u2764\uFE0F' : '\uD83D\uDDA4');
       el('gHearts').textContent = hearts;
@@ -848,6 +867,7 @@ const Clinic = (function(){
       el('fHead').textContent = shift.strikesLeft > 0 ? ('STRIKE ' + strikeNum + ' OF ' + shift.maxStrikes) : 'LICENSE REVOKED - GAME OVER';
       el('fBody').textContent = 'Attending Correction: ' + c.pearl;
       el('nextBtn').textContent = shift.strikesLeft > 0 ? 'Next Patient \u2192' : 'View Shift Report \u2192';
+      saveProfile();
       showStrikeModal(strikeNum, rightDesc, c.pearl);
     }
   }
@@ -941,10 +961,9 @@ const Clinic = (function(){
       el('sumMisses').innerHTML = '<div style="color:var(--ok);font-weight:700;margin-top:8px">Flawless shift - zero clinical misses!</div>';
     }
 
-    // Update profile & save to new standalone Vault
+    // Update shift log & save to new standalone Vault
     const rankOrder = { Intern:1, Resident:2, Attending:3, 'Chief of Medicine':4 };
     profile.shifts = (profile.shifts || 0) + 1;
-    profile.totalTreated = (profile.totalTreated || 0) + shift.treated;
     if(shift.score > (profile.bestScore || 0)){
       profile.bestScore = shift.score;
     }
@@ -958,11 +977,6 @@ const Clinic = (function(){
       score: shift.score, rank, treated: shift.treated, seen: shift.seen, streak: shift.bestStreak
     });
     profile.history = profile.history.slice(0, 15);
-    if(!Array.isArray(profile.recentMisses)) profile.recentMisses = [];
-    shift.misses.forEach(m => {
-      profile.recentMisses.unshift({ patient: m.patient, q: m.q });
-    });
-    profile.recentMisses = profile.recentMisses.slice(0, 15);
     saveProfile();
   }
 
