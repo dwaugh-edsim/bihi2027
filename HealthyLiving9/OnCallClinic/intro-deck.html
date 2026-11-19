@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On-Call: Room 8 Clinic - Intro Deck</title>
+<!--
+    HL9 On-Call Clinic intro deck (3 slides, 1536x864 canvas scaled to fit).
+    Slides 1-2: generated night-clinic posters, text baked in (seeds 3601, 3602).
+    Slide 3:    textless generated background (seed 3608) + HTML cards, so every
+                department name and topic list is EXACT (the model kept typo-ing
+                long medical words when they were baked into art - 5 failed seeds).
+    Rebuild art via bihipri-27/tools-priv/minimax_templates.py (night-clinic theme).
+    Keys: ARROW KEYS or click = next slide. No reveals needed.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Roboto+Slab:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070d19; --panel:#0f192d; --panel2:#0b1323;
+    --ink:#e2e8f0; --muted:#94a3b8; --line:#243554;
+    --teal:#2dd4bf; --amber:#f59e0b;
+    --f-body:'Inter',system-ui,sans-serif; --f-slab:'Roboto Slab',Georgia,serif; --f-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#000;color:var(--ink);font-family:var(--f-body);overflow:hidden}
+  #stage{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center}
+  #canvas{position:relative;width:1536px;height:864px;transform-origin:center;background:var(--bg);
+    border-radius:10px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+
+  #header{position:absolute;inset:0 0 auto 0;height:56px;z-index:5;display:flex;align-items:center;gap:12px;
+    padding:0 20px;background:rgba(7,13,25,.94);border-bottom:1.5px solid var(--line);
+    font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+  #header .brand{font-family:var(--f-slab);color:#fff;font-size:17px;letter-spacing:.02em}
+  #header .sub{color:var(--teal);font-weight:800;letter-spacing:.12em;font-size:11px}
+  #counter{margin-left:auto;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+  .nav-btns{display:flex;gap:8px}
+  .nav-btns button{background:var(--panel);border:1.5px solid var(--line);color:var(--ink);border-radius:8px;
+    padding:6px 14px;font-family:var(--f-mono);font-size:12px;font-weight:700;cursor:pointer}
+  .nav-btns button:hover{border-color:var(--teal);color:var(--teal)}
+  .nav-btns button:disabled{opacity:.4;cursor:default}
+
+  .slide{position:absolute;inset:56px 0 0 0;display:none}
+  .slide.active{display:block}
+  .art-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:0}
+
+  /* Slide 3 HTML overlay (text guaranteed exact) */
+  .wards{position:absolute;inset:0;z-index:1;padding:64px 56px 40px;display:flex;flex-direction:column}
+  .wards .kicker{font-family:var(--f-mono);font-size:17px;font-weight:800;letter-spacing:.3em;color:#fff;
+    text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+  .wards h2{font-family:var(--f-slab);font-size:56px;color:#fff;text-align:center;margin:10px 0 34px;
+    text-shadow:0 3px 12px rgba(0,0,0,.85)}
+  .ward-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;flex:1;align-items:stretch}
+  .ward-card{background:rgba(13,25,45,.96);border:1.5px solid var(--line);border-top:6px solid var(--teal);
+    border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+  .ward-card .badge{align-self:flex-start;font-family:var(--f-mono);font-size:13px;font-weight:800;
+    letter-spacing:.1em;color:#04241f;background:var(--teal);border-radius:6px;padding:4px 10px}
+  .ward-card h3{font-family:var(--f-slab);font-size:27px;line-height:1.15;color:#fff;margin:14px 0 10px}
+  .ward-card p{font-size:17px;line-height:1.45;color:var(--ink);margin-top:4px}
+  .wards .foot{margin-top:26px;text-align:center;font-family:var(--f-mono);font-size:15px;font-weight:700;
+    letter-spacing:.12em;color:var(--amber);text-shadow:0 2px 8px rgba(0,0,0,.8)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="canvas">
+    <div id="header">
+      <span class="brand">ON-CALL: ROOM 8 CLINIC</span>
+      <span class="sub">HL9 TRIAGE SIM &middot; INTRO</span>
+      <span id="counter">1 / 3</span>
+      <div class="nav-btns">
+        <button id="prevBtn" onclick="go(-1)">&larr; Back</button>
+        <button id="nextBtn" onclick="go(1)">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="1">
+      <img class="art-bg" src="assets/deck/deck_cover.jpg" alt="On-Call: Room 8 Clinic cover">
+    </div>
+
+    <div class="slide" data-slide="2">
+      <img class="art-bg" src="assets/deck/deck_rules.jpg" alt="How a shift works: shift rules">
+    </div>
+
+    <div class="slide" data-slide="3">
+      <img class="art-bg" src="assets/deck/deck_wards_bg.jpg" alt="">
+      <div class="wards">
+        <div class="kicker">FOUR DEPARTMENTS &middot; 160 PATIENT CASES</div>
+        <h2>Pick your ward. Start your shift.</h2>
+        <div class="ward-grid">
+          <div class="ward-card">
+            <span class="badge">DEPT 1 &middot; CO1</span>
+            <h3>Infectious Disease &amp; Vaccines</h3>
+            <p>Viruses vs bacteria, antibiotics, fomites, herd immunity, superbugs.</p>
+          </div>
+          <div class="ward-card">
+            <span class="badge">DEPT 2 &middot; CO2</span>
+            <h3>Sexual &amp; Reproductive Health</h3>
+            <p>Myth Trials, STIs, contraception, consent, confidential NS care.</p>
+          </div>
+          <div class="ward-card">
+            <span class="badge">DEPT 3 &middot; CO1</span>
+            <h3>Sleep &amp; Screen Science</h3>
+            <p>Melatonin, circadian drift, the Hook Machine, caffeine, recovery.</p>
+          </div>
+          <div class="ward-card">
+            <span class="badge">DEPT 4 &middot; CO3/4/11</span>
+            <h3>Navigation, Boundaries &amp; Help</h3>
+            <p>811, pharmacists, 988, Say No skills, vaping and bystander triage.</p>
+          </div>
+        </div>
+        <div class="foot">SIGN IN WITH YOUR @GNSPES.CA ACCOUNT &middot; YOUR BEST SHIFT POSTS TO THE CLASS LEADERBOARD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const canvas = document.getElementById("canvas");
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const total = slides.length;
+  let cur = 1;
+  const counter = document.getElementById("counter");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1536, window.innerHeight / 864);
+    canvas.style.transform = "scale(" + s + ")";
+  }
+  function render() {
+    slides.forEach(sl => sl.classList.toggle("active", parseInt(sl.dataset.slide, 10) === cur));
+    counter.textContent = cur + " / " + total;
+    prevBtn.disabled = cur === 1;
+    nextBtn.disabled = cur === total;
+    nextBtn.textContent = cur === total ? "End" : "Next \u2192";
+  }
+  window.go = function (dir) {
+    const nxt = Math.min(total, Math.max(1, cur + dir));
+    if (nxt !== cur) { cur = nxt; render(); }
+  };
+  window.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); go(1); }
+    if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+    if (e.key === "Home") { cur = 1; render(); }
+    if (e.key === "End") { cur = total; render(); }
+  });
+  canvas.addEventListener("click", e => {
+    if (e.target.closest("#header")) return;
+    go(1);
+  });
+  window.addEventListener("resize", fit);
+  fit();
+  render();
+})();
+</script>
+</body>
+</html>
