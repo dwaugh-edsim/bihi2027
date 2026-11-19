@@ -1,7 +1,8 @@
-/* Country Profile Capstone 2026-27 - topic gallery data.
-   Citizenship 9, Unit 6 (Global Citizenship), Classes 72-88.
-   Flags: flagcdn.com (public domain). Each topic: region, issue,
-   three research questions, one "start here" source pointer. */
+/* Country Profile Project 2026-27 - topic gallery data.
+   Citizenship 9, Term 2 project.
+   Flags: local circle-flags SVGs (hatscripts/circle-flags, MIT).
+   Each topic: region, issue, three research questions,
+   one "start here" source pointer. */
 
 const TOPICS = [
   { id: 1,  country: "Australia",     iso: "au", region: "Oceania", issue: "Climate Change & Wildfires",
