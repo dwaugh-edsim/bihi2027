@@ -238,24 +238,25 @@
               </button>
             </div>
 
-            <div class="sec-title">Department Practice (40 Cases Each)</div>
+            <div class="sec-title">On-Call Rotation: All 4 Clinic Wings (160 Cases)</div>
+            <p style="font-size:.82rem;color:var(--muted);margin:-4px 0 10px">On-call doctors do not choose who walks through the door - every shift rotates across all four wings.</p>
             <div class="dept-grid">
-              <button class="dept-card" type="button" onclick="Clinic.startShift('infectious', 3, 1)">
+              <div class="dept-card" style="cursor:default">
                 <img src="assets/dept_infectious.jpg" alt="Infectious Disease">
                 <div class="body"><div class="dtag">CO1 &middot; 40 Cases</div><h4>Infectious Disease &amp; Vaccines</h4><p>Viruses vs. bacteria, antibiotics, fomites, herd immunity, superbugs.</p></div>
-              </button>
-              <button class="dept-card" type="button" onclick="Clinic.startShift('repro', 3, 1)">
+              </div>
+              <div class="dept-card" style="cursor:default">
                 <img src="assets/dept_repro.jpg" alt="Sexual & Reproductive Health">
                 <div class="body"><div class="dtag">CO2 &middot; 40 Cases</div><h4>Sexual &amp; Reproductive Health</h4><p>Myth Trials, STIs, contraception, consent, confidential NS care.</p></div>
-              </button>
-              <button class="dept-card" type="button" onclick="Clinic.startShift('sleep', 3, 1)">
+              </div>
+              <div class="dept-card" style="cursor:default">
                 <img src="assets/dept_sleep.jpg" alt="Sleep & Screen Science">
                 <div class="body"><div class="dtag">CO1 &middot; 40 Cases</div><h4>Sleep &amp; Screen Science</h4><p>Melatonin, circadian drift, Hook Machine loops, caffeine, recovery.</p></div>
-              </button>
-              <button class="dept-card" type="button" onclick="Clinic.startShift('nav', 3, 1)">
+              </div>
+              <div class="dept-card" style="cursor:default">
                 <img src="assets/dept_nav.jpg" alt="Health Navigation & Boundaries">
                 <div class="body"><div class="dtag">CO3/4/11 &middot; 40 Cases</div><h4>Navigation, Boundaries &amp; Help</h4><p>811, NS pharmacists, 988, Say No skills, vaping &amp; bystander triage.</p></div>
-              </button>
+              </div>
             </div>
           </div>
         </div>
@@ -550,13 +551,25 @@ const Clinic = (function(){
     updateLobbyStats();
   }
 
-  function buildQueue(dept){
-    const all = (window.ONCALL_CASES || []).filter(c => dept === 'all' || c.dept === dept);
-    const byT = { 1:[], 2:[], 3:[], 4:[] };
-    all.forEach(c => { if(byT[c.tier]) byT[c.tier].push(c); });
-    // Progressive escalation: 4 Intern -> 4 Resident -> 4 Attending -> Endless Chief of Medicine (then remaining shuffled)
-    const t1 = shuffle(byT[1]), t2 = shuffle(byT[2]), t3 = shuffle(byT[3]), t4 = shuffle(byT[4]);
-    return [].concat(t1.slice(0,4), t2.slice(0,4), t3.slice(0,4), t4, t3.slice(4), t2.slice(4), t1.slice(4));
+  function buildQueue(){
+    const all = window.ONCALL_CASES || [];
+    const deptKeys = ['infectious', 'repro', 'sleep', 'nav'];
+    // Guarantee balanced rotation across all 4 departments inside EVERY tier (1 -> 2 -> 3 -> 4 endless)
+    function tierWave(tierNum, perDept){
+      const picked = [];
+      const rest = [];
+      deptKeys.forEach(dk => {
+        const pool = shuffle(all.filter(c => c.tier === tierNum && c.dept === dk));
+        picked.push(...pool.slice(0, perDept));
+        rest.push(...pool.slice(perDept));
+      });
+      return { wave: shuffle(picked), rest: shuffle(rest) };
+    }
+    const t1 = tierWave(1, 1);
+    const t2 = tierWave(2, 1);
+    const t3 = tierWave(3, 1);
+    const t4 = tierWave(4, 10);
+    return [].concat(t1.wave, t2.wave, t3.wave, t4.wave, t3.rest, t2.rest, t1.rest);
   }
 
   function startShift(dept, strikes, mult){
