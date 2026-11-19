@@ -169,6 +169,39 @@
   .dial-ends{display:flex;justify-content:space-between;max-width:520px;margin:6px auto 0;font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
   .ch-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+  /* INTERACTIVE CHALLENGES (ESC, MATCH, MYTH, CHART) */
+  .esc-decision{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .esc-btn{background:var(--card);border:2px solid var(--line);border-radius:11px;padding:16px 14px;color:var(--ink);cursor:pointer;text-align:center}
+  .esc-btn .esc-big{font-family:var(--f-slab);font-size:1.25rem;font-weight:800;color:#fff;display:block}
+  .esc-btn .esc-sub{font-size:.8rem;color:var(--muted);display:block;margin-top:3px}
+  .esc-btn.admit.sel{border-color:var(--coral);background:rgba(251,113,133,.15)}
+  .esc-btn.home.sel{border-color:var(--teal);background:rgba(45,212,191,.13)}
+  .esc-btn:disabled{cursor:default}
+  .esc-btn.admit.ok{border-color:var(--ok);background:rgba(34,197,94,.16)}
+  .esc-btn.home.ok{border-color:var(--ok);background:rgba(34,197,94,.16)}
+  .esc-btn.bad{border-color:var(--coral);background:rgba(251,113,133,.16)}
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .match-col{display:grid;gap:8px;align-content:start}
+  .match-item,.match-target{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left;min-height:52px;display:flex;gap:9px;align-items:center}
+  .match-item.sel{border-color:var(--amber);background:rgba(245,158,11,.14)}
+  .match-item:disabled,.match-target:disabled{cursor:default}
+  .match-item.ok,.match-target.ok{border-color:var(--ok);background:rgba(34,197,94,.16)}
+  .match-item.bad,.match-target.bad{border-color:var(--coral);background:rgba(251,113,133,.16)}
+  .match-pip{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--frame);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:800;font-size:.72rem;color:var(--teal);flex:none}
+  .match-item.sel .match-pip{background:var(--amber);color:#2b1a02;border-color:var(--amber)}
+  .myth-row{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px}
+  .myth-row.ok{border-color:var(--ok);background:rgba(34,197,94,.12)}
+  .myth-row.bad{border-color:var(--coral);background:rgba(251,113,133,.12)}
+  .myth-txt{font-size:.94rem;color:#fff;font-weight:600;margin-bottom:8px}
+  .myth-btns{display:flex;gap:8px}
+  .mb-btn{background:var(--panel2);border:1.5px solid var(--frame);color:var(--muted);border-radius:7px;padding:7px 18px;font-family:var(--f-mono);font-size:.78rem;font-weight:800}
+  .mb-btn.sel.tf-true{background:var(--teal);color:#04241f;border-color:var(--teal)}
+  .mb-btn.sel.tf-false{background:var(--coral);color:#2b0711;border-color:var(--coral)}
+  .chart-table{width:100%;border-collapse:collapse;background:var(--card);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px;font-family:var(--f-mono);font-size:.82rem}
+  .chart-table th{background:var(--panel2);color:var(--teal);font-weight:800;text-align:left;padding:8px 12px;letter-spacing:.05em}
+  .chart-table td{border-top:1px solid var(--line);padding:7px 12px;color:var(--ink)}
+  .chart-wrap{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
+
   .feedback{display:none;margin-top:14px;padding:13px 16px;border-radius:11px;border:1.5px solid var(--line)}
   .feedback.show{display:block}
   .feedback.ok{background:rgba(34,197,94,.12);border-color:var(--ok)}
@@ -395,7 +428,7 @@
 <script src="cases_repro.js?v=20261119b"></script>
 <script src="cases_sleep.js?v=20261119b"></script>
 <script src="cases_nav.js?v=20261119b"></script>
-<script src="cases_challenges.js?v=20261119b"></script>
+<script src="cases_challenges.js?v=20261119c"></script>
 <script>
 const Clinic = (function(){
   "use strict";
@@ -616,12 +649,15 @@ const Clinic = (function(){
     return fresh.concat(seen);
   }
 
-  function buildQueue(){
-    const all = window.ONCALL_CASES || [];
-    const chAll = window.ONCALL_CHALLENGES || [];
-    const deptKeys = ['infectious', 'repro', 'sleep', 'nav'];
+  function buildQueue(dept){
+    // dept ("infectious"/"repro"/"sleep"/"nav") keeps Department Practice inside
+    // its lane; undefined/"all" rotates all four departments.
+    const inLane = c => !dept || dept === 'all' || c.dept === dept;
+    const all = (window.ONCALL_CASES || []).filter(inLane);
+    const chAll = (window.ONCALL_CHALLENGES || []).filter(inLane);
+    const deptKeys = dept && dept !== 'all' ? [dept] : ['infectious', 'repro', 'sleep', 'nav'];
     const seenSet = new Set(Array.isArray(profile.seenIds) ? profile.seenIds : []);
-    // Guarantee balanced rotation across all 4 departments inside EVERY tier,
+    // Guarantee balanced rotation across departments inside EVERY tier,
     // ALWAYS putting unseen questions & unseen challenges first on retakes!
     function tierWave(tierNum, perDept){
       const picked = [];
@@ -638,9 +674,10 @@ const Clinic = (function(){
       }
       return { wave, rest: prioritizeUnseen(rest.concat(chPool.slice(1)), seenSet) };
     }
-    const t1 = tierWave(1, 1);
-    const t2 = tierWave(2, 1);
-    const t3 = tierWave(3, 1);
+    const per = dept && dept !== 'all' ? 3 : 1;   // solo-dept waves need more MCs each tier
+    const t1 = tierWave(1, per);
+    const t2 = tierWave(2, per);
+    const t3 = tierWave(3, per);
     const t4 = tierWave(4, 10);
     return [].concat(t1.wave, t2.wave, t3.wave, t4.wave, t3.rest, t2.rest, t1.rest);
   }
@@ -704,15 +741,68 @@ const Clinic = (function(){
 
     // Render standard MC or interactive clinical challenge
     shift.chState = {};
-    const kindLabels = { rx:'CHART ORDERS (MULTI-SELECT) · +25% BONUS', triage:'RAPID TRIAGE BOARD · +25% BONUS', order:'PROTOCOL SEQUENCE (1-4) · +25% BONUS', slider:'CLINICAL DIAL ESTIMATE · +25% BONUS' };
-    if(!c.kind){
+    const kindLabels = { rx:'CHART ORDERS (MULTI-SELECT) · +25% BONUS', triage:'RAPID TRIAGE BOARD · +25% BONUS', order:'PROTOCOL SEQUENCE (1-4) · +25% BONUS', slider:'CLINICAL DIAL ESTIMATE · +25% BONUS',
+      esc:'ESCALATION CALL · +25% BONUS', match:'MATCH THE PAIRS · +25% BONUS', myth:'MYTH BUST - TRUE OR FALSE · +25% BONUS', chart:'READ THE CHART · +25% BONUS' };
+    if(!c.kind || c.kind === 'chart'){
+      let pre = '';
+      if(c.kind === 'chart' && c.table){
+        pre = '<div class="chart-wrap"><table class="chart-table">' +
+          '<tr>' + c.table.head.map(hCell => '<th>' + esc(hCell) + '</th>').join('') + '</tr>' +
+          c.table.rows.map(r => '<tr>' + r.map(cell => '<td>' + esc(cell) + '</td>').join('') + '</tr>').join('') +
+          '</table></div>';
+      }
       const indexed = shuffle(c.opts.map((t, i) => ({ t, ok: i === c.ans })));
       shift.currentOpts = indexed;
       const letters = ['A','B','C','D','E'];
-      el('cOpts').innerHTML = indexed.map((o, i) => (
+      el('cOpts').innerHTML = (c.kind === 'chart' ? '<div class="ch-badge">' + kindLabels.chart + '</div>' : '') + pre +
+        indexed.map((o, i) => (
         '<button class="opt-btn" type="button" onclick="Clinic.pick(' + i + ')">' +
         '<span class="let">' + letters[i] + '</span><span>' + esc(o.t) + '</span></button>'
       )).join('');
+    } else if(c.kind === 'esc'){
+      const reasons = shuffle(c.reasons.map((r, idx) => Object.assign({ idx }, r)));
+      shift.chState = { decision: null, reasonIdx: null, reasons };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.esc + '</div>' +
+        '<div class="esc-decision">' +
+          '<button class="esc-btn home" id="esc_home" type="button" onclick="Clinic.pickEsc(\'home\')"><span class="esc-big">SEND HOME</span><span class="esc-sub">self-care or a booked clinic pathway</span></button>' +
+          '<button class="esc-btn admit" id="esc_admit" type="button" onclick="Clinic.pickEsc(\'admit\')"><span class="esc-big">ESCALATE NOW</span><span class="esc-sub">ER, 911, or urgent same-day care</span></button>' +
+        '</div>' +
+        '<div class="rx-list" id="escReasons">' +
+          reasons.map((r, i) => (
+            '<button class="rx-item" id="escr_' + i + '" type="button" onclick="Clinic.pickEscReason(' + i + ')">' +
+            '<span class="rx-box" id="escrb_' + i + '"></span><span>' + esc(r.t) + '</span></button>'
+          )).join('') +
+        '</div>' +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">File the Call &rarr;</button></div>';
+    } else if(c.kind === 'match'){
+      const lefts = shuffle(c.pairs.map((p, idx) => ({ t: p.left, idx })));
+      const rights = shuffle(c.pairs.map((p, idx) => ({ t: p.right, idx })));
+      shift.chState = { lefts, rights, selLeft: null, assign: {} };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.match + '</div>' +
+        '<div class="match-grid">' +
+          '<div class="match-col" id="matchLeft">' + lefts.map((L, i) => (
+            '<button class="match-item" id="ml_' + i + '" type="button" onclick="Clinic.pickMatchLeft(' + i + ')"><span class="match-pip">' + String.fromCharCode(65 + i) + '</span><span>' + esc(L.t) + '</span></button>'
+          )).join('') + '</div>' +
+          '<div class="match-col" id="matchRight">' + rights.map((R, i) => (
+            '<button class="match-target" id="mr_' + i + '" type="button" onclick="Clinic.pickMatchRight(' + i + ')"><span class="match-pip" id="mrp_' + i + '">?</span><span>' + esc(R.t) + '</span></button>'
+          )).join('') + '</div>' +
+        '</div>' +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Lock the Pairs &rarr;</button></div>';
+    } else if(c.kind === 'myth'){
+      const myths = shuffle(c.myths.map((m, idx) => Object.assign({ idx }, m)));
+      shift.chState = { myths, picks: {} };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.myth + '</div>' +
+        myths.map((m, mi) => (
+          '<div class="myth-row" id="my_' + mi + '"><div class="myth-txt">' + esc(m.t) + '</div>' +
+          '<div class="myth-btns">' +
+            '<button class="mb-btn" id="mb_' + mi + '_t" type="button" onclick="Clinic.pickMyth(' + mi + ', true)">TRUE</button>' +
+            '<button class="mb-btn" id="mb_' + mi + '_f" type="button" onclick="Clinic.pickMyth(' + mi + ', false)">FALSE</button>' +
+          '</div></div>'
+        )).join('') +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Bust the Myths &rarr;</button></div>';
     } else if(c.kind === 'rx'){
       const items = shuffle(c.items.map((it, idx) => Object.assign({ idx }, it)));
       shift.chState = { items, picked: new Set() };
@@ -801,6 +891,57 @@ const Clinic = (function(){
     const c = shift.queue[shift.idx];
     el('dialVal').textContent = v + ' ' + c.unit;
   }
+  function pickEsc(d){
+    if(!shift || shift.locked) return;
+    shift.chState.decision = d;
+    el('esc_home').classList.toggle('sel', d === 'home');
+    el('esc_admit').classList.toggle('sel', d === 'admit');
+  }
+  function pickEscReason(i){
+    if(!shift || shift.locked) return;
+    shift.chState.reasonIdx = i;
+    // reason buttons share rx-item ids; mark selection
+    Array.from(document.querySelectorAll('#escReasons .rx-item')).forEach((b, k) => {
+      b.classList.toggle('sel', k === i);
+      const box = document.getElementById('escrb_' + k);
+      if(box) box.textContent = (k === i) ? '\u2713' : '';
+    });
+  }
+  function pickMatchLeft(i){
+    if(!shift || shift.locked) return;
+    shift.chState.selLeft = i;
+    shift.chState.lefts.forEach((_, k) => {
+      const b = el('ml_' + k);
+      if(b) b.classList.toggle('sel', k === i);
+    });
+  }
+  function pickMatchRight(i){
+    if(!shift || shift.locked) return;
+    const L = shift.chState.selLeft;
+    if(L === null || L === undefined) return;
+    // remove any previous assignment of this left item
+    Object.keys(shift.chState.assign).forEach(k => {
+      if(shift.chState.assign[k] === L) delete shift.chState.assign[k];
+    });
+    shift.chState.assign[i] = L;
+    shift.chState.lefts.forEach((_, k) => {
+      const b = el('ml_' + k);
+      if(b) b.classList.toggle('sel', k === shift.chState.selLeft);
+    });
+    shift.chState.rights.forEach((_, k) => {
+      const pip = document.getElementById('mrp_' + k);
+      const got = shift.chState.assign[k];
+      if(pip) pip.textContent = (got === undefined || got === null) ? '?' : String.fromCharCode(65 + got);
+    });
+  }
+  function pickMyth(mi, val){
+    if(!shift || shift.locked) return;
+    shift.chState.picks[mi] = val;
+    const tBtn = document.getElementById('mb_' + mi + '_t');
+    const fBtn = document.getElementById('mb_' + mi + '_f');
+    if(tBtn) tBtn.classList.toggle('sel', val === true);
+    if(fBtn) fBtn.classList.toggle('sel', val === false);
+  }
 
   function submitChallenge(){
     if(!shift || shift.locked) return;
@@ -842,6 +983,48 @@ const Clinic = (function(){
       el('dialRange').disabled = true;
       el('dialVal').innerHTML = v + ' ' + esc(c.unit) + ' <span style="font-size:1rem;color:' + (ok ? 'var(--ok)' : 'var(--coral)') + '">(Target: ' + c.target + ' ' + esc(c.unit) + ')</span>';
       rightDesc = c.target + ' ' + c.unit + ' (within +/-' + c.tol + ')';
+    } else if(c.kind === 'esc'){
+      if(shift.chState.decision === null || shift.chState.reasonIdx === null) return;
+      const gotReason = shift.chState.reasons[shift.chState.reasonIdx];
+      ok = shift.chState.decision === c.decision && gotReason.ok === true;
+      ['esc_home', 'esc_admit'].forEach(id => { const b = el(id); if(b) b.disabled = true; });
+      el('esc_home').classList.add(c.decision === 'home' ? 'ok' : 'bad');
+      el('esc_admit').classList.add(c.decision === 'admit' ? 'ok' : 'bad');
+      shift.chState.reasons.forEach((r, i) => {
+        const b = el('escr_' + i); b.disabled = true;
+        if(r.ok) b.classList.add('ok');
+        else if(i === shift.chState.reasonIdx) b.classList.add('bad');
+      });
+      rightDesc = (c.decision === 'admit' ? 'ESCALATE NOW' : 'SEND HOME') + ' - ' +
+        c.reasons.filter(x => x.ok).map(x => x.t).join(' ');
+    } else if(c.kind === 'match'){
+      if(Object.keys(shift.chState.assign).length < shift.chState.rights.length) return;
+      ok = shift.chState.rights.every((R, i) => {
+        const got = shift.chState.assign[i];
+        return got !== undefined && shift.chState.lefts[got].idx === R.idx;
+      });
+      shift.chState.rights.forEach((R, i) => {
+        const got = shift.chState.assign[i];
+        const good = got !== undefined && shift.chState.lefts[got].idx === R.idx;
+        const tb = el('mr_' + i); if(tb){ tb.disabled = true; tb.classList.add(good ? 'ok' : 'bad'); }
+        const lb = got !== undefined ? el('ml_' + got) : null;
+        if(lb){ lb.disabled = true; lb.classList.add(good ? 'ok' : 'bad'); }
+      });
+      rightDesc = c.pairs.map(p => p.left + ' -> ' + p.right).join(' | ');
+    } else if(c.kind === 'myth'){
+      if(Object.keys(shift.chState.picks).length < shift.chState.myths.length) return;
+      ok = shift.chState.myths.every((m, mi) => shift.chState.picks[mi] === m.ans);
+      shift.chState.myths.forEach((m, mi) => {
+        const row = el('my_' + mi);
+        if(row) row.classList.add(shift.chState.picks[mi] === m.ans ? 'ok' : 'bad');
+        const tB = document.getElementById('mb_' + mi + '_t');
+        const fB = document.getElementById('mb_' + mi + '_f');
+        if(tB) tB.disabled = true;
+        if(fB) fB.disabled = true;
+        const rightBtn = m.ans ? tB : fB;
+        if(rightBtn) rightBtn.classList.add('sel');
+      });
+      rightDesc = c.myths.map(m => m.t + ' = ' + (m.ans ? 'TRUE' : 'FALSE')).join(' | ');
     }
     if(el('chSubmit')) el('chSubmit').disabled = true;
     resolveOutcome(c, ok, rightDesc, 1.25);
@@ -907,7 +1090,7 @@ const Clinic = (function(){
       if(shift.currentOpts[k].ok) b.classList.add('correct');
       else if(k === i && !chosen.ok) b.classList.add('wrong');
     });
-    resolveOutcome(c, chosen.ok, c.opts[c.ans], 1);
+    resolveOutcome(c, chosen.ok, c.opts[c.ans], c.kind === 'chart' ? 1.25 : 1);
   }
 
   const STRIKE_SLIDES = {
@@ -1027,7 +1210,7 @@ const Clinic = (function(){
   }
 
   boot();
-  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike, toggleRx, pickTriage, pickOrder, resetOrder, moveDial, submitChallenge };
+  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike, toggleRx, pickTriage, pickOrder, resetOrder, moveDial, submitChallenge, pickEsc, pickEscReason, pickMatchLeft, pickMatchRight, pickMyth };
 })();
 </script>
 </body>

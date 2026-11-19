@@ -220,5 +220,322 @@ window.ONCALL_CHALLENGES = [
       { t:"Ask 'what warning signs mean I should come back or go to the ER?'", ok:true },
       { t:"Stop prescribed medication early without asking if an influencer suggests a detox tea", ok:false }
     ],
-    pearl:"Bringing written questions, reading active ingredients, and asking about red-flag return signs are core lifelong health-literacy skills." }
+    pearl:"Bringing written questions, reading active ingredients, and asking about red-flag return signs are core lifelong health-literacy skills." },
+
+  /* ============ WAVE 2: ESC / MATCH / MYTH / CHART (24 cases) ============ */
+
+  /* ---- ESCALATE OR SEND HOME (6) ---- */
+  { id:"ch_inf6", kind:"esc", dept:"infectious", tier:2, patient:"Triage Desk: Sore Throat",
+    complaint:"14yo, rapid-swab positive Group A Strep", vitals:"Temp 38.2 C | Drinking fluids | No breathing trouble",
+    quote:"The swab came back positive for strep throat. Does she need the Emergency Room tonight?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"home",
+    reasons:[
+      { t:"Confirmed strep is bacterial: an NS pharmacist can assess and prescribe antibiotics, so home care works", ok:true },
+      { t:"Admit to the ER immediately: all sore throats are emergencies", ok:false },
+      { t:"Send home and forbid all fluids for 48 hours", ok:false }
+    ],
+    pearl:"Strep is bacterial and curable. Nova Scotia pharmacists assess and prescribe for minor ailments like strep using MSI, so the ER is for emergencies, not confirmed strep." },
+
+  { id:"ch_inf7", kind:"esc", dept:"infectious", tier:3, patient:"Triage Desk: Rash and Fever",
+    complaint:"15yo, high fever, stiff neck, confusion", vitals:"Purple spots spreading | Started this morning",
+    quote:"His forehead feels burning hot, his neck is stiff, he is confused, and purple spots are spreading. Should we wait for morning?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"admit",
+    reasons:[
+      { t:"Fever plus stiff neck, confusion, and purple spots are 911 emergency signs (possible meningitis)", ok:true },
+      { t:"Send home: purple spots are a normal cold rash", ok:false },
+      { t:"Send home: confusion in a fever just means bad sleep", ok:false }
+    ],
+    pearl:"Fever with a stiff neck, confusion, and purple spreading spots is a 911-now emergency (possible meningococcal infection). Waiting is the dangerous call." },
+
+  { id:"ch_rep6", kind:"esc", dept:"repro", tier:2, patient:"Lab Desk: Positive Test",
+    complaint:"15yo, chlamydia urine test positive", vitals:"No symptoms | Prescribed antibiotics picked up",
+    quote:"I feel totally fine, but my test came back positive. Do I need to be admitted somewhere for treatment?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"home",
+    reasons:[
+      { t:"Chlamydia is bacterial: finishing the prescribed antibiotics at home cures it, and partners need testing too", ok:true },
+      { t:"Admit: only hospital antibiotics work on chlamydia", ok:false },
+      { t:"Send home and just ignore it: symptom-free means cleared", ok:false }
+    ],
+    pearl:"Chlamydia is usually silent and bacterial: prescribed antibiotics cure it at home, partners get tested and treated, and admission is never required." },
+
+  { id:"ch_nav6", kind:"esc", dept:"nav", tier:2, patient:"Party Follow-Up Desk",
+    complaint:"Friend passed out after drinking", vitals:"Slow breathing | Cold skin | Cannot be woken",
+    quote:"My friend drank way too much and now he will not wake up. Someone says coffee and a cold shower will fix him. Call or not?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"admit",
+    reasons:[
+      { t:"911 now and the recovery position: passing out with slow breathing is alcohol poisoning, and coffee cannot sober him up", ok:true },
+      { t:"Send him home to sleep it off: sleep is the best cure", ok:false },
+      { t:"Wait one hour: blood alcohol starts dropping right after passing out", ok:false }
+    ],
+    pearl:"Blood alcohol keeps rising after a person passes out. Cold skin, slow breathing, inability to wake = 911 and the recovery position. The Good Samaritan Act protects the caller." },
+
+  { id:"ch_nav7", kind:"esc", dept:"nav", tier:3, patient:"Crisis Walk-In Desk",
+    complaint:"15yo tells you a friend talks about not wanting to be alive", vitals:"Safety concern | After school today",
+    quote:"My friend keeps saying nothing matters anymore. She made me promise not to tell anyone. What do I do?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"admit",
+    reasons:[
+      { t:"Never keep a safety secret: tell a trusted adult now, and 988 (call or text) is free and 24/7", ok:true },
+      { t:"Keep the promise: telling would end the friendship", ok:false },
+      { t:"Send her home to sleep on it: feelings like this pass by morning", ok:false }
+    ],
+    pearl:"988 (Suicide Crisis Helpline, call or text) and Kids Help Phone are free and 24/7. Safety secrets are the one promise you must break; involve a trusted adult, or 911 if danger is immediate." },
+
+  { id:"ch_slp6", kind:"esc", dept:"sleep", tier:3, patient:"Follow-Up Desk: Exhausted Teen",
+    complaint:"15yo, 5.5 hours sleep on school nights for months", vitals:"Falling grades | No safety concerns | Vital signs normal",
+    quote:"I am crushed tired every day and my marks are dropping. Should I go to the Emergency Room about this?",
+    q:"Make the escalation call, then file the reason:",
+    decision:"home",
+    reasons:[
+      { t:"Home care works: a screen-free 30 to 60 minute wind-down buffer and steady bed times rebuild sleep", ok:true },
+      { t:"Admit: chronic tiredness is always an ER problem", ok:false },
+      { t:"Send home and ban all sleep until marks improve", ok:false }
+    ],
+    pearl:"Chronic short sleep is a habit problem, not an emergency: a 30 to 60 minute low-light screen-free buffer, steady schedules, and morning light rebuild it. The ER cannot prescribe sleep." },
+
+  /* ---- MATCH THE PAIRS (6) ---- */
+  { id:"ch_inf8", kind:"match", dept:"infectious", tier:1, patient:"Supply Cabinet Desk",
+    complaint:"Match each cleaner to the job it actually does", vitals:"Cleanup-day review",
+    quote:"Three bottles, three jobs. Match each cleaner to where it belongs before the custodian starts.",
+    q:"Match each cleaner to its correct job:",
+    pairs:[
+      { left:"Chlorine bleach solution", right:"Destroys tough virus shells on surfaces" },
+      { left:"Soap and 20 seconds of running water", right:"Lifts germs off skin and rinses them away" },
+      { left:"Alcohol hand-sanitizer gel", right:"Kills many germs but fails on norovirus shells" }
+    ],
+    pearl:"Bleach breaks hard shells on surfaces, soap lifts germs off skin so water rinses them away, and alcohol gel fails against norovirus." },
+
+  { id:"ch_inf9", kind:"match", dept:"infectious", tier:2, patient:"Micro Lab Desk",
+    complaint:"Match each clue to the germ type it points to", vitals:"Three active patient charts",
+    quote:"Three charts, three pattern clues. File each under the germ type the evidence points to.",
+    q:"Match each clue to its germ type:",
+    pairs:[
+      { left:"Red, hot, swollen scrape", right:"Bacteria" },
+      { left:"Spotty rash with slight fever", right:"Virus" },
+      { left:"White patches on tonsils, no cough", right:"Bacteria" }
+    ],
+    pearl:"Red-hot-swollen at a wound and white patches without a cough read bacterial (strep); a spotty rash with fever reads viral." },
+
+  { id:"ch_rep7", kind:"match", dept:"repro", tier:1, patient:"Lab Result Desk",
+    complaint:"Match each infection to its care reality", vitals:"Testing and treatment review",
+    quote:"Three lab results, three different care paths. File each infection with what its treatment actually looks like.",
+    q:"Match each infection to its care reality:",
+    pairs:[
+      { left:"Chlamydia", right:"Bacterial: cured with prescribed antibiotics" },
+      { left:"HPV", right:"Viral: vaccine-preventable (free in NS schools)" },
+      { left:"HIV (on treatment)", right:"Viral: modern medicine makes it untransmittable (U=U)" }
+    ],
+    pearl:"Chlamydia is bacterial and curable, HPV is vaccine-preventable through the free NS school program, and treated HIV becomes undetectable and untransmittable (U=U)." },
+
+  { id:"ch_slp7", kind:"match", dept:"sleep", tier:1, patient:"Sleep Lab Desk",
+    complaint:"Match each evening habit to what it does to sleep", vitals:"Screen-time and substances review",
+    quote:"Three habits from three patient logs. Match each one to the sleep science it triggers.",
+    q:"Match each habit to its sleep effect:",
+    pairs:[
+      { left:"Energy drink at 7 PM", right:"Caffeine blocks adenosine for 5 to 6 hours" },
+      { left:"Phone in bed with lights off", right:"Blue light delays melatonin release" },
+      { left:"Buzzing phone under the pillow", right:"Micro-awakenings shred deep and REM sleep" }
+    ],
+    pearl:"Caffeine blocks adenosine for about 5 to 6 hours, blue-wavelength light delays melatonin, and overnight buzzes shred sleep continuity even without full wake-ups." },
+
+  { id:"ch_nav8", kind:"match", dept:"nav", tier:1, patient:"Front Desk: Who Do I Call?",
+    complaint:"Match each situation to the right NS service", vitals:"Three patients waiting for a number",
+    quote:"Three patients, three different needs. Give each one the right number to call.",
+    q:"Match each need to the right service:",
+    pairs:[
+      { left:"Free nurse advice at 9 PM tonight", right:"811 (Telecare NS)" },
+      { left:"Thoughts of suicide, right now", right:"988 (Suicide Crisis Helpline)" },
+      { left:"Chest pain and trouble breathing", right:"911 (life-threatening emergency)" }
+    ],
+    pearl:"811 is the free 24/7 Telecare nurse line, 988 is the Suicide Crisis Helpline (call or text), and 911 is for life- or limb-threatening emergencies." },
+
+  { id:"ch_slp8", kind:"match", dept:"sleep", tier:2, patient:"Circadian Chart Desk",
+    complaint:"Match each log finding to the clock science", vitals:"Three sleep logs, three explanations",
+    quote:"Three weekend logs from three patients. Match each finding to the circadian science behind it.",
+    q:"Match each finding to its science:",
+    pairs:[
+      { left:"Slept until 1 PM both weekend days", right:"Social jetlag shifts the body clock later" },
+      { left:"Long nap at 6 PM", right:"Burns off adenosine right before bedtime" },
+      { left:"Bright morning light and a walk", right:"Anchors the circadian rhythm earlier" }
+    ],
+    pearl:"Oversleeping till early afternoon creates social jetlag, evening naps burn the sleep pressure (adenosine) that night needs, and morning daylight anchors the clock earlier." },
+
+  /* ---- MYTH BUST - TRUE OR FALSE (6) ---- */
+  { id:"ch_inf10", kind:"myth", dept:"infectious", tier:2, patient:"Myth Clinic: Germ Edition",
+    complaint:"3 circulating myths, call each one", vitals:"Myth Trials format",
+    quote:"Three germ myths are going around the school group chats. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"Alcohol hand sanitizer kills norovirus, so gel dispensers stop stomach-bug outbreaks", ans:false },
+      { t:"Soap does not need to kill germs because it lifts them off skin so water rinses them away", ans:true },
+      { t:"A person who feels better can stop shedding virus right away", ans:false }
+    ],
+    pearl:"Norovirus shrugs off alcohol gel; soap lifts germs so water rinses them; and shedding continues up to 48 hours after symptoms stop." },
+
+  { id:"ch_rep8", kind:"myth", dept:"repro", tier:2, patient:"Myth Clinic: STI Edition",
+    complaint:"3 myths about STIs, call each one", vitals:"Myth Trials format",
+    quote:"Three STI myths from the internet. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"You can tell who has an STI just by looking at them", ans:false },
+      { t:"Many STIs, especially chlamydia, show no symptoms at all", ans:true },
+      { t:"Toilet seats are a common way STIs spread", ans:false }
+    ],
+    pearl:"Most STIs are silent (asymptomatic), so testing is the only reliable check, and pathogens do not survive on cold dry plastic like a toilet seat." },
+
+  { id:"ch_slp9", kind:"myth", dept:"sleep", tier:2, patient:"Myth Clinic: Sleep Edition",
+    complaint:"3 sleep myths, call each one", vitals:"Myth Trials format",
+    quote:"Three sleep myths from the team group chat. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"Sleeping in until 1 PM on weekends fully pays back the week's sleep debt", ans:false },
+      { t:"About half the caffeine from a late-day energy drink is still active at midnight", ans:true },
+      { t:"Blue light filters make late-night scrolling harmless", ans:false }
+    ],
+    pearl:"Chronic weekday debt compounds and one morning cannot erase it; caffeine's 5 to 6 hour half-life keeps half a dose active at midnight; and interaction and lost clock hours keep the brain alert regardless of screen tint." },
+
+  { id:"ch_nav9", kind:"myth", dept:"nav", tier:2, patient:"Myth Clinic: Help Edition",
+    complaint:"3 myths about getting help, call each one", vitals:"Myth Trials format",
+    quote:"Three myths about health services in Nova Scotia. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"Calling 811 for nurse advice costs money", ans:false },
+      { t:"Nova Scotia pharmacists can assess and prescribe for minor ailments like strep throat", ans:true },
+      { t:"The Good Samaritan Drug Overdose Act only protects the person who overdosed", ans:false }
+    ],
+    pearl:"811 is free 24/7, NS pharmacists assess and prescribe for dozens of minor ailments using MSI, and the Good Samaritan Act protects the caller and everyone at the scene." },
+
+  { id:"ch_inf11", kind:"myth", dept:"infectious", tier:3, patient:"Myth Clinic: Outbreak Edition",
+    complaint:"3 outbreak myths, call each one", vitals:"Myth Trials format",
+    quote:"Three myths from the outbreak debrief. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"A vaccine trains your immune system BEFORE you ever meet the germ", ans:true },
+      { t:"Antibiotics speed up recovery from a cold virus", ans:false },
+      { t:"Herd immunity for measles needs about 95 percent community coverage", ans:true }
+    ],
+    pearl:"Vaccines train immune memory in advance, antibiotics do nothing for cold viruses, and measles needs about 95 percent coverage because it is airborne and intensely contagious." },
+
+  { id:"ch_rep9", kind:"myth", dept:"repro", tier:3, patient:"Myth Clinic: Relationships Edition",
+    complaint:"3 consent and protection myths, call each one", vitals:"Myth Trials format",
+    quote:"Three myths about consent and protection. Call each one true or false.",
+    q:"Call all three myths TRUE or FALSE:",
+    myths:[
+      { t:"Consent must be active, voluntary, and ongoing, and it can be taken back", ans:true },
+      { t:"Two condoms together give double the protection", ans:false },
+      { t:"Nova Scotia pharmacists can provide contraception and emergency contraception directly", ans:true }
+    ],
+    pearl:"Consent is active, voluntary, ongoing and revocable; layered condoms increase latex friction and breakage; and NS pharmacists prescribe hormonal contraception and provide emergency contraception directly." },
+
+  /* ---- READ THE CHART (6) ---- */
+  { id:"ch_inf12", kind:"chart", dept:"infectious", tier:3, patient:"Epidemiology Chart Review",
+    complaint:"Attack-rate table: which source is the culprit?", vitals:"Two classrooms, one shared feature",
+    quote:"Here are the two classroom attack rates from the outbreak week. Read the chart and call the interpretation.",
+    q:"What does this table prove?",
+    table:{ head:["Group","Sick","Exposed","Attack rate"], rows:[
+      ["Room 210 (drank from west fountain)","14","20","70%"],
+      ["Room 214 (no fountain access)","2","18","11%"]
+    ]},
+    opts:[
+      "The west fountain is the likely source: exposure multiplies the attack rate roughly six-fold",
+      "Room 210 got sick from being a larger class",
+      "The numbers prove teachers spread it",
+      "Attack rates show the illness is not contagious"
+    ],
+    ans:0,
+    pearl:"A 70% attack rate with fountain exposure versus 11% without is classic point-source evidence: the shared exposure, not class size, tracks with getting sick." },
+
+  { id:"ch_inf13", kind:"chart", dept:"infectious", tier:4, patient:"Onset-Time Chart Review",
+    complaint:"Onset table: one source or person to person?", vitals:"Cake sale day | Nine cases logged",
+    quote:"The food-poisoning cases all ate one item at one event. Read the onset table and call the pattern.",
+    q:"What does this onset table prove?",
+    table:{ head:["Case","Ate item at","Felt sick at","Gap"], rows:[
+      ["1","12:00 PM","7:30 PM","7.5 h"],
+      ["2","12:00 PM","8:00 PM","8 h"],
+      ["3","12:00 PM","6:30 PM","6.5 h"]
+    ]},
+    opts:[
+      "A point source: everyone ate the same food at the same time and fell ill within the same incubation window",
+      "Person-to-person spread chaining across three days",
+      "The illness cannot be from food because gaps differ",
+      "The 12:00 PM event is unrelated to the sickness"
+    ],
+    ans:0,
+    pearl:"One shared meal plus clustered incubation gaps (6.5 to 8 hours) is the signature of a point-source outbreak; person-to-person spread produces a widening staircase instead." },
+
+  { id:"ch_rep10", kind:"chart", dept:"repro", tier:3, patient:"Screening Chart Review",
+    complaint:"Test table: which check finds which infection?", vitals:"Youth clinic testing menu",
+    quote:"Here is the clinic's testing menu. Read the chart and match the call to the right test for a symptom-free chlamydia check.",
+    q:"Which row is the right call for a symptom-free chlamydia check?",
+    table:{ head:["Test","What it needs","Finds"], rows:[
+      ["Urine or swab test","A quick sample, no symptoms needed","Chlamydia and gonorrhea"],
+      ["Blood test","A blood draw","HIV, syphilis, hepatitis"],
+      ["Visual exam","Looking at the skin","Not a reliable STI check"]
+    ]},
+    opts:[
+      "Urine or swab test: chlamydia is usually silent, so testing, not looking, is the reliable check",
+      "Visual exam: no symptoms means no infection",
+      "Blood test: chlamydia lives in the bloodstream",
+      "No test: symptom-free teens cannot carry infections"
+    ],
+    ans:0,
+    pearl:"Chlamydia screening is a urine or swab test and works with zero symptoms; most infections are silent, so visual checks miss almost everything." },
+
+  { id:"ch_slp10", kind:"chart", dept:"sleep", tier:3, patient:"Sleep-Log Chart Review",
+    complaint:"Sleep log: name the damaging pattern", vitals:"Five school nights logged",
+    quote:"Here is Maya's week from her sleep log. Read the chart and call the pattern that is hurting her.",
+    q:"What does this sleep log show?",
+    table:{ head:["Night","Lights out","Asleep (approx)","Screens in bed"], rows:[
+      ["Mon","11:30 PM","12:20 AM","Yes, 50 min"],
+      ["Wed","11:45 PM","12:30 AM","Yes, 45 min"],
+      ["Fri","12:15 AM","1:05 AM","Yes, 50 min"]
+    ]},
+    opts:[
+      "In-bed scrolling delays sleep onset, cutting total sleep to well under the 8 to 10 hour guideline for a 6:45 AM wake-up",
+      "The log shows a healthy sleep routine",
+      "The problem is the bedtime alone, not the screens",
+      "The data proves Maya needs later school start times only"
+    ],
+    ans:0,
+    pearl:"Roughly 50 minutes of in-bed scrolling delays sleep onset night after night; with a 6:45 AM alarm that lands total sleep far below the 8 to 10 hour teen guideline, and weekday debt compounds." },
+
+  { id:"ch_nav10", kind:"chart", dept:"nav", tier:3, patient:"Service-Hours Chart Review",
+    complaint:"Hours table: which service fits the moment?", vitals:"Sunday, 9:40 PM | Non-emergency",
+    quote:"A patient twisted an ankle, it is Sunday 9:40 PM, nothing is life-threatening. Read the hours chart and pick the right pathway.",
+    q:"Which service fits this moment?",
+    table:{ head:["Service","Hours","Best for"], rows:[
+      ["811 Telecare NS","24/7","Free nurse advice, decide care level"],
+      ["Pharmacy Primary Care Clinic","Daytime mostly","Minor ailments, prescriptions"],
+      ["Emergency Department","24/7","Life- or limb-threatening only"]
+    ]},
+    opts:[
+      "811: a free 24/7 nurse can triage a non-emergency injury tonight and point to the right daytime care",
+      "Emergency Department: every injury belongs in the ER",
+      "Pharmacy clinic: it is the only option with a phone",
+      "Wait a week: minor injuries self-resolve always"
+    ],
+    ans:0,
+    pearl:"811 runs 24/7 with a Registered Nurse on the line, which is exactly what a scary-but-not-dangerous injury needs at 9:40 PM; the ER is for emergencies, and daytime pharmacies are closed." },
+
+  { id:"ch_rep11", kind:"chart", dept:"repro", tier:4, patient:"Immunization Chart Review",
+    complaint:"Vaccine table: what does NS offer free at school?", vitals:"Grade 9 records check",
+    quote:"Here is the school immunization program chart. Read it and call which statement the table supports.",
+    q:"What does this table support?",
+    table:{ head:["Vaccine","Protects against","NS school program"], rows:[
+      ["HPV vaccine","HPV strains linked to cancers","Offered free"],
+      ["Hepatitis B vaccine","Liver-disease virus","Offered free"],
+      ["Routine flu shot","Seasonal influenza","Not part of the school program"]
+    ]},
+    opts:[
+      "Both HPV and Hepatitis B vaccines are offered free through the NS school program because they prevent viral STIs and their long-term liver and cancer risks",
+      "The flu shot is the only school-offered vaccine",
+      "HPV vaccine is only for students who travel",
+      "Hepatitis B vaccine must be bought privately in NS"
+    ],
+    ans:0,
+    pearl:"HPV and Hepatitis B vaccines are both offered free in Nova Scotia school immunization programs; they guard against viral STIs and their long-term cancer and liver consequences." },
 ];
