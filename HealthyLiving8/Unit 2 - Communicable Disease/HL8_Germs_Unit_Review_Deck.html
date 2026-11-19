@@ -371,6 +371,44 @@
         font-weight: 700;
         color: var(--ink-heading);
     }
+
+    /* Word bank slide (final: stays up while the quiz is written) */
+    .bank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 10px; }
+    .bank-card {
+        background: var(--surface);
+        border: 1.5px solid var(--line);
+        border-top: 6px solid var(--coral);
+        border-radius: 10px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        min-height: 66px;
+    }
+    .bank-card .b-num {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--coral-dark);
+        flex-shrink: 0;
+    }
+    .bank-card .b-term {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 22px;
+        line-height: 1.12;
+        color: var(--ink-heading);
+    }
+    .bank-note {
+        margin-top: 18px;
+        background: var(--coral-pale);
+        border: 2px solid var(--coral);
+        border-radius: 10px;
+        padding: 12px 22px;
+        font-size: 23px;
+        font-weight: 700;
+        color: var(--ink-heading);
+    }
 </style>
 </head>
 <body>
@@ -487,7 +525,7 @@ const STATIONS = [
 const CATCLASS = { WORDS: "", GERMS: " cat-germs", TOOLS: " cat-tools", CASE: " cat-case" };
 
 const slidesEl = document.getElementById("slides");
-const totalSlides = STATIONS.length + 2;   // cover + stations + closer
+const totalSlides = STATIONS.length + 3;   // cover + stations + closer + word bank
 let currentSlide = 1;
 
 function buildCover() {
@@ -530,7 +568,7 @@ function buildStation(st, idx) {
 function buildCloser() {
     const d = document.createElement("div");
     d.className = "slide";
-    d.dataset.slide = totalSlides;
+    d.dataset.slide = STATIONS.length + 2;
     d.innerHTML =
         '<div class="eyebrow-row"><span class="eyebrow-num">WRAP</span><span class="eyebrow-cat cat-prevent">What the unit test will ask</span></div>' +
         '<div class="q-text" style="font-size:44px;">Three moves. Practise them out loud.</div>' +
@@ -543,9 +581,35 @@ function buildCloser() {
     return d;
 }
 
+// Same 20 terms as the standalone WordBank LCD (HL8_Germs_Unit_Quiz_WordBank_LCD.html).
+// If the quiz or the LCD changes, change it HERE too.
+function buildWordBank() {
+    const d = document.createElement("div");
+    d.className = "slide";
+    d.dataset.slide = totalSlides;
+    const TERMS = [
+        "Antibiotic", "Antibiotic Resistance", "Antibody", "Bacteria", "Chain of Infection",
+        "Communicable Disease", "Direct Contact", "Droplet Transmission", "Epidemiology", "Fomite",
+        "Herd Immunity", "Host", "Immune System", "Incubation Period", "Pathogen",
+        "Portal of Entry", "Reservoir", "Vaccine", "Vector", "Virus"
+    ];
+    const cards = TERMS.map(function (t, i) {
+        return '<div class="bank-card"><span class="b-num">' + String(i + 1).padStart(2, "0") +
+               '</span><span class="b-term">' + t + '</span></div>';
+    }).join("");
+    d.innerHTML =
+        '<div class="eyebrow-row"><span class="eyebrow-num">WORD BANK</span>' +
+        '<span class="eyebrow-cat">In-room support for the unit quiz</span></div>' +
+        '<div class="q-text" style="font-size:40px;">Twenty words you are allowed to use.</div>' +
+        '<div class="bank-grid">' + cards + '</div>' +
+        '<div class="bank-note">Not all terms will be used &middot; this screen stays up while you write the quiz.</div>';
+    return d;
+}
+
 slidesEl.appendChild(buildCover());
 STATIONS.forEach((st, i) => slidesEl.appendChild(buildStation(st, i)));
 slidesEl.appendChild(buildCloser());
+slidesEl.appendChild(buildWordBank());
 
 const slides = Array.from(document.querySelectorAll(".slide"));
 const countDisplay = document.getElementById("counter");
