@@ -647,14 +647,16 @@ const Clinic = (function(){
 
     // Chart
     const d = DEPTS[c.dept] || DEPTS.infectious;
-    el('cBanner').style.backgroundImage = "url('" + d.img + "')";
+    const bannerSrc = c.kind ? 'assets/banner_challenge.jpg' : (c.tier === 4 ? 'assets/banner_chief.jpg' : d.img);
+    el('cBanner').style.backgroundImage = "url('" + bannerSrc + "')";
     el('cDept').textContent = d.name;
     el('cPatient').textContent = c.patient;
     el('cCode').textContent = c.id.toUpperCase();
     el('cComp').textContent = c.complaint;
     el('cVitals').textContent = c.vitals;
-    let h = 0; for(let k=0;k<c.patient.length;k++) h = (h*31 + c.patient.charCodeAt(k)) % 6;
-    el('cAva').src = 'assets/pat_0' + (Math.abs(h) + 1) + '.jpg';
+    let h = 0; for(let k=0;k<c.patient.length;k++) h = (h*31 + c.patient.charCodeAt(k)) % 12;
+    const pIdx = Math.abs(h) + 1;
+    el('cAva').src = 'assets/pat_' + (pIdx < 10 ? '0' : '') + pIdx + '.jpg';
     el('cQuote').textContent = '"' + c.quote + '"';
     el('cQ').textContent = c.q;
 
