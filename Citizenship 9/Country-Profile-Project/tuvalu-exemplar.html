@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exemplar: Tuvalu &amp; Sea Level Rise | Country Profile Capstone</title>
+<style>
+  :root {
+    --blue: #2563EB;
+    --blue-soft: #EFF6FF;
+    --ink: #18181B;
+    --muted: #52525B;
+    --faint: #A1A1AA;
+    --line: #E4E4E7;
+    --bg: #F4F4F5;
+    --card: #FFFFFF;
+    --soft: #F4F4F5;
+    --amber: #B45309;
+    --amber-bg: #FFFBEB;
+    --green: #047857;
+    --green-bg: #F0FDF4;
+    --slab: "Roboto Slab", Georgia, "Times New Roman", serif;
+    --body: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.55;
+    overflow: hidden;
+  }
+
+  /* top bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 1.1rem;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+  }
+  .top-bar .deck-tag { font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .top-bar .deck-tag a { color: var(--blue); text-decoration: none; }
+  .why-toggle {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; border: 1px solid var(--line); background: var(--soft);
+    color: var(--muted); border-radius: 4px; padding: 0.3rem 0.7rem; cursor: pointer;
+  }
+  body.show-why .why-toggle { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+
+  /* stage */
+  .stage { position: relative; height: calc(100vh - 2.45rem); }
+  .slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    padding: clamp(1rem, 3vw, 2.2rem) clamp(1.2rem, 4vw, 3rem) 4.2rem;
+    overflow-y: auto;
+  }
+  .slide.active { display: block; animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .slide-inner { max-width: 1150px; margin: 0 auto; }
+
+  .slide-num {
+    position: absolute;
+    top: 0.7rem;
+    right: 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--faint);
+  }
+  .slide-kicker {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .slide h1 { font-family: var(--slab); font-size: clamp(2.1rem, 5.2vw, 3.6rem); line-height: 1.08; margin: 0.2rem 0 0.5rem; }
+  .slide h2 { font-family: var(--slab); font-size: clamp(1.5rem, 3.4vw, 2.2rem); margin: 0.2rem 0 0.7rem; }
+  .slide h3 { font-family: var(--slab); font-size: 1.08rem; margin: 0.9rem 0 0.3rem; }
+  .slide p, .slide li { font-size: clamp(1rem, 1.9vw, 1.22rem); }
+  .slide ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+  .slide li { margin-bottom: 0.45rem; }
+  .muted { color: var(--muted); }
+  .big-num { font-family: var(--slab); font-weight: 700; font-size: clamp(1.6rem, 3.6vw, 2.5rem); color: var(--blue); }
+
+  .outcome-band {
+    border-left: 5px solid var(--blue);
+    background: var(--blue-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 0.7rem 1rem;
+    margin: 1rem 0;
+    max-width: 820px;
+  }
+  .outcome-band .label {
+    font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 0.2rem;
+  }
+  .outcome-band .statement { font-family: var(--slab); font-size: 1.05rem; font-weight: 600; margin: 0; line-height: 1.35; }
+
+  .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(1rem, 3vw, 2.2rem); align-items: start; }
+  .grid-2.rev { grid-template-columns: 0.85fr 1.15fr; }
+  @media (max-width: 860px) { .grid-2, .grid-2.rev { grid-template-columns: 1fr; } }
+  .slide-photo { width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
+  .photo-cap { font-family: var(--mono); font-size: 0.64rem; color: var(--faint); margin-top: 0.3rem; line-height: 1.5; }
+  .fact-row { display: flex; gap: 1.6rem; flex-wrap: wrap; margin: 0.6rem 0 0.4rem; }
+  .fact { min-width: 7rem; }
+  .fact .v { font-family: var(--slab); font-weight: 700; font-size: clamp(1.35rem, 3vw, 1.9rem); color: var(--ink); line-height: 1.1; }
+  .fact .k { font-family: var(--mono); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
+  .src-strip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2.9rem;
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .src-strip .in {
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--muted);
+    padding: 0.45rem 0.2rem 0;
+    line-height: 1.6;
+  }
+  .src-strip b { color: var(--blue); font-weight: 700; }
+
+  /* consequence cards */
+  .conseq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 0.6rem; }
+  @media (max-width: 860px) { .conseq-grid { grid-template-columns: 1fr; } }
+  .conseq { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 0.85rem 1rem; }
+  .conseq .tag { font-family: var(--mono); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 0.35rem; }
+  .conseq.intended { border-left: 5px solid var(--green); }
+  .conseq.intended .tag { color: var(--green); }
+  .conseq.unintended { border-left: 5px solid var(--amber); background: var(--amber-bg); }
+  .conseq.unintended .tag { color: var(--amber); }
+  .conseq ul { margin: 0; padding-left: 1.2rem; }
+  .conseq li { font-size: 0.98rem; margin-bottom: 0.3rem; }
+
+  /* why-this-works annotations */
+  .why {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--amber-bg);
+    border-top: 2px solid var(--amber);
+    padding: 0.6rem clamp(1.2rem, 4vw, 3rem);
+  }
+  body.show-why .why { display: block; }
+  body.show-why .src-strip { bottom: 6.2rem; }
+  .why .in {
+    max-width: 1150px; margin: 0 auto;
+    font-size: 0.88rem; color: var(--ink);
+  }
+  .why b { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); margin-right: 0.5rem; }
+
+  /* nav */
+  .nav-zone {
+    position: absolute;
+    bottom: 0.8rem;
+    right: 1.1rem;
+    display: flex;
+    gap: 0.45rem;
+    z-index: 30;
+  }
+  .nav-zone button {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: 2.4rem;
+    height: 2.1rem;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .nav-zone button:hover { border-color: var(--blue); color: var(--blue); }
+  .dots { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.4rem; z-index: 30; }
+  .dots span { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line); cursor: pointer; }
+  .dots span.on { background: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="deck-tag">Exemplar &bull; <a href="index.html">Country Profile Capstone</a> &bull; Citizenship 9 Unit 6</span>
+  <button class="why-toggle" onclick="document.body.classList.toggle('show-why')">Why this earns a 4</button>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- SLIDE 1 : TITLE -->
+  <section class="slide active">
+    <span class="slide-num">1 / 7</span>
+    <div class="slide-inner grid-2">
+      <div>
+        <span class="slide-kicker">Country Profile Capstone &bull; Model Project</span>
+        <h1>Tuvalu &amp; Sea Level Rise</h1>
+        <p class="muted" style="font-size:1.15rem;">A country built two metres above the ocean decides what to do when the ocean starts winning.</p>
+        <div class="outcome-band">
+          <span class="label">Outcome (verbatim from the curriculum)</span>
+          <p class="statement">Evaluate the consequences of action and inaction as twenty-first century global citizens.</p>
+        </div>
+        <img src="images/Flag-of-Tuvalu.webp" alt="Flag of Tuvalu" style="width:86px; border:1px solid var(--line); border-radius:3px;">
+      </div>
+      <div>
+        <img class="slide-photo" src="images/Tuvalu_-_Funafuti_-_Beach.jpg" alt="Funafuti lagoon, Tuvalu">
+        <p class="photo-cap">The Funafuti lagoon at high tide. Photo: Wikimedia Commons (CC).</p>
+      </div>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> CIA World Factbook. (2024). Tuvalu. https://www.cia.gov/the-world-factbook/countries/tuvalu/ &bull; photo credit in caption</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>The title names the country AND the issue, the opening line sets up a conflict (not a geography report), the outcome is on the title slide, and the lagoon photo does emotional work the text does not have to do.</div></div>
+  </section>
+
+  <!-- SLIDE 2 : COUNTRY BACKGROUND -->
+  <section class="slide">
+    <span class="slide-num">2 / 7</span>
+    <div class="slide-inner grid-2 rev">
+      <div>
+        <img class="slide-photo" src="images/tuvalu-map.jpg" alt="Educational map of the South Pacific with Tuvalu circled">
+        <p class="photo-cap">Educational map of the South Pacific with Tuvalu circled (Wikimedia Commons, CC).</p>
+      </div>
+      <div>
+        <span class="slide-kicker">Slide 2 &bull; Country Background</span>
+        <h2>Nine islands, one kilometre of "up"</h2>
+        <div class="fact-row">
+          <div class="fact"><div class="v">9</div><div class="k">atolls + reef islands</div></div>
+          <div class="fact"><div class="v">26 km&sup2;</div><div class="k">total land</div></div>
+          <div class="fact"><div class="v">~11,000</div><div class="k">people</div></div>
+          <div class="fact"><div class="v">2 m</div><div class="k">average height above sea</div></div>
+        </div>
+        <ul>
+          <li>Polynesian nation in the South Pacific, halfway between Hawaii and Australia. Languages: Tuvaluan and English.</li>
+          <li>Parliamentary democracy in free association with tradition: island elders (the <em>Falekaupule</em> still guide local decisions).</li>
+          <li>Money comes from fishing licences, seafarer wages sent home, foreign aid, and one strange fact: Tuvalu rents out its internet suffix <strong>.tv</strong> to streaming companies.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> CIA World Factbook. (2024). Tuvalu. &bull; SPREP. (2021). Tuvalu country profile. https://www.sprep.org/members/tuvalu</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>Four numbers do the work of a paragraph. Culture, government and economy each get one line, and the .tv fact is real research (it is on Slide 2 of any full-marks deck: 3-4 sentences, no more).</div></div>
+  </section>
+
+  <!-- SLIDE 3 : THE ISSUE -->
+  <section class="slide">
+    <span class="slide-num">3 / 7</span>
+    <div class="slide-inner">
+      <span class="slide-kicker">Slide 3 &bull; The Global Issue</span>
+      <h2>Sea level rise: a global cause, a local ending</h2>
+      <div class="grid-2">
+        <div>
+          <ul>
+            <li>Warm water expands and melting ice sheets add water: the global ocean is rising about <strong>3.4 mm per year</strong>.</li>
+            <li>The Western Pacific rises almost twice as fast as the world average, because of wind and current patterns.</li>
+            <li>Tuvalu's sea has climbed roughly <strong>15 cm in 30 years</strong>.</li>
+            <li>By 2050, half of Funafuti, the main atoll where most people live, is projected to flood at high tide every single day.</li>
+            <li>Salt water is already poisoning the underground freshwater and killing <em>pulaka</em>, the traditional crop.</li>
+          </ul>
+        </div>
+        <div>
+          <img class="slide-photo" src="images/tuvalu-beach-2.jpg" alt="Tuvalu shoreline at low height">
+          <p class="photo-cap">A Tuvalu shoreline. Photo: Wikimedia Commons (CC).</p>
+        </div>
+      </div>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> NASA Sea Level Change Portal. (2023). https://sealevel.nasa.gov/ &bull; IPCC. (2021). Special report on the ocean and cryosphere. https://www.ipcc.ch/srocc/</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>The issue is defined globally (3.4 mm), then scaled to the country (15 cm / 30 years) with a dated projection (2050). Real numbers, named sources, no vague "climate change is bad".</div></div>
+  </section>
+
+  <!-- SLIDE 4 : ACTION -->
+  <section class="slide">
+    <span class="slide-num">4 / 7</span>
+    <div class="slide-inner">
+      <span class="slide-kicker">Slide 4 &bull; Action / Inaction</span>
+      <h2>What Tuvalu has actually done</h2>
+      <div class="conseq-grid">
+        <div class="conseq intended">
+          <span class="tag">Build</span>
+          <ul>
+            <li><strong>Coastal Adaptation Project (2017-2024):</strong> $38.9M from the Green Climate Fund. Reclaimed 7.3 hectares of land and raised it 3.5 m above the current sea. Rock walls on the outer islands.</li>
+            <li><strong>Water security:</strong> rainwater tanks and small desalination units against the poisoned groundwater.</li>
+          </ul>
+        </div>
+        <div class="conseq intended">
+          <span class="tag">Diplomacy</span>
+          <ul>
+            <li><strong>UN + AOSIS:</strong> led the island-states fight for the 1.5&deg;C target. "Two degrees is a death sentence for Tuvalu."</li>
+            <li><strong>Digital Nation (COP27, 2022):</strong> a digital twin of the country, built to preserve statehood and culture if the land is lost.</li>
+            <li><strong>Falepili Union (Nov 2023):</strong> a first-of-its-kind treaty with Australia: 280 Tuvaluans a year can move, in exchange for Australia's say in Tuvalu's security.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> UNDP. (2023). Tuvalu Coastal Adaptation Project. https://www.tcap.tv/ &bull; DFAT. (2023). Australia-Tuvalu Falepili Union treaty. https://www.dfat.gov.au/</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>Every bullet is a DONE thing with a date, a number, or a name. Nothing here is a promise. Slide 4 is the heart of the project: if yours is thinner than your background slide, the project is inside-out.</div></div>
+  </section>
+  <!-- SLIDE 5 : CONSEQUENCES -->
+  <section class="slide">
+    <span class="slide-num">5 / 7</span>
+    <div class="slide-inner">
+      <span class="slide-kicker">Slide 5 &bull; Consequences</span>
+      <h2>What came of it: the consequence map</h2>
+      <div class="conseq-grid">
+        <div class="conseq intended">
+          <span class="tag">Intended &bull; and it worked</span>
+          <ul>
+            <li>Reclaimed land and rock walls protected houses and government buildings through recent storm seasons.</li>
+            <li>The diplomacy campaign got results: more countries now accept that Tuvalu's statehood and ocean zone survive even if the land does not.</li>
+          </ul>
+        </div>
+        <div class="conseq unintended">
+          <span class="tag">Unintended &bull; nobody planned this</span>
+          <ul>
+            <li>Hard walls redirect wave energy: the protected beach wins, the unprotected beach next door erodes faster.</li>
+            <li>Lost gardens mean imported rice and canned meat: Tuvalu now carries some of the world's highest diabetes rates.</li>
+            <li>The Falepili Union splits families: working-age Tuvaluans leave for Australia, elders stay, the island's social fabric thins.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:0.8rem;"><strong>Long term:</strong> walls cannot beat the ocean forever, migration cannot keep a culture whole by itself, and "who carries it" has one answer in every row: the Tuvaluans.</p>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b>SPREP. (2022). Coastal vulnerability assessment, Funafuti. https://www.sprep.org/ &bull; ReliefWeb. (2023). Climate mobility in the Pacific: Kiribati and Tuvalu. https://reliefweb.int/</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>Intended vs unintended, short vs long term, and a named victim in every line. This is the curriculum outcome on one slide: consequences of action AND inaction, evaluated.</div></div>
+  </section>
+
+  <!-- SLIDE 6 : CANADA + REFLECTION -->
+  <section class="slide">
+    <span class="slide-num">6 / 7</span>
+    <div class="slide-inner">
+      <span class="slide-kicker">Slide 6 &bull; Canada Comparison + Reflection</span>
+      <h2>Same ocean, different shoes: Canada's turn</h2>
+      <ul>
+        <li><strong>Canada also acts:</strong> the National Adaptation Strategy (2022) put $1.6B into flood maps, wildfire defence, and coastline protection, including here in Atlantic Canada.</li>
+        <li><strong>Canada also pays abroad:</strong> billions in international climate finance, some of it through the very Green Climate Fund that built Tuvalu's seawall.</li>
+        <li><strong>The honest difference:</strong> Canada is a rich continent-sized country that can move people inland. Tuvalu cannot retreat. Same issue, wildly different options, which is exactly why Tuvalu pushes for global targets instead of local walls.</li>
+      </ul>
+      <h3>Why should Canadians care?</h3>
+      <ul>
+        <li>Nova Scotia is a coastal province watching the same water: ask the wharves of Cape Sable Island or the PEI shorelines.</li>
+        <li>The 1.5&deg;C target Tuvalu fights for is the same target that decides how much our coast spends on seawalls by 2070.</li>
+        <li>Tuvalu's case is rewriting the rules on what a country is when its land disappears, and those rules are ones Canada depends on too.</li>
+      </ul>
+    </div>
+    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b>Environment and Climate Change Canada. (2022). National Adaptation Strategy. https://www.canada.ca/ &bull; Global Affairs Canada. (2023). Climate finance commitments. https://www.international.gc.ca/</div></div>
+    <div class="why"><div class="in"><b>Why a 4</b>The comparison is specific (same issue, both act, real difference named and explained) and the reflection lands locally: Nova Scotia wharves, 2070, the rules of statehood. "Why care" answered in the student's own frame, not a slogan.</div></div>
+  </section>
+
+  <!-- SLIDE 7 : SOURCES -->
+  <section class="slide">
+    <span class="slide-num">7 / 7</span>
+    <div class="slide-inner">
+      <span class="slide-kicker">Slide 7 &bull; Sources (APA)</span>
+      <h2>Every source used in this deck</h2>
+      <ul style="font-size: clamp(0.85rem, 1.6vw, 1rem); color: var(--muted);">
+        <li>Australian Government DFAT. (2023). <em>Australia-Tuvalu Falepili Union treaty.</em> https://www.dfat.gov.au/geo/pacific/australia-tuvalu-falepili-union</li>
+        <li>Central Intelligence Agency. (2024). <em>Tuvalu.</em> In The World Factbook. https://www.cia.gov/the-world-factbook/countries/tuvalu/</li>
+        <li>Environment and Climate Change Canada. (2022). <em>Canada's National Adaptation Strategy.</em> https://www.canada.ca/en/environment-climate-change.html</li>
+        <li>IPCC. (2021). <em>Special report on the ocean and cryosphere in a changing climate.</em> https://www.ipcc.ch/srocc/</li>
+        <li>NASA Sea Level Change Portal. (2023). <em>Sea level projection tool.</em> https://sealevel.nasa.gov/</li>
+        <li>ReliefWeb / UN OCHA. (2023). <em>Navigating climate mobility in the Pacific: Kiribati and Tuvalu.</em> https://reliefweb.int/</li>
+        <li>Secretariat of the Pacific Regional Environment Programme. (2021). <em>Tuvalu country profile.</em> https://www.sprep.org/members/tuvalu</li>
+        <li>United Nations Development Programme. (2023). <em>Tuvalu Coastal Adaptation Project.</em> https://www.tcap.tv/</li>
+      </ul>
+      <p class="muted">Images: Funafuti lagoon, shoreline, South Pacific map and Niutao children via Wikimedia Commons (CC BY / CC BY-SA); flag of Tuvalu via Wikimedia Commons / flagcdn.</p>
+    </div>
+    <div class="why"><div class="in"><b>Why a 4</b>Eight sources, every one a government, UN, or research body, formatted in APA. Images credited too. This slide does not count as one of the six content slides.</div></div>
+  </section>
+
+  <div class="nav-zone">
+    <button onclick="go(-1)" aria-label="Previous slide">&larr;</button>
+    <button onclick="go(1)" aria-label="Next slide">&rarr;</button>
+  </div>
+  <div class="dots" id="dots"></div>
+</div>
+
+<script>
+  var slides = document.querySelectorAll(".slide");
+  var cur = 0;
+  var dots = document.getElementById("dots");
+  slides.forEach(function (_, i) {
+    var d = document.createElement("span");
+    d.onclick = function () { show(i); };
+    dots.appendChild(d);
+  });
+
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle("active", k === cur); });
+    dots.querySelectorAll("span").forEach(function (d, k) { d.classList.toggle("on", k === cur); });
+  }
+  function go(d) { show(cur + d); }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+  });
+
+  show(0);
+</script>
+</body>
+</html>
