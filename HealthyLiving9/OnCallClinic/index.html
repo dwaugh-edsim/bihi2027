@@ -138,6 +138,35 @@
   .opt-btn.wrong .let{background:var(--coral);color:#2b0711;border-color:var(--coral)}
   .opt-btn:disabled{cursor:default}
 
+  /* INTERACTIVE CHALLENGES (RX, TRIAGE, ORDER, SLIDER) */
+  .ch-badge{display:inline-block;font-family:var(--f-mono);font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.16);color:var(--amber);border:1px solid rgba(245,158,11,.45);margin-bottom:8px}
+  .rx-list{display:grid;gap:8px;margin-bottom:12px}
+  .rx-item{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;color:var(--ink);font-size:.94rem}
+  .rx-item.sel{border-color:var(--teal);background:rgba(45,212,191,.13)}
+  .rx-item.ok{border-color:var(--ok);background:rgba(34,197,94,.16)}
+  .rx-item.bad{border-color:var(--coral);background:rgba(251,113,133,.16)}
+  .rx-box{width:20px;height:20px;border-radius:5px;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:800;font-size:.78rem;flex:none;margin-top:1px}
+  .rx-item.sel .rx-box{border-color:var(--teal);background:var(--teal);color:#04241f}
+  .triage-list{display:grid;gap:10px;margin-bottom:12px}
+  .triage-row{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px}
+  .triage-row.ok{border-color:var(--ok);background:rgba(34,197,94,.12)}
+  .triage-row.bad{border-color:var(--coral);background:rgba(251,113,133,.12)}
+  .triage-txt{font-size:.94rem;color:#fff;margin-bottom:8px;font-weight:600}
+  .triage-btns{display:flex;gap:7px;flex-wrap:wrap}
+  .tb-btn{background:var(--panel2);border:1px solid var(--frame);color:var(--muted);border-radius:7px;padding:6px 10px;font-family:var(--f-mono);font-size:.73rem;font-weight:700}
+  .tb-btn.sel{background:var(--teal);color:#04241f;border-color:var(--teal)}
+  .ord-item{display:flex;gap:11px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;color:var(--ink);font-size:.94rem}
+  .ord-item.sel{border-color:var(--teal);background:rgba(45,212,191,.13)}
+  .ord-item.ok{border-color:var(--ok);background:rgba(34,197,94,.16)}
+  .ord-item.bad{border-color:var(--coral);background:rgba(251,113,133,.16)}
+  .ord-num{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--frame);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:800;color:var(--teal);flex:none}
+  .ord-item.sel .ord-num{background:var(--teal);color:#04241f;border-color:var(--teal)}
+  .dial-box{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:12px;text-align:center}
+  .dial-val{font-family:var(--f-slab);font-size:2.3rem;color:var(--teal);margin-bottom:10px}
+  .dial-range{width:100%;max-width:520px;accent-color:var(--teal);height:8px;cursor:pointer}
+  .dial-ends{display:flex;justify-content:space-between;max-width:520px;margin:6px auto 0;font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+  .ch-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
   .feedback{display:none;margin-top:14px;padding:13px 16px;border-radius:11px;border:1.5px solid var(--line)}
   .feedback.show{display:block}
   .feedback.ok{background:rgba(34,197,94,.12);border-color:var(--ok)}
@@ -363,6 +392,7 @@
 <script src="cases_repro.js?v=20261119b"></script>
 <script src="cases_sleep.js?v=20261119b"></script>
 <script src="cases_nav.js?v=20261119b"></script>
+<script src="cases_challenges.js?v=20261119b"></script>
 <script>
 const Clinic = (function(){
   "use strict";
@@ -553,8 +583,10 @@ const Clinic = (function(){
 
   function buildQueue(){
     const all = window.ONCALL_CASES || [];
+    const chAll = window.ONCALL_CHALLENGES || [];
     const deptKeys = ['infectious', 'repro', 'sleep', 'nav'];
-    // Guarantee balanced rotation across all 4 departments inside EVERY tier (1 -> 2 -> 3 -> 4 endless)
+    // Guarantee balanced rotation across all 4 departments inside EVERY tier,
+    // weaving 1 interactive clinical challenge into every tier wave (+ mixing rest in Tier 4).
     function tierWave(tierNum, perDept){
       const picked = [];
       const rest = [];
@@ -563,7 +595,12 @@ const Clinic = (function(){
         picked.push(...pool.slice(0, perDept));
         rest.push(...pool.slice(perDept));
       });
-      return { wave: shuffle(picked), rest: shuffle(rest) };
+      const chPool = shuffle(chAll.filter(c => c.tier === tierNum));
+      const wave = shuffle(picked);
+      if(chPool.length){
+        wave.splice(2, 0, chPool[0]); // place interactive challenge as 3rd case in each tier
+      }
+      return { wave, rest: shuffle(rest.concat(chPool.slice(1))) };
     }
     const t1 = tierWave(1, 1);
     const t2 = tierWave(2, 1);
@@ -621,49 +658,172 @@ const Clinic = (function(){
     el('cQuote').textContent = '"' + c.quote + '"';
     el('cQ').textContent = c.q;
 
-    // Shuffle options cleanly while tracking correct answer
-    const indexed = shuffle(c.opts.map((t, i) => ({ t, ok: i === c.ans })));
-    shift.currentOpts = indexed;
-    const letters = ['A','B','C','D','E'];
-    el('cOpts').innerHTML = indexed.map((o, i) => (
-      '<button class="opt-btn" type="button" onclick="Clinic.pick(' + i + ')">' +
-      '<span class="let">' + letters[i] + '</span><span>' + esc(o.t) + '</span></button>'
-    )).join('');
+    // Render standard MC or interactive clinical challenge
+    shift.chState = {};
+    const kindLabels = { rx:'CHART ORDERS (MULTI-SELECT) · +25% BONUS', triage:'RAPID TRIAGE BOARD · +25% BONUS', order:'PROTOCOL SEQUENCE (1-4) · +25% BONUS', slider:'CLINICAL DIAL ESTIMATE · +25% BONUS' };
+    if(!c.kind){
+      const indexed = shuffle(c.opts.map((t, i) => ({ t, ok: i === c.ans })));
+      shift.currentOpts = indexed;
+      const letters = ['A','B','C','D','E'];
+      el('cOpts').innerHTML = indexed.map((o, i) => (
+        '<button class="opt-btn" type="button" onclick="Clinic.pick(' + i + ')">' +
+        '<span class="let">' + letters[i] + '</span><span>' + esc(o.t) + '</span></button>'
+      )).join('');
+    } else if(c.kind === 'rx'){
+      const items = shuffle(c.items.map((it, idx) => Object.assign({ idx }, it)));
+      shift.chState = { items, picked: new Set() };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.rx + '</div>' +
+        '<div class="rx-list">' + items.map((it, i) => (
+          '<button class="rx-item" id="rx_' + i + '" type="button" onclick="Clinic.toggleRx(' + i + ')">' +
+          '<span class="rx-box" id="rxb_' + i + '"></span><span>' + esc(it.t) + '</span></button>'
+        )).join('') + '</div>' +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Sign Chart Orders &rarr;</button></div>';
+    } else if(c.kind === 'triage'){
+      const rows = shuffle(c.rows.map((r, idx) => Object.assign({ idx }, r)));
+      shift.chState = { rows, picks: {} };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.triage + '</div>' +
+        '<div class="triage-list">' + rows.map((r, ri) => (
+          '<div class="triage-row" id="tr_' + ri + '"><div class="triage-txt">' + esc(r.t) + '</div>' +
+          '<div class="triage-btns">' + c.buckets.map((b, bi) => (
+            '<button class="tb-btn" id="tb_' + ri + '_' + bi + '" type="button" onclick="Clinic.pickTriage(' + ri + ',' + bi + ')">' + esc(b) + '</button>'
+          )).join('') + '</div></div>'
+        )).join('') + '</div>' +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Lock Triage Board &rarr;</button></div>';
+    } else if(c.kind === 'order'){
+      const steps = shuffle(c.steps.map((t, origIdx) => ({ t, origIdx })));
+      shift.chState = { steps, seq: [] };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.order + '</div>' +
+        '<div class="rx-list">' + steps.map((st, i) => (
+          '<button class="ord-item" id="ord_' + i + '" type="button" onclick="Clinic.pickOrder(' + i + ')">' +
+          '<span class="ord-num" id="ordn_' + i + '">-</span><span>' + esc(st.t) + '</span></button>'
+        )).join('') + '</div>' +
+        '<div class="ch-actions">' +
+        '<button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Lock Sequence &rarr;</button>' +
+        '<button class="btn-sec" id="ordReset" type="button" onclick="Clinic.resetOrder()">Reset Order</button></div>';
+    } else if(c.kind === 'slider'){
+      const mid = Math.round(((c.min + c.max) / 2) / c.step) * c.step;
+      shift.chState = { val: mid };
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.slider + '</div>' +
+        '<div class="dial-box">' +
+        '<div class="dial-val" id="dialVal">' + mid + ' ' + esc(c.unit) + '</div>' +
+        '<input class="dial-range" id="dialRange" type="range" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '" value="' + mid + '" oninput="Clinic.moveDial(this.value)">' +
+        '<div class="dial-ends"><span>' + c.min + ' ' + esc(c.unit) + '</span><span>' + c.max + ' ' + esc(c.unit) + '</span></div>' +
+        '</div>' +
+        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Lock In Clinical Dial &rarr;</button></div>';
+    }
 
     el('cFeed').className = 'feedback';
   }
 
-  function pick(i){
+  function toggleRx(i){
     if(!shift || shift.locked) return;
+    const p = shift.chState.picked;
+    if(p.has(i)) p.delete(i); else p.add(i);
+    el('rx_' + i).classList.toggle('sel', p.has(i));
+    el('rxb_' + i).textContent = p.has(i) ? '\u2713' : '';
+  }
+  function pickTriage(ri, bi){
+    if(!shift || shift.locked) return;
+    shift.chState.picks[ri] = bi;
+    const c = shift.queue[shift.idx];
+    c.buckets.forEach((_, k) => el('tb_' + ri + '_' + k).classList.toggle('sel', k === bi));
+  }
+  function pickOrder(i){
+    if(!shift || shift.locked) return;
+    const seq = shift.chState.seq;
+    const pos = seq.indexOf(i);
+    if(pos !== -1){ seq.splice(pos, 1); } else { seq.push(i); }
+    shift.chState.steps.forEach((_, k) => {
+      const idx = seq.indexOf(k);
+      el('ord_' + k).classList.toggle('sel', idx !== -1);
+      el('ordn_' + k).textContent = idx !== -1 ? String(idx + 1) : '-';
+    });
+  }
+  function resetOrder(){
+    if(!shift || shift.locked) return;
+    shift.chState.seq = [];
+    shift.chState.steps.forEach((_, k) => {
+      el('ord_' + k).classList.remove('sel');
+      el('ordn_' + k).textContent = '-';
+    });
+  }
+  function moveDial(v){
+    if(!shift || shift.locked) return;
+    shift.chState.val = Number(v);
+    const c = shift.queue[shift.idx];
+    el('dialVal').textContent = v + ' ' + c.unit;
+  }
+
+  function submitChallenge(){
+    if(!shift || shift.locked) return;
+    const c = shift.queue[shift.idx];
+    let ok = false;
+    let rightDesc = '';
+    if(c.kind === 'rx'){
+      if(shift.chState.picked.size === 0) return;
+      ok = shift.chState.items.every((it, i) => it.ok === shift.chState.picked.has(i));
+      shift.chState.items.forEach((it, i) => {
+        const b = el('rx_' + i); b.disabled = true;
+        if(it.ok) b.classList.add('ok');
+        else if(shift.chState.picked.has(i)) b.classList.add('bad');
+      });
+      rightDesc = c.items.filter(x => x.ok).map(x => x.t).join(' + ');
+    } else if(c.kind === 'triage'){
+      if(Object.keys(shift.chState.picks).length < shift.chState.rows.length) return;
+      ok = shift.chState.rows.every((r, ri) => shift.chState.picks[ri] === r.ans);
+      shift.chState.rows.forEach((r, ri) => {
+        const rowEl = el('tr_' + ri);
+        rowEl.classList.add(shift.chState.picks[ri] === r.ans ? 'ok' : 'bad');
+        c.buckets.forEach((_, bi) => { el('tb_' + ri + '_' + bi).disabled = true; });
+      });
+      rightDesc = c.rows.map(r => r.t + ' -> ' + c.buckets[r.ans]).join(' | ');
+    } else if(c.kind === 'order'){
+      if(shift.chState.seq.length < shift.chState.steps.length) return;
+      ok = shift.chState.seq.every((btnIdx, stepPos) => shift.chState.steps[btnIdx].origIdx === stepPos);
+      shift.chState.steps.forEach((st, i) => {
+        const b = el('ord_' + i); b.disabled = true;
+        const pickedPos = shift.chState.seq.indexOf(i);
+        b.classList.add(pickedPos === st.origIdx ? 'ok' : 'bad');
+        el('ordn_' + i).textContent = String(st.origIdx + 1);
+      });
+      if(el('ordReset')) el('ordReset').disabled = true;
+      rightDesc = c.steps.map((s, i) => (i+1) + '. ' + s).join(' -> ');
+    } else if(c.kind === 'slider'){
+      const v = shift.chState.val;
+      ok = Math.abs(v - c.target) <= c.tol;
+      el('dialRange').disabled = true;
+      el('dialVal').innerHTML = v + ' ' + esc(c.unit) + ' <span style="font-size:1rem;color:' + (ok ? 'var(--ok)' : 'var(--coral)') + '">(Target: ' + c.target + ' ' + esc(c.unit) + ')</span>';
+      rightDesc = c.target + ' ' + c.unit + ' (within +/-' + c.tol + ')';
+    }
+    if(el('chSubmit')) el('chSubmit').disabled = true;
+    resolveOutcome(c, ok, rightDesc, 1.25);
+  }
+
+  function resolveOutcome(c, ok, rightDesc, bonusMult){
     shift.locked = true;
     shift.seen++;
-    const c = shift.queue[shift.idx];
-    const chosen = shift.currentOpts[i];
-    const btns = Array.from(el('cOpts').querySelectorAll('.opt-btn'));
-    btns.forEach((b, k) => {
-      b.disabled = true;
-      if(shift.currentOpts[k].ok) b.classList.add('correct');
-      else if(k === i && !chosen.ok) b.classList.add('wrong');
-    });
-
     const fb = el('cFeed');
-    if(chosen.ok){
+    if(ok){
       shift.treated++;
       shift.streak++;
       shift.bestStreak = Math.max(shift.bestStreak, shift.streak);
       const streakMult = shift.streak >= 6 ? 3 : (shift.streak >= 3 ? 2 : (shift.streak >= 2 ? 1.5 : 1));
       const basePts = 100 * c.tier;
-      const pts = Math.round(basePts * streakMult * shift.mult);
+      const pts = Math.round(basePts * streakMult * shift.mult * (bonusMult || 1));
       shift.score += pts;
       el('gScore').textContent = shift.score;
       fb.className = 'feedback show ok';
-      el('fHead').textContent = 'PATIENT TREATED  +' + pts + ' PTS';
+      el('fHead').textContent = (bonusMult > 1 ? 'CHALLENGE CLEARED  +' : 'PATIENT TREATED  +') + pts + ' PTS';
       el('fBody').textContent = 'Clinical Pearl: ' + c.pearl;
       el('nextBtn').textContent = 'Next Patient \u2192';
     } else {
       shift.streak = 0;
       shift.strikesLeft--;
-      shift.misses.push({ patient: c.patient, q: c.q, right: c.opts[c.ans], pearl: c.pearl });
+      shift.misses.push({ patient: c.patient, q: c.q, right: rightDesc, pearl: c.pearl });
       let hearts = '';
       for(let k=0;k<shift.maxStrikes;k++) hearts += (k < shift.strikesLeft ? '\u2764\uFE0F' : '\uD83D\uDDA4');
       el('gHearts').textContent = hearts;
@@ -672,8 +832,21 @@ const Clinic = (function(){
       el('fHead').textContent = shift.strikesLeft > 0 ? ('STRIKE ' + strikeNum + ' OF ' + shift.maxStrikes) : 'LICENSE REVOKED - GAME OVER';
       el('fBody').textContent = 'Attending Correction: ' + c.pearl;
       el('nextBtn').textContent = shift.strikesLeft > 0 ? 'Next Patient \u2192' : 'View Shift Report \u2192';
-      showStrikeModal(strikeNum, c.opts[c.ans], c.pearl);
+      showStrikeModal(strikeNum, rightDesc, c.pearl);
     }
+  }
+
+  function pick(i){
+    if(!shift || shift.locked) return;
+    const c = shift.queue[shift.idx];
+    const chosen = shift.currentOpts[i];
+    const btns = Array.from(el('cOpts').querySelectorAll('.opt-btn'));
+    btns.forEach((b, k) => {
+      b.disabled = true;
+      if(shift.currentOpts[k].ok) b.classList.add('correct');
+      else if(k === i && !chosen.ok) b.classList.add('wrong');
+    });
+    resolveOutcome(c, chosen.ok, c.opts[c.ans], 1);
   }
 
   const STRIKE_SLIDES = {
@@ -784,7 +957,7 @@ const Clinic = (function(){
   }
 
   boot();
-  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike };
+  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike, toggleRx, pickTriage, pickOrder, resetOrder, moveDial, submitChallenge };
 })();
 </script>
 </body>
