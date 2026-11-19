@@ -463,8 +463,8 @@ const Clinic = (function(){
   function boot(){
     try { if(sessionStorage.getItem('oc_big')==='1') document.documentElement.classList.add('big'); } catch(e){}
     const m = (location.hash||'').match(/[#&]r8id=([^&]+)/);
-    if(m){ try{ identity=JSON.parse(atobUrl(m[1])); sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); }catch(e){} history.replaceState(null,'',location.pathname+location.search); }
-    if(!identity){ try{ const s=sessionStorage.getItem(ID_KEY); if(s) identity=JSON.parse(s); }catch(e){} }
+    if(m){ try{ const parsed=JSON.parse(atobUrl(m[1])); if(parsed && parsed.email && parsed.sig){ identity=parsed; sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } }catch(e){} history.replaceState(null,'',location.pathname+location.search); }
+    if(!identity){ try{ const s=sessionStorage.getItem(ID_KEY); if(s){ const parsed=JSON.parse(s); if(parsed && parsed.email && parsed.sig) identity=parsed; else sessionStorage.removeItem(ID_KEY); } }catch(e){} }
     if(SKIPNET){ identity = { email:'preview.doctor@gnspes.ca', ts:Date.now(), sig:'demo' }; }
     if(identity && identity.email && identity.sig){ showApp(); }
     else {
@@ -486,7 +486,9 @@ const Clinic = (function(){
   }
   function onIdMsg(ev){
     if(!ev.data || ev.data.type !== 'r8id') return;
-    identity = { email:ev.data.email, ts:ev.data.ts, sig:ev.data.sig };
+    const id = ev.data.id || ev.data;
+    if(!id || !id.email || !id.sig) return;
+    identity = { email:id.email, ts:id.ts, sig:id.sig };
     try{ sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); }catch(e){}
     try{ if(popupRef && !popupRef.closed) popupRef.close(); }catch(e){}
     showApp();
@@ -527,7 +529,13 @@ const Clinic = (function(){
         const autoSec = normalizeSection(profile.section || (j && (j.rosterSection || j.section)));
         if(autoSec){ profile.section = autoSec; sel.value = autoSec; }
         syncSecUi();
-        if(j && j.status === 'auth_failed') setSync('ERR: ' + (j.reason||'auth'), 'warn');
+        if(j && j.status === 'auth_failed'){
+          try{ sessionStorage.removeItem(ID_KEY); }catch(e){}
+          identity = null;
+          el('app').style.display='none'; el('gate').style.display='flex';
+          el('gateMsg').textContent = 'Please click Sign in again to refresh your session (' + (j.reason||'auth') + ').';
+          return;
+        }
         else setSync('SERVER OK','ok');
         updateLobbyStats();
         loadLeaderboard();
