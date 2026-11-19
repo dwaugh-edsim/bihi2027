@@ -420,7 +420,7 @@ const Clinic = (function(){
   const TIER_NAMES = { 1:'Intern', 2:'Resident', 3:'Attending', 4:'Chief of Medicine' };
 
   let identity = null;
-  let profile = { section:'', bestScore:0, bestRank:'Intern', totalTreated:0, shifts:0 };
+  let profile = { section:'', bestScore:0, bestRank:'Intern', totalTreated:0, shifts:0, seenIds:[], deptStats:{}, history:[], recentMisses:[] };
   let shift = null;
   let lastMode = { dept:'all', strikes:3, mult:1 };
   let popupRef = null;
@@ -581,26 +581,33 @@ const Clinic = (function(){
     updateLobbyStats();
   }
 
+  function prioritizeUnseen(pool, seenSet){
+    const fresh = shuffle(pool.filter(c => !seenSet.has(c.id)));
+    const seen  = shuffle(pool.filter(c => seenSet.has(c.id)));
+    return fresh.concat(seen);
+  }
+
   function buildQueue(){
     const all = window.ONCALL_CASES || [];
     const chAll = window.ONCALL_CHALLENGES || [];
     const deptKeys = ['infectious', 'repro', 'sleep', 'nav'];
+    const seenSet = new Set(Array.isArray(profile.seenIds) ? profile.seenIds : []);
     // Guarantee balanced rotation across all 4 departments inside EVERY tier,
-    // weaving 1 interactive clinical challenge into every tier wave (+ mixing rest in Tier 4).
+    // ALWAYS putting unseen questions & unseen challenges first on retakes!
     function tierWave(tierNum, perDept){
       const picked = [];
       const rest = [];
       deptKeys.forEach(dk => {
-        const pool = shuffle(all.filter(c => c.tier === tierNum && c.dept === dk));
+        const pool = prioritizeUnseen(all.filter(c => c.tier === tierNum && c.dept === dk), seenSet);
         picked.push(...pool.slice(0, perDept));
         rest.push(...pool.slice(perDept));
       });
-      const chPool = shuffle(chAll.filter(c => c.tier === tierNum));
+      const chPool = prioritizeUnseen(chAll.filter(c => c.tier === tierNum), seenSet);
       const wave = shuffle(picked);
       if(chPool.length){
-        wave.splice(2, 0, chPool[0]); // place interactive challenge as 3rd case in each tier
+        wave.splice(2, 0, chPool[0]); // place unseen interactive challenge as 3rd case in each tier
       }
-      return { wave, rest: shuffle(rest.concat(chPool.slice(1))) };
+      return { wave, rest: prioritizeUnseen(rest.concat(chPool.slice(1)), seenSet) };
     }
     const t1 = tierWave(1, 1);
     const t2 = tierWave(2, 1);
@@ -808,6 +815,13 @@ const Clinic = (function(){
   function resolveOutcome(c, ok, rightDesc, bonusMult){
     shift.locked = true;
     shift.seen++;
+    if(!Array.isArray(profile.seenIds)) profile.seenIds = [];
+    if(!profile.seenIds.includes(c.id)) profile.seenIds.push(c.id);
+    if(!profile.deptStats || typeof profile.deptStats !== 'object') profile.deptStats = {};
+    const ds = profile.deptStats[c.dept] || { ok:0, tot:0 };
+    ds.tot++; if(ok) ds.ok++;
+    profile.deptStats[c.dept] = ds;
+
     const fb = el('cFeed');
     if(ok){
       shift.treated++;
@@ -928,12 +942,27 @@ const Clinic = (function(){
     }
 
     // Update profile & save to new standalone Vault
+    const rankOrder = { Intern:1, Resident:2, Attending:3, 'Chief of Medicine':4 };
     profile.shifts = (profile.shifts || 0) + 1;
     profile.totalTreated = (profile.totalTreated || 0) + shift.treated;
     if(shift.score > (profile.bestScore || 0)){
       profile.bestScore = shift.score;
+    }
+    if((rankOrder[rank] || 1) >= (rankOrder[profile.bestRank] || 1)){
       profile.bestRank = rank;
     }
+    if(!Array.isArray(profile.history)) profile.history = [];
+    profile.history.unshift({
+      at: new Date().toISOString(),
+      mode: shift.maxStrikes === 1 ? 'Sudden Death' : 'Standard',
+      score: shift.score, rank, treated: shift.treated, seen: shift.seen, streak: shift.bestStreak
+    });
+    profile.history = profile.history.slice(0, 15);
+    if(!Array.isArray(profile.recentMisses)) profile.recentMisses = [];
+    shift.misses.forEach(m => {
+      profile.recentMisses.unshift({ patient: m.patient, q: m.q });
+    });
+    profile.recentMisses = profile.recentMisses.slice(0, 15);
     saveProfile();
   }
 
