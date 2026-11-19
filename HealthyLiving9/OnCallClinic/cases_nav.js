@@ -143,8 +143,8 @@ window.ONCALL_CASES.push(
     ],
     ans:0, pearl:"Blood alcohol keeps rising even after a person passes out. Cold showers, coffee, and walking do not sober someone up. Slow breathing, cold skin, or inability to wake requires 911 and the recovery position immediately." },
   { id:"nav13", dept:"nav", tier:2, patient:"Devon, 15", complaint:"Calling 911 during a suspected overdose",
-    vitals:"CO8 + CO10 Canadian law",
-    quote:"If someone is overdosing at a party and there are drugs in the room, people are terrified that calling 911 will get everyone arrested.",
+    vitals:"Emergency law consult",
+    quote:"If someone is overdosing at a party and a friend calls 911, will they get arrested for simple drug possession?",
     q:"What protection does Canada's Good Samaritan Drug Overdose Act provide?",
     opts:[
       "Protection from simple possession charges and related breach conditions for callers and people at the scene",
