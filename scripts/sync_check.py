@@ -27,7 +27,8 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 # File patterns that are NEVER content — safe to be untracked/ignored.
 NOISE = ('__pycache__', '*.pyc', '.zcode', '.DS_Store', 'Thumbs.db',
-         '~$*', '*.tmp', '*.bak', 'node_modules', '.kilo', '*.code-workspace')
+         '~$*', '*.tmp', '*.bak', 'node_modules', '.kilo', '*.code-workspace',
+         '.video_agent')
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PUBLIC = os.path.dirname(HERE)
