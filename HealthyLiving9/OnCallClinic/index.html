@@ -146,6 +146,26 @@
   .feedback.ok .fh{color:var(--ok)} .feedback.bad .fh{color:var(--coral)}
   .feedback p{font-size:.93rem;color:#fff;margin-bottom:10px}
 
+  /* STRIKE MODAL */
+  #strikeModal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(4,8,18,.88);backdrop-filter:blur(6px)}
+  #strikeModal.show{display:flex;animation:fadeIn .22s ease}
+  @keyframes fadeIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  .strike-card{max-width:760px;width:100%;background:var(--panel);border:2px solid var(--amber);border-radius:16px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.78)}
+  .strike-card.s2{border-color:#f97316}
+  .strike-card.s3{border-color:var(--coral)}
+  .strike-art{height:270px;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-end;padding:16px 22px}
+  .strike-art::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,25,45,.97) 4%,rgba(15,25,45,.25) 100%)}
+  .strike-art-in{position:relative;z-index:1;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .strike-stamp{font-family:var(--f-mono);font-size:.76rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:2px solid var(--amber);color:var(--amber);background:rgba(7,13,25,.82);transform:rotate(-2deg)}
+  .strike-card.s2 .strike-stamp{border-color:#f97316;color:#f97316}
+  .strike-card.s3 .strike-stamp{border-color:var(--coral);color:var(--coral)}
+  .strike-body{padding:16px 22px 22px}
+  .strike-body h2{font-family:var(--f-slab);font-size:1.55rem;color:#fff;margin:2px 0 8px}
+  .strike-body .memo{background:var(--panel2);border-left:4px solid var(--amber);border-radius:0 9px 9px 0;padding:11px 14px;color:var(--ink);font-size:.94rem;margin-bottom:12px}
+  .strike-card.s2 .memo{border-left-color:#f97316}
+  .strike-card.s3 .memo{border-left-color:var(--coral)}
+  .strike-body .pearl-note{font-size:.86rem;color:var(--muted);margin-bottom:14px}
+
   /* SUMMARY */
   .sum-card{background:var(--panel);border:2px solid var(--teal);border-radius:15px;padding:22px 24px;max-width:860px;margin:0 auto}
   .sum-card.out{border-color:var(--coral)}
@@ -317,6 +337,25 @@
       </div>
     </section>
   </main>
+</div>
+
+<div id="strikeModal" role="dialog" aria-modal="true">
+  <div class="strike-card" id="strikeCard">
+    <div class="strike-art" id="strikeArt">
+      <div class="strike-art-in">
+        <div>
+          <div class="chart-dept" id="strikeFrom">OFFICIAL NOTICE</div>
+          <h2 id="strikeTitle" style="font-family:var(--f-slab);font-size:1.55rem;color:#fff;margin:2px 0 0">Notice</h2>
+        </div>
+        <span class="strike-stamp" id="strikeStamp">STRIKE 1 OF 3</span>
+      </div>
+    </div>
+    <div class="strike-body">
+      <div class="memo" id="strikeMemo"></div>
+      <div class="pearl-note" id="strikePearl"></div>
+      <button class="btn-primary" style="width:auto;padding:11px 24px" type="button" id="strikeBtn" onclick="Clinic.closeStrike()">Return to Exam Room &rarr;</button>
+    </div>
+  </div>
 </div>
 
 <script src="cases_infectious.js?v=20261119"></script>
@@ -616,10 +655,56 @@ const Clinic = (function(){
       for(let k=0;k<shift.maxStrikes;k++) hearts += (k < shift.strikesLeft ? '\u2764\uFE0F' : '\uD83D\uDDA4');
       el('gHearts').textContent = hearts;
       fb.className = 'feedback show bad';
-      el('fHead').textContent = shift.strikesLeft > 0 ? ('STRIKE! (' + shift.strikesLeft + ' left)') : '3 STRIKES - SHIFT OVER';
+      const strikeNum = shift.maxStrikes === 1 ? 3 : (shift.maxStrikes - shift.strikesLeft);
+      el('fHead').textContent = shift.strikesLeft > 0 ? ('STRIKE ' + strikeNum + ' OF ' + shift.maxStrikes) : 'LICENSE REVOKED - GAME OVER';
       el('fBody').textContent = 'Attending Correction: ' + c.pearl;
       el('nextBtn').textContent = shift.strikesLeft > 0 ? 'Next Patient \u2192' : 'View Shift Report \u2192';
+      showStrikeModal(strikeNum, c.opts[c.ans], c.pearl);
     }
+  }
+
+  const STRIKE_SLIDES = {
+    1: {
+      cls: 's1', img: 'assets/strike_1_warning.jpg',
+      from: 'HOSPITAL ADMINISTRATION // ROOM 8 CLINIC',
+      title: 'Official Warning Letter',
+      stamp: 'STRIKE 1 OF 3 · WARNING',
+      memo: 'Dear Doctor: A clinical review has flagged a serious diagnostic error on your shift. This formal warning letter has been placed in your hospital file. Review the Attending Correction below and sharpen your triage calls.',
+      btn: 'Acknowledge Warning & Return to Clinic \u2192'
+    },
+    2: {
+      cls: 's2', img: 'assets/strike_2_probation.jpg',
+      from: 'DEPARTMENT OF HEALTH // PROVINCE OF NOVA SCOTIA',
+      title: 'Notice of Medical Probation',
+      stamp: 'STRIKE 2 OF 3 · PROBATION',
+      memo: 'You have been placed on formal Medical Probation by the Nova Scotia Department of Health following a second clinical error. You are on your FINAL strike - one more missed diagnosis will result in immediate license revocation.',
+      btn: 'Accept Probation & Continue (1 Life Left) \u2192'
+    },
+    3: {
+      cls: 's3', img: 'assets/strike_3_revoked.jpg',
+      from: 'COLLEGE OF PHYSICIANS // NOVA SCOTIA',
+      title: 'Medical License Revoked',
+      stamp: 'STRIKE 3 · GAME OVER',
+      memo: 'Following three clinical errors (or a Sudden Death miss), your medical license has been revoked and your on-call shift is terminated immediately. Review your missed cases in the Shift Report and reapply for a fresh shift!',
+      btn: 'View Final Shift Report \u2192'
+    }
+  };
+
+  function showStrikeModal(num, rightAns, pearl){
+    const s = STRIKE_SLIDES[num] || STRIKE_SLIDES[3];
+    el('strikeCard').className = 'strike-card ' + s.cls;
+    el('strikeArt').style.backgroundImage = "url('" + s.img + "')";
+    el('strikeFrom').textContent = s.from;
+    el('strikeTitle').textContent = s.title;
+    el('strikeStamp').textContent = s.stamp;
+    el('strikeMemo').textContent = s.memo;
+    el('strikePearl').innerHTML = '<strong style="color:var(--teal)">Correct Call:</strong> ' + esc(rightAns) + '<br><strong style="color:var(--amber)">Attending Note:</strong> ' + esc(pearl);
+    el('strikeBtn').textContent = s.btn;
+    el('strikeModal').classList.add('show');
+  }
+  function closeStrike(){
+    el('strikeModal').classList.remove('show');
+    if(shift && shift.strikesLeft <= 0){ endShift(true); }
   }
 
   function nextPatient(){
@@ -686,7 +771,7 @@ const Clinic = (function(){
   }
 
   boot();
-  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead };
+  return { signIn, switchAccount, goLobby, startShift, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike };
 })();
 </script>
 </body>
