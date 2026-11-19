@@ -661,7 +661,7 @@
 
     .topic-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
 
@@ -1911,7 +1911,7 @@
 
           <div class="atlas-banner">
             <h3>Borders, Flags, Capitals, Oceans, and World Trivia</h3>
-            <p>Every round pulls a balanced mix from the 404-item pool and ramps up from Question 1 to Question 10.</p>
+            <p>Every round pulls a balanced mix from the 494-item pool and ramps up from Question 1 to Question 10.</p>
           </div>
 
           <div class="mix-pillars">
@@ -1929,8 +1929,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
               </div>
               <div>
-                <div class="pillar-num">80 Flags</div>
-                <div class="pillar-lbl">Real + lookalike sets</div>
+                <div class="pillar-num">93 Flags</div>
+                <div class="pillar-lbl">World + Canada province sets</div>
               </div>
             </div>
             <div class="pillar-box">
@@ -1938,8 +1938,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
               </div>
               <div>
-                <div class="pillar-num" id="pillarTriviaCount">244 Trivia</div>
-                <div class="pillar-lbl">Capitals, oceans, facts &amp; culture</div>
+                <div class="pillar-num" id="pillarTriviaCount">321 Trivia</div>
+                <div class="pillar-lbl">Capitals, oceans, Canada, facts &amp; culture</div>
               </div>
             </div>
           </div>
@@ -2007,6 +2007,10 @@
               </button>
               <button type="button" class="topic-btn" data-topic="facts" disabled onclick="Arena.selectTopic('facts')">
                 <span class="tp-name">World Facts</span>
+                <span class="tp-sub">Needs 1 Pass</span>
+              </button>
+              <button type="button" class="topic-btn" data-topic="canada" disabled onclick="Arena.selectTopic('canada')">
+                <span class="tp-name">Canada</span>
                 <span class="tp-sub">Needs 1 Pass</span>
               </button>
             </div>
@@ -2232,9 +2236,11 @@
   <script src="assets/world_countries.js"></script>
   <script src="trivia_90.js"></script>
   <script src="trivia_extra.js"></script>
+  <script src="canada_trivia.js?v=1"></script>
   <script src="maps_60.js"></script>
   <script src="flags_60.js"></script>
-  <script src="geo_data.js?v=2"></script>
+  <script src="canada_flags.js?v=1"></script>
+  <script src="geo_data.js?v=3"></script>
   <script>
     (function () {
       'use strict';
@@ -3290,7 +3296,7 @@
       }
 
       function allowsMapClick(q) {
-        if (!q || !q.iso) return false;
+        if (!q || !q.iso || q.prov) return false;
         return isClickMapMode(q) || q.renderMode === 'flag' || q.renderMode === 'trivia';
       }
 
@@ -3506,7 +3512,9 @@
           flagFrame.style.display = 'flex';
           el('flagImg').src = q.flagUrl;
           el('flagImg').alt = 'Flag challenge ' + (round.idx + 1);
-          el('mapRadarCaption').textContent = 'Click the country on the map or pick an option on the right';
+          el('mapRadarCaption').textContent = q.prov
+            ? 'Which province or territory flies this flag? Pick an option on the right'
+            : 'Click the country on the map or pick an option on the right';
         } else if (q.renderMode === 'trivia') {
           showcase.classList.add('show-trivia');
           triviaHero.style.display = 'block';
@@ -3562,9 +3570,15 @@
             el('promptTitle').textContent = 'Which country is highlighted in gold?';
             el('promptSub').textContent = 'Use neighbouring borders and coastlines for context (keys 1-4).';
           } else if (q.renderMode === 'flag') {
-            el('promptKicker').textContent = 'World Flag';
-            el('promptTitle').textContent = 'Which country flies this flag?';
-            el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
+            if (q.prov) {
+              el('promptKicker').textContent = 'Canada Flag';
+              el('promptTitle').textContent = 'Which province or territory flies this flag?';
+              el('promptSub').textContent = 'Choose an option (1-4).';
+            } else {
+              el('promptKicker').textContent = 'World Flag';
+              el('promptTitle').textContent = 'Which country flies this flag?';
+              el('promptSub').textContent = 'Choose an option (1-4) or click the country directly on the map.';
+            }
           } else {
           el('promptKicker').textContent = 'World Trivia';
           el('promptTitle').textContent = q.q;
@@ -3830,17 +3844,18 @@
         el('intelPts').textContent = isHit ? ('+' + ptsEarned + ' pts') : 'No XP';
 
         var cMeta = GEO_ENGINE.getCountry(q.iso || q.a);
-        if (cMeta && cMeta.flagUrl) {
-          el('intelFlag').src = cMeta.flagUrl;
+        var intelFlagUrl = (cMeta && cMeta.flagUrl) ? cMeta.flagUrl : (q.prov ? (q.flagUrl || '') : '');
+        if (intelFlagUrl) {
+          el('intelFlag').src = intelFlagUrl;
           el('intelFlag').style.display = 'block';
         } else {
           el('intelFlag').style.display = 'none';
         }
         el('intelName').textContent = (cMeta && cMeta.name) || q.name || q.a;
         el('intelStats').textContent =
-          ((cMeta && cMeta.continent) || 'World') + ' \u00B7 ' +
-          ((cMeta && cMeta.subregion) || 'Global') + ' \u00B7 Pop ' +
-          GEO_ENGINE.formatPop(cMeta ? cMeta.pop : 0);
+          ((cMeta && cMeta.continent) || (q.prov ? 'Canada' : 'World')) + ' \u00B7 ' +
+          ((cMeta && cMeta.subregion) || (q.prov ? (q.region || 'Province') : 'Global')) + ' \u00B7 Pop ' +
+          GEO_ENGINE.formatPop(cMeta ? cMeta.pop : (q.prov ? (q.pop || 0) : 0));
 
         el('nextQBtn').textContent = (round.idx + 1 < round.items.length)
           ? 'Next Question [Enter]'
@@ -4059,17 +4074,21 @@
         function ok(cond, msg) { out.push((cond ? 'PASS' : 'FAIL') + ': ' + msg); }
         try {
           var all = GEO_ENGINE.getAllItems();
-          ok(all.length === 404, 'Master pool has 404 items (' + all.length + ')');
+          ok(all.length === 494, 'Master pool has 494 items (' + all.length + ')');
           var culturePool = all.filter(function (x) { return x.topic === 'culture'; });
           ok(culturePool.length >= 70, 'Culture & Modern Era pool has ' + culturePool.length + ' items');
+          var canadaPool = all.filter(function (x) { return x.topic === 'canada'; });
+          ok(canadaPool.length === 90, 'Canada pool has 90 items - 77 trivia + 13 provincial flags (' + canadaPool.length + ')');
 
           var cn = GEO_ENGINE.getCountry('CN');
           ok(!!cn && cn.name === 'China' && cn.pop > 1000000000 && cn.center[1] > 70, 'China (CN) geometry is mainland China');
 
           var missingGeo = all.filter(function (x) {
-            return (x.type === 'map' || x.type === 'flag') && (!x.iso || !GEO_ENGINE.getCountry(x.iso));
+            return (x.type === 'map' || x.type === 'flag') && !x.prov && (!x.iso || !GEO_ENGINE.getCountry(x.iso));
           });
           ok(missingGeo.length === 0, 'Every map/flag item resolves to a GeoJSON country (' + missingGeo.length + ' missing)');
+          var provFlags = all.filter(function (x) { return x.type === 'flag' && x.prov; });
+          ok(provFlags.length === 13, 'All 13 provincial/territorial flag items present (' + provFlags.length + ')');
           var nonCountry = all.filter(function (x) { return x.type === 'trivia' && !x.iso; });
           ok(nonCountry.length >= 40, 'Trivia bank includes ' + nonCountry.length + ' non-country items (capitals, oceans, map skills)');
 
@@ -4116,9 +4135,10 @@
             allowsMapClick({ renderMode: 'flag', iso: 'BR' }) === true &&
             allowsMapClick({ renderMode: 'trivia', iso: 'BR' }) === true &&
             allowsMapClick({ renderMode: 'trivia', iso: '' }) === false &&
+            allowsMapClick({ renderMode: 'flag', iso: 'CA-NS', prov: true }) === false &&
             allowsMapClick({ renderMode: 'map-click', iso: 'BR' }) === true &&
             allowsMapClick({ renderMode: 'map-highlight', iso: 'BR' }) === false,
-            'allowsMapClick requires a country and keeps map-highlight option-only'
+            'allowsMapClick requires a country, blocks provincial flags, keeps map-highlight option-only'
           );
 
           var dailyA = GEO_ENGINE.buildDailyRound('2026-11-14');
@@ -4131,6 +4151,7 @@
           ok(challenge.length === 10 && challenge.every(function (x) { return x.diff === 'hard'; }) &&
             challenge.every(function (x) { return !x.isCombo; }), 'Challenge round is 10 hard items with no Combo upgrade');
 
+          state.section = state.section || 'SELFTEST';
           startRound();
           setTimeout(function () {
             ok(!!map && Object.keys(layerByIso).length >= 230, 'Leaflet initialized with ' + Object.keys(layerByIso).length + ' country layers');

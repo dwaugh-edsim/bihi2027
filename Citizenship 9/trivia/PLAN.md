@@ -15,17 +15,19 @@ separate local/Canada/world levels. Every item carries its own difficulty
 | File | Contents |
 |---|---|
 | `index.html` | World Atlas Arena game UI (gate, lobby, Leaflet map stage, flag/trivia arena, Intel reveal card, results review, Web Audio SFX, confetti, self-test) |
-| `geo_data.js` | Bank loader, country metadata index, distractor builder, round builder (standard / Challenge / seeded Daily), rank/XP definitions |
+| `geo_data.js` | Bank loader, country metadata index, distractor builder, round builder (standard / Challenge / seeded Daily / topic passes incl. Canada), rank/XP definitions |
 | `trivia_90.js` | 155 base country-trivia items (`window.GEO_TRIVIA`) across easy/medium/hard |
 | `trivia_extra.js` | 89 extra items: capitals, oceans/seas, Africa & South Asia, Canada/Nova Scotia, map skills. Merged into `window.GEO_TRIVIA` after the base bank |
+| `canada_trivia.js` | 77 Canadian geography + history items (ages 13-15, `topic:'canada'`, cn-prefix IDs). Merged into `window.GEO_TRIVIA` after the extra bank |
 | `maps_60.js` | 80 map items (`window.GEO_MAPS`) - `iso`, `name`, `mode`, `maxZoom` |
-| `flags_60.js` | 80 flag items (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
+| `flags_60.js` | 80 world flag items (`window.GEO_FLAGS`) - `iso`, `name`, 4 options |
+| `canada_flags.js` | 13 provincial/territorial flag items (`window.GEO_PROV_FLAGS`) - ISO 3166-2 `iso` (CA-NS...), `prov:true`, `region`, `pop`, `topic:'canada'`. Merged into `window.GEO_FLAGS` |
 | `assets/leaflet/` | Vendored Leaflet 1.9.4 (`leaflet.js`, `leaflet.css`, MIT) |
 | `assets/world_countries.js` | Merged Natural Earth 110m + 50m country borders (`window.WORLD_GEOJSON`, 235 countries) + `.geojson` source |
-| `assets/flags/` | 138 local `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) |
+| `assets/flags/` | 138 world `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) + 13 official provincial/territorial flags (`ca-XX.svg`, Wikimedia Commons public-domain official symbols) |
 | `PLAN.md` | This architecture and design reference |
 
-**Pool: 404 items** = 80 maps + 80 flags + 244 trivia (74 easy / 95 medium / 75 hard).
+**Pool: 494 items** = 80 maps + 93 flags + 321 trivia (96 easy / 129 medium / 96 hard).
 Run `python tools-priv/trivia_bank_lint.py` to verify the banks after any edit.
 
 ## Item model (all banks)
@@ -69,6 +71,17 @@ Local SVG per country at `assets/flags/<iso_lower>.svg`. **Not emoji** - Windows
 Chrome shows flag emoji as letter pairs, so SVGs keep teacher + student screens
 identical.
 
+### Provincial + territorial flags (2026-11-19)
+All 13 provinces and territories ride in the same flag bank with
+`prov:true` items (`canada_flags.js`). Their SVGs are the **official designs**
+vendored from Wikimedia Commons at `assets/flags/ca-XX.svg` (ISO 3166-2 lowercased,
+e.g. `CA-NS` -> `ca-ns.svg`). Because provinces are not GeoJSON countries:
+no Combo Strike, no map clicks, and the Intel card shows the province name,
+`Canada - Province/Territory`, and its approximate population instead of country
+stats. Provincial flags carry `topic:'canada'`, so they appear in Mixed and
+Endless draws and in the **Canada Pass** topic round, but not in the World Flags
+pass. The question prompt reads "Which province or territory flies this flag?"
+
 ## Sign-in (same pattern as the Centennial sim)
 Splash gate -> popup to the school identity endpoint (`@gnspes.ca` domain-enforced,
 HMAC-signed `{ email, ts, sig }` returned via `postMessage` or `#r8id=`) -> stored in
@@ -109,8 +122,9 @@ A streak of 3+ at the end of a round carries into the next round (`state.carrySt
 ## Progression
 Completing 2 Mixed rounds (or scoring 7/10+) earns **+1 Free Topic Pass**, unlocking
 a focused 10-question round on **Culture & Modern Era**, **World Flags**,
-**Maps & Borders**, or **Landmarks & Facts**. Ranks: Traveller (0), Navigator
-(2,000), Cartographer (5,000), World Fellow (10,000).
+**Maps & Borders**, **Landmarks & Facts**, or **Canada** (geography + history +
+provincial flags). Ranks: Traveller (0), Navigator (2,000), Cartographer (5,000),
+World Fellow (10,000).
 
 ## Adaptations (documented supports, built in silently)
 Untimed Zen pace toggle with equal score ceiling, chunked 10-item rounds, concise

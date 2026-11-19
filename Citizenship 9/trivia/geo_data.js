@@ -277,17 +277,19 @@
         masterPool.push({
           id: item.id,
           type: 'flag',
-          topic: 'flag',
+          topic: item.topic === 'canada' ? 'canada' : 'flag',
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
           iso: item.iso,
           name: item.name,
+          prov: !!item.prov,
+          region: item.region || '',
           a: item.a,
           o: item.o.slice(),
-          continent: c ? c.continent : 'World',
-          subregion: c ? c.subregion : 'World',
-          pop: c ? c.pop : 0,
+          continent: item.prov ? 'Canada' : (c ? c.continent : 'World'),
+          subregion: item.prov ? (item.region || 'Province') : (c ? c.subregion : 'World'),
+          pop: (typeof item.pop === 'number' && item.pop) ? item.pop : (c ? c.pop : 0),
           flagUrl: 'assets/flags/' + String(item.iso).toLowerCase() + '.svg'
         });
       });
@@ -303,7 +305,7 @@
         masterPool.push({
           id: item.id,
           type: 'trivia',
-          topic: item.topic === 'culture' ? 'culture' : 'facts',
+          topic: item.topic === 'culture' ? 'culture' : (item.topic === 'canada' ? 'canada' : 'facts'),
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
@@ -337,6 +339,8 @@
       maxZoom: item.maxZoom || 4,
       isCombo: false,
       comboBonus: 0,
+      prov: item.prov || false,
+      region: item.region || '',
       continent: item.continent,
       subregion: item.subregion,
       pop: item.pop,
@@ -428,7 +432,8 @@
     culture: { id: 'culture', label: 'Culture & Modern Era', short: 'Culture Pass' },
     flag: { id: 'flag', label: 'World Flags', short: 'Flags Pass' },
     map: { id: 'map', label: 'Maps & Borders', short: 'Maps Pass' },
-    facts: { id: 'facts', label: 'Landmarks & Facts', short: 'Facts Pass' }
+    facts: { id: 'facts', label: 'Landmarks & Facts', short: 'Facts Pass' },
+    canada: { id: 'canada', label: 'Canada', short: 'Canada Pass' }
   };
 
   function buildRound(opts) {
@@ -454,7 +459,8 @@
 
       if (totalWanted >= 4) {
         var culture = trivs.filter(function (x) { return x.topic === 'culture'; });
-        var facts = trivs.filter(function (x) { return x.topic === 'facts'; });
+        // Canada items ride along with facts so Canadian content shows up in mixed rounds too.
+        var facts = trivs.filter(function (x) { return x.topic === 'facts' || x.topic === 'canada'; });
         block = block
           .concat(pickFresh(culture, 1, seenMap, pickedIds, shuf))
           .concat(pickFresh(facts, 1, seenMap, pickedIds, shuf));
