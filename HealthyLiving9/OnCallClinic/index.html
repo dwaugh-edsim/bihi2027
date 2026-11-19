@@ -121,7 +121,11 @@
   .vitals-strip{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-family:var(--f-mono);font-size:.76rem}
   .vchip{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--ink)}
   .vchip b{color:var(--amber)}
-  .patient-quote{background:var(--panel2);border-left:4px solid var(--teal);border-radius:0 9px 9px 0;padding:11px 14px;font-size:1rem;color:#fff;margin-bottom:12px}
+  .patient-row{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+  .pat-ava{width:76px;height:76px;border-radius:12px;object-fit:cover;border:2px solid var(--teal);flex:none;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+  .patient-quote{flex:1;background:var(--panel2);border-left:4px solid var(--teal);border-radius:0 9px 9px 0;padding:11px 14px;font-size:1rem;color:#fff;margin-bottom:0}
+  .feed-row{display:flex;gap:12px;align-items:flex-start}
+  .doc-ava{width:54px;height:54px;border-radius:10px;object-fit:cover;border:2px solid var(--amber);flex:none}
   .case-q{font-family:var(--f-slab);font-size:1.06rem;color:var(--amber);margin-bottom:10px}
 
   .opts{display:grid;gap:9px}
@@ -273,13 +277,21 @@
               <div class="vchip"><b>CHIEF COMPLAINT:</b> <span id="cComp"></span></div>
               <div class="vchip"><b>CHART NOTES:</b> <span id="cVitals"></span></div>
             </div>
-            <div class="patient-quote" id="cQuote"></div>
+            <div class="patient-row">
+              <img class="pat-ava" id="cAva" src="assets/pat_01.jpg" alt="Patient portrait">
+              <div class="patient-quote" id="cQuote"></div>
+            </div>
             <div class="case-q" id="cQ"></div>
             <div class="opts" id="cOpts"></div>
             <div class="feedback" id="cFeed">
-              <div class="fh" id="fHead"></div>
-              <p id="fBody"></p>
-              <button class="btn-primary" style="width:auto;padding:10px 22px" type="button" id="nextBtn" onclick="Clinic.nextPatient()">Next Patient &rarr;</button>
+              <div class="feed-row">
+                <img class="doc-ava" src="assets/doc_attending.jpg" alt="Attending Physician">
+                <div style="flex:1">
+                  <div class="fh" id="fHead"></div>
+                  <p id="fBody"></p>
+                  <button class="btn-primary" style="width:auto;padding:10px 22px" type="button" id="nextBtn" onclick="Clinic.nextPatient()">Next Patient &rarr;</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -318,7 +330,7 @@ const Clinic = (function(){
   const IDENTITY_URL = 'https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec';
   // NEW STANDALONE GAS VAULT: deploy bihipri-27/HealthyLiving9-priv/OnCallClinic-priv/oncall_vault.gs
   // in a brand-new Google Sheet and paste its /exec URL below.
-  const VAULT_URL    = '__NEW_ONCALL_VAULT_EXEC_URL__';
+  const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbxCRlbNR-w0PO_dtInb6AnaqNBakhVp08DqWHpHdobhXGaq2svb9P1GC0upLhmeQpFGCg/exec';
   const HAS_VAULT    = /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(VAULT_URL);
   const TASK_NAME    = 'HL9-OnCall-Clinic-Game';
   const SECTIONS     = ['901-HL', '902-HL', '903-HL'];
@@ -552,6 +564,8 @@ const Clinic = (function(){
     el('cCode').textContent = c.id.toUpperCase();
     el('cComp').textContent = c.complaint;
     el('cVitals').textContent = c.vitals;
+    let h = 0; for(let k=0;k<c.patient.length;k++) h = (h*31 + c.patient.charCodeAt(k)) % 6;
+    el('cAva').src = 'assets/pat_0' + (Math.abs(h) + 1) + '.jpg';
     el('cQuote').textContent = '"' + c.quote + '"';
     el('cQ').textContent = c.q;
 
