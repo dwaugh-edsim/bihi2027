@@ -426,10 +426,39 @@ function boot(){
     }
   }
 }
+function formatDisplayName(email){
+  const s = String(email||'').split('@')[0].replace(/[0-9_]+/g,' ').replace(/[.\-]+/g,' ').trim();
+  if(!s) return 'Investigator';
+  const parts = s.split(/\s+/).filter(Boolean);
+  const cap = w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  const first = cap(parts[0]);
+  if(parts.length === 1) return first;
+  const last = parts[parts.length-1].replace(/[^a-zA-Z]/g,'');
+  if(!last) return first;
+  const two = last.slice(0,2);
+  return first + ' ' + two.charAt(0).toUpperCase() + (two.charAt(1) ? two.charAt(1).toLowerCase() : '') + '.';
+}
+function normalizeSection(sec){
+  const s = String(sec||'').trim().toUpperCase();
+  if(!s) return '';
+  if(SECTIONS.includes(s)) return s;
+  const base = s.replace(/[^0-9]/g,'');
+  const match = SECTIONS.find(x => x.indexOf(base) === 0);
+  return match || '';
+}
+function applyRosterHint(j){
+  if(j && j.rosterLabel && el('who')) el('who').textContent = j.rosterLabel;
+  else if(identity && identity.email && el('who')) el('who').textContent = formatDisplayName(identity.email);
+  const autoSec = normalizeSection(j && (j.rosterSection || j.section));
+  if(autoSec && !state.section){
+    state.section = autoSec;
+    const s = el('sectionSel'); if(s) s.value = autoSec;
+  }
+}
 function showGate(){ el('app').style.display='none'; el('gate').style.display='flex'; }
 function showApp(){
   el('gate').style.display='none'; el('app').style.display='flex';
-  el('who').textContent = identity.email;
+  el('who').textContent = formatDisplayName(identity.email);
   if(appShown){ restore(); return; }
   appShown = true;
   const sel = el('sectionSel'); sel.innerHTML = '<option value="">section?</option>' + SECTIONS.map(s=>'<option>'+s+'</option>').join('');
@@ -519,15 +548,23 @@ function restore(attempt=1){
       if(j && j.status==='ok' && j.found){
         finishLoad();
         applyState(j.data||{});
+        applyRosterHint(j);
+        hydrateFields();
         el('restored').className='ok'; el('restored').style.display='flex';
-        const rTxt = 'Restored your Health Office log from the server'+(j.savedAt?' (last saved '+new Date(j.savedAt).toLocaleString()+')':'')+'.';
+        const rTxt = 'Restored your Investigator Log from the server'+(j.savedAt?' (last saved '+new Date(j.savedAt).toLocaleString()+')':'')+'.';
         el('restored').innerHTML = '<span>'+esc(rTxt)+'</span><button type="button" class="r-close" title="Dismiss" onclick="this.parentElement.style.display=\'none\'">&times;</button>';
         clearTimeout(restoreTimer);
         restoreTimer = setTimeout(()=>{ const r=el('restored'); if(r && r.classList.contains('ok')) r.style.display='none'; }, 4200);
         setSync('SERVER OK','ok');
         lastSavedHash = JSON.stringify(state);
       } else if(j && j.status==='auth_failed'){ onAuthFailed(j.reason); el('loadingVeil').style.display='none'; }
-      else { setSync('READY',''); finishLoad(); loadStation(0); lastSavedHash = JSON.stringify(state); }
+      else {
+        setSync('READY','');
+        finishLoad();
+        applyRosterHint(j);
+        loadStation(0);
+        lastSavedHash = JSON.stringify(state);
+      }
     })
     .catch(()=>{
       if(attempt < 3) { setTimeout(()=>restore(attempt+1), 1400); return; }
