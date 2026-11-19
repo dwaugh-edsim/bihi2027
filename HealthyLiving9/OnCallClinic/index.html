@@ -48,6 +48,8 @@
   #syncPill.ok{color:var(--ok);border-color:var(--ok)}
   #syncPill.warn{color:var(--amber);border-color:var(--amber)}
   #sectionSel{background:var(--panel);color:var(--ink);border:1px solid var(--frame);border-radius:6px;font-family:var(--f-mono);font-size:.72rem;padding:2px 6px}
+  #sectionSel.need{border:2px solid var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.28)}
+  #secWarn{display:none;background:rgba(245,158,11,.14);border:1.5px solid var(--amber);color:var(--amber);border-radius:10px;padding:9px 12px;font-size:.86rem;font-weight:700;margin-bottom:12px}
   .hud-btn{background:transparent;border:1px solid var(--frame);color:var(--muted);border-radius:6px;padding:3px 8px;font-family:var(--f-mono);font-size:.68rem}
   .hud-btn:hover{color:#fff;border-color:var(--teal)}
   .spacer{flex:1}
@@ -253,6 +255,7 @@
       <div class="lobby-grid">
         <div>
           <div class="mode-box">
+            <div id="secWarn">Pick your class section (901-HL, 902-HL, or 903-HL) in the top bar before starting your shift!</div>
             <div class="sec-title">Ranked Clinic Shifts (Leaderboard Eligible)</div>
             <div class="shift-btns">
               <button class="shift-card" type="button" onclick="Clinic.startShift('all', 3, 1)">
@@ -501,9 +504,15 @@ const Clinic = (function(){
     el('who').textContent = formatDisplayName(identity.email);
     const sel = el('sectionSel');
     sel.innerHTML = '<option value="">Section?</option>' + SECTIONS.map(s=>'<option>'+s+'</option>').join('');
-    sel.onchange = ()=>{ profile.section = sel.value; saveProfile(); loadLeaderboard(); };
+    const syncSecUi = ()=>{
+      const missing = !profile.section;
+      sel.classList.toggle('need', missing);
+      if(!missing && el('secWarn')) el('secWarn').style.display='none';
+    };
+    sel.onchange = ()=>{ profile.section = sel.value; syncSecUi(); saveProfile(); loadLeaderboard(); };
     if(SKIPNET){
       setSync('PREVIEW MODE','warn');
+      syncSecUi();
       updateLobbyStats();
       goLobby();
       return;
@@ -517,11 +526,13 @@ const Clinic = (function(){
         }
         const autoSec = normalizeSection(profile.section || (j && (j.rosterSection || j.section)));
         if(autoSec){ profile.section = autoSec; sel.value = autoSec; }
-        setSync('SERVER OK','ok');
+        syncSecUi();
+        if(j && j.status === 'auth_failed') setSync('ERR: ' + (j.reason||'auth'), 'warn');
+        else setSync('SERVER OK','ok');
         updateLobbyStats();
         loadLeaderboard();
       })
-      .catch(()=>{ setSync('OFFLINE','warn'); updateLobbyStats(); });
+      .catch(()=>{ syncSecUi(); setSync('OFFLINE','warn'); updateLobbyStats(); });
     goLobby();
   }
 
@@ -627,6 +638,12 @@ const Clinic = (function(){
   }
 
   function startShift(dept, strikes, mult){
+    if(!profile.section){
+      const sel = el('sectionSel');
+      if(sel){ sel.classList.add('need'); sel.focus(); }
+      if(el('secWarn')) el('secWarn').style.display='block';
+      return;
+    }
     stopRead();
     lastMode = { dept, strikes, mult };
     const queue = buildQueue(dept);
