@@ -409,6 +409,31 @@
         font-weight: 700;
         color: var(--ink-heading);
     }
+
+    /* AI art slides: full-bleed generated poster; HTML carries only the overlay */
+    .art-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        z-index: 0;
+    }
+    .slide.has-art .answer-zone {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 30px;
+        margin: 0;
+        z-index: 2;
+    }
+    .slide.has-art .reveal-hint {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1.5px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 16px;
+    }
 </style>
 </head>
 <body>
@@ -439,14 +464,16 @@
 // ===================== CONTENT (edit here) =====================
 // cat: WORDS | GERMS | TOOLS | CASE  (drives the chip colour)
 const STATIONS = [
- { num: "01", cat: "GERMS", chip: "Germ type?",
+ // Stations 01 and 02: noReveal = question-only (Dave runs these as whole-class
+ // call-and-response; answers stay here for the teacher, never on screen).
+ { num: "01", cat: "GERMS", chip: "Germ type?", noReveal: true,
    q: "Martha woke up with a spotty rash on her arm and a slight fever. Between a virus and bacteria, which is more likely?",
-   a: "<strong>Virus.</strong> A spotty rash with fever reads viral (chickenpox style). Bacterial skin trouble sits at a wound: red, hot, swollen.",
-   l: "the rash rule of thumb from Study Sheet 1." },
- { num: "02", cat: "GERMS", chip: "Germ type?",
+   aTeacherOnly: "<strong>Virus.</strong> A spotty rash with fever reads viral (chickenpox style). Bacterial skin trouble sits at a wound: red, hot, swollen.",
+   lTeacherOnly: "the rash rule of thumb from Study Sheet 1." },
+ { num: "02", cat: "GERMS", chip: "Germ type?", noReveal: true,
    q: "Aiden's gym-floor scrape now looks red, hot, and swollen. Between a virus and bacteria, which is more likely?",
-   a: "<strong>Bacteria.</strong> Red, hot, and swollen at a broken-skin site means a bacterial infection has entered through the cut.",
-   l: "unbroken skin would have blocked it. The scrape was the open gate." },
+   aTeacherOnly: "<strong>Bacteria.</strong> Red, hot, and swollen at a broken-skin site means a bacterial infection has entered through the cut.",
+   lTeacherOnly: "unbroken skin would have blocked it. The scrape was the open gate." },
  { num: "03", cat: "TOOLS", chip: "Pick the tool?",
    q: "Cleanup day. Desks, taps, and door handles need one kind of cleaner. Hands need a different one. Why can they not swap jobs?",
    a: "<strong>Surfaces: bleach, used by trained adults.</strong> <strong>Hands: soap and 20 seconds of running water.</strong> Bleach destroys hard shells but never goes on skin. Soap lifts germs off and rinses them down the drain.",
@@ -524,6 +551,17 @@ const STATIONS = [
 
 const CATCLASS = { WORDS: "", GERMS: " cat-germs", TOOLS: " cat-tools", CASE: " cat-case" };
 
+// AI art per slide (generated 2026-11-19, medical-chart theme, seeds 3101-3123;
+// rebuilt via tools-priv/build_germs_reveal_art.py + minimax_image_gen.py).
+// Slide N with an ART entry renders the generated poster full-bleed; the HTML
+// text for those slides is baked into the art. Slides without an entry keep
+// their full HTML rendering.
+const ART = { 1: "cover" };
+STATIONS.forEach((st, i) => { ART[i + 2] = "station" + st.num; });
+ART[STATIONS.length + 2] = "closer";
+ART[STATIONS.length + 3] = "wordbank";
+function artSrc(n) { return ART[n] ? "assets/reveal-art/" + ART[n] + ".jpg" : null; }
+
 const slidesEl = document.getElementById("slides");
 const totalSlides = STATIONS.length + 3;   // cover + stations + closer + word bank
 let currentSlide = 1;
@@ -532,6 +570,7 @@ function buildCover() {
     const d = document.createElement("div");
     d.className = "slide";
     d.dataset.slide = 1;
+    if (artSrc(1)) return artSlide(1);
     d.innerHTML =
         '<div class="cover-num">HL8 &middot; Unit 2 &middot; Communicable Disease &middot; Case 55 closed</div>' +
         '<div class="cover-title">Germs &amp; Outbreaks:<br><em>The Reveal</em></div>' +
@@ -544,24 +583,57 @@ function buildCover() {
     return d;
 }
 
+function artSlide(slideNum) {
+    const d = document.createElement("div");
+    d.className = "slide has-art";
+    d.dataset.slide = slideNum;
+    d.innerHTML = '<img class="art-bg" src="' + artSrc(slideNum) + '" alt="">';
+    return d;
+}
+
 function buildStation(st, idx) {
     const d = document.createElement("div");
     d.className = "slide";
     d.dataset.slide = idx + 2;
-    d.innerHTML =
+    if (artSrc(idx + 2)) {
+        // art mode: the badge and question live in the generated image; the HTML
+        // carries only the reveal overlay (and nothing at all for noReveal)
+        d.classList.add("has-art");
+        let html = '<img class="art-bg" src="' + artSrc(idx + 2) + '" alt="">';
+        if (!st.noReveal) {
+            html +=
+                '<div class="answer-zone">' +
+                  '<div class="reveal-hint">SPACE or click to reveal</div>' +
+                  '<div class="answer-panel">' +
+                    '<div class="answer-label">Answer</div>' +
+                    '<div class="answer-text">' + st.a + '</div>' +
+                    '<div class="listen-line"><span class="ll-label">LISTEN FOR</span>' + st.l + '</div>' +
+                  '</div>' +
+                '</div>';
+        }
+        d.innerHTML = html;
+        return d;
+    }
+    let html =
         '<div class="eyebrow-row">' +
           '<span class="eyebrow-num">STATION ' + st.num + '</span>' +
           '<span class="eyebrow-cat' + (CATCLASS[st.cat] || "") + '">' + st.chip + '</span>' +
         '</div>' +
-        '<div class="q-text">' + st.q + '</div>' +
-        '<div class="answer-zone">' +
-          '<div class="reveal-hint">SPACE or click to reveal</div>' +
-          '<div class="answer-panel">' +
-            '<div class="answer-label">Answer</div>' +
-            '<div class="answer-text">' + st.a + '</div>' +
-            '<div class="listen-line"><span class="ll-label">LISTEN FOR</span>' + st.l + '</div>' +
-          '</div>' +
-        '</div>';
+        '<div class="q-text">' + st.q + '</div>';
+    // noReveal stations are question-only: click/space just advances (the
+    // revealOrAdvance guard looks for an .answer-panel, which is absent here)
+    if (!st.noReveal) {
+        html +=
+            '<div class="answer-zone">' +
+              '<div class="reveal-hint">SPACE or click to reveal</div>' +
+              '<div class="answer-panel">' +
+                '<div class="answer-label">Answer</div>' +
+                '<div class="answer-text">' + st.a + '</div>' +
+                '<div class="listen-line"><span class="ll-label">LISTEN FOR</span>' + st.l + '</div>' +
+              '</div>' +
+            '</div>';
+    }
+    d.innerHTML = html;
     return d;
 }
 
@@ -569,6 +641,7 @@ function buildCloser() {
     const d = document.createElement("div");
     d.className = "slide";
     d.dataset.slide = STATIONS.length + 2;
+    if (artSrc(STATIONS.length + 2)) return artSlide(STATIONS.length + 2);
     d.innerHTML =
         '<div class="eyebrow-row"><span class="eyebrow-num">WRAP</span><span class="eyebrow-cat cat-prevent">What the unit test will ask</span></div>' +
         '<div class="q-text" style="font-size:44px;">Three moves. Practise them out loud.</div>' +
@@ -587,6 +660,7 @@ function buildWordBank() {
     const d = document.createElement("div");
     d.className = "slide";
     d.dataset.slide = totalSlides;
+    if (artSrc(totalSlides)) return artSlide(totalSlides);
     const TERMS = [
         "Antibiotic", "Antibiotic Resistance", "Antibody", "Bacteria", "Chain of Infection",
         "Communicable Disease", "Direct Contact", "Droplet Transmission", "Epidemiology", "Fomite",
