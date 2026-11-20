@@ -1,0 +1,245 @@
+// landmarks.js - Iconic world landmarks for Borderless World Map pinpoint mode.
+window.GEO_LANDMARKS = [
+  {
+    id: 'lm01',
+    name: 'The Kremlin',
+    city: 'Moscow, Russia',
+    iso: 'RU',
+    lat: 55.7520,
+    lng: 37.6175,
+    img: 'assets/landmarks/kremlin.jpg',
+    hint: 'A fortified complex of red brick walls, gilded cathedral domes, and a historic clock tower beside a vast cobblestone square.',
+    clue: 'The Moscow Kremlin is a fortified complex of palaces, cathedrals, and red brick walls overlooking Red Square in central Moscow. Built in the late 15th century, it served as the seat of Russian tsars and later the Soviet government. Today it is the official residence of the President of Russia and a UNESCO World Heritage site.'
+  },
+  {
+    id: 'lm02',
+    name: 'The Berlin Wall',
+    city: 'Berlin, Germany',
+    iso: 'DE',
+    lat: 52.5074,
+    lng: 13.3904,
+    img: 'assets/landmarks/berlin_wall.jpg',
+    hint: 'A heavily guarded Cold War concrete barrier covered in murals on one side and backed by a watchtower and patrol strip.',
+    clue: 'The Berlin Wall was a guarded concrete barrier built in 1961 by East Germany to cut off West Berlin from the surrounding East German territory. For 28 years it stood as the sharpest physical symbol of the Cold War division between communist and democratic Europe. Its fall in November 1989 paved the way for German reunification and reshaped modern European history.'
+  },
+  {
+    id: 'lm03',
+    name: 'Cape Kennedy (Launch Complex 39A)',
+    city: 'Florida, United States',
+    iso: 'US',
+    lat: 28.6080,
+    lng: -80.6041,
+    img: 'assets/landmarks/cape_kennedy.jpg',
+    hint: 'A towering Moon rocket lifting off from an Atlantic coastal launchpad in a massive plume of fire and exhaust.',
+    clue: 'Launch Complex 39A at Cape Kennedy (now Kennedy Space Center) on Florida\'s Atlantic coast was built to launch the massive Saturn V moon rockets. In July 1969, Apollo 11 lifted off from this pad, carrying the first humans to land on the Moon. The historic pad remains active today for modern crewed spaceflight and deep-space missions.'
+  },
+  {
+    id: 'lm04',
+    name: 'CN Tower',
+    city: 'Toronto, Canada',
+    iso: 'CA',
+    lat: 43.6426,
+    lng: -79.3871,
+    img: 'assets/landmarks/cn_tower.jpg',
+    hint: 'A needle-like concrete communications and observation tower rising above a Great Lakes waterfront skyline.',
+    clue: 'Rising 553 metres above downtown Toronto beside Lake Ontario, the CN Tower was completed in 1976 to solve radio and TV broadcast interference from tall skyscrapers. It held the record as the world\'s tallest free-standing structure for over 30 years. Today it is one of Canada\'s most recognizable engineering landmarks and cultural symbols.'
+  },
+  {
+    id: 'lm05',
+    name: 'Burj Khalifa',
+    city: 'Dubai, United Arab Emirates',
+    iso: 'AE',
+    lat: 25.1972,
+    lng: 55.2744,
+    img: 'assets/landmarks/burj_khalifa.jpg',
+    hint: 'The tallest skyscraper on Earth, tapering into a gleaming spire above a desert metropolis on the coast.',
+    clue: 'At 828 metres tall, the Burj Khalifa in Dubai is the tallest human-made structure ever built. Opened in 2010, it was designed to showcase the United Arab Emirates\' rapid shift from a regional trading port to a global hub of architecture, finance, and tourism. Its Y-shaped base and stepped spire allow it to withstand intense desert winds.'
+  },
+  {
+    id: 'lm06',
+    name: 'Shinjuku',
+    city: 'Tokyo, Japan',
+    iso: 'JP',
+    lat: 35.6938,
+    lng: 139.7034,
+    img: 'assets/landmarks/shinjuku.jpg',
+    hint: 'A bustling pedestrian entertainment street glowing at night with vertical neon shop signs and wet pavement reflections.',
+    clue: 'Shinjuku is a major commercial, entertainment, and government district in central Tokyo, famous for its neon-lit streets and towering skyscrapers. It is home to Shinjuku Station, the busiest railway hub on Earth with more than three million passengers passing through each day. The ward blends historic alleyways and shrines with Japan\'s modern urban economy.'
+  },
+  {
+    id: 'lm07',
+    name: 'Eiffel Tower',
+    city: 'Paris, France',
+    iso: 'FR',
+    lat: 48.8584,
+    lng: 2.2945,
+    img: 'assets/landmarks/eiffel_tower.jpg',
+    hint: 'A 330-metre wrought-iron lattice tower built as the entrance arch for an 1889 World\'s Fair.',
+    clue: 'The Eiffel Tower is a 330-metre wrought-iron lattice tower standing on the Champ de Mars beside the Seine River in Paris. Built by Gustave Eiffel as the entrance arch for the 1889 World\'s Fair, it was originally meant to stand for only 20 years before being saved for radio broadcasting. Today it is one of the most visited monuments in the world and a global emblem of France.'
+  },
+  {
+    id: 'lm08',
+    name: 'The Colosseum',
+    city: 'Rome, Italy',
+    iso: 'IT',
+    lat: 41.8902,
+    lng: 12.4922,
+    img: 'assets/landmarks/colosseum.jpg',
+    hint: 'An ancient oval stone amphitheatre with tiered arches that once seated 50,000 spectators.',
+    clue: 'Completed in 80 AD, the Colosseum is the largest ancient amphitheatre ever built, located in the centre of Rome. It once held up to 50,000 spectators for gladiatorial contests, public spectacles, and theatrical reenactments under the Roman Empire. Its vaulted stone-and-concrete arches still influence modern stadium design nearly two thousand years later.'
+  },
+  {
+    id: 'lm09',
+    name: 'Taj Mahal',
+    city: 'Agra, India',
+    iso: 'IN',
+    lat: 27.1751,
+    lng: 78.0421,
+    img: 'assets/landmarks/taj_mahal.jpg',
+    hint: 'A symmetrical white marble mausoleum with four minarets reflected in a long garden pool.',
+    clue: 'The Taj Mahal is an ivory-white marble mausoleum on the south bank of the Yamuna River in Agra, northern India. Commissioned in 1632 by Mughal Emperor Shah Jahan in memory of his wife Mumtaz Mahal, it blends Persian, Islamic, and Indian architectural traditions. Recognized as a UNESCO World Heritage site, it draws millions of visitors each year for its symmetry and inlaid gemstone craftsmanship.'
+  },
+  {
+    id: 'lm10',
+    name: 'Great Wall of China',
+    city: 'Northern China',
+    iso: 'CN',
+    lat: 40.4319,
+    lng: 116.5704,
+    img: 'assets/landmarks/great_wall.jpg',
+    hint: 'An ancient stone fortification and series of watchtowers snaking along steep green mountain ridges.',
+    clue: 'The Great Wall of China is a vast series of stone, brick, and rammed-earth fortifications stretching over 21,000 kilometres across northern China. Built and rebuilt over centuries by multiple Chinese dynasties, especially the Ming Dynasty, it protected northern borders and regulated trade along the Silk Road. Today it stands as one of humanity\'s most ambitious engineering feats.'
+  },
+  {
+    id: 'lm11',
+    name: 'Sydney Opera House',
+    city: 'Sydney, Australia',
+    iso: 'AU',
+    lat: -33.8568,
+    lng: 151.2153,
+    img: 'assets/landmarks/sydney_opera_house.jpg',
+    hint: 'A waterfront performing arts centre famed for its interlocking white shell-shaped roofs beside a harbour bridge.',
+    clue: 'Opened in 1973 on Bennelong Point in Sydney Harbour, the Sydney Opera House is a world-famous performing arts centre designed by Danish architect Jorn Utzon. Its interlocking white shell roofs were inspired by sailboat sails and spherical geometry, pushing the limits of 20th-century structural engineering. It is a UNESCO World Heritage site and Australia\'s most recognizable cultural landmark.'
+  },
+  {
+    id: 'lm12',
+    name: 'Petra',
+    city: 'Ma\'an Governorate, Jordan',
+    iso: 'JO',
+    lat: 30.3285,
+    lng: 35.4444,
+    img: 'assets/landmarks/petra.jpg',
+    hint: 'An ancient temple facade carved straight into towering rose-red sandstone cliffs at the end of a narrow canyon.',
+    clue: 'Petra is an ancient archaeological city in southern Jordan famous for temples and tombs carved directly into rose-red sandstone cliffs. Established around the 4th century BCE as the capital of the Nabataean Kingdom, it thrived as a desert caravan crossroads linking Arabia, Egypt, and the Mediterranean. Its sophisticated cisterns and water channels allowed a bustling city to flourish in an arid canyon.'
+  },
+  {
+    id: 'lm13',
+    name: 'Pyramids of Giza',
+    city: 'Giza, Egypt',
+    iso: 'EG',
+    lat: 29.9792,
+    lng: 31.1342,
+    img: 'assets/landmarks/pyramids_giza.jpg',
+    hint: 'Monumental limestone royal tombs and a carved stone guardian rising from a desert plateau.',
+    clue: 'Built more than 4,500 years ago on a rocky plateau just outside Cairo, the Great Pyramids of Giza are royal tombs constructed for Egypt\'s Old Kingdom pharaohs. The Great Pyramid of Khufu was the tallest human-made structure on Earth for nearly 3,800 years. Guarded by the Great Sphinx, it is the only surviving wonder of the Ancient World.'
+  },
+  {
+    id: 'lm14',
+    name: 'Machu Picchu',
+    city: 'Cusco Region, Peru',
+    iso: 'PE',
+    lat: -13.1631,
+    lng: -72.5450,
+    img: 'assets/landmarks/machu_picchu.jpg',
+    hint: 'A 15th-century stone citadel and terraced fields perched high on a misty mountain ridge.',
+    clue: 'Perched 2,430 metres above sea level in the Peruvian Andes, Machu Picchu is a 15th-century Inca citadel built with dry-stone walls fitted without mortar. It served as a royal estate and ceremonial centre before being abandoned during the Spanish conquest in the 16th century. Reintroduced to the wider world in 1911, it is a masterpiece of Inca engineering and mountain agriculture.'
+  },
+  {
+    id: 'lm15',
+    name: 'Christ the Redeemer',
+    city: 'Rio de Janeiro, Brazil',
+    iso: 'BR',
+    lat: -22.9519,
+    lng: -43.2105,
+    img: 'assets/landmarks/christ_redeemer.jpg',
+    hint: 'A 30-metre Art Deco statue with outstretched arms standing atop a steep coastal mountain above a curved bay.',
+    clue: 'Standing 30 metres tall atop Mount Corcovado, Christ the Redeemer overlooks the bays, beaches, and city of Rio de Janeiro. Completed in 1931 out of reinforced concrete and soapstone tiles, the Art Deco statue was funded by donations from across Brazil. It has become one of South America\'s most recognizable cultural and architectural icons.'
+  },
+  {
+    id: 'lm16',
+    name: 'Golden Gate Bridge',
+    city: 'San Francisco, United States',
+    iso: 'US',
+    lat: 37.8199,
+    lng: -122.4783,
+    img: 'assets/landmarks/golden_gate.jpg',
+    hint: 'An International Orange suspension bridge spanning a foggy strait between coastal hills and a major ocean bay.',
+    clue: 'Opened in 1937, the Golden Gate Bridge is a 2.7-kilometre suspension bridge spanning the strait that connects San Francisco Bay to the Pacific Ocean. Painted in its signature International Orange so ships can spot it through coastal fog, it was the longest suspension bridge span in the world when completed. It remains a symbol of modern civil engineering and the American West Coast.'
+  },
+  {
+    id: 'lm17',
+    name: 'Angkor Wat',
+    city: 'Siem Reap, Cambodia',
+    iso: 'KH',
+    lat: 13.4125,
+    lng: 103.8670,
+    img: 'assets/landmarks/angkor_wat.jpg',
+    hint: 'Five lotus-shaped stone temple towers rising out of tropical forest and reflected in a broad moat.',
+    clue: 'Built in the early 12th century by King Suryavarman II, Angkor Wat is the largest religious monument in the world, covering more than 160 hectares in northern Cambodia. Originally constructed as a Hindu temple before gradually transforming into a Buddhist site, its five lotus-bud towers represent Mount Meru. Today it appears on Cambodia\'s national flag and anchors the nation\'s cultural heritage.'
+  },
+  {
+    id: 'lm18',
+    name: 'The Parthenon',
+    city: 'Athens, Greece',
+    iso: 'GR',
+    lat: 37.9715,
+    lng: 23.7257,
+    img: 'assets/landmarks/parthenon.jpg',
+    hint: 'A classical marble temple with fluted columns standing atop a rocky Mediterranean citadel.',
+    clue: 'Completed in 438 BCE atop the rocky Acropolis of Athens, the Parthenon is a marble temple dedicated to Athena, the city\'s patron goddess. Built at the height of Classical Greece, its fluted Doric columns and proportions set a standard for Western architecture for over two millennia. It stands beside the birthplace of ancient Athenian democracy.'
+  },
+  {
+    id: 'lm19',
+    name: 'Victoria Falls',
+    city: 'Zambia / Zimbabwe',
+    iso: 'ZM',
+    lat: -17.9243,
+    lng: 25.8572,
+    img: 'assets/landmarks/victoria_falls.jpg',
+    hint: 'A 1.7-kilometre-wide curtain of water plunging into a narrow basalt gorge, creating clouds of mist and rainbows.',
+    clue: 'Known locally as Mosi-oa-Tunya ("The Smoke That Thunders"), Victoria Falls plunges more than 100 metres into a narrow basalt gorge along the Zambezi River. Spanning over 1.7 kilometres wide on the border between Zambia and Zimbabwe, it creates the largest single sheet of falling water on Earth. Its rising mist supports a lush rainforest ecosystem visible from kilometres away.'
+  },
+  {
+    id: 'lm20',
+    name: 'Acropolis of Athens',
+    city: 'Athens, Greece',
+    iso: 'GR',
+    lat: 37.9715,
+    lng: 23.7257,
+    img: 'assets/landmarks/acropolis.jpg',
+    hint: 'A flat-topped limestone citadel crowned with ancient marble ruins overlooking a sprawling Mediterranean city.',
+    clue: 'Rising on a flat-topped limestone hill above modern Athens, the Acropolis was the fortified civic and religious heart of ancient Greece. Most of its surviving marble temples and gateways were built during the 5th century BCE under the leadership of Pericles. It stands as an enduring symbol of classical architecture, philosophy, and early democracy.'
+  },
+  {
+    id: 'lm21',
+    name: 'Petronas Towers',
+    city: 'Kuala Lumpur, Malaysia',
+    iso: 'MY',
+    lat: 3.1579,
+    lng: 101.7116,
+    img: 'assets/landmarks/petronas_towers.jpg',
+    hint: 'Identical 452-metre steel-and-glass twin skyscrapers linked high above the street by a double-decker skybridge.',
+    clue: 'Rising 452 metres above downtown Kuala Lumpur, the Petronas Twin Towers were the tallest buildings in the world from 1998 to 2004. Linked on the 41st and 42nd floors by a double-decker skybridge, their geometric floor plan draws from Islamic architectural patterns. They remain the tallest twin towers on Earth and a symbol of Malaysia\'s modern economic growth.'
+  },
+  {
+    id: 'lm22',
+    name: 'Shanghai Skyline (Pudong)',
+    city: 'Shanghai, China',
+    iso: 'CN',
+    lat: 31.2397,
+    lng: 121.4998,
+    img: 'assets/landmarks/shanghai_skyline.jpg',
+    hint: 'A futuristic riverfront financial district featuring a sphere-topped broadcast tower and glowing skyscraper signs.',
+    clue: 'Rising along the east bank of the Huangpu River in Pudong, the Shanghai skyline features iconic skyscrapers including the Oriental Pearl Tower and the 632-metre Shanghai Tower. Transformed from farmland and warehouses into a global financial district since the early 1990s, it showcases China\'s rapid urbanization. Viewed from the historic Bund waterfront, it bridges Shanghai\'s trading past and high-tech present.'
+  }
+];

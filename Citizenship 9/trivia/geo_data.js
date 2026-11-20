@@ -95,6 +95,9 @@
   var countriesByIso = {};
   var isoByName = {};
   var continentGroups = {};
+  var provincesByIso = {};
+  var provIsoByName = {};
+  var provinceList = [];
 
   function computeCentroid(geom) {
     if (!geom || !geom.coordinates) return [0, 0];
@@ -151,6 +154,53 @@
         isoByName[key] = targetIso;
       }
     }
+
+    var cgj = window.CANADA_GEOJSON;
+    if (cgj && Array.isArray(cgj.features)) {
+      for (var pIdx = 0; pIdx < cgj.features.length; pIdx++) {
+        var pf = cgj.features[pIdx];
+        var pp = pf.properties || {};
+        var pIso = String(pp.iso || '').toUpperCase();
+        if (!pIso) continue;
+        var pEntry = {
+          iso: pIso,
+          name: pp.name || pIso,
+          continent: 'Canada',
+          subregion: pp.subregion || 'Province',
+          capital: pp.capital || '',
+          pop: Number(pp.pop) || 0,
+          prov: true,
+          center: computeCentroid(pf.geometry),
+          feature: pf,
+          flagUrl: 'assets/flags/' + pIso.toLowerCase() + '.svg',
+          isTiny: false
+        };
+        provincesByIso[pIso] = pEntry;
+        provIsoByName[pEntry.name.toLowerCase()] = pIso;
+        provinceList.push(pEntry);
+      }
+      provIsoByName['newfoundland'] = 'CA-NL';
+      provIsoByName['the northwest territories'] = 'CA-NT';
+      provIsoByName['yukon territory'] = 'CA-YT';
+    }
+  }
+
+  function resolveProvinceIso(isoOrName) {
+    if (!isoOrName) return '';
+    var raw = String(isoOrName).trim();
+    var upper = raw.toUpperCase();
+    if (provincesByIso[upper]) return upper;
+    var lower = raw.toLowerCase();
+    return provIsoByName[lower] || '';
+  }
+
+  function getProvince(isoOrName) {
+    var iso = resolveProvinceIso(isoOrName);
+    return (iso && provincesByIso[iso]) ? provincesByIso[iso] : null;
+  }
+
+  function getPlace(isoOrName) {
+    return getCountry(isoOrName) || getProvince(isoOrName);
   }
 
   function resolveIso(isoOrName) {
@@ -203,8 +253,24 @@
     return copy;
   }
 
-  // Build 4 plausible country options on the same continent sorted by proximity + randomized
+  // Build 4 plausible country (or province/territory) options sorted by proximity + randomized
   function buildHighlightOptions(iso, displayAnswerName) {
+    var provTarget = provincesByIso[iso];
+    if (provTarget) {
+      var peers = provinceList.filter(function (p) {
+        return p.iso !== iso && p.name !== displayAnswerName;
+      });
+      peers.sort(function (a, b) {
+        var da = Math.hypot(a.center[0] - provTarget.center[0], a.center[1] - provTarget.center[1]);
+        var db = Math.hypot(b.center[0] - provTarget.center[0], b.center[1] - provTarget.center[1]);
+        return da - db;
+      });
+      var nearProvs = peers.slice(0, Math.min(6, peers.length));
+      var pickedProvs = shuffle(nearProvs).slice(0, 3).map(function (p) { return p.name; });
+      pickedProvs.push(displayAnswerName);
+      return shuffle(pickedProvs);
+    }
+
     var target = countriesByIso[iso];
     if (!target) return shuffle([displayAnswerName, 'France', 'Brazil', 'Japan']);
 
@@ -241,39 +307,44 @@
     masterPool = [];
     var tiers = ['easy', 'medium', 'hard'];
 
-    // 1. Maps (80)
+    // 1. Maps (80 world + 13 Canada provinces/territories)
     var mapsSrc = window.GEO_MAPS || {};
     tiers.forEach(function (diff) {
       var list = mapsSrc[diff] || [];
       list.forEach(function (item) {
-        var c = getCountry(item.iso || item.name);
+        var isProv = !!item.prov;
+        var c = isProv ? getProvince(item.iso || item.name) : getCountry(item.iso || item.name);
         masterPool.push({
           id: item.id,
           type: 'map',
-          topic: 'map',
+          topic: item.topic === 'canada' ? 'canada' : 'map',
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
           iso: item.iso,
           name: item.name,
+          prov: isProv,
+          region: isProv && c ? c.subregion : '',
+          capital: isProv && c ? c.capital : '',
           mode: item.mode || 'click',
           maxZoom: item.maxZoom || (diff === 'easy' ? 6 : diff === 'medium' ? 4 : 3),
           a: item.name,
           o: item.mode === 'highlight' ? buildHighlightOptions(item.iso, item.name) : null,
-          continent: c ? c.continent : 'World',
-          subregion: c ? c.subregion : 'World',
+          continent: isProv ? 'Canada' : (c ? c.continent : 'World'),
+          subregion: isProv ? (c ? c.subregion : 'Province') : (c ? c.subregion : 'World'),
           pop: c ? c.pop : 0,
           flagUrl: 'assets/flags/' + String(item.iso).toLowerCase() + '.svg'
         });
       });
     });
 
-    // 2. Flags (80)
+    // 2. Flags (80 world + 13 Canada provinces/territories)
     var flagsSrc = window.GEO_FLAGS || {};
     tiers.forEach(function (diff) {
       var list = flagsSrc[diff] || [];
       list.forEach(function (item) {
-        var c = getCountry(item.iso || item.a);
+        var p = item.prov ? getProvince(item.iso || item.a) : null;
+        var c = item.prov ? null : getCountry(item.iso || item.a);
         masterPool.push({
           id: item.id,
           type: 'flag',
@@ -284,24 +355,27 @@
           iso: item.iso,
           name: item.name,
           prov: !!item.prov,
-          region: item.region || '',
+          region: item.region || (p ? p.subregion : ''),
+          capital: p ? p.capital : '',
           a: item.a,
           o: item.o.slice(),
           continent: item.prov ? 'Canada' : (c ? c.continent : 'World'),
           subregion: item.prov ? (item.region || 'Province') : (c ? c.subregion : 'World'),
-          pop: (typeof item.pop === 'number' && item.pop) ? item.pop : (c ? c.pop : 0),
+          pop: (typeof item.pop === 'number' && item.pop) ? item.pop : (p ? p.pop : (c ? c.pop : 0)),
           flagUrl: 'assets/flags/' + String(item.iso).toLowerCase() + '.svg'
         });
       });
     });
 
-    // 3. Trivia (244 = 155 base + 89 extra)
+    // 3. Trivia
     var triviaSrc = window.GEO_TRIVIA || {};
     tiers.forEach(function (diff) {
       var list = triviaSrc[diff] || [];
       list.forEach(function (item) {
         var iso = resolveIso(item.a);
         var c = iso ? getCountry(iso) : null;
+        var p = (!c && item.topic === 'canada') ? getProvince(item.a) : null;
+        var resolvedIso = iso || (p ? p.iso : '');
         masterPool.push({
           id: item.id,
           type: 'trivia',
@@ -309,21 +383,78 @@
           diff: diff,
           pts: TIER_PTS[diff],
           timeLimit: TIER_TIME[diff],
-          iso: iso,
-          name: c ? c.name : item.a,
+          iso: resolvedIso,
+          name: c ? c.name : (p ? p.name : item.a),
+          prov: !!p,
+          region: p ? p.subregion : '',
+          capital: p ? p.capital : '',
           q: item.q,
           a: item.a,
           o: item.o.slice(),
-          continent: c ? c.continent : 'World',
-          subregion: c ? c.subregion : 'World',
-          pop: c ? c.pop : 0,
-          flagUrl: iso ? ('assets/flags/' + iso.toLowerCase() + '.svg') : ''
+          continent: c ? c.continent : (p ? 'Canada' : 'World'),
+          subregion: c ? c.subregion : (p ? p.subregion : 'World'),
+          pop: c ? c.pop : (p ? p.pop : 0),
+          flagUrl: resolvedIso ? ('assets/flags/' + resolvedIso.toLowerCase() + '.svg') : ''
         });
+      });
+    });
+
+    // 4. World Landmarks (22 GeoGuessr-style borderless map pinpoints)
+    var landmarksSrc = window.GEO_LANDMARKS || [];
+    var hardLandmarks = { lm02: true, lm03: true, lm06: true, lm12: true, lm17: true, lm19: true, lm20: true, lm21: true, lm22: true };
+    landmarksSrc.forEach(function (lm) {
+      var c = getCountry(lm.iso);
+      var diff = hardLandmarks[lm.id] ? 'hard' : 'medium';
+      masterPool.push({
+        id: lm.id,
+        type: 'landmark',
+        topic: 'facts',
+        diff: diff,
+        pts: 500,
+        timeLimit: 25,
+        iso: lm.iso,
+        name: lm.name,
+        city: lm.city,
+        lat: lm.lat,
+        lng: lm.lng,
+        img: lm.img,
+        hint: lm.hint || '',
+        clue: lm.clue || '',
+        a: lm.name,
+        q: lm.name,
+        continent: c ? c.continent : 'World',
+        subregion: c ? c.subregion : 'World',
+        pop: c ? c.pop : 0,
+        flagUrl: c ? c.flagUrl : ('assets/flags/' + String(lm.iso).toLowerCase() + '.svg')
       });
     });
   }
 
   function cloneForRound(item, allowCombo, comboBudgetRef, rng) {
+    if (item.type === 'landmark') {
+      return {
+        id: item.id,
+        type: 'landmark',
+        renderMode: 'landmark-pin',
+        diff: item.diff,
+        pts: item.pts,
+        timeLimit: item.timeLimit,
+        iso: item.iso,
+        name: item.name,
+        city: item.city,
+        lat: item.lat,
+        lng: item.lng,
+        img: item.img,
+        hint: item.hint || '',
+        clue: item.clue || '',
+        a: item.a,
+        q: item.q,
+        continent: item.continent,
+        subregion: item.subregion,
+        pop: item.pop,
+        flagUrl: item.flagUrl
+      };
+    }
     var q = {
       id: item.id,
       type: item.type,
@@ -341,6 +472,7 @@
       comboBonus: 0,
       prov: item.prov || false,
       region: item.region || '',
+      capital: item.capital || '',
       continent: item.continent,
       subregion: item.subregion,
       pop: item.pop,
@@ -451,6 +583,7 @@
       var tierPool = masterPool.filter(function (x) { return x.diff === diff; });
       var maps = tierPool.filter(function (x) { return x.type === 'map'; });
       var flags = tierPool.filter(function (x) { return x.type === 'flag'; });
+      var landmarks = tierPool.filter(function (x) { return x.type === 'landmark'; });
       var trivs = tierPool.filter(function (x) { return x.type === 'trivia'; });
 
       var block = []
@@ -461,9 +594,15 @@
         var culture = trivs.filter(function (x) { return x.topic === 'culture'; });
         // Canada items ride along with facts so Canadian content shows up in mixed rounds too.
         var facts = trivs.filter(function (x) { return x.topic === 'facts' || x.topic === 'canada'; });
-        block = block
-          .concat(pickFresh(culture, 1, seenMap, pickedIds, shuf))
-          .concat(pickFresh(facts, 1, seenMap, pickedIds, shuf));
+        if (landmarks.length && totalWanted === 4) {
+          block = block
+            .concat(pickFresh(landmarks, 1, seenMap, pickedIds, shuf))
+            .concat(pickFresh(trivs, 1, seenMap, pickedIds, shuf));
+        } else {
+          block = block
+            .concat(pickFresh(culture, 1, seenMap, pickedIds, shuf))
+            .concat(pickFresh(facts, 1, seenMap, pickedIds, shuf));
+        }
       } else {
         block = block.concat(pickFresh(trivs, 1, seenMap, pickedIds, shuf));
       }
@@ -526,6 +665,35 @@
     return cloneForRound(picked[0], true, { left: 1 }, null);
   }
 
+  function buildLandmarkRound() {
+    var list = shuffle(window.GEO_LANDMARKS || []);
+    return list.map(function (lm) {
+      var c = getCountry(lm.iso);
+      return {
+        id: lm.id,
+        type: 'landmark',
+        renderMode: 'landmark-pin',
+        diff: 'medium',
+        pts: 500,
+        timeLimit: 25,
+        iso: lm.iso,
+        name: lm.name,
+        city: lm.city,
+        lat: lm.lat,
+        lng: lm.lng,
+        img: lm.img,
+        hint: lm.hint || '',
+        clue: lm.clue || '',
+        a: lm.name,
+        q: lm.name,
+        continent: c ? c.continent : 'World',
+        subregion: c ? c.subregion : 'World',
+        pop: c ? c.pop : 0,
+        flagUrl: c ? c.flagUrl : ('assets/flags/' + lm.iso.toLowerCase() + '.svg')
+      };
+    });
+  }
+
   function getRank(xp) {
     var val = Math.max(0, Number(xp) || 0);
     var current = RANKS[0];
@@ -582,8 +750,11 @@
     TOPICS: TOPICS,
     TIER_PTS: TIER_PTS,
     countriesByIso: countriesByIso,
+    provincesByIso: provincesByIso,
     isoByName: isoByName,
     getCountry: getCountry,
+    getProvince: getProvince,
+    getPlace: getPlace,
     resolveIso: resolveIso,
     formatPop: formatPop,
     formatDisplayName: formatDisplayName,
@@ -592,6 +763,7 @@
     buildHighlightOptions: buildHighlightOptions,
     buildRound: buildRound,
     buildDailyRound: buildDailyRound,
+    buildLandmarkRound: buildLandmarkRound,
     nextEndlessItem: nextEndlessItem,
     hashSeed: hashSeed,
     mulberry32: mulberry32

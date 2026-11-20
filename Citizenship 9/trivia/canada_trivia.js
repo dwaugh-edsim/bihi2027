@@ -31,6 +31,8 @@
       { id:'cne20', q:'The famous 1890s Klondike Gold Rush drew tens of thousands of miners to which territory?', o:['Yukon','British Columbia','the Northwest Territories','Alberta'], a:'Yukon', topic:'canada' },
       { id:'cne21', q:'In the 1800s, what secret network helped people escape slavery in the United States to freedom in Canada?', o:['the Underground Railroad','the Freedom Trail','the North Star Line','the Midnight Express'], a:'the Underground Railroad', topic:'canada' },
       { id:'cne22', q:'The CN Tower, the world\u2019s tallest tower when it was built in 1976, stands in which city?', o:['Toronto','Montreal','Vancouver','Edmonton'], a:'Toronto', topic:'canada' },
+      { id:'cne23', q:'What is the capital city of Ontario?', o:['Toronto','Ottawa','Hamilton','London'], a:'Toronto', topic:'canada' },
+      { id:'cne24', q:'What is the capital city of Quebec?', o:['Quebec City','Montreal','Gatineau','Sherbrooke'], a:'Quebec City', topic:'canada' },
 
     ],
     medium: [
@@ -68,6 +70,8 @@
       { id:'cnm32', q:'The vast rocky region of ancient rock, forests and lakes that covers about half of Canada is called what?', o:['the Canadian Shield','the Great Plains','the Cordillera','the Arctic Lowlands'], a:'the Canadian Shield', topic:'canada' },
       { id:'cnm33', q:'What do we call ground that stays frozen all year round in Canada\u2019s North?', o:['permafrost','tundra','taiga','a glacier'], a:'permafrost', topic:'canada' },
       { id:'cnm34', q:'Which sport is Canada\u2019s official national SUMMER sport (hockey is the winter one)?', o:['lacrosse','soccer','curling','rowing'], a:'lacrosse', topic:'canada' },
+      { id:'cnm35', q:'What is the capital city of British Columbia?', o:['Victoria','Vancouver','Kelowna','Kamloops'], a:'Victoria', topic:'canada' },
+      { id:'cnm36', q:'What is the capital city of Prince Edward Island?', o:['Charlottetown','Summerside','Stratford','Cornwall'], a:'Charlottetown', topic:'canada' },
 
     ],
     hard: [
@@ -92,6 +96,7 @@
       { id:'cnh19', q:'The 1759 Battle of the Plains of Abraham, where British forces defeated the French, took place just outside which city?', o:['Quebec City','Montreal','Louisbourg','Halifax'], a:'Quebec City', topic:'canada' },
       { id:'cnh20', q:'Wasaga Beach on Georgian Bay, often called the world\u2019s longest freshwater beach, is in which province?', o:['Ontario','British Columbia','Quebec','Manitoba'], a:'Ontario', topic:'canada' },
       { id:'cnh21', q:'Which body of water separates Cape Breton Island from mainland Nova Scotia?', o:['the Strait of Canso','the Northumberland Strait','the Cabot Strait','the Minas Basin'], a:'the Strait of Canso', topic:'canada' },
+      { id:'cnh22', q:'Which narrow strip of land connects peninsular Nova Scotia to New Brunswick?', o:['the Chignecto Isthmus','the Strait of Canso','the Minas Basin','the Cabot Trail'], a:'the Chignecto Isthmus', topic:'canada' },
     ]
   };
 
