@@ -376,6 +376,51 @@
       letter-spacing: -0.01em;
     }
 
+    .harold-coach {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: #0f1720;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+    }
+
+    .harold-coach-avatar {
+      width: 48px;
+      height: 50px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .harold-coach-avatar .harold-svg {
+      width: 46px;
+      height: 48px;
+    }
+
+    .harold-speech {
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    .harold-speech b {
+      color: #fff;
+    }
+
+    .harold-coach.pop .harold-speech {
+      animation: haroldPop 0.28s ease-out;
+    }
+
+    @keyframes haroldPop {
+      0% { opacity: 0.3; transform: translateY(3px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .harold-body-grp, .harold-wave-fin, .harold-eye-lid, .harold-bubble {
         animation: none;
@@ -2327,6 +2372,32 @@
             </div>
             <button type="button" class="next-btn" id="nextQBtn" onclick="Arena.nextQuestion()">Next Question [Enter]</button>
           </div>
+
+          <div class="harold-coach" id="haroldCoach" aria-live="polite">
+            <div class="harold-coach-avatar" aria-hidden="true">
+              <svg class="harold-svg" viewBox="0 0 80 84" fill="none">
+                <g class="harold-body-grp">
+                  <path d="M34 54 C24 62, 13 67, 14 74 C16 78, 28 75, 36 67 C38 71, 42 71, 44 67 C52 75, 64 78, 66 74 C67 67, 56 62, 46 54 Z" fill="url(#haroldFin)" stroke="#cbd5e1" stroke-width="1.2"/>
+                  <path d="M34 18 C36 7, 40 6, 42 12 C44 8, 47 10, 46 18 Z" fill="url(#haroldFin)" stroke="#cbd5e1" stroke-width="1.1"/>
+                  <path d="M40 16 C54 16, 60 25, 59 37 C58 49, 49 57, 40 57 C31 57, 22 49, 21 37 C20 25, 26 16, 40 16 Z" fill="url(#haroldSilver)" stroke="#e2e8f0" stroke-width="1.2"/>
+                  <path d="M25 35 Q27 40 24 44 M55 35 Q53 40 56 44" stroke="#64748b" stroke-width="1.1" stroke-linecap="round" fill="none" opacity="0.65"/>
+                  <path d="M33 44 Q36.5 47 40 44 Q43.5 47 47 44 M35 49 Q40 52 45 49" stroke="#94a3b8" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.6"/>
+                  <g class="harold-wave-fin">
+                    <path d="M23 39 C14 33, 9 25, 14 21 C19 19, 24 28, 25 36 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.1"/>
+                  </g>
+                  <path d="M57 38 C64 41, 65 48, 59 50 C54 51, 53 45, 55 41 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.1"/>
+                  <g class="harold-eye-lid">
+                    <circle cx="32" cy="28" r="3.6" fill="#0f1720"/>
+                    <circle cx="31" cy="26.7" r="1.3" fill="#ffffff"/>
+                    <circle cx="48" cy="28" r="3.6" fill="#0f1720"/>
+                    <circle cx="47" cy="26.7" r="1.3" fill="#ffffff"/>
+                  </g>
+                  <path d="M35 35 Q40 40 45 35" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </g>
+              </svg>
+            </div>
+            <div class="harold-speech" id="haroldSpeech">You've got this!</div>
+          </div>
         </div>
       </div>
     </main>
@@ -3626,6 +3697,67 @@
         return d.getFullYear() + '-' + m + '-' + day;
       }
 
+      var haroldLastLine = '';
+
+      function studentFirstName() {
+        if (skipNet || !identity || !identity.email) return 'Explorer';
+        var disp = GEO_ENGINE.formatDisplayName(identity.email);
+        return (disp && disp.split(' ')[0]) || 'Explorer';
+      }
+
+      function haroldSay(kind, opts) {
+        var box = el('haroldCoach');
+        var msgEl = el('haroldSpeech');
+        if (!box || !msgEl) return;
+        var name = studentFirstName();
+        var streak = (round && round.streak) || 0;
+        var pools = {
+          start: [
+            "You've got this, " + name + "! Let's explore!",
+            "Swim steady, " + name + " - first question coming up!",
+            "Ready when you are, " + name + "! Show that map sense!"
+          ],
+          hit: [
+            "Nice catch, " + name + "!",
+            "Spot on, " + name + "!",
+            "Way to go, " + name + "!",
+            "Fin-tastic job, " + name + "!",
+            "Sharp eye, " + name + "!"
+          ],
+          streak: [
+            streak + " in a row, " + name + "! You're making waves!",
+            "Unstoppable streak, " + name + "! Keep swimming!",
+            "Whoa, " + name + " - " + streak + " straight! Pure gold!"
+          ],
+          landmark_close: [
+            "Right on target, " + name + "! What a pinpoint!",
+            "Bullseye territory, " + name + "! Amazing map sense!",
+            "That was razor-close, " + name + "!"
+          ],
+          miss: [
+            "No worries, " + name + " - shake it off and catch the next one!",
+            "Tough one, " + name + "! Now you know it for next time.",
+            "Keep swimming, " + name + " - plenty more chances ahead!",
+            "Good try, " + name + "! Every miss teaches us something new."
+          ],
+          midgame: [
+            "Halfway there, " + name + "! Keep that focus!",
+            "Into deeper water now, " + name + " - you're doing great!",
+            "Strong momentum, " + name + "! Keep it rolling!"
+          ]
+        };
+        var list = pools[kind] || pools.hit;
+        var pick = list[Math.floor(Math.random() * list.length)];
+        if (list.length > 1 && pick === haroldLastLine) {
+          pick = list[(list.indexOf(pick) + 1) % list.length];
+        }
+        haroldLastLine = pick;
+        msgEl.innerHTML = '<b>Harold:</b> ' + esc(pick);
+        box.classList.remove('pop');
+        void box.offsetWidth;
+        box.classList.add('pop');
+      }
+
       function beginRound(items, topic, extra) {
         extra = extra || {};
         var carry = (state.carryStreak || 0);
@@ -3655,6 +3787,7 @@
         };
 
         showScreen('arenaView');
+        haroldSay('start');
         setTimeout(function () {
           ensureMap();
           renderQuestion();
@@ -3806,6 +3939,9 @@
         el('mapWrap').classList.toggle('click-active', allowsMapClick(q) || q.renderMode === 'landmark-pin');
 
         el('qCounter').textContent = round.isEndless ? (String(round.idx + 1) + ' / ∞') : ((round.idx + 1) + ' / ' + round.items.length);
+        if (round.idx === 4 || (round.idx >= 9 && round.idx % 5 === 4)) {
+          haroldSay('midgame');
+        }
         var quitBtn = el('quitRoundBtn');
         if (quitBtn) {
           quitBtn.innerHTML = (round.isEndless && round.results.length > 0) ? '&larr; Finish &amp; Save' : '&larr; Lobby';
@@ -4083,7 +4219,7 @@
         }
 
         var msg = distKm.toLocaleString() + ' km away' + (isHit ? '' : ' (too far!)');
-        finalizeAnswer(isHit, msg, pts);
+        finalizeAnswer(isHit, msg, pts, distKm < 500);
       }
 
       function onCountryHover(iso, layer) {
@@ -4194,7 +4330,7 @@
         }
       }
 
-      function finalizeAnswer(isHit, verdictMsg, ptsEarned) {
+      function finalizeAnswer(isHit, verdictMsg, ptsEarned, isLandmarkClose) {
         stopTimer();
         round.answered = true;
         var q = round.items[round.idx];
@@ -4206,9 +4342,11 @@
           round.score += ptsEarned;
           round.xpEarned += ptsEarned;
           sfxHit(round.streak);
+          haroldSay(isLandmarkClose ? 'landmark_close' : (round.streak >= 3 ? 'streak' : 'hit'));
         } else {
           round.streak = 0;
           sfxMiss();
+          haroldSay('miss');
           if (round.isEndless) {
             round.strikes = (round.strikes || 0) + 1;
             renderStrikes();
