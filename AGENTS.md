@@ -28,15 +28,30 @@ What does and doesn't travel:
   or `display_instructions_data.js` for the slide's instructions) and
   push; the projector picks it up on reload.
 
-## Agent log — ALWAYS update `E:\IDE Agent Notes` as you work
+## Agent log — ALWAYS update the AgentLog repo as you work
 
 Standing rule for every session, not just this task: **any project write (code, docs,
-data) is a milestone — update the AgentLog repo at `E:\IDE Agent Notes` at that write,
-not at session end.** The next session on any machine (home or school) reads current
-state instead of guessing. Protocol: `E:\IDE Agent Notes\AGENT_PROTOCOL.md`. Routine:
-`git pull --rebase --autostash` → rewrite the project card in `projects/` → append one
-`journal/YYYY-MM-DD.md` block → update `INDEX.md` if the project list moved → commit +
-push (or just run `sync.bat`). Do not batch a morning of work into one entry.
+data) is a milestone — update the AgentLog at that write, not at session end.** The next
+session on any machine (home or school) reads current state instead of guessing.
+
+**Live store = the private git repo `github.com/dwaugh-edsim/AgentLog`** (since
+2026-10-26). The old Google Drive folder (`G:\My Drive\IDE Agent Notes` on this machine,
+`E:\My Drive\IDE Agent Notes` on THINKPAD) is **frozen history — never write there**;
+its own `!STORE_CLOSED.md` says Drive sync can no longer reach the school machine, so
+writes there do not travel. Clone paths:
+
+- THINKPAD: `Z:\simroom\Github Repos\AgentLog`
+- School (BIC-0008-T): `E:\IDE Agent Notes`
+- SURFACELG2-1: `C:\IDE Agent Notes` (the notice's `G:\IDE Agent Notes` is impossible —
+  G: is the Google Drive mount root and accepts no new folders; C: is the local disk)
+
+No clone on this machine? Clone it once first — the credential is not yet in Windows
+Credential Manager, so the clone needs one interactive GitHub click (never let a git
+command hang waiting for it: run git with `-c credential.interactive=false` so it fails
+fast, then have Mr. Waugh run the clone command once himself). Protocol inside the repo:
+`AGENT_PROTOCOL.md`. Routine: `git pull --rebase --autostash` → rewrite the project card
+in `projects/` → append one `journal/YYYY-MM-DD.md` block → update `INDEX.md` if the
+project list moved → commit + push. Do not batch a morning of work into one entry.
 
 ## Two repositories (public vs private)
 
