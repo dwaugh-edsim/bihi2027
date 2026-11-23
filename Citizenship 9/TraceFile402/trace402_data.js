@@ -238,23 +238,25 @@ var TRACE402 = {
       kicker: "Stop 4 // Promise vs. Teeth", day: 4,
       imgs: [{ src: "assets/s4_burnside_charter.jpg", cap: "What happens if Nadia's workshop is moved to Burnside Industrial Park in Halifax? Canadian law and the Charter have court-enforced teeth." }],
       chars: [
-        { key: "amira", quote: "Try a thought experiment: pick up Nadia's Tier-2 factory and drop it in Burnside Industrial Park in Halifax tomorrow morning. Within hours, safety inspectors shut it down and Canadian courts enforce the law. That is the difference between a declaration and a constitution." }
+        { key: "amira", quote: "Picture this: pick up Nadia's unsafe factory in Dhaka and drop it in Burnside Industrial Park in Halifax tomorrow morning. Canadian safety inspectors would shut it down in hours, and Canadian courts enforce the law. That is the difference between a global promise (the UDHR) and a real national constitution (Canada's Charter)." }
       ],
       words: ["charter", "reasonable limits", "notwithstanding"],
       tabs: {
-        dispatch: `<p><strong>Why is this called the Burnside Test?</strong> Burnside Industrial Park is right across the harbour in Dartmouth/Halifax. Imagine picking up Nadia's unsafe Dhaka workshop and dropping it in Burnside tomorrow morning.</p>
-<p>In Canada, safety inspectors would shut it down within hours, and our highest law - the <strong>Canadian Charter of Rights and Freedoms (1982)</strong> - sits inside Canada's Constitution. Judges can <strong>strike down (cancel)</strong> any Canadian government law that breaks it.</p>`,
-        evidence: `<p><strong>Five Canadian Charter sections to know:</strong></p>
-<ul><li><strong>Section 2 (Fundamental Freedoms):</strong> protects free expression, peaceful protest, and association (including forming or joining a union).</li>
-<li><strong>Section 7 (Life, Liberty &amp; Security):</strong> government cannot take away your physical safety or freedom unfairly.</li>
-<li><strong>Section 15 (Equality):</strong> equal protection under the law with no discrimination.</li>
-<li><strong>Section 1 (Reasonable Limits):</strong> rights in Canada are not 100% unlimited - a government can limit a right if it proves the limit is fair in a free, democratic society.</li>
-<li><strong>Section 33 (Notwithstanding Clause):</strong> lets a Canadian government temporarily override sections 2, 7, or 15 for up to 5 years.</li></ul>`,
-        toolkit: `<p><strong>Promise vs. Teeth (the key difference):</strong></p>
-<ul><li><strong>UDHR (Global):</strong> applies to every human on Earth, but has <strong>no court or police of its own</strong>. Its power is public pressure.</li>
-<li><strong>Charter + Canadian Law (Canada only):</strong> backed by <strong>real courts, judges, inspectors, fines, and shutdown orders</strong> - <em>but only inside Canada's borders</em>. A Canadian court has no legal power (jurisdiction) inside Bangladesh.</li></ul>`
+        dispatch: `<p><strong>1. What is the "Burnside Test"?</strong> Burnside Industrial Park is right across the harbour in Dartmouth/Halifax. Imagine dropping Nadia's cracked, padlocked Dhaka workshop into Burnside tomorrow. In Canada, inspectors and courts would shut it down immediately.</p>
+<p><strong>2. Why does Canada have real enforcement?</strong> Canada's highest law is the <strong>Canadian Charter of Rights and Freedoms (1982)</strong>. It is part of Canada's Constitution, so real Canadian judges can enforce it and cancel laws that break it.</p>
+<p><strong>3. The catch (borders / jurisdiction):</strong> A Canadian judge or inspector <strong>only has power inside Canada</strong>. Canada cannot send police or court orders into Bangladesh to shut down a factory in Dhaka - only Bangladesh's own government has legal power inside Bangladesh.</p>`,
+        evidence: `<p><strong>Five Canadian Charter sections (plain English):</strong></p>
+<ul><li><strong>Section 2 (Fundamental Freedoms):</strong> protects speaking out, peaceful protest, and <strong>association</strong> (forming or joining a union).</li>
+<li><strong>Section 7 (Life, Liberty &amp; Security):</strong> protects your physical safety and personal freedom.</li>
+<li><strong>Section 15 (Equality):</strong> guarantees equal treatment under the law with no discrimination.</li>
+<li><strong>Section 1 (Reasonable Limits):</strong> rights in Canada are <em>not</em> 100% unlimited (for example, free speech does not allow threats or hate speech). Limits must be fair in a democratic society.</li>
+<li><strong>Section 33 (Notwithstanding Clause):</strong> lets Parliament or a provincial government temporarily override sections 2, 7, or 15 for up to 5 years.</li></ul>`,
+        toolkit: `<p><strong>UDHR vs. Canadian Charter (Promise vs. Teeth):</strong></p>
+<ul><li><strong>UDHR (1948 - Global):</strong> covers every human in all 193 UN countries, <strong>but has no police or court of its own</strong>. It is a global standard (pressure, not arrests).</li>
+<li><strong>Canadian Charter (1982 - Canada only):</strong> backed by <strong>real Canadian courts, judges, fines, and shutdown orders</strong> - <em>but only inside Canada's borders</em>.</li></ul>
+<p><strong>Tip for Box 3:</strong> Think about country borders - why can't a Canadian judge enforce Canadian law inside another country like Bangladesh?</p>`
       },
-      task: "Compare the UDHR and Canada's Charter on the right, then explain why a Canadian court cannot shut down a factory in Dhaka.",
+      task: "Use Tabs 1-3 to answer the two Charter questions, then write 1-2 sentences explaining why Canadian courts cannot shut down a factory in Dhaka.",
       fields: [
         {
           type: "choice", f: "judgments.s4.section", label: "If a Canadian government tried to ban workers from speaking out or forming a union, which Charter section protects them?",
