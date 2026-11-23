@@ -2808,6 +2808,14 @@
           }
           next.hideFromLeaderboard = !!raw.hideFromLeaderboard;
         }
+        // Auto-heal best.overall from earlier Endless/Challenge/Landmarks runs
+        // that were saved before all modes counted toward Best Round.
+        var healedBest = Math.max(next.best.overall || 0, next.best.endless || 0, next.best.challenge || 0);
+        for (var hi = 0; hi < next.history.length; hi++) {
+          healedBest = Math.max(healedBest, Number(next.history[hi] && next.history[hi].score) || 0);
+        }
+        var needsHealSave = healedBest > (next.best.overall || 0);
+        if (needsHealSave) next.best.overall = healedBest;
         state = next;
         if (!state.section) {
           var urlSec = sectionCodeForClass(Q.get('section') || Q.get('class') || '');
@@ -2817,6 +2825,7 @@
         el('sectionSel').value = state.section || '';
         updateScopePills();
         refreshLobbyStats();
+        if (needsHealSave) saveToServer();
       }
 
       function saveToServer() {

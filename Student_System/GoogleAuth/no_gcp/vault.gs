@@ -313,7 +313,12 @@ function doPost(e) {
       try { dataL = JSON.parse(rowsL[i][5] || '{}'); } catch (e) {}
       hiddenByEmail[em] = !!dataL.hideFromLeaderboard;
 
-      var bestScore = Number((dataL.best && dataL.best.overall) || 0);
+      var bObj = dataL.best || {};
+      var bestScore = Math.max(
+        Number(bObj.overall || 0),
+        Number(bObj.endless || 0),
+        Number(bObj.challenge || 0)
+      );
       var xpScore = Number(dataL.xp || 0);
       var dailyScore = (dataL.daily && dataL.daily.date === todayL) ? (Number(dataL.daily.score) || 0) : -1;
       var score = boardL === 'xp' ? xpScore : (boardL === 'daily' ? dailyScore : bestScore);
