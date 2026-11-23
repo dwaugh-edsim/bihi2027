@@ -1223,15 +1223,49 @@
       color: var(--accent);
     }
 
+    .score-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1.5px solid rgba(245, 158, 11, 0.6);
+      padding: 4px 14px;
+      border-radius: 10px;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.16);
+    }
+
     .score-box {
       font-family: var(--f-mono);
-      font-size: 0.92rem;
-      font-weight: 700;
+      font-size: 1.55rem;
+      line-height: 1.1;
+      font-weight: 800;
       color: #fff;
-      background: var(--surface-2);
-      border: 1px solid var(--line-strong);
-      padding: 4px 11px;
-      border-radius: 7px;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .score-box.pop {
+      animation: scorePop 0.28s ease-out;
+    }
+
+    @keyframes scorePop {
+      0% { transform: scale(1); color: #fff; }
+      45% { transform: scale(1.12); color: var(--accent-hover); }
+      100% { transform: scale(1); color: #fff; }
+    }
+
+    .score-best {
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+      border-left: 1px solid rgba(245, 158, 11, 0.35);
+      padding-left: 10px;
+      white-space: nowrap;
+    }
+
+    .score-best.pb {
+      color: var(--ok);
     }
 
     .timer-wrap {
@@ -2310,7 +2344,10 @@
         <span class="combo-chip" id="qComboChip">Combo +50</span>
         <span class="arena-spacer"></span>
         <span class="streak-pill" id="streakPill">Streak 0 &middot; 1.0x</span>
-        <span class="score-box" id="liveScoreBox">0 pts</span>
+        <div class="score-cluster" title="Current round score">
+          <span class="score-box" id="liveScoreBox">0 pts</span>
+          <span class="score-best" id="liveBestTag">Best 0</span>
+        </div>
       </div>
 
       <div class="timer-wrap" id="timerWrap">
@@ -3783,7 +3820,10 @@
           isEndless: !!extra.isEndless,
           isLandmarks: !!extra.isLandmarks,
           maxStrikes: extra.maxStrikes || 3,
-          strikes: 0
+          strikes: 0,
+          startBestOverall: (state.best && state.best.overall) || 0,
+          lastLiveSaveAt: 0,
+          lastShownScore: 0
         };
 
         showScreen('arenaView');
@@ -3883,6 +3923,11 @@
       }
 
       function quitRound() {
+        if (round && round.isEndless && round.results && round.results.length > 0) {
+          if (!round.answered && round.items.length > round.results.length) round.items.pop();
+          finishRound();
+          return;
+        }
         stopTimer();
         if (round && round.isEndless && round.results && round.results.length > 0) {
           finishRound();
@@ -3920,7 +3965,25 @@
         var pill = el('streakPill');
         pill.textContent = 'Streak ' + round.streak + ' \u00B7 ' + mult.toFixed(1) + 'x';
         pill.classList.toggle('hot', round.streak >= 3);
-        el('liveScoreBox').textContent = round.score.toLocaleString() + ' pts';
+        var scoreEl = el('liveScoreBox');
+        scoreEl.textContent = round.score.toLocaleString() + ' pts';
+        if (round.score > (round.lastShownScore || 0)) {
+          round.lastShownScore = round.score;
+          scoreEl.classList.remove('pop');
+          void scoreEl.offsetWidth;
+          scoreEl.classList.add('pop');
+        }
+        var bestEl = el('liveBestTag');
+        if (bestEl) {
+          var startBest = round.startBestOverall || 0;
+          if (round.score > startBest && round.score > 0) {
+            bestEl.textContent = 'NEW BEST!';
+            bestEl.classList.add('pb');
+          } else {
+            bestEl.textContent = 'Best ' + Math.max(startBest, (state.best && state.best.overall) || 0).toLocaleString();
+            bestEl.classList.remove('pb');
+          }
+        }
       }
 
       function getStreakMultiplier(streak) {
@@ -4343,6 +4406,22 @@
           round.xpEarned += ptsEarned;
           sfxHit(round.streak);
           haroldSay(isLandmarkClose ? 'landmark_close' : (round.streak >= 3 ? 'streak' : 'hit'));
+          // Push live leaderboard checkpoints during long runs whenever a student
+          // beats their personal best (throttled to at most once every 20s).
+          if (round.score > (state.best.overall || 0)) {
+            state.best.overall = round.score;
+            if (round.isChallenge && round.score > (state.best.challenge || 0)) {
+              state.best.challenge = round.score;
+            }
+            if (round.isEndless && round.score > (state.best.endless || 0)) {
+              state.best.endless = round.score;
+            }
+            var nowMs = Date.now();
+            if (nowMs - (round.lastLiveSaveAt || 0) >= 20000) {
+              round.lastLiveSaveAt = nowMs;
+              saveToServer();
+            }
+          }
         } else {
           round.streak = 0;
           sfxMiss();
@@ -4476,7 +4555,7 @@
       function finishRound() {
         stopTimer();
         var prevRank = GEO_ENGINE.getRank(state.xp || 0).current.level;
-        var prevOverallBest = state.best.overall || 0;
+        var prevOverallBest = (round.startBestOverall != null) ? round.startBestOverall : (state.best.overall || 0);
 
         state.roundsPlayed = (state.roundsPlayed || 0) + 1;
         state.totalCorrect = (state.totalCorrect || 0) + round.hits;
@@ -4484,28 +4563,24 @@
         if (round.maxStreak > (state.bestStreak || 0)) state.bestStreak = round.maxStreak;
         state.carryStreak = round.streak >= 3 ? round.streak : 0;
 
-        // Perfect-round bonus: a clean sweep is worth an extra 250 pts and XP (10-item rounds only).
+        // Perfect-round bonus: a clean sweep is worth an extra 250 pts and XP (fixed-length rounds only).
         var perfectBonus = (!round.isEndless && round.hits === round.items.length && round.items.length > 0) ? 250 : 0;
         if (perfectBonus) {
           round.score += perfectBonus;
           round.xpEarned += perfectBonus;
         }
 
-        // Anti-grind: only the first 2,000 XP earned in a calendar day counts.
         var dayKey = todayKey();
         if (state.xpDate !== dayKey) { state.xpDate = dayKey; state.xpToday = 0; }
-        var xpCap = 2000;
         var xpToAdd = Math.max(0, round.xpEarned);
-        if (state.xpToday >= xpCap) xpToAdd = 0;
-        else if (state.xpToday + xpToAdd > xpCap) xpToAdd = xpCap - state.xpToday;
         state.xpToday += xpToAdd;
         round.xpEarned = xpToAdd;
         state.xp = (state.xp || 0) + xpToAdd;
 
         var passOutcome = updatePassesAfterRound(state, round.topic || 'mixed', round.hits);
 
-        var isNewBest = !round.isChallenge && !round.isEndless && !round.isLandmarks && round.score > prevOverallBest;
-        if (isNewBest) state.best.overall = round.score;
+        var isNewBest = round.score > prevOverallBest;
+        if (round.score > (state.best.overall || 0)) state.best.overall = round.score;
         if (round.isChallenge && round.score > (state.best.challenge || 0)) state.best.challenge = round.score;
         if (round.isEndless && round.score > (state.best.endless || 0)) state.best.endless = round.score;
         if (round.isDaily) {
@@ -4569,7 +4644,6 @@
         el('resHits').textContent = round.hits + ' / ' + round.items.length;
         el('resStreak').textContent = String(round.maxStreak);
         var xpText = '+' + round.xpEarned.toLocaleString() + ' XP';
-        if (xpToAdd <= 0 && (state.xpToday || 0) >= 2000) xpText += ' (daily cap reached)';
         el('resXpGain').textContent = xpText;
 
         el('resRankEmblem').innerHTML = getRankIconSvg(newRankObj.current);
