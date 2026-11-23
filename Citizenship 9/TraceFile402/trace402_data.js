@@ -26,16 +26,18 @@ var TRACE402 = {
   },
 
   glossary: {
-    "supply chain": "Every step it takes to turn raw materials into a product on a store shelf, from cotton field to factory to container ship to mall.",
-    "subcontracting": "When an approved factory (Tier-1) secretly passes part of an order to a cheaper, uninspected factory (Tier-2).",
-    "plausible deniability": "Setting things up so a company can truthfully say 'we did not officially know' while still profiting from the shortcut.",
+    "tier-1 factory": "The official, approved factory that a clothing brand directly hires and sends safety inspectors to check.",
+    "tier-2 factory": "A second, cheaper, uninspected workshop that a Tier-1 factory secretly passes extra work to behind the brand's back.",
+    "supply chain": "Every step it takes to make and move a product: cotton farm -> factory -> cargo ship -> mall store.",
+    "subcontracting": "Passing part of an order to another workshop. In this case, an approved Tier-1 factory secretly passes overflow work to a cheaper, uninspected Tier-2 shop.",
+    "plausible deniability": "Setting up a system so a brand can truthfully say 'we did not officially know' about an unsafe Tier-2 shop, while still profiting from cheap prices.",
     "human rights": "Basic rights every person has simply because they are human, not earned as a reward and not a gift from a government.",
-    "udhr": "The Universal Declaration of Human Rights (1948): 30 articles adopted by the UN as the world's shared human-rights standard.",
-    "declaration": "A formal statement of shared standards. Unlike a law or court order, a declaration cannot by itself send police or strike down laws.",
-    "charter": "The Canadian Charter of Rights and Freedoms (1982): part of Canada's Constitution. Canadian courts can enforce it and strike down laws that break it.",
-    "reasonable limits": "Section 1 of the Charter: rights in Canada are not absolute, and governments can limit them if the limit is justified in a free and democratic society.",
-    "notwithstanding": "Section 33 of the Charter: lets Parliament or a provincial legislature override sections 2, 7, or 15 for up to five years at a time.",
-    "veto": "The power held by five permanent UN Security Council members (USA, UK, France, Russia, China) to block a binding action with a single 'no' vote."
+    "udhr": "The Universal Declaration of Human Rights (1948): 30 rules adopted by the UN saying what every human being on Earth is owed.",
+    "declaration": "A formal written promise of shared goals. Unlike a law or court order, a declaration has no police force and cannot arrest anyone.",
+    "charter": "The Canadian Charter of Rights and Freedoms (1982): part of Canada's Constitution. Canadian judges can enforce it and cancel laws that break it.",
+    "reasonable limits": "Section 1 of the Charter: rights in Canada are not unlimited. A government can limit a right only if it can prove the limit is fair and necessary in a free, democratic society.",
+    "notwithstanding": "Section 33 of the Charter: a rule that lets Parliament or a provincial government temporarily override sections 2, 7, or 15 for up to 5 years.",
+    "veto": "A single 'NO' vote held by five permanent UN Security Council countries (USA, UK, France, Russia, China) that stops a binding UN action completely."
   },
 
   stations: [
@@ -45,20 +47,23 @@ var TRACE402 = {
       kicker: "Stop 0 // Assignment Desk", day: 0,
       imgs: [{ src: "assets/s0_hoodie_leak.jpg", cap: "A $14 NorthStar Apparel hoodie from a Halifax mall beside a leaked factory photo from Dhaka." }],
       chars: [
-        { key: "elena", quote: "You just watched how clothes travel from Dhaka to Halifax. Today you are on the investigative desk. A Halifax shopper bought this $14 hoodie with a green '100% Ethically Audited' tag - then a worker in Bangladesh sent us a photo of the same hoodies stacked inside a cracked, padlocked building that is NOT on the brand's official list. Follow the trail." }
+        { key: "elena", quote: "You're an investigative journalist on our Halifax news desk, and you just got a scoop. A shopper bought this $14 NorthStar hoodie with a green '100% Ethically Audited' tag. Then a worker in Bangladesh sent us a secret photo showing the exact same hoodies stacked inside a cracked, padlocked building that is NOT on NorthStar's official factory list. Follow the trail." }
       ],
-      words: ["supply chain", "subcontracting"],
+      words: ["tier-1 factory", "tier-2 factory", "supply chain", "subcontracting"],
       tabs: {
-        dispatch: `<p>You are a junior investigator on a Halifax television news desk.</p>
-<p><strong>The tip:</strong> Canadian brand <strong>NorthStar Apparel</strong> sells a $14 hoodie in Halifax malls with a bright green hangtag promising <em>"100% Ethically Audited Factories."</em></p>
-<p>Last night, an encrypted photo arrived from Dhaka, Bangladesh. It shows boxes of NorthStar hoodies inside an unmarked concrete building with a cracked support column and a padlocked exit door.</p>`,
-        evidence: `<p><strong>What sits on your desk right now:</strong></p>
-<ul><li><strong>Item A:</strong> One $14 NorthStar hoodie bought in Halifax, tag reading <em>Made in Bangladesh</em>.</li>
-<li><strong>Item B:</strong> NorthStar's public list of approved Dhaka factories (called <strong>Tier-1</strong> suppliers).</li>
-<li><strong>Item C:</strong> A leaked photo showing NorthStar labels inside a different building that does <strong>not</strong> appear on NorthStar's public list.</li></ul>`,
-        toolkit: `<p><strong>How this investigation works:</strong> each stop on the left unlocks the next part of the trail. Read the three middle tabs, then record your calls in the <strong>Investigator Log</strong> on the right. Click any image to zoom, or press <strong>Read this tab</strong> to hear the page aloud. Your work saves automatically.</p>`
+        dispatch: `<p><strong>Your role:</strong> You are a junior investigative journalist on a Halifax TV news desk.</p>
+<p><strong>The scoop:</strong> Canadian clothing brand <strong>NorthStar Apparel</strong> sells a $14 hoodie in Halifax malls. Its green hangtag promises <em>"100% Ethically Audited Factories"</em> (meaning safety inspectors checked the factories).</p>
+<p>Last night, a worker in <strong>Dhaka, Bangladesh</strong> sent an encrypted photo. It shows boxes of NorthStar hoodies inside an unmarked concrete building with a <strong>cracked support pillar</strong> and a <strong>padlocked fire exit</strong>.</p>`,
+        evidence: `<p><strong>What is on your desk right now:</strong></p>
+<ul><li><strong>Item A (The Hoodie):</strong> One $14 NorthStar hoodie bought in Halifax. The tag says <em>Made in Bangladesh</em>.</li>
+<li><strong>Item B (Tier-1 List):</strong> NorthStar's public list of approved Dhaka factories. These official, inspected factories are called <strong>Tier-1 factories</strong>.</li>
+<li><strong>Item C (The Leaked Photo):</strong> NorthStar hoodies being sewn inside a <em>different, uninspected</em> building that is <strong>not</strong> on the list. Secret overflow shops like this are called <strong>Tier-2 factories</strong>.</li></ul>`,
+        toolkit: `<p><strong>Tier-1 vs. Tier-2 (know this before you start!):</strong></p>
+<ul><li><strong>Tier-1 factory:</strong> The official, approved factory that NorthStar hires and inspects.</li>
+<li><strong>Tier-2 factory:</strong> A secret, cheaper, uninspected workshop down the alley where extra work gets quietly sent.</li></ul>
+<p><strong>How the sim works:</strong> Read all 3 middle tabs on each stop, then complete your <strong>Investigator Log</strong> on the right. Click any picture to zoom, or click <strong>Read this tab</strong> to hear it read aloud. Your work saves automatically.</p>`
       },
-      task: "Read the three tabs, pick your class section, then press READY to open Trace File 402.",
+      task: "Read all 3 tabs, pick your class section on the right, then click READY to open Trace File 402.",
       fields: [
         { type: "section", label: "Your class section" },
         { type: "ack", label: "READY: OPEN TRACE FILE 402" }
@@ -71,21 +76,25 @@ var TRACE402 = {
       kicker: "Stop 1 // Follow the Money", day: 1,
       imgs: [{ src: "assets/s1_supply_chain.jpg", cap: "40-foot ocean containers cross from South Asia to Halifax for pennies per shirt, while rush orders push factories to subcontract." }],
       chars: [
-        { key: "david", quote: "NorthStar inspects every approved Tier-1 factory on our list. If a manager secretly moved our order to another building without telling us, they broke our contract. We did not authorize it." },
-        { key: "tariq", quote: "NorthStar demanded 40,000 hoodies in three weeks at a price that barely covers thread and electricity. If I say no, they move the order to another country. So yes, I sent the overflow down the alley to a Tier-2 shop. Nobody from Toronto ever asks how we hit the deadline." }
+        { key: "david", quote: "NorthStar inspects every approved Tier-1 factory on our official list. If Tariq secretly moved our order to a Tier-2 building without telling us, he broke our contract. We never approved it." },
+        { key: "tariq", quote: "NorthStar demanded 40,000 hoodies in three weeks at a price that barely covers thread and electricity. If I say no, they move the order to another country. So yes, I subcontracted the extra work down the alley to a cheaper Tier-2 shop. Nobody from Toronto ever asks how we hit the deadline." }
       ],
-      words: ["subcontracting", "plausible deniability"],
+      words: ["tier-1 factory", "tier-2 factory", "subcontracting", "plausible deniability"],
       tabs: {
-        dispatch: `<p>Before you enter the hidden Tier-2 workshop, you check the shipping numbers and interview both <strong>David Chen</strong> (NorthStar PR in Toronto) and <strong>Tariq Hassan</strong> (the approved Tier-1 factory manager in Dhaka).</p>
-<p>Both men agree on one fact: the hoodies were sewn in an uninspected Tier-2 building. They completely disagree on who is to blame.</p>`,
-        evidence: `<p><strong>Numbers from the shipping manifest &amp; cost ledger:</strong></p>
-<ul><li><strong>Ocean freight (Dhaka to Halifax):</strong> 60,000 shirts fit in one 40-foot container (~$6,200 CAD) = <strong>$0.10 CAD per shirt</strong>.</li>
-<li><strong>Bangladesh per-shirt estimate:</strong> ~$0.17 CAD labour + $0.10 ocean shipping = <strong>$0.27 CAD</strong>.</li>
-<li><strong>Canada per-shirt estimate:</strong> ~$4.13 CAD labour ($16.50/hr) + $0.05 local truck = <strong>$4.18 CAD</strong>.</li>
-<li><strong>The blind spot:</strong> NorthStar's safety auditor only checked Tariq's clean Tier-1 plant, never the Tier-2 shop down the alley.</li></ul>`,
-        toolkit: `<p><strong>Key concept: Plausible deniability.</strong> When a buyer sets impossible prices and deadlines, then only inspects Tier-1, the buyer gets cheap clothes while staying officially "unaware" of Tier-2. As investigators say: <em>"If you don't want to know the answer, don't ask the question."</em></p>`
+        dispatch: `<p>Before visiting the secret Tier-2 workshop, you check the shipping numbers and interview two people:</p>
+<ul><li><strong>David Chen (Toronto):</strong> PR (public relations) Director for NorthStar Apparel. His job is to protect the brand's image.</li>
+<li><strong>Tariq Hassan (Dhaka):</strong> Manager of the official, inspected <strong>Tier-1 factory</strong> that NorthStar hired.</li></ul>
+<p>Both men admit the hoodies were sewn in an uninspected <strong>Tier-2</strong> building down the alley. They completely disagree on who is to blame.</p>`,
+        evidence: `<p><strong>Cost ledger (why brands make clothes overseas):</strong></p>
+<ul><li><strong>Ocean shipping (Dhaka to Halifax):</strong> 60,000 shirts fit in one 40-foot cargo container (~$6,200 CAD) = just <strong>$0.10 CAD per shirt</strong>.</li>
+<li><strong>Cost in Bangladesh:</strong> ~$0.17 CAD labour + $0.10 ocean shipping = <strong>$0.27 CAD per shirt</strong>.</li>
+<li><strong>Cost in Canada:</strong> ~$4.13 CAD labour ($16.50/hr) + $0.05 local truck = <strong>$4.18 CAD per shirt</strong>.</li>
+<li><strong>The inspection blind spot:</strong> NorthStar's safety auditor <em>only</em> checked Tariq's clean Tier-1 factory. They never checked the secret Tier-2 workshop down the alley.</li></ul>`,
+        toolkit: `<p><strong>How Subcontracting creates Plausible Deniability:</strong></p>
+<p><strong>Subcontracting</strong> means Tariq's official Tier-1 factory secretly passes overflow work to an uninspected Tier-2 shop. Because NorthStar sets impossible prices and deadlines - and only inspects Tier-1 - NorthStar gets cheap hoodies while staying officially "unaware" of Tier-2.</p>
+<p>That shield is called <strong>plausible deniability</strong>: <em>"We can point to our clean Tier-1 audit and truthfully say we never officially knew about Tier-2."</em></p>`
       },
-      task: "Make your Stop 1 call on how subcontracting shields Western brands, then justify it with one clue.",
+      task: "Make your Stop 1 call on the right, then explain it in 1-2 sentences using a clue from David, Tariq, or the cost numbers.",
       fields: [
         {
           type: "choice", f: "judgments.s1.choice", label: "Why does secret Tier-2 subcontracting shield NorthStar Apparel?",
@@ -116,16 +125,16 @@ var TRACE402 = {
       ],
       words: ["human rights"],
       tabs: {
-        dispatch: `<p>You speak privately with <strong>Nadia Rahman</strong>, a 21-year-old sewing operator inside the unmarked Tier-2 building where the NorthStar hoodies were found.</p>
-<p>Think back to the <em>CBC Fifth Estate: Made in Bangladesh</em> documentary you watched: Nadia's story mirrors the exact conditions reporters uncovered in real garment factories.</p>`,
-        evidence: `<p><strong>Field notes from Nadia's Tier-2 building:</strong></p>
-<ul><li><strong>Wages &amp; hours:</strong> ~$0.68 CAD/hour, mandatory 12-hour shifts, six days a week during rush orders.</li>
-<li><strong>Physical safety:</strong> visible crack in a concrete support column; fire-exit stairwell padlocked during shifts.</li>
-<li><strong>Worker voice:</strong> workers who complain about safety or try to organize a union are threatened with firing.</li>
-<li><strong>Young workers:</strong> two 14-year-old helpers trim loose threads on the floor instead of attending school.</li></ul>`,
-        toolkit: `<p><strong>Connecting your Viewing Guide:</strong> A newsroom never just says "conditions are bad." Investigators document <strong>specific, verifiable facts</strong> (wages, hours, exits, threats) so human-rights lawyers can match each fact to a written rule.</p>`
+        dispatch: `<p>Next, you speak privately with <strong>Nadia Rahman</strong>, a 21-year-old sewing worker inside the unmarked <strong>Tier-2 workshop</strong> (the uninspected building where the NorthStar hoodies were actually sewn).</p>
+<p>Nadia's testimony mirrors real conditions uncovered by CBC reporters in the <em>Made in Bangladesh</em> documentary.</p>`,
+        evidence: `<p><strong>Four specific red flags from Nadia's Tier-2 building:</strong></p>
+<ul><li><strong>1. Physical danger (life-or-death):</strong> A visible crack runs through a concrete support pillar, and bosses padlock the fire-exit stairwell during shifts.</li>
+<li><strong>2. Wages &amp; hours:</strong> ~$0.68 CAD per hour, mandatory 12-hour shifts, six days a week during rush orders.</li>
+<li><strong>3. Silencing workers:</strong> Anyone who complains about safety or tries to form a union is threatened with being fired.</li>
+<li><strong>4. Young workers (child labour):</strong> Two 14-year-old helpers trim loose threads on the floor instead of going to school.</li></ul>`,
+        toolkit: `<p><strong>Why journalists log specific facts:</strong> Saying "the factory is bad" is too vague. You must separate <strong>immediate physical dangers</strong> (things that could kill workers today in a fire or collapse) from <strong>other rights violations</strong> (low pay, threats, kids missing school) so our lawyer can match each one to a written rule in Stop 3.</p>`
       },
-      task: "Log the specific human-rights red flags from Nadia's building before meeting our human-rights lawyer.",
+      task: "Pick the most immediate life-or-death hazard, then list TWO other specific red flags from Tab 2.",
       fields: [
         {
           type: "choice", f: "judgments.s2.top", label: "Which red flag poses the most immediate danger to workers' lives right now?",
@@ -156,17 +165,17 @@ var TRACE402 = {
       ],
       words: ["human rights", "udhr", "declaration"],
       tabs: {
-        dispatch: `<p>Human rights lawyer <strong>Amira Osei</strong> opens the first document in your legal toolkit: the <strong>Universal Declaration of Human Rights (UDHR, 1948)</strong>.</p>
-<p>Founded in 1945 (with Canada as a founding member), the <strong>United Nations</strong> now has <strong>193 member countries</strong>. Its job in three verbs: <strong>keep peace, protect rights, deliver aid</strong>.</p>`,
-        evidence: `<p><strong>Key UDHR Articles in plain words:</strong></p>
-<ul><li><strong>Article 1 &amp; 2:</strong> Born free and equal in dignity and rights, with no discrimination.</li>
-<li><strong>Article 3:</strong> Right to <strong>life, liberty, and security of person</strong> (being physically safe).</li>
-<li><strong>Article 19:</strong> Freedom of <strong>opinion and expression</strong> (speaking up without fear).</li>
-<li><strong>Article 23 &amp; 24:</strong> Right to <strong>safe working conditions, fair pay, rest, and reasonable hours</strong>, and to form a union.</li>
-<li><strong>Article 26:</strong> Right to <strong>education</strong> (free in the early years - why child labour breaks this article).</li></ul>`,
-        toolkit: `<p><strong>Honesty check on the UDHR:</strong> The UDHR is a <strong>declaration</strong>, not a binding police law. There is no "UN Police Force" that can walk into a Dhaka factory and arrest an owner. Instead, it is the <strong>global standard</strong> the world uses to measure countries and apply pressure.</p>`
+        dispatch: `<p>Human rights lawyer <strong>Amira Osei</strong> opens Document #1 in your toolkit: the <strong>Universal Declaration of Human Rights (UDHR, 1948)</strong>.</p>
+<p><strong>What is the UN?</strong> The <strong>United Nations</strong> was founded in 1945 (right after WWII, with Canada as a founding member). Today <strong>193 countries</strong> belong to it. Its job in three phrases: <strong>keep peace, protect rights, deliver aid</strong>.</p>`,
+        evidence: `<p><strong>Key UDHR Articles in plain English (use this list for the 4 questions on the right!):</strong></p>
+<ul><li><strong>Articles 1 &amp; 2:</strong> Everyone is born free and equal, with no discrimination.</li>
+<li><strong>Article 3:</strong> Right to <strong>life, liberty, and security of person</strong> (being physically safe from harm or death).</li>
+<li><strong>Article 19:</strong> Freedom of <strong>opinion and expression</strong> (speaking up about problems without being punished).</li>
+<li><strong>Articles 23 &amp; 24:</strong> Right to <strong>safe working conditions, fair pay, rest, and reasonable hours</strong>, plus the right to join a union.</li>
+<li><strong>Article 26:</strong> Right to <strong>education</strong> (free schooling for youth - this is why child labour breaks Article 26).</li></ul>`,
+        toolkit: `<p><strong>Important limit of the UDHR:</strong> The UDHR is a <strong>declaration</strong> (a shared promise), <em>not</em> a binding law with police. There is no "UN Police Force" that can walk into a Dhaka factory and arrest an owner. Instead, it is the <strong>global standard</strong> countries and journalists use to call out abuses.</p>`
       },
-      task: "Use Amira's UDHR list to match Nadia's factory evidence to the exact UDHR articles.",
+      task: "Use the UDHR list in Tab 2 to match each of Nadia's 4 factory clues to the exact UDHR article.",
       fields: [
         {
           type: "choice", f: "matches.udhr_safety", label: "1. Padlocked fire exit and cracked concrete column breaks which UDHR article most directly?",
@@ -233,19 +242,19 @@ var TRACE402 = {
       ],
       words: ["charter", "reasonable limits", "notwithstanding"],
       tabs: {
-        dispatch: `<p>Now Amira compares the world's standard (<strong>UDHR</strong>) with Canada's highest law: the <strong>Canadian Charter of Rights and Freedoms (1982)</strong>.</p>
-<p>Remember how Donald Marshall Jr.'s treaty case ran through Canada's courts? The Charter sits inside Canada's Constitution: any government law that breaks it can be <strong>struck down by judges</strong>.</p>`,
-        evidence: `<p><strong>Five Charter sections to know:</strong></p>
-<ul><li><strong>Section 2 (Fundamental Freedoms):</strong> expression, peaceful assembly, association (including joining unions).</li>
-<li><strong>Section 7 (Life, Liberty &amp; Security):</strong> government cannot take away your safety or liberty unfairly.</li>
-<li><strong>Section 15 (Equality):</strong> equal protection and treatment under the law without discrimination.</li>
-<li><strong>Section 1 (Reasonable Limits):</strong> rights are not absolute; limits must be justified in a free and democratic society.</li>
-<li><strong>Section 33 (Notwithstanding Clause):</strong> a government can temporarily override sections 2, 7, or 15 for up to 5 years.</li></ul>`,
-        toolkit: `<p><strong>Same idea, different teeth:</strong></p>
-<ul><li><strong>UDHR (Global):</strong> applies to every human everywhere, but has <strong>no court of its own</strong>. Its power is pressure.</li>
-<li><strong>Charter + Canadian Labour Law (Canada):</strong> applies inside Canada to government action, backed by <strong>real courts, inspectors, fines, and shutdown orders</strong>.</li></ul>`
+        dispatch: `<p><strong>Why is this called the Burnside Test?</strong> Burnside Industrial Park is right across the harbour in Dartmouth/Halifax. Imagine picking up Nadia's unsafe Dhaka workshop and dropping it in Burnside tomorrow morning.</p>
+<p>In Canada, safety inspectors would shut it down within hours, and our highest law - the <strong>Canadian Charter of Rights and Freedoms (1982)</strong> - sits inside Canada's Constitution. Judges can <strong>strike down (cancel)</strong> any Canadian government law that breaks it.</p>`,
+        evidence: `<p><strong>Five Canadian Charter sections to know:</strong></p>
+<ul><li><strong>Section 2 (Fundamental Freedoms):</strong> protects free expression, peaceful protest, and association (including forming or joining a union).</li>
+<li><strong>Section 7 (Life, Liberty &amp; Security):</strong> government cannot take away your physical safety or freedom unfairly.</li>
+<li><strong>Section 15 (Equality):</strong> equal protection under the law with no discrimination.</li>
+<li><strong>Section 1 (Reasonable Limits):</strong> rights in Canada are not 100% unlimited - a government can limit a right if it proves the limit is fair in a free, democratic society.</li>
+<li><strong>Section 33 (Notwithstanding Clause):</strong> lets a Canadian government temporarily override sections 2, 7, or 15 for up to 5 years.</li></ul>`,
+        toolkit: `<p><strong>Promise vs. Teeth (the key difference):</strong></p>
+<ul><li><strong>UDHR (Global):</strong> applies to every human on Earth, but has <strong>no court or police of its own</strong>. Its power is public pressure.</li>
+<li><strong>Charter + Canadian Law (Canada only):</strong> backed by <strong>real courts, judges, inspectors, fines, and shutdown orders</strong> - <em>but only inside Canada's borders</em>. A Canadian court has no legal power (jurisdiction) inside Bangladesh.</li></ul>`
       },
-      task: "Apply the Burnside Test: compare the UDHR and the Canadian Charter on protection and enforcement.",
+      task: "Compare the UDHR and Canada's Charter on the right, then explain why a Canadian court cannot shut down a factory in Dhaka.",
       fields: [
         {
           type: "choice", f: "judgments.s4.section", label: "If a Canadian government tried to ban workers from speaking out or forming a union, which Charter section protects them?",
@@ -287,15 +296,15 @@ var TRACE402 = {
       ],
       words: ["veto", "declaration"],
       tabs: {
-        dispatch: `<p>Here is the hardest question in Global Citizenship (Outcome <strong>U6A</strong>): <strong>if a government fails to protect rights and the UN cannot send police, what actually forces change?</strong></p>
-<p>After the real 2013 Rana Plaza factory collapse in Bangladesh killed over 1,100 garment workers, the world had to test what works when inaction fails.</p>`,
-        evidence: `<p><strong>Two UN rooms + Real-world pressure tools:</strong></p>
-<ul><li><strong>UN General Assembly (193 seats):</strong> one country, one vote. Passes resolutions (the world's official opinion), but cannot force a country to obey.</li>
-<li><strong>UN Security Council (15 seats):</strong> binding power (sanctions, peacekeepers), but <strong>5 permanent members (USA, UK, France, Russia, China)</strong> can block any action with one <strong>veto</strong>.</li>
-<li><strong>What actually moved brands after Rana Plaza:</strong> (1) investigative media exposing logos in the rubble, (2) the legally binding <strong>Bangladesh Safety Accord</strong> signed by 200+ brands, (3) public shopper pressure, and (4) new supply-chain transparency laws in countries like Canada.</li></ul>`,
-        toolkit: `<p><strong>Preview of next class:</strong> Next class you will step inside the <strong>UN Security Council Veto Trap</strong> simulation to see firsthand how one country's self-interest can freeze global action - and then choose your own country for the <strong>Country Profile Project</strong>.</p>`
+        dispatch: `<p>Here is the core question of Global Citizenship (Outcome <strong>U6A</strong>): <strong>if a local government does not enforce safety rules and the UN cannot send police, what actually forces change?</strong></p>
+<p><strong>Real-world history (Rana Plaza, 2013):</strong> In Bangladesh, an 8-storey garment building with visible cracks collapsed and killed over 1,100 workers. That tragedy forced the world to test what actually works when inaction fails.</p>`,
+        evidence: `<p><strong>Two UN rooms (why the UN gets stuck):</strong></p>
+<ul><li><strong>UN General Assembly (193 countries):</strong> one country, one vote - like a global town hall. It passes recommendations, but <strong>cannot force</strong> a country to obey.</li>
+<li><strong>UN Security Council (15 countries):</strong> the only UN room with binding power (sanctions or peacekeepers) - <strong>but 5 permanent countries (USA, UK, France, Russia, China)</strong> can each block any action with a single <strong>veto ("no" vote)</strong>.</li></ul>
+<p><strong>What actually forced brands to act after Rana Plaza:</strong> (1) journalists exposing brand logos in the rubble, (2) the legally binding <strong>Bangladesh Safety Accord</strong> signed by 200+ brands, (3) shopper pressure, and (4) new supply-chain laws in countries like Canada.</p>`,
+        toolkit: `<p><strong>How to solve the 4-step chain on the right:</strong> Put the 4 sentences in order from <strong>Step 1 (what starts the problem in Toronto)</strong> -> <strong>Step 2 (what Tier-1 does in Dhaka)</strong> -> <strong>Step 3 (why neither Canadian courts nor UN police step in)</strong> -> <strong>Step 4 (what finally forces change)</strong>.</p>`
       },
-      task: "Order the 4-step chain of how inaction happens - then choose the strongest real-world pressure tool.",
+      task: "Number the 4 steps from 1 (start) to 4 (result), then choose the strongest pressure tool on Western brands.",
       fields: [
         {
           type: "order", f: "responses.chain", label: "Number these 4 steps from 1 (start) to 4 (result) to show how the global enforcement gap works:",
@@ -339,15 +348,17 @@ var TRACE402 = {
       ],
       words: ["udhr", "plausible deniability"],
       tabs: {
-        dispatch: `<p>This is your final investigative report for the 6:00 PM broadcast.</p>
-<p>Every part of this verdict directly prepares you for your <strong>Country Profile Project</strong>: naming the rights standard, weighing responsibility, and evaluating <strong>intended and unintended consequences</strong> of action or inaction.</p>`,
-        evidence: `<p><strong>Quick evidence checklist from your trail:</strong></p>
-<ul><li><strong>Cost math:</strong> $0.17 labour + $0.10 ocean freight = $0.27/shirt in Bangladesh vs. $4.18 in Canada.</li>
-<li><strong>Tier-2 facts:</strong> $0.68/hr, 12-hr shifts, cracked pillar, padlocked exit, threats to quiet workers, 14-year-olds on floor.</li>
-<li><strong>Rights frameworks:</strong> UDHR (Art. 3, 19, 23-24, 26 = global standard) vs. Charter (s.2, s.7, s.15 = Canadian court teeth).</li></ul>`,
-        toolkit: `<p><strong>Think like a global citizen (Outcome U6A):</strong> Every action has side effects. Example: if brands suddenly boycott a country overnight, an <em>intended</em> consequence might be punishing unsafe owners, while an <em>unintended</em> consequence could be thousands of workers like Nadia losing their only income. Weigh both!</p>`
+        dispatch: `<p>This is your final investigative report for the 6:00 PM Halifax broadcast.</p>
+<p>There is <strong>no single "right" opinion</strong> on Question 1 - what matters is backing up your choice with a real fact from the case, a UDHR article number, a realistic action, and a thoughtful look at both good and bad side effects.</p>`,
+        evidence: `<p><strong>Quick cheat-sheet of your evidence (use these in boxes 2, 3, and 4!):</strong></p>
+<ul><li><strong>Cost math:</strong> $0.17 labour + $0.10 shipping = $0.27/shirt in Bangladesh vs. $4.18 in Canada.</li>
+<li><strong>Tier-2 facts:</strong> $0.68/hr, 12-hr shifts, cracked pillar, padlocked fire exit, firing threats, 14-year-olds working instead of school.</li>
+<li><strong>UDHR Articles:</strong> Art. 3 (safety/life), Art. 19 (speaking up), Art. 23-24 (fair pay &amp; hours), Art. 26 (education).</li></ul>`,
+        toolkit: `<p><strong>Intended vs. Unintended Consequences (Outcome U6A):</strong></p>
+<ul><li><strong>Intended consequence:</strong> the positive result you are <em>trying</em> to make happen (example: forcing brands to pay for safe buildings).</li>
+<li><strong>Unintended consequence:</strong> an accidental side effect you <em>didn't</em> want (example: if brands suddenly boycott a country overnight, thousands of workers like Nadia could lose their only income).</li></ul>`
       },
-      task: "Complete all 4 verdict entries below, then click COMMIT MY BROADCAST VERDICT to unlock Case Closed.",
+      task: "Fill in all 4 verdict boxes on the right, then click COMMIT MY BROADCAST VERDICT to unlock Case Closed.",
       fields: [
         {
           type: "choice", f: "responses.verdict_resp", label: "1. Who holds the MOST responsibility for fixing unsafe Tier-2 conditions?",
