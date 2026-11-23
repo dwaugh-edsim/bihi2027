@@ -607,19 +607,21 @@ function isRealEnToken(tok){
   const clean = tok.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '');
   if(!clean) return false;
   if(/\d/.test(clean)) return true;
+  if(clean.length <= 3) return true;
+  if(/^[A-Z]{2,6}$/.test(clean)) return true;
   if(!/[aeiouy]/i.test(clean)) return false;
-  if(/[bcdfghjklmnpqrstvwxz]{5,}/i.test(clean)) return false;
-  if(/(.)\1\1/i.test(clean)) return false;
-  if(/^[asdfghjkl]{5,}$/i.test(clean) && !/^(shall|shell|shells|shield|shields|skill|skills|spill|spills|still|chills|falls|halls|small|glass|class|flash|slash|splash|high|sighs|folks|foods|holds|lands|sands|sails|salads)$/i.test(clean)) return false;
+  if(/[bcdfghjklmnpqrstvwxz]{6,}/i.test(clean)) return false;
+  if(/(.)\1\1\1/i.test(clean)) return false;
+  if(/^[asdfghjkl]{7,}$/i.test(clean)) return false;
   return true;
 }
 function jpCharCount(s){ return (String(s||"").match(/[\u3040-\u30ff\u4e00-\u9fff]/g)||[]).length; }
 function hasGibberish(s){
   if(jpCharCount(s) >= 4) return false;
-  const raw = rawTokens(s);
-  if(raw.length < 2) return false;
-  const real = raw.filter(isRealEnToken).length;
-  return (raw.length - real >= 2) || (raw.length >= 3 && real < Math.ceil(raw.length * 0.6));
+  const words = rawTokens(s).filter(t => /[A-Za-z0-9]/.test(t));
+  if(words.length < 2) return false;
+  const real = words.filter(isRealEnToken).length;
+  return (words.length - real >= 2) && (real < Math.ceil(words.length * 0.6));
 }
 function wordCount(s){ return rawTokens(s).filter(isRealEnToken).length + Math.ceil(jpCharCount(s) / 4); }
 function minWordsFor(spec){ return spec.minWords || ((spec.f && spec.f.indexOf('responses.rule')===0) ? 3 : 4); }
