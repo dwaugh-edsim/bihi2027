@@ -27,7 +27,7 @@ separate local/Canada/world levels. Every item carries its own difficulty
 | `assets/flags/` | 138 world `4x3` SVG flags (`<iso_lower>.svg` from `flag-icons`) + 13 official provincial/territorial flags (`ca-XX.svg`, Wikimedia Commons public-domain official symbols) |
 | `PLAN.md` | This architecture and design reference |
 
-**Pool: 494 items** = 80 maps + 93 flags + 321 trivia (96 easy / 129 medium / 96 hard).
+**Pool: 607 items** = 93 maps + 93 flags + 399 trivia (116 easy / 164 medium / 119 hard) + 22 landmarks. `history_trivia.js` (73 items, hs-prefix IDs, added 2026-11-23) covers Canada at War / Home Front Field Guide facts (`topic:'canada'`), 20th-century conflicts (`topic:'culture'`), and the UN, UDHR, NATO, and peacekeeping (`topic:'facts'`).
 Run `python tools-priv/trivia_bank_lint.py` to verify the banks after any edit.
 
 ## Item model (all banks)
