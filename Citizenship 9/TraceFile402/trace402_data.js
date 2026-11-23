@@ -90,11 +90,17 @@ var TRACE402 = {
         {
           type: "choice", f: "judgments.s1.choice", label: "Why does secret Tier-2 subcontracting shield NorthStar Apparel?",
           options: [
+            "Ocean container shipping costs more per hoodie than Canadian factory labour",
             "NorthStar can point to its clean Tier-1 audit and claim it never officially knew about Tier-2",
-            "Shipping across the ocean is more expensive than Canadian labour",
-            "Tier-2 factories are inspected by Canadian courts every month",
-            "Customers in Halifax only buy hoodies made in Nova Scotia"
-          ]
+            "Tier-2 workshops are already inspected by Canadian safety officers every month",
+            "Tariq's Tier-1 factory charges NorthStar more than a Canadian plant would"
+          ],
+          correct: "NorthStar can point to its clean Tier-1 audit and claim it never officially knew about Tier-2",
+          teachMap: {
+            "Ocean container shipping costs more per hoodie than Canadian factory labour": { msg: "Elena Vance: Check the Evidence tab math - ocean shipping is only $0.10 CAD per shirt, far less than $4.13 Canadian labour." },
+            "Tier-2 workshops are already inspected by Canadian safety officers every month": { msg: "Elena Vance: Check the blind spot in Tab 2 - NorthStar's auditor ONLY checked Tariq's Tier-1 plant, never Tier-2." },
+            "Tariq's Tier-1 factory charges NorthStar more than a Canadian plant would": { msg: "Elena Vance: Check the ledger - Bangladesh is ~$0.27/shirt vs. $4.18 in Canada. Look at how plausible deniability works in Tab 3." }
+          }
         },
         { type: "text", f: "judgments.s1.why", label: "Explain in 1-2 sentences using a clue from Tariq, David, or the cost ledger:", rows: 2, placeholder: "Tariq explained that... while David claimed..." }
       ]
@@ -124,11 +130,17 @@ var TRACE402 = {
         {
           type: "choice", f: "judgments.s2.top", label: "Which red flag poses the most immediate danger to workers' lives right now?",
           options: [
+            "Mandatory overtime during rush-order weeks",
+            "The $0.68 CAD hourly wage paid to sewing operators",
             "The cracked concrete support pillar and padlocked fire exit",
-            "The colour of the fabric bolts stacked near the machines",
-            "The shipping time from Dhaka to Halifax",
-            "The font size on the hoodie hangtag"
-          ]
+            "Two 14-year-old helpers missing school to trim threads"
+          ],
+          correct: "The cracked concrete support pillar and padlocked fire exit",
+          teachMap: {
+            "Mandatory overtime during rush-order weeks": { msg: "Elena Vance: Long hours are a serious rights issue, but look for the hazard that could kill workers instantly if a fire or collapse happens." },
+            "The $0.68 CAD hourly wage paid to sewing operators": { msg: "Elena Vance: Low pay is unfair, but which physical hazard puts workers' lives in immediate danger right now?" },
+            "Two 14-year-old helpers missing school to trim threads": { msg: "Elena Vance: Child labour is a major red flag (save it for your written box below!), but which hazard threatens everyone's life right this minute?" }
+          }
         },
         { type: "text", f: "judgments.s2.flags", label: "List TWO other specific red flags from Nadia's evidence tab (wages, voice, or youth):", rows: 2, placeholder: "1) ... 2) ..." }
       ]
@@ -159,18 +171,28 @@ var TRACE402 = {
         {
           type: "choice", f: "matches.udhr_safety", label: "1. Padlocked fire exit and cracked concrete column breaks which UDHR article most directly?",
           options: [
-            "Article 3 (Life, liberty, and security of person)",
             "Article 19 (Freedom of opinion and expression)",
+            "Article 3 (Life, liberty, and security of person)",
             "Article 26 (Right to education)"
-          ]
+          ],
+          correct: "Article 3 (Life, liberty, and security of person)",
+          teachMap: {
+            "Article 19 (Freedom of opinion and expression)": { msg: "Amira Osei: Article 19 is about speaking up. Check Tab 2 for the article that protects life and physical security." },
+            "Article 26 (Right to education)": { msg: "Amira Osei: Article 26 covers schooling. Look at Tab 2 for the article about life and physical safety." }
+          }
         },
         {
           type: "choice", f: "matches.udhr_voice", label: "2. Threatening to fire workers who speak up about safety breaks which UDHR article?",
           options: [
-            "Article 19 (Freedom of opinion and expression)",
             "Article 26 (Right to education)",
-            "Article 14 (Right to seek asylum)"
-          ]
+            "Article 14 (Right to seek asylum)",
+            "Article 19 (Freedom of opinion and expression)"
+          ],
+          correct: "Article 19 (Freedom of opinion and expression)",
+          teachMap: {
+            "Article 26 (Right to education)": { msg: "Amira Osei: Check Tab 2 - which article protects speaking up without fear?" },
+            "Article 14 (Right to seek asylum)": { msg: "Amira Osei: Asylum is about fleeing persecution across borders. Check Tab 2 for freedom of opinion and expression." }
+          }
         },
         {
           type: "choice", f: "matches.udhr_work", label: "3. Paying $0.68/hr for mandatory 12-hour shifts breaks which UDHR articles?",
@@ -178,15 +200,25 @@ var TRACE402 = {
             "Articles 23 & 24 (Safe work, fair pay, reasonable hours)",
             "Article 5 (No torture)",
             "Article 26 (Right to education)"
-          ]
+          ],
+          correct: "Articles 23 & 24 (Safe work, fair pay, reasonable hours)",
+          teachMap: {
+            "Article 5 (No torture)": { msg: "Amira Osei: Check Tab 2 - which pair of articles specifically covers fair pay, rest, and reasonable hours?" },
+            "Article 26 (Right to education)": { msg: "Amira Osei: Article 26 is about school. Look at Tab 2 for fair pay and working hours." }
+          }
         },
         {
           type: "choice", f: "matches.udhr_youth", label: "4. Fourteen-year-olds trimming threads on the factory floor instead of going to school breaks which article?",
           options: [
-            "Article 26 (Right to education)",
             "Article 19 (Freedom of opinion)",
+            "Article 26 (Right to education)",
             "Article 3 (Life and security)"
-          ]
+          ],
+          correct: "Article 26 (Right to education)",
+          teachMap: {
+            "Article 19 (Freedom of opinion)": { msg: "Amira Osei: Check Tab 2 - which article specifically covers school and child labour?" },
+            "Article 3 (Life and security)": { msg: "Amira Osei: Check Tab 2 - the question focuses on 14-year-olds missing school." }
+          }
         }
       ]
     },
@@ -218,18 +250,28 @@ var TRACE402 = {
         {
           type: "choice", f: "judgments.s4.section", label: "If a Canadian government tried to ban workers from speaking out or forming a union, which Charter section protects them?",
           options: [
-            "Section 2 (Fundamental freedoms: expression and association)",
             "Section 33 (Notwithstanding clause)",
-            "Section 1 (Reasonable limits)"
-          ]
+            "Section 1 (Reasonable limits)",
+            "Section 2 (Fundamental freedoms: expression and association)"
+          ],
+          correct: "Section 2 (Fundamental freedoms: expression and association)",
+          teachMap: {
+            "Section 33 (Notwithstanding clause)": { msg: "Amira Osei: Section 33 lets a government override rights temporarily. Check Tab 2 for the section that protects expression and unions." },
+            "Section 1 (Reasonable limits)": { msg: "Amira Osei: Section 1 allows justified limits on rights. Look at Tab 2 for the section protecting expression and association." }
+          }
         },
         {
           type: "choice", f: "judgments.s4.teeth", label: "What is the biggest practical difference between the UDHR and Canada's Charter?",
           options: [
-            "Canadian courts can enforce the Charter and strike down laws; the UDHR is a global standard with no police or court of its own",
             "The UDHR only applies to Canada, while the Charter applies to all 193 UN countries",
+            "Canadian courts can enforce the Charter and strike down laws; the UDHR is a global standard with no police or court of its own",
             "The Charter cannot ever be limited or overridden under any circumstances"
-          ]
+          ],
+          correct: "Canadian courts can enforce the Charter and strike down laws; the UDHR is a global standard with no police or court of its own",
+          teachMap: {
+            "The UDHR only applies to Canada, while the Charter applies to all 193 UN countries": { msg: "Amira Osei: Flipped! The UDHR is global (193 UN countries), while the Charter applies inside Canada." },
+            "The Charter cannot ever be limited or overridden under any circumstances": { msg: "Amira Osei: Check Tab 2 - Section 1 (Reasonable Limits) and Section 33 (Notwithstanding) both allow limits. Compare 'Promise vs. Teeth' in Tab 3." }
+          }
         },
         { type: "text", f: "judgments.s4.why", label: "In 1-2 sentences, why can't a Canadian court simply walk into Dhaka and shut down Nadia's Tier-2 factory?", rows: 2, placeholder: "Canadian courts and the Charter only have power inside..." }
       ]
@@ -258,19 +300,31 @@ var TRACE402 = {
         {
           type: "order", f: "responses.chain", label: "Number these 4 steps from 1 (start) to 4 (result) to show how the global enforcement gap works:",
           items: [
-            { k: "a", t: "Canadian brand demands ultra-cheap hoodies on a tight deadline" },
-            { k: "b", t: "Tier-1 factory secretly subcontracts overflow to an uninspected Tier-2 shop" },
             { k: "c", t: "UDHR rights are broken, but neither Canadian courts nor UN police can raid the building" },
-            { k: "d", t: "Change only begins when media, binding brand accords, or laws force accountability" }
-          ]
+            { k: "a", t: "Canadian brand demands ultra-cheap hoodies on a tight deadline" },
+            { k: "d", t: "Change only begins when media, binding brand accords, or laws force accountability" },
+            { k: "b", t: "Tier-1 factory secretly subcontracts overflow to an uninspected Tier-2 shop" }
+          ],
+          expectOrder: { a: 1, b: 2, c: 3, d: 4 },
+          stepHints: {
+            "1": "Start at the beginning: what pressure triggers the whole chain from Toronto?",
+            "2": "Once the tight, cheap order arrives in Dhaka, what does the Tier-1 manager do next?",
+            "3": "Inside the hidden Tier-2 shop, why doesn't a Canadian court or UN police force step in?",
+            "4": "Finish with what actually forces accountability at the end of the chain."
+          }
         },
         {
           type: "choice", f: "judgments.s5.tool", label: "When a local government won't enforce safety rules, which pressure tool has the strongest real teeth on Western brands?",
           options: [
+            "Passing a non-binding speech with no inspection or follow-up",
             "Legally binding safety accords and domestic laws that hold Western brands financially responsible for their whole supply chain",
-            "Hoping factories voluntarily double their prices without any outside pressure",
-            "Passing a non-binding speech with no inspection or follow-up"
-          ]
+            "Hoping factories voluntarily double their prices without any outside pressure"
+          ],
+          correct: "Legally binding safety accords and domestic laws that hold Western brands financially responsible for their whole supply chain",
+          teachMap: {
+            "Passing a non-binding speech with no inspection or follow-up": { msg: "Amira Osei: Non-binding speeches have no legal teeth. Check Tab 2 for what actually moved brands after Rana Plaza." },
+            "Hoping factories voluntarily double their prices without any outside pressure": { msg: "Amira Osei: Remember Tariq in Stop 1 - if a factory raises prices alone, brands just move the order. Look at Tab 2 for binding pressure tools." }
+          }
         }
       ]
     },

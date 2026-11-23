@@ -346,7 +346,7 @@
   <div class="cap" id="lbCap"></div>
 </div>
 
-<script src="trace402_data.js?v=20261119a"></script>
+<script src="trace402_data.js?v=20261123a"></script>
 <script>
 (function(){
 "use strict";
@@ -505,9 +505,9 @@ function onAuthFailed(reason){
   } else setSync('not saved: '+reason,'bad');
 }
 function summarize(st){
-  const culprit = getPath(st,'responses.c1_name')||'-';
+  const resp = getPath(st,'responses.verdict_resp')||'-';
   const nav = (STATIONS[st.station||0]||{}).nav || ('S'+(st.station||0));
-  return nav+(st.committed?' [COMMITTED]':'')+' culprit='+culprit;
+  return nav+(st.committed?' [COMMITTED]':'')+' resp='+String(resp).slice(0,32);
 }
 function onChange(){ if(!loaded) return; clearTimeout(timer); setSync('EDITING...','warn'); timer=setTimeout(save, AUTOSAVE_MS); updateNavMarks(); }
 function flush(){ if(!loaded) return; clearTimeout(timer); save(); }
@@ -829,7 +829,7 @@ function refreshFieldCoach(w, forceShowEmpty){
       return iss;
     }
     if(iss) showTeachBox(w, 'fix', iss.msg);
-    else showTeachBox(w, 'ok', 'All 5 links of the resin-duck chain hold up in cause-and-effect order.', 'Logged');
+    else showTeachBox(w, 'ok', 'All ' + spec.items.length + ' steps of the enforcement-gap chain hold up in cause-and-effect order.', 'Logged');
     return iss;
   }
   if(spec.type==='grid' || spec.type==='text'){
@@ -856,7 +856,7 @@ function checkAndCoachCurrent(advanceIfOk){
       focusNode.focus();
     }
     firstBadWrap.scrollIntoView({behavior:'smooth', block:'center'});
-    toast(firstIssue.kind==='teach' ? 'Check Nurse Chen\'s coaching note in red/coral on the right!' : firstIssue.msg);
+    toast(firstIssue.kind==='teach' ? 'Check the coaching note in coral on the right!' : firstIssue.msg);
     return false;
   }
   if(advanceIfOk && cur < STATIONS.length - 1){
@@ -990,7 +990,6 @@ function switchTab(t){
   if(split) split.classList.toggle('wide', t === 'yourfile');
   let html = s.tabs[t]||'';
   if(html === '@review') html = buildReview();
-  else if(cur === VERDICT_IDX && t === 'dispatch') html = buildSimulatedWeek() + html;
   if(t === 'toolkit' && s.words && s.words.length){
     html += '<div class="glossary"><h4>Word Bank for Today</h4><dl>' + s.words.map(w => '<dt>'+esc(w)+'</dt><dd>'+esc(GLOSSARY[w]||'')+'</dd>').join('') + '</dl></div>';
   }
@@ -1022,10 +1021,10 @@ function renderFields(fields, stIdx){
     nb.type = 'button'; nb.className = 'next-day-btn'; nb.id = 'nextDayBtn';
     const nxtNav = STATIONS[stIdx+1].nav;
     if(committed){
-      nb.textContent = 'NEXT DAY: ' + nxtNav + ' \u2192';
+      nb.textContent = 'NEXT STOP: ' + nxtNav + ' \u2192';
       nb.onclick = ()=> loadStation(stIdx + 1);
     } else {
-      nb.textContent = 'CHECK & NEXT DAY: ' + nxtNav + ' \u2192';
+      nb.textContent = 'CHECK & NEXT STOP: ' + nxtNav + ' \u2192';
       nb.onclick = ()=> checkAndCoachCurrent(true);
     }
     box.appendChild(nb);
@@ -1203,10 +1202,11 @@ function testDraftPlan(){
 function renderOrderPreview(spec, box){
   if(!box) return;
   const st = orderStatus(spec);
-  if(!st.vals.length){ box.className='order-preview'; box.textContent='Pick Step 1 to Step 5 above to preview your chain in order.'; return; }
+  const n = spec.items.length;
+  if(!st.vals.length){ box.className='order-preview'; box.textContent='Pick Step 1 to Step '+n+' above to preview your chain in order.'; return; }
   if(st.hasDup){
     box.className='order-preview dup';
-    box.textContent='Heads up: you used the same step number more than once. Give each sentence its own number from 1 to 5.';
+    box.textContent='Heads up: you used the same step number more than once. Give each sentence its own number from 1 to '+n+'.';
     return;
   }
   const sorted = spec.items.filter(it => st.map[it.k]).sort((a,b)=> (+st.map[a.k]) - (+st.map[b.k]));
@@ -1228,7 +1228,7 @@ function updateTextHint(t, hint, minW, spec){
     hint.textContent='Add a bit more detail from the slides ('+wc+'/'+minW+'+ words).';
   } else if(spec && spec.mustMatch && !(new RegExp(spec.mustMatch, 'i')).test(t.value)){
     hint.className='just-hint short';
-    hint.textContent='Almost there: check Nurse Chen\'s tip right below!';
+    hint.textContent='Almost there: check the coaching tip right below!';
   } else {
     hint.className='just-hint ok';
     hint.textContent='Recorded with evidence from the tabs.';
@@ -1253,8 +1253,8 @@ function hydrateFields(){
   });
   const secSel = document.querySelector('#fields [data-sec]'); if(secSel) secSel.value = state.section || '';
   const hudSel = el('sectionSel'); if(hudSel) hudSel.value = state.section || '';
-  const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'MONDAY PLAN COMMITTED \u2713 (VIEW VERDICT)' : 'COMMIT MY BROADCAST VERDICT'; cb.classList.toggle('done', committed); }
-  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'HEALTH OFFICE OPEN \u2713 (GO TO MONDAY)':'READY: OPEN THE HEALTH OFFICE'; }
+  const cb=el('commitBtn'); if(cb){ cb.textContent = committed ? 'BROADCAST VERDICT COMMITTED \u2713 (VIEW CASE CLOSED)' : 'COMMIT MY BROADCAST VERDICT'; cb.classList.toggle('done', committed); }
+  const ab=el('ackBtn'); if(ab){ ab.classList.toggle('done', started); ab.textContent = started?'TRACE FILE 402 OPEN \u2713 (GO TO STOP 1)':'READY: OPEN TRACE FILE 402'; }
   updateNavMarks();
 }
 function doCommit(){
@@ -1265,18 +1265,18 @@ function doCommit(){
     if(!stationDone(i)){
       loadStation(i);
       checkAndCoachCurrent(false);
-      toast('Finish ' + STATIONS[i].nav + ' first before committing your Monday Plan.');
+      toast('Finish ' + STATIONS[i].nav + ' first before committing your Broadcast Verdict.');
       return;
     }
   }
   if(!checkAndCoachCurrent(false)) return;
 
-  const msg = 'Ready to commit your Monday Morning Game Plan?\n\nOnce you commit, your Monday-to-Friday answers lock and Case Closed (the official verdict + simulated next week) unlocks.';
+  const msg = 'Ready to commit your 6:00 PM Broadcast Verdict?\n\nOnce you commit, your Stop 1 to Stop 6 answers lock and Case Closed (Real-World Aftermath + Your File) unlocks.';
   if(!confirm(msg)) return;
 
   committed=true; state.committed=true; state.committedAt=Date.now();
   save(); updateNavMarks();
-  toast('Monday plan committed! Unlocking Case Closed...');
+  toast('Broadcast Verdict committed! Unlocking Case Closed...');
   if(SELFTEST) loadStation(VERDICT_IDX); else setTimeout(()=>loadStation(VERDICT_IDX), 600);
 }
 
@@ -1310,8 +1310,8 @@ function buildReview(){
       total++;
       const o = v || {};
       yours = formatOrderUser(o);
-      correct = k.orderText || '1->5 chain';
-      isOk = ['a','b','c','d','e'].every(x => String(o[x]) === String(k.order[x]));
+      correct = k.orderText || '1->4 chain';
+      isOk = Object.keys(k.order).every(x => String(o[x]) === String(k.order[x]));
       if(isOk) scored++;
     }
     const cls = k.noKey ? '' : (isOk ? 'ok' : 'bad');
