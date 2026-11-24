@@ -7,745 +7,1904 @@
 <style>
   :root {
     --blue: #2563EB;
+    --blue-dark: #1D4ED8;
     --blue-soft: #EFF6FF;
+    --blue-border: #BFDBFE;
     --ink: #18181B;
     --muted: #52525B;
-    --faint: #A1A1AA;
+    --faint: #71717A;
     --line: #E4E4E7;
-    --bg: #FAFAFA;
+    --bg: #F8FAFC;
     --card: #FFFFFF;
     --soft: #F4F4F5;
     --amber: #B45309;
     --amber-bg: #FFFBEB;
+    --amber-border: #FDE68A;
     --green: #047857;
-    --green-bg: #F0FDF4;
+    --green-bg: #ECFDF5;
+    --green-border: #A7F3D0;
+    --red: #B91C1C;
+    --red-bg: #FEF2F2;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 22px 50px rgba(15, 23, 42, 0.16);
     --slab: "Roboto Slab", Georgia, "Times New Roman", serif;
     --body: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
     --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
   }
+
   * { box-sizing: border-box; }
   body {
     font-family: var(--body);
     background: var(--bg);
     color: var(--ink);
-    line-height: 1.6;
+    line-height: 1.58;
     margin: 0;
     padding: 0;
     font-size: 16px;
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  a { color: var(--blue); }
+  a:hover { color: var(--blue-dark); }
+  [hidden] { display: none !important; }
 
-  /* hero */
-  .hero {
+  /* buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--blue);
+    background: var(--blue);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.62rem 1.15rem;
+    cursor: pointer;
+    transition: background 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
+  }
+  .btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: #fff; }
+  .btn:active { transform: translateY(1px); }
+  .btn.lg { padding: 0.82rem 1.5rem; font-size: 0.84rem; }
+  .btn.sm { padding: 0.38rem 0.75rem; font-size: 0.69rem; }
+  .btn.ghost { background: var(--card); color: var(--blue); border-color: var(--blue-border); }
+  .btn.ghost:hover { background: var(--blue-soft); color: var(--blue-dark); border-color: var(--blue); }
+  .btn.subtle { background: var(--soft); color: var(--muted); border-color: var(--line); }
+  .btn.subtle:hover { background: #E4E4E7; color: var(--ink); border-color: #D4D4D8; }
+  .btn.bid-on { background: var(--green); border-color: var(--green); color: #fff; }
+  .btn.bid-on:hover { background: #065F46; border-color: #065F46; color: #fff; }
+
+  /* =========================================================
+     STEP 1 & STEP 2: SIGN-IN GATE + CLASS PICKER
+     ========================================================= */
+  .gate-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1.1rem;
+    background: radial-gradient(circle at 20% 10%, #EFF6FF 0%, #F8FAFC 55%, #F1F5F9 100%);
+  }
+  .gate-card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 2rem 2.25rem;
-    margin-bottom: 1.1rem;
-    display: flex;
+    border-top: 4px solid var(--blue);
+    border-radius: 16px;
+    max-width: 840px;
+    width: 100%;
+    padding: 2.1rem 2.3rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .gate-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
     gap: 2rem;
-    align-items: flex-start;
+    align-items: center;
   }
-  .hero-main { flex: 1 1 auto; min-width: 0; }
-  .hero img.earth {
-    flex: 0 0 250px;
-    width: 250px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
+  @media (max-width: 760px) {
+    .gate-card { padding: 1.5rem 1.35rem; }
+    .gate-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+    .gate-media { order: -1; }
   }
-  .img-credit { font-family: var(--mono); font-size: 0.62rem; color: var(--faint); margin-top: 0.35rem; text-align: center; }
-  .hero h1 {
-    font-family: var(--slab);
-    font-size: 2.7rem;
-    line-height: 1.12;
-    margin: 0.2rem 0 0.4rem;
-    font-weight: 700;
-  }
-  .hero .kicker {
+  .gate-kicker {
     font-family: var(--mono);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.14em;
-    color: var(--blue);
-    text-transform: uppercase;
-  }
-  .hero .sub { font-size: 1.12rem; color: var(--muted); margin: 0 0 1rem; }
-  .outcome-band {
-    border-left: 5px solid var(--blue);
-    background: var(--blue-soft);
-    border-radius: 0 8px 8px 0;
-    padding: 0.8rem 1.1rem;
-    margin: 0.9rem 0 1rem;
-  }
-  .outcome-band .label {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--blue);
     display: block;
     margin-bottom: 0.25rem;
   }
-  .outcome-band .statement { font-family: var(--slab); font-size: 1.18rem; line-height: 1.4; margin: 0; font-weight: 600; }
-  .outcome-band .indicators { font-size: 0.86rem; color: var(--muted); margin: 0.45rem 0 0; }
-  .meta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .meta-chip {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 700;
+  .gate-card h1 {
+    font-family: var(--slab);
+    font-size: clamp(1.9rem, 3.8vw, 2.65rem);
+    line-height: 1.1;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .gate-sub {
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0 0 1rem;
+  }
+  .gate-media { text-align: center; }
+  .gate-media img {
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 14px;
     border: 1px solid var(--line);
-    background: var(--soft);
-    border-radius: 4px;
-    padding: 0.25rem 0.6rem;
+    box-shadow: var(--shadow-md);
+  }
+  .img-credit {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--faint);
+    margin-top: 0.4rem;
+  }
+  .outcome-band {
+    border-left: 4px solid var(--blue);
+    background: var(--blue-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin: 0.9rem 0 1.2rem;
+  }
+  .outcome-band .label {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-dark);
+    display: block;
+    margin-bottom: 0.18rem;
+  }
+  .outcome-band .statement {
+    font-family: var(--slab);
+    font-size: 1.05rem;
+    line-height: 1.36;
+    margin: 0;
+    font-weight: 600;
+  }
+  .outcome-band .indicators {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin: 0.35rem 0 0;
+  }
+  .gate-hint {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+  }
+  .gate-msg {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--red);
+    margin-top: 0.55rem;
+    min-height: 1.1rem;
+  }
+
+  /* Step 2: Class Picker */
+  .class-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+    margin: 1.3rem 0 1.1rem;
+  }
+  @media (max-width: 620px) { .class-grid { grid-template-columns: 1fr; } }
+  .class-btn {
+    background: var(--bg);
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 1.3rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.14s ease, background 0.14s ease, transform 0.12s ease, box-shadow 0.14s ease;
+  }
+  .class-btn:hover {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .class-btn.recommended {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+  }
+  .class-btn .c-code {
+    display: block;
+    font-family: var(--slab);
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .class-btn .c-sub {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue-dark);
+  }
+  .gate-user-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
     color: var(--muted);
   }
 
-  /* anchor nav */
-  .anchor-nav {
+  /* =========================================================
+     STEP 3: TABBED APP SHELL
+     ========================================================= */
+  .app-shell {
+    min-height: 100vh;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin: 0 0 2.2rem;
+    flex-direction: column;
   }
-  .anchor-nav a {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .app-bar {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0.65rem 1.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .brand-badge {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: var(--blue);
+    color: #fff;
+    padding: 0.22rem 0.48rem;
+    border-radius: 5px;
+  }
+  .brand-name {
+    font-family: var(--slab);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .user-cluster {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .user-pill {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.24rem 0.62rem;
+    border-radius: 999px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .user-pill.sec-pill {
+    background: var(--blue-soft);
+    border-color: var(--blue-border);
+    color: var(--blue-dark);
+    cursor: pointer;
+  }
+  .user-pill.sec-pill:hover { background: #DBEAFE; }
+  .user-pill.ok { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .user-pill.warn { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+
+  /* primary tab bar */
+  .tab-bar {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
     font-family: var(--mono);
     font-size: 0.74rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    text-decoration: none;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
     color: var(--muted);
-    border: 1px solid var(--line);
-    background: var(--card);
-    border-radius: 4px;
-    padding: 0.32rem 0.7rem;
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease;
   }
-  .anchor-nav a:hover { border-color: var(--blue); color: var(--blue); }
+  .tab-btn:hover { color: var(--blue); background: var(--blue-soft); }
+  .tab-btn.active {
+    color: var(--blue-dark);
+    border-bottom-color: var(--blue);
+    background: transparent;
+  }
+  .tab-badge {
+    font-size: 0.64rem;
+    padding: 0.08rem 0.42rem;
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--muted);
+  }
+  .tab-btn.active .tab-badge { background: var(--blue-soft); color: var(--blue-dark); }
+  .tab-badge.ready { background: var(--green); color: #fff !important; }
 
-  /* sections */
-  section { margin-bottom: 2.6rem; }
+  .app-main {
+    flex: 1 1 auto;
+    max-width: 1140px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.4rem 1.25rem 2.5rem;
+  }
+
+  .view-panel { display: none; animation: fadein 0.18s ease; }
+  .view-panel.active { display: block; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* shared section typography */
+  .sec-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
   .sec-label {
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: 0.69rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--blue);
     display: block;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.1rem;
   }
-  section h2 {
-    font-family: var(--slab);
-    font-size: 1.75rem;
-    margin: 0 0 0.9rem;
-    font-weight: 700;
-    border-bottom: 2px solid var(--line);
-    padding-bottom: 0.45rem;
-  }
-  section h3 { font-family: var(--slab); font-size: 1.15rem; margin: 1.4rem 0 0.5rem; }
-  p { margin: 0.6rem 0; }
-  ul, ol { margin: 0.5rem 0; padding-left: 1.4rem; }
-  li { margin-bottom: 0.35rem; }
-  .lead { font-size: 1.05rem; color: var(--muted); }
-
-  /* plan cards */
-  .slide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.9rem; }
-  .slide-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1rem 1.15rem;
-  }
-  .slide-card .n {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: var(--blue);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .slide-card h4 { font-family: var(--slab); margin: 0.2rem 0 0.4rem; font-size: 1.08rem; }
-  .slide-card p { font-size: 0.92rem; color: var(--muted); margin: 0; }
-
-  /* checkpoint timeline */
-  .timeline { border-left: 3px solid var(--blue); padding-left: 1.6rem; margin-left: 0.6rem; }
-  .tl-item { position: relative; margin-bottom: 1.35rem; }
-  .tl-item::before {
-    content: "";
-    position: absolute;
-    left: -2.06rem;
-    top: 0.4rem;
-    width: 0.85rem;
-    height: 0.85rem;
-    border-radius: 50%;
-    background: var(--blue);
-  }
-  .tl-item h4 { margin: 0 0 0.2rem; font-family: var(--slab); font-size: 1.05rem; }
-  .tl-item .when { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
-  .tl-item p { margin: 0.15rem 0 0; font-size: 0.94rem; color: var(--muted); }
+  h2 { font-family: var(--slab); font-size: clamp(1.4rem, 2.5vw, 1.75rem); margin: 0; line-height: 1.2; }
+  h3 { font-family: var(--slab); font-size: 1.15rem; margin: 1.45rem 0 0.55rem; }
+  p { margin: 0.5rem 0; }
+  ul, ol { margin: 0.45rem 0; padding-left: 1.35rem; }
+  li { margin-bottom: 0.32rem; }
+  .lead { font-size: 1rem; color: var(--muted); max-width: 78ch; margin-bottom: 1rem; }
 
   /* callouts */
   .note, .warn, .good-note {
     border: 1px solid var(--line);
-    border-left: 5px solid var(--blue);
+    border-left: 4px solid var(--blue);
     background: var(--card);
-    border-radius: 0 8px 8px 0;
-    padding: 0.85rem 1.1rem;
-    margin: 1rem 0;
+    border-radius: 0 10px 10px 0;
+    padding: 0.9rem 1.1rem;
+    margin: 0.95rem 0;
+    box-shadow: var(--shadow-sm);
   }
-  .warn { border-left-color: var(--amber); background: var(--amber-bg); }
-  .good-note { border-left-color: var(--green); background: var(--green-bg); }
+  .warn { border-color: var(--amber-border); border-left-color: var(--amber); background: var(--amber-bg); }
+  .good-note { border-color: var(--green-border); border-left-color: var(--green); background: var(--green-bg); }
   .note .tag, .warn .tag, .good-note .tag {
     font-family: var(--mono);
     font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
     display: block;
-    margin-bottom: 0.3rem;
-    color: var(--blue);
+    margin-bottom: 0.25rem;
+    color: var(--blue-dark);
   }
   .warn .tag { color: var(--amber); }
   .good-note .tag { color: var(--green); }
-  .note p, .warn p, .good-note p { margin: 0; font-size: 0.96rem; }
-  .note ul, .warn ul, .good-note ul { margin: 0.35rem 0 0; }
+  .note p, .warn p, .good-note p { margin: 0; font-size: 0.94rem; }
+  .callout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.95rem; margin: 1rem 0; }
+  .callout-grid .note, .callout-grid .warn, .callout-grid .good-note { margin: 0; }
+  @media (max-width: 780px) { .callout-grid { grid-template-columns: 1fr; } }
 
-  /* responsive */
-  @media (max-width: 800px) {
-    .hero { flex-direction: column-reverse; }
-    .hero img.earth { width: 190px; flex: 0 0 auto; }
-    .hero h1 { font-size: 2rem; }
+  /* overview hero banner */
+  .overview-banner {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F5F9FF 100%);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--blue);
+    border-radius: 12px;
+    padding: 1.25rem 1.45rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
   }
+  .overview-banner h2 { margin-bottom: 0.3rem; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.6rem; }
+  .meta-chip {
+    font-family: var(--mono);
+    font-size: 0.69rem;
+    font-weight: 700;
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 999px;
+    padding: 0.22rem 0.66rem;
+    color: var(--muted);
+  }
+
+  /* 6-slide blueprint */
+  .slide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
+  @media (max-width: 900px) { .slide-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .slide-grid { grid-template-columns: 1fr; } }
+  .slide-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.95rem 1.1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .slide-card.core { border-color: var(--blue); background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FF 100%); }
+  .slide-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem; }
+  .slide-card .n { font-family: var(--mono); font-size: 0.67rem; font-weight: 700; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; }
+  .core-tag { font-family: var(--mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: var(--blue); color: #fff; padding: 0.12rem 0.42rem; border-radius: 4px; }
+  .slide-card h4 { font-family: var(--slab); margin: 0.1rem 0 0.35rem; font-size: 1.05rem; }
+  .slide-card p { font-size: 0.89rem; color: var(--muted); margin: 0; }
+
+  /* timeline */
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
+  @media (max-width: 900px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .timeline { grid-template-columns: 1fr; } }
+  .tl-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--line);
+    border-radius: 10px;
+    padding: 0.9rem 1.05rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .tl-item.is-cp { border-top-color: var(--blue); }
+  .tl-item.is-final { border-top-color: var(--green); }
+  .tl-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .tl-week { font-family: var(--mono); font-size: 0.67rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .tl-badge { font-family: var(--mono); font-size: 0.61rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.12rem 0.42rem; border-radius: 4px; background: var(--soft); color: var(--muted); }
+  .tl-item.is-cp .tl-badge { background: var(--blue-soft); color: var(--blue-dark); }
+  .tl-item.is-final .tl-badge { background: var(--green-bg); color: var(--green); }
+  .tl-item h4 { margin: 0 0 0.3rem; font-family: var(--slab); font-size: 1.02rem; }
+  .tl-item p { margin: 0; font-size: 0.88rem; color: var(--muted); }
 
   /* topic gallery */
-  .topic-controls { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; margin: 0.6rem 0 1rem; }
-  .topic-controls input {
-    font-family: var(--body);
-    font-size: 1rem;
-    padding: 0.5rem 0.85rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--card);
-    min-width: 280px;
-  }
-  .topic-controls input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
-  #topic-count { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); font-weight: 700; }
-  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.8rem; }
-  .topic-card {
+  .topic-toolbar {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.85rem 0.95rem;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.12s ease;
-  }
-  .topic-card:hover, .topic-card:focus { border-color: var(--blue); outline: none; }
-  .topic-card .flag { width: 38px; height: auto; border: 1px solid var(--line); border-radius: 2px; display: block; margin-bottom: 0.5rem; }
-  .topic-card h4 { font-family: var(--slab); font-size: 1.02rem; margin: 0 0 0.2rem; }
-  .topic-card .topic-issue { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; line-height: 1.35; }
-  .topic-card .topic-region {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--faint);
-  }
-
-  /* modal */
-  .topic-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(24, 24, 27, 0.55);
-    z-index: 50;
-    align-items: center;
-    justify-content: center;
-    padding: 1.25rem;
-  }
-  .topic-modal.open { display: flex; }
-  .modal-card {
-    background: var(--card);
     border-radius: 10px;
-    border: 1px solid var(--line);
-    max-width: 620px;
-    width: 100%;
-    max-height: 86vh;
-    overflow-y: auto;
-    padding: 1.6rem 1.8rem;
-    position: relative;
+    padding: 0.9rem 1rem;
+    margin: 0.7rem 0 1rem;
+    box-shadow: var(--shadow-sm);
   }
-  .modal-card .modal-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 0.4rem; }
-  .modal-card .modal-head img { width: 56px; border: 1px solid var(--line); border-radius: 3px; }
-  .modal-card h3 { font-family: var(--slab); font-size: 1.5rem; margin: 0; }
-  .modal-card .modal-issue { font-family: var(--mono); font-size: 0.76rem; font-weight: 700; color: var(--blue); letter-spacing: 0.05em; margin: 0.15rem 0 0.9rem; }
-  .modal-card h5 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.35rem; }
-  .modal-card ul { margin: 0; }
-  .modal-card .modal-src {
-    font-size: 0.9rem;
-    color: var(--muted);
-    border-left: 4px solid var(--green);
-    background: var(--green-bg);
-    padding: 0.6rem 0.9rem;
-    border-radius: 0 6px 6px 0;
-    margin-top: 0.4rem;
-  }
-  .modal-close {
-    position: absolute;
-    top: 0.7rem;
-    right: 0.9rem;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    border: 1px solid var(--line);
-    background: var(--soft);
-    border-radius: 4px;
-    padding: 0.25rem 0.6rem;
-    cursor: pointer;
-    color: var(--muted);
-  }
-  .modal-close:hover { border-color: var(--blue); color: var(--blue); }
-
-  /* tables */
-  .plan-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); }
-  .plan-table th {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: left;
-    color: var(--muted);
-    background: var(--soft);
-    border: 1px solid var(--line);
-    padding: 0.5rem 0.7rem;
-  }
-  .plan-table td { border: 1px solid var(--line); padding: 0.6rem 0.7rem; font-size: 0.92rem; vertical-align: top; }
-  .plan-table td:first-child { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; color: var(--blue); white-space: nowrap; }
-
-  /* tools */
-  .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; align-items: start; }
-  @media (max-width: 800px) { .tools-grid { grid-template-columns: 1fr; } }
-  .tool-box { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 1.2rem 1.35rem; }
-  .tool-box h4 { font-family: var(--slab); font-size: 1.15rem; margin: 0 0 0.2rem; }
-  .tool-box .tool-hint { font-size: 0.88rem; color: var(--muted); margin: 0 0 0.9rem; }
-  .tool-box label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: block;
-    margin: 0.6rem 0 0.2rem;
-  }
-  .tool-box input {
+  .topic-controls { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1 1 280px; min-width: 220px; }
+  .search-wrap input {
     width: 100%;
     font-family: var(--body);
     font-size: 0.95rem;
-    padding: 0.45rem 0.7rem;
+    padding: 0.52rem 2.2rem 0.52rem 0.85rem;
     border: 1px solid var(--line);
-    border-radius: 5px;
-  }
-  .btn {
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border: 1px solid var(--blue);
-    background: var(--blue);
-    color: #fff;
-    border-radius: 5px;
-    padding: 0.5rem 0.95rem;
-    cursor: pointer;
-    margin-top: 0.8rem;
-  }
-  .btn.ghost { background: var(--card); color: var(--blue); }
-  .btn.ghost:hover { background: var(--blue-soft); }
-  .apa-out {
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    background: var(--soft);
-    border: 1px solid var(--line);
-    border-radius: 5px;
-    padding: 0.7rem 0.85rem;
-    margin-top: 0.8rem;
-    word-break: break-word;
-    min-height: 2.4rem;
-  }
-  .apa-out .placeholder { color: var(--faint); font-style: italic; font-family: var(--body); }
-  .copy-note { font-family: var(--mono); font-size: 0.68rem; color: var(--green); font-weight: 700; margin-top: 0.3rem; min-height: 1rem; }
-  .check-item { display: flex; gap: 0.6rem; align-items: flex-start; margin-bottom: 0.5rem; font-size: 0.93rem; }
-  .check-item input { width: 1.05rem; height: 1.05rem; accent-color: var(--blue); margin-top: 0.18rem; flex: 0 0 auto; }
-  .check-score { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; color: var(--blue); border-top: 1px solid var(--line); padding-top: 0.6rem; margin-top: 0.7rem; }
-
-  /* level descriptors */
-  .level-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); }
-  .level-table th {
-    font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em;
-    text-transform: uppercase; text-align: left; color: var(--muted); background: var(--soft);
-    border: 1px solid var(--line); padding: 0.5rem 0.7rem;
-  }
-  .level-table td { border: 1px solid var(--line); padding: 0.55rem 0.7rem; font-size: 0.88rem; vertical-align: top; }
-  .level-table td:first-child { font-family: var(--slab); font-weight: 700; white-space: nowrap; font-size: 0.92rem; }
-
-  /* links + footer */
-  .links-row { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-  .link-card {
-    flex: 1 1 300px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1.15rem 1.3rem;
-    text-decoration: none;
+    border-radius: 7px;
+    background: var(--bg);
     color: var(--ink);
   }
-  .link-card:hover { border-color: var(--blue); }
+  .search-wrap input:focus { outline: 2px solid var(--blue); outline-offset: 1px; background: var(--card); }
+  .search-clear {
+    position: absolute; right: 0.45rem; top: 50%; transform: translateY(-50%);
+    border: none; background: transparent; color: var(--faint); font-size: 1.15rem;
+    cursor: pointer; padding: 0.2rem 0.35rem; border-radius: 4px;
+  }
+  .search-clear:hover { color: var(--ink); background: var(--soft); }
+  #topic-count { font-family: var(--mono); font-size: 0.71rem; color: var(--muted); font-weight: 700; margin-left: auto; }
+  .region-pills { display: flex; flex-wrap: wrap; gap: 0.36rem; margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--line); }
+  .region-pill {
+    font-family: var(--mono); font-size: 0.69rem; font-weight: 700; color: var(--muted);
+    background: var(--soft); border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.25rem 0.68rem; cursor: pointer;
+  }
+  .region-pill:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .region-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .region-pill .pill-n { opacity: 0.75; margin-left: 0.2rem; }
+
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.78rem; }
+  .topic-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 0.9rem 0.98rem; cursor: pointer; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .topic-card:hover, .topic-card:focus-visible { border-color: var(--blue); transform: translateY(-2px); box-shadow: var(--shadow-md); outline: none; }
+  .topic-card.is-picked { border-color: var(--green); box-shadow: 0 0 0 2px var(--green-border); }
+  .topic-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.45rem; margin-bottom: 0.55rem; }
+  .topic-card .flag { width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15); display: block; flex-shrink: 0; }
+  .topic-badges { display: flex; align-items: center; gap: 0.28rem; flex-wrap: wrap; justify-content: flex-end; }
+  .topic-rank-pill { font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: var(--green); padding: 0.13rem 0.42rem; border-radius: 4px; }
+  .topic-tnc-pill { font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-dark); background: var(--blue-soft); border: 1px solid var(--blue-border); padding: 0.11rem 0.38rem; border-radius: 4px; }
+  .topic-card .topic-region { font-family: var(--mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); background: var(--soft); padding: 0.15rem 0.42rem; border-radius: 4px; }
+  .topic-card h4 { font-family: var(--slab); font-size: 1.03rem; margin: 0 0 0.22rem; }
+  .topic-card .topic-issue { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; line-height: 1.36; flex: 1 1 auto; }
+  .topic-card .topic-more { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+  .topic-empty { grid-column: 1 / -1; text-align: center; background: var(--card); border: 1px dashed var(--line); border-radius: 10px; padding: 2rem 1rem; color: var(--muted); }
+
+  /* modal */
+  .topic-modal {
+    display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px); z-index: 60; align-items: center; justify-content: center; padding: 1.2rem;
+  }
+  .topic-modal.open { display: flex; }
+  .modal-card {
+    background: var(--card); border-radius: 14px; border: 1px solid var(--line);
+    max-width: 660px; width: 100%; max-height: 88vh; overflow-y: auto;
+    padding: 1.45rem 1.7rem 1.3rem; box-shadow: var(--shadow-lg);
+  }
+  .modal-topbar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.9rem; padding-bottom: 0.65rem; border-bottom: 1px solid var(--line); }
+  .modal-nav { display: flex; align-items: center; gap: 0.4rem; }
+  .modal-pos { font-family: var(--mono); font-size: 0.69rem; font-weight: 700; color: var(--faint); padding: 0 0.3rem; }
+  .modal-close { font-family: var(--mono); font-size: 0.71rem; font-weight: 700; border: 1px solid var(--line); background: var(--soft); border-radius: 6px; padding: 0.28rem 0.62rem; cursor: pointer; color: var(--muted); }
+  .modal-close:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .modal-head { display: flex; gap: 0.95rem; align-items: center; margin-bottom: 0.5rem; }
+  .modal-head img { width: 56px; height: 56px; border-radius: 50%; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16); flex-shrink: 0; }
+  .modal-card h3 { font-family: var(--slab); font-size: 1.5rem; margin: 0; line-height: 1.15; }
+  .modal-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.2rem; }
+  .modal-issue { font-family: var(--mono); font-size: 0.76rem; font-weight: 700; color: var(--blue-dark); margin: 0; }
+  .modal-region-pill { font-family: var(--mono); font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--soft); color: var(--muted); padding: 0.12rem 0.42rem; border-radius: 4px; }
+  .modal-card h5 { font-family: var(--mono); font-size: 0.67rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 1.05rem 0 0.4rem; }
+  .modal-card ul { margin: 0; padding-left: 1.25rem; }
+  .modal-card li { margin-bottom: 0.4rem; font-size: 0.96rem; }
+  .modal-tnc { font-size: 0.91rem; color: var(--ink); border: 1px solid var(--blue-border); border-left: 4px solid var(--blue); background: var(--blue-soft); padding: 0.65rem 0.9rem; border-radius: 0 8px 8px 0; margin: 0.35rem 0 0; }
+  .modal-src { font-size: 0.91rem; color: var(--ink); border: 1px solid var(--green-border); border-left: 4px solid var(--green); background: var(--green-bg); padding: 0.65rem 0.9rem; border-radius: 0 8px 8px 0; margin: 0.35rem 0 0; }
+  .modal-bid-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.05rem; padding: 0.72rem 0.85rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  .modal-bid-lbl { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 0.2rem; }
+  .modal-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.65rem; margin-top: 0.95rem; padding-top: 0.85rem; border-top: 1px solid var(--line); }
+  .modal-claim-note { font-family: var(--mono); font-size: 0.71rem; font-weight: 700; color: var(--green); }
+
+  /* bid sheet */
+  .bid-panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--blue);
+    border-radius: 12px;
+    padding: 1.3rem 1.45rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .bid-meta-grid { display: grid; grid-template-columns: 165px 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+  @media (max-width: 780px) { .bid-meta-grid { grid-template-columns: 1fr; } }
+  .bid-field label {
+    display: block; font-family: var(--mono); font-size: 0.66rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.24rem;
+  }
+  .bid-field input, .bid-field select, .bid-field textarea {
+    width: 100%; font-family: var(--body); font-size: 0.93rem; padding: 0.48rem 0.7rem;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink);
+  }
+  .bid-field input:focus, .bid-field select:focus, .bid-field textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; background: var(--card); }
+  .bid-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; margin-bottom: 1rem; }
+  @media (max-width: 900px) { .bid-slots { grid-template-columns: 1fr; } }
+  .bid-slot {
+    background: var(--bg); border: 1px solid var(--line); border-top: 3px solid var(--blue);
+    border-radius: 9px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.55rem;
+  }
+  .bid-slot.s2 { border-top-color: #6366F1; }
+  .bid-slot.s3 { border-top-color: var(--faint); }
+  .bid-slot-rank { font-family: var(--mono); font-size: 0.69rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--blue-dark); }
+  .bid-slot.s2 .bid-slot-rank { color: #4F46E5; }
+  .bid-slot.s3 .bid-slot-rank { color: var(--muted); }
+  .bid-slot textarea { min-height: 82px; resize: vertical; background: var(--card); }
+  .bid-slot select { background: var(--card); }
+  .bid-suggest { background: var(--bg); border: 1px dashed var(--line); border-radius: 9px; padding: 0.9rem 1rem; margin-bottom: 1rem; }
+  .bid-suggest-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 0.75rem; margin-top: 0.45rem; }
+  @media (max-width: 720px) { .bid-suggest-grid { grid-template-columns: 1fr; } }
+  .bid-submit-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+  .bid-msg { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; color: var(--green); }
+  .bid-msg.err { color: var(--red); }
+
+  /* slide planner */
+  .planner-shell { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .planner-tabs { display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.65rem 0.8rem; background: var(--soft); border-bottom: 1px solid var(--line); align-items: center; }
+  .planner-tab { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 6px; padding: 0.34rem 0.68rem; cursor: pointer; }
+  .planner-tab:hover { border-color: var(--blue); color: var(--blue); }
+  .planner-tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .planner-toggle-all { margin-left: auto; font-family: var(--mono); font-size: 0.67rem; font-weight: 700; background: transparent; border: none; color: var(--blue); cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em; }
+  .planner-panel { display: none; padding: 1.15rem 1.35rem; border-bottom: 1px solid var(--line); }
+  .planner-panel:last-child { border-bottom: none; }
+  .planner-panel.active, .planner-shell.show-all .planner-panel { display: block; }
+  .planner-panel-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.45rem; }
+  .planner-panel-head .sn { font-family: var(--mono); font-size: 0.71rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.08em; }
+  .planner-panel-head h4 { font-family: var(--slab); font-size: 1.12rem; margin: 0; }
+  .planner-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1rem; margin-top: 0.5rem; }
+  @media (max-width: 740px) { .planner-cols { grid-template-columns: 1fr; } }
+  .starter-box { background: var(--bg); border: 1px solid var(--line); border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0; padding: 0.7rem 0.9rem; }
+  .starter-box .lbl { font-family: var(--mono); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 0.2rem; }
+  .starter-box p { margin: 0; font-style: italic; font-size: 0.92rem; }
+  .planner-tip { margin-top: 0.65rem; font-size: 0.88rem; color: var(--muted); }
+
+  /* consequence map */
+  .cmap-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.72rem; margin: 0.75rem 0 1.1rem; }
+  @media (max-width: 980px) { .cmap-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .cmap-grid { grid-template-columns: 1fr; } }
+  .cmap-card { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 9px; padding: 0.85rem 0.9rem; display: flex; flex-direction: column; box-shadow: var(--shadow-sm); }
+  .cmap-card:nth-child(2) { border-top-color: var(--amber); }
+  .cmap-card:nth-child(5) { border-top-color: var(--green); }
+  .cmap-card .clbl { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--blue-dark); margin-bottom: 0.22rem; }
+  .cmap-card:nth-child(2) .clbl { color: var(--amber); }
+  .cmap-card:nth-child(5) .clbl { color: var(--green); }
+  .cmap-card .cq { font-size: 0.88rem; font-weight: 600; margin: 0 0 0.55rem; line-height: 1.36; }
+  .cmap-card .cex { margin-top: auto; font-size: 0.8rem; color: var(--muted); background: var(--bg); border-radius: 6px; padding: 0.5rem 0.6rem; line-height: 1.4; }
+  .cmap-card .cex strong { display: block; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 0.12rem; }
+
+  /* credible sources */
+  .src-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin: 0.65rem 0 0.9rem; }
+  @media (max-width: 720px) { .src-compare { grid-template-columns: 1fr; } }
+  .src-box { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 0.95rem 1.1rem; box-shadow: var(--shadow-sm); }
+  .src-box.good { border-top: 3px solid var(--green); }
+  .src-box.bad { border-top: 3px solid var(--amber); }
+  .src-box h4 { font-family: var(--mono); font-size: 0.71rem; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.55rem; }
+  .src-box.good h4 { color: var(--green); }
+  .src-box.bad h4 { color: var(--amber); }
+  .src-box ul { margin: 0; padding-left: 1.2rem; font-size: 0.9rem; }
+
+  /* tools & rubric */
+  .tools-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1rem; align-items: start; }
+  @media (max-width: 860px) { .tools-grid { grid-template-columns: 1fr; } }
+  .tool-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.35rem; box-shadow: var(--shadow-sm); }
+  .tool-box h4 { font-family: var(--slab); font-size: 1.14rem; margin: 0 0 0.2rem; }
+  .tool-box .tool-hint { font-size: 0.86rem; color: var(--muted); margin: 0 0 0.85rem; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 115px; gap: 0.6rem; }
+  @media (max-width: 500px) { .form-row-2 { grid-template-columns: 1fr; } }
+  .tool-box label.field-lbl { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); display: block; margin: 0.6rem 0 0.2rem; }
+  .tool-box input[type="text"], .tool-box input[type="url"] { width: 100%; font-family: var(--body); font-size: 0.93rem; padding: 0.46rem 0.7rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  .tool-box input[type="text"]:focus, .tool-box input[type="url"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; background: var(--card); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.8rem; }
+  .apa-out { font-size: 0.89rem; line-height: 1.48; background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 0.7rem 0.85rem; margin-top: 0.8rem; word-break: break-word; min-height: 2.6rem; }
+  .apa-out .placeholder { color: var(--faint); font-style: italic; }
+  .copy-note { font-family: var(--mono); font-size: 0.69rem; color: var(--green); font-weight: 700; margin-top: 0.3rem; min-height: 1rem; }
+  .source-list-wrap { margin-top: 0.85rem; padding-top: 0.8rem; border-top: 1px solid var(--line); }
+  .source-list-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem; }
+  .source-list-head span { font-family: var(--mono); font-size: 0.67rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .source-list { list-style: none; padding: 0; margin: 0; }
+  .source-list li { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; font-size: 0.82rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 0.48rem 0.62rem; margin-bottom: 0.4rem; word-break: break-word; }
+  .source-remove { border: none; background: transparent; color: var(--faint); font-size: 1rem; cursor: pointer; padding: 0.1rem 0.28rem; border-radius: 4px; }
+  .source-remove:hover { color: var(--red); background: var(--red-bg); }
+
+  .progress-bar-track { height: 8px; background: var(--soft); border-radius: 999px; overflow: hidden; margin: 0.35rem 0 0.75rem; }
+  .progress-bar-fill { height: 100%; width: 0%; background: var(--blue); border-radius: 999px; transition: width 0.2s ease, background 0.2s ease; }
+  .progress-bar-fill.done { background: var(--green); }
+  .check-item { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.4rem 0.5rem; margin: 0 -0.5rem 0.16rem; border-radius: 7px; font-size: 0.9rem; cursor: pointer; }
+  .check-item:hover { background: var(--bg); }
+  .check-item input { width: 1.02rem; height: 1.02rem; accent-color: var(--blue); margin-top: 0.2rem; flex: 0 0 auto; cursor: pointer; }
+  .check-item.checked .ck-text { color: var(--faint); text-decoration: line-through; }
+  .ck-tag { display: inline-block; font-family: var(--mono); font-size: 0.59rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--soft); color: var(--muted); padding: 0.06rem 0.34rem; border-radius: 4px; margin-right: 0.32rem; }
+  .check-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border-top: 1px solid var(--line); padding-top: 0.7rem; margin-top: 0.65rem; }
+  .check-score { font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--blue-dark); }
+  .check-score.done { color: var(--green); }
+
+  .level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+  @media (max-width: 920px) { .level-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .level-grid { grid-template-columns: 1fr; } }
+  .level-card { background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--line); border-radius: 10px; padding: 0.9rem 1rem; box-shadow: var(--shadow-sm); }
+  .level-card.l4 { border-top-color: var(--green); }
+  .level-card.l3 { border-top-color: var(--blue); }
+  .level-card.l2 { border-top-color: var(--amber); }
+  .level-card.l1 { border-top-color: var(--faint); }
+  .level-card .lvl-badge { font-family: var(--mono); font-size: 0.69rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; display: block; }
+  .level-card.l4 .lvl-badge { color: var(--green); }
+  .level-card.l3 .lvl-badge { color: var(--blue-dark); }
+  .level-card.l2 .lvl-badge { color: var(--amber); }
+  .level-card.l1 .lvl-badge { color: var(--faint); }
+  .level-card p { font-size: 0.86rem; color: var(--muted); margin: 0; line-height: 1.48; }
+
+  .rubric-details { margin-top: 0.95rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .rubric-details summary { font-family: var(--mono); font-size: 0.73rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--blue-dark); padding: 0.8rem 1.05rem; cursor: pointer; background: var(--soft); list-style: none; display: flex; align-items: center; justify-content: space-between; }
+  .rubric-details summary::-webkit-details-marker { display: none; }
+  .rubric-details summary::after { content: "+"; font-size: 1rem; }
+  .rubric-details[open] summary::after { content: "-"; }
+  .table-scroll { overflow-x: auto; }
+  .level-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  .level-table th { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; text-align: left; color: var(--muted); background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0.5rem 0.68rem; }
+  .level-table td { border-top: 1px solid var(--line); padding: 0.55rem 0.68rem; font-size: 0.84rem; vertical-align: top; color: var(--muted); }
+  .level-table td:first-child { font-family: var(--slab); font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+  /* resource cards */
+  .links-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; }
+  .link-card {
+    display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 1.15rem 1.25rem; text-decoration: none; color: var(--ink);
+    box-shadow: var(--shadow-sm); transition: border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .link-card:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: var(--shadow-md); color: var(--ink); }
+  .link-card .kind { font-family: var(--mono); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.3rem; }
   .link-card h4 { font-family: var(--slab); margin: 0 0 0.3rem; font-size: 1.12rem; }
-  .link-card p { font-size: 0.9rem; color: var(--muted); margin: 0; }
-  .link-card .go { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); display: inline-block; margin-top: 0.7rem; }
+  .link-card p { font-size: 0.9rem; color: var(--muted); margin: 0; flex: 1 1 auto; }
+  .link-card .go { font-family: var(--mono); font-size: 0.71rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); display: inline-block; margin-top: 0.8rem; }
+
   .site-foot {
     border-top: 1px solid var(--line);
-    margin-top: 2.5rem;
-    padding-top: 1rem;
+    padding: 0.9rem 1.25rem 1.3rem;
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     color: var(--faint);
     text-align: center;
-    line-height: 1.9;
-  }
-
-  @media print {
-    .topic-controls, .anchor-nav, .modal-close { display: none; }
-    .topic-card, .slide-card, .tool-box { break-inside: avoid; }
-    body { background: #fff; }
+    line-height: 1.8;
+    background: var(--card);
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-<header class="hero" id="top">
-  <div class="hero-main">
-    <span class="kicker">Citizenship 9 &bull; Term 2 Project</span>
-    <h1>Country Profile Project</h1>
-    <p class="sub">One country. One global issue. What did they do about it, what happened as a result, and why should Canadians care?</p>
-    <div class="outcome-band">
-      <span class="label">Outcome (verbatim from the curriculum)</span>
-      <p class="statement">Evaluate the consequences of action and inaction as twenty-first century global citizens.</p>
-      <p class="indicators">Focus indicators: Universal Declaration of Human Rights &bull; global climate and economic interconnectedness &bull; Canada's military, peacekeeping, and diplomatic role abroad.</p>
-    </div>
-    <div class="meta-row">
-      <span class="meta-chip">PAIRS (or solo with approval)</span>
-      <span class="meta-chip">6 SLIDES + SOURCES</span>
-      <span class="meta-chip">5-6 MIN PRESENTATION</span>
-      <span class="meta-chip">TERM 2 PROJECT</span>
-    </div>
-  </div>
-  <div>
-    <img class="earth" src="images/blue-marble-apollo17.jpg" alt="The Earth photographed from Apollo 17">
-    <div class="img-credit">Earth, Apollo 17 (1972). NASA photo, public domain.</div>
-  </div>
-</header>
 
-<nav class="anchor-nav">
-  <a href="#primer">Rights Primer</a>
-  <a href="#task">The Task</a>
-  <a href="#timeline">How It Runs</a>
-  <a href="#topics">Pick a Topic</a>
-  <a href="#guide">Build Guide</a>
-  <a href="#tools">Tools &amp; Rubric</a>
-  <a href="#example">Tuvalu Example</a>
-</nav>
+<!-- =========================================================
+     STEP 1: SIGN-IN PAGE
+     ========================================================= -->
+<div class="gate-screen" id="gate-signin">
+  <div class="gate-card">
+    <div class="gate-grid">
+      <div>
+        <span class="gate-kicker">Citizenship 9 &bull; Term 2 Project &bull; Room 8</span>
+        <h1>Country Profile Project</h1>
+        <p class="gate-sub">One country. One global issue. What did they do about it, what happened as a result, and why should Canadians care?</p>
+        <div class="outcome-band">
+          <span class="label">Outcome (verbatim from the curriculum)</span>
+          <p class="statement">Evaluate the consequences of action and inaction as twenty-first century global citizens.</p>
+          <p class="indicators">Universal Declaration of Human Rights &bull; global climate &amp; economic interconnectedness &bull; Canada's role abroad.</p>
+        </div>
+        <button type="button" class="btn lg" onclick="App.signIn()">Sign in with @gnspes.ca &rarr;</button>
+        <p class="gate-hint" id="gate-hint">Use your school Google account (@gnspes.ca). No PIN needed. Next, choose your class section to open the project hub.</p>
+        <div class="gate-msg" id="gate-msg" aria-live="polite"></div>
+      </div>
+      <div class="gate-media">
+        <img src="images/blue-marble-apollo17.jpg" alt="The Earth photographed from Apollo 17">
+        <div class="img-credit">Earth, Apollo 17 (1972). NASA, public domain.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<section id="primer">
-  <span class="sec-label">Start Here</span>
-  <h2>Know your rights before you research</h2>
-  <p class="lead">Most topics in the catalog are human-rights topics. Run the primer first: one class on the United Nations, the Universal Declaration of Human Rights, and Canada's Charter. It turns "human rights" from a phrase into a toolkit you can cite.</p>
-  <div class="links-row">
-    <a class="link-card" href="rights-primer-deck.html">
-      <h4>Rights Primer (projector deck)</h4>
-      <p>The UN, the UDHR articles you will actually use, how rights get enforced, and the Charter sections that answer them.</p>
-      <span class="go">Open the deck &rarr;</span>
-    </a>
-    <a class="link-card" href="rights-quick-reference.html">
-      <h4>Rights Quick Reference (printable)</h4>
-      <p>One page to keep beside your research: the three names, the articles, the sections, and the rights lens for your topic.</p>
-      <span class="go">Open the printable &rarr;</span>
-    </a>
+<!-- =========================================================
+     STEP 2: SELECT YOUR CLASS
+     ========================================================= -->
+<div class="gate-screen" id="gate-class" hidden>
+  <div class="gate-card" style="max-width: 680px;">
+    <span class="gate-kicker">Step 2 of 2 &bull; Choose Your Class</span>
+    <h1>Which Citizenship 9 class are you in?</h1>
+    <p class="gate-sub">Pick your section so your Partner Top-3 Bid Sheet lands on the right class board.</p>
+    <div class="class-grid">
+      <button type="button" class="class-btn" data-sec="901-CIT" onclick="App.chooseClass('901-CIT')">
+        <span class="c-code">901-CIT</span>
+        <span class="c-sub">Homeroom 901</span>
+      </button>
+      <button type="button" class="class-btn" data-sec="902-CIT" onclick="App.chooseClass('902-CIT')">
+        <span class="c-code">902-CIT</span>
+        <span class="c-sub">Homeroom 902</span>
+      </button>
+      <button type="button" class="class-btn" data-sec="903-CIT" onclick="App.chooseClass('903-CIT')">
+        <span class="c-code">903-CIT</span>
+        <span class="c-sub">Homeroom 903</span>
+      </button>
+    </div>
+    <div class="gate-user-bar">
+      <span>Signed in as <strong id="class-who">...</strong></span>
+      <button type="button" class="btn subtle sm" onclick="App.switchAccount()">Switch account</button>
+    </div>
   </div>
-</section>
+</div>
 
-<section id="task">
-  <span class="sec-label">The Task</span>
-  <h2>What you are building</h2>
-  <p class="lead">In pairs, you will build a 6-slide profile of one country (not Canada) and how it has responded, or failed to respond, to one global issue. Then you deliver a 5-6 minute presentation. Every claim on every slide needs a source.</p>
-  <div class="slide-grid">
-    <div class="slide-card"><span class="n">Slide 1</span><h4>Title</h4><p>Country, issue, both names, class. One strong image and a title that names the issue, not just the country.</p></div>
-    <div class="slide-card"><span class="n">Slide 2</span><h4>Country Background</h4><p>Where it is, who lives there, how they govern, how people make a living. Three or four sentences maximum. A map earns its place here.</p></div>
-    <div class="slide-card"><span class="n">Slide 3</span><h4>The Global Issue</h4><p>What the issue is, why it crosses borders, and how it hits your country specifically. Real numbers beat adjectives.</p></div>
-    <div class="slide-card"><span class="n">Slide 4</span><h4>Action or Inaction</h4><p>The core of the project. What has the government actually DONE? Laws, spending, treaties, enforcement. Promises are not actions; find the follow-through.</p></div>
-    <div class="slide-card"><span class="n">Slide 5</span><h4>Consequences</h4><p>Intended and unintended, short-term and long-term, and who is affected. Use the consequence map in the Build Guide.</p></div>
-    <div class="slide-card"><span class="n">Slide 6</span><h4>Canada Comparison + Reflection</h4><p>What has Canada done on the same issue? Same approach or different, and why? Then answer: why should Canadians care?</p></div>
-  </div>
-  <div class="note">
-    <span class="tag">Worth knowing</span>
-    <p>You may add up to <strong>2 extra slides</strong> after Slide 6 if they earn their place: a timeline, a photo gallery, a key quote with its source. Extra slides of decoration do not earn marks. The sources slide (APA, every source you used) is required and does not count against your six.</p>
-  </div>
-</section>
+<!-- =========================================================
+     STEP 3: TABBED APP SHELL (NO LONG PAGE)
+     ========================================================= -->
+<div class="app-shell" id="app-shell" hidden>
+  <header class="app-header">
+    <div class="app-bar">
+      <div class="brand">
+        <span class="brand-badge">CIT 9</span>
+        <span class="brand-name">Country Profile Project</span>
+      </div>
+      <div class="user-cluster">
+        <span class="user-pill" id="app-who">Student</span>
+        <button type="button" class="user-pill sec-pill" id="app-sec-pill" onclick="App.openClassPicker()" title="Click to change class">Section</button>
+        <span class="user-pill" id="bid-sync">Ready</span>
+        <button type="button" class="btn subtle sm" onclick="App.switchAccount()">Switch</button>
+      </div>
+    </div>
+    <nav class="tab-bar" role="tablist" aria-label="Project sections">
+      <button type="button" class="tab-btn active" data-tab="overview" role="tab" aria-selected="true" onclick="App.showTab('overview')">Overview</button>
+      <button type="button" class="tab-btn" data-tab="topics" role="tab" aria-selected="false" onclick="App.showTab('topics')">41 Topics</button>
+      <button type="button" class="tab-btn" data-tab="bid" role="tab" aria-selected="false" onclick="App.showTab('bid')">Top-3 Bid <span class="tab-badge" id="bid-tab-badge">0/3</span></button>
+      <button type="button" class="tab-btn" data-tab="guide" role="tab" aria-selected="false" onclick="App.showTab('guide')">Build Guide</button>
+      <button type="button" class="tab-btn" data-tab="tools" role="tab" aria-selected="false" onclick="App.showTab('tools')">Tools &amp; Rubric</button>
+      <button type="button" class="tab-btn" data-tab="resources" role="tab" aria-selected="false" onclick="App.showTab('resources')">Tuvalu &amp; Guides</button>
+    </nav>
+  </header>
 
-<section id="timeline">
-  <span class="sec-label">Timeline</span>
-  <h2>How the project runs</h2>
-  <p class="lead">Six weeks from sign-up to presentation. Your section's exact dates go on Google Classroom at launch; the weeks below are the shape.</p>
-  <div class="timeline">
-    <div class="tl-item">
-      <h4>Week 1: browse, pick, claim</h4>
-      <span class="when">Topic sign-up opens on Classroom</span>
-      <p>Browse the catalog, start from your WHERE Global Heritage place, agree on a partner, claim a country. First come, first served.</p>
-    </div>
-    <div class="tl-item">
-      <h4>Week 2: research + sources</h4>
-      <span class="when">Checkpoint 1</span>
-      <p>Four sources opened and credible. Slide 2 (background) and Slide 3 (the issue) research well underway.</p>
-    </div>
-    <div class="tl-item">
-      <h4>Week 2-3: Canada's Response Brief</h4>
-      <span class="when">Do it once, use it twice</span>
-      <p>Your short desk brief on what Canada is doing about your issue IS the research for Slide 6. Do it well once and it does double duty.</p>
-    </div>
-    <div class="tl-item">
-      <h4>Week 3-4: outline</h4>
-      <span class="when">Checkpoint 2</span>
-      <p>All 6 slides sketched as bullet outlines, with 2+ APA sources noted on every slide. Bullets, not paragraphs. Teacher check-in during class.</p>
-    </div>
-    <div class="tl-item">
-      <h4>Week 4-5: full draft + polish workshop</h4>
-      <span class="when">Checkpoint 3</span>
-      <p>Complete draft slides exist, then the polish workshop: 1:1 troubleshooting, citation check, run the self-assessment rubric below.</p>
-    </div>
-    <div class="tl-item">
-      <h4>Week 6: present + submit</h4>
-      <span class="when">Presentation days</span>
-      <p>5-6 minutes per pair. Know your slides well enough to look up from them. Peer feedback slips after each talk; final slides submitted on Classroom.</p>
-    </div>
-  </div>
-</section>
-<section id="topics">
-  <span class="sec-label">Pick a Topic</span>
-  <h2>39 countries waiting for a researcher</h2>
-  <p class="lead">Click any card for the research questions that make it a project instead of a report. The flag is a hint: find a country you have a real reason to care about. Browsing before the launch? Fill in the <a href="interest-slip.html">Interest Slip</a> and hand it in.</p>
-  <div class="note">
-    <span class="tag">Start from your WHERE project</span>
-    <p>Your WHERE portfolio included a <strong>Global Heritage place</strong>. If your family, community, or past home connects to one of these countries, that is your strongest topic. You already carry part of the research. If none of them connect, pick the issue that makes you actually angry or actually curious. You will live with it for six weeks.</p>
-  </div>
-  <div class="topic-controls">
-    <input id="topic-filter" type="text" placeholder="Filter by country, region, or issue..." aria-label="Filter topics">
-    <span id="topic-count"></span>
-  </div>
-  <div class="topic-grid" id="topic-grid"></div>
+  <main class="app-main">
 
-  <div class="note" style="margin-top: 1.2rem;">
-    <span class="tag">How to claim a country</span>
-    <p>1. Agree on your pair (or get teacher approval to go solo). &nbsp;2. Click the card, read the research questions, make sure both of you want it. &nbsp;3. Post your claim on the Classroom sign-up post in this format: <strong>Country - Issue - Both names</strong>. One country per pair per section. First come, first served. &nbsp;4. If someone already claimed it, pick your next choice. Two pairs in the same section cannot run the same country, but the same country can run in different sections.</p>
-  </div>
-</section>
+    <!-- TAB 1: OVERVIEW -->
+    <section class="view-panel active" id="panel-overview" role="tabpanel">
+      <div class="overview-banner">
+        <div>
+          <span class="sec-label">Term 2 Project &bull; Overview</span>
+          <h2>One country. One global issue. Six sourced slides.</h2>
+          <p class="lead" style="margin-bottom:0;">In pairs, investigate what a country (not Canada) actually <strong>did</strong> about a global issue, what happened as a result, and why Canadians should care. Then present for 5-6 minutes.</p>
+          <div class="meta-row">
+            <span class="meta-chip">Pairs (or solo w/ OK)</span>
+            <span class="meta-chip">6 Slides + APA Sources</span>
+            <span class="meta-chip">5-6 Min Presentation</span>
+            <span class="meta-chip">Bid Day Next Class</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.55rem;flex-wrap:wrap;">
+          <button type="button" class="btn" onclick="App.showTab('topics')">Browse 41 Topics &rarr;</button>
+          <button type="button" class="btn ghost" onclick="App.showTab('bid')">Open Top-3 Bid Sheet</button>
+        </div>
+      </div>
 
+      <h3>What you are building (6 slides)</h3>
+      <div class="slide-grid">
+        <div class="slide-card">
+          <div class="slide-card-top"><span class="n">Slide 1</span></div>
+          <h4>Title</h4>
+          <p>Country, issue, both names, class. One strong image and a title that names the issue, not just the country.</p>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-top"><span class="n">Slide 2</span></div>
+          <h4>Country Background</h4>
+          <p>Where it is, who lives there, government type, how people earn a living. 3-4 short bullets max + a map.</p>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-top"><span class="n">Slide 3</span></div>
+          <h4>The Global Issue</h4>
+          <p>What the issue is, why it crosses borders, and how it hits your country specifically. Real numbers beat adjectives.</p>
+        </div>
+        <div class="slide-card core">
+          <div class="slide-card-top"><span class="n">Slide 4</span><span class="core-tag">Core Slide</span></div>
+          <h4>Action or Inaction</h4>
+          <p>The heart of the project. What has the government actually DONE? Laws, spending, treaties, enforcement. Promises are not actions.</p>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-top"><span class="n">Slide 5</span></div>
+          <h4>Consequences</h4>
+          <p>Intended and unintended, short-term and long-term, and who carries the cost (see the 5-lens map in Build Guide).</p>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-top"><span class="n">Slide 6</span></div>
+          <h4>Canada Comparison + Reflection</h4>
+          <p>What has Canada done on the same issue? Same or different, and why? Then answer: why should Canadians care?</p>
+        </div>
+      </div>
+
+      <h3>How the 6 weeks run</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-top"><span class="tl-week">Week 1</span><span class="tl-badge">Browse &amp; Bid</span></div>
+          <h4>Top-3 Bid Prep &rarr; Bid Day</h4>
+          <p>Today: browse the 41 topics with your partner and submit your Top 3 online. Next class: Topic Bid Day (one country per pair per class).</p>
+        </div>
+        <div class="tl-item is-cp">
+          <div class="tl-top"><span class="tl-week">Week 2</span><span class="tl-badge">Checkpoint 1</span></div>
+          <h4>Research + 4 sources</h4>
+          <p>Four credible sources opened and logged. Slide 2 (background) and Slide 3 (the issue) research well underway.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-top"><span class="tl-week">Week 2-3</span><span class="tl-badge">Double Duty</span></div>
+          <h4>Canada's Response Brief</h4>
+          <p>Your short desk brief on what Canada is doing about your issue IS the research for Slide 6. Do it well once and use it twice.</p>
+        </div>
+        <div class="tl-item is-cp">
+          <div class="tl-top"><span class="tl-week">Week 3-4</span><span class="tl-badge">Checkpoint 2</span></div>
+          <h4>Six-slide outline</h4>
+          <p>All 6 slides sketched as bullet outlines, with 2+ APA sources noted per slide. Bullets, not paragraphs.</p>
+        </div>
+        <div class="tl-item is-cp">
+          <div class="tl-top"><span class="tl-week">Week 4-5</span><span class="tl-badge">Checkpoint 3</span></div>
+          <h4>Full draft + polish</h4>
+          <p>Complete draft slides ready, 1:1 troubleshooting, citation check, and self-assessment rubric check.</p>
+        </div>
+        <div class="tl-item is-final">
+          <div class="tl-top"><span class="tl-week">Week 6</span><span class="tl-badge">Present</span></div>
+          <h4>Present + submit</h4>
+          <p>5-6 minutes per pair. Know your slides well enough to look up from them. Final slides submitted on Classroom.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: 41 TOPICS -->
+    <section class="view-panel" id="panel-topics" role="tabpanel">
+      <div class="sec-head">
+        <div>
+          <span class="sec-label">Pick a Topic</span>
+          <h2>41 countries waiting for a researcher</h2>
+        </div>
+        <button type="button" class="btn sm" onclick="App.showTab('bid')">Go to My Top-3 Bid Sheet &rarr;</button>
+      </div>
+      <p class="lead">Click any card to read its 3 research questions and any corporate (<strong>TNC</strong>) link, then click <strong>Set as #1 / #2 / #3</strong> right inside the card. Start from your WHERE Global Heritage place if one connects to you.</p>
+
+      <div class="topic-toolbar">
+        <div class="topic-controls">
+          <div class="search-wrap">
+            <input id="topic-filter" type="text" placeholder="Search country, issue, or TNC (e.g. Loblaw, Shell, Apple, Maersk)..." aria-label="Filter topics">
+            <button type="button" id="topic-clear" class="search-clear" aria-label="Clear search" hidden>&times;</button>
+          </div>
+          <button type="button" class="btn ghost sm" onclick="pickRandomTopic()">Surprise me</button>
+          <span id="topic-count"></span>
+        </div>
+        <div class="region-pills" id="region-pills" role="group" aria-label="Filter by region"></div>
+      </div>
+
+      <div class="topic-grid" id="topic-grid"></div>
+    </section>
+
+    <!-- TAB 3: TOP-3 BID SHEET -->
+    <section class="view-panel" id="panel-bid" role="tabpanel">
+      <div class="sec-head">
+        <div>
+          <span class="sec-label">Today's Class &bull; Online Submission</span>
+          <h2>Partner Top-3 Bid Prep Sheet</h2>
+        </div>
+        <button type="button" class="btn ghost sm" onclick="App.showTab('topics')">&larr; Back to 41 Topics</button>
+      </div>
+      <p class="lead">One submission per pair. Pick your Top 3 from the catalog cards (or the dropdowns below) and explain why each interests you. <strong>Next class is Topic Bid Day:</strong> one country per pair per class, so your #2 and #3 really matter.</p>
+
+      <div class="bid-panel">
+        <div class="bid-meta-grid">
+          <div class="bid-field">
+            <label for="bid-section">Section</label>
+            <select id="bid-section" onchange="App.onSectionDropdownChange()">
+              <option value="">Choose class...</option>
+              <option value="901-CIT">901-CIT</option>
+              <option value="902-CIT">902-CIT</option>
+              <option value="903-CIT">903-CIT</option>
+            </select>
+          </div>
+          <div class="bid-field">
+            <label for="bid-partner">Partner's full name (or type Solo w/ OK)</label>
+            <input id="bid-partner" type="text" placeholder="e.g. Jordan Smith">
+          </div>
+          <div class="bid-field">
+            <label for="bid-where">WHERE Global Heritage place (optional)</label>
+            <input id="bid-where" type="text" placeholder="e.g. Philippines / Ukraine / None">
+          </div>
+        </div>
+
+        <div class="bid-slots">
+          <div class="bid-slot s1">
+            <span class="bid-slot-rank">Choice #1 (Top Pick)</span>
+            <div class="bid-field">
+              <label for="bid-c1">Country &amp; issue</label>
+              <select id="bid-c1" onchange="App.onSelectChange(1)"></select>
+            </div>
+            <div class="bid-field">
+              <label for="bid-r1">Why are we interested?</label>
+              <textarea id="bid-r1" placeholder="Give a real reason: heritage, curiosity, unfairness, TNC link (not 'looks easy')."></textarea>
+            </div>
+          </div>
+
+          <div class="bid-slot s2">
+            <span class="bid-slot-rank">Choice #2 (Backup)</span>
+            <div class="bid-field">
+              <label for="bid-c2">Country &amp; issue</label>
+              <select id="bid-c2" onchange="App.onSelectChange(2)"></select>
+            </div>
+            <div class="bid-field">
+              <label for="bid-r2">Why are we interested?</label>
+              <textarea id="bid-r2" placeholder="Why this is a strong backup if another pair takes your #1."></textarea>
+            </div>
+          </div>
+
+          <div class="bid-slot s3">
+            <span class="bid-slot-rank">Choice #3 (Second Backup)</span>
+            <div class="bid-field">
+              <label for="bid-c3">Country &amp; issue</label>
+              <select id="bid-c3" onchange="App.onSelectChange(3)"></select>
+            </div>
+            <div class="bid-field">
+              <label for="bid-r3">Why are we interested?</label>
+              <textarea id="bid-r3" placeholder="Why we would still be glad to research this one."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="bid-suggest">
+          <span class="bid-slot-rank" style="color:var(--muted);">Optional: Suggest a country or issue NOT in the 41-country catalog</span>
+          <div class="bid-suggest-grid">
+            <div class="bid-field">
+              <label for="bid-sug-topic">Country + global issue (and TNC, if any)</label>
+              <input id="bid-sug-topic" type="text" placeholder="e.g. Vietnam - Fast Fashion & River Pollution">
+            </div>
+            <div class="bid-field">
+              <label for="bid-sug-why">Why it fits (what did the government do or fail to do?)</label>
+              <input id="bid-sug-why" type="text" placeholder="One sentence explaining the government action/inaction.">
+            </div>
+          </div>
+        </div>
+
+        <div class="bid-submit-row">
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+            <button type="button" class="btn" id="bid-submit-btn" onclick="App.submitBid()">Submit Top-3 Bid Sheet</button>
+            <span class="bid-msg" id="bid-msg" aria-live="polite"></span>
+          </div>
+          <span style="font-family:var(--mono);font-size:0.68rem;color:var(--faint);">Resubmitting updates your picks live. (<a href="interest-slip.html">Printable backup</a>)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BUILD GUIDE -->
+    <section class="view-panel" id="panel-guide" role="tabpanel">
+      <div class="sec-head">
+        <div>
+          <span class="sec-label">Build Guide</span>
+          <h2>Slide by slide, then the thinking tools</h2>
+        </div>
+      </div>
+
+      <h3 style="margin-top:0.2rem;">Slide planner (click a slide to inspect)</h3>
+      <div class="planner-shell" id="planner-shell">
+        <div class="planner-tabs" role="tablist" aria-label="Slide planner">
+          <button type="button" class="planner-tab active" data-slide="1" role="tab" aria-selected="true">1 Title</button>
+          <button type="button" class="planner-tab" data-slide="2" role="tab" aria-selected="false">2 Background</button>
+          <button type="button" class="planner-tab" data-slide="3" role="tab" aria-selected="false">3 The Issue</button>
+          <button type="button" class="planner-tab" data-slide="4" role="tab" aria-selected="false">4 Action / Inaction</button>
+          <button type="button" class="planner-tab" data-slide="5" role="tab" aria-selected="false">5 Consequences</button>
+          <button type="button" class="planner-tab" data-slide="6" role="tab" aria-selected="false">6 Canada + Reflection</button>
+          <button type="button" class="planner-tab" data-slide="7" role="tab" aria-selected="false">Sources</button>
+          <button type="button" class="planner-toggle-all" id="planner-toggle-all">Show all</button>
+        </div>
+
+        <div class="planner-panel active" data-panel="1">
+          <div class="planner-panel-head"><span class="sn">Slide 1</span><h4>Title</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> Country, global issue, both partner names, your class, and one strong, credited image.</p>
+              <p class="planner-tip"><strong>Pro tip:</strong> Name the tension in your title. "Tuvalu and Sea Level Rise: Buying Time on Sinking Land" beats "Tuvalu Project".</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"[Country] and [issue]: what they did, and what it cost."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="2">
+          <div class="planner-panel-head"><span class="sn">Slide 2</span><h4>Country Background</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> Continent and neighbours, main languages, government type, how people earn a living, and a map. Keep it to 3-4 short bullets total.</p>
+              <p class="planner-tip"><strong>Watch out:</strong> Do not spend half your talk on fun facts. Background sets up the issue; it is not the main event.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"[Country] is a [government type] of about [population] people, most of whom..."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="3">
+          <div class="planner-panel-head"><span class="sn">Slide 3</span><h4>The Global Issue</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> Define the issue clearly, show why it crosses borders, and show how it hits YOUR country hardest or differently using one or two real, sourced numbers.</p>
+              <p class="planner-tip"><strong>Pro tip:</strong> If your topic is a human-rights issue, name the exact UDHR article here.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"This is a global issue because... In [country], it shows up as..."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="4">
+          <div class="planner-panel-head"><span class="sn">Slide 4 (Core)</span><h4>Action or Inaction</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> What the government actually DID: laws passed, budgets spent, treaties signed, and whether they were enforced (or ignored).</p>
+              <p class="planner-tip"><strong>Watch out:</strong> Separate promises from follow-through. A speech or a target for 2040 is not an action unless money or law backs it up.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"In [year], the government passed / funded / refused to..."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="5">
+          <div class="planner-panel-head"><span class="sn">Slide 5</span><h4>Consequences</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> Intended vs unintended results, short-term vs long-term impact, and who carries the cost. Use the 5-lens map below.</p>
+              <p class="planner-tip"><strong>Pro tip:</strong> Naming one real unintended consequence separates a Level 4 slide from a Level 2 slide.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"The plan was meant to... Instead, ..."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="6">
+          <div class="planner-panel-head"><span class="sn">Slide 6</span><h4>Canada Comparison + Reflection</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> What Canada did on the SAME issue (from your Response Brief). Same or different, and one concrete reason why. Then answer: why should Canadians care?</p>
+              <p class="planner-tip"><strong>Pro tip:</strong> Connect it to Nova Scotia or a TNC Canadians buy from, in your own words.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Starter you can rewrite</span><p>"Canada took a [similar/different] approach because... Canadians should care because..."</p></div>
+          </div>
+        </div>
+        <div class="planner-panel" data-panel="7">
+          <div class="planner-panel-head"><span class="sn">Final Slide</span><h4>APA Sources</h4></div>
+          <div class="planner-cols">
+            <div>
+              <p><strong>What belongs on it:</strong> Every source you used, in alphabetical APA format, plus image credits. Required, and does not count against your six slides.</p>
+              <p class="planner-tip"><strong>Pro tip:</strong> Use the APA builder in the Tools &amp; Rubric tab to stack and copy your alphabetized list.</p>
+            </div>
+            <div class="starter-box"><span class="lbl">Quick rule</span><p>2+ APA citations at the bottom of every content slide, plus the full list on your Sources slide.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>The 5-Lens Consequence Map (Slide 5)</h3>
+      <div class="cmap-grid">
+        <div class="cmap-card"><span class="clbl">1. Intended</span><p class="cq">Was this the result they wanted?</p><div class="cex"><strong>Tuvalu example</strong>Flood protection behind the sea wall, and it worked.</div></div>
+        <div class="cmap-card"><span class="clbl">2. Unintended</span><p class="cq">What happened that nobody planned for?</p><div class="cex"><strong>Tuvalu example</strong>Wave energy bounced sideways, eroding the next beach faster.</div></div>
+        <div class="cmap-card"><span class="clbl">3. Short-Term</span><p class="cq">What is happening right now or soon?</p><div class="cex"><strong>Tuvalu example</strong>Construction jobs and safer houses during king tides.</div></div>
+        <div class="cmap-card"><span class="clbl">4. Long-Term</span><p class="cq">Will this still matter in 10+ years?</p><div class="cex"><strong>Tuvalu example</strong>Walls cannot stop rising oceans forever. Who pays next?</div></div>
+        <div class="cmap-card"><span class="clbl">5. Who Carries It</span><p class="cq">Citizens, environment, economy, or neighbours?</p><div class="cex"><strong>Tuvalu example</strong>Families on the eroding side, and the whole nation if funding runs out.</div></div>
+      </div>
+
+      <div class="callout-grid">
+        <div class="good-note">
+          <span class="tag">Rights lens (Slides 3, 4 and 6)</span>
+          <p>Name the UDHR articles your issue touches, the treaties the country signed, and the Charter section answering the same right in Canada. "Both countries care" becomes "both promised Article X; here is what each actually did."</p>
+        </div>
+        <div class="note">
+          <span class="tag">TNC lens (Transnational Corporations)</span>
+          <p>Cards tagged <strong>TNC</strong> tie the national issue to a global company (like Canadian giant <strong>Loblaw / Joe Fresh</strong> in Bangladesh, or <strong>Nestle</strong> in Indonesia). Naming the TNC makes Slide 6's "why should Canadians care?" concrete.</p>
+        </div>
+      </div>
+      <div class="warn">
+        <span class="tag">The most common mistake</span>
+        <p>Writing an encyclopedia page about the country and the problem, then forgetting the project question: <strong>what did the country DO, and what happened because of it?</strong> If your Slide 4 is thinner than Slide 2, the project is inside-out.</p>
+      </div>
+
+      <h3>What counts as a credible source</h3>
+      <div class="src-compare">
+        <div class="src-box good">
+          <h4>&#10003; Usable sources</h4>
+          <ul>
+            <li>Government sites (canada.ca, gov.uk, un.org, official statistics bureaus)</li>
+            <li>Established newsrooms with named journalists (BBC, Reuters, CBC, The Guardian, APTN)</li>
+            <li>UN agencies and reports (UNHCR, UNEP, WHO, UNICEF, OCHA)</li>
+            <li>Research bodies (OECD, World Bank, ILO, IPCC, International Crisis Group)</li>
+          </ul>
+        </div>
+        <div class="src-box bad">
+          <h4>&#10005; Not usable on its own</h4>
+          <ul>
+            <li>Blogs and social posts with no named author or editor</li>
+            <li>Random videos with no source, or AI-generated answer pages</li>
+            <li>Wikipedia itself as a final citation (follow its footnotes instead!)</li>
+            <li>Advocacy pages used without checking their underlying evidence</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: TOOLS & RUBRIC -->
+    <section class="view-panel" id="panel-tools" role="tabpanel">
+      <div class="sec-head">
+        <div>
+          <span class="sec-label">Tools &amp; Rubric</span>
+          <h2>Build it right while you go</h2>
+        </div>
+      </div>
+
+      <div class="tools-grid">
+        <div class="tool-box">
+          <h4>APA 7th reference builder</h4>
+          <p class="tool-hint">Type what you have to preview live. Leave year blank for <code>(n.d.)</code>. Stack sources below to copy your full alphabetized Sources slide at once.</p>
+          <div class="form-row-2">
+            <div>
+              <label class="field-lbl" for="apa-author">Author or organization</label>
+              <input id="apa-author" type="text" placeholder="e.g. UNHCR  or  Watanabe, K.">
+            </div>
+            <div>
+              <label class="field-lbl" for="apa-year">Year</label>
+              <input id="apa-year" type="text" placeholder="e.g. 2025" inputmode="numeric">
+            </div>
+          </div>
+          <label class="field-lbl" for="apa-title">Title of the page or article</label>
+          <input id="apa-title" type="text" placeholder="e.g. Ukraine situation report">
+          <label class="field-lbl" for="apa-pub">Site or publisher</label>
+          <input id="apa-pub" type="text" placeholder="e.g. United Nations Refugee Agency">
+          <label class="field-lbl" for="apa-url">URL</label>
+          <input id="apa-url" type="url" placeholder="https://...">
+          <div class="btn-row">
+            <button type="button" class="btn sm" onclick="copyCurrentAPA()">Copy reference</button>
+            <button type="button" class="btn ghost sm" onclick="addCurrentAPA()">+ Add to list</button>
+            <button type="button" class="btn subtle sm" onclick="clearAPA()">Clear</button>
+          </div>
+          <div class="apa-out" id="apa-out" aria-live="polite"><span class="placeholder">Your APA reference preview appears here as you type.</span></div>
+          <div class="copy-note" id="apa-copied" aria-live="polite"></div>
+
+          <div class="source-list-wrap" id="source-list-wrap" hidden>
+            <div class="source-list-head">
+              <span id="source-list-title">Session source list (0)</span>
+              <button type="button" class="btn ghost sm" onclick="copyAllAPA()">Copy all (A-Z)</button>
+            </div>
+            <ul class="source-list" id="source-list"></ul>
+          </div>
+        </div>
+
+        <div class="tool-box">
+          <h4>Self-assessment checklist</h4>
+          <p class="tool-hint">Run this before each checkpoint. It resets when the tab closes (shared Chromebooks).</p>
+          <div class="progress-bar-track" aria-hidden="true"><div class="progress-bar-fill" id="ck-bar"></div></div>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Slide 4</span>Our Slide 4 says what the government <strong>did</strong>, with evidence, not what it promised.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Issue</span>Our issue is specific (a response to a crisis), not just "climate change" or "poverty".</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Slide 5</span>Slide 5 uses intended AND unintended consequences, and names who is affected.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Evidence</span>Every number on our slides has a source we actually opened.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Slide 6</span>Slide 6 compares Canada's actions on the same issue and explains a real difference.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Reflect</span>Our reflection answers "why should Canadians care" in our own words.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Citations</span>2+ APA citations sit at the bottom of every content slide.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Images</span>Every image we did not take carries a credit line.</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Design</span>Bullets are short enough to read while we talk (no paragraphs on slides).</span></label>
+          <label class="check-item"><input type="checkbox" class="ck"><span class="ck-text"><span class="ck-tag">Delivery</span>We rehearsed once without reading off the slides.</span></label>
+          <div class="check-foot">
+            <span class="check-score" id="check-score">0 of 10 confident</span>
+            <button type="button" class="btn subtle sm" onclick="resetChecklist()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <h3>How it is marked (Level descriptors)</h3>
+      <p class="lead">Five criteria: issue analysis, country response, Canada comparison, reflection depth, and citation rigor. Plus one conference question: can both partners talk to every slide?</p>
+      <div class="level-grid">
+        <div class="level-card l4"><span class="lvl-badge">4 &bull; Excellent</span><p>Specific, current, sourced. Slide 4 separates actions from promises. Consequences run the full map. Canada comparison explains a real difference. Correct APA on every slide.</p></div>
+        <div class="level-card l3"><span class="lvl-badge">3 &bull; Proficient</span><p>Clear and complete on all six slides. Some depth missing (consequences stay obvious, comparison stays general). Most citations present with small APA flaws.</p></div>
+        <div class="level-card l2"><span class="lvl-badge">2 &bull; Developing</span><p>Background heavy, response thin. Some slides lack sources or use weak ones. Comparison says "both care about it" without evidence. Bullets read like paragraphs.</p></div>
+        <div class="level-card l1"><span class="lvl-badge">1 &bull; Beginning</span><p>Country described, project question not yet answered. Missing slides or citations. Fixable at a checkpoint conference: come talk to me early.</p></div>
+      </div>
+
+      <details class="rubric-details">
+        <summary>View full 5-criterion rubric (Levels 1-4)</summary>
+        <div class="table-scroll">
+          <table class="level-table">
+            <thead>
+              <tr><th>Level</th><th>Issue analysis</th><th>Country response</th><th>Canada comparison</th><th>Reflection depth</th><th>Citation rigor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>4 &bull; Excellent</td><td>Issue defined globally and scaled to the country with real numbers.</td><td>Actions separated from promises: dated, budgeted, enforced.</td><td>Real difference named and explained (resources, geography, politics, or rights).</td><td>Own-words "why Canadians care" with a local Nova Scotia hook.</td><td>Correct APA, 2+ per content slide, images credited.</td></tr>
+              <tr><td>3 &bull; Proficient</td><td>Clear definition, numbers present, global link stated.</td><td>Mostly real actions; some follow-through unchecked.</td><td>Comparison present, reason for difference is thin.</td><td>Caring answer present, but stays generic.</td><td>APA mostly correct; occasional slide under-cited.</td></tr>
+              <tr><td>2 &bull; Developing</td><td>Definition vague or unscaled to the country.</td><td>Promises reported as actions.</td><td>"Both care about it" with no evidence.</td><td>Restated from source material rather than own words.</td><td>Inconsistent format; sources weak or unchecked.</td></tr>
+              <tr><td>1 &bull; Beginning</td><td>Issue described, not analysed.</td><td>Background only.</td><td>Missing or false equivalence.</td><td>Missing.</td><td>Missing or decorative.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <!-- TAB 6: TUVALU & GUIDES -->
+    <section class="view-panel" id="panel-resources" role="tabpanel">
+      <div class="sec-head">
+        <div>
+          <span class="sec-label">Models &amp; Handouts</span>
+          <h2>See a finished Level 4 deck &amp; reference sheets</h2>
+        </div>
+      </div>
+      <p class="lead">Open the Tuvalu exemplar to see how all six slides fit together, and keep the Rights Quick Reference and Research Guide beside you while you work.</p>
+      <div class="links-row">
+        <a class="link-card" href="tuvalu-exemplar.html">
+          <span class="kind">Exemplar Deck</span>
+          <h4>Tuvalu &amp; Sea Level Rise</h4>
+          <p>The full Level 4 model presentation with images, APA sources, and a "Why this earns a 4" toggle on every slide.</p>
+          <span class="go">Open the deck &rarr;</span>
+        </a>
+        <a class="link-card" href="rights-primer-deck.html">
+          <span class="kind">Projector Deck</span>
+          <h4>Rights Primer</h4>
+          <p>The UN, the UDHR articles you will actually use, how rights get enforced, and the Charter sections that answer them.</p>
+          <span class="go">Open the deck &rarr;</span>
+        </a>
+        <a class="link-card" href="rights-quick-reference.html">
+          <span class="kind">1-Page Printable</span>
+          <h4>Rights Quick Reference</h4>
+          <p>One page to keep beside your research: the UN, UDHR articles, Charter sections, and the rights lens for your topic.</p>
+          <span class="go">Open the printable &rarr;</span>
+        </a>
+        <a class="link-card" href="research-guide.html">
+          <span class="kind">Printable Guide</span>
+          <h4>Research Process Guide</h4>
+          <p>Eight steps from "get oriented" to "build the slides", with search terms, TNC checks, and APA rules.</p>
+          <span class="go">Open the guide &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-foot">
+    Citizenship 9 &bull; Term 2 &bull; Country Profile Project &bull; Bicentennial Junior High &bull; Room 8 &bull; Mr. Waugh<br>
+    Flag icons: hatscripts/circle-flags (MIT) &bull; Earth image: NASA Apollo 17 (public domain)
+  </footer>
+</div>
+
+<!-- TOPIC MODAL (SHARED ACROSS TABS) -->
 <div class="topic-modal" id="topic-modal" onclick="if(event.target===this)closeTopic()">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <button class="modal-close" onclick="closeTopic()">ESC / close</button>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-topbar">
+      <div class="modal-nav">
+        <button type="button" class="btn subtle sm" onclick="stepTopic(-1)" aria-label="Previous country">&larr; Prev</button>
+        <span class="modal-pos" id="modal-pos"></span>
+        <button type="button" class="btn subtle sm" onclick="stepTopic(1)" aria-label="Next country">Next &rarr;</button>
+      </div>
+      <button type="button" class="modal-close" onclick="closeTopic()">ESC / close</button>
+    </div>
     <div class="modal-head">
       <img id="modal-flag" src="" alt="">
       <div>
         <h3 id="modal-title">Country</h3>
-        <p class="modal-issue" id="modal-issue">Issue</p>
+        <div class="modal-meta">
+          <p class="modal-issue" id="modal-issue">Issue</p>
+          <span class="modal-region-pill" id="modal-region">Region</span>
+        </div>
       </div>
     </div>
     <h5>Research questions your slides should answer</h5>
     <ul id="modal-qs"></ul>
+    <div id="modal-tnc-wrap" hidden>
+      <h5>Transnational Corporation (TNC) link</h5>
+      <p class="modal-tnc" id="modal-tnc"></p>
+    </div>
     <h5>Where to start looking</h5>
     <p class="modal-src" id="modal-src"></p>
+    <div class="modal-bid-bar">
+      <span class="modal-bid-lbl">Add to our Top 3:</span>
+      <button type="button" class="btn ghost sm" id="modal-bid-1" onclick="App.pickFromModal(1)">Set as #1 Pick</button>
+      <button type="button" class="btn ghost sm" id="modal-bid-2" onclick="App.pickFromModal(2)">Set as #2 Pick</button>
+      <button type="button" class="btn ghost sm" id="modal-bid-3" onclick="App.pickFromModal(3)">Set as #3 Pick</button>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn subtle sm" onclick="copyTopicClaim()">Copy Classroom claim line</button>
+      <span class="modal-claim-note" id="modal-claim-note" aria-live="polite"></span>
+    </div>
   </div>
 </div>
-<section id="guide">
-  <span class="sec-label">Build Guide</span>
-  <h2>Slide by slide, then the thinking tools</h2>
-
-  <h3>Slide planner</h3>
-  <table class="plan-table">
-    <tr><th>Slide</th><th>What belongs on it</th><th>Starter you can rewrite</th></tr>
-    <tr><td>1 Title</td><td>Country, issue, your names, class, one strong image.</td><td>"[Country] and [issue]: what they did, and what it cost."</td></tr>
-    <tr><td>2 Background</td><td>Continent and neighbours, main languages, government type, how people earn a living. A map. 3-4 sentences total.</td><td>"[Country] is a [government type] of about [population] people, most of whom..."</td></tr>
-    <tr><td>3 The Issue</td><td>Define the issue. Show it crosses borders. Show how it hits YOUR country hardest or differently, with one or two real numbers.</td><td>"This is a global issue because... In [country] it shows up as..."</td></tr>
-    <tr><td>4 Action / Inaction</td><td>What the government DID: laws, money spent, treaties signed, enforcement (or none). Distinguish what they promised from what they did.</td><td>"In [year], the government passed/spent/refused to..."</td></tr>
-    <tr><td>5 Consequences</td><td>Intended vs unintended, short vs long term, and who carries the cost. Use the consequence map below.</td><td>"The plan was meant to... Instead, ..." </td></tr>
-    <tr><td>6 Canada + Reflection</td><td>What Canada did on the SAME issue. Same or different, and one reason why. Then: why should Canadians care?</td><td>"Canada took a [similar/different] approach because... Canadians should care because..."</td></tr>
-    <tr><td>Sources</td><td>Every source, APA format. Required, does not count as one of your six slides.</td><td>Use the APA builder in the Tools section.</td></tr>
-  </table>
-
-  <h3>The consequence map (Slide 5's engine)</h3>
-  <p>For every action or inaction you found, run it through five questions. Two or three strong lines beat five vague ones.</p>
-  <ul>
-    <li><strong>Intended:</strong> was this the result they wanted?</li>
-    <li><strong>Unintended:</strong> what happened that nobody planned for?</li>
-    <li><strong>Short-term:</strong> what is happening now or soon?</li>
-    <li><strong>Long-term:</strong> will this still matter in 10+ years?</li>
-    <li><strong>Who carries it:</strong> citizens? the environment? the economy? a neighbouring country?</li>
-  </ul>
-  <div class="good-note">
-    <span class="tag">Worked example</span>
-    <p>Sea wall in Tuvalu: <em>intended</em> = flood protection, and it worked. <em>Unintended</em> = the wall redirected wave energy, so the unprotected beach next door eroded faster. <em>Short-term</em> = construction jobs, safer houses. <em>Long-term</em> = a wall cannot stop the ocean rising forever; who pays for the next one? <em>Who carries it</em> = families on the eroding side, and the whole country if the money runs out.</p>
-  </div>
-
-  <div class="good-note">
-    <span class="tag">Rights lens (use it on Slides 3, 4 and 6)</span>
-    <p>Many topics are human-rights topics. Name the UDHR articles your issue touches, the rights treaties the country signed, and the Charter section that answers the same right in Canada. "Both countries care about it" becomes "both promised Article X; here is what each actually did about it."</p>
-  </div>
-  <div class="warn">
-    <span class="tag">The most common mistake</span>
-    <p>Writing an encyclopedia page about the country and the problem, then forgetting the project question: <strong>what did the country DO, and what happened because of it?</strong> Slide 4 is the heart. If your Slide 4 is thinner than your Slide 2, the project is inside-out.</p>
-  </div>
-
-  <h3>What counts as a credible source</h3>
-  <table class="plan-table">
-    <tr><th>Usable</th><th>Not usable on its own</th></tr>
-    <tr><td>Government sites (canada.ca, gov.uk, un.org, official statistics)</td><td>Blogs and posts with no named author</td></tr>
-    <tr><td>Established newsrooms with named journalists (BBC, Reuters, CBC, The Guardian, APTN)</td><td>Random videos with no source, AI-generated answer pages</td></tr>
-    <tr><td>UN agencies and reports (UNHCR, UNEP, WHO, UNICEF)</td><td>Wikipedia itself as a final citation</td></tr>
-    <tr><td>Research bodies (OECD, World Bank, ILO, IPCC)</td><td>Advocacy pages used without checking their evidence</td></tr>
-  </table>
-  <div class="note">
-    <span class="tag">About Wikipedia</span>
-    <p>Wikipedia is a fine starting point: read it, then scroll to the bottom, open the citation it used, and cite THAT source. You get a stronger citation and you can see whether the claim holds up.</p>
-  </div>
-
-  <h3>Citation rules for this project</h3>
-  <ul>
-    <li><strong>2+ APA citations at the bottom of every slide</strong> that carries information.</li>
-    <li>Images you did not take need a credit line too (a short "Photo: [creator], Wikimedia Commons, CC BY-SA" line is enough).</li>
-    <li>Cite as you go, not the night before. The builder below makes it take 30 seconds.</li>
-    <li>Citation generators (MyBib, Scribbr, BibGuru) are allowed and encouraged; check what they produce.</li>
-  </ul>
-</section>
-<section id="tools">
-  <span class="sec-label">Tools &amp; Rubric</span>
-  <h2>Build it right while you go</h2>
-  <div class="tools-grid">
-    <div class="tool-box">
-      <h4>APA reference builder</h4>
-      <p class="tool-hint">Fill in what you have, then copy the result onto your slide. Blank parts are skipped.</p>
-      <label for="apa-author">Author or organization</label>
-      <input id="apa-author" type="text" placeholder="e.g. UNHCR  or  Watanabe, K.">
-      <label for="apa-year">Year</label>
-      <input id="apa-year" type="text" placeholder="e.g. 2025" inputmode="numeric">
-      <label for="apa-title">Title of the page or article</label>
-      <input id="apa-title" type="text" placeholder="e.g. Ukraine situation report">
-      <label for="apa-pub">Site or publisher</label>
-      <input id="apa-pub" type="text" placeholder="e.g. United Nations Refugee Agency">
-      <label for="apa-url">URL</label>
-      <input id="apa-url" type="text" placeholder="https://...">
-      <button class="btn" onclick="buildAPA()">Build reference</button>
-      <div class="apa-out" id="apa-out"><span class="placeholder">Your APA reference appears here.</span></div>
-      <div class="copy-note" id="apa-copied"></div>
-    </div>
-    <div class="tool-box">
-      <h4>Self-assessment checklist</h4>
-      <p class="tool-hint">Run this before each checkpoint. It resets when the tab closes (shared Chromebooks), so treat it as a live mirror, not a save file.</p>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Our Slide 4 says what the government <strong>did</strong>, with evidence, not what it promised.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Our issue is specific (a response to a crisis), not just "climate change" or "poverty".</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Slide 5 uses intended AND unintended consequences, and names who is affected.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Every number on our slides has a source we actually opened.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Slide 6 compares Canada's actions on the same issue and explains a difference.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Our reflection answers "why should Canadians care" in our own words.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>2+ APA citations sit at the bottom of every content slide.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Images carry a credit line.</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>Bullets are short enough to read while we talk (no paragraphs on slides).</span></div>
-      <div class="check-item"><input type="checkbox" class="ck"><span>We rehearsed once without reading off the slides.</span></div>
-      <div class="check-score" id="check-score">0 of 10 confident</div>
-    </div>
-  </div>
-
-  <h3>How it is marked (Level descriptors)</h3>
-  <p class="lead">Five criteria: issue analysis, country response, Canada comparison, reflection depth, citation rigor. Presentations are marked on the same five, plus one question in the conference: can both partners talk to every slide?</p>
-  <table class="level-table">
-    <tr><th>Level</th><th>What it looks like</th></tr>
-    <tr><td>4 &bull; Excellent</td><td>Specific, current, sourced. Slide 4 separates actions from promises. Consequences run the full map. The Canada comparison finds a real difference and explains it. Citations are correct APA on every slide.</td></tr>
-    <tr><td>3 &bull; Proficient</td><td>Clear and complete on all six slides. Some depth missing (consequences stay obvious, comparison stays general). Most citations present, small APA flaws.</td></tr>
-    <tr><td>2 &bull; Developing</td><td>Background heavy, response thin. Some slides lack sources or use weak ones. Comparison says "both care about it" without evidence. Bullets read like paragraphs.</td></tr>
-    <tr><td>1 &bull; Beginning</td><td>Country described, project question not yet answered. Missing slides, missing citations. Fixable at a checkpoint conference: come talk to me.</td></tr>
-  </table>
-</section>
-
-<section id="example">
-  <span class="sec-label">The Model</span>
-  <h2>See one finished before you build yours</h2>
-  <p class="lead">The Tuvalu deck is a real top-Level project: same six slides, same citation rules, same consequence map. Read it once for the story, once for the structure.</p>
-  <div class="links-row">
-    <a class="link-card" href="tuvalu-exemplar.html">
-      <h4>Tuvalu &amp; Sea Level Rise (exemplar deck)</h4>
-      <p>The full model presentation with images, sources and a "why this earns Level 4" toggle.</p>
-      <span class="go">Open the deck &rarr;</span>
-    </a>
-    <a class="link-card" href="research-guide.html">
-      <h4>Research Process Guide (printable)</h4>
-      <p>Eight steps from "get oriented" to "build the slides", with search terms and the reference rules in one page to keep.</p>
-      <span class="go">Open the guide &rarr;</span>
-    </a>
-  </div>
-</section>
-
-<footer class="site-foot">
-  Citizenship 9 &bull; Term 2 &bull; Country Profile Project<br>
-  Bicentennial Junior High &bull; Room 8 &bull; Mr. Waugh &bull; Flag icons: hatscripts/circle-flags (MIT) &bull; Earth image: NASA Apollo 17 (public domain)
-</footer>
 
 <script src="topics.js"></script>
 <script>
-  renderTopics();
+  var App = (function () {
+    var IDENTITY_URL = "https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec";
+    var VAULT_URL = "https://script.google.com/macros/s/AKfycbwO6rPhp8e8T7-PLJhTkL1cKHd3W8DeufUKmFwpKsgZZhdSDXwRgRWrqp_2dlxQXiwp0w/exec";
+    var TASK_NAME = "CIT9-CountryProfile-Top3";
+    var ALLOWED_ORIGIN = "https://dwaugh-edsim.github.io";
+    var ID_KEY = "r8id";
+    var SEC_KEY = "cit9_cpp_sec";
+    var SECTIONS = ["901-CIT", "902-CIT", "903-CIT"];
+    var VALID_TABS = ["overview", "topics", "bid", "guide", "tools", "resources"];
 
+    var Q = new URLSearchParams(location.search);
+    var OFFPROD = location.hostname !== "dwaugh-edsim.github.io";
+    var SKIPNET = Q.has("demo") && OFFPROD;
+
+    var identity = null;
+    var selectedSection = "";
+    var displayName = "";
+    var popupRef = null;
+    var picks = { 1: 0, 2: 0, 3: 0 };
+
+    function atobUrl(s) {
+      s = s.replace(/-/g, "+").replace(/_/g, "/");
+      while (s.length % 4) s += "=";
+      return atob(s);
+    }
+    function returnUrl() {
+      return location.origin.indexOf(ALLOWED_ORIGIN) === 0 ? location.href.split("#")[0] : null;
+    }
+    function formatName(email) {
+      var s = String(email || "").split("@")[0].replace(/[0-9_]+/g, " ").replace(/[.\-]+/g, " ").trim();
+      if (!s) return "Student";
+      return s.split(/\s+/).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" ");
+    }
+    function normalizeSection(sec) {
+      var s = String(sec || "").trim().toUpperCase();
+      if (SECTIONS.indexOf(s) >= 0) return s;
+      var num = s.replace(/[^0-9]/g, "");
+      for (var i = 0; i < SECTIONS.length; i++) {
+        if (num && SECTIONS[i].indexOf(num) === 0) return SECTIONS[i];
+      }
+      return "";
+    }
+    function post(url, body) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(body)
+      }).then(function (r) { return r.json(); });
+    }
+    function setSync(text, cls) {
+      var el = document.getElementById("bid-sync");
+      if (!el) return;
+      el.textContent = text;
+      el.className = "user-pill" + (cls ? " " + cls : "");
+    }
+    function setBidMsg(text, isErr) {
+      var el = document.getElementById("bid-msg");
+      if (!el) return;
+      el.textContent = text;
+      el.className = "bid-msg" + (isErr ? " err" : "");
+    }
+
+    function showScreen(which) {
+      document.getElementById("gate-signin").hidden = which !== "signin";
+      document.getElementById("gate-class").hidden = which !== "class";
+      document.getElementById("app-shell").hidden = which !== "app";
+    }
+
+    function showTab(name) {
+      if (VALID_TABS.indexOf(name) < 0) name = "overview";
+      document.querySelectorAll(".tab-btn").forEach(function (b) {
+        var on = b.getAttribute("data-tab") === name;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      document.querySelectorAll(".view-panel").forEach(function (p) {
+        p.classList.toggle("active", p.id === "panel-" + name);
+      });
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function populateSelects() {
+      var opts = '<option value="">-- Choose a country from the catalog --</option>' +
+        TOPICS.map(function (t) {
+          return '<option value="' + t.id + '">' + _esc(t.country + " - " + t.issue) + (t.tnc ? " [TNC]" : "") + "</option>";
+        }).join("");
+      [1, 2, 3].forEach(function (n) {
+        var sel = document.getElementById("bid-c" + n);
+        if (sel) sel.innerHTML = opts;
+      });
+    }
+
+    function updateBidBadge() {
+      var count = (picks[1] ? 1 : 0) + (picks[2] ? 1 : 0) + (picks[3] ? 1 : 0);
+      var b = document.getElementById("bid-tab-badge");
+      if (!b) return;
+      b.textContent = count + "/3";
+      b.classList.toggle("ready", count === 3);
+    }
+
+    function syncSelectsFromState() {
+      [1, 2, 3].forEach(function (n) {
+        var sel = document.getElementById("bid-c" + n);
+        if (sel) sel.value = picks[n] ? String(picks[n]) : "";
+      });
+      updateBidBadge();
+      if (typeof window.refreshTopicCards === "function") window.refreshTopicCards();
+      if (_topicState && _topicState.activeId) syncModalButtons(_topicState.activeId);
+    }
+
+    function setPick(rank, topicId) {
+      topicId = Number(topicId) || 0;
+      if (topicId) {
+        [1, 2, 3].forEach(function (k) {
+          if (k !== rank && picks[k] === topicId) picks[k] = 0;
+        });
+      }
+      picks[rank] = topicId;
+      syncSelectsFromState();
+    }
+
+    function syncModalButtons(topicId) {
+      [1, 2, 3].forEach(function (n) {
+        var b = document.getElementById("modal-bid-" + n);
+        if (!b) return;
+        var on = picks[n] === topicId;
+        b.classList.toggle("bid-on", on);
+        b.textContent = on ? ("Selected as #" + n) : ("Set as #" + n + " Pick");
+      });
+    }
+
+    function highlightRecommendedClass(sec) {
+      document.querySelectorAll(".class-btn").forEach(function (b) {
+        b.classList.toggle("recommended", b.getAttribute("data-sec") === sec);
+      });
+    }
+
+    function enterClassStep() {
+      displayName = formatName(identity.email);
+      document.getElementById("class-who").textContent = displayName + " (" + identity.email + ")";
+      document.getElementById("app-who").textContent = displayName;
+      showScreen("class");
+
+      if (SKIPNET) {
+        setSync("Preview Mode", "warn");
+        return;
+      }
+      post(VAULT_URL, {
+        action: "load_assignment",
+        email: identity.email,
+        ts: identity.ts,
+        sig: identity.sig,
+        task: TASK_NAME
+      }).then(function (j) {
+        if (j && j.status === "auth_failed") {
+          try { sessionStorage.removeItem(ID_KEY); } catch (e) {}
+          identity = null;
+          showScreen("signin");
+          document.getElementById("gate-msg").textContent = "Session expired. Please click Sign in again.";
+          return;
+        }
+        if (j && j.rosterLabel) {
+          displayName = j.rosterLabel;
+          document.getElementById("class-who").textContent = displayName + " (" + identity.email + ")";
+          document.getElementById("app-who").textContent = displayName;
+        }
+        var recSec = normalizeSection((j && j.data && j.data.section) || (j && (j.rosterSection || j.section)));
+        if (recSec) highlightRecommendedClass(recSec);
+        if (j && j.found && j.data) {
+          var d = j.data;
+          if (d.partner) document.getElementById("bid-partner").value = d.partner;
+          if (d.whereHeritage) document.getElementById("bid-where").value = d.whereHeritage;
+          if (d.c1 && d.c1.id) picks[1] = Number(d.c1.id) || 0;
+          if (d.c2 && d.c2.id) picks[2] = Number(d.c2.id) || 0;
+          if (d.c3 && d.c3.id) picks[3] = Number(d.c3.id) || 0;
+          if (d.c1 && d.c1.why) document.getElementById("bid-r1").value = d.c1.why;
+          if (d.c2 && d.c2.why) document.getElementById("bid-r2").value = d.c2.why;
+          if (d.c3 && d.c3.why) document.getElementById("bid-r3").value = d.c3.why;
+          if (d.suggestion && d.suggestion.topic) document.getElementById("bid-sug-topic").value = d.suggestion.topic;
+          if (d.suggestion && d.suggestion.why) document.getElementById("bid-sug-why").value = d.suggestion.why;
+          syncSelectsFromState();
+          setSync("Saved Top 3 loaded", "ok");
+          setBidMsg("Loaded your previously saved Top 3.", false);
+        } else {
+          setSync("Server OK", "ok");
+        }
+      }).catch(function () {
+        setSync("Offline", "warn");
+      });
+    }
+
+    function chooseClass(sec) {
+      selectedSection = normalizeSection(sec);
+      if (!selectedSection) return;
+      try { sessionStorage.setItem(SEC_KEY, selectedSection); } catch (e) {}
+      document.getElementById("app-sec-pill").textContent = selectedSection;
+      document.getElementById("bid-section").value = selectedSection;
+      showScreen("app");
+      var hashTab = (location.hash || "").replace(/^#/, "");
+      showTab(VALID_TABS.indexOf(hashTab) >= 0 ? hashTab : "overview");
+    }
+
+    function onSectionDropdownChange() {
+      var val = document.getElementById("bid-section").value;
+      if (val) {
+        selectedSection = val;
+        document.getElementById("app-sec-pill").textContent = val;
+        try { sessionStorage.setItem(SEC_KEY, val); } catch (e) {}
+      }
+    }
+
+    function boot() {
+      populateSelects();
+      renderTopics();
+      var m = (location.hash || "").match(/[#&]r8id=([^&]+)/);
+      if (m) {
+        try {
+          var parsed = JSON.parse(atobUrl(m[1]));
+          if (parsed && parsed.email && parsed.sig) {
+            identity = parsed;
+            sessionStorage.setItem(ID_KEY, JSON.stringify(identity));
+          }
+        } catch (e) {}
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+      if (!identity) {
+        try {
+          var raw = sessionStorage.getItem(ID_KEY);
+          if (raw) {
+            var p = JSON.parse(raw);
+            if (p && p.email && p.sig) identity = p;
+          }
+        } catch (e) {}
+      }
+      if (SKIPNET) {
+        identity = { email: "preview.student@gnspes.ca", ts: Date.now(), sig: "demo" };
+      }
+      if (identity && identity.email && identity.sig) {
+        var savedSec = "";
+        try { savedSec = normalizeSection(sessionStorage.getItem(SEC_KEY)); } catch (e) {}
+        enterClassStep();
+        if (savedSec) chooseClass(savedSec);
+      } else {
+        showScreen("signin");
+        if (!returnUrl()) {
+          document.getElementById("gate-hint").textContent = "Open the live GitHub Pages link from Google Classroom to sign in with @gnspes.ca (or add ?demo=1 to preview locally).";
+        }
+      }
+    }
+
+    function signIn() {
+      if (SKIPNET) {
+        identity = { email: "preview.student@gnspes.ca", ts: Date.now(), sig: "demo" };
+        enterClassStep();
+        return;
+      }
+      var ret = returnUrl();
+      if (!ret) {
+        document.getElementById("gate-msg").textContent = "Open the live GitHub Pages link from Google Classroom to sign in (or append ?demo=1 locally).";
+        return;
+      }
+      var url = IDENTITY_URL + "?return=" + encodeURIComponent(ret);
+      popupRef = window.open(url, "r8_id", "width=500,height=620");
+      window.addEventListener("message", onIdMsg);
+      if (!popupRef) location.href = url;
+    }
+
+    function onIdMsg(ev) {
+      if (!ev.data || ev.data.type !== "r8id") return;
+      var id = ev.data.id || ev.data;
+      if (!id || !id.email || !id.sig) return;
+      identity = { email: id.email, ts: id.ts, sig: id.sig };
+      try { sessionStorage.setItem(ID_KEY, JSON.stringify(identity)); } catch (e) {}
+      try { if (popupRef && !popupRef.closed) popupRef.close(); } catch (e) {}
+      enterClassStep();
+    }
+
+    function switchAccount() {
+      try { sessionStorage.removeItem(ID_KEY); sessionStorage.removeItem(SEC_KEY); } catch (e) {}
+      identity = null;
+      selectedSection = "";
+      if (SKIPNET) { location.reload(); return; }
+      location.href = IDENTITY_URL + "?switch=1&return=" + encodeURIComponent(returnUrl() || location.href.split("#")[0]);
+    }
+
+    function topicInfo(id) {
+      var t = TOPICS.find(function (x) { return x.id === id; });
+      return t ? { id: t.id, country: t.country, issue: t.issue } : null;
+    }
+
+    function submitBid() {
+      if (!identity) { setBidMsg("Please sign in first.", true); return; }
+      var section = document.getElementById("bid-section").value || selectedSection;
+      var partner = document.getElementById("bid-partner").value.trim();
+      var whereH = document.getElementById("bid-where").value.trim();
+      var r1 = document.getElementById("bid-r1").value.trim();
+      var r2 = document.getElementById("bid-r2").value.trim();
+      var r3 = document.getElementById("bid-r3").value.trim();
+      var sugTopic = document.getElementById("bid-sug-topic").value.trim();
+      var sugWhy = document.getElementById("bid-sug-why").value.trim();
+
+      if (!section) { setBidMsg("Choose your class section first.", true); return; }
+      if (!partner) { setBidMsg("Enter your partner's name (or 'Solo w/ OK').", true); return; }
+      if (!picks[1] || !picks[2] || !picks[3]) { setBidMsg("Pick all 3 choices (#1, #2, and #3) before submitting.", true); return; }
+      if (r1.length < 10 || r2.length < 10 || r3.length < 10) {
+        setBidMsg("Write a real reason (at least a few words) for each of your 3 picks.", true);
+        return;
+      }
+
+      var t1 = topicInfo(picks[1]), t2 = topicInfo(picks[2]), t3 = topicInfo(picks[3]);
+      var data = {
+        section: section,
+        partner: partner,
+        whereHeritage: whereH,
+        c1: { id: t1.id, country: t1.country, issue: t1.issue, why: r1 },
+        c2: { id: t2.id, country: t2.country, issue: t2.issue, why: r2 },
+        c3: { id: t3.id, country: t3.country, issue: t3.issue, why: r3 },
+        suggestion: sugTopic ? { topic: sugTopic, why: sugWhy } : null,
+        submittedAt: new Date().toISOString()
+      };
+      var summary = "1: " + t1.country + " | 2: " + t2.country + " | 3: " + t3.country + " (w/ " + partner + ")";
+
+      if (SKIPNET) {
+        setSync("Preview saved", "ok");
+        setBidMsg("Preview OK: " + summary, false);
+        return;
+      }
+
+      var btn = document.getElementById("bid-submit-btn");
+      btn.disabled = true;
+      setSync("Saving...", "warn");
+      setBidMsg("Sending to Mr. Waugh's Bid Dashboard...", false);
+      var rid = "cpp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+      post(VAULT_URL, {
+        action: "submit_assignment",
+        email: identity.email,
+        ts: identity.ts,
+        sig: identity.sig,
+        task: TASK_NAME,
+        section: section,
+        summary: summary,
+        data: data,
+        requestId: rid
+      }).then(function (j) {
+        btn.disabled = false;
+        if (j && (j.status === "ok" || j.status === "submitted_successfully")) {
+          setSync("Saved", "ok");
+          setBidMsg("Saved! (" + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ") You are ready for Bid Day.", false);
+        } else {
+          setSync("Save error", "warn");
+          setBidMsg("Could not save: " + ((j && (j.reason || j.message || j.status)) || "try signing in again"), true);
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        setSync("Network error", "warn");
+        setBidMsg("Network hiccup - click Submit again in a moment.", true);
+      });
+    }
+
+    return {
+      boot: boot,
+      signIn: signIn,
+      switchAccount: switchAccount,
+      chooseClass: chooseClass,
+      openClassPicker: function () { showScreen("class"); },
+      onSectionDropdownChange: onSectionDropdownChange,
+      showTab: showTab,
+      submitBid: submitBid,
+      onSelectChange: function (rank) {
+        var sel = document.getElementById("bid-c" + rank);
+        setPick(rank, sel ? sel.value : 0);
+      },
+      pickFromModal: function (rank) {
+        if (!_topicState || !_topicState.activeId) return;
+        setPick(rank, _topicState.activeId);
+        var note = document.getElementById("modal-claim-note");
+        if (note) {
+          note.textContent = "Added as Choice #" + rank + " (open the Top-3 Bid tab to add your reason).";
+          setTimeout(function () { note.textContent = ""; }, 3000);
+        }
+      },
+      getRank: function (topicId) {
+        if (picks[1] === topicId) return 1;
+        if (picks[2] === topicId) return 2;
+        if (picks[3] === topicId) return 3;
+        return 0;
+      },
+      syncModalButtons: syncModalButtons
+    };
+  })();
+
+  window.getBidRankForTopic = App.getRank;
+  window.syncModalBidButtons = App.syncModalButtons;
+
+  /* Modal keyboard shortcuts */
   document.addEventListener("keydown", function (e) {
+    var modal = document.getElementById("topic-modal");
+    if (!modal.classList.contains("open")) return;
     if (e.key === "Escape") closeTopic();
+    if (e.key === "ArrowRight") stepTopic(1);
+    if (e.key === "ArrowLeft") stepTopic(-1);
   });
 
-  function buildAPA() {
+  /* Slide planner tabs */
+  (function () {
+    var shell = document.getElementById("planner-shell");
+    var tabs = shell.querySelectorAll(".planner-tab");
+    var panels = shell.querySelectorAll(".planner-panel");
+    var toggleAll = document.getElementById("planner-toggle-all");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var n = tab.getAttribute("data-slide");
+        shell.classList.remove("show-all");
+        toggleAll.textContent = "Show all";
+        tabs.forEach(function (t) {
+          var on = t === tab;
+          t.classList.toggle("active", on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach(function (p) { p.classList.toggle("active", p.getAttribute("data-panel") === n); });
+      });
+    });
+    toggleAll.addEventListener("click", function () {
+      var showing = shell.classList.toggle("show-all");
+      toggleAll.textContent = showing ? "One at a time" : "Show all";
+    });
+  })();
+
+  /* APA 7th builder + in-memory session source list */
+  var sessionSources = [];
+  function formatAPA() {
     var a = document.getElementById("apa-author").value.trim();
     var y = document.getElementById("apa-year").value.trim();
     var t = document.getElementById("apa-title").value.trim();
     var p = document.getElementById("apa-pub").value.trim();
     var u = document.getElementById("apa-url").value.trim();
+    if (!a && !t) return null;
+    var yearPart = "(" + (y || "n.d.") + "). ";
+    var plain = "", html = "";
+    if (a) { var aEnd = a + (/[.]$/.test(a) ? "" : ".") + " "; plain += aEnd; html += _esc(aEnd); }
+    plain += yearPart; html += _esc(yearPart);
+    if (t) { var tEnd = t + (/[.?!]$/.test(t) ? "" : "."); plain += tEnd + " "; html += "<em>" + _esc(tEnd) + "</em> "; }
+    if (p && p.toLowerCase() !== a.toLowerCase()) { var pEnd = p + (/[.]$/.test(p) ? "" : ".") + " "; plain += pEnd; html += _esc(pEnd); }
+    if (u) { plain += u; html += _esc(u); }
+    return { plain: plain.trim(), html: html.trim() };
+  }
+  function updateAPAPreview() {
     var out = document.getElementById("apa-out");
+    var res = formatAPA();
+    out.innerHTML = res ? res.html : '<span class="placeholder">Your APA reference preview appears here as you type.</span>';
+  }
+  ["apa-author", "apa-year", "apa-title", "apa-pub", "apa-url"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", updateAPAPreview);
+  });
+  function showAPANote(msg) {
     var note = document.getElementById("apa-copied");
-    note.textContent = "";
-    if (!a && !t) {
-      out.innerHTML = '<span class="placeholder">Give me at least an author or a title.</span>';
-      return;
-    }
-    var ref = "";
-    if (a) ref += a + (/[.]$/.test(a) ? "" : ".") + " ";
-    if (y) ref += "(" + y + "). ";
-    if (t) ref += t + (/[.?]$/.test(t) ? "" : ".") + " ";
-    if (p) ref += p + ". ";
-    if (u) ref += u;
-    out.textContent = ref.trim();
+    note.textContent = msg;
+    clearTimeout(showAPANote._t);
+    showAPANote._t = setTimeout(function () { note.textContent = ""; }, 2800);
+  }
+  function copyCurrentAPA() {
+    var res = formatAPA();
+    if (!res) { showAPANote("Enter at least an author or a title first."); return; }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ref.trim()).then(function () {
-        note.textContent = "Copied to clipboard.";
-        setTimeout(function () { note.textContent = ""; }, 2500);
-      }).catch(function () {});
+      navigator.clipboard.writeText(res.plain).then(function () { showAPANote("Copied to clipboard."); }).catch(function () {});
+    }
+  }
+  function addCurrentAPA() {
+    var res = formatAPA();
+    if (!res) { showAPANote("Enter at least an author or a title first."); return; }
+    if (!sessionSources.some(function (s) { return s.plain === res.plain; })) {
+      sessionSources.push(res);
+      sessionSources.sort(function (x, y) { return x.plain.toLowerCase().localeCompare(y.plain.toLowerCase()); });
+    }
+    renderSourceList();
+    clearAPA();
+    showAPANote("Added to your session source list.");
+  }
+  function clearAPA() {
+    ["apa-author", "apa-year", "apa-title", "apa-pub", "apa-url"].forEach(function (id) { document.getElementById(id).value = ""; });
+    updateAPAPreview();
+  }
+  function removeSource(idx) { sessionSources.splice(idx, 1); renderSourceList(); }
+  function renderSourceList() {
+    var wrap = document.getElementById("source-list-wrap");
+    var list = document.getElementById("source-list");
+    var title = document.getElementById("source-list-title");
+    wrap.hidden = sessionSources.length === 0;
+    title.textContent = "Session source list (" + sessionSources.length + ")";
+    list.innerHTML = sessionSources.map(function (s, i) {
+      return '<li><span>' + s.html + '</span><button type="button" class="source-remove" onclick="removeSource(' + i + ')" aria-label="Remove source">&times;</button></li>';
+    }).join("");
+  }
+  function copyAllAPA() {
+    if (!sessionSources.length) return;
+    var text = sessionSources.map(function (s) { return s.plain; }).join("\n\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { showAPANote("Copied all " + sessionSources.length + " sources (A-Z)."); }).catch(function () {});
     }
   }
 
-  var boxes = document.querySelectorAll(".ck");
-  boxes.forEach(function (b) {
-    b.addEventListener("change", function () {
-      var n = document.querySelectorAll(".ck:checked").length;
-      document.getElementById("check-score").textContent = n + " of 10 confident";
+  /* Self-assessment checklist */
+  function updateChecklist() {
+    var boxes = document.querySelectorAll(".ck");
+    var n = 0;
+    boxes.forEach(function (b) {
+      var row = b.closest(".check-item");
+      if (row) row.classList.toggle("checked", b.checked);
+      if (b.checked) n++;
     });
-  });
-</script>
+    var score = document.getElementById("check-score");
+    var bar = document.getElementById("ck-bar");
+    bar.style.width = Math.round((n / boxes.length) * 100) + "%";
+    bar.classList.toggle("done", n === boxes.length);
+    score.classList.toggle("done", n === boxes.length);
+    score.textContent = n === boxes.length ? "10 of 10 ready for checkpoint!" : n + " of " + boxes.length + " confident";
+  }
+  document.querySelectorAll(".ck").forEach(function (b) { b.addEventListener("change", updateChecklist); });
+  function resetChecklist() { document.querySelectorAll(".ck").forEach(function (b) { b.checked = false; }); updateChecklist(); }
 
-</div>
+  App.boot();
+</script>
 </body>
 </html>

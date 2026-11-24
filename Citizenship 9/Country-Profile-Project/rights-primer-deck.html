@@ -10,7 +10,7 @@
     --blue-soft: #EFF6FF;
     --ink: #18181B;
     --muted: #52525B;
-    --faint: #A1A1AA;
+    --faint: #71717A;
     --line: #E4E4E7;
     --bg: #F4F4F5;
     --card: #FFFFFF;
@@ -18,7 +18,8 @@
     --amber: #B45309;
     --amber-bg: #FFFBEB;
     --green: #047857;
-    --green-bg: #F0FDF4;
+    --green-bg: #ECFDF5;
+    --red: #DC2626;
     --slab: "Roboto Slab", Georgia, "Times New Roman", serif;
     --body: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
     --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
@@ -31,87 +32,60 @@
     color: var(--ink);
     margin: 0;
     line-height: 1.5;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
   }
   .top-bar {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.55rem 1.1rem;
+    padding: 0.6rem 1.2rem;
     background: var(--card);
     border-bottom: 1px solid var(--line);
+    z-index: 20;
   }
-  .deck-tag { font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .deck-tag { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
   .deck-tag a { color: var(--blue); text-decoration: none; }
-  .stage { position: relative; height: calc(100vh - 2.45rem); }
+  .deck-tag a:hover { text-decoration: underline; }
+
+  .stage { flex: 1 1 auto; position: relative; min-height: 0; overflow: hidden; }
   .slide {
     display: none;
-    position: absolute;
-    inset: 0;
-    padding: clamp(1rem, 3vw, 2.2rem) clamp(1.2rem, 4vw, 3rem) 4.2rem;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(1rem, 2.6vw, 2rem) clamp(1.2rem, 4vw, 3rem) 0;
     overflow-y: auto;
   }
-  .slide.active { display: block; animation: fadein 0.25s ease; }
-  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .slide-inner { max-width: 1150px; margin: 0 auto; }
-  .slide-num {
-    position: absolute;
-    top: 0.7rem;
-    right: 1.1rem;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--faint);
-  }
-  .slide-kicker {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--blue);
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-  .slide h1 { font-family: var(--slab); font-size: clamp(2.2rem, 5.4vw, 3.7rem); line-height: 1.08; margin: 0.2rem 0 0.5rem; }
-  .slide h2 { font-family: var(--slab); font-size: clamp(1.6rem, 3.6vw, 2.4rem); margin: 0.2rem 0 0.7rem; }
-  .slide h3 { font-family: var(--slab); font-size: 1.12rem; margin: 0.9rem 0 0.3rem; }
-  .slide p, .slide li { font-size: clamp(1rem, 1.9vw, 1.22rem); }
-  .slide ul { padding-left: 1.5rem; margin: 0.5rem 0; }
-  .slide li { margin-bottom: 0.5rem; }
+  .slide.active { display: flex; animation: fadein 0.22s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+  .slide-main { width: 100%; max-width: 1150px; margin: 0 auto; flex: 1 0 auto; padding-bottom: 1rem; }
+  .slide-head-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .slide-num { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; color: var(--faint); white-space: nowrap; }
+  .slide-kicker { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 0.25rem; }
+  .slide h1 { font-family: var(--slab); font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.08; margin: 0.2rem 0 0.5rem; }
+  .slide h2 { font-family: var(--slab); font-size: clamp(1.5rem, 3.2vw, 2.2rem); margin: 0.15rem 0 0.75rem; line-height: 1.18; }
+  .slide p, .slide li { font-size: clamp(0.98rem, 1.65vw, 1.16rem); }
+  .slide ul { padding-left: 1.45rem; margin: 0.5rem 0; }
+  .slide li { margin-bottom: 0.48rem; }
   .muted { color: var(--muted); }
+
   .outcome-band {
     border-left: 5px solid var(--blue);
     background: var(--blue-soft);
     border-radius: 0 8px 8px 0;
-    padding: 0.7rem 1rem;
+    padding: 0.75rem 1.05rem;
     margin: 1rem 0;
     max-width: 860px;
   }
-  .outcome-band .label {
-    font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 0.2rem;
-  }
+  .outcome-band .label { font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 0.2rem; }
   .outcome-band .statement { font-family: var(--slab); font-size: 1.05rem; font-weight: 600; margin: 0; line-height: 1.35; }
-  .src-strip {
-    position: absolute;
-    left: 0; right: 0;
-    bottom: 2.9rem;
-    max-width: 1150px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-  .src-strip .in {
-    border-top: 1px solid var(--line);
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    color: var(--muted);
-    padding: 0.45rem 0.2rem 0;
-    line-height: 1.6;
-  }
-  .src-strip b { color: var(--blue); font-weight: 700; }
-  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.8rem; margin-top: 0.5rem; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.8rem; margin-top: 0.5rem; }
   .card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -120,78 +94,97 @@
     padding: 0.8rem 1rem;
   }
   .card .n { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; color: var(--blue); text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
-  .card p { font-size: 0.98rem; margin: 0; line-height: 1.4; }
+  .card p { font-size: 0.96rem; margin: 0; line-height: 1.44; }
   .card.green { border-left-color: var(--green); }
   .card.green .n { color: var(--green); }
-  .card.amber { border-left-color: var(--amber); }
+  .card.amber { border-left-color: var(--amber); background: var(--amber-bg); }
   .card.amber .n { color: var(--amber); }
-  .big-num { font-family: var(--slab); font-weight: 700; font-size: clamp(1.7rem, 3.8vw, 2.6rem); color: var(--blue); line-height: 1.15; }
+
+  .big-num { font-family: var(--slab); font-weight: 700; font-size: clamp(1.65rem, 3.6vw, 2.5rem); color: var(--blue); line-height: 1.15; }
   .stat-row { display: flex; gap: clamp(1rem, 3vw, 2.6rem); flex-wrap: wrap; margin: 0.7rem 0; }
-  .stat .k { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .stat .k { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
   .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 0.6rem; }
   @media (max-width: 860px) { .vs-grid { grid-template-columns: 1fr; } }
-  .vs { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 0.85rem 1rem; }
-  .vs .tag { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 0.35rem; }
-  .vs .world { border-left: 5px solid var(--blue); }
-  .vs .world .tag { color: var(--blue); }
-  .vs .canada { border-left: 5px solid #DC2626; }
-  .vs .canada .tag { color: #DC2626; }
+  .vs { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 0.9rem 1.05rem; }
+  .vs .tag { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
+  .vs.world { border-left: 5px solid var(--blue); }
+  .vs.world .tag { color: var(--blue); }
+  .vs.canada { border-left: 5px solid var(--red); }
+  .vs.canada .tag { color: var(--red); }
   .vs ul { margin: 0; padding-left: 1.2rem; }
-  .vs li { font-size: 1rem; margin-bottom: 0.35rem; }
-  .nav-zone { position: absolute; bottom: 0.8rem; right: 1.1rem; display: flex; gap: 0.45rem; z-index: 30; }
-  .nav-zone button {
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    font-weight: 700;
-    width: 2.4rem;
-    height: 2.1rem;
-    border: 1px solid var(--line);
+  .vs li { font-size: 0.98rem; margin-bottom: 0.4rem; }
+
+  .slide-bottom { width: 100%; max-width: 1150px; margin: 0 auto; flex: 0 0 auto; padding-bottom: 0.6rem; }
+  .src-strip { border-top: 1px solid var(--line); font-family: var(--mono); font-size: 0.66rem; color: var(--muted); padding: 0.45rem 0 0.2rem; line-height: 1.55; }
+  .src-strip b { color: var(--blue); font-weight: 700; margin-right: 0.35rem; }
+
+  .deck-nav {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 1.2rem;
     background: var(--card);
-    color: var(--muted);
-    border-radius: 5px;
-    cursor: pointer;
+    border-top: 1px solid var(--line);
+    z-index: 20;
   }
-  .nav-zone button:hover { border-color: var(--blue); color: var(--blue); }
-  .dots { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.4rem; z-index: 30; }
-  .dots span { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line); cursor: pointer; }
-  .dots span.on { background: var(--blue); }
+  .nav-hint { font-family: var(--mono); font-size: 0.66rem; color: var(--faint); }
+  .dots { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .dots button { width: 0.58rem; height: 0.58rem; padding: 0; border: none; border-radius: 50%; background: var(--line); cursor: pointer; }
+  .dots button.on { background: var(--blue); transform: scale(1.18); }
+  .nav-zone { display: flex; gap: 0.45rem; }
+  .nav-zone button {
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 700; padding: 0.32rem 0.75rem;
+    border: 1px solid var(--line); background: var(--soft); color: var(--muted); border-radius: 5px; cursor: pointer;
+  }
+  .nav-zone button:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .nav-zone button:disabled { opacity: 0.4; cursor: default; }
+  @media (max-width: 640px) { .nav-hint { display: none; } }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
   <span class="deck-tag">Rights Primer &bull; <a href="index.html">Country Profile Project</a> &bull; Citizenship 9 &bull; Term 2</span>
-  <span class="deck-tag">Teach this before the topic sign-up</span>
+  <span class="deck-tag">Before you research</span>
 </div>
 
 <div class="stage" id="stage">
 
   <!-- 1 TITLE -->
   <section class="slide active">
-    <span class="slide-num">1 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Country Profile Project &bull; Before you research</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Country Profile Project &bull; Before you research</span>
+        <span class="slide-num">1 / 13</span>
+      </div>
       <h1>Rights Primer</h1>
-      <p class="muted" style="font-size:1.15rem;">The UN, Human Rights, and the Canadian Charter in one class. Most topics in the catalog are human-rights topics: here is what that phrase actually means.</p>
+      <p class="muted" style="font-size:1.15rem;">The UN, Human Rights, and the Canadian Charter in one class. Most topics in the catalog involve human rights: here is what that phrase actually means and how to cite it.</p>
       <div class="outcome-band">
         <span class="label">Outcome (verbatim from the curriculum)</span>
         <p class="statement">Evaluate the consequences of action and inaction as twenty-first century global citizens.</p>
         <p class="muted" style="font-size:0.88rem; margin:0.45rem 0 0;">Indicator focus: Universal Declaration of Human Rights &bull; Canada's military, peacekeeping, and diplomatic role abroad.</p>
       </div>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> United Nations. (1948). Universal Declaration of Human Rights. https://www.un.org/en/udhr</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>United Nations. (1948). Universal Declaration of Human Rights. https://www.un.org/en/udhr</div>
+    </div>
   </section>
 
   <!-- 2 HOOK -->
   <section class="slide">
-    <span class="slide-num">2 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Think, then talk to your neighbour</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Think, then talk to your neighbour</span>
+        <span class="slide-num">2 / 13</span>
+      </div>
       <h2>You have rights right now</h2>
       <ul>
-        <li>Name one right you used this week. (You spoke your mind? Practiced a religion, or none? Read the news? Expected the school to follow rules?)</li>
+        <li>Name one right you used this week. (Spoke your mind? Practiced a religion, or none? Read the news? Expected the school to follow fair rules?)</li>
         <li>Where did that right come from? Who wrote it down?</li>
-        <li>Who protects it, and what happens if someone ignores it?</li>
+        <li>Who protects it, and what happens if a government ignores it?</li>
       </ul>
       <p class="muted">Three answers today: the United Nations, the Universal Declaration of Human Rights, and Canada's Charter.</p>
     </div>
@@ -199,204 +192,241 @@
 
   <!-- 3 THE UN -->
   <section class="slide">
-    <span class="slide-num">3 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Answer 1 &bull; The United Nations</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Answer 1 &bull; The United Nations</span>
+        <span class="slide-num">3 / 13</span>
+      </div>
       <h2>The club of almost every country on Earth</h2>
       <div class="stat-row">
-        <div class="stat"><div class="big-num">1945</div><div class="k">founded, right after WWII</div></div>
+        <div class="stat"><div class="big-num">1945</div><div class="k">founded right after WWII</div></div>
         <div class="stat"><div class="big-num">193</div><div class="k">member countries today</div></div>
         <div class="stat"><div class="big-num">1945</div><div class="k">Canada: a founding member</div></div>
       </div>
       <ul>
         <li>The UN's job in three verbs: <strong>keep peace, protect rights, deliver aid</strong>.</li>
-        <li>It was built by countries who had just watched WWII destroy tens of millions of lives, on one idea: talk before you fight, and agree on rules all countries share.</li>
-        <li>Headquarters: New York City. Not a world government. It has power only because countries agree to give it some.</li>
+        <li>Built right after WWII destroyed tens of millions of lives, around one idea: talk before you fight, and agree on rules all countries share.</li>
+        <li>Headquarters: New York City. Important: the UN is <strong>not</strong> a world government. It only has the power that member countries agree to give it.</li>
       </ul>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> United Nations. (2024). About us. https://www.un.org/en/about-us</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>United Nations. (2024). About us. https://www.un.org/en/about-us</div>
+    </div>
   </section>
 
   <!-- 4 WHO DECIDES -->
   <section class="slide">
-    <span class="slide-num">4 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">The UN &bull; Who actually decides?</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">The UN &bull; Who actually decides?</span>
+        <span class="slide-num">4 / 13</span>
+      </div>
       <h2>Two rooms, two very different powers</h2>
       <div class="vs-grid">
         <div class="vs world">
           <span class="tag">General Assembly &bull; 193 seats</span>
           <ul>
-            <li>Every member country, one vote each. Canada's vote counts exactly as much as Tuvalu's.</li>
-            <li>Passes resolutions: the world's opinion, officially worded.</li>
-            <li>Cannot force countries to act.</li>
+            <li>Every member country gets one vote. Canada's vote counts the exact same as Tuvalu's.</li>
+            <li>Passes <strong>resolutions</strong>: official statements of the world's opinion.</li>
+            <li>Cannot force any country to obey.</li>
           </ul>
         </div>
         <div class="vs canada">
           <span class="tag">Security Council &bull; 15 seats</span>
           <ul>
-            <li>Five permanent members with a <strong>veto</strong>: USA, UK, France, Russia, China.</li>
-            <li>Ten elected members rotate through.</li>
-            <li>Its decisions ARE binding: peacekeeping missions, sanctions.</li>
+            <li>Five permanent members hold a <strong>veto</strong> (a single "no" vote that kills any decision): USA, UK, France, Russia, China.</li>
+            <li>Ten other countries rotate in for two-year terms.</li>
+            <li>Its decisions are <strong>binding</strong> (legally required): peacekeeping missions and <strong>sanctions</strong> (trade or money penalties).</li>
           </ul>
         </div>
       </div>
-      <p class="muted" style="margin-top:0.7rem;">The catch: one veto can block action even when every other country agrees. Remember this when your topic asks "what did the international response actually do?"</p>
+      <p class="muted" style="margin-top:0.75rem;">The catch: one veto can block action even when almost every other country agrees. Remember this when your project asks "what did the international response actually do?"</p>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> United Nations. (2024). Security Council. https://www.un.org/securitycouncil/</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>United Nations. (2024). Security Council. https://www.un.org/securitycouncil/</div>
+    </div>
   </section>
 
   <!-- 5 HUMAN RIGHTS -->
   <section class="slide">
-    <span class="slide-num">5 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Answer 2 &bull; Human rights</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Answer 2 &bull; Human rights</span>
+        <span class="slide-num">5 / 13</span>
+      </div>
       <h2>Rights you have because you are human</h2>
       <ul>
-        <li>Not earned. Not a reward for good behaviour. Not a gift from governments.</li>
-        <li>You have them at birth; governments exist (partly) to <strong>protect</strong> them.</li>
-        <li>They are universal: the same list applies everywhere on Earth, to everyone.</li>
-        <li>The hard question your project will keep hitting: <strong>if the government is the one violating rights, who steps in?</strong></li>
+        <li>Not earned. Not a reward for good behaviour. Not a gift from a government.</li>
+        <li>You have them at birth; governments exist (in part) to <strong>protect</strong> them.</li>
+        <li>They are <strong>universal</strong>: the same list applies to every person everywhere on Earth.</li>
+        <li>The hard question your project will keep hitting: <strong>if the government itself is violating rights, who steps in?</strong></li>
       </ul>
     </div>
   </section>
 
   <!-- 6 UDHR -->
   <section class="slide">
-    <span class="slide-num">6 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Human rights &bull; The document</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Human rights &bull; The document</span>
+        <span class="slide-num">6 / 13</span>
+      </div>
       <h2>The Universal Declaration of Human Rights (1948)</h2>
       <div class="stat-row">
-        <div class="stat"><div class="big-num">1948</div><div class="k">adopted, three years after WWII</div></div>
+        <div class="stat"><div class="big-num">1948</div><div class="k">adopted 3 years after WWII</div></div>
         <div class="stat"><div class="big-num">30</div><div class="k">articles</div></div>
-        <div class="stat"><div class="big-num">500+</div><div class="k">languages: the world's most translated document</div></div>
+        <div class="stat"><div class="big-num">500+</div><div class="k">languages: most translated document on Earth</div></div>
       </div>
       <ul>
-        <li>Written as a direct answer to the Holocaust and the war: the world wrote down, for the first time, what every human being is owed.</li>
+        <li>Written directly in response to the Holocaust and WWII: for the first time, the world wrote down what every human being is owed.</li>
         <li>Drafting committee chaired by <strong>Eleanor Roosevelt</strong>.</li>
-        <li>Honesty note: the UDHR is a declaration, not a treaty. It is not enforceable law by itself. It is the <strong>standard</strong> the world agreed to measure countries against.</li>
+        <li>Honesty note: the UDHR is a <strong>declaration</strong> (a shared statement of values), not a <strong>treaty</strong> (a legally binding contract). It has no police force of its own; it is the <strong>standard</strong> the world measures countries against.</li>
       </ul>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> United Nations. (1948). Universal Declaration of Human Rights. https://www.un.org/en/udhr &bull; UNESCO. (2023). History of the UDHR.</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>United Nations. (1948). Universal Declaration of Human Rights. https://www.un.org/en/udhr &bull; UNESCO. (2023). History of the UDHR.</div>
+    </div>
   </section>
 
   <!-- 7 ARTICLES YOU WILL USE -->
   <section class="slide">
-    <span class="slide-num">7 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">UDHR &bull; The articles you will actually use</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">UDHR &bull; The articles you will actually use</span>
+        <span class="slide-num">7 / 13</span>
+      </div>
       <h2>Seven articles, plain words</h2>
       <div class="card-grid">
         <div class="card"><span class="n">Article 1</span><p>Born free and equal in dignity and rights.</p></div>
-        <div class="card"><span class="n">Article 2</span><p>No discrimination: the list applies to everyone, no exceptions for race, sex, language, religion, or anything else.</p></div>
-        <div class="card"><span class="n">Article 3</span><p>Life, liberty, and security of person.</p></div>
-        <div class="card"><span class="n">Article 5</span><p>No torture, ever, no matter what.</p></div>
-        <div class="card"><span class="n">Article 14</span><p>The right to flee and seek safety in another country (asylum).</p></div>
-        <div class="card"><span class="n">Article 19</span><p>Speak, read, and know: freedom of opinion and information.</p></div>
-        <div class="card green"><span class="n">Article 26</span><p>Education, free at least in the early years. The reason girls' education bans in Afghanistan break this article.</p></div>
+        <div class="card"><span class="n">Article 2</span><p>No discrimination: the whole list applies to everyone, regardless of race, sex, language, religion, or background.</p></div>
+        <div class="card"><span class="n">Article 3</span><p>Life, liberty, and security of person (freedom from harm, threats, or unfair arrest).</p></div>
+        <div class="card"><span class="n">Article 5</span><p>No torture or cruel punishment, ever.</p></div>
+        <div class="card"><span class="n">Article 14</span><p>The right to flee danger and seek safety in another country (asylum).</p></div>
+        <div class="card"><span class="n">Article 19</span><p>Speak, read, and know: freedom of opinion, expression, and information.</p></div>
+        <div class="card green"><span class="n">Article 26</span><p>Right to education, free at least in the early years. Girls' education bans in Afghanistan directly break this article.</p></div>
       </div>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> United Nations. (1948). Universal Declaration of Human Rights, articles 1-26. https://www.un.org/en/udhr</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>United Nations. (1948). Universal Declaration of Human Rights, articles 1-26. https://www.un.org/en/udhr</div>
+    </div>
   </section>
+
   <!-- 8 TEETH CHECK -->
   <section class="slide">
-    <span class="slide-num">8 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Answer 3 (part A) &bull; Enforcement at the UN</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Answer 3 (part A) &bull; Enforcement at the UN</span>
+        <span class="slide-num">8 / 13</span>
+      </div>
       <h2>How do rights actually get enforced?</h2>
       <ul>
-        <li><strong>Treaties:</strong> countries sign promises. The big one for you is the <strong>Convention on the Rights of the Child (1989)</strong>: every UN member has ratified it except one, the United States.</li>
-        <li><strong>Review committees:</strong> countries must file reports and get questioned on their records. Public, written down, embarrassing if bad.</li>
-        <li><strong>Courts:</strong> the International Court of Justice settles disputes between countries (remember Vanuatu's climate case: that is what students your age started there).</li>
-        <li><strong>The honest truth:</strong> the UN cannot storm a country. Its real power is <strong>pressure</strong>: reports, public shame, sanctions, aid conditions, courts. Whether pressure works is exactly what your project argues.</li>
+        <li><strong>Treaties:</strong> formal agreements countries sign and <strong>ratify</strong> (officially approve into law). Example: the <strong>Convention on the Rights of the Child (1989)</strong>, ratified by every UN member except the United States.</li>
+        <li><strong>Review committees:</strong> countries must file public reports and answer tough questions on their record.</li>
+        <li><strong>International courts:</strong> the <strong>International Court of Justice</strong> (the UN's highest court in the Netherlands) settles legal disputes between countries (including Vanuatu's student-led climate case).</li>
+        <li><strong>The honest truth:</strong> the UN cannot simply invade a country. Its real power is <strong>pressure</strong>: public reports, sanctions, aid conditions, and court rulings. Whether pressure works is exactly what your project evaluates.</li>
       </ul>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> UNICEF. (1989). Convention on the Rights of the Child. https://www.unicef.org/child-rights-convention &bull; ICJ. (2025). Climate advisory opinion.</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>UNICEF. (1989). Convention on the Rights of the Child. https://www.unicef.org/child-rights-convention &bull; ICJ. (2025). Climate advisory opinion.</div>
+    </div>
   </section>
 
   <!-- 9 CHARTER -->
   <section class="slide">
-    <span class="slide-num">9 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Answer 3 (part B) &bull; Canada's answer</span>
-      <h2>The Charter of Rights and Freedoms (1982)</h2>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Answer 3 (part B) &bull; Canada's answer</span>
+        <span class="slide-num">9 / 13</span>
+      </div>
+      <h2>The Canadian Charter of Rights and Freedoms (1982)</h2>
       <ul>
-        <li>Part of the Constitution Act: the <strong>highest law in Canada</strong>. Any other law that breaks it can be struck down by the courts.</li>
-        <li>Applies to <strong>government action</strong>: Parliament, police, schools, public institutions. It does not referee private arguments between people.</li>
-        <li>You just finished a unit on citizenship rights, from the Peace and Friendship treaties to Donald Marshall Jr. The Charter is the modern machinery those cases ran through: Marshall's fishing rights were a treaties question, decided through the courts the Charter system built on.</li>
+        <li>Part of Canada's Constitution: the <strong>highest law in Canada</strong>. Any federal or provincial law that breaks it can be struck down by judges.</li>
+        <li>Applies to <strong>government action</strong>: Parliament, police, public schools, and courts. It does not settle private arguments between neighbours.</li>
+        <li>Think back to our unit on treaties and Donald Marshall Jr.: the modern Canadian court system and Constitution (including Indigenous and treaty rights in s. 35) are what let people challenge government unfairness and win.</li>
       </ul>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> Government of Canada. (1982). Canadian Charter of Rights and Freedoms. https://canada.ca/charter</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>Government of Canada. (1982). Canadian Charter of Rights and Freedoms. https://canada.ca/charter</div>
+    </div>
   </section>
 
   <!-- 10 CHARTER SECTIONS -->
   <section class="slide">
-    <span class="slide-num">10 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Charter &bull; The sections you will actually use</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Charter &bull; The sections you will actually use</span>
+        <span class="slide-num">10 / 13</span>
+      </div>
       <h2>Five sections, plain words</h2>
       <div class="card-grid">
-        <div class="card"><span class="n">Section 2 &bull; Fundamental freedoms</span><p>Conscience, religion, thought, expression, peaceful assembly, association.</p></div>
-        <div class="card"><span class="n">Section 7 &bull; Life and security</span><p>Life, liberty, and security of the person: no government taking them away except in line with justice.</p></div>
-        <div class="card"><span class="n">Section 15 &bull; Equality</span><p>Equal treatment and protection under the law, without discrimination.</p></div>
-        <div class="card amber"><span class="n">Section 1 &bull; Reasonable limits</span><p>Rights in Canada are not absolute: limits must be "demonstrably justified in a free and democratic society". Your right to swing your fist stops at someone's face.</p></div>
-        <div class="card amber"><span class="n">Section 33 &bull; Notwithstanding clause</span><p>A government can override sections 2, 7, and 15 for five years at a time. The escape hatch. Quebec has used it for language laws.</p></div>
+        <div class="card"><span class="n">Section 2 &bull; Fundamental freedoms</span><p>Conscience, religion, thought, expression, peaceful protest (assembly), and joining groups or unions (association).</p></div>
+        <div class="card"><span class="n">Section 7 &bull; Life and security</span><p>Life, liberty, and personal safety: the government cannot take them away except through fair legal rules.</p></div>
+        <div class="card"><span class="n">Section 15 &bull; Equality</span><p>Equal treatment and equal protection under the law, without discrimination.</p></div>
+        <div class="card amber"><span class="n">Section 1 &bull; Reasonable limits</span><p>Rights in Canada are not unlimited: the government can limit a right if it proves the limit is fair and necessary in a democracy (for example, laws against hate speech).</p></div>
+        <div class="card amber"><span class="n">Section 33 &bull; Notwithstanding clause</span><p>The temporary override: a federal or provincial government can pass a law that pauses s. 2, 7, or 15 for up to 5 years at a time (used in Quebec for language laws).</p></div>
       </div>
     </div>
-    <div class="src-strip"><div class="in"><b>SOURCES ON THIS SLIDE:</b> Government of Canada. (1982). Canadian Charter of Rights and Freedoms, sections 1-33. https://canada.ca/charter</div></div>
+    <div class="slide-bottom">
+      <div class="src-strip"><b>SOURCES ON THIS SLIDE:</b>Government of Canada. (1982). Canadian Charter of Rights and Freedoms, sections 1-33. https://canada.ca/charter</div>
+    </div>
   </section>
 
   <!-- 11 SAME IDEA DIFFERENT TEETH -->
   <section class="slide">
-    <span class="slide-num">11 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Put them side by side</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Put them side by side</span>
+        <span class="slide-num">11 / 13</span>
+      </div>
       <h2>Same idea, very different teeth</h2>
       <div class="vs-grid">
         <div class="vs world">
           <span class="tag">UDHR &bull; The world's standard</span>
           <ul>
-            <li>Applies to every human, everywhere.</li>
-            <li>No court of its own. Power = pressure.</li>
-            <li>Countries use it to judge each other (and to hide from judgment).</li>
+            <li>Applies to every human, everywhere on Earth.</li>
+            <li>No court or police of its own. Power = international pressure.</li>
+            <li>Countries use it to hold each other accountable (or ignore it when convenient).</li>
           </ul>
         </div>
         <div class="vs canada">
           <span class="tag">Charter &bull; Canadian law</span>
           <ul>
-            <li>Applies in Canada, to government action.</li>
-            <li>Real teeth: courts enforce it, laws get struck down.</li>
-            <li>Even it can be limited (s.1) or overridden (s.33).</li>
+            <li>Applies inside Canada, to government actions and laws.</li>
+            <li>Real legal teeth: Canadian courts enforce it and strike down unfair laws.</li>
+            <li>Even here, rights can be reasonably limited (s. 1) or temporarily overridden (s. 33).</li>
           </ul>
         </div>
       </div>
-      <p class="muted" style="margin-top:0.7rem;">Your project lives between the two: <strong>does the country's action match the promise?</strong> That is the outcome, word for word: evaluate the consequences of action and inaction.</p>
+      <p class="muted" style="margin-top:0.75rem;">Your project lives in the gap between the two: <strong>does the country's action match what it promised?</strong> That is the curriculum outcome: evaluate the consequences of action and inaction.</p>
     </div>
   </section>
 
   <!-- 12 BRIDGE TO PROJECT -->
   <section class="slide">
-    <span class="slide-num">12 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Bridge &bull; Take this to your topic</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Bridge &bull; Take this to your topic</span>
+        <span class="slide-num">12 / 13</span>
+      </div>
       <h2>Three rights questions for every topic</h2>
       <div class="card-grid">
-        <div class="card"><span class="n">Question 1</span><p>Which UDHR articles does this issue touch? (Name the numbers.)</p></div>
-        <div class="card"><span class="n">Question 2</span><p>What has the country <strong>promised</strong>? Which rights treaties has it signed?</p></div>
-        <div class="card green"><span class="n">Question 3</span><p>What has it actually <strong>done</strong>? Laws, courts, money, enforcement. The gap between promise and action is your analysis.</p></div>
-        <div class="card amber"><span class="n">Canada check</span><p>Which Charter section answers the same right here? What is Canada's record on it? That is your Slide 6 comparison.</p></div>
+        <div class="card"><span class="n">Question 1</span><p>Which UDHR articles does this issue touch? (Name the actual article numbers.)</p></div>
+        <div class="card"><span class="n">Question 2</span><p>What has the country <strong>promised</strong>? Which rights treaties or pledges has it signed?</p></div>
+        <div class="card green"><span class="n">Question 3</span><p>What has it actually <strong>done</strong>? Laws, courts, spending, enforcement. The gap between promise and action is your Slide 4 analysis.</p></div>
+        <div class="card amber"><span class="n">Canada check</span><p>Which Charter section answers the same right here, and what is Canada's actual record? That gives you a sharp Slide 6 comparison.</p></div>
       </div>
     </div>
   </section>
 
   <!-- 13 SOURCES -->
   <section class="slide">
-    <span class="slide-num">13 / 13</span>
-    <div class="slide-inner">
-      <span class="slide-kicker">Sources (APA)</span>
+    <div class="slide-main">
+      <div class="slide-head-row">
+        <span class="slide-kicker">Sources (APA)</span>
+        <span class="slide-num">13 / 13</span>
+      </div>
       <h2>Read the documents themselves</h2>
-      <ul style="font-size: clamp(0.9rem, 1.7vw, 1.1rem); color: var(--muted);">
+      <ul style="font-size: clamp(0.88rem, 1.55vw, 1.04rem); color: var(--muted);">
         <li>Government of Canada. (1982). <em>Canadian Charter of Rights and Freedoms.</em> https://canada.ca/en/canadian-heritage/services/rights-freedoms.html</li>
         <li>United Nations. (1948). <em>Universal Declaration of Human Rights.</em> https://www.un.org/en/udhr</li>
         <li>United Nations. (2024). <em>About the Security Council.</em> https://www.un.org/securitycouncil/</li>
@@ -406,32 +436,49 @@
     </div>
   </section>
 
+</div>
+
+<div class="deck-nav">
+  <span class="nav-hint">Use &larr; / &rarr; arrow keys to move slides</span>
+  <div class="dots" id="dots" role="tablist" aria-label="Slide selector"></div>
   <div class="nav-zone">
-    <button onclick="go(-1)" aria-label="Previous slide">&larr;</button>
-    <button onclick="go(1)" aria-label="Next slide">&rarr;</button>
+    <button type="button" id="prev-btn" onclick="go(-1)" aria-label="Previous slide">&larr; Prev</button>
+    <button type="button" id="next-btn" onclick="go(1)" aria-label="Next slide">Next &rarr;</button>
   </div>
-  <div class="dots" id="dots"></div>
 </div>
 
 <script>
   var slides = document.querySelectorAll(".slide");
   var cur = 0;
   var dots = document.getElementById("dots");
+  var prevBtn = document.getElementById("prev-btn");
+  var nextBtn = document.getElementById("next-btn");
+
   slides.forEach(function (_, i) {
-    var d = document.createElement("span");
+    var d = document.createElement("button");
+    d.type = "button";
+    d.setAttribute("aria-label", "Go to slide " + (i + 1));
     d.onclick = function () { show(i); };
     dots.appendChild(d);
   });
+
   function show(i) {
     cur = Math.max(0, Math.min(slides.length - 1, i));
-    slides.forEach(function (s, k) { s.classList.toggle("active", k === cur); });
-    dots.querySelectorAll("span").forEach(function (d, k) { d.classList.toggle("on", k === cur); });
+    slides.forEach(function (s, k) {
+      s.classList.toggle("active", k === cur);
+      if (k === cur) s.scrollTop = 0;
+    });
+    dots.querySelectorAll("button").forEach(function (d, k) { d.classList.toggle("on", k === cur); });
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === slides.length - 1;
   }
   function go(d) { show(cur + d); }
+
   document.addEventListener("keydown", function (e) {
     if (e.key === "ArrowRight") go(1);
     if (e.key === "ArrowLeft") go(-1);
   });
+
   show(0);
 </script>
 </body>
