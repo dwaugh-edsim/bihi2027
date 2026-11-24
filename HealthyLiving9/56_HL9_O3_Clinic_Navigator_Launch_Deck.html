@@ -67,6 +67,14 @@
     .outcome-tag { font-family:'JetBrains Mono',monospace; font-size:.78rem; font-weight:800; letter-spacing:.08em; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
     .outcome-text { font-size:1.02rem; color:var(--text-muted); font-weight:600; }
     .outcome-focus { font-size:1.02rem; margin-top:6px; }
+    .timer-chip { display:none; font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:800; background:#fef3c7; color:#92400e; border:1.5px solid #b45309; padding:3px 10px; border-radius:6px; }
+    .timer-chip.on { display:inline-block; }
+    .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:26px; }
+    .flow-card { border:2px solid var(--line); border-radius:10px; padding:18px 20px; }
+    .flow-card .k { font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:800; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; }
+    .flow-card .t { font-family:'Roboto Slab',serif; font-size:1.35rem; font-weight:800; margin:6px 0 6px 0; }
+    .flow-card .d { font-size:.95rem; color:var(--text-muted); font-weight:600; }
+    .flow-artifact { margin-top:22px; border:2px dashed var(--amber); border-radius:10px; padding:14px 18px; font-size:1rem; font-weight:700; background:#fffbeb; }
 
     .body-lg { font-size:1.35rem; font-weight:600; color:var(--text-main); margin-top:24px; max-width:900px; }
     .body-lg p + p { margin-top:14px; }
@@ -78,6 +86,7 @@
 
 <div class="top-toolbar">
     <div class="tb-title">HL9 &middot; O3 Clinic Navigator</div>
+    <div class="timer-chip" id="timerChip"></div>
     <div class="tb-count" id="count"></div>
 </div>
 <div class="progress-container"><div class="progress-bar-fill" id="prog"></div></div>
@@ -119,6 +128,56 @@ var DECK = [
   '<div class="step-row"><div class="step-k">C13</div><div class="step-v">Peer Review + Due</div><div class="step-d">Glow / grow / question swap. <b>Summative 3 &mdash; 6%.</b></div></div>' +
   '</div></div>',
 
+  // CLASS 9 FLOW
+  '<div class="slide" data-min="20"><div class="slide-num">Class 9 &middot; What you will DO today</div>' +
+  '<div class="big" style="font-size:2.4rem;">Label Reader: judge 8 real-world labels</div>' +
+  '<div class="flow-grid">' +
+  '<div class="flow-card"><div class="k">0&ndash;5 min &middot; Do now</div><div class="t">One label, 4 questions</div><div class="d">Read Exhibit 1 cold. Who made it? What does it say? What&rsquo;s missing? What do you do with it?</div></div>' +
+  '<div class="flow-card"><div class="k">5&ndash;15 min &middot; Mini-lesson</div><div class="t">The 4-question check</div><div class="d">Slides 4 &amp; 7: health literacy = find / understand / use. Red flags: no author, &ldquo;doctors hate this&rdquo;, discount codes, no NPN/DIN.</div></div>' +
+  '<div class="flow-card"><div class="k">15&ndash;35 min &middot; Activity (timer)</div><div class="t">Station rotation in pairs</div><div class="d">8 exhibit cards posted around the room (file 57). ~2 min per card. Record on the response sheet (file 58): what it says &middot; red flags &middot; verdict R / M / C.</div></div>' +
+  '<div class="flow-card"><div class="k">35&ndash;50 min &middot; Exit ticket</div><div class="t">Finish + hand in</div><div class="d">One sentence: what makes a source reliable + one red flag. Collected (formative).</div></div>' +
+  '</div>' +
+  '<div class="flow-artifact">&#9998; ARTIFACT THAT LEAVES THE ROOM: completed Label Reader Response Sheet (file 58) &mdash; formative.</div></div>',
+  // CLASS 10 FLOW
+  '<div class="slide" data-min="25"><div class="slide-num">Class 10 &middot; What you will DO today</div>' +
+  '<div class="big" style="font-size:2.4rem;">Where Do I Go? Sort 8 situations to the right service</div>' +
+  '<div class="flow-grid">' +
+  '<div class="flow-card"><div class="k">0&ndash;5 min &middot; Do now</div><div class="t">The service map</div><div class="d">Slide 5: 811 &middot; walk-in &middot; pharmacist &middot; school counsellor &middot; YHC &middot; 911/ER &middot; 988/KHP &middot; 211. Which would you call at 1 a.m.?</div></div>' +
+  '<div class="flow-card"><div class="k">5&ndash;10 min &middot; Demo</div><div class="t">One card, together</div><div class="d">Teacher sorts Scenario 2 aloud: red flags &rarr; 911/ER beats everything.</div></div>' +
+  '<div class="flow-card"><div class="k">10&ndash;35 min &middot; Activity (timer)</div><div class="t">Pairs sort all 8 cards</div><div class="d">Cards posted (file 59). Sorter sheet side A (file 60): service + one-line reason using a fact from the card. More than one answer can be defensible &mdash; the reason is marked.</div></div>' +
+  '<div class="flow-card"><div class="k">35&ndash;50 min &middot; Confidentiality</div><div class="t">Side B, then debrief</div><div class="d">Mature minor, safety limits, &ldquo;is this confidential?&rdquo; script. Debrief with key. Early finishers: Clinic Navigator sim (file 62).</div></div>' +
+  '</div>' +
+  '<div class="flow-artifact">&#9998; ARTIFACT: Sorter Sheet (file 60) &mdash; formative. Sim score stays on screen.</div></div>',
+  // CLASS 11 FLOW
+  '<div class="slide" data-min="20"><div class="slide-num">Class 11 &middot; What you will DO today</div>' +
+  '<div class="big" style="font-size:2.4rem;">Through the Door: first visit + start your map</div>' +
+  '<div class="flow-grid">' +
+  '<div class="flow-card"><div class="k">0&ndash;8 min &middot; Do now</div><div class="t">The ER wait reality</div><div class="d">Exhibit 66: Dartmouth General 3h15m&ndash;5h45m vs Valley Regional (Kentville) 15m&ndash;2h15m. Stable problem? The drive can win. Emergencies? Nearest ER. Discuss the scenario on the sheet.</div></div>' +
+  '<div class="flow-card"><div class="k">8&ndash;20 min &middot; Walkthrough</div><div class="t">A first visit, step by step</div><div class="d">File 61 side A: 7 steps + the sample intake form. Costs &amp; &ldquo;isn&rsquo;t it free?&rdquo; (MSI covers medically necessary; dental/drugs/forms often not). Advocacy scripts.</div></div>' +
+  '<div class="flow-card"><div class="k">20&ndash;40 min &middot; Activity (timer)</div><div class="t">Clinic Navigator sim</div><div class="d">File 62 on Chromebooks, solo or pairs: 8 cases, pick the door + defend it. Score /16 on screen. US trip case at the end (Boston ear infection).</div></div>' +
+  '<div class="flow-card"><div class="k">40&ndash;50 min &middot; Start the map</div><div class="t">2 rows minimum</div><div class="d">Open the project (file 63), draft rows 1&ndash;2 of your NS Resource Map. Links page (65) is your starting point.</div></div>' +
+  '</div>' +
+  '<div class="flow-artifact">&#9998; ARTIFACT: map draft rows 1&ndash;2 (file 63) + sim score. Extension reads: 67 (US), 68 (debate).</div></div>',
+  // CLASS 12 FLOW
+  '<div class="slide" data-min="40"><div class="slide-num">Class 12 &middot; What you will DO today</div>' +
+  '<div class="big" style="font-size:2.4rem;">Work session: build your NS Resource Map</div>' +
+  '<div class="flow-grid">' +
+  '<div class="flow-card"><div class="k">0&ndash;5 min &middot; Do now</div><div class="t">Rubric up</div><div class="d">File 63: coverage, accurate access details, reliability check, confidentiality notes, First-3-Steps card.</div></div>' +
+  '<div class="flow-card"><div class="k">5&ndash;45 min &middot; Activity (timer)</div><div class="t">Draft + teacher conferences</div><div class="d">Fill the 6-field table. Every phone number/link gets opened and verified live (file 65). Teacher conferences with the self-checklist.</div></div>' +
+  '<div class="flow-card"><div class="k">45&ndash;50 min &middot; Extension</div><div class="t">Read + note</div><div class="d">Exhibit 67 (US costs/travel insurance) or 68 (public vs private debate brief) &mdash; one claim + one question each.</div></div>' +
+  '<div class="flow-card"><div class="k">50&ndash;55 min &middot; Exit</div><div class="t">One question</div><div class="d">Write one question you still have about getting care in NS &mdash; anonymous box or to teacher.</div></div>' +
+  '</div>' +
+  '<div class="flow-artifact">&#9998; ARTIFACT: draft map + conference notes (checked against checklist).</div></div>',
+  // CLASS 13 FLOW
+  '<div class="slide" data-min="20"><div class="slide-num">Class 13 &middot; What you will DO today</div>' +
+  '<div class="big" style="font-size:2.4rem;">Peer review, revise, submit (Summative 3 &middot; 6%)</div>' +
+  '<div class="flow-grid">' +
+  '<div class="flow-card"><div class="k">0&ndash;5 min &middot; Model</div><div class="t">Glow / grow / question</div><div class="d">Teacher models one of each on a sample map. Specific &gt; nice.</div></div>' +
+  '<div class="flow-card"><div class="k">5&ndash;25 min &middot; Activity (timer)</div><div class="t">Swap + review</div><div class="d">File 64: swap drafts with a partner, check the 5 criteria, write one glow, one grow, one question.</div></div>' +
+  '<div class="flow-card"><div class="k">25&ndash;40 min &middot; Revise</div><div class="t">Fix what the feedback found</div><div class="d">Re-verify any link the reviewer flagged. Complete the self-checklist on file 63.</div></div>' +
+  '<div class="flow-card"><div class="k">40&ndash;55 min &middot; Submit + wrap</div><div class="t">Hand in</div><div class="d">Submit the map in Google Classroom (or print). Wrap: what&rsquo;s next &mdash; communication skills + the spring unit.</div></div>' +
+  '</div>' +
+  '<div class="flow-artifact">&#9998; ARTIFACT: final NS Resource Map (file 63) &mdash; Summative 3, 6%.</div></div>',
   // 4 HEALTH LITERACY
   '<div class="slide"><div class="slide-num">Slide 4 &middot; Health literacy = 3 skills</div>' +
   '<div class="pill-row">' +
@@ -213,8 +272,26 @@ var slides = deck.querySelectorAll('.slide');
 var idx = 0;
 var count = document.getElementById('count');
 var prog = document.getElementById('prog');
+var timerInt = null;
+function stopTimer() { if (timerInt) { clearInterval(timerInt); timerInt = null; } var tc = document.getElementById('timerChip'); tc.classList.remove('on'); tc.textContent=''; }
+function startTimer(min) {
+  stopTimer();
+  var tc = document.getElementById('timerChip');
+  tc.classList.add('on');
+  var end = Date.now() + min * 60000;
+  function tick() {
+    var left = Math.max(0, end - Date.now());
+    var m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000);
+    tc.textContent = 'ACTIVITY ' + m + ':' + (sec < 10 ? '0' : '') + sec;
+    if (left <= 0) stopTimer();
+  }
+  tick();
+  timerInt = setInterval(tick, 1000);
+}
 function show(n) {
   idx = Math.max(0, Math.min(slides.length - 1, n));
+  var sl = slides[idx];
+  if (sl && sl.dataset.min) startTimer(parseInt(sl.dataset.min, 10)); else stopTimer();
   slides.forEach(function(s, i) { s.classList.toggle('active', i === idx); });
   count.textContent = (idx + 1) + ' / ' + slides.length;
   prog.style.width = ((idx + 1) / slides.length * 100) + '%';
