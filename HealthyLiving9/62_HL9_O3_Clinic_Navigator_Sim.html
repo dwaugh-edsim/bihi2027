@@ -44,7 +44,7 @@
 <div class="wrap">
     <div class="top">
         <div class="t">HL9 &middot; O3 &mdash; Clinic Navigator Sim</div>
-        <div class="score" id="score">SCORE 0 / 14</div>
+        <div class="score" id="score">SCORE 0 / 16</div>
     </div>
     <div class="card" id="app"></div>
     <div class="outcome"><b>O3 &middot; Health Literacy</b> &ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo; All cases are fictional. Formative only &mdash; your score stays on this screen.</div>
@@ -165,6 +165,23 @@ var CASES = [
       { t: "Nothing \u2014 the snapshot says 15 minutes, so just go", good: false, why: "Predicted ranges move hour to hour, and a 'limited hours' label can mean closed tonight. Check live first \u2014 that IS the skill." }
     ]
   }
+  ,
+  {
+    title: "The Boston Ear Infection",
+    sit: "On a school trip to Boston, Jamie (14) gets a painful ear infection at 9 p.m. The trip bought travel medical insurance. Jamie's parent says: \u201cjust show them the Nova Scotia health card.\u201d",
+    facts: ["US urgent care without insurance: roughly $150\u2013$500+", "Provincial plans cover little or none outside Canada (travel.gc.ca)", "Trip travel insurance includes a 24/7 assistance line"],
+    q1: "Best move tonight?",
+    opts: [
+      { t: "Call the insurance 24/7 line first, then go to the urgent care they direct us to; pay with a card, keep every receipt, claim afterwards", good: true, why: "Travel insurance works by reimbursement: call the assistance line (they can direct you to a partner clinic and may guarantee payment), pay up front, keep receipts, file the claim. The NS health card does NOT work in the US." },
+      { t: "Show the NS health card at the front desk and get treated free", good: false, why: "MSI/provincial coverage is for care in Canada. Abroad it covers little or nothing and caps any emergency coverage at NS rates. The US clinic will want payment or insurance details." },
+      { t: "Wait two days until we're back in Nova Scotia", good: false, why: "A painful ear infection at 9 p.m. is miserable and can worsen; urgent care tonight is the right call, and the trip insurance exists for exactly this." }
+    ],
+    q2: "Two weeks later the claim is filed. What made that possible?",
+    opts: [
+      { t: "Every receipt, the clinic's itemized bill, and the claim filed within the policy deadline, with pre-existing-condition questions answered honestly", good: true, why: "US providers bill in detail and you pay first. Claims need receipts + itemized bills + honest disclosure (lying about pre-existing conditions can void the whole policy)." },
+      { t: "Nothing needed \u2014 the US hospital bills NS Health directly", good: false, why: "US hospitals bill the patient (or their insurer), not Canadian provincial plans. That's why travel insurance and receipts matter." }
+    ]
+  }
 ];
 
 var app = document.getElementById('app');
@@ -210,17 +227,17 @@ function pick(i, btn) {
     else if (!o.good && bi === i) b.classList.add('picked-bad');
   });
   if (o.good) { score += 2; }
-  scoreEl.textContent = 'SCORE ' + score + ' / 14';
+  scoreEl.textContent = 'SCORE ' + score + ' / 16';
   fb.className = 'fb show ' + (o.good ? 'good' : 'bad');
   fb.innerHTML = '<b>' + (o.good ? 'Right door' : 'Risky choice') + ' \u2014 +' + (o.good ? '2' : '0') + '</b>' + o.why;
   document.getElementById('next').classList.add('show');
 }
 
 function renderFinal() {
-  var verdict = score >= 12 ? 'Navigator certified' : score >= 9 ? 'Solid navigator \u2014 one case to re-check' : 'Re-run the sorter cards, then retry';
+  var verdict = score >= 14 ? 'Navigator certified' : score >= 11 ? 'Solid navigator \u2014 one case to re-check' : 'Re-run the sorter cards, then retry';
   app.innerHTML =
     '<div class="case-num">Complete</div>' +
-    '<div class="final-big">' + score + ' / 14</div>' +
+    '<div class="final-big">' + score + ' / 16</div>' +
     '<div class="final-note"><b>' + verdict + '.</b> You matched fictional situations to the right Nova Scotia service and defended the choice. The real skill: when it is not fictional, start with 811 (advice, 24/7), 911/ER (emergency red flags), or your school counsellor/YHC (confidential), and build your own NS Resource Map (project page) so the doors are written down before you need them.</div>' +
     '<button class="restart" onclick="location.reload()">Restart sim</button>';
 }

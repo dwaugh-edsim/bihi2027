@@ -55,3 +55,15 @@ O3 "Clinic Navigator" unit (Classes 9–13) and the NS Resource Map project.
 - Federal: canada.ca health pages; CPS: caringforkids.cps.ca
 - Red flags taught in class: no author/date, .com blog selling a product, "doctors hate this"
   language, claims of cures, paid influencer posts, no NPN/DIN on natural health products.
+
+## Crossing the border (US travel) — verified 2026-11-24
+- https://travel.gc.ca/travelling/health-safety/medical-care-outside-canada — provincial plans cover little/none
+  abroad, cap emergency coverage at NS rates, never pay up front; hospitals abroad may demand immediate payment.
+- https://travel.gc.ca/travelling/documents/travel-insurance — what travel medical insurance should include.
+- https://www.healthcare.gov/choose-a-plan/plan-types/ — HMO/PPO/EPO/POS, in/out-of-network, deductible/copay/coinsurance.
+- https://www.cms.gov/medicare/regulations-guidance/legislation/emergency-medical-treatment-labor-act — EMTALA:
+  ERs must screen/stabilize regardless of ability to pay, then bill.
+Typical uninsured US costs used in exhibit 67 (approximate ranges): urgent care $150-$500+, ER $1,500-$3,000+
+(non-life-threatening; admitted much more), ambulance $1,000-$3,000+, hospital day $2,000-$5,000+.
+Context stats: ~26M uninsured US (Census 2024); medical debt affects a large share of adults (KFF); JAMA 2026:
+>50% of admitted ER patients boarded 4h+ (US ER waits exist too).
