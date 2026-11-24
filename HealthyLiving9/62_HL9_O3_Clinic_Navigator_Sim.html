@@ -44,7 +44,7 @@
 <div class="wrap">
     <div class="top">
         <div class="t">HL9 &middot; O3 &mdash; Clinic Navigator Sim</div>
-        <div class="score" id="score">SCORE 0 / 12</div>
+        <div class="score" id="score">SCORE 0 / 14</div>
     </div>
     <div class="card" id="app"></div>
     <div class="outcome"><b>O3 &middot; Health Literacy</b> &ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo; All cases are fictional. Formative only &mdash; your score stays on this screen.</div>
@@ -148,6 +148,23 @@ var CASES = [
       { t: "Insist on waiting for the in-person slot only", good: false, why: "Three weeks is a long time to carry an unresolved follow-up when a phone visit may close it." }
     ]
   }
+  ,
+  {
+    title: "The 8 p.m. Sprain",
+    sit: "It's 8 p.m. Ari (14) sprained an ankle at practice \u2014 swollen and painful, but not deformed (Scenario 3). Walk-in clinics are closed. Live ED wait times show Dartmouth General at 4+ hours predicted; Valley Regional in Kentville (24/7, about a 40-minute drive) shows under 1 hour.",
+    facts: ["Stable injury: no deformity, no numbness", "Dartmouth General predicted 3h 15m\u20135h 45m (24/7)", "Valley Regional (Kentville) predicted 15m\u20132h 15m (24/7)"],
+    q1: "Best first move?",
+    opts: [
+      { t: "Call 811 to confirm an ER is even needed, then check live wait times + hours and drive to the shorter-wait 24/7 site if the injury is stable", good: true, why: "Stable problem + much shorter predicted wait an hour away = the drive can genuinely win. But 811 first can sometimes avoid the ER entirely, and you verify live numbers and hours before driving." },
+      { t: "Go straight to Dartmouth General \u2014 it's the closest ER", good: false, why: "Closest is not always fastest. For a stable injury, sitting 4\u20136 hours at Dartmouth vs. a ~40-minute drive plus under 2 hours at Kentville is a real trade-off worth checking. (Emergencies are the exception: nearest ER always.)" },
+      { t: "Drive to IWK in Halifax instead", good: false, why: "IWK is primarily children's/women's health and shows limited hours \u2014 and it's still in Halifax, where waits run 3h+. Wrong door on both counts here." }
+    ],
+    q2: "Before driving to Kentville, what must Ari's family verify?",
+    opts: [
+      { t: "Live current wait (predictions change), that the site is open 24/7 (not 'limited hours'), and that someone sober can drive \u2014 never drive impaired or in severe pain", good: true, why: "The snapshot is a prediction, not a promise. 'Limited hours' sites can be closed. And the driver's condition matters \u2014 211 can help find transport options if needed." },
+      { t: "Nothing \u2014 the snapshot says 15 minutes, so just go", good: false, why: "Predicted ranges move hour to hour, and a 'limited hours' label can mean closed tonight. Check live first \u2014 that IS the skill." }
+    ]
+  }
 ];
 
 var app = document.getElementById('app');
@@ -193,17 +210,17 @@ function pick(i, btn) {
     else if (!o.good && bi === i) b.classList.add('picked-bad');
   });
   if (o.good) { score += 2; }
-  scoreEl.textContent = 'SCORE ' + score + ' / 12';
+  scoreEl.textContent = 'SCORE ' + score + ' / 14';
   fb.className = 'fb show ' + (o.good ? 'good' : 'bad');
   fb.innerHTML = '<b>' + (o.good ? 'Right door' : 'Risky choice') + ' \u2014 +' + (o.good ? '2' : '0') + '</b>' + o.why;
   document.getElementById('next').classList.add('show');
 }
 
 function renderFinal() {
-  var verdict = score >= 10 ? 'Navigator certified' : score >= 7 ? 'Solid navigator \u2014 one case to re-check' : 'Re-run the sorter cards, then retry';
+  var verdict = score >= 12 ? 'Navigator certified' : score >= 9 ? 'Solid navigator \u2014 one case to re-check' : 'Re-run the sorter cards, then retry';
   app.innerHTML =
     '<div class="case-num">Complete</div>' +
-    '<div class="final-big">' + score + ' / 12</div>' +
+    '<div class="final-big">' + score + ' / 14</div>' +
     '<div class="final-note"><b>' + verdict + '.</b> You matched fictional situations to the right Nova Scotia service and defended the choice. The real skill: when it is not fictional, start with 811 (advice, 24/7), 911/ER (emergency red flags), or your school counsellor/YHC (confidential), and build your own NS Resource Map (project page) so the doors are written down before you need them.</div>' +
     '<button class="restart" onclick="location.reload()">Restart sim</button>';
 }
