@@ -26,6 +26,17 @@ O3 "Clinic Navigator" unit (Classes 9–13) and the NS Resource Map project.
   https://pans.ns.ca/pharmacy-services/commonconditions/ and https://pans.ns.ca/minor-ailment-assessment —
   pharmacists can assess/prescribe for a list of common conditions; no appointment needed.
 
+## Wait times & registries (verified 2026-11-24)
+- **ER / ED wait times** — https://www.yourhealthns.ca/apps/services-sub-emergency-department-wait-times
+  (also https://edwaittimes-app.nshealth.ca/ and https://erstat.ca/hospitals/ns) — estimated current
+  waits for select NS emergency departments.
+- **Need a Family Practice Registry** — https://needafamilypractice.nshealth.ca/ — the waitlist for a
+  family doctor (GP); register by calling 811; needs NS Health Card.
+- **Specialist wait times** — https://waittimes.novascotia.ca/physicians — 150+ procedures, shortest
+  waits by location/specialist; requires a referral.
+- **What MSI covers** — https://www.novascotia.ca/healthcare-services-covered-your-health-card —
+  medically necessary doctor/hospital care covered; most dental, retail prescriptions, some forms/tests not.
+
 ## Youth-specific & confidential
 - **HRCE Youth Health Centres** (school-based, incl. Dartmouth schools) —
   https://www.hrce.ca/about-our-schools/students/youth-health-centres — Bicentennial's own
