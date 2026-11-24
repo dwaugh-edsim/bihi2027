@@ -67,3 +67,12 @@ Typical uninsured US costs used in exhibit 67 (approximate ranges): urgent care 
 (non-life-threatening; admitted much more), ambulance $1,000-$3,000+, hospital day $2,000-$5,000+.
 Context stats: ~26M uninsured US (Census 2024); medical debt affects a large share of adults (KFF); JAMA 2026:
 >50% of admitted ER patients boarded 4h+ (US ER waits exist too).
+
+## The Canadian public-vs-private debate — verified 2026-11-24
+- Canada Health Act full text: https://laws-lois.justice.gc.ca/eng/acts/C-6/ (5 principles; extra-billing/user-fee deterrence)
+- Health Canada CHA Annual Report 2023-24: https://www.canada.ca/en/health-canada/services/publications/health-system-services/canada-health-act-annual-report-2023-2024.html
+- Chaoulli v. Quebec [2005] 2 S.C.R. 791 (CanLII): https://www.canlii.org/en/ca/scc/doc/2005/2005scc35/2005scc35.html
+- Cambie Surgeries v. BC: restrictions upheld, 2022 BCCA; SCC denied leave 2023.
+- Fraser Institute Waiting Your Turn 2024: https://www.fraserinstitute.org/studies/waiting-your-turn-wait-times-for-health-care-in-canada-2024
+  (2024 report median waits incl. orthopaedic ~57.5 wks, neurosurgery ~46.2 wks)
+- Already private-pay in Canada: dental, prescription drugs, physio, vision, psychologists, paid virtual care (e.g., Maple/TELUS).
