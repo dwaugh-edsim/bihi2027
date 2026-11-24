@@ -1382,8 +1382,16 @@
   </div>
 </div>
 
-<script src="topics.js"></script>
+<script src="topics.js?v=20261124c"></script>
 <script>
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   var App = (function () {
     var IDENTITY_URL = "https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec";
     var VAULT_URL = "https://script.google.com/macros/s/AKfycbwO6rPhp8e8T7-PLJhTkL1cKHd3W8DeufUKmFwpKsgZZhdSDXwRgRWrqp_2dlxQXiwp0w/exec";
@@ -1468,7 +1476,7 @@
     function populateSelects() {
       var opts = '<option value="">-- Choose a country from the catalog --</option>' +
         TOPICS.map(function (t) {
-          return '<option value="' + t.id + '">' + _esc(t.country + " - " + t.issue) + (t.tnc ? " [TNC]" : "") + "</option>";
+          return '<option value="' + t.id + '">' + escHtml(t.country + " - " + t.issue) + (t.tnc ? " [TNC]" : "") + "</option>";
         }).join("");
       [1, 2, 3].forEach(function (n) {
         var sel = document.getElementById("bid-c" + n);
@@ -1823,11 +1831,11 @@
     if (!a && !t) return null;
     var yearPart = "(" + (y || "n.d.") + "). ";
     var plain = "", html = "";
-    if (a) { var aEnd = a + (/[.]$/.test(a) ? "" : ".") + " "; plain += aEnd; html += _esc(aEnd); }
-    plain += yearPart; html += _esc(yearPart);
-    if (t) { var tEnd = t + (/[.?!]$/.test(t) ? "" : "."); plain += tEnd + " "; html += "<em>" + _esc(tEnd) + "</em> "; }
-    if (p && p.toLowerCase() !== a.toLowerCase()) { var pEnd = p + (/[.]$/.test(p) ? "" : ".") + " "; plain += pEnd; html += _esc(pEnd); }
-    if (u) { plain += u; html += _esc(u); }
+    if (a) { var aEnd = a + (/[.]$/.test(a) ? "" : ".") + " "; plain += aEnd; html += escHtml(aEnd); }
+    plain += yearPart; html += escHtml(yearPart);
+    if (t) { var tEnd = t + (/[.?!]$/.test(t) ? "" : "."); plain += tEnd + " "; html += "<em>" + escHtml(tEnd) + "</em> "; }
+    if (p && p.toLowerCase() !== a.toLowerCase()) { var pEnd = p + (/[.]$/.test(p) ? "" : ".") + " "; plain += pEnd; html += escHtml(pEnd); }
+    if (u) { plain += u; html += escHtml(u); }
     return { plain: plain.trim(), html: html.trim() };
   }
   function updateAPAPreview() {
