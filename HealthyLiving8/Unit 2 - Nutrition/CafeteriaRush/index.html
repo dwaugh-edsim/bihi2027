@@ -459,18 +459,42 @@ window.Game = (function () {
   let activeCat = 'all', activeTags = new Set();
 
   // ---- PATH B GOOGLE SIGN-IN ----
+  const ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
+  function atobUrl(s) {
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    return atob(s);
+  }
+  function returnUrl() {
+    return location.origin.indexOf(ALLOWED_ORIGIN) === 0 ? location.href.split('#')[0] : null;
+  }
+
   function initAuth() {
     try {
-      const saved = sessionStorage.getItem('r8id');
-      if (saved) {
-        const obj = JSON.parse(saved);
-        if (obj && obj.email && obj.sig) setIdentity(obj);
+      const m = (location.hash || '').match(/[#&]r8id=([^&]+)/);
+      if (m) {
+        const parsed = JSON.parse(atobUrl(m[1]));
+        if (parsed && parsed.email && parsed.sig) {
+          sessionStorage.setItem('r8id', JSON.stringify(parsed));
+          setIdentity(parsed);
+        }
+        history.replaceState(null, '', location.pathname + location.search);
       }
     } catch (e) {}
+    if (!identity) {
+      try {
+        const saved = sessionStorage.getItem('r8id');
+        if (saved) {
+          const obj = JSON.parse(saved);
+          if (obj && obj.email && obj.sig) setIdentity(obj);
+        }
+      } catch (e) {}
+    }
     window.addEventListener('message', ev => {
       const d = ev && ev.data;
       if (!d) return;
-      const id = (d.type === 'R8_ID' && d.id) ? d.id : (d.email && d.sig ? d : null);
+      const isR8 = d.type === 'r8id' || d.type === 'R8_ID';
+      const id = (isR8 && d.id) ? d.id : (isR8 && d.email && d.sig ? { email: d.email, ts: d.ts, sig: d.sig } : (d.email && d.sig ? d : null));
       if (id && id.email && id.sig) {
         try { sessionStorage.setItem('r8id', JSON.stringify(id)); } catch (e) {}
         setIdentity(id);
@@ -498,7 +522,14 @@ window.Game = (function () {
   }
 
   function signIn() {
-    popupRef = window.open(IDENTITY_URL + '?popup=1', 'r8_signin', 'width=520,height=640');
+    const ret = returnUrl();
+    if (!ret) {
+      document.getElementById('authStatus').textContent = 'Open the live GitHub Pages link to sign in with @gnspes.ca.';
+      return;
+    }
+    const url = IDENTITY_URL + '?return=' + encodeURIComponent(ret);
+    popupRef = window.open(url, 'r8_id', 'width=500,height=620');
+    if (!popupRef) location.href = url;
   }
 
   function saveToVault() {
