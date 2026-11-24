@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O3: Clinic Navigator Sim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root { --text-main:#0f172a; --text-muted:#475569; --bg:#e2e8f0; --accent:#2563eb; --line:#cbd5e1; --good:#15803d; --bad:#b91c1c; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',sans-serif; color:var(--text-main); background:var(--bg); line-height:1.5; padding:22px; }
+    .wrap { max-width:880px; margin:0 auto; }
+    .top { background:#0f172a; color:#fff; border-radius:10px; padding:14px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+    .top .t { font-family:'Roboto Slab',serif; font-weight:800; font-size:1.05rem; }
+    .top .score { margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:.85rem; background:#1e293b; padding:4px 12px; border-radius:6px; }
+    .card { background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:26px 28px; box-shadow:0 6px 20px rgba(15,23,42,.08); }
+    .case-num { font-family:'JetBrains Mono',monospace; font-size:.75rem; font-weight:800; letter-spacing:.08em; color:var(--accent); text-transform:uppercase; }
+    .case-title { font-family:'Roboto Slab',serif; font-size:1.7rem; font-weight:900; margin:6px 0 10px 0; }
+    .case-sit { font-size:1.02rem; font-weight:600; color:#1e293b; }
+    .case-facts { margin-top:12px; border:1.5px solid var(--line); background:#f8fafc; border-radius:8px; padding:10px 14px; font-size:.86rem; }
+    .case-facts div::before { content:"\25B8  "; color:var(--accent); font-weight:800; }
+    .q { font-weight:800; margin:20px 0 10px 0; font-size:.95rem; }
+    .opt { display:block; width:100%; text-align:left; border:2px solid var(--line); background:#fff; border-radius:10px; padding:13px 16px; margin-bottom:10px; cursor:pointer; font-size:.95rem; font-weight:700; font-family:'Inter',sans-serif; color:var(--text-main); }
+    .opt:hover { border-color:var(--accent); background:#eff6ff; }
+    .opt.picked-good { border-color:var(--good); background:#f0fdf4; }
+    .opt.picked-bad { border-color:var(--bad); background:#fef2f2; }
+    .fb { display:none; border-left:5px solid #000; background:#f0f0f0; padding:12px 16px; margin-top:14px; border-radius:0 8px 8px 0; font-size:.9rem; }
+    .fb.show { display:block; }
+    .fb.good { border-left-color:var(--good); }
+    .fb.bad { border-left-color:var(--bad); }
+    .fb b { font-family:'JetBrains Mono',monospace; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:4px; }
+    .next-btn { display:none; margin-top:16px; background:#0f172a; color:#fff; border:none; padding:12px 26px; border-radius:8px; font-weight:800; font-size:.95rem; cursor:pointer; font-family:'Inter',sans-serif; }
+    .next-btn.show { display:inline-block; }
+    .outcome { margin-top:18px; border-top:2px solid var(--line); padding-top:12px; font-size:.8rem; color:var(--text-muted); font-weight:600; }
+    .outcome b { color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+    .final-big { font-family:'Roboto Slab',serif; font-size:2.4rem; font-weight:900; margin:10px 0; }
+    .final-note { font-size:.95rem; font-weight:600; color:var(--text-muted); max-width:640px; }
+    .restart { margin-top:18px; background:#fff; border:2px solid var(--text-main); padding:10px 22px; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Inter',sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <div class="t">HL9 &middot; O3 &mdash; Clinic Navigator Sim</div>
+        <div class="score" id="score">SCORE 0 / 12</div>
+    </div>
+    <div class="card" id="app"></div>
+    <div class="outcome"><b>O3 &middot; Health Literacy</b> &ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo; All cases are fictional. Formative only &mdash; your score stays on this screen.</div>
+</div>
+
+<script>
+var CASES = [
+  {
+    title: "The Night Fever",
+    sit: "Maya, 14, has had a fever and sore throat for two days. Her family has no family doctor. It is 9 p.m. and she feels worse.",
+    facts: ["Fever 38.6\u00B0C, drinking fluids, no trouble breathing", "No rash, no stiff neck, awake and talking normally"],
+    q1: "First move?",
+    opts: [
+      { t: "Call 811 and ask a nurse what to do tonight", good: true, why: "Not an emergency, but needs advice tonight. 811 is free, 24/7, and staffed by registered nurses \u2014 the right first door when there is no family doctor." },
+      { t: "Drive straight to the ER", good: false, why: "ER is for severe or life-threatening problems. Maya's facts show none \u2014 fever without breathing trouble, rash, or stiff neck. ER would mean a long wait for something 811 can handle by phone." },
+      { t: "Wait until morning and see how she feels", good: false, why: "Two days of fever and getting worse at night is exactly what 811 is for \u2014 waiting risks it turning into something that does need the ER." }
+    ],
+    q2: "The nurse says: monitor at home, fluids, and come to a walk-in if it reaches 39.5\u00B0C. Best next step?",
+    opts: [
+      { t: "Write down the 39.5\u00B0C threshold and use yourhealthns.ca to find the nearest walk-in's hours", good: true, why: "A clear threshold + a real plan = good navigation. Knowing where you would go before you need to is the whole skill." },
+      { t: "Nothing \u2014 if it gets worse, decide then", good: false, why: "Deciding at 2 a.m. under stress is when people pick the wrong door. Plan the door now, while calm." }
+    ]
+  },
+  {
+    title: "The Worst Headache",
+    sit: "Devon, 15, woke with the worst headache of his life, a stiff neck, and a rash that does not fade when pressed with a glass.",
+    facts: ["Severe headache + stiff neck + non-fading rash", "This combination can signal a medical emergency"],
+    q1: "First move?",
+    opts: [
+      { t: "Call 911 / go to the ER now", good: true, why: "Severe headache with stiff neck and a non-fading rash is a classic emergency combination. 911/ER beats every other door here." },
+      { t: "Call 811 first to ask", good: false, why: "811 can give advice, but with red-flag emergency signs you do not wait on hold \u2014 ER now." },
+      { t: "Give pain medicine and wait an hour", good: false, why: "Pain medicine can mask symptoms of something serious. Red flags mean act now." }
+    ],
+    q2: "A parent asks: \u201cShould we drive or call an ambulance?\u201d Best answer?",
+    opts: [
+      { t: "Call 911 \u2014 let the paramedics decide and start care on the way", good: true, why: "With possible meningitis-type signs, professional assessment during transport matters; driving yourself wastes time and can be unsafe." },
+      { t: "Drive fast \u2014 it's only 10 minutes away", good: false, why: "Speed does not create medical care. 911 gets a trained crew moving toward you immediately." }
+    ]
+  },
+  {
+    title: "The Ankle at Practice",
+    sit: "Ari, 14, twisted an ankle at basketball practice. Swollen and painful, but the foot is not deformed and they can limp.",
+    facts: ["Swelling + pain, can still limp", "No deformity, no numbness, not an open wound"],
+    q1: "First move?",
+    opts: [
+      { t: "Call 811 to find the nearest walk-in/urgent care open now, then go", good: true, why: "Painful but stable injury = urgent care, not ER. 811 (or yourhealthns.ca) tells you which walk-in is actually open tonight." },
+      { t: "Go straight to the ER", good: false, why: "No deformity, no numbness, can limp \u2014 ER resources go to emergencies. Urgent care is the right-sized door." },
+      { t: "Wait two weeks and see if it heals", good: false, why: "A significant sprain seen early heals better and rules out a fracture. Don't wait on a weight-bearing injury." }
+    ],
+    q2: "At the desk they ask for a health card Ari forgot at home. What happens?",
+    opts: [
+      { t: "They are still seen for the urgent problem; the card can be brought later for billing", good: true, why: "Urgent care is not refused over a missing card. Bring ID when you can \u2014 but care comes first." },
+      { t: "They are turned away until the card is produced", good: false, why: "That is not how NS urgent care works for an acute injury. Ask to speak to the front desk supervisor if told otherwise." }
+    ]
+  },
+  {
+    title: "The Private Question",
+    sit: "Riley, 15, wants accurate, confidential information about sexual health and is worried a parent could see calls or the phone bill.",
+    facts: ["Wants confidentiality from family", "Informational question, not an emergency"],
+    q1: "Best first door?",
+    opts: [
+      { t: "A Youth Health Centre (school-based or community) or a confidential .ca source like sexandu.ca \u2014 with 811 as backup", good: true, why: "YHCs are designed to be confidential for youth (mature minor principle in NS). Government/association .ca sources avoid the phone-bill trail entirely." },
+      { t: "Call the family doctor and ask them not to tell parents", good: false, why: "Family doctors' records and insurance statements can surface at home. For confidential sexual health info, YHC/811 are the designed-confidential route." },
+      { t: "Search random forums so nothing is on any bill", good: false, why: "Anonymity is not reliability \u2014 forums spread misinformation. Use confidential + reliable: YHC, 811, sexandu.ca." }
+    ],
+    q2: "At the YHC, what should Riley ask before answering personal questions?",
+    opts: [
+      { t: "\u201cIs this confidential? What are the limits \u2014 is there anything you would have to share?\u201d", good: true, why: "Asking the limits out loud is exactly the self-advocacy skill. Safety limits exist (risk of serious harm) \u2014 a good provider states them plainly." },
+      { t: "Nothing \u2014 just answer everything honestly", good: false, why: "You can always ask what is private first. Mature minor consent means your care is yours \u2014 but know the safety limits." }
+    ]
+  },
+  {
+    title: "The Heavy Three Weeks",
+    sit: "Jordan, 14, has felt down most days for three weeks, stopped going to robotics club, and is sleeping badly. A friend says \u201cjust talk to someone.\u201d",
+    facts: ["Ongoing low mood, withdrawing from activities", "Not in danger right now; wants to talk to a person"],
+    q1: "Best first door?",
+    opts: [
+      { t: "School counsellor (or YHC) this week \u2014 and 988/KHP anytime it feels urgent", good: true, why: "Weeks of low mood + withdrawal = worth a real conversation with a counsellor, not a text line alone \u2014 though 988 (call/text) or Kids Help Phone are there any hour if it spikes." },
+      { t: "Text Kids Help Phone and see if that's enough", good: false, why: "A helpline is a great start and available 24/7 \u2014 but three weeks of low mood deserves an ongoing conversation with the school counsellor too. Use both." },
+      { t: "Wait until the holidays, it'll probably pass", good: false, why: "Three weeks of low mood and dropping activities is a pattern, not a bad week. Talking to someone early is the protective move." }
+    ],
+    q2: "Jordan is nervous and says \u201cI don't know what to say.\u201d Best script opener?",
+    opts: [
+      { t: "\u201cI've been feeling down most days for about three weeks and it's affecting my sleep and robotics. I'm not sure what's going on.\u201d", good: true, why: "Specific, honest, no performance needed. Naming the time frame and the impact gives the counsellor exactly what they need." },
+      { t: "\u201cI don't know, everything's fine I guess.\u201d", good: false, why: "Minimizing is normal \u2014 but it hides the pattern. It is okay to say \u201cI don't know how to start \u2014 can you help?\u201d" }
+    ]
+  },
+  {
+    title: "No Ride, No Card",
+    sit: "Casey, 14, needs a follow-up appointment across Dartmouth, has no ride, and is worried about cost. The health card is in a drawer at home.",
+    facts: ["Transport + cost barrier, not an emergency", "Follow-up appointment, can be booked ahead"],
+    q1: "Best move?",
+    opts: [
+      { t: "Dial/text 211 for community transport options + call the clinic to ask about phone appointments; 811 for any medical questions meanwhile", good: true, why: "211 is built for exactly this \u2014 connecting people to community supports like rides. Many follow-ups can be done by phone. The card can be sorted for billing, not care." },
+      { t: "Skip the appointment \u2014 it's probably fine", good: false, why: "A follow-up exists because something needed checking. Barriers are solvable; skipping quietly is how small things become big ones." },
+      { t: "Take two buses each way and pay cash for everything", good: false, why: "If 211 or a phone appointment can remove the barrier, use it. MSI covers medically necessary visits \u2014 the card matters for billing, not for being seen." }
+    ],
+    q2: "The clinic says the earliest in-person slot is 3 weeks away, but offers a phone visit Thursday. Best choice?",
+    opts: [
+      { t: "Take the Thursday phone visit, and ask them to book the in-person follow-up for later if still needed", good: true, why: "Phone visits resolve many follow-ups. Booking the in-person option as a backup covers both paths \u2014 that is navigating the system, not just hoping." },
+      { t: "Insist on waiting for the in-person slot only", good: false, why: "Three weeks is a long time to carry an unresolved follow-up when a phone visit may close it." }
+    ]
+  }
+];
+
+var app = document.getElementById('app');
+var scoreEl = document.getElementById('score');
+var caseIdx = 0, step = 0, score = 0, locked = false;
+
+function render() {
+  var c = CASES[caseIdx];
+  if (caseIdx >= CASES.length) { renderFinal(); return; }
+  var isQ1 = step === 0;
+  var q = isQ1 ? c.q1 : c.q2;
+  var opts = isQ1 ? c.opts : c.opts;
+  app.innerHTML =
+    '<div class="case-num">Case ' + (caseIdx + 1) + ' of ' + CASES.length + ' &middot; ' + (isQ1 ? 'Step 1 of 2' : 'Step 2 of 2') + '</div>' +
+    '<div class="case-title">' + c.title + '</div>' +
+    '<div class="case-sit">' + c.sit + '</div>' +
+    '<div class="case-facts">' + c.facts.map(function(f){ return '<div>' + f + '</div>'; }).join('') + '</div>' +
+    '<div class="q">' + q + '</div>' +
+    '<div id="opts">' + opts.map(function(o, i) {
+      return '<button class="opt" data-i="' + i + '">' + o.t + '</button>';
+    }).join('') + '</div>' +
+    '<div class="fb" id="fb"></div>' +
+    '<button class="next-btn" id="next">' + (isQ1 ? 'Next step \u2192' : 'Next case \u2192') + '</button>';
+  app.querySelectorAll('.opt').forEach(function(btn) {
+    btn.onclick = function() { pick(parseInt(btn.dataset.i, 10), btn); };
+  });
+  document.getElementById('next').onclick = function() {
+    locked = false;
+    if (step === 0) { step = 1; render(); }
+    else { caseIdx++; step = 0; render(); }
+    window.scrollTo(0, 0);
+  };
+}
+
+function pick(i, btn) {
+  if (locked) return;
+  locked = true;
+  var c = CASES[caseIdx];
+  var o = c.opts[i];
+  var fb = document.getElementById('fb');
+  app.querySelectorAll('.opt').forEach(function(b, bi) {
+    if (o.good && bi === i) b.classList.add('picked-good');
+    else if (!o.good && bi === i) b.classList.add('picked-bad');
+  });
+  if (o.good) { score += 2; }
+  scoreEl.textContent = 'SCORE ' + score + ' / 12';
+  fb.className = 'fb show ' + (o.good ? 'good' : 'bad');
+  fb.innerHTML = '<b>' + (o.good ? 'Right door' : 'Risky choice') + ' \u2014 +' + (o.good ? '2' : '0') + '</b>' + o.why;
+  document.getElementById('next').classList.add('show');
+}
+
+function renderFinal() {
+  var verdict = score >= 10 ? 'Navigator certified' : score >= 7 ? 'Solid navigator \u2014 one case to re-check' : 'Re-run the sorter cards, then retry';
+  app.innerHTML =
+    '<div class="case-num">Complete</div>' +
+    '<div class="final-big">' + score + ' / 12</div>' +
+    '<div class="final-note"><b>' + verdict + '.</b> You matched fictional situations to the right Nova Scotia service and defended the choice. The real skill: when it is not fictional, start with 811 (advice, 24/7), 911/ER (emergency red flags), or your school counsellor/YHC (confidential), and build your own NS Resource Map (project page) so the doors are written down before you need them.</div>' +
+    '<button class="restart" onclick="location.reload()">Restart sim</button>';
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O3: Clinic Navigator - Launch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --text-main:#0f172a; --text-muted:#475569; --bg:#e2e8f0;
+        --accent:#2563eb; --amber:#b45309; --red:#b91c1c; --green:#15803d;
+        --line:#cbd5e1;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--text-main); background:var(--bg); line-height:1.45; }
+
+    .top-toolbar { position:sticky; top:0; z-index:50; background:#0f172a; color:#fff; padding:10px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .tb-title { font-family:'Roboto Slab',serif; font-weight:800; font-size:1rem; }
+    .tb-count { font-family:'JetBrains Mono',monospace; font-size:.8rem; color:#94a3b8; margin-left:auto; }
+    .progress-container { height:4px; background:#1e293b; }
+    .progress-bar-fill { height:100%; background:var(--accent); width:0; transition:width .18s ease; }
+
+    .stage { max-width:1280px; margin:26px auto 30px auto; padding:0 20px; }
+    .slide { background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 6px 22px rgba(15,23,42,.10); padding:64px 72px; display:none; min-height:620px; }
+    .slide.active { display:block; }
+
+    .slide-num { font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:800; letter-spacing:.1em; color:var(--text-muted); text-transform:uppercase; margin-bottom:26px; }
+
+    .big { font-family:'Roboto Slab',serif; font-size:4.2rem; font-weight:900; line-height:1.15; }
+    .big-sub { font-size:1.25rem; color:var(--text-muted); font-weight:600; margin-top:14px; }
+
+    .pill-row { display:flex; gap:14px; flex-wrap:wrap; margin-top:36px; }
+    .word-card { flex:1; min-width:220px; border:2px solid var(--line); border-radius:10px; padding:22px 24px; }
+    .word-card .w { font-family:'Roboto Slab',serif; font-size:1.9rem; font-weight:900; }
+    .word-card .d { font-size:1.15rem; color:var(--text-muted); margin-top:8px; font-weight:600; }
+    .word-card .x { font-size:1.2rem; font-weight:700; font-style:italic; margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+    .wc-blue { border-top:8px solid var(--accent); }
+    .wc-amber { border-top:8px solid var(--amber); }
+    .wc-green { border-top:8px solid var(--green); }
+    .wc-red { border-top:8px solid var(--red); }
+
+    .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:34px; }
+    .tech-card { border:2px solid var(--line); border-radius:10px; padding:26px 24px; }
+    .tech-card .n { font-family:'JetBrains Mono',monospace; font-size:.8rem; font-weight:800; color:var(--accent); letter-spacing:.08em; }
+    .tech-card .t { font-family:'Roboto Slab',serif; font-size:1.6rem; font-weight:800; margin:8px 0 12px 0; }
+    .tech-card .x { font-size:1.15rem; color:var(--text-muted); font-weight:600; }
+
+    .steps { margin-top:36px; }
+    .step-row { display:flex; align-items:baseline; gap:20px; padding:14px 0; border-bottom:1px solid var(--line); }
+    .step-row:last-child { border-bottom:none; }
+    .step-k { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:800; color:var(--accent); min-width:56px; }
+    .step-v { font-family:'Roboto Slab',serif; font-size:1.8rem; font-weight:800; }
+    .step-d { font-size:1.05rem; color:var(--text-muted); font-weight:600; margin-left:auto; text-align:right; max-width:520px; }
+
+    .nav-foot { max-width:1280px; margin:0 auto 40px auto; padding:0 20px; display:flex; justify-content:space-between; align-items:center; gap:14px; }
+    .nav-btn { background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:11px 22px; cursor:pointer; font-weight:700; font-size:.9rem; color:var(--text-main); }
+    .nav-btn:hover:not(:disabled) { background:#f1f5f9; border-color:var(--text-main); }
+    .nav-btn:disabled { opacity:.4; cursor:default; }
+    .nav-outcome { font-size:.82rem; color:var(--text-muted); font-weight:600; display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line); padding:6px 14px; border-radius:6px; }
+    .nav-outcome-tag { font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:800; background:#f1f5f9; color:var(--accent); border:1px solid #bfdbfe; padding:2px 6px; border-radius:3px; }
+
+    .course-pill { font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:800; background:#eff6ff; color:var(--accent); border:1.5px solid #bfdbfe; padding:4px 12px; border-radius:6px; letter-spacing:.08em; text-transform:uppercase; display:inline-block; margin-bottom:26px; }
+
+    .outcome-box { margin-top:36px; border-top:2px solid var(--line); padding-top:18px; }
+    .outcome-tag { font-family:'JetBrains Mono',monospace; font-size:.78rem; font-weight:800; letter-spacing:.08em; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
+    .outcome-text { font-size:1.02rem; color:var(--text-muted); font-weight:600; }
+    .outcome-focus { font-size:1.02rem; margin-top:6px; }
+
+    .body-lg { font-size:1.35rem; font-weight:600; color:var(--text-main); margin-top:24px; max-width:900px; }
+    .body-lg p + p { margin-top:14px; }
+
+    @media print { .top-toolbar,.nav-foot,.progress-container { display:none; } .slide { display:block !important; page-break-after:always; box-shadow:none; min-height:auto; } }
+</style>
+</head>
+<body>
+
+<div class="top-toolbar">
+    <div class="tb-title">HL9 &middot; O3 Clinic Navigator</div>
+    <div class="tb-count" id="count"></div>
+</div>
+<div class="progress-container"><div class="progress-bar-fill" id="prog"></div></div>
+
+<div class="stage" id="deck"></div>
+
+<div class="nav-foot">
+    <button class="nav-btn" id="prev">&larr; Back</button>
+    <div class="nav-outcome"><span class="nav-outcome-tag">O3</span> Investigate ways to access health resources</div>
+    <button class="nav-btn" id="next">Next &rarr;</button>
+</div>
+
+<script>
+var DECK = [
+  // 1 TITLE
+  '<div class="slide"><div class="course-pill">HL9 &middot; O3 Health Literacy</div>' +
+  '<div class="big">Clinic<br>Navigator</div>' +
+  '<div class="big-sub">Know where to go. Know what it costs. Know what stays private.</div>' +
+  '<div class="outcome-box"><div class="outcome-tag">Outcome 3 &middot; Health Literacy / Navigating the System</div>' +
+  '<div class="outcome-text">&ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo;</div></div></div>',
+
+  // 2 INDICATORS
+  '<div class="slide"><div class="slide-num">Slide 2 &middot; What you will be able to do</div>' +
+  '<div class="big" style="font-size:2.6rem;">By the end of this unit, you can&hellip;</div>' +
+  '<div class="steps">' +
+  '<div class="step-row"><div class="step-k">01</div><div class="step-v">Read a label</div><div class="step-d">Medicine, food, supplement ads, and app privacy policies &mdash; what they really say.</div></div>' +
+  '<div class="step-row"><div class="step-k">02</div><div class="step-v">Pick the right door</div><div class="step-d">811, walk-in, pharmacist, school counsellor, Youth Health Centre, ER &mdash; which one, when, and why.</div></div>' +
+  '<div class="step-row"><div class="step-k">03</div><div class="step-v">Walk through the door</div><div class="step-d">What happens at a first visit, what it costs, what is confidential in Nova Scotia.</div></div>' +
+  '<div class="step-row"><div class="step-k">04</div><div class="step-v">Build the map</div><div class="step-d">Your NS Resource Map: 6+ real resources, checked for reliability &mdash; due Class 13 (6%).</div></div>' +
+  '</div></div>',
+
+  // 3 ROADMAP
+  '<div class="slide"><div class="slide-num">Slide 3 &middot; The road (Classes 9&ndash;13)</div>' +
+  '<div class="steps">' +
+  '<div class="step-row"><div class="step-k">C9</div><div class="step-v">Can You Read the Label?</div><div class="step-d">Label Reader station cards + response sheet.</div></div>' +
+  '<div class="step-row"><div class="step-k">C10</div><div class="step-v">Where Do I Go?</div><div class="step-d">Scenario sorter: match 8 situations to the right service + justify. Confidentiality limits.</div></div>' +
+  '<div class="step-row"><div class="step-k">C11</div><div class="step-v">Through the Door</div><div class="step-d">Intake-form walkthrough. Start your NS Resource Map draft.</div></div>' +
+  '<div class="step-row"><div class="step-k">C12</div><div class="step-v">Work + Check-ins</div><div class="step-d">Project work session with teacher conferences.</div></div>' +
+  '<div class="step-row"><div class="step-k">C13</div><div class="step-v">Peer Review + Due</div><div class="step-d">Glow / grow / question swap. <b>Summative 3 &mdash; 6%.</b></div></div>' +
+  '</div></div>',
+
+  // 4 HEALTH LITERACY
+  '<div class="slide"><div class="slide-num">Slide 4 &middot; Health literacy = 3 skills</div>' +
+  '<div class="pill-row">' +
+  '<div class="word-card wc-blue"><div class="w">FIND</div><div class="d">Locate accurate information and real services.</div><div class="x">Where do I even start?</div></div>' +
+  '<div class="word-card wc-amber"><div class="w">UNDERSTAND</div><div class="d">Judge whether what you found is reliable or a sales pitch.</div><div class="x">Is this source trustworthy?</div></div>' +
+  '<div class="word-card wc-green"><div class="w">USE</div><div class="d">Actually get care: book, call, ask, advocate for yourself.</div><div class="x">What do I do next?</div></div>' +
+  '</div>' +
+  '<div class="body-lg"><p>Health literacy is not about memorizing facts. It is about knowing <b>where the reliable doors are</b> &mdash; and being able to walk through one.</p></div></div>',
+
+  // 5 SERVICE MAP
+  '<div class="slide"><div class="slide-num">Slide 5 &middot; The service map (Nova Scotia)</div>' +
+  '<div class="tech-grid">' +
+  '<div class="tech-card"><div class="n">24/7 &middot; FREE</div><div class="t">811</div><div class="x">Call 811. A registered nurse answers. Health advice any hour. TTY 7-1-1.</div></div>' +
+  '<div class="tech-card"><div class="n">IN PERSON</div><div class="t">Walk-in / YHC</div><div class="x">Walk-in clinics (find via yourhealthns.ca) and school Youth Health Centres &mdash; confidential for youth.</div></div>' +
+  '<div class="tech-card"><div class="n">NO APPOINTMENT</div><div class="t">Pharmacist</div><div class="x">NS pharmacists can assess and prescribe for common conditions (UTI, cold sores, pink eye&hellip;).</div></div>' +
+  '<div class="tech-card"><div class="n">SCHOOL</div><div class="t">Counsellor</div><div class="x">School counsellors are a first door for mental health and school stress &mdash; with confidentiality limits.</div></div>' +
+  '<div class="tech-card"><div class="n">EMERGENCY</div><div class="t">911 / ER</div><div class="x">Severe or life-threatening: chest pain, trouble breathing, severe bleeding, head injury, overdose.</div></div>' +
+  '<div class="tech-card"><div class="n">ANYTIME &middot; TEXT</div><div class="t">988 / KHP / 211</div><div class="x">988 call/text (crisis) &middot; Kids Help Phone 1-800-668-6868 or text CONNECT to 686868 &middot; 211 dial/text (community supports).</div></div>' +
+  '</div></div>',
+
+  // 6 CONFIDENTIALITY
+  '<div class="slide"><div class="slide-num">Slide 6 &middot; What stays private?</div>' +
+  '<div class="body-lg">' +
+  '<p><b>In Nova Scotia, youth can consent to their own health care</b> when a provider agrees they understand the decision (the &ldquo;mature minor&rdquo; principle). Youth Health Centres and 811 are confidential.</p>' +
+  '<p><b>Limits exist:</b> if you are at risk of serious harm, or someone is hurting you, professionals may need to share information to keep you safe. School counsellors keep things private within those same safety limits.</p>' +
+  '<p><b>Ask out loud:</b> &ldquo;Is this confidential? What are the limits?&rdquo; A good provider will answer directly.</p>' +
+  '</div></div>',
+
+  // 7 LABEL CHECK
+  '<div class="slide"><div class="slide-num">Slide 7 &middot; The 4-question label check</div>' +
+  '<div class="steps">' +
+  '<div class="step-row"><div class="step-k">Q1</div><div class="step-v">Who made this?</div><div class="step-d">Government (.ca), CPS, IWK, registered pharmacist &mdash; or an influencer selling something?</div></div>' +
+  '<div class="step-row"><div class="step-k">Q2</div><div class="step-v">What does it actually say?</div><div class="step-d">Dose, serving size, active ingredient, NPN/DIN. Read the numbers, not the slogan.</div></div>' +
+  '<div class="step-row"><div class="step-k">Q3</div><div class="step-v">What is missing?</div><div class="step-d">No sources, no date, &ldquo;cures&rdquo;, &ldquo;doctors hate this&rdquo;, 300% claims = red flags.</div></div>' +
+  '<div class="step-row"><div class="step-k">Q4</div><div class="step-v">What do I do with it?</div><div class="step-d">Verify with 811, a pharmacist, or a .ca health source before acting on it.</div></div>' +
+  '</div></div>',
+
+  // 8 PROJECT
+  '<div class="slide"><div class="slide-num">Slide 8 &middot; Summative 3: your NS Resource Map</div>' +
+  '<div class="body-lg">' +
+  '<p>Build a <b>resource map a Grade 9 student in Dartmouth could actually use</b>: at least <b>6 real Nova Scotia resources</b> covering phone/text lines, online confidential info, in-person care, pharmacist services, community supports, and mental-health-specific help.</p>' +
+  '<p>For each resource: what it is for, how to reach it, hours, cost, what is confidential, and <b>your reliability check</b> (who runs it, when it was updated).</p>' +
+  '<p><b>Due Class 13 &middot; 6%.</b> Full brief, organizer, rubric, and checklist: the project page linked on the course hub.</p>' +
+  '</div></div>',
+
+  // 9 WORD BANK
+  '<div class="slide"><div class="slide-num">Slide 9 &middot; Word bank</div>' +
+  '<div class="steps">' +
+  '<div class="step-row"><div class="step-k">HL</div><div class="step-v" style="font-size:1.3rem;">Health literacy</div><div class="step-d">Finding, understanding, and using health information and services.</div></div>' +
+  '<div class="step-row"><div class="step-k">YHC</div><div class="step-v" style="font-size:1.3rem;">Youth Health Centre</div><div class="step-d">Confidential school- or community-based health clinic for youth.</div></div>' +
+  '<div class="step-row"><div class="step-k">MM</div><div class="step-v" style="font-size:1.3rem;">Mature minor</div><div class="step-d">A youth judged able to consent to their own health care in NS.</div></div>' +
+  '<div class="step-row"><div class="step-k">NPN</div><div class="step-v" style="font-size:1.3rem;">Natural product number</div><div class="step-d">Health Canada ID on natural health products &mdash; its presence means it was reviewed.</div></div>' +
+  '<div class="step-row"><div class="step-k">MSI</div><div class="step-v" style="font-size:1.3rem;">Nova Scotia MSI</div><div class="step-d">Provincial health insurance; medically necessary doctor/hospital care is covered with a health card.</div></div>' +
+  '<div class="step-row"><div class="step-k">Triage</div><div class="step-v" style="font-size:1.3rem;">Triage</div><div class="step-d">Deciding how urgent something is and which service matches it.</div></div>' +
+  '</div></div>'
+];
+
+var deck = document.getElementById('deck');
+DECK.forEach(function(html, i) {
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  var s = d.firstElementChild;
+  s.classList.add('slide');
+  if (i === 0) s.classList.add('active');
+  deck.appendChild(s);
+});
+var slides = deck.querySelectorAll('.slide');
+var idx = 0;
+var count = document.getElementById('count');
+var prog = document.getElementById('prog');
+function show(n) {
+  idx = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+  count.textContent = (idx + 1) + ' / ' + slides.length;
+  prog.style.width = ((idx + 1) / slides.length * 100) + '%';
+  document.getElementById('prev').disabled = idx === 0;
+  document.getElementById('next').disabled = idx === slides.length - 1;
+}
+document.getElementById('prev').onclick = function() { show(idx - 1); };
+document.getElementById('next').onclick = function() { show(idx + 1); };
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ') show(idx + 1);
+  if (e.key === 'ArrowLeft') show(idx - 1);
+});
+show(0);
+</script>
+</body>
+</html>
