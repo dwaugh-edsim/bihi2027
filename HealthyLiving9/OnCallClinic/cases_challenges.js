@@ -7,7 +7,7 @@
      - "slider" : Set the clinical dial to the accurate number (with tolerance)
    Zero em/en dashes. Grade 9 Nova Scotia curriculum.
    ============================================================================ */
-window.ONCALL_CHALLENGES = [
+window.ONCALL_CHALLENGES = (window.ONCALL_CHALLENGES || []).concat([
   /* ---------------- INFECTIOUS DISEASE (5 challenges) ---------------- */
   { id:"ch_inf1", kind:"rx", dept:"infectious", tier:1, patient:"School Outbreak Desk",
     complaint:"Norovirus classroom cleanup orders", vitals:"Stomach virus confirmed | 18 cases in West Wing",
@@ -538,4 +538,4 @@ window.ONCALL_CHALLENGES = [
     ],
     ans:0,
     pearl:"HPV and Hepatitis B vaccines are both offered free in Nova Scotia school immunization programs; they guard against viral STIs and their long-term cancer and liver consequences." },
-];
+]);

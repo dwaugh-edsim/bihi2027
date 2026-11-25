@@ -194,7 +194,10 @@
   .myth-row.bad{border-color:var(--coral);background:rgba(251,113,133,.12)}
   .myth-txt{font-size:.94rem;color:#fff;font-weight:600;margin-bottom:8px}
   .myth-btns{display:flex;gap:8px}
-  .mb-btn{background:var(--panel2);border:1.5px solid var(--frame);color:var(--muted);border-radius:7px;padding:7px 18px;font-family:var(--f-mono);font-size:.78rem;font-weight:800}
+  .mb-btn{background:var(--panel2);border:1.5px solid var(--frame);color:var(--muted);border-radius:7px;padding:7px 18px;font-family:var(--f-mono);font-size:.78rem;font-weight:800;transition:border-color .12s,background .12s,color .12s}
+  .mb-btn:hover:not(:disabled){border-color:#fff;color:#fff}
+  .mb-btn:disabled{cursor:default}
+  .mb-btn.sel{background:var(--teal);color:#04241f;border-color:var(--teal)}
   .mb-btn.sel.tf-true{background:var(--teal);color:#04241f;border-color:var(--teal)}
   .mb-btn.sel.tf-false{background:var(--coral);color:#2b0711;border-color:var(--coral)}
   .chart-table{width:100%;border-collapse:collapse;background:var(--card);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px;font-family:var(--f-mono);font-size:.82rem}
@@ -436,8 +439,8 @@
 <script src="cases_repro.js?v=20261119b"></script>
 <script src="cases_sleep.js?v=20261119b"></script>
 <script src="cases_nav.js?v=20261119b"></script>
-<script src="cases_o3.js?v=20261124a"></script>
-<script src="cases_challenges.js?v=20261119c"></script>
+<script src="cases_o3.js?v=20261125a"></script>
+<script src="cases_challenges.js?v=20261125a"></script>
 <script>
 const Clinic = (function(){
   "use strict";
@@ -661,15 +664,19 @@ const Clinic = (function(){
 
   function buildQueue(dept){
     // dept ("infectious"/"repro"/"sleep"/"nav"/"o3") keeps Department Practice inside
-    // its lane; undefined/"all" rotates all four core departments.
+    // its lane; undefined/"all" prioritizes unseen O3 cases FIRST, then rotates all four core wings.
     const inLane = c => !dept || dept === 'all' ? c.dept !== 'o3' : c.dept === dept;
     const all = (window.ONCALL_CASES || []).filter(inLane);
     const chAll = (window.ONCALL_CHALLENGES || []).filter(inLane);
+    const o3Ordered = (window.ONCALL_CASES || []).concat(window.ONCALL_CHALLENGES || [])
+      .filter(c => c.dept === 'o3')
+      .sort((a, b) => a.id.localeCompare(b.id));
     if(dept === 'o3'){
-      return all.concat(chAll).sort((a, b) => a.id.localeCompare(b.id));
+      return o3Ordered;
     }
     const deptKeys = dept && dept !== 'all' ? [dept] : ['infectious', 'repro', 'sleep', 'nav'];
     const seenSet = new Set(Array.isArray(profile.seenIds) ? profile.seenIds : []);
+    const unseenO3 = (!dept || dept === 'all') ? o3Ordered.filter(c => !seenSet.has(c.id)) : [];
     // Guarantee balanced rotation across departments inside EVERY tier,
     // ALWAYS putting unseen questions & unseen challenges first on retakes!
     function tierWave(tierNum, perDept){
@@ -692,7 +699,7 @@ const Clinic = (function(){
     const t2 = tierWave(2, per);
     const t3 = tierWave(3, per);
     const t4 = tierWave(4, 10);
-    return [].concat(t1.wave, t2.wave, t3.wave, t4.wave, t3.rest, t2.rest, t1.rest);
+    return [].concat(unseenO3, t1.wave, t2.wave, t3.wave, t4.wave, t3.rest, t2.rest, t1.rest);
   }
 
   function startShift(dept, strikes, mult){
@@ -829,8 +836,8 @@ const Clinic = (function(){
         myths.map((m, mi) => (
           '<div class="myth-row" id="my_' + mi + '"><div class="myth-txt">' + esc(m.t) + '</div>' +
           '<div class="myth-btns">' +
-            '<button class="mb-btn" id="mb_' + mi + '_t" type="button" onclick="Clinic.pickMyth(' + mi + ', true)">TRUE</button>' +
-            '<button class="mb-btn" id="mb_' + mi + '_f" type="button" onclick="Clinic.pickMyth(' + mi + ', false)">FALSE</button>' +
+            '<button class="mb-btn tf-true" id="mb_' + mi + '_t" type="button" onclick="Clinic.pickMyth(' + mi + ', true)">TRUE</button>' +
+            '<button class="mb-btn tf-false" id="mb_' + mi + '_f" type="button" onclick="Clinic.pickMyth(' + mi + ', false)">FALSE</button>' +
           '</div></div>'
         )).join('') +
         '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Bust the Myths &rarr;</button></div>';
