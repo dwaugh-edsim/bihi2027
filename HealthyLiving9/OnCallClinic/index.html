@@ -247,7 +247,7 @@
   <div class="gate-card">
     <div class="gate-k">Healthy Living 9 // Interactive Triage Sim</div>
     <h1>ON-CALL: ROOM 8 CLINIC</h1>
-    <p class="gate-sub">You are the On-Call Doctor. Patients arrive with real symptoms, myths, and clinical traps across 4 HL9 departments (160 cases). Start as Intern, climb to Chief of Medicine - 3 strikes and your shift is over.</p>
+    <p class="gate-sub">You are the On-Call Doctor. Patients arrive with real symptoms, myths, and clinical traps across 4 HL9 departments (316 cases). Start as Intern, climb to Chief of Medicine - 3 strikes and your shift is over.</p>
     <div class="outcome-box">
       <div class="ok">Healthy Living 9 Outcomes // CO1 · CO2 · CO3 · CO4 · CO11</div>
       <div class="ot">Health behaviours, infectious disease &amp; vaccines, sleep/screen science, sexual &amp; reproductive health, healthcare navigation, and boundaries.</div>
@@ -275,7 +275,7 @@
     <section id="lobbyView">
       <div class="hero-banner">
         <div>
-          <div class="gate-k">160 Patient Cases // 4 Clinical Tiers // Progressive Difficulty</div>
+          <div class="gate-k">316 Patient Cases // 4 Clinical Tiers // 9 Challenge Types</div>
           <h2>Step into the Exam Room</h2>
           <p>Read each patient's chart, diagnose the issue or bust the myth, and build your streak. Cases escalate from Intern (Tier 1) to Chief of Medicine (Tier 4).</p>
         </div>
@@ -305,7 +305,7 @@
               <button class="shift-card" type="button" onclick="Clinic.startShift('all', 3, 1)">
                 <div class="tag">Standard Shift &middot; 3 Strikes</div>
                 <h3>Full Clinic On-Call</h3>
-                <p>All 4 departments (160 cases). Escalates Tier 1 &rarr; Tier 4. Three wrong calls and you're out.</p>
+                <p>All 4 departments + O3 priority (316 cases). Escalates Tier 1 &rarr; Tier 4. Three wrong calls and you're out.</p>
               </button>
               <button class="shift-card sudden" type="button" onclick="Clinic.startShift('all', 1, 1.5)">
                 <div class="tag">Hardcore &middot; 1 Strike &middot; 1.5x Pts</div>
@@ -441,6 +441,8 @@
 <script src="cases_nav.js?v=20261119b"></script>
 <script src="cases_o3.js?v=20261125a"></script>
 <script src="cases_challenges.js?v=20261125a"></script>
+<script src="cases_expansion_mc.js?v=20261125b"></script>
+<script src="cases_expansion_challenges.js?v=20261125b"></script>
 <script>
 const Clinic = (function(){
   "use strict";
@@ -598,7 +600,11 @@ const Clinic = (function(){
     const payload = {
       action:'submit_assignment', email:identity.email, ts:identity.ts, sig:identity.sig,
       task:TASK_NAME, section:profile.section||'', summary:summary,
-      data: Object.assign({}, profile, { bestScore: profile.bestScore }),
+      data: Object.assign({}, profile, {
+        bestScore: profile.bestScore,
+        best: { overall: profile.bestScore || 0 },
+        xp: profile.bestScore || 0
+      }),
       requestId: rid
     };
     post(VAULT_URL, payload)
@@ -690,9 +696,12 @@ const Clinic = (function(){
       const chPool = prioritizeUnseen(chAll.filter(c => c.tier === tierNum), seenSet);
       const wave = shuffle(picked);
       if(chPool.length){
-        wave.splice(2, 0, chPool[0]); // place unseen interactive challenge as 3rd case in each tier
+        wave.splice(2, 0, chPool[0]); // place unseen interactive challenge early in each tier
       }
-      return { wave, rest: prioritizeUnseen(rest.concat(chPool.slice(1)), seenSet) };
+      if(chPool.length > 1){
+        wave.splice(Math.min(5, wave.length), 0, chPool[1]); // mix a 2nd interactive challenge type
+      }
+      return { wave, rest: prioritizeUnseen(rest.concat(chPool.slice(2)), seenSet) };
     }
     const per = dept && dept !== 'all' ? 3 : 1;   // solo-dept waves need more MCs each tier
     const t1 = tierWave(1, per);
