@@ -72,8 +72,43 @@ html, body {
 }
 body.night-theme .bg-fx {
     background-image: url('assets/bg_night_village.jpg');
-    opacity: 0.16;
+    opacity: 0.3;
+    filter: brightness(0.55) saturate(0.85);
 }
+
+/* Night phase: mostly black and spooky - only the tap prompt stays readable. */
+body.night-theme {
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-heading: #f8fafc;
+    --bg-page: #04060c;
+    background: #04060c;
+    color: var(--text-main);
+}
+body.night-theme header.topbar {
+    background: rgba(4, 6, 12, 0.94);
+    border-bottom: 1px solid #1e293b;
+}
+body.night-theme .card-box {
+    background: #0b1120;
+    border-color: #1e293b;
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.65);
+}
+body.night-theme .target-btn {
+    background: #0f172a;
+    border-color: #334155;
+}
+body.night-theme .target-btn:hover:not(:disabled) { border-color: #64748b; background: #16203a; }
+body.night-theme .target-btn .t-name { color: #e2e8f0; }
+body.night-theme .target-btn .t-seat { color: #94a3b8; }
+body.night-theme .target-btn.selected { border-color: #f59e0b; background: #1c2740; }
+body.night-theme .neutral-status-bar {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+}
+body.night-theme .neutral-status-mono { color: #fbbf24; }
+body.night-theme .peek-note-block { background: #0f172a; border-color: #1e293b; }
 
 .double-rule-bottom {
     border-bottom: 2px solid var(--border-subtle);
@@ -150,7 +185,7 @@ body.night-theme .pill-mono.phase {
 }
 .gate-card {
     background: #ffffff; border: 1.5px solid var(--border-card);
-    border-radius: 14px; width: min(500px, 95vw);
+    border-radius: 14px; width: min(560px, 95vw);
     overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.08);
 }
 .gate-art {
@@ -170,6 +205,36 @@ body.night-theme .pill-mono.phase {
     border: 1.5px solid var(--border-card); font-family: var(--font-body);
     font-size: 0.96rem; font-weight: 600;
 }
+
+/* NAME FINDER - the tap-list is the primary action on the join gate */
+.name-finder-head {
+    font-family: var(--font-heading); font-weight: 900; font-size: 1.35rem;
+    letter-spacing: 0.02em; color: var(--text-heading); text-align: center;
+}
+.name-finder-sub { text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+.name-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+    gap: 6px; max-height: 264px; overflow-y: auto; padding: 6px;
+    border: 1.5px solid var(--border-card); border-radius: 10px; background: var(--bg-page);
+}
+.name-pick {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.95rem;
+    padding: 10px 6px; border-radius: 8px; border: 1.5px solid var(--border-card);
+    background: #ffffff; cursor: pointer; text-align: center; color: var(--text-heading);
+}
+.name-pick:hover { border-color: var(--emerald); background: var(--emerald-bg); }
+.name-pick.selected {
+    border-color: var(--emerald); background: var(--emerald-bg);
+    box-shadow: 0 0 0 2.5px var(--emerald);
+}
+.name-pick.seated { opacity: 0.55; }
+.name-pick.seated .nm::after { content: ' - seated'; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+.manual-toggle {
+    font-size: 0.8rem; color: var(--text-muted); background: none; border: none;
+    cursor: pointer; text-decoration: underline; padding: 2px;
+}
+.join-big { width: 100%; padding: 13px; font-size: 1.05rem; font-weight: 800; }
+.join-big:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* CAMOUFLAGED SINGLE-COLUMN STUDENT CONSOLE (IDENTICAL FOR ALL ROLES) */
 .player-stage {
@@ -822,23 +887,85 @@ body.night-theme .pill-mono.phase {
         return '';
     }
 
+    var selectedName = '';
+    var seatedNames = {};
+    var lobbyMarked = false;
+    var shownNames = [];
+
+    // Derive a filter/guess from the school email local part (e.g. oliver.br27@ -> "oliver").
+    function guessFromEmail(email) {
+        var local = String(email || '').split('@')[0].replace(/[0-9]+$/g, '').replace(/[._-]+/g, ' ').trim().toLowerCase();
+        if (!local) return { filter: '', autoSelect: null };
+        var list = ROSTER_BY_CLASS[activeQuickClass] || [];
+        var firstWord = local.split(' ')[0];
+        var hits = list.filter(function (n) {
+            var ln = n.toLowerCase();
+            return ln.indexOf(local) !== -1 || ln.indexOf(firstWord) === 0;
+        });
+        if (hits.length === 1) return { filter: '', autoSelect: hits[0] };
+        return { filter: firstWord, autoSelect: null };
+    }
+
+    window.renderNameList = function (filter) {
+        var listEl = el('nameList');
+        if (!listEl) return;
+        var list = ROSTER_BY_CLASS[activeQuickClass] || [];
+        var f = String(filter || '').trim().toLowerCase();
+        shownNames = f ? list.filter(function (n) { return n.toLowerCase().indexOf(f) !== -1; }) : list.slice();
+        if (!list.length) {
+            listEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); font-size:0.88rem; padding:10px;">No roster loaded for class ' + esc(activeQuickClass) + ' - use "Can\'t find your name?" below.</div>';
+            return;
+        }
+        if (!shownNames.length) {
+            listEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); font-size:0.88rem; padding:10px;">No names match "' + esc(filter || '') + '". Try fewer letters, or type it below.</div>';
+            return;
+        }
+        listEl.innerHTML = shownNames.map(function (n, i) {
+            var cls = 'name-pick' + (selectedName === n ? ' selected' : '') + (seatedNames[n] ? ' seated' : '');
+            return '<button type="button" class="' + cls + '" onclick="selectNameIdx(' + i + ')"><span class="nm">' + esc(n) + '</span></button>';
+        }).join('');
+    };
+
+    window.selectNameIdx = function (i) {
+        var n = shownNames[i];
+        if (n) window.selectName(n);
+    };
+
+    window.selectName = function (name) {
+        selectedName = name;
+        var inp = el('displayNameInput');
+        if (inp) inp.value = name;
+        var jb = el('joinBtn');
+        if (jb) {
+            jb.disabled = false;
+            jb.textContent = 'Join Town Council as ' + name + '  ->';
+        }
+        renderNameList(el('nameFilterInput') ? el('nameFilterInput').value : '');
+    };
+
+    window.toggleManualName = function () {
+        var w = el('manualNameWrap');
+        if (!w) return;
+        w.style.display = (w.style.display === 'none') ? 'block' : 'none';
+        var inp = el('displayNameInput');
+        if (inp && w.style.display === 'block') inp.focus();
+    };
+
     window.switchQuickClass = function (cls, keepRoomCode) {
         if (!ROSTER_BY_CLASS[cls]) return;
         activeQuickClass = cls;
-        var sel = el('quickNameSelect');
+        selectedName = '';
         QUICK_CLASSES.forEach(function (c) {
             var b = el('qpBtn' + c);
             if (b) b.className = 'btn btn-xs' + (c === cls ? ' blue' : '');
         });
-        if (sel) {
-            var list = ROSTER_BY_CLASS[cls] || [];
-            sel.innerHTML = '<option value="">Quick-pick your name (' + cls + ') or type below...</option>'
-                + list.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
-        }
-        var inp = el('displayNameInput');
-        if (inp && list && list.length >= 2) {
-            inp.placeholder = 'e.g. ' + list[0] + ' or ' + list[1];
-        }
+        var lbl = el('activeClassLabel');
+        if (lbl) lbl.textContent = cls;
+        var jb = el('joinBtn');
+        if (jb) { jb.disabled = true; jb.textContent = 'Join Town Council ->'; }
+        var fi = el('nameFilterInput');
+        if (fi) fi.value = '';
+        renderNameList('');
         if (!keepRoomCode && !Q.get('game') && el('roomCodeInput')) {
             targetGameId = CLASS_ROOM_CODES[cls] || targetGameId;
             el('roomCodeInput').value = targetGameId;
@@ -850,7 +977,7 @@ body.night-theme .pill-mono.phase {
         var codeVal = (el('roomCodeInput') ? el('roomCodeInput').value : targetGameId).trim().toUpperCase();
         var parts = nameVal.split(/\s+/).filter(Boolean);
         if (parts.length < 2) {
-            alert('Enter your First Name + Last Initials (for example: Oliver Br. or Carson Do.) so duplicate first names stay clear.');
+            alert('Tap YOUR name in the list above first (or "Can\'t find your name? Type it instead"). Use First + Last initial, e.g. Oliver Br. - duplicate first names stay clear that way.');
             return;
         }
         postServer({
@@ -1280,12 +1407,12 @@ body.night-theme .pill-mono.phase {
                 + personalSuspectHistory.map(esc).join('<br>') + '</div>';
         }
 
-        // Eliminated Ghost Truth (kept strictly inside cupped-hand corner instead of full-screen splash!)
+        // Eliminated Ghost Log (kept strictly inside cupped-hand corner). Ghosts see NO
+        // roles - only the public event log with every role word redacted server-side.
         if (!me.alive && me.isSpectatorTruthUnlocked && v.phase !== 'GAME_OVER') {
-            var specialSeats = v.players.filter(function (p) { return p.role && p.role !== 'VILLAGER'; }).map(function (p) {
-                return '#' + p.seat + ' ' + esc(p.name) + ': ' + esc(p.role) + (!p.alive ? ' [Out]' : '');
-            }).join('<br>');
-            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Ghost Truth (Keep Secret)</div>' + specialSeats + '</div>';
+            var logLines = (me.spectatorAudit || []).map(function (e) { return esc(e.text); }).join('<br>');
+            notesHtml += '<div class="peek-note-block"><div class="peek-note-label">Ghost Log (public events only - no roles)</div>'
+                + (logLines || 'Nothing yet.') + '</div>';
         }
 
         notesEl.innerHTML = notesHtml;
@@ -1693,29 +1820,29 @@ body.night-theme .pill-mono.phase {
                 + (Q.get('demo') === '1' ? '<button class="btn" style="width:100%; margin-top:8px;" onclick="enterInteractiveDemo()">Preview Interactive Demo Mode</button>' : '');
         } else {
             if (el('logoutBtn')) el('logoutBtn').style.display = 'inline-flex';
-            var startList = ROSTER_BY_CLASS[activeQuickClass] || ROSTER_703;
-            var optsList = '<option value="">Quick-pick your name (' + activeQuickClass + ') or type below...</option>'
-                + startList.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
-            var phSample = startList.length >= 2 ? ('e.g. ' + startList[0] + ' or ' + startList[1]) : 'e.g. First La.';
             var qpBtns = QUICK_CLASSES.map(function (c) {
                 return '<button type="button" id="qpBtn' + c + '" class="btn btn-xs' + (activeQuickClass === c ? ' blue' : '') + '" onclick="switchQuickClass(\'' + c + '\')">' + c + '</button>';
             }).join('');
+            var guess = guessFromEmail(identity.email);
             el('whoLabel').textContent = identity.email;
-            gb.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">'
+            gb.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">'
                 + '<div style="font-size:0.88rem; color:var(--emerald); font-weight:700;">Signed in as ' + esc(identity.email) + '</div>'
                 + '<button type="button" class="btn btn-xs" onclick="signOutGoogle()" title="Sign out of your school account on this Chromebook">Log Out</button>'
                 + '</div>'
                 + '<div id="sigVerifyBadge" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--text-muted);">Checking server signature...</div>'
-                + '<div><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">'
-                + '<label style="font-size:0.84rem; font-weight:700;">Class Quick-Pick:</label>'
-                + '<span style="display:inline-flex; gap:4px; flex-wrap:wrap;">' + qpBtns + '</span></div>'
-                + '<select id="quickNameSelect" class="input-clean" style="margin-top:4px;" onchange="if(this.value){document.getElementById(\'displayNameInput\').value=this.value;}">' + optsList + '</select></div>'
-                + '<div><label style="font-size:0.84rem; font-weight:700;">Your First Name + Last Initials:</label>'
-                + '<input class="input-clean" id="displayNameInput" placeholder="' + esc(phSample) + '" maxlength="22"></div>'
-                + '<div><label style="font-size:0.84rem; font-weight:700;">Room Code (auto-detected or from front LCD):</label>'
+                + '<div class="name-finder-head">FIND YOUR NAME IN THE LIST</div>'
+                + '<div class="name-finder-sub">Class <b id="activeClassLabel">' + esc(activeQuickClass) + '</b> &middot; tap your name &mdash; please don\'t type it.'
+                + '<br><span style="display:inline-flex; gap:4px; flex-wrap:wrap; justify-content:center; margin-top:4px;">wrong class? ' + qpBtns + '</span></div>'
+                + '<input class="input-clean" id="nameFilterInput" placeholder="Filter names (optional)..." value="' + esc(guess.filter) + '" oninput="renderNameList(this.value)">'
+                + '<div class="name-list" id="nameList"></div>'
+                + '<div style="text-align:center;"><button type="button" class="manual-toggle" onclick="toggleManualName()">Can\'t find your name? Type it instead</button>'
+                + '<div id="manualNameWrap" style="display:none; margin-top:6px;"><input class="input-clean" id="displayNameInput" placeholder="First La. (only if truly not listed)" maxlength="22"></div></div>'
+                + '<div><label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Room Code (auto-detected or from the front LCD):</label>'
                 + '<input class="input-clean" id="roomCodeInput" value="' + esc(targetGameId) + '" placeholder="WOLF-XXXX"></div>'
-                + '<button class="btn emerald" style="width:100%; padding:11px; font-size:1rem;" onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
+                + '<button class="btn emerald join-big" id="joinBtn" disabled onclick="joinLiveServerSeat()">Join Town Council -&gt;</button>'
                 + (Q.get('demo') === '1' ? '<button class="btn btn-xs" style="margin-top:6px;" onclick="enterInteractiveDemo()">Offline Demo Mode</button>' : '');
+            renderNameList(guess.filter);
+            if (guess.autoSelect) selectName(guess.autoSelect);
 
             fetch(serverUrl + '?action=get_health')
                 .then(function (r) { return r.json(); })
@@ -1750,6 +1877,12 @@ body.night-theme .pill-mono.phase {
                                     currentView = pRes.view;
                                     showSeatedWorkspace();
                                     renderPlayerView();
+                                } else if (pRes && pRes.status === 'ok' && pRes.view && pRes.view.players && !lobbyMarked) {
+                                    // Mark already-seated names in the finder list (tap still allowed - rejoin by email).
+                                    lobbyMarked = true;
+                                    seatedNames = {};
+                                    pRes.view.players.forEach(function (p) { if (p && p.name) seatedNames[p.name] = true; });
+                                    if (el('nameList')) renderNameList(el('nameFilterInput') ? el('nameFilterInput').value : '');
                                 }
                             } else if (pRes && pRes.status === 'auth_failed' && sb) {
                                 sb.style.color = 'var(--red)';

@@ -980,6 +980,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 broadcastLocalState();
             } else if (msg.type === 'PLAYER_ACTION' && msg.playerId && msg.actionPayload) {
                 var res = E.submitPlayerAction(localGame, msg.playerId, msg.actionPayload, Date.now());
+                E.maybeAutoAdvance(localGame, Date.now()); // demo: advance the instant the room is done
                 refreshLocalView();
                 bc.postMessage({ type: 'ACTION_RESULT', requestId: msg.requestId, result: res, game: localGame });
             } else if (msg.type === 'PLAYER_JOIN' && msg.name) {
@@ -988,6 +989,7 @@ body.in-play.teacher-strip .ops-cluster { position: fixed; top: 54px; right: 10p
                 bc.postMessage({ type: 'JOIN_RESULT', requestId: msg.requestId, result: jRes, game: localGame });
             } else if (msg.type === 'GOD_NIGHT_OVERRIDE') {
                 E.submitModeratorNightOverride(localGame, msg.roleKey, msg.targetId, Date.now());
+                E.maybeAutoAdvance(localGame, Date.now());
                 refreshLocalView();
             } else if (msg.type === 'GOD_ADVANCE') {
                 onNextPhaseClick();

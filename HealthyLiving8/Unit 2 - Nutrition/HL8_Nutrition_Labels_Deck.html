@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuel or Trap? Reading Food Labels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=JetBrains+Mono:wght@500;700;800&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --ink: #181f2b;
+    --body: #1e2530;
+    --muted: #475569;
+    --border: #d5dbe3;
+    --subtle: #e5e9f0;
+    --coral: #ed786a;
+    --teal: #0f766e;
+    --amber: #b45309;
+    --emerald: #15803d;
+    --font-head: 'Arvo', Georgia, serif;
+    --font-body: 'Source Sans 3', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--body);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 32px;
+    background: var(--surface);
+    border-bottom: 2px solid var(--subtle);
+    box-shadow: inset 0 -4px 0 0 #ffffff, inset 0 -6px 0 0 var(--border);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .badge {
+    background: var(--coral);
+    color: #ffffff;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 5px 14px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(237, 120, 106, 0.3);
+  }
+  .slide {
+    display: none;
+    flex: 1;
+    padding: 28px 46px;
+    flex-direction: column;
+    gap: 22px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: clamp(14px, 1.25vw, 18px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: var(--font-head);
+    font-size: clamp(32px, 3.8vw, 52px);
+    line-height: 1.12;
+    font-weight: 700;
+    color: var(--ink);
+    text-shadow: 0.04em 0.06em 0 rgba(0, 0, 0, 0.08);
+  }
+  .main-split {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 28px;
+    flex: 1;
+    align-items: stretch;
+  }
+  .col-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+  }
+  .st-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-left: 8px solid var(--teal);
+    border-radius: 10px;
+    padding: 16px 22px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  .st-card.coral { border-left-color: var(--coral); }
+  .st-card.amber { border-left-color: var(--amber); }
+  .st-card.emerald { border-left-color: var(--emerald); }
+  .card-tag {
+    font-family: var(--font-mono);
+    font-size: clamp(12px, 1vw, 15px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: clamp(22px, 2vw, 28px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .st-list {
+    padding-left: 24px;
+    font-size: clamp(19px, 1.75vw, 25px);
+    font-weight: 600;
+    line-height: 1.38;
+    color: var(--body);
+  }
+  .st-list li + li { margin-top: 4px; }
+  .visual-box {
+    background: #e2e8f0;
+    border: 2px dashed #64748b;
+    border-radius: 14px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    color: #1e293b;
+  }
+  .v-tag {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .visual-box p {
+    font-size: clamp(17px, 1.45vw, 21px);
+    line-height: 1.48;
+    font-weight: 600;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .nav-btn {
+    background: var(--ink);
+    color: #ffffff;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .nav-btn.boost { background: var(--coral); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="badge">Room 8 &middot; Healthy Living 8</span>
+  <span id="phase">Opening</span>
+</div>
+
+<section class="slide active" data-phase="Title">
+  <div class="slide-head">
+    <div class="kicker">Room 8 &middot; Healthy Living 8 &middot; Unit 2</div>
+    <h1>Fuel or Trap? Nutrition &amp; Reading Food Labels</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Unit 2 Topic</div>
+        <div class="card-title">Nutrition, Labels &amp; Health Behaviours</div>
+        <ul class="st-list">
+          <li>Macros, food labels, Canada's Food Guide, and mythbusting.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">HL8 Outcome CO2</div>
+        <div class="card-title">Curriculum Outcome</div>
+        <ul class="st-list">
+          <li>Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Title Visual</div>
+      <p>Dark-slate editorial title slide with a glowing magnifying glass scanning a Nutrition Facts label beside fresh whole foods, with the verbatim HL8 Outcome CO2 displayed in a clean bottom banner.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Opening">
+  <div class="slide-head">
+    <div class="kicker">Healthy Living 8 &middot; Outcome CO2 &middot; Health Behaviours</div>
+    <h1>Fuel or Trap? Reading Food Labels</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Outcome CO2</div>
+        <div class="card-title">Health Behaviours</div>
+        <ul class="st-list">
+          <li>Learners will analyse the relationships between health behaviours and physical, mental, emotional, social, and spiritual health.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Today's Goal</div>
+        <div class="card-title">Read Past the Hype</div>
+        <ul class="st-list">
+          <li>Spot food label tricks.</li>
+          <li>Separate real fuel from marketing hype.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Glowing teal magnifying glass scanning a crisp Nutrition Facts table and a bright snack wrapper on a clean dark-slate editorial classroom background.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Vocab: Calories">
+  <div class="slide-head">
+    <div class="kicker">Nutrition Basics &middot; Term 1 of 4</div>
+    <h1>Calories: Your Body's Energy Unit</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">What It Is</div>
+        <div class="card-title">Energy Stored in Food</div>
+        <ul class="st-list">
+          <li>Measures fuel, not a "good" or "bad" score.</li>
+        </ul>
+      </div>
+      <div class="st-card emerald">
+        <div class="card-tag">Why You Need It</div>
+        <div class="card-title">Powers Growth &amp; Focus</div>
+        <ul class="st-list">
+          <li>Fuels teen growth, brain focus, and sports.</li>
+          <li>Too few causes fatigue and brain fog.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Examples</div>
+        <div class="card-title">Quality Matters Most</div>
+        <ul class="st-list">
+          <li>Steady fuel: chicken wrap, oats, fruit.</li>
+          <li>Empty calories: pop, candy, chips.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Glowing fuel gauge comparison: an emerald full battery labelled "STEADY FUEL (Wrap, Oats, Fruit)" vs. a flashing low coral battery labelled "EMPTY CALORIES (Pop, Candy)".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Vocab: Carbs">
+  <div class="slide-head">
+    <div class="kicker">Nutrition Basics &middot; Term 2 of 4</div>
+    <h1>Carbs: Fast Crash vs. Slow Fuel</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Why You Need Carbs</div>
+        <div class="card-title">Main Brain &amp; Muscle Fuel</div>
+        <ul class="st-list">
+          <li>Your #1 energy source for school and sports.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Simple Carbs (Fast Crash)</div>
+        <div class="card-title">Quick Spike, Quick Crash</div>
+        <ul class="st-list">
+          <li>Examples: pop, candy, white bread, sugary cereal.</li>
+          <li>Burns fast, leaves you tired 45 minutes later.</li>
+        </ul>
+      </div>
+      <div class="st-card emerald">
+        <div class="card-tag">Complex Carbs + Fibre (Slow Fuel)</div>
+        <div class="card-title">Slow, Steady Energy</div>
+        <ul class="st-list">
+          <li>Examples: oats, brown rice, whole grains, apples, beans.</li>
+          <li>Fibre slows digestion so focus lasts longer.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Clean energy graph: jagged coral spike-and-crash line labelled "Simple Sugar (Pop, Candy)" vs. smooth emerald steady curve labelled "Complex Carbs + Fibre (Oats, Rice, Apples)".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Vocab: Protein">
+  <div class="slide-head">
+    <div class="kicker">Nutrition Basics &middot; Term 3 of 4</div>
+    <h1>Protein: The Body's Builder</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card emerald">
+        <div class="card-tag">Why You Need Protein</div>
+        <div class="card-title">Build, Repair, Stay Full</div>
+        <ul class="st-list">
+          <li>Repairs muscles, builds cells, supports teen growth.</li>
+          <li>Keeps you feeling full longest between meals.</li>
+        </ul>
+      </div>
+      <div class="st-card teal">
+        <div class="card-tag">Real Food Examples</div>
+        <div class="card-title">Everyday Sources</div>
+        <ul class="st-list">
+          <li>Chicken, eggs, fish, Greek yogurt, cheese.</li>
+          <li>Beans, lentils, tofu, peanut butter, nuts.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Marketing Trap</div>
+        <div class="card-title">Watch the Hype</div>
+        <ul class="st-list">
+          <li>Most teens already get enough from meals.</li>
+          <li>Many "protein" bars are candy plus whey.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Split editorial graphic: crisp real protein foods (eggs, chicken, Greek yogurt, beans, almonds) in a glowing emerald frame vs. a flashy neon "20g PROTEIN!" candy bar dripping caramel and sugar cubes.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Vocab: Fats">
+  <div class="slide-head">
+    <div class="kicker">Nutrition Basics &middot; Term 4 of 4</div>
+    <h1>Fats: Brain Fuel vs. The "Fat-Free" Trap</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Why You Need Fat</div>
+        <div class="card-title">Brain, Hormones &amp; Vitamins</div>
+        <ul class="st-list">
+          <li>Builds brain cells and helps absorb vitamins.</li>
+          <li>Slows digestion for lasting energy.</li>
+        </ul>
+      </div>
+      <div class="st-card emerald">
+        <div class="card-tag">Healthy Unsaturated Fats</div>
+        <div class="card-title">Real Food Examples</div>
+        <ul class="st-list">
+          <li>Avocado, walnuts, almonds, olive oil, salmon, seeds.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Watch Out</div>
+        <div class="card-title">Saturated Fat &amp; "Fat-Free"</div>
+        <ul class="st-list">
+          <li>Limit deep-fried foods and processed meats.</li>
+          <li>"Fat-free" snacks often swap fat for sugar.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Clean split diagram: glowing teal brain icon surrounded by avocado, walnuts, olive oil, and salmon on the left vs. a coral "0% FAT!" yogurt cup overflowing with sugar cubes on the right.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Fruit Sugar">
+  <div class="slide-head">
+    <div class="kicker">Mythbusting</div>
+    <h1>Sugar in Fruit: Is It a Problem?</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card emerald">
+        <div class="card-tag">Whole Food</div>
+        <div class="card-title">Whole Apple</div>
+        <ul class="st-list">
+          <li>19g sugar + 4.4g fibre.</li>
+          <li>Fibre slows sugar absorption down.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Stripped Food</div>
+        <div class="card-title">Apple Juice (355 mL)</div>
+        <ul class="st-list">
+          <li>39g sugar + 0g fibre.</li>
+          <li>Hits your bloodstream like pop.</li>
+        </ul>
+      </div>
+      <div class="st-card teal">
+        <div class="card-tag">Key Rule</div>
+        <div class="card-title">The Takeaway</div>
+        <ul class="st-list">
+          <li>Fibre is the speed bump.</li>
+          <li>Whole fruit wins every time.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Side-by-side diagram: a crisp red apple behind a glowing emerald gate labelled "FIBRE SPEED BUMP (19g sugar, 4.4g fibre)" vs. an apple juice bottle pouring fast into a coral rush labelled "39g SUGAR, 0g FIBRE".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Label Rule 1">
+  <div class="slide-head">
+    <div class="kicker">How Canadian Labels Work</div>
+    <h1>Label Rule 1: Serving Size First</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card coral">
+        <div class="card-tag">The Math Trap</div>
+        <div class="card-title">Shrunken Portions</div>
+        <ul class="st-list">
+          <li>Companies shrink serving sizes on purpose.</li>
+          <li>Front numbers look artificially small.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Real Example</div>
+        <div class="card-title">Multiply by What You Eat</div>
+        <ul class="st-list">
+          <li>"140 calories" equals 1/6 of the bag.</li>
+          <li>Whole bag equals 840 calories.</li>
+        </ul>
+      </div>
+      <div class="st-card teal">
+        <div class="card-tag">Your Move</div>
+        <div class="card-title">Check the Top Line</div>
+        <ul class="st-list">
+          <li>Compare serving size to the full pack.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Zoomed-in Canadian Nutrition Facts header highlighting "Per 30 g (1/6 bag)" in bright amber, beside a chip bag stamped "140 x 6 = 840 CAL".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Label Rule 2">
+  <div class="slide-head">
+    <div class="kicker">How Canadian Labels Work</div>
+    <h1>Label Rule 2: The 5% / 15% Rule</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Low Number</div>
+        <div class="card-title">5% DV or Less = A Little</div>
+        <ul class="st-list">
+          <li>Aim LOW for sugar, sodium, saturated fat.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">High Number</div>
+        <div class="card-title">15% DV or More = A Lot</div>
+        <ul class="st-list">
+          <li>Aim HIGH for fibre, iron, calcium.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Fast Scan</div>
+        <div class="card-title">% Daily Value Column</div>
+        <ul class="st-list">
+          <li>Compare two products in three seconds.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Bold dual gauge graphic: teal badge "5% OR LESS = A LITTLE" and coral badge "15% OR MORE = A LOT" pointing directly at a magnified "% Daily Value" column.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Label Rule 3">
+  <div class="slide-head">
+    <div class="kicker">How Canadian Labels Work</div>
+    <h1>Label Rule 3: Ingredient Order &amp; Sugar Splitting</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">By Weight</div>
+        <div class="card-title">Most to Least</div>
+        <ul class="st-list">
+          <li>Listed by weight from #1 to last.</li>
+          <li>First 3 ingredients equal most of the food.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Sneaky Trick</div>
+        <div class="card-title">Sugar Splitting</div>
+        <ul class="st-list">
+          <li>Sugar, glucose, honey listed separately.</li>
+          <li>Pushes sugar out of the #1 spot.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Watch Out</div>
+        <div class="card-title">Count Every Alias</div>
+        <ul class="st-list">
+          <li>Spot syrups, "-ose" words, juice concentrate.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Funnel diagram showing four separate ingredient tags ("glucose-fructose", "sugar", "brown rice syrup", "honey") combining into one large coral block labelled "REAL #1: SUGAR".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Food Guide">
+  <div class="slide-head">
+    <div class="kicker">Canada's Food Guide (2019)</div>
+    <h1>Proportions, Not Math</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card emerald">
+        <div class="card-tag">Half Plate</div>
+        <div class="card-title">1/2 Vegetables &amp; Fruits</div>
+        <ul class="st-list">
+          <li>Fibre, vitamins, and steady energy.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Two Quarters</div>
+        <div class="card-title">1/4 Whole Grains + 1/4 Protein</div>
+        <ul class="st-list">
+          <li>Brown rice, oats, beans, eggs, meat.</li>
+        </ul>
+      </div>
+      <div class="st-card teal">
+        <div class="card-tag">Daily Habits</div>
+        <div class="card-title">Beyond the Plate</div>
+        <ul class="st-list">
+          <li>Make water your drink of choice.</li>
+          <li>Be aware of food marketing.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Clean top-down balanced plate diagram divided into three glowing sections ("1/2 VEG &amp; FRUIT", "1/4 WHOLE GRAINS", "1/4 PROTEIN") beside a crisp glass of water.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Weight & Health">
+  <div class="slide-head">
+    <div class="kicker">Mythbusting &amp; Safety</div>
+    <h1>Fueling vs. Restricting: Two Opposite Traps</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card amber">
+        <div class="card-tag">Know the Difference</div>
+        <div class="card-title">Medical vs. Crash Diets</div>
+        <ul class="st-list">
+          <li>Doctor diets treat allergies or illness.</li>
+          <li>TikTok crash diets harm growing teens.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">Both Extremes</div>
+        <div class="card-title">Real Health Risks</div>
+        <ul class="st-list">
+          <li>Ultra-processed excess strains heart and blood sugar.</li>
+          <li>Eating disorders harm heart, bones, brain.</li>
+        </ul>
+      </div>
+      <div class="st-card teal">
+        <div class="card-tag">Support (NS)</div>
+        <div class="card-title">Where Help Lives</div>
+        <ul class="st-list">
+          <li>Weight alone does not show health.</li>
+          <li>Help: Counsellor, 811, Kids Help Phone, NEDIC.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Editorial balance scale showing "ULTRA-PROCESSED HYPE" on the left and "CRASH DIET FILTERS" on the right, centered on a calm glowing teal shield labelled "STEADY FUEL".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-phase="Gallery Walk">
+  <div class="slide-head">
+    <div class="kicker">Room 8 Investigation</div>
+    <h1>Gallery Walk: Label Autopsy (10 Stations)</h1>
+  </div>
+  <div class="main-split">
+    <div class="col-stack">
+      <div class="st-card teal">
+        <div class="card-tag">Your Job</div>
+        <div class="card-title">Audit 10 Real-Style Labels</div>
+        <ul class="st-list">
+          <li>Walk the 10 stations in Room 8.</li>
+          <li>Record evidence on Side B of your sheet.</li>
+        </ul>
+      </div>
+      <div class="st-card coral">
+        <div class="card-tag">At Each Station</div>
+        <div class="card-title">Prove It With Numbers</div>
+        <ul class="st-list">
+          <li>Read the table and ingredient list.</li>
+          <li>Answer the propelling question with evidence.</li>
+        </ul>
+      </div>
+      <div class="st-card amber">
+        <div class="card-tag">Timing</div>
+        <div class="card-title">2 to 3 Minutes Per Station</div>
+        <ul class="st-list">
+          <li>Rotate clockwise when the timer calls it.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="visual-box">
+      <div class="v-tag">Visual / Diagram</div>
+      <p>Minimalist classroom floorplan showing numbered stations 1 through 10 around the room with a clipboard and magnifying glass in the center.</p>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <span id="ctr">01 / 13</span>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a class="nav-btn boost" href="HL8_Nutrition_Labels_Deck_Boosted.html">Boosted AI</a>
+    <button class="nav-btn" type="button" onclick="step(-1)">&larr;</button>
+    <button class="nav-btn" type="button" onclick="step(1)">&rarr;</button>
+  </div>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+let idx = 0;
+function show(n) {
+  idx = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.getElementById('phase').textContent = slides[idx].dataset.phase || '';
+  const pad = v => (v < 10 ? '0' : '') + v;
+  document.getElementById('ctr').textContent = pad(idx + 1) + ' / ' + pad(slides.length);
+  if (history.replaceState) history.replaceState(null, null, '#' + (idx + 1));
+}
+function step(d) { show(idx + d); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); step(1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); step(-1); }
+  else if (e.key === 'Home') { e.preventDefault(); show(0); }
+  else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+});
+const h = parseInt((location.hash || '').slice(1), 10);
+show(!isNaN(h) && h >= 1 ? h - 1 : 0);
+</script>
+</body>
+</html>

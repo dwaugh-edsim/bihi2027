@@ -134,6 +134,19 @@
     return { status: 'ready', beatIndex: 0, startedAtServerMs: null, paused: false };
   }
 
+  // Community whisper: the dawn script reads out what the villagers' night taps
+  // collectively suspected (aggregated deterministically by the werewolf engine).
+  function whisperBeat(game, ctx) {
+    var C = content();
+    var copy = (C && C.BEAT_COPY) || {};
+    var w = ctx && ctx.whisper;
+    var text = w
+      ? fill(copy.whisperSome || 'Whispers in the dark: the community seems to suspect {seat} ({name}) - {count} of {total} hunches.',
+          { seat: 'Seat ' + seatStr({ seat: w.seat }), name: w.name, count: w.count, total: w.total })
+      : (copy.whisperNone || 'The town\'s hunches are scattered - nobody agrees on anyone.');
+    return { type: 'whisper', text: text, art: 'scene_wolf_silhouettes', sfx: 'night', holdMs: 3800 };
+  }
+
   function revealId(game, kind) {
     return (game.epoch || game.gameId) + '-' + game.round + '-' + kind;
   }
@@ -183,6 +196,7 @@
       if ((game.rules.lastWordsSec || 0) > 0 && ctx.player) {
         beats.push({ type: 'last_words', text: fill(copy.lastWords || '{name} may speak.', { name: ctx.player.name, sec: game.rules.lastWordsSec }), subject: subject, holdMs: game.rules.lastWordsSec * 1000 });
       }
+      beats.push(whisperBeat(game, ctx));
       beats.push({ type: 'ghost_rules', text: (C && C.GHOST_RULES) || '', art: 'scene_night_ends', sfx: 'night', holdMs: 5000 });
       var f2 = [];
       var closing = fragText(game, 'aftermath', f2) + ' ' + fragText(game, 'closing', f2);
@@ -196,6 +210,7 @@
         copy.nobodyTaken || 'Nobody was taken tonight.'
       ].join(' ');
       beats.push({ type: 'narration', text: saveText, frags: f3, art: 'scene_doctor_lantern', sfx: 'bell', holdMs: holdFor(saveText, 6000) });
+      beats.push(whisperBeat(game, ctx));
       var f4 = [];
       var saveClose = fragText(game, 'aftermath', f4) + ' ' + fragText(game, 'closing', f4);
       beats.push({ type: 'narration', text: saveClose, frags: f4, art: 'scene_dawn_empty_house', sfx: 'bell', holdMs: holdFor(saveClose, 5000) });
@@ -204,6 +219,7 @@
       var f5 = [];
       var quietText = [fragText(game, 'weather', f5), fragText(game, 'setting', f5), copy.quietDawn || 'A quiet dawn.'].join(' ');
       beats.push({ type: 'narration', text: quietText, frags: f5, art: 'scene_dawn_empty_house', sfx: 'bell', holdMs: holdFor(quietText, 6000) });
+      beats.push(whisperBeat(game, ctx));
     } else if (kind === 'exile') {
       beats.push({ type: 'narration', text: copy.councilVoted || 'The council has voted.', art: 'scene_council_trial', sfx: 'bell', holdMs: 4000 });
       var breakdown = (ctx.breakdown || []).slice(0, 6);

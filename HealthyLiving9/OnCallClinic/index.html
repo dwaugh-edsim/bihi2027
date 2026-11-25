@@ -289,6 +289,14 @@
         <div>
           <div class="mode-box">
             <div id="secWarn">Pick your class section (901-HL, 902-HL, or 903-HL) in the top bar before starting your shift!</div>
+            <div class="sec-title">Outcome 3 Focus Shift (Triage, MSI &amp; Insurance)</div>
+            <div class="shift-btns" style="grid-template-columns:1fr;margin-bottom:14px">
+              <button class="shift-card" type="button" style="border-color:var(--sky);background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(13,22,40,.95))" onclick="Clinic.startShift('o3', 3, 1)">
+                <div class="tag" style="color:var(--sky)">HL9 Outcome 3 &middot; 12 Cases + 4 Written Evidence Notes</div>
+                <h3>Clinic Triage, MSI &amp; Insurance Shift</h3>
+                <p>Dartmouth walk-in reality, 811 vs. pharmacist vs. ER, MSI dental &amp; private benefits, US travel insurance, plus 4 short written notes saved to the Vault.</p>
+              </button>
+            </div>
             <div class="sec-title">Ranked Clinic Shifts (Leaderboard Eligible)</div>
             <div class="shift-btns">
               <button class="shift-card" type="button" onclick="Clinic.startShift('all', 3, 1)">
@@ -428,6 +436,7 @@
 <script src="cases_repro.js?v=20261119b"></script>
 <script src="cases_sleep.js?v=20261119b"></script>
 <script src="cases_nav.js?v=20261119b"></script>
+<script src="cases_o3.js?v=20261124a"></script>
 <script src="cases_challenges.js?v=20261119c"></script>
 <script>
 const Clinic = (function(){
@@ -451,7 +460,8 @@ const Clinic = (function(){
     infectious: { name: 'Infectious Disease & Vaccines', img: 'assets/dept_infectious.jpg' },
     repro:      { name: 'Sexual & Reproductive Health',  img: 'assets/dept_repro.jpg' },
     sleep:      { name: 'Sleep & Screen Science',        img: 'assets/dept_sleep.jpg' },
-    nav:        { name: 'Navigation, Boundaries & Help', img: 'assets/dept_nav.jpg' }
+    nav:        { name: 'Navigation, Boundaries & Help', img: 'assets/dept_nav.jpg' },
+    o3:         { name: 'Clinic Triage & Costs (O3)',    img: 'assets/dept_nav.jpg' }
   };
   const TIER_NAMES = { 1:'Intern', 2:'Resident', 3:'Attending', 4:'Chief of Medicine' };
 
@@ -650,11 +660,14 @@ const Clinic = (function(){
   }
 
   function buildQueue(dept){
-    // dept ("infectious"/"repro"/"sleep"/"nav") keeps Department Practice inside
-    // its lane; undefined/"all" rotates all four departments.
-    const inLane = c => !dept || dept === 'all' || c.dept === dept;
+    // dept ("infectious"/"repro"/"sleep"/"nav"/"o3") keeps Department Practice inside
+    // its lane; undefined/"all" rotates all four core departments.
+    const inLane = c => !dept || dept === 'all' ? c.dept !== 'o3' : c.dept === dept;
     const all = (window.ONCALL_CASES || []).filter(inLane);
     const chAll = (window.ONCALL_CHALLENGES || []).filter(inLane);
+    if(dept === 'o3'){
+      return all.concat(chAll).sort((a, b) => a.id.localeCompare(b.id));
+    }
     const deptKeys = dept && dept !== 'all' ? [dept] : ['infectious', 'repro', 'sleep', 'nav'];
     const seenSet = new Set(Array.isArray(profile.seenIds) ? profile.seenIds : []);
     // Guarantee balanced rotation across departments inside EVERY tier,
@@ -742,8 +755,8 @@ const Clinic = (function(){
     // Render standard MC or interactive clinical challenge
     shift.chState = {};
     const kindLabels = { rx:'CHART ORDERS (MULTI-SELECT) · +25% BONUS', triage:'RAPID TRIAGE BOARD · +25% BONUS', order:'PROTOCOL SEQUENCE (1-4) · +25% BONUS', slider:'CLINICAL DIAL ESTIMATE · +25% BONUS',
-      esc:'ESCALATION CALL · +25% BONUS', match:'MATCH THE PAIRS · +25% BONUS', myth:'MYTH BUST - TRUE OR FALSE · +25% BONUS', chart:'READ THE CHART · +25% BONUS' };
-    if(!c.kind || c.kind === 'chart'){
+      esc:'ESCALATION CALL · +25% BONUS', match:'MATCH THE PAIRS · +25% BONUS', myth:'MYTH BUST - TRUE OR FALSE · +25% BONUS', chart:'READ THE CHART · +25% BONUS', write:'WRITTEN EVIDENCE · CHART NOTE' };
+    if(!c.kind || c.kind === 'chart' || c.kind === 'mc_custom'){
       let pre = '';
       if(c.kind === 'chart' && c.table){
         pre = '<div class="chart-wrap"><table class="chart-table">' +
@@ -759,6 +772,24 @@ const Clinic = (function(){
         '<button class="opt-btn" type="button" onclick="Clinic.pick(' + i + ')">' +
         '<span class="let">' + letters[i] + '</span><span>' + esc(o.t) + '</span></button>'
       )).join('');
+    } else if(c.kind === 'write'){
+      const prev = (profile.writtenEvidence && profile.writtenEvidence[c.id]) ? profile.writtenEvidence[c.id].answer : '';
+      const minW = c.minWords || 12;
+      el('cOpts').innerHTML =
+        '<div class="ch-badge">' + kindLabels.write + '</div>' +
+        '<textarea id="writeAns" rows="4" style="width:100%;background:rgba(7,13,25,.9);color:#f8fafc;border:1.5px solid var(--sky);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.95rem;line-height:1.5;resize:vertical" placeholder="Write 1 to 2 clear, complete sentences...">' + esc(prev) + '</textarea>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:12px;flex-wrap:wrap">' +
+          '<span class="mono" id="writeCount" style="font-size:.75rem;color:var(--muted)">0 / ' + minW + ' words min</span>' +
+          '<button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Save Chart Note &rarr;</button>' +
+        '</div>';
+      const ta = el('writeAns');
+      const updWc = () => {
+        const wc = ta.value.trim().split(/\s+/).filter(Boolean).length;
+        el('writeCount').textContent = wc + ' / ' + minW + ' words min';
+        el('writeCount').style.color = wc >= minW ? 'var(--ok)' : 'var(--amber)';
+      };
+      ta.addEventListener('input', updWc);
+      updWc();
     } else if(c.kind === 'esc'){
       const reasons = shuffle(c.reasons.map((r, idx) => Object.assign({ idx }, r)));
       shift.chState = { decision: null, reasonIdx: null, reasons };
@@ -983,6 +1014,23 @@ const Clinic = (function(){
       el('dialRange').disabled = true;
       el('dialVal').innerHTML = v + ' ' + esc(c.unit) + ' <span style="font-size:1rem;color:' + (ok ? 'var(--ok)' : 'var(--coral)') + '">(Target: ' + c.target + ' ' + esc(c.unit) + ')</span>';
       rightDesc = c.target + ' ' + c.unit + ' (within +/-' + c.tol + ')';
+    } else if(c.kind === 'write'){
+      const ta = el('writeAns');
+      const txt = ta ? ta.value.trim() : '';
+      const wc = txt.split(/\s+/).filter(Boolean).length;
+      const minW = c.minWords || 12;
+      if(wc < minW){
+        el('writeCount').textContent = 'Need at least ' + minW + ' words (' + wc + ' so far)';
+        el('writeCount').style.color = 'var(--coral)';
+        if(ta) ta.focus();
+        return;
+      }
+      if(!profile.writtenEvidence || typeof profile.writtenEvidence !== 'object') profile.writtenEvidence = {};
+      profile.writtenEvidence[c.id] = { id: c.id, patient: c.patient, q: c.q, answer: txt, ts: new Date().toISOString() };
+      ta.disabled = true;
+      el('chSubmit').disabled = true;
+      ok = true;
+      rightDesc = 'Saved to your Vault chart (' + wc + ' words).';
     } else if(c.kind === 'esc'){
       if(shift.chState.decision === null || shift.chState.reasonIdx === null) return;
       const gotReason = shift.chState.reasons[shift.chState.reasonIdx];

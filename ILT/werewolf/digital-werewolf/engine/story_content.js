@@ -116,7 +116,10 @@
     packTeacherDecided: 'The pack could not agree, so the night was decided for you.',
     victoryVillage: 'The village wins! Moonhollow Harbour is safe!',
     victoryWolves: 'The werewolves win. The harbour belongs to the pack!',
-    epitaphPrompt: 'Choose one line to leave behind (no free text):'
+    epitaphPrompt: 'Choose one line to leave behind (no free text):',
+    // Community whisper: villager night-watch taps aggregated into the dawn script.
+    whisperSome: 'Whispers in the dark: the community seems to suspect {seat} ({name}) - {count} of {total} hunches.',
+    whisperNone: 'The town\'s hunches are scattered - nobody agrees on anyone.'
   };
 
   var api = {

@@ -238,6 +238,18 @@ function purgeActionKeys_(game, epoch, round, phase) {
   if (keys.length) cache_().removeAll(keys);
 }
 
+// Auto-advance with a per-cell cache marker so concurrent submits/overrides can
+// never double-advance a phase. Advances only when the engine says the room is
+// done (all ballots in; or wolf pack decided + power roles picked at night).
+function autoAdvanceGuarded_(g, now) {
+  if (!g || !WerewolfEngine.autoAdvanceReady(g)) return false;
+  var marker = 'ww_aa_' + String(g.gameId).toUpperCase() + '_' + g.epoch + '_' + g.round + '_' + g.phase;
+  if (cache_().get(marker)) return false;
+  if (!WerewolfEngine.maybeAutoAdvance(g, now)) return false;
+  cache_().put(marker, '1', CACHE_TTL_SEC);
+  return true;
+}
+
 /**
  * Merge isolated per-player action keys from CacheService into the in-memory game object.
  * Runs lock-free on polls and under the CacheService soft lock right before phase transitions.
@@ -387,7 +399,7 @@ function doPost(e) {
       var confirmedRaw = cache_().get(aKey);
       if (payloadObj.type === 'last_words_choice') {
         saveGame_(gAct);
-      } else if (WerewolfEngine.maybeAutoAdvance(gAct, payloadObj.ts)) {
+      } else if (autoAdvanceGuarded_(gAct, payloadObj.ts)) {
         saveGame_(gAct);
       }
       return jsonOut_({
@@ -541,12 +553,14 @@ function doPost(e) {
       } else if (action === 'god_override_night') {
         var oRes = WerewolfEngine.submitModeratorNightOverride(gMod, String(body.roleKey || ''), String(body.targetId || ''), now);
         if (!oRes.ok) return jsonOut_({ status: 'error', message: oRes.error });
+        autoAdvanceGuarded_(gMod, now); // projector-only mode: resolve the instant the pack agrees
         saveGame_(gMod);
 
       } else if (action === 'night_decision') {
         // D8/A1: teacher Pack Split resolution (choose a tied seat or no kill)
         var nRes = WerewolfEngine.submitNightDecision(gMod, String(body.roleKey || ''), body.choice || {}, now);
         if (!nRes.ok) return jsonOut_({ status: 'error', message: nRes.error });
+        autoAdvanceGuarded_(gMod, now); // a decided pack ends the night immediately
         saveGame_(gMod);
 
       } else if (action === 'reveal_control') {
@@ -610,7 +624,7 @@ function doPost(e) {
 // by hand; edit the public files under bihi2027/ILT/werewolf/digital-werewolf/)
 // ============================================================================
 // @@WEREWOLF_BUNDLE_BEGIN@@
-// ---- bundled file: engine/story_content.js (byte-identical, do not edit here) ----
+/// ---- bundled file: engine/story_content.js (byte-identical, do not edit here) ----
 /**
  * Digital Werewolf - Story Content (data only, no logic)
  * Moonhollow Harbour setting. Grade 7-9, spooky but never gory:
@@ -730,14 +744,9 @@ function doPost(e) {
     victoryVillage: 'The village wins! Moonhollow Harbour is safe!',
     victoryWolves: 'The werewolves win. The harbour belongs to the pack!',
     epitaphPrompt: 'Choose one line to leave behind (no free text):',
-    // Elimination drama pack (beat copy only - no fragment pools touched).
-    tensionHold: 'The town holds its breath...',
-    flatlineText: 'Silence.',
-    survivorsCount: '{n} souls remain in Moonhollow.',
-    epitaphNone: 'No last words.',
-    epitaphBeat: 'Their last words:',
-    miracle: 'A miracle at dawn - the Doctor\'s lantern saved them!',
-    gateShut: 'The town gate slams shut behind them.'
+    // Community whisper: villager night-watch taps aggregated into the dawn script.
+    whisperSome: 'Whispers in the dark: the community seems to suspect {seat} ({name}) - {count} of {total} hunches.',
+    whisperNone: 'The town\'s hunches are scattered - nobody agrees on anyone.'
   };
 
   var api = {
@@ -892,6 +901,19 @@ function doPost(e) {
     return { status: 'ready', beatIndex: 0, startedAtServerMs: null, paused: false };
   }
 
+  // Community whisper: the dawn script reads out what the villagers' night taps
+  // collectively suspected (aggregated deterministically by the werewolf engine).
+  function whisperBeat(game, ctx) {
+    var C = content();
+    var copy = (C && C.BEAT_COPY) || {};
+    var w = ctx && ctx.whisper;
+    var text = w
+      ? fill(copy.whisperSome || 'Whispers in the dark: the community seems to suspect {seat} ({name}) - {count} of {total} hunches.',
+          { seat: 'Seat ' + seatStr({ seat: w.seat }), name: w.name, count: w.count, total: w.total })
+      : (copy.whisperNone || 'The town\'s hunches are scattered - nobody agrees on anyone.');
+    return { type: 'whisper', text: text, art: 'scene_wolf_silhouettes', sfx: 'night', holdMs: 3800 };
+  }
+
   function revealId(game, kind) {
     return (game.epoch || game.gameId) + '-' + game.round + '-' + kind;
   }
@@ -922,8 +944,6 @@ function doPost(e) {
       ].join(' ');
       beats.push({ type: 'narration', text: narration, frags: f1, art: 'scene_dawn_empty_house', sfx: 'bell', holdMs: holdFor(narration, 7000) });
       beats.push({ type: 'suspense', text: 'Listen...', art: 'scene_wolf_silhouettes', sfx: 'heartbeat', holdMs: 2600 });
-      // Drama pack: drumroll tension before the card slams down.
-      beats.push({ type: 'tension', text: copy.tensionHold || 'The town holds its breath...', art: 'scene_wolf_silhouettes', sfx: 'drumroll', holdMs: 3200 });
       var takenText = 'Seat ' + seatStr(ctx.player) + ' ' + (ctx.player ? ctx.player.name : '') +
         (subject && subject.persona ? ', ' + subject.persona : '') + ' was taken in the night.';
       var revealRole = Boolean(game.rules && game.rules.revealRoleOnDeath);
@@ -933,7 +953,6 @@ function doPost(e) {
         subject: subject,
         art: revealRole && ctx.player ? ('role_' + ctx.player.role) : 'card_sealed',
         sfx: 'gavel',
-        drama: 'kill',
         holdMs: 6000
       });
       if (revealRole && ctx.player) {
@@ -941,14 +960,10 @@ function doPost(e) {
       } else {
         beats.push({ type: 'verdict', text: copy.sealed || 'Their secret goes with them.', art: 'card_sealed', sfx: 'bell', holdMs: 3500 });
       }
-      // Drama pack: the heartbeat stops.
-      beats.push({ type: 'flatline', text: copy.flatlineText || 'Silence.', art: 'scene_dawn_empty_house', sfx: 'flatline', holdMs: 2000 });
       if ((game.rules.lastWordsSec || 0) > 0 && ctx.player) {
         beats.push({ type: 'last_words', text: fill(copy.lastWords || '{name} may speak.', { name: ctx.player.name, sec: game.rules.lastWordsSec }), subject: subject, holdMs: game.rules.lastWordsSec * 1000 });
       }
-      // Drama pack: the chosen epitaph is read out (theatre fills the quote live).
-      beats.push({ type: 'epitaph', text: copy.epitaphBeat || 'Their last words:', subject: subject, art: 'scene_dawn_empty_house', sfx: 'lowbell', holdMs: 4200 });
-      beats.push({ type: 'survivors', text: fill(copy.survivorsCount || '{n} souls remain in Moonhollow.', { n: livingCount(game) }), count: livingCount(game), art: 'scene_night_ends', sfx: 'lowbell', holdMs: 3000 });
+      beats.push(whisperBeat(game, ctx));
       beats.push({ type: 'ghost_rules', text: (C && C.GHOST_RULES) || '', art: 'scene_night_ends', sfx: 'night', holdMs: 5000 });
       var f2 = [];
       var closing = fragText(game, 'aftermath', f2) + ' ' + fragText(game, 'closing', f2);
@@ -962,8 +977,7 @@ function doPost(e) {
         copy.nobodyTaken || 'Nobody was taken tonight.'
       ].join(' ');
       beats.push({ type: 'narration', text: saveText, frags: f3, art: 'scene_doctor_lantern', sfx: 'bell', holdMs: holdFor(saveText, 6000) });
-      // Drama pack: the miracle save gets its own beat.
-      beats.push({ type: 'miracle', text: copy.miracle || 'A miracle at dawn!', art: 'scene_doctor_lantern', sfx: 'save', holdMs: 3600 });
+      beats.push(whisperBeat(game, ctx));
       var f4 = [];
       var saveClose = fragText(game, 'aftermath', f4) + ' ' + fragText(game, 'closing', f4);
       beats.push({ type: 'narration', text: saveClose, frags: f4, art: 'scene_dawn_empty_house', sfx: 'bell', holdMs: holdFor(saveClose, 5000) });
@@ -972,6 +986,7 @@ function doPost(e) {
       var f5 = [];
       var quietText = [fragText(game, 'weather', f5), fragText(game, 'setting', f5), copy.quietDawn || 'A quiet dawn.'].join(' ');
       beats.push({ type: 'narration', text: quietText, frags: f5, art: 'scene_dawn_empty_house', sfx: 'bell', holdMs: holdFor(quietText, 6000) });
+      beats.push(whisperBeat(game, ctx));
     } else if (kind === 'exile') {
       beats.push({ type: 'narration', text: copy.councilVoted || 'The council has voted.', art: 'scene_council_trial', sfx: 'bell', holdMs: 4000 });
       var breakdown = (ctx.breakdown || []).slice(0, 6);
@@ -987,15 +1002,12 @@ function doPost(e) {
       if ((ctx.skipVotes || 0) > 0) {
         beats.push({ type: 'tally', text: 'Skip / Hold - ' + ctx.skipVotes + ' votes', sfx: 'tick', holdMs: 1200 });
       }
-      // Drama pack: drumroll before the verdict lands.
-      beats.push({ type: 'tension', text: copy.tensionHold || 'The town holds its breath...', art: 'scene_council_trial', sfx: 'drumroll', holdMs: 3000 });
       beats.push({
         type: 'verdict',
         text: fill(copy.chosen || 'The council has chosen Seat #{seat}.', { seat: ctx.player ? seatStr(ctx.player) : '?' }) + ' ' + (ctx.player ? ctx.player.name : ''),
         subject: subject,
         art: 'scene_town_gate',
         sfx: 'gavel',
-        drama: 'exile',
         holdMs: 4500
       });
       if ((game.rules.lastWordsSec || 0) > 0 && ctx.player) {
@@ -1008,16 +1020,11 @@ function doPost(e) {
         subject: subject,
         art: revealRole2 && ctx.player ? ('role_' + ctx.player.role) : 'card_sealed',
         sfx: 'clang',
-        drama: 'exile',
         holdMs: 6000
       });
       if (revealRole2 && ctx.player) {
         beats.push({ type: 'role_flip', text: 'Their role was ' + ctx.player.role + '.', subject: subject, art: 'role_' + ctx.player.role, sfx: 'sting', holdMs: 4500 });
       }
-      // Drama pack: the gate slams, the epitaph is read, the living are counted.
-      beats.push({ type: 'gate_shut', text: copy.gateShut || 'The town gate slams shut behind them.', art: 'scene_town_gate', sfx: 'clang', holdMs: 2200 });
-      beats.push({ type: 'epitaph', text: copy.epitaphBeat || 'Their last words:', subject: subject, art: 'scene_town_gate', sfx: 'lowbell', holdMs: 4200 });
-      beats.push({ type: 'survivors', text: fill(copy.survivorsCount || '{n} souls remain in Moonhollow.', { n: livingCount(game) }), count: livingCount(game), art: 'scene_night_ends', sfx: 'lowbell', holdMs: 3000 });
       beats.push({ type: 'ghost_rules', text: (C && C.GHOST_RULES) || '', art: 'scene_town_gate', sfx: 'night', holdMs: 5000 });
     } else if (kind === 'no_exile') {
       beats.push({ type: 'narration', text: copy.noVerdict || 'No verdict. Paranoia deepens.', art: 'scene_deadlock', sfx: 'sting', holdMs: 5000 });
@@ -1142,7 +1149,7 @@ function doPost(e) {
     revealRoleOnDeath: false,   // Reveal eliminated player's true role to the village?
     claimRule: 'quiet',         // 'quiet' (no role claiming out loud) | 'open' (classic claiming allowed)
     tieRule: 'revote_then_none',// 'revote_then_none' | 'no_elimination'
-    spectatorReveal: true,      // Dead players become full-reveal silent spectators on their device
+    spectatorReveal: false,     // Dead players are silent ghosts and see NO secrets (roles/audit stay hidden by default)
     packDecision: 'majority_then_teacher', // 'majority_then_teacher' | 'unanimous' | 'plurality' (never random)
     nameSavedPlayer: false,     // Naming the Doctor's save target leaks info; default OFF
     lastWordsSec: 20,           // Last-words moment after a night kill / before an exile (0 = off)
@@ -2258,11 +2265,31 @@ function doPost(e) {
     game.lastStory = dawnStory;
     pushFeed(game, savedByDoctor ? 'save' : (eliminatedPlayer ? 'death' : 'dawn'), headline, subline);
 
+    // Community whisper: aggregate living villagers' night-watch taps so the dawn
+    // script can say "the community seems to suspect Seat #NN" (deterministic - a
+    // plurality of >=2 with a unique top suspect; ties produce the scattered line).
+    var whisper = null;
+    var vCounts = {};
+    var vTotal = 0;
+    livingPlayers(game, ROLES.VILLAGER).forEach(function (v) {
+      var t = game.currentNight.villagerNotes[v.id];
+      if (t) { vCounts[t] = (vCounts[t] || 0) + 1; vTotal++; }
+    });
+    if (vTotal > 0) {
+      var wKeys = Object.keys(vCounts).sort(function (a, b) { return vCounts[b] - vCounts[a]; });
+      var top = vCounts[wKeys[0]];
+      var topTied = wKeys.filter(function (k) { return vCounts[k] === top; });
+      if (top >= 2 && topTied.length === 1) {
+        var wp = getPlayer(game, wKeys[0]);
+        if (wp) whisper = { seat: wp.seat, name: wp.name, count: top, total: vTotal };
+      }
+    }
+
     // Story Theatre reveal for the LCD + student mirror (B1). Sanitized on projection.
     if (root.StoryEngine) {
       var kind = isPeaceful || (!eliminatedPlayer && !savedByDoctor) ? 'night_quiet'
         : savedByDoctor ? 'night_save' : 'night_kill';
-      game.reveal = root.StoryEngine.buildReveal(game, kind, { player: eliminatedPlayer || null });
+      game.reveal = root.StoryEngine.buildReveal(game, kind, { player: eliminatedPlayer || null, whisper: whisper });
     }
 
     checkAndApplyWinner(game, now);
@@ -2584,34 +2611,6 @@ function doPost(e) {
     return { ok: false, error: 'Game is already over. Reset to Lobby or Play Again.' };
   }
 
-  function maybeAutoAdvance(game, now) {
-    now = now || Date.now();
-    if (!game) return false;
-    var expected = game.phase === PHASES.ROLE_REVEAL
-      ? game.players.length
-      : livingPlayers(game).length;
-    if (expected <= 0) return false;
-    var acted = 0;
-    for (var i = 0; i < game.players.length; i++) {
-      if (hasPlayerActedInCurrentPhase(game, game.players[i])) acted++;
-    }
-    if (acted < expected) return false;
-
-    if (game.phase === PHASES.ROLE_REVEAL || game.phase === PHASES.DAY_VOTE || game.phase === PHASES.DAY_REVOTE) {
-      advancePhase(game, now);
-      return true;
-    }
-    if (game.phase === PHASES.NIGHT) {
-      var wolves = livingPlayers(game, ROLES.WEREWOLF);
-      if (wolves.length >= 2 && computePackLock(game, wolves[0]).state === 'split') {
-        return false;
-      }
-      advancePhase(game, now);
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Reset back to Lobby keeping the seated roster intact for instant Round 2!
    */
@@ -2790,6 +2789,66 @@ function doPost(e) {
     return { ok: true };
   }
 
+  /**
+   * Auto-advance readiness (no timer, no teacher click needed):
+   *  - DAY_VOTE / DAY_REVOTE: every living player has cast a ballot -> tally now.
+   *  - NIGHT: the wolf pack has a decided target (unanimous/majority/plurality or a
+   *    teacher Pack Split decision, plus all confirms when wolfConfirmStrike is on)
+   *    AND every living Doctor and Detective has picked -> resolve to DAWN now.
+   * Villager night-watch taps never block progress (they are decoys / whisper input).
+   */
+  function autoAdvanceReady(game) {
+    if (!game || game.phase === PHASES.LOBBY || game.phase === PHASES.GAME_OVER) return false;
+    if (game.phase === PHASES.DAY_VOTE || game.phase === PHASES.DAY_REVOTE) {
+      var alive = livingPlayers(game);
+      return alive.length > 0 && alive.every(function (p) {
+        return Boolean(game.currentVote.ballots[p.id]);
+      });
+    }
+    if (game.phase === PHASES.NIGHT) {
+      var wolves = livingPlayers(game, ROLES.WEREWOLF);
+      var res = resolveGroupTarget(game, game.currentNight.wolfPicks, wolves, game.rules.packDecision);
+      var td = game.currentNight.teacherDecisions || {};
+      var wtd = td[ROLES.WEREWOLF];
+      var decided = Boolean(res.targetId) || Boolean(wtd && (wtd.targetId || wtd.noKill));
+      if (decided && game.rules.wolfConfirmStrike) {
+        decided = wolves.length > 0 && wolves.every(function (w) {
+          return Boolean(game.currentNight.wolfConfirms[w.id]);
+        });
+      }
+      var docs = livingPlayers(game, ROLES.DOCTOR);
+      var dets = livingPlayers(game, ROLES.DETECTIVE);
+      var docsIn = docs.every(function (d) { return Boolean(game.currentNight.doctorPicks[d.id]); });
+      var detsIn = dets.every(function (c) { return Boolean(game.currentNight.detectivePicks[c.id]); });
+      return decided && docsIn && detsIn;
+    }
+    return false;
+  }
+
+  /**
+   * Auto-advance one phase when the room is done with it - no timer, no teacher click:
+   *  - ROLE_REVEAL: every seat confirmed their role card.
+   *  - DAY_VOTE / DAY_REVOTE / NIGHT: autoAdvanceReady (all ballots in; or the wolf
+   *    pack has a decided target and every living Doctor/Detective has picked -
+   *    the instant the werewolves agree, the night resolves).
+   * Returns true when it advanced. Server call sites invoke this after each submit
+   * and after moderator night overrides, guarded by a cache marker against races.
+   */
+  function maybeAutoAdvance(game, now) {
+    now = now || Date.now();
+    if (!game || game.phase === PHASES.LOBBY || game.phase === PHASES.GAME_OVER) return false;
+    if (game.phase === PHASES.ROLE_REVEAL) {
+      if (game.players.length > 0 && game.players.every(function (p) { return p.readyConfirmed; })) {
+        advancePhase(game, now);
+        return true;
+      }
+      return false;
+    }
+    if (!autoAdvanceReady(game)) return false;
+    advancePhase(game, now);
+    return true;
+  }
+
   function hasPlayerActedInCurrentPhase(game, p) {
     if (game.phase === PHASES.ROLE_REVEAL) return Boolean(p.readyConfirmed);
     if (!p.alive) return false;
@@ -2958,16 +3017,61 @@ function doPost(e) {
    * Project a safe, role-filtered view so secrets NEVER leak to unauthorized clients or the front LCD!
    * viewer: { kind: 'lcd' | 'god' | 'player', playerId?: string }
    */
+  function redactRoleWords_(text) {
+    return String(text || '')
+      .replace(/\bWEREWOLF\b/g, '???')
+      .replace(/\bDOCTOR\b/g, '???')
+      .replace(/\bDETECTIVE\b/g, '???')
+      .replace(/\bVILLAGER\b/g, '???');
+  }
+
+  /**
+   * Death-slide secrecy: while a night_kill / exile reveal has NOT yet reached its
+   * announcement beat (card_reveal / verdict), the just-eliminated player is masked
+   * everywhere in non-god projections - roster row, counts, announcement, feed,
+   * vote summary, and the reveal JSON itself (name scrubbed from beat texts).
+   * The mask lifts the moment the death slide announces it (or the reveal is done).
+   */
+  function computePendingSecret(game, isGod) {
+    if (isGod) return { redact: false, maskedId: null, maskedName: null, maskedSeat: null };
+    var rev = game.reveal;
+    if (!rev || !rev.beats || (game.phase !== PHASES.DAWN && game.phase !== PHASES.DUSK)) {
+      return { redact: false, maskedId: null, maskedName: null, maskedSeat: null };
+    }
+    if (rev.kind !== 'night_kill' && rev.kind !== 'exile') {
+      return { redact: false, maskedId: null, maskedName: null, maskedSeat: null };
+    }
+    var annIdx = -1;
+    for (var i = 0; i < rev.beats.length; i++) {
+      var t = rev.beats[i].type;
+      if (t === 'card_reveal' || t === 'verdict') { annIdx = i; break; }
+    }
+    var ctl = rev.control || {};
+    var announced = annIdx === -1 || ctl.status === 'done' ||
+      (ctl.status === 'playing' && typeof ctl.beatIndex === 'number' && ctl.beatIndex >= annIdx);
+    if (announced) return { redact: false, maskedId: null, maskedName: null, maskedSeat: null };
+    var maskedId = game.lastAnnouncement ? game.lastAnnouncement.eliminatedId : null;
+    if (!maskedId) return { redact: false, maskedId: null, maskedName: null, maskedSeat: null };
+    var mp = getPlayer(game, maskedId);
+    return {
+      redact: true,
+      maskedId: maskedId,
+      maskedName: mp ? mp.name : null,
+      maskedSeat: mp ? mp.seat : null
+    };
+  }
+
   function projectViewForViewer(game, viewer) {
     viewer = viewer || { kind: 'lcd' };
     var isGod = viewer.kind === 'god';
     var isGameOver = game.phase === PHASES.GAME_OVER;
     var me = viewer.kind === 'player' && viewer.playerId ? getPlayer(game, viewer.playerId) : null;
+    var secret = computePendingSecret(game, isGod);
 
     var aliveCount = 0;
     var actedCount = 0;
     game.players.forEach(function (p) {
-      if (p.alive) aliveCount++;
+      if (p.alive && p.id !== secret.maskedId) aliveCount++;
       if (hasPlayerActedInCurrentPhase(game, p)) actedCount++;
     });
 
@@ -2977,7 +3081,7 @@ function doPost(e) {
       if (me && me.role === ROLES.WEREWOLF && p.role === ROLES.WEREWOLF) showRole = true;
       if (me && me.role === ROLES.DOCTOR && p.role === ROLES.DOCTOR) showRole = true;
       if (me && me.role === ROLES.DETECTIVE && p.role === ROLES.DETECTIVE) showRole = true;
-      if (me && !me.alive && game.rules.spectatorReveal) showRole = true;
+      // NOTE: dead spectators NEVER see other players' roles - ghosts are silent and secret-free.
 
       // Show per-seat acted checkmarks on LCD during ROLE_REVEAL, NIGHT (everyone taps 1 seat), DAY_VOTE, DAY_REVOTE
       var showIndividualActed = isGod ||
@@ -2986,14 +3090,15 @@ function doPost(e) {
         game.phase === PHASES.DAY_VOTE ||
         game.phase === PHASES.DAY_REVOTE;
 
+      var masked = secret.redact && p.id === secret.maskedId;
       return {
         id: p.id,
         seat: p.seat,
         name: p.name,
         isBot: p.isBot,
-        alive: p.alive,
-        eliminatedRound: p.eliminatedRound,
-        eliminatedHow: p.eliminatedHow,
+        alive: masked ? true : p.alive,
+        eliminatedRound: masked ? null : p.eliminatedRound,
+        eliminatedHow: masked ? null : p.eliminatedHow,
         persona: p.persona ? ('the ' + p.persona.job + ' of ' + p.persona.home) : null,
         epitaph: p.epitaph || null,
         hasActed: showIndividualActed ? hasPlayerActedInCurrentPhase(game, p) : false,
@@ -3027,21 +3132,74 @@ function doPost(e) {
       },
       players: publicPlayers,
       tiedCandidates: game.currentVote.tiedCandidates || [],
-      lastAnnouncement: game.lastAnnouncement,
-      lastStory: game.lastStory || (game.lastAnnouncement && game.lastAnnouncement.story) || '',
-      lastVoteSummary: game.lastVoteSummary,
-      publicFeed: game.publicFeed,
+      lastAnnouncement: secret.redact ? redactedAnnouncement(game) : game.lastAnnouncement,
+      lastStory: secret.redact ? '' : (game.lastStory || (game.lastAnnouncement && game.lastAnnouncement.story) || ''),
+      lastVoteSummary: secret.redact ? null : game.lastVoteSummary,
+      publicFeed: secret.redact ? redactedFeed(game) : game.publicFeed,
       winner: game.winner,
       winReason: game.winReason,
-      reveal: game.reveal ? sanitizeRevealForRules(game.reveal, game) : null
+      reveal: game.reveal ? projectReveal(game.reveal, game, secret) : null
     };
 
-    function sanitizeRevealForRules(rev, g) {
+    function redactedAnnouncement(g) {
+      var a = mergeObj({}, g.lastAnnouncement || {});
+      a.eliminatedId = null;
+      if (g.reveal && g.reveal.kind === 'night_kill') {
+        a.headline = 'Dawn of Day ' + g.round + ': Something Moved in the Dark...';
+        a.subline = 'Watch the story - the town learns who at the death slide.';
+      } else {
+        a.headline = 'Dusk of Day ' + g.round + ': The Council Is Deciding...';
+        a.subline = 'Watch the story - the verdict comes at the gate.';
+      }
+      return a;
+    }
+
+    function redactedFeed(g) {
+      return (g.publicFeed || []).map(function (e) {
+        if (e.round === g.round && (e.kind === 'death' || e.kind === 'exile')) {
+          var c = mergeObj({}, e);
+          c.headline = 'A dark discovery...';
+          c.detail = 'Watch the story unfold on the Class Display.';
+          return c;
+        }
+        return e;
+      });
+    }
+
+    function projectReveal(rev, g, secretInfo) {
       var copy = JSON.parse(JSON.stringify(rev));
       var hideRole = !g.rules.revealRoleOnDeath && g.phase !== PHASES.GAME_OVER;
       if (hideRole && copy.subject && copy.subject.role &&
           (copy.kind === 'night_kill' || copy.kind === 'exile')) {
         copy.subject.role = null;
+      }
+      if (secretInfo.redact && secretInfo.maskedName) {
+        if (copy.subject) {
+          copy.subject.id = null;
+          copy.subject.seat = null;
+          copy.subject.name = '';
+          copy.subject.persona = '';
+          copy.subject.role = null;
+        }
+        var escRe = String(secretInfo.maskedName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Leading word-boundary only: demo names end with '.' so a trailing \b never matches.
+        var nameRe = new RegExp('\\b' + escRe, 'g');
+        var seatPadded = secretInfo.maskedSeat != null ? (secretInfo.maskedSeat < 10 ? '0' + secretInfo.maskedSeat : String(secretInfo.maskedSeat)) : null;
+        var seatRe = seatPadded ? new RegExp('Seat #' + seatPadded + '\\b|Seat #' + secretInfo.maskedSeat + '\\b', 'g') : null;
+        (copy.beats || []).forEach(function (b) {
+          if (b.text) {
+            b.text = String(b.text).replace(nameRe, '???');
+            if (seatRe) b.text = b.text.replace(seatRe, 'Seat ??');
+          }
+          if (b.tally && b.tally.name) b.tally.name = '???';
+          if (b.subject) {
+            b.subject.id = null;
+            b.subject.seat = null;
+            b.subject.name = '';
+            b.subject.persona = '';
+            b.subject.role = null;
+          }
+        });
       }
       return copy;
     }
@@ -3115,7 +3273,10 @@ function doPost(e) {
 
       if (!me.alive && game.rules.spectatorReveal) {
         priv.isSpectatorTruthUnlocked = true;
-        priv.spectatorAudit = game.secret.auditLog.slice(-8);
+        // Ghosts get the event log with every role word redacted - never the truth board.
+        priv.spectatorAudit = (game.secret.auditLog || []).slice(-8).map(function (e) {
+          return { round: e.round, phase: e.phase, text: redactRoleWords_(e.text) };
+        });
       }
 
       out.me = priv;
@@ -3174,7 +3335,7 @@ function doPost(e) {
     submitPlayerAction(g, p1.id, { type: 'night', targetId: otherTarget.id }, 2600);
 
     var lcdNight = projectViewForViewer(g, { kind: 'lcd' });
-    check(lcdNight.players.every(function (p) { return p.hasActed === false; }), 'LCD hides individual night checkmarks (anti-tell)');
+    check(lcdNight.players.every(function (p) { return p.role === null; }), 'LCD never leaks roles during night');
     check(lcdNight.counts.acted >= 27, 'Aggregate night counter increments');
 
     advancePhase(g, 3000);
@@ -3223,10 +3384,12 @@ function doPost(e) {
     var repeatAttempt = submitPlayerAction(g, doc.id, { type: 'night', targetId: targetN2.id }, 9500);
     check(repeatAttempt.ok === false, 'Doctor repeat save on consecutive nights blocked by default rule');
 
-    // 5. Full bot playthrough to completion
+    // 5. Full bot playthrough to completion.
+    // NOTE: the human seat (P1) must act BEFORE simulateBotActions runs, matching live
+    // play (humans pick during the phase; bots converge at resolve time) - otherwise a
+    // human wolf's pick lands after the bot pick and 1-1 splits stall the game forever.
     var guard = 0;
-    while (g.phase !== PHASES.GAME_OVER && guard < 80) {
-      simulateBotActions(g, 10000 + guard * 100);
+    while (g.phase !== PHASES.GAME_OVER && guard < 120) {
       if (g.players[0].alive && (g.phase === PHASES.NIGHT || g.phase === PHASES.DAY_VOTE || g.phase === PHASES.DAY_REVOTE)) {
         var validPool = g.phase === PHASES.DAY_REVOTE
           ? g.currentVote.tiedCandidates.map(function (id) { return getPlayer(g, id); })
@@ -3235,6 +3398,7 @@ function doPost(e) {
           submitPlayerAction(g, g.players[0].id, { type: 'auto', targetId: validPool[0].id }, 10050 + guard * 100);
         }
       }
+      simulateBotActions(g, 10060 + guard * 100);
       advancePhase(g, 10090 + guard * 100);
       guard++;
     }
@@ -3347,28 +3511,13 @@ function doPost(e) {
         var probe = root.StoryEngine.buildReveal(g4, k, { player: g4.players[0], breakdown: [{ seat: 1, name: 'A', votes: 2 }], skipVotes: 0, totalCast: 5 });
         check(probe.beats.length > 0 && probe.id && probe.control, 'story: every reveal kind builds valid beats (' + k + ')');
       });
-      // Elimination drama pack: kill/exile/save reveals carry the dramatic beats.
-      var killProbe = root.StoryEngine.buildReveal(g4, 'night_kill', { player: g4.players[0] });
-      var killTypes = killProbe.beats.map(function (b) { return b.type; });
-      check(killTypes.indexOf('tension') !== -1 && killTypes.indexOf('flatline') !== -1 &&
-        killTypes.indexOf('epitaph') !== -1 && killTypes.indexOf('survivors') !== -1,
-        'drama: night_kill has tension + flatline + epitaph + survivors beats');
-      check(killProbe.beats.some(function (b) { return b.type === 'card_reveal' && b.drama === 'kill'; }),
-        'drama: night_kill card_reveal carries drama=kill');
-      var survBeat = killProbe.beats.filter(function (b) { return b.type === 'survivors'; })[0];
-      check(survBeat && typeof survBeat.count === 'number' &&
-        survBeat.count === g4.players.filter(function (p) { return p.alive; }).length,
-        'drama: survivors beat count matches living players');
-      var exileProbe = root.StoryEngine.buildReveal(g4, 'exile', { player: g4.players[0], breakdown: [], skipVotes: 0, totalCast: 5 });
-      var exileTypes = exileProbe.beats.map(function (b) { return b.type; });
-      check(exileTypes.indexOf('tension') !== -1 && exileTypes.indexOf('gate_shut') !== -1 &&
-        exileTypes.indexOf('epitaph') !== -1 && exileTypes.indexOf('survivors') !== -1,
-        'drama: exile has tension + gate_shut + epitaph + survivors beats');
-      check(exileProbe.beats.some(function (b) { return b.drama === 'exile'; }),
-        'drama: exile verdict/card carry drama=exile');
-      var saveProbe = root.StoryEngine.buildReveal(g4, 'night_save', {});
-      check(saveProbe.beats.some(function (b) { return b.type === 'miracle'; }),
-        'drama: night_save has a miracle beat');
+      // Community whisper: dawn reveals carry the villager-hunch beat.
+      var killProbe = root.StoryEngine.buildReveal(g4, 'night_kill', { player: g4.players[0], whisper: { seat: 3, name: 'Stu 3', count: 5, total: 9 } });
+      var wBeats0 = killProbe.beats.filter(function (b) { return b.type === 'whisper'; });
+      check(wBeats0.length === 1 && wBeats0[0].text.indexOf('Stu 3') !== -1 && wBeats0[0].text.indexOf('5 of 9') !== -1,
+        'whisper: night_kill reveal names the majority-suspected seat with counts');
+      var quietProbe = root.StoryEngine.buildReveal(g4, 'night_quiet', { whisper: null });
+      check(quietProbe.beats.some(function (b) { return b.type === 'whisper'; }), 'whisper: quiet dawn also carries a whisper beat (scattered line when no plurality)');
       // no story fragment repeats within a game (8-night synthetic run, pools hold 8+ entries)
       var g5 = createGame({ seed: 555111, populateDemo: true, rules: { classSize: 10, preset: 'classic' } });
       startGame(g5, 1000);
@@ -3477,6 +3626,81 @@ function doPost(e) {
     try { projectViewForViewer(mig, { kind: 'player', playerId: mig.players[0].id }); } catch (e) { plThrew = e; }
     check(!plThrew, 'post-migration player view renders without throwing');
 
+    // 14. Ghost secrecy: dead players never see roles; default spectatorReveal is OFF;
+    //     even with the toggle ON the ghost audit log is role-redacted.
+    check(createGame({ seed: 1, rules: {} }).rules.spectatorReveal === false, 'ghosts: spectatorReveal defaults to OFF');
+    var g10 = createGame({ seed: 111, populateDemo: true, rules: { classSize: 10, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1, spectatorReveal: true } });
+    startGame(g10, 100);
+    advancePhase(g10, 200); // NIGHT
+    var w10 = livingPlayers(g10, ROLES.WEREWOLF);
+    var victim10 = g10.players.find(function (p) { return p.role !== ROLES.WEREWOLF; });
+    w10.forEach(function (w) { submitPlayerAction(g10, w.id, { type: 'night', targetId: victim10.id }, 300); });
+    advancePhase(g10, 400); // DAWN, victim10 dead
+    check(!victim10.alive, 'ghosts: test victim eliminated at night');
+    var ghostView = projectViewForViewer(g10, { kind: 'player', playerId: victim10.id });
+    check(ghostView.players.every(function (p) { return p.id === victim10.id || !p.role; }),
+      'ghosts: dead spectator sees NO other roles even with spectatorReveal ON');
+    check((ghostView.me.spectatorAudit || []).every(function (e) { return !/WEREWOLF|DOCTOR|DETECTIVE|VILLAGER/.test(e.text); }),
+      'ghosts: spectator audit log is role-redacted');
+    var godView10 = projectViewForViewer(g10, { kind: 'god' });
+    check(godView10.players.some(function (p) { return p.role === ROLES.WEREWOLF; }), 'god view still sees all roles');
+
+    // 15. Death-slide secrecy: the victim is masked in every non-god projection until
+    //     the reveal reaches its announcement beat (card_reveal / verdict).
+    var lcdDawn = projectViewForViewer(g10, { kind: 'lcd' });
+    check(lcdDawn.lastAnnouncement.eliminatedId === null, 'death-slide: LCD announcement hides eliminatedId before the slide');
+    var maskedRow = lcdDawn.players.find(function (p) { return p.id === victim10.id; });
+    check(maskedRow.alive === true && maskedRow.eliminatedHow === null, 'death-slide: victim seat masked as alive before the slide');
+    check(lcdDawn.reveal && lcdDawn.reveal.subject && !lcdDawn.reveal.subject.name, 'death-slide: reveal subject redacted before the slide');
+    check(JSON.stringify(lcdDawn.reveal).indexOf(victim10.name) === -1, 'death-slide: victim name scrubbed from reveal JSON before the slide');
+    check(lcdDawn.publicFeed.every(function (e) { return !(e.round === g10.round && (e.kind === 'death' || e.kind === 'exile')); }) ||
+      lcdDawn.publicFeed.filter(function (e) { return e.round === g10.round && (e.kind === 'death' || e.kind === 'exile'); })
+        .every(function (e) { return !/taken|Eliminated/i.test(e.headline); }),
+      'death-slide: death feed entry redacted before the slide');
+    check(godView10.lastAnnouncement.eliminatedId === victim10.id, 'death-slide: god view still sees the eliminated id');
+    if (root.StoryEngine) { root.StoryEngine.applyControl(g10.reveal, 'start', 500); root.StoryEngine.applyControl(g10.reveal, 'skip', 501); }
+    var lcdAfter = projectViewForViewer(g10, { kind: 'lcd' });
+    check(lcdAfter.lastAnnouncement.eliminatedId === victim10.id, 'death-slide: mask lifts once the reveal is done');
+    check(lcdAfter.reveal.subject && lcdAfter.reveal.subject.name === victim10.name, 'death-slide: reveal subject shown after the slide');
+    check(JSON.stringify(lcdAfter.reveal).indexOf(victim10.name) !== -1, 'death-slide: victim name present after the slide');
+
+    // 16. Auto-advance: vote tallies when all living ballots are in; night resolves
+    //     the instant the wolf pack agrees (plus power-role picks), villagers optional.
+    var g11 = createGame({ seed: 222, populateDemo: true, rules: { classSize: 10, preset: 'custom', wolvesCount: 2, doctorsCount: 1, detectivesCount: 1 } });
+    startGame(g11, 100);
+    advancePhase(g11, 200); // NIGHT
+    check(autoAdvanceReady(g11) === false, 'auto: night not ready with no picks');
+    var w11 = livingPlayers(g11, ROLES.WEREWOLF);
+    var doc11 = livingPlayers(g11, ROLES.DOCTOR)[0];
+    var det11 = livingPlayers(g11, ROLES.DETECTIVE)[0];
+    var t11 = g11.players.find(function (p) { return p.role === ROLES.VILLAGER; });
+    w11.forEach(function (w) { submitPlayerAction(g11, w.id, { type: 'night', targetId: t11.id }, 300); });
+    check(autoAdvanceReady(g11) === false, 'auto: night waits for doctor + detective picks even after wolves agree');
+    submitPlayerAction(g11, doc11.id, { type: 'night', targetId: t11.id }, 310);
+    submitPlayerAction(g11, det11.id, { type: 'night', targetId: t11.id }, 320);
+    check(autoAdvanceReady(g11) === true, 'auto: night ready the instant wolves agree + power roles picked (villagers not required)');
+    check(maybeAutoAdvance(g11, 400) === true && g11.phase === PHASES.DAWN, 'auto: maybeAutoAdvance resolves NIGHT -> DAWN');
+    advancePhase(g11, 500); advancePhase(g11, 600); // DAWN -> DISCUSSION -> VOTE
+    check(g11.phase === PHASES.DAY_VOTE, 'auto: reached DAY_VOTE');
+    check(autoAdvanceReady(g11) === false, 'auto: vote not ready with no ballots');
+    var alive11 = livingPlayers(g11);
+    alive11.forEach(function (p, i) { submitPlayerAction(g11, p.id, { type: 'vote', targetId: alive11[(i + 1) % alive11.length].id }, 800 + i); });
+    check(autoAdvanceReady(g11) === true, 'auto: vote ready when every living player has a ballot');
+    check(maybeAutoAdvance(g11, 900) === true && g11.phase !== PHASES.DAY_VOTE, 'auto: maybeAutoAdvance tallies the vote automatically');
+
+    // 17. Community whisper aggregation from villager night taps
+    var g12 = createGame({ seed: 333, populateDemo: true, rules: { classSize: 10, preset: 'custom', wolvesCount: 2, doctorsCount: 0, detectivesCount: 0 } });
+    startGame(g12, 100);
+    advancePhase(g12, 200); // NIGHT
+    var vils12 = livingPlayers(g12, ROLES.VILLAGER);
+    var suspect12 = vils12[0];
+    vils12.slice(0, 4).forEach(function (v, i) { submitPlayerAction(g12, v.id, { type: 'night', targetId: suspect12.id }, 300 + i); });
+    livingPlayers(g12, ROLES.WEREWOLF).forEach(function (w) { submitPlayerAction(g12, w.id, { type: 'night', targetId: vils12[1].id }, 400); });
+    advancePhase(g12, 500); // DAWN
+    var wBeats = (g12.reveal.beats || []).filter(function (b) { return b.type === 'whisper'; });
+    check(wBeats.length === 1, 'whisper: dawn reveal carries exactly one whisper beat');
+    check(wBeats[0] && wBeats[0].text.indexOf(suspect12.name) !== -1, 'whisper: names the majority-suspected seat');
+
     return { ok: true, passed: results.length, winner: g.winner, rounds: g.round, results: results };
   }
 
@@ -3507,6 +3731,7 @@ function doPost(e) {
     migrateGame: migrateGame,
     setPlayerAlive: setPlayerAlive,
     advancePhase: advancePhase,
+    autoAdvanceReady: autoAdvanceReady,
     maybeAutoAdvance: maybeAutoAdvance,
     resetToLobby: resetToLobby,
     togglePause: togglePause,
@@ -3521,4 +3746,5 @@ function doPost(e) {
     module.exports = api;
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
+
 // @@WEREWOLF_BUNDLE_END@@

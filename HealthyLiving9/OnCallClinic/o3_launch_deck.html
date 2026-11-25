@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL9 O3: Navigating Nova Scotia Health Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Roboto+Slab:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f6f5f0; --surface:#ffffff; --line:#d6d3cb;
+    --ink:#111827; --muted:#57534e;
+    --accent:#1d4ed8; --teal:#0f766e; --amber:#b45309; --coral:#b91c1c; --ok:#15803d;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; }
+
+  .deck { position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
+  .progress { height:3px; background:#e7e5e0; flex-shrink:0; }
+  .progress-fill { height:100%; background:var(--ink); width:0; transition:width .25s ease; }
+
+  .stage { position:relative; flex:1; overflow:hidden; }
+  .slide {
+    position:absolute; inset:0; display:none; flex-direction:column; justify-content:center;
+    padding:52px 84px 78px 84px;
+    background:var(--bg) !important; background-image:none !important;
+  }
+  .slide.active { display:flex; animation:fadeIn .18s ease; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  .kicker {
+    font-size:.95rem; font-weight:700; letter-spacing:.02em;
+    color:var(--muted); margin-bottom:14px;
+  }
+  .kicker.amber { color:var(--amber); }
+  .kicker.coral { color:var(--coral); }
+  .kicker.teal { color:var(--teal); }
+
+  .hero-title {
+    font-family:'Roboto Slab',Georgia,serif; font-size:clamp(2.9rem,5.2vw,4.5rem);
+    font-weight:900; line-height:1.08; color:var(--ink); max-width:980px; letter-spacing:-.02em;
+  }
+  .hero-sub {
+    font-size:clamp(1.25rem,1.9vw,1.55rem); color:var(--muted); font-weight:500;
+    margin-top:18px; max-width:780px; line-height:1.5;
+  }
+
+  .outcome-strip {
+    margin-top:44px; padding-top:18px; max-width:860px;
+    border-top:2px solid var(--ink);
+  }
+  .outcome-strip .otag {
+    font-size:.82rem; font-weight:800; letter-spacing:.04em;
+    color:var(--muted); text-transform:uppercase; margin-bottom:4px;
+  }
+  .outcome-strip .otxt { font-size:1.12rem; color:var(--ink); font-weight:600; }
+
+  /* Split scenario layout */
+  .split { display:grid; grid-template-columns:1.3fr .7fr; gap:52px; align-items:center; width:100%; max-width:1260px; }
+  .scene-q {
+    font-family:'Roboto Slab',Georgia,serif; font-size:clamp(2rem,3.3vw,2.85rem);
+    font-weight:800; line-height:1.18; color:var(--ink); letter-spacing:-.015em;
+  }
+  .scene-prompt {
+    margin-top:20px; font-size:1.22rem; color:var(--muted); font-weight:700;
+  }
+  .choice-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  .choice-pill {
+    padding:9px 16px; border-radius:6px; background:var(--surface);
+    border:1.5px solid var(--line); color:var(--ink);
+    font-size:.98rem; font-weight:700;
+  }
+  .photo-frame {
+    border-radius:8px; overflow:hidden; border:1px solid var(--line);
+    background:#fff;
+  }
+  .photo-frame img { width:100%; height:360px; object-fit:cover; display:block; }
+
+  /* Clicker reveal panel */
+  .reveal {
+    margin-top:26px; padding:18px 0 0 0; border-top:3px solid var(--ink);
+    opacity:0; transform:translateY(8px); pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .reveal.coral { border-top-color:var(--coral); }
+  .reveal.amber { border-top-color:var(--amber); }
+  .slide.revealed .reveal { opacity:1; transform:none; pointer-events:auto; }
+  .reveal-big {
+    font-family:'Roboto Slab',Georgia,serif; font-size:clamp(1.55rem,2.4vw,2rem);
+    font-weight:900; color:var(--teal); margin-bottom:6px;
+  }
+  .reveal.coral .reveal-big { color:var(--coral); }
+  .reveal.amber .reveal-big { color:var(--amber); }
+  .reveal-txt { font-size:1.18rem; color:var(--ink); font-weight:500; line-height:1.5; }
+  .click-cue {
+    margin-top:16px; font-size:.82rem; font-weight:700;
+    color:var(--muted); letter-spacing:.04em; text-transform:uppercase;
+  }
+  .slide.revealed .click-cue { display:none; }
+
+  /* Clean horizontal dividers (no boxes) */
+  .strip-list { display:flex; flex-direction:column; margin-top:28px; max-width:1060px; border-top:2px solid var(--ink); }
+  .strip {
+    display:flex; align-items:baseline; gap:28px; padding:22px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .strip-num {
+    font-family:'Roboto Slab',Georgia,serif; font-size:1.85rem; font-weight:900;
+    min-width:190px; color:var(--ink);
+  }
+  .strip-num.amber { color:var(--amber); }
+  .strip-num.teal { color:var(--teal); }
+  .strip-body { font-size:1.3rem; font-weight:700; color:var(--ink); }
+  .strip-body span { color:var(--muted); font-weight:500; }
+
+  /* Two-column editorial table (no neon boxes) */
+  .cols-2 { display:grid; grid-template-columns:1fr 1fr; gap:56px; margin-top:30px; max-width:1160px; }
+  .col-box { padding-top:18px; border-top:3px solid var(--ink); }
+  .col-box.ok { border-top-color:var(--ok); }
+  .col-box.amber { border-top-color:var(--amber); }
+  .col-box h3 { font-family:'Roboto Slab',Georgia,serif; font-size:1.55rem; font-weight:900; margin-bottom:16px; color:var(--ink); }
+  .col-box.ok h3 { color:var(--ok); }
+  .col-box.amber h3 { color:var(--amber); }
+  .col-box ul { list-style:none; display:flex; flex-direction:column; gap:14px; font-size:1.22rem; font-weight:500; color:var(--ink); line-height:1.45; }
+  .col-box li { padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .col-box li:last-child { border-bottom:none; }
+
+  /* Big stat row */
+  .stat-row { display:flex; gap:36px; margin-top:26px; flex-wrap:wrap; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:20px 0; max-width:1060px; }
+  .stat-pill .num { font-family:'Roboto Slab',Georgia,serif; font-size:2.3rem; font-weight:900; color:var(--coral); }
+  .stat-pill .lbl { font-size:1rem; font-weight:600; color:var(--muted); margin-top:2px; }
+
+  /* Who pays game - large vote tiles */
+  .tile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:34px; max-width:1160px; }
+  .vote-tile {
+    background:var(--surface); border:2px solid var(--line); border-radius:12px;
+    padding:28px 26px; transition:opacity .25s ease, transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .vote-tile .t-num {
+    font-family:'Roboto Slab',Georgia,serif; font-size:3rem; font-weight:900; line-height:1;
+    color:var(--muted); margin-bottom:12px;
+  }
+  .vote-tile .t-lbl { font-size:1.38rem; font-weight:800; color:var(--ink); line-height:1.25; }
+  .vote-tile .t-sub { font-size:1rem; font-weight:500; color:var(--muted); margin-top:6px; }
+  .slide.revealed .vote-tile { opacity:.28; }
+  .slide.revealed .vote-tile.win { opacity:1; transform:scale(1.03); border-width:3px; }
+  .slide.revealed .vote-tile.win.w1 { border-color:var(--ok); background:#f0fdf4; }
+  .slide.revealed .vote-tile.win.w1 .t-num { color:var(--ok); }
+  .slide.revealed .vote-tile.win.w2 { border-color:var(--amber); background:#fffbeb; }
+  .slide.revealed .vote-tile.win.w2 .t-num { color:var(--amber); }
+  .slide.revealed .vote-tile.win.w3 { border-color:var(--coral); background:#fef2f2; }
+  .slide.revealed .vote-tile.win.w3 .t-num { color:var(--coral); }
+
+  /* Bottom HUD */
+  .hud {
+    position:fixed; bottom:0; left:0; right:0; height:52px;
+    background:var(--bg); border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; padding:0 32px;
+    font-size:.82rem; font-weight:600; color:var(--muted); z-index:40;
+  }
+  .hud-btns { display:flex; gap:8px; align-items:center; }
+  .hud-btn {
+    background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:5px;
+    padding:6px 14px; font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer;
+  }
+  .hud-btn:hover { border-color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="progress"><div class="progress-fill" id="prog"></div></div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 COVER -->
+    <section class="slide cover active" style="background-image:linear-gradient(95deg,rgba(7,13,25,.94) 0%,rgba(7,13,25,.80) 58%,rgba(7,13,25,.45) 100%),url('assets/lobby_hero.jpg')">
+      <div class="kicker">HL9 &middot; Outcome 3</div>
+      <div class="hero-title">Don&rsquo;t get stuck in the waiting room.</div>
+      <div class="hero-sub">How Nova Scotia health care actually works, which door to pick, and who pays the bill.</div>
+      <div class="outcome-strip">
+        <div class="otag">Outcome 3 &middot; Health Literacy / Navigating the System</div>
+        <div class="otxt">&ldquo;Learners will investigate ways to access health resources that support health and well-being.&rdquo;</div>
+      </div>
+    </section>
+
+    <!-- 2 SCENARIO 1: DARTMOUTH WALK-IN -->
+    <section class="slide" data-reveal="1" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.90) 100%)">
+      <div class="split">
+        <div>
+          <div class="kicker coral">Scenario 1 &middot; 2:15 PM in Dartmouth</div>
+          <div class="scene-q">You have a sore throat and no family doctor. You show up at a Dartmouth walk-in clinic after school.</div>
+          <div class="scene-prompt">What actually happens at the front desk?</div>
+          <div class="click-cue">Click to reveal &rarr;</div>
+          <div class="reveal coral">
+            <div class="reveal-big">FULL FOR THE DAY.</div>
+            <div class="reveal-txt">Dartmouth walk-in clinics are overrun and often fill up before or right after opening. Need a doctor long-term? Register at <b>needafamilypractice.nshealth.ca</b> or call <b>811</b>.</div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/dept_nav.jpg" alt="Dartmouth clinic waiting room"></div>
+      </div>
+    </section>
+
+    <!-- 3 SCENARIO 2: 9:15 PM FEVER -->
+    <section class="slide" data-reveal="1" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.90) 100%)">
+      <div class="split">
+        <div>
+          <div class="kicker">Scenario 2 &middot; 9:15 PM</div>
+          <div class="scene-q">38.6&deg;C fever for two days. Drinking fluids, talking fine, no rash. ER tonight, or wait?</div>
+          <div class="scene-prompt">Which door do you pick?</div>
+          <div class="choice-row">
+            <span class="choice-pill">1) Go to ER tonight</span>
+            <span class="choice-pill">2) Call 811</span>
+            <span class="choice-pill">3) Wait til morning</span>
+          </div>
+          <div class="click-cue">Click to reveal &rarr;</div>
+          <div class="reveal">
+            <div class="reveal-big">CALL 811 FIRST.</div>
+            <div class="reveal-txt">Free Registered Nurse, 24/7. Going to Dartmouth General ER for a mild fever can mean sitting in the waiting room until 3 a.m. Save <b>911 / ER</b> for real warning signs: chest pain, trouble breathing, severe bleeding, or stiff neck + non-fading rash.</div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/pat_01.jpg" alt="Teen patient with fever"></div>
+      </div>
+    </section>
+
+    <!-- 4 SCENARIO 3: PHARMACIST -->
+    <section class="slide" data-reveal="1" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.90) 100%)">
+      <div class="split">
+        <div>
+          <div class="kicker teal">Scenario 3 &middot; Common Infections</div>
+          <div class="scene-q">You have a red, crusted eye infection (pink eye) or a painful urinary infection. Walk-ins are full and you have no family doctor.</div>
+          <div class="scene-prompt">What is your best move?</div>
+          <div class="choice-row">
+            <span class="choice-pill">1) Walk-in tomorrow</span>
+            <span class="choice-pill">2) Ask a pharmacist</span>
+            <span class="choice-pill">3) Go to ER</span>
+          </div>
+          <div class="click-cue">Click to reveal &rarr;</div>
+          <div class="reveal">
+            <div class="reveal-big">ASK THE PHARMACIST.</div>
+            <div class="reveal-txt">Most people think infections always need a doctor, but NS pharmacists can assess and prescribe for pink eye, UTIs, tick bites, cold sores, and strep throat (at Pharmacy Primary Care Clinics), plus renew regular meds. <b>Assessment = $0 (MSI). Medication = you pay.</b></div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/pat_03.jpg" alt="Teen patient at pharmacy"></div>
+      </div>
+    </section>
+
+    <!-- 5 SCENARIO 4: ER WAIT TIMES + NO CARD -->
+    <section class="slide" data-reveal="1" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.90) 100%)">
+      <div class="split">
+        <div>
+          <div class="kicker amber">Scenario 4 &middot; 8:00 PM Sprain</div>
+          <div class="scene-q" style="font-size:clamp(1.75rem,3vw,2.45rem);">You twisted your ankle at 8:00 PM and might need an X-ray. Dartmouth General shows a 4.5-hour wait, while Kentville (40 minutes away) shows 30 minutes.</div>
+          <div class="scene-prompt">Before you decide where to go, ask three questions:</div>
+          <div class="choice-row">
+            <span class="choice-pill">1) Is it life or death?</span>
+            <span class="choice-pill">2) Did 811 say go to the ER?</span>
+            <span class="choice-pill">3) Do you have a car and a safe driver?</span>
+          </div>
+          <div class="click-cue">Click to reveal &rarr;</div>
+          <div class="reveal amber">
+            <div class="reveal-big">CHECK LIVE WAITS &amp; HOURS FIRST.</div>
+            <div class="reveal-txt">If it is life or death, go to the nearest ER or call 911. If it is stable, 811 says you need an ER, and you have a car, checking live waits and 24/7 hours on <b>yourhealthns.ca</b> can save hours. <b>Forgot your health card? Urgent care will still see you.</b></div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/banner_challenge.jpg" alt="Emergency triage board"></div>
+      </div>
+    </section>
+
+    <!-- 6 MENTAL HEALTH & RIDES -->
+    <section class="slide" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.88) 100%),url('assets/dept_nav.jpg')">
+      <div class="kicker">Other Doors</div>
+      <div class="hero-title" style="font-size:clamp(2.4rem,4.2vw,3.6rem);">Not every problem needs a doctor.</div>
+      <div class="strip-list">
+        <div class="strip"><div class="strip-num amber">988 / 686868</div><div class="strip-body">24/7 mental health &amp; crisis <span>(call/text 988, or text CONNECT to 686868)</span></div></div>
+        <div class="strip"><div class="strip-num">211</div><div class="strip-body">Rides to appointments, food &amp; housing <span>(dial or text 211)</span></div></div>
+        <div class="strip"><div class="strip-num teal">YHC</div><div class="strip-body">School Youth Health Centre <span>(free &amp; confidential unless serious safety risk)</span></div></div>
+      </div>
+    </section>
+
+    <!-- 7 WHAT MSI COVERS -->
+    <section class="slide" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.92) 100%)">
+      <div class="kicker teal">&ldquo;Wait... Isn&rsquo;t Health Care Free?&rdquo;</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4vw,3.4rem);">What Nova Scotia MSI pays (and doesn&rsquo;t)</div>
+      <div class="cols-2">
+        <div class="col-box ok">
+          <h3>MSI Pays ($0 at the door)</h3>
+          <ul>
+            <li>Medically necessary doctor, ER &amp; hospital visits</li>
+            <li>Pharmacist minor-ailment assessments</li>
+            <li><b>Basic dental</b> until the end of the month you turn <b>15</b></li>
+            <li>Public mental health clinics (NS Health / IWK, though waitlists can be long)</li>
+          </ul>
+        </div>
+        <div class="col-box amber">
+          <h3>MSI Does NOT Pay</h3>
+          <ul>
+            <li>Prescriptions picked up at a pharmacy</li>
+            <li>Dental after your 15th birthday month &amp; braces</li>
+            <li>Glasses, routine eye exams, and physiotherapy</li>
+            <li>Private therapists &amp; psychologists (faster, ~$150-$220/session) &amp; some forms</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 WHY FAMILIES NEED PRIVATE INSURANCE -->
+    <section class="slide" style="background-image:linear-gradient(120deg,rgba(7,13,25,.96) 0%,rgba(7,13,25,.90) 100%)">
+      <div class="split">
+        <div>
+          <div class="kicker amber">Private Insurance in Canada</div>
+          <div class="scene-q">Next year, your free MSI dental coverage ends.</div>
+          <div class="hero-sub" style="margin-top:20px;">Even in Canada, a single prescription, pair of glasses, cavity filling at 16, or physio visit adds up fast.</div>
+          <div class="reveal amber" style="opacity:1;transform:none;pointer-events:auto;margin-top:24px;">
+            <div class="reveal-big">THAT&rsquo;S WHY JOBS ADVERTISE &ldquo;BENEFITS.&rdquo;</div>
+            <div class="reveal-txt">Most Canadian families get private health &amp; dental insurance (Blue Cross, Sun Life, Manulife) through a workplace to cover the gaps MSI leaves out.</div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/pat_07.jpg" alt="Teen thinking about health costs"></div>
+      </div>
+    </section>
+
+    <!-- 9 US BORDER -->
+    <section class="slide" data-reveal="1">
+      <div class="split">
+        <div>
+          <div class="kicker coral">Scenario 5 &middot; March Break in Florida</div>
+          <div class="scene-q" style="font-size:clamp(1.8rem,3.1vw,2.55rem);">You break your leg on a family trip to Florida. You have your Nova Scotia health card, but nobody bought travel insurance.</div>
+          <div class="scene-prompt">What happens at the hospital?</div>
+          <div class="choice-row">
+            <span class="choice-pill">1) Your NS health card pays</span>
+            <span class="choice-pill">2) They turn you away</span>
+            <span class="choice-pill">3) They treat you, then send a huge bill</span>
+          </div>
+          <div class="click-cue">Click to reveal &rarr;</div>
+          <div class="reveal coral">
+            <div class="reveal-big">THEY TREAT YOU, THEN BILL YOU THOUSANDS.</div>
+            <div class="reveal-txt">A US emergency room will stabilize you, but your Nova Scotia health card covers almost nothing outside Canada. An ambulance ($1,000+), X-rays, and surgery can easily hit $5,000 to $20,000+ USD. <b>Always buy travel medical insurance before you go, call their 24/7 line first, and keep every receipt.</b></div>
+          </div>
+        </div>
+        <div class="photo-frame"><img src="assets/pat_09.jpg" alt="Teen travelling in the US"></div>
+      </div>
+    </section>
+
+    <!-- 10 WHO PAYS - ROUND 1 -->
+    <section class="slide" data-reveal="1">
+      <div class="kicker amber">Who Pays the Bill? &middot; Round 1 of 5 (Hold up 1, 2, or 3)</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4.2vw,3.5rem);">Stitches at the Dartmouth General ER</div>
+      <div class="tile-grid">
+        <div class="vote-tile win w1"><div class="t-num">1</div><div class="t-lbl">MSI Pays ($0)</div><div class="t-sub">Covered by your NS health card</div></div>
+        <div class="vote-tile"><div class="t-num">2</div><div class="t-lbl">Private Insurance / You</div><div class="t-sub">Workplace benefits or out of pocket</div></div>
+        <div class="vote-tile"><div class="t-num">3</div><div class="t-lbl">Huge US Bill ($$$)</div><div class="t-sub">Thousands of dollars out of pocket</div></div>
+      </div>
+      <div class="click-cue">Click to reveal &rarr;</div>
+      <div class="reveal"><div class="reveal-txt"><b>1 &middot; MSI Pays ($0).</b> Medically necessary emergency room and hospital care in Nova Scotia is covered by MSI.</div></div>
+    </section>
+
+    <!-- 11 WHO PAYS - ROUND 2 -->
+    <section class="slide" data-reveal="1">
+      <div class="kicker amber">Who Pays the Bill? &middot; Round 2 of 5 (Hold up 1, 2, or 3)</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4.2vw,3.5rem);">A basic cavity filling at age 14</div>
+      <div class="tile-grid">
+        <div class="vote-tile win w1"><div class="t-num">1</div><div class="t-lbl">MSI Pays ($0)</div><div class="t-sub">Covered by your NS health card</div></div>
+        <div class="vote-tile"><div class="t-num">2</div><div class="t-lbl">Private Insurance / You</div><div class="t-sub">Workplace benefits or out of pocket</div></div>
+        <div class="vote-tile"><div class="t-num">3</div><div class="t-lbl">Huge US Bill ($$$)</div><div class="t-sub">Thousands of dollars out of pocket</div></div>
+      </div>
+      <div class="click-cue">Click to reveal &rarr;</div>
+      <div class="reveal"><div class="reveal-txt"><b>1 &middot; MSI Pays ($0).</b> Nova Scotia&rsquo;s Children&rsquo;s Oral Health Program covers basic dental until the end of the month you turn 15.</div></div>
+    </section>
+
+    <!-- 12 WHO PAYS - ROUND 3 -->
+    <section class="slide" data-reveal="1">
+      <div class="kicker amber">Who Pays the Bill? &middot; Round 3 of 5 (Hold up 1, 2, or 3)</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4.2vw,3.5rem);">The exact same cavity filling at age 17 (or braces at 15)</div>
+      <div class="tile-grid">
+        <div class="vote-tile"><div class="t-num">1</div><div class="t-lbl">MSI Pays ($0)</div><div class="t-sub">Covered by your NS health card</div></div>
+        <div class="vote-tile win w2"><div class="t-num">2</div><div class="t-lbl">Private Insurance / You</div><div class="t-sub">Workplace benefits or out of pocket</div></div>
+        <div class="vote-tile"><div class="t-num">3</div><div class="t-lbl">Huge US Bill ($$$)</div><div class="t-sub">Thousands of dollars out of pocket</div></div>
+      </div>
+      <div class="click-cue">Click to reveal &rarr;</div>
+      <div class="reveal amber"><div class="reveal-txt"><b>2 &middot; Private Insurance or Out of Pocket.</b> MSI dental ends after your 15th birthday month, and braces are never covered by MSI.</div></div>
+    </section>
+
+    <!-- 13 WHO PAYS - ROUND 4 -->
+    <section class="slide" data-reveal="1">
+      <div class="kicker amber">Who Pays the Bill? &middot; Round 4 of 5 (Hold up 1, 2, or 3)</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4.2vw,3.5rem);">An antibiotic prescription picked up at Shoppers</div>
+      <div class="tile-grid">
+        <div class="vote-tile"><div class="t-num">1</div><div class="t-lbl">MSI Pays ($0)</div><div class="t-sub">Covered by your NS health card</div></div>
+        <div class="vote-tile win w2"><div class="t-num">2</div><div class="t-lbl">Private Insurance / You</div><div class="t-sub">Workplace benefits or out of pocket</div></div>
+        <div class="vote-tile"><div class="t-num">3</div><div class="t-lbl">Huge US Bill ($$$)</div><div class="t-sub">Thousands of dollars out of pocket</div></div>
+      </div>
+      <div class="click-cue">Click to reveal &rarr;</div>
+      <div class="reveal amber"><div class="reveal-txt"><b>2 &middot; Private Insurance or Out of Pocket.</b> MSI covers the doctor or pharmacist assessment, not the prescription medication itself.</div></div>
+    </section>
+
+    <!-- 14 WHO PAYS - ROUND 5 -->
+    <section class="slide" data-reveal="1">
+      <div class="kicker amber">Who Pays the Bill? &middot; Round 5 of 5 (Hold up 1, 2, or 3)</div>
+      <div class="hero-title" style="font-size:clamp(2.3rem,4.2vw,3.5rem);">A broken wrist in Maine with NO travel insurance</div>
+      <div class="tile-grid">
+        <div class="vote-tile"><div class="t-num">1</div><div class="t-lbl">MSI Pays ($0)</div><div class="t-sub">Covered by your NS health card</div></div>
+        <div class="vote-tile"><div class="t-num">2</div><div class="t-lbl">Private Insurance / You</div><div class="t-sub">Workplace benefits or out of pocket</div></div>
+        <div class="vote-tile win w3"><div class="t-num">3</div><div class="t-lbl">Huge US Bill ($$$)</div><div class="t-sub">Thousands of dollars out of pocket</div></div>
+      </div>
+      <div class="click-cue">Click to reveal &rarr;</div>
+      <div class="reveal coral"><div class="reveal-txt"><b>3 &middot; Huge US Bill ($$$).</b> A US ER will stabilize you and then send a bill for thousands of dollars. Always buy travel medical insurance before crossing the border.</div></div>
+    </section>
+
+    <!-- 11 YOUR SHIFT -->
+    <section class="slide" style="background-image:linear-gradient(95deg,rgba(7,13,25,.94) 0%,rgba(7,13,25,.80) 58%,rgba(7,13,25,.45) 100%),url('assets/lobby_hero.jpg')">
+      <div class="kicker teal">Your Turn on Chromebooks</div>
+      <div class="hero-title">Open On-Call Clinic</div>
+      <div class="hero-sub">Sign in with your <b>@gnspes.ca</b> account, pick your section, and click <b>Clinic Triage, MSI &amp; Insurance Shift</b> (12 cases + 4 short written notes).</div>
+      <div class="outcome-strip">
+        <div class="otag">Watch the top bar</div>
+        <div class="otxt">Make sure you see <b>SAVED</b> after your answers so your written notes count as Outcome 3 evidence.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="hud">
+    <div>HL9 &middot; O3 Clinic Navigator</div>
+    <div id="ctr">1 / 11</div>
+    <div class="hud-btns">
+      <button class="hud-btn" onclick="goBack()">&larr; Back</button>
+      <button class="hud-btn" onclick="goNext()">Next &rarr;</button>
+      <button class="hud-btn" onclick="toggleFS()">Fullscreen (F)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('#stage .slide'));
+let idx = 0;
+
+function show(n) {
+  idx = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.getElementById('ctr').textContent = (idx + 1) + ' / ' + slides.length;
+  document.getElementById('prog').style.width = ((idx + 1) / slides.length * 100) + '%';
+}
+
+function goNext() {
+  const cur = slides[idx];
+  if (cur.dataset.reveal === '1' && !cur.classList.contains('revealed')) {
+    cur.classList.add('revealed');
+    return;
+  }
+  if (idx < slides.length - 1) show(idx + 1);
+}
+
+function goBack() {
+  const cur = slides[idx];
+  if (cur.dataset.reveal === '1' && cur.classList.contains('revealed')) {
+    cur.classList.remove('revealed');
+    return;
+  }
+  if (idx > 0) show(idx - 1);
+}
+
+function toggleFS() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen().catch(() => {});
+}
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter', 'n', 'N'].includes(e.key)) { e.preventDefault(); goNext(); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace', 'p', 'P'].includes(e.key)) { e.preventDefault(); goBack(); }
+  else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFS(); }
+});
+document.getElementById('stage').addEventListener('click', goNext);
+
+show(0);
+</script>
+</body>
+</html>
