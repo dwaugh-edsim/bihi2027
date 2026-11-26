@@ -153,7 +153,20 @@ const TOPICS = [
   { id: 41, country: "Chile",         iso: "cl", region: "Americas", issue: "Lithium Mining & Indigenous Water Rights",
     tnc: "SQM, Albemarle & Tesla: giant lithium producers pump brine from Chile's Atacama Desert to supply global EV battery makers like Tesla, sparking clashes over drying water tables and Indigenous Atacameño rights.",
     qs: "How does lithium mining in the Atacama Desert affect local water and Indigenous communities? What did Chile's National Lithium Strategy (2023) actually change about state control and environmental rules? Is green energy fair if its raw materials harm desert ecosystems?",
-    src: "Start: Reuters coverage of Chile's National Lithium Strategy + Natural Resources Defense Council (NRDC) & Amnesty reports on Atacama water." }
+    src: "Start: Reuters coverage of Chile's National Lithium Strategy + Natural Resources Defense Council (NRDC) & Amnesty reports on Atacama water." },
+  { id: 42, country: "Sudan",         iso: "sd", region: "Africa", issue: "Conflict, Displacement & Food Crisis",
+    map: "images/maps/sd-map.png",
+    mapNote: "Northeast Africa: borders Egypt, Libya, Chad, Central African Republic, South Sudan, Ethiopia, and Eritrea along the Red Sea and Nile River. Capital: Khartoum.",
+    mapCredit: "Wikimedia Commons (CC BY-SA 3.0) - Orthographic locator map of Sudan",
+    qs: "How did the civil war that began in April 2023 between the Sudanese Armed Forces (SAF) and the Rapid Support Forces (RSF) trigger one of the world's worst hunger and displacement crises? What have Sudan's rival authorities done (or blocked) regarding humanitarian food aid and farming? How have neighbouring countries and UN agencies responded, and why is aid still falling short?",
+    src: "Start: UN OCHA Sudan situation reports + World Food Programme (WFP) Sudan emergency page + UNHCR Sudan displacement data." },
+  { id: 43, country: "Nepal",         iso: "np", region: "Asia", issue: "Mountain Climbing & Sherpa Worker Safety",
+    tnc: "International expedition outfitters & global outdoor gear brands (e.g. Madison Mountaineering, Seven Summit Treks, The North Face): foreign climbing clients pay $40,000-$100,000+ per Everest expedition while Sherpa high-altitude workers carry loads through the Khumbu Icefall for a fraction of the fee.",
+    map: "images/maps/np-map.png",
+    mapNote: "South Asia (Himalayas): landlocked between China (Tibet) to the north and India to the south, east, and west. Home to Mount Everest, Lhotse, and Annapurna. Capital: Kathmandu.",
+    mapCredit: "Wikimedia Commons (CC BY-SA 3.0) - Orthographic locator map of Nepal",
+    qs: "Why do Sherpa high-altitude workers face far higher death and injury risks on peaks like Everest, Annapurna, and Lhotse than foreign clients? What rules has Nepal's government set for climbing permits, insurance, rescue coverage, and worker safety, and are they enforced? Why do many Sherpas keep taking the work despite the danger, and what fairer standards are workers asking for?",
+    src: "Start: The Himalayan Database + International Labour Organization (ILO) Nepal + BBC/National Geographic reporting on Sherpa safety and Everest permit rules." }
 ];
 
 /* Render the gallery. No claimed-topics data this year: claims happen
@@ -318,6 +331,26 @@ function openTopic(id) {
     }
   }
   document.getElementById("modal-src").textContent = t.src;
+
+  const mapCardWrap = document.getElementById("modal-map-wrap");
+  if (mapCardWrap) {
+    const osmLink = document.getElementById("modal-osm-link");
+    if (osmLink) osmLink.href = "https://www.openstreetmap.org/search?query=" + encodeURIComponent(t.country);
+    const mapImg = document.getElementById("modal-map-img");
+    const mapNote = document.getElementById("modal-map-note");
+    const mapCredit = document.getElementById("modal-map-credit");
+    if (t.map && mapImg) {
+      mapImg.src = t.map;
+      mapImg.alt = "Locator map of " + t.country;
+      mapImg.hidden = false;
+      if (mapNote) { mapNote.textContent = t.mapNote || ""; mapNote.hidden = !t.mapNote; }
+      if (mapCredit) { mapCredit.textContent = t.mapCredit || ""; mapCredit.hidden = !t.mapCredit; }
+    } else if (mapImg) {
+      mapImg.hidden = true;
+      if (mapNote) { mapNote.textContent = "Open the interactive world map below to check " + t.country + "'s continent, neighbours, and capital for Slide 2."; mapNote.hidden = false; }
+      if (mapCredit) { mapCredit.hidden = true; }
+    }
+  }
 
   const mapEl = document.getElementById("modal-slide-map");
   if (mapEl) {
