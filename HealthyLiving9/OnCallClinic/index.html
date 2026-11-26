@@ -339,19 +339,87 @@
   /* dial value serif */
   .dial-val{font-family:var(--f-slab);font-weight:900;color:#f2d9a0}
 
-  /* HOSPITAL CAFETERIA (CafeteriaRush crossover) */
-  .cafe-brief{background:rgba(217,164,65,.09);border:1px solid rgba(217,164,65,.4);border-left:4px solid var(--amber);border-radius:9px;padding:9px 13px;font-size:.9rem;margin-bottom:11px;color:var(--ink)}
-  .cafe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px;margin-bottom:12px}
-  .cafe-item{display:flex;gap:11px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;text-align:left;color:var(--ink);transition:border-color .12s,background .12s,transform .1s}
+  /* HOSPITAL CAFETERIA (CafeteriaRush ceramic plate + drag-and-drop race) */
+  .cafe-stage{
+    position:relative;border-radius:14px;padding:14px;border:1.5px solid rgba(217,164,65,.45);
+    background:linear-gradient(165deg,rgba(15,23,42,.92) 0%,rgba(20,28,42,.88) 100%),
+      url('../../HealthyLiving8/Unit%202%20-%20Nutrition/CafeteriaRush/assets/kitchen_bg.jpg') center/cover no-repeat;
+  }
+  .cafe-race-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .cafe-race-clock{font-family:var(--f-mono);font-size:.82rem;font-weight:800;color:#fef08a;background:rgba(15,23,42,.8);border:1.5px solid var(--amber);border-radius:999px;padding:4px 12px}
+  .cafe-race-clock.low{color:#fecaca;border-color:var(--coral);background:rgba(185,28,28,.35);animation:timerPulse .6s steps(2,end) infinite}
+  .cafe-race-track{width:100%;height:7px;background:rgba(15,23,42,.8);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.12);margin-bottom:10px}
+  .cafe-race-fill{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#eab308,#ef4444);transition:width .2s linear}
+  .cafe-brief{background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.42);border-left:4px solid var(--amber);border-radius:9px;padding:9px 13px;font-size:.88rem;margin-bottom:10px;color:var(--ink)}
+  .cafe-specs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .cafe-pill{font-family:var(--f-mono);font-size:.67rem;font-weight:800;padding:3px 8px;border-radius:6px;border:1.5px solid rgba(255,255,255,.18);background:rgba(15,23,42,.75);color:#cbd5e1}
+  .cafe-pill.ok{border-color:#22c55e;background:rgba(34,197,94,.2);color:#bbf7d0}
+  .cafe-pill.bad{border-color:#ef4444;background:rgba(239,68,68,.2);color:#fecaca}
+  .cafe-arena{display:grid;grid-template-columns:1.05fr 1.05fr;gap:12px;align-items:start}
+  @media(max-width:860px){.cafe-arena{grid-template-columns:1fr}}
+  .cafe-plate-box{
+    background:linear-gradient(145deg,#334155 0%,#1e293b 100%);
+    border:3px solid #0f172a;border-radius:16px;padding:10px 12px 12px;
+    display:flex;flex-direction:column;gap:8px;min-height:280px;
+    box-shadow:inset 0 2px 10px rgba(255,255,255,.12),0 8px 20px rgba(0,0,0,.38);
+    transition:box-shadow .15s,border-color .15s;
+  }
+  .cafe-plate-box.drag-over{border-color:#38bdf8;box-shadow:0 0 0 4px rgba(56,189,248,.45),inset 0 2px 14px rgba(56,189,248,.25)}
+  .cafe-plate-head{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+  .cafe-plate-head h4{font-family:var(--f-slab);font-size:.9rem;font-weight:900;color:#f8fafc}
+  .cafe-totals{font-family:var(--f-mono);font-size:.66rem;font-weight:800;color:#fef08a;background:rgba(15,23,42,.65);padding:3px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.14)}
+  .tray-surface{flex:1;display:flex;align-items:center;justify-content:center;gap:14px;min-height:228px;padding:4px 0}
+  @media(max-width:560px){.tray-surface{flex-direction:column;gap:10px}}
+  .ceramic-plate{
+    position:relative;width:min(264px,100%);aspect-ratio:1/1;border-radius:50%;
+    background:radial-gradient(circle at 35% 28%,#ffffff 0%,#f8fafc 68%,#e2e8f0 100%);
+    border:9px solid #f1f5f9;
+    box-shadow:0 12px 26px rgba(0,0,0,.48),inset 0 0 0 2px #cbd5e1,inset 0 6px 14px rgba(15,23,42,.08);
+    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;overflow:hidden;flex-shrink:0;
+  }
+  .plate-sec{position:relative;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden}
+  .plate-sec.veg{grid-column:1;grid-row:1/span 2;background:rgba(22,163,74,.09);border-right:2px dashed rgba(100,116,139,.4);padding-left:12px}
+  .plate-sec.grain{grid-column:2;grid-row:1;background:rgba(217,119,6,.09);border-bottom:2px dashed rgba(100,116,139,.4);padding-right:10px;padding-top:12px}
+  .plate-sec.protein{grid-column:2;grid-row:2;background:rgba(220,38,38,.09);padding-right:10px;padding-bottom:12px}
+  .z-lbl{font-family:var(--f-mono);font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#475569;background:rgba(255,255,255,.88);padding:2px 6px;border-radius:999px;pointer-events:none;text-align:center}
+  .plate-sec.veg .z-lbl{color:#15803d} .plate-sec.grain .z-lbl{color:#b45309} .plate-sec.protein .z-lbl{color:#b91c1c}
+  .plate-items{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;max-width:100%}
+  .coaster-col{display:flex;flex-direction:column;align-items:center;gap:7px;width:124px;flex-shrink:0}
+  .drink-coaster{
+    width:118px;min-height:118px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#e0f2fe 0%,#bae6fd 100%);
+    border:4px solid #38bdf8;box-shadow:0 8px 18px rgba(0,0,0,.35),inset 0 2px 6px rgba(255,255,255,.6);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 6px;gap:4px;
+  }
+  .drink-coaster .z-lbl{color:#0369a1}
+  .tray-tip{font-family:var(--f-mono);font-size:.58rem;color:#94a3b8;text-align:center;line-height:1.35}
+  @keyframes popFood{0%{transform:scale(.45);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
+  .plate-token{position:relative;display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;animation:popFood .18s ease-out}
+  .plate-token img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2.5px solid #fff;box-shadow:0 3px 8px rgba(15,23,42,.35);background:#fff;transition:transform .12s,border-color .12s}
+  .plate-token:hover img{transform:scale(1.1);border-color:#ef4444}
+  .plate-token .pt-name{font-size:.54rem;font-weight:800;color:#18181b;background:rgba(255,255,255,.94);padding:1px 5px;border-radius:4px;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-6px;z-index:2;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .plate-token .pt-x{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:#dc2626;color:#fff;font-size:.64rem;font-weight:900;display:none;align-items:center;justify-content:center;line-height:1}
+  .plate-token:hover .pt-x{display:flex}
+  .tray-empty{font-size:.6rem;color:#94a3b8;font-style:italic;text-align:center}
+  .cafe-serve-bar{display:flex;gap:8px;align-items:center;margin-top:4px}
+  .btn-cafe-serve{flex:1;background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);color:#fff;border:2px solid #14532d;border-radius:10px;padding:10px 14px;font-family:var(--f-slab);font-weight:900;font-size:.98rem;box-shadow:0 3px 0 #14532d}
+  .btn-cafe-serve:hover:not(:disabled){filter:brightness(1.07)}
+  .btn-cafe-serve:disabled{opacity:.55;cursor:default}
+  .cafe-grid{display:grid;grid-template-columns:1fr;gap:7px;max-height:365px;overflow-y:auto;padding-right:3px}
+  .cafe-item{display:flex;gap:10px;align-items:center;background:rgba(24,32,48,.96);border:1.5px solid var(--line);border-radius:11px;padding:8px 10px;cursor:grab;text-align:left;color:var(--ink);transition:border-color .12s,background .12s,transform .1s}
+  .cafe-item:active{cursor:grabbing}
   .cafe-item:hover:not(:disabled){border-color:var(--amber);transform:translateY(-1px)}
-  .cafe-item.sel{border-color:var(--teal);background:rgba(79,179,160,.14)}
-  .cafe-item.ok{border-color:var(--ok);background:rgba(95,179,116,.18)}
-  .cafe-item.bad{border-color:var(--coral);background:rgba(224,96,111,.18)}
+  .cafe-item.sel{border-color:var(--teal);background:rgba(79,179,160,.18)}
+  .cafe-item.ok{border-color:var(--ok);background:rgba(95,179,116,.22)}
+  .cafe-item.bad{border-color:var(--coral);background:rgba(224,96,111,.22)}
   .cafe-item:disabled{cursor:default}
-  .cf-em{font-size:1.75rem;line-height:1;flex:none}
-  .cf-body{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .cf-body b{font-size:.9rem;color:#fff}
-  .cf-meta{font-size:.68rem;color:var(--muted)}
+  .cf-img{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1.5px solid rgba(255,255,255,.22);background:#fff;flex:none}
+  .cf-body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .cf-body b{font-size:.86rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cf-meta{font-size:.66rem;color:var(--muted)}
+  .cf-add{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--amber);background:rgba(217,164,65,.14);color:var(--amber);font-family:var(--f-mono);font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex:none}
+  .cafe-item.sel .cf-add{background:var(--teal);border-color:var(--teal);color:#04241f}
+  .write-saved-bar{background:rgba(34,197,94,.13);border:1.5px solid var(--ok);color:#bbf7d0;border-radius:9px;padding:8px 12px;font-size:.84rem;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -597,13 +665,14 @@ const Clinic = (function(){
   const OFFPROD = location.hostname !== 'dwaugh-edsim.github.io';
   const SKIPNET = (Q.has('demo') && OFFPROD) || !HAS_VAULT;
 
+  const CAFE_ASSET_BASE = '../../HealthyLiving8/Unit%202%20-%20Nutrition/CafeteriaRush/assets/';
   const DEPTS = {
     infectious: { name: 'Infectious Disease & Vaccines', img: 'assets/dept_infectious.jpg' },
     repro:      { name: 'Sexual & Reproductive Health',  img: 'assets/dept_repro.jpg' },
     sleep:      { name: 'Sleep & Screen Science',        img: 'assets/dept_sleep.jpg' },
     nav:        { name: 'Navigation, Boundaries & Help', img: 'assets/dept_nav.jpg' },
     o2a:        { name: 'Media, Myths & Fine Print (O2A)', img: 'assets/banner_challenge.jpg' },
-    cafe:       { name: 'Hospital Cafeteria (Nutrition Crossover)', img: 'assets/banner_challenge.jpg' },
+    cafe:       { name: 'Hospital Cafeteria (Nutrition Crossover)', img: CAFE_ASSET_BASE + 'kitchen_bg.jpg' },
     o3:         { name: 'Clinic Triage & Costs (O3)',    img: 'assets/dept_nav.jpg' }
   };
   const TIER_NAMES = { 1:'Intern', 2:'Resident', 3:'Attending', 4:'Chief of Medicine' };
@@ -809,21 +878,28 @@ const Clinic = (function(){
     return fresh.concat(seen);
   }
 
+  function hasWritten(id){
+    return Boolean(profile.writtenEvidence && profile.writtenEvidence[id] && String(profile.writtenEvidence[id].answer || '').trim());
+  }
+
   function buildQueue(dept){
     // dept ("infectious"/"repro"/"sleep"/"nav"/"o3") keeps Department Practice inside
-    // its lane; undefined/"all" prioritizes unseen O3 cases FIRST, then rotates all four core wings.
+    // its lane; undefined/"all" prioritizes unseen O3 cases FIRST, then rotates all core wings.
+    // Already-saved written notes (profile.writtenEvidence) are skipped automatically on replay!
+    const notDoneWrite = c => !(c.kind === 'write' && hasWritten(c.id));
     const inLane = c => !dept || dept === 'all' ? c.dept !== 'o3' : c.dept === dept;
-    const all = (window.ONCALL_CASES || []).filter(inLane);
-    const chAll = (window.ONCALL_CHALLENGES || []).filter(inLane);
+    const all = (window.ONCALL_CASES || []).filter(inLane).filter(notDoneWrite);
+    const chAll = (window.ONCALL_CHALLENGES || []).filter(inLane).filter(notDoneWrite);
     const o3Ordered = (window.ONCALL_CASES || []).concat(window.ONCALL_CHALLENGES || [])
       .filter(c => c.dept === 'o3')
       .sort((a, b) => a.id.localeCompare(b.id));
     if(dept === 'o3'){
-      return o3Ordered;
+      const o3Play = o3Ordered.filter(notDoneWrite);
+      return o3Play.length ? o3Play : o3Ordered;
     }
     const deptKeys = dept && dept !== 'all' ? [dept] : ['infectious', 'repro', 'sleep', 'nav', 'o2a'];
     const seenSet = new Set(Array.isArray(profile.seenIds) ? profile.seenIds : []);
-    const unseenO3 = (!dept || dept === 'all') ? o3Ordered.filter(c => !seenSet.has(c.id)) : [];
+    const unseenO3 = (!dept || dept === 'all') ? o3Ordered.filter(c => !seenSet.has(c.id) && notDoneWrite(c)) : [];
     // Guarantee balanced rotation across departments inside EVERY tier,
     // ALWAYS putting unseen questions & unseen challenges first on retakes!
     function tierWave(tierNum, perDept){
@@ -875,65 +951,160 @@ const Clinic = (function(){
 
   function replay(){ if(lastMode.dept === 'rapid'){ startRapid(); return; } startShift(lastMode.dept, lastMode.strikes, lastMode.mult); }
 
-  /* ---------------- HOSPITAL CAFETERIA (CafeteriaRush crossover) ---------------- */
+  /* ---------------- HOSPITAL CAFETERIA (CafeteriaRush ceramic plate + race) ---------------- */
+  function cafePicks(){
+    const st = shift && shift.chState;
+    if(!st || !Array.isArray(st.tray)) return [];
+    return st.tray.map(id => st.foods.find(x => x.id === id)).filter(Boolean);
+  }
+
+  function evalCafeSpec(c, picks){
+    const k = c.checks || {};
+    const zones = z => picks.filter(f => f.zone === z).length;
+    const sum = key => picks.reduce((a, f) => a + (f[key] || 0), 0);
+    const pills = [];
+    const fails = [];
+    const hasWater = picks.some(f => f.id === 'd_water' || f.id === 'd_sparkling');
+
+    if(k.minVeg){ const n = zones('veg'); const ok = n >= k.minVeg; pills.push({ lbl:'Veg/Fruit ' + n + '/' + k.minVeg, ok }); if(!ok) fails.push('missing veg/fruit zone (' + n + ' of ' + k.minVeg + ')'); }
+    if(k.minPro){ const n = zones('protein'); const ok = n >= k.minPro; pills.push({ lbl:'Protein Item ' + n + '/' + k.minPro, ok }); if(!ok) fails.push('missing protein zone (' + n + ' of ' + k.minPro + ')'); }
+    if(k.minGrain){ const n = zones('grain'); const ok = n >= k.minGrain; pills.push({ lbl:'Whole Grain ' + n + '/' + k.minGrain, ok }); if(!ok) fails.push('missing whole grain zone (' + n + ' of ' + k.minGrain + ')'); }
+    if(k.needWater){ pills.push({ lbl:'Tap Water', ok:hasWater }); if(!hasWater) fails.push('no tap water on the tray'); }
+    if(k.minProG){ const v = Math.round(sum('pro')); const ok = v >= k.minProG; pills.push({ lbl:'Protein ' + v + 'g/' + k.minProG + 'g', ok }); if(!ok) fails.push('protein too low (' + v + 'g of ' + k.minProG + 'g)'); }
+    if(k.minFibG){ const v = Math.round(sum('fib')); const ok = v >= k.minFibG; pills.push({ lbl:'Fibre ' + v + 'g/' + k.minFibG + 'g', ok }); if(!ok) fails.push('fibre too low (' + v + 'g of ' + k.minFibG + 'g)'); }
+    if(k.maxSugDv != null){ const v = Math.round(sum('sugDv')); const ok = picks.length > 0 && v <= k.maxSugDv; pills.push({ lbl:'Sugar ' + v + '%/' + k.maxSugDv + '% DV', ok, bad:v > k.maxSugDv }); if(v > k.maxSugDv) fails.push('sugar over limit (' + v + '% DV vs max ' + k.maxSugDv + '%)'); }
+    if(k.maxSodDv != null){ const v = Math.round(sum('sodDv')); const ok = picks.length > 0 && v <= k.maxSodDv; pills.push({ lbl:'Sodium ' + v + '%/' + k.maxSodDv + '% DV', ok, bad:v > k.maxSodDv }); if(v > k.maxSodDv) fails.push('sodium over limit (' + v + '% DV vs max ' + k.maxSodDv + '%)'); }
+    if(k.maxCaf != null){ const v = sum('caf'); const ok = picks.length > 0 && v <= k.maxCaf; pills.push({ lbl:'Caffeine ' + v + 'mg', ok, bad:v > k.maxCaf }); if(v > k.maxCaf) fails.push('caffeine over limit (' + v + ' mg vs max ' + k.maxCaf + ' mg)'); }
+    if(k.maxBudget != null){ const v = sum('cost'); const ok = picks.length > 0 && v <= k.maxBudget + 0.001; pills.push({ lbl:'Budget $' + v.toFixed(2) + '/$' + k.maxBudget.toFixed(2), ok, bad:v > k.maxBudget + 0.001 }); if(v > k.maxBudget + 0.001) fails.push('over budget ($' + v.toFixed(2) + ' vs max $' + k.maxBudget.toFixed(2) + ')'); }
+    if(k.reqTag){ const badItem = picks.find(f => (f.tags || []).indexOf(k.reqTag) === -1); const ok = picks.length > 0 && !badItem; pills.push({ lbl:k.reqTag.toUpperCase(), ok, bad:!!badItem }); if(!ok) fails.push('every item must be tagged: ' + k.reqTag); }
+    if(k.noTraps){ const badTrap = picks.find(f => (f.tags || []).indexOf('trap') !== -1); const ok = picks.length > 0 && !badTrap; pills.push({ lbl:'No Traps', ok, bad:!!badTrap }); if(badTrap) fails.push('a trap food snuck onto the tray (' + badTrap.name + ')!'); }
+    return { pills, fails, sum };
+  }
+
+  function renderCafePlate(){
+    if(!shift || !shift.chState) return;
+    const c = shift.queue[shift.idx];
+    const st = shift.chState;
+    const picks = cafePicks();
+    const { pills } = evalCafeSpec(c, picks);
+
+    const specBox = el('cafeSpecs');
+    if(specBox){
+      specBox.innerHTML = pills.map(p => '<span class="cafe-pill' + (p.bad ? ' bad' : (p.ok ? ' ok' : '')) + '">' + esc(p.lbl) + '</span>').join('');
+    }
+
+    const zVeg = [], zGrain = [], zPro = [], zSide = [];
+    picks.forEach((f, idx) => {
+      const tok = '<div class="plate-token" title="Click to remove ' + esc(f.name) + '" onclick="Clinic.cafeRemove(' + idx + ')">' +
+        '<img src="' + CAFE_ASSET_BASE + 'foods/' + esc(f.id) + '.jpg" alt="' + esc(f.name) + '">' +
+        '<span class="pt-name">' + esc(f.name) + '</span><span class="pt-x">&times;</span></div>';
+      if(f.zone === 'veg') zVeg.push(tok);
+      else if(f.zone === 'grain') zGrain.push(tok);
+      else if(f.zone === 'protein') zPro.push(tok);
+      else zSide.push(tok);
+    });
+    if(el('cpVeg')) el('cpVeg').innerHTML = zVeg.join('') || '<span class="tray-empty">Drop veg/fruit</span>';
+    if(el('cpGrain')) el('cpGrain').innerHTML = zGrain.join('') || '<span class="tray-empty">Drop grains</span>';
+    if(el('cpPro')) el('cpPro').innerHTML = zPro.join('') || '<span class="tray-empty">Drop protein</span>';
+    if(el('cpSide')) el('cpSide').innerHTML = zSide.join('') || '<span class="tray-empty">Water / sides</span>';
+
+    const tot = picks.reduce((a, p) => ({
+      cost: a.cost + p.cost, kcal: a.kcal + p.kcal, pro: a.pro + p.pro, fib: a.fib + p.fib,
+      sug: a.sug + p.sugDv, sod: a.sod + p.sodDv, caf: a.caf + (p.caf || 0)
+    }), { cost:0, kcal:0, pro:0, fib:0, sug:0, sod:0, caf:0 });
+
+    const totEl = el('cafeTotals');
+    if(totEl){
+      totEl.textContent = picks.length + ' items · $' + tot.cost.toFixed(2) + ' · ' + Math.round(tot.pro) + 'g pro · ' + Math.round(tot.fib) + 'g fib · ' + Math.round(tot.sod) + '% Na · ' + Math.round(tot.sug) + '% sug' + (tot.caf ? ' · ' + tot.caf + 'mg caf' : '');
+    }
+
+    st.foods.forEach((f, i) => {
+      const b = el('cfi' + i);
+      const onTray = st.tray.indexOf(f.id) !== -1;
+      if(b){
+        b.classList.toggle('sel', onTray);
+        const addBtn = b.querySelector('.cf-add');
+        if(addBtn) addBtn.textContent = onTray ? '\u2713' : '+';
+      }
+    });
+  }
+
   function toggleCafe(i){
     if(!shift || shift.locked) return;
     const st = shift.chState;
     const f = st.foods[i];
     if(!f) return;
-    const btn = el('cfi' + i);
-    if(btn.classList.contains('sel')){ btn.classList.remove('sel'); delete st.sel[f.id]; }
-    else { btn.classList.add('sel'); st.sel[f.id] = true; }
-    const picks = Object.keys(st.sel).map(id => st.foods.find(x => x.id === id)).filter(Boolean);
-    const tot = picks.reduce((a, p) => ({
-      cost: a.cost + p.cost, kcal: a.kcal + p.kcal, pro: a.pro + p.pro, fib: a.fib + p.fib,
-      sug: a.sug + p.sugDv, sod: a.sod + p.sodDv, caf: a.caf + (p.caf || 0)
-    }), { cost:0, kcal:0, pro:0, fib:0, sug:0, sod:0, caf:0 });
-    const h = el('cafeHint');
-    if(h){
-      h.style.color = 'var(--muted)';
-      h.textContent = 'TRAY (' + picks.length + ' items): $' + tot.cost.toFixed(2) + ' · ' + Math.round(tot.kcal) + ' kcal · protein ' + Math.round(tot.pro) + 'g · fibre ' + Math.round(tot.fib) + 'g · sugar ' + Math.round(tot.sug) + '% DV · sodium ' + Math.round(tot.sod) + '% DV' + (tot.caf ? ' · caffeine ' + tot.caf + ' mg' : '');
+    const idx = st.tray.indexOf(f.id);
+    if(idx !== -1){ st.tray.splice(idx, 1); }
+    else if(st.tray.length < 8){ st.tray.push(f.id); }
+    renderCafePlate();
+  }
+
+  function cafeDragStart(ev, i){
+    if(!shift || shift.locked) return;
+    ev.dataTransfer.setData('text/plain', String(i));
+  }
+  function cafeDragOver(ev){
+    ev.preventDefault();
+    const box = el('cafeDropBox');
+    if(box) box.classList.add('drag-over');
+  }
+  function cafeDragLeave(){
+    const box = el('cafeDropBox');
+    if(box) box.classList.remove('drag-over');
+  }
+  function cafeDrop(ev){
+    ev.preventDefault();
+    cafeDragLeave();
+    if(!shift || shift.locked) return;
+    const i = parseInt(ev.dataTransfer.getData('text/plain'), 10);
+    const st = shift.chState;
+    const f = st && st.foods[i];
+    if(!f) return;
+    if(st.tray.indexOf(f.id) === -1 && st.tray.length < 8){
+      st.tray.push(f.id);
+      renderCafePlate();
     }
+  }
+  function cafeRemove(trayIdx){
+    if(!shift || shift.locked) return;
+    const st = shift.chState;
+    if(st && st.tray){ st.tray.splice(trayIdx, 1); renderCafePlate(); }
+  }
+  function cafeClear(){
+    if(!shift || shift.locked) return;
+    const st = shift.chState;
+    if(st){ st.tray = []; renderCafePlate(); }
   }
 
   function submitCafe(){
     if(!shift || shift.locked) return;
     const c = shift.queue[shift.idx];
     const st = shift.chState;
-    const picks = Object.keys(st.sel).map(id => st.foods.find(f => f.id === id)).filter(Boolean);
+    const picks = cafePicks();
     if(picks.length < 2){
       const h = el('cafeHint');
-      if(h){ h.style.color = 'var(--amber)'; h.textContent = 'Load at least 2 items on the tray before serving, doctor!'; }
+      if(h){ h.style.color = 'var(--amber)'; h.textContent = 'Drag or click at least 2 items onto the plate before ringing the bell!'; }
       return;
     }
-    const k = c.checks || {};
-    const fails = [];
-    const zones = z => picks.filter(f => f.zone === z).length;
-    const sum = key => picks.reduce((a, f) => a + (f[key] || 0), 0);
-    if(k.minVeg && zones('veg') < k.minVeg) fails.push('missing veg/fruit zone (' + zones('veg') + ' of ' + k.minVeg + ')');
-    if(k.minPro && zones('protein') < k.minPro) fails.push('missing protein zone (' + zones('protein') + ' of ' + k.minPro + ')');
-    if(k.minGrain && zones('grain') < k.minGrain) fails.push('missing whole grain zone (' + zones('grain') + ' of ' + k.minGrain + ')');
-    if(k.needWater && !picks.some(f => f.id === 'd_water' || f.id === 'd_sparkling')) fails.push('no tap water on the tray');
-    if(k.minProG && sum('pro') < k.minProG) fails.push('protein too low (' + Math.round(sum('pro')) + 'g of ' + k.minProG + 'g)');
-    if(k.minFibG && sum('fib') < k.minFibG) fails.push('fibre too low (' + Math.round(sum('fib')) + 'g of ' + k.minFibG + 'g)');
-    if(k.maxSugDv != null && sum('sugDv') > k.maxSugDv) fails.push('sugar over limit (' + Math.round(sum('sugDv')) + '% DV vs max ' + k.maxSugDv + '%)');
-    if(k.maxSodDv != null && sum('sodDv') > k.maxSodDv) fails.push('sodium over limit (' + Math.round(sum('sodDv')) + '% DV vs max ' + k.maxSodDv + '%)');
-    if(k.maxCaf != null && sum('caf') > k.maxCaf) fails.push('caffeine over limit (' + sum('caf') + ' mg vs max ' + k.maxCaf + ' mg)');
-    if(k.maxBudget != null && sum('cost') > k.maxBudget + 0.001) fails.push('over budget ($' + sum('cost').toFixed(2) + ' vs max $' + k.maxBudget.toFixed(2) + ')');
-    if(k.reqTag && !picks.every(f => (f.tags || []).indexOf(k.reqTag) !== -1)) fails.push('every item must be tagged: ' + k.reqTag);
-    if(k.noTraps && picks.some(f => (f.tags || []).indexOf('trap') !== -1)) fails.push('a trap food snuck onto the tray!');
-
+    const { fails } = evalCafeSpec(c, picks);
     const ok = fails.length === 0;
     st.foods.forEach((f, i) => {
       const b = el('cfi' + i);
-      if(b){ if(st.sel[f.id]) b.classList.add(ok ? 'ok' : 'bad'); b.disabled = true; }
+      if(b){
+        if(st.tray.indexOf(f.id) !== -1) b.classList.add(ok ? 'ok' : 'bad');
+        b.disabled = true;
+        b.setAttribute('draggable', 'false');
+      }
     });
     const sub = el('chSubmit');
     if(sub) sub.disabled = true;
+    const clr = el('cafeClearBtn');
+    if(clr) clr.disabled = true;
     resolveOutcome(c, ok, ok ? ('Tray spec met: ' + c.spec) : ('Spec: ' + c.spec + ' | ' + fails.join(' + ')), 1.25);
   }
 
-  /* ---------------- TIMED RAPID-FIRE ENGINE ---------------- */
+  /* ---------------- TIMED RAPID-FIRE & CAFETERIA RACE ENGINE ---------------- */
   function stopCaseTimer(){
     if(caseTimer){ clearInterval(caseTimer); caseTimer = null; }
     timerDeadline = 0;
@@ -942,24 +1113,38 @@ const Clinic = (function(){
   }
 
   function startCaseTimer(c){
-    if(!shift || shift.dept !== 'rapid'){ stopCaseTimer(); return; }
+    const isCafeRace = c && c.kind === 'cafe';
+    if(!shift || (shift.dept !== 'rapid' && !isCafeRace)){ stopCaseTimer(); return; }
     stopCaseTimer();
-    // Plain MC gets 30 seconds; interactive challenges get 45.
-    const limit = (c.kind && c.kind !== 'mc_custom') ? 45 : 30;
+    // Cafeteria plate rounds are always a timed race (45s standard, 60s for Boss tray);
+    // Rapid-Fire plain MC gets 30s, interactive challenges get 45s.
+    const limit = isCafeRace ? (c.boss ? 60 : 45) : ((c.kind && c.kind !== 'mc_custom') ? 45 : 30);
     timerDeadline = Date.now() + limit * 1000;
     const tp = el('gTimer');
     tp.style.display = 'inline-flex';
     el('gTimeVal').textContent = limit;
+    const updCafeClock = (left, pct) => {
+      const cc = el('cafeClock');
+      const cf = el('cafeRaceFill');
+      if(cc){ cc.textContent = 'RACE CLOCK: ' + left + 's'; cc.classList.toggle('low', left <= 12); }
+      if(cf){ cf.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
+    };
+    updCafeClock(limit, 100);
     caseTimer = setInterval(() => {
       const leftMs = timerDeadline - Date.now();
       if(leftMs <= 0){
+        updCafeClock(0, 0);
         stopCaseTimer();
-        if(shift && !shift.locked){ resolveOutcome(c, false, 'TIME EXPIRED (30-45 second rapid-fire clock ran out)', 1); }
+        if(shift && !shift.locked){
+          const msg = isCafeRace ? 'TIME EXPIRED - the kitchen bell rang before the tray was served!' : 'TIME EXPIRED (30-45 second rapid-fire clock ran out)';
+          resolveOutcome(c, false, msg, isCafeRace ? 1.25 : 1);
+        }
         return;
       }
       const left = Math.ceil(leftMs / 1000);
       el('gTimeVal').textContent = left;
       tp.classList.toggle('low', left <= 10);
+      updCafeClock(left, (leftMs / (limit * 1000)) * 100);
     }, 200);
   }
 
@@ -1015,7 +1200,7 @@ const Clinic = (function(){
     // Chart
     const d = DEPTS[c.dept] || DEPTS.infectious;
     const bossCase = !!c.boss;
-    const bannerSrc = bossCase ? 'assets/banner_chief.jpg' : (c.kind ? 'assets/banner_challenge.jpg' : (c.tier === 4 ? 'assets/banner_chief.jpg' : d.img));
+    const bannerSrc = c.dept === 'cafe' ? d.img : (bossCase ? 'assets/banner_chief.jpg' : (c.kind ? 'assets/banner_challenge.jpg' : (c.tier === 4 ? 'assets/banner_chief.jpg' : d.img)));
     el('cBanner').style.backgroundImage = "url('" + bannerSrc + "')";
     const cc = document.querySelector('#gameView .chart-card');
     if(cc) cc.classList.toggle('boss', bossCase);
@@ -1054,19 +1239,24 @@ const Clinic = (function(){
       )).join('');
     } else if(c.kind === 'write'){
       const prev = (profile.writtenEvidence && profile.writtenEvidence[c.id]) ? profile.writtenEvidence[c.id].answer : '';
+      const hasPrev = prev.trim().length > 0;
       const minW = c.minWords || 12;
       el('cOpts').innerHTML =
         '<div class="ch-badge">' + kindLabels.write + '</div>' +
+        (hasPrev ? '<div class="write-saved-bar"><span><b>Already saved in your chart!</b> No need to re-type unless you want to edit.</span></div>' : '') +
         '<textarea id="writeAns" rows="4" maxlength="600" style="width:100%;background:rgba(7,13,25,.9);color:#f8fafc;border:1.5px solid var(--sky);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.95rem;line-height:1.5;resize:vertical" placeholder="Write 1 to 2 clear, complete sentences...">' + esc(prev) + '</textarea>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:12px;flex-wrap:wrap">' +
           '<span class="mono" id="writeCount" style="font-size:.75rem;color:var(--muted)">0 / ' + minW + ' words min</span>' +
-          '<button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Save Chart Note &rarr;</button>' +
+          '<button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">' + (hasPrev ? 'Keep Saved Note &amp; Continue &rarr;' : 'Save Chart Note &rarr;') + '</button>' +
         '</div>';
       const ta = el('writeAns');
       const updWc = () => {
         const wc = ta.value.trim().split(/\s+/).filter(Boolean).length;
         el('writeCount').textContent = wc + ' / ' + minW + ' words min';
         el('writeCount').style.color = wc >= minW ? 'var(--ok)' : 'var(--amber)';
+        if(hasPrev && el('chSubmit')){
+          el('chSubmit').innerHTML = (ta.value.trim() === prev.trim()) ? 'Keep Saved Note &amp; Continue &rarr;' : 'Update Saved Note &rarr;';
+        }
       };
       ta.addEventListener('input', updWc);
       updWc();
@@ -1160,23 +1350,55 @@ const Clinic = (function(){
         '</div>' +
         '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitChallenge()">Lock In Clinical Dial &rarr;</button></div>';
     } else if(c.kind === 'cafe'){
-      /* HOSPITAL CAFETERIA: build-a-tray rounds powered by CafeteriaRush data */
+      /* HOSPITAL CAFETERIA: CafeteriaRush ceramic plate + drag-and-drop timed race */
       const lib = (window.CAFETERIA_DATA && window.CAFETERIA_DATA.FOODS) || [];
       c._foods = (c.foodIds || []).map(id => lib.find(f => f.id === id)).filter(Boolean);
-      shift.chState = { sel:{}, foods:c._foods };
+      shift.chState = { tray:[], foods:c._foods };
+      const limitSec = c.boss ? 60 : 45;
       el('cOpts').innerHTML =
-        (c.boss ? '<div class="ch-badge" style="border-color:var(--coral);color:var(--coral);background:rgba(251,113,133,.1)">BOSS CASE · DOUBLE POINTS</div>' : '') +
-        '<div class="ch-badge">' + kindLabels.cafe + '</div>' +
-        '<div class="cafe-brief"><b>ORDER SPEC:</b> ' + esc(c.brief) + '</div>' +
-        '<div class="cafe-grid">' + c._foods.map((f, i) => (
-          '<button class="cafe-item" type="button" id="cfi' + i + '" onclick="Clinic.toggleCafe(' + i + ')">' +
-          '<span class="cf-em">' + f.emoji + '</span>' +
-          '<span class="cf-body"><b>' + esc(f.name) + '</b>' +
-          '<span class="mono cf-meta">' + f.kcal + ' kcal · protein ' + f.pro + 'g · fibre ' + f.fib + 'g · sugar ' + f.sugDv + '% DV · sodium ' + f.sodDv + '% DV' +
-          (f.caf ? ' · caffeine ' + f.caf + ' mg' : '') + ' · $' + f.cost.toFixed(2) + '</span></span></button>'
-        )).join('') + '</div>' +
-        '<div class="ch-actions"><button class="btn-primary" style="width:auto;padding:10px 22px" id="chSubmit" type="button" onclick="Clinic.submitCafe()">Serve This Tray &rarr;</button>' +
-        '<span class="mono" id="cafeHint" style="font-size:.74rem;color:var(--muted)">Tap items to load the tray...</span></div>';
+        '<div class="cafe-stage">' +
+          '<div class="cafe-race-head">' +
+            '<div>' +
+              (c.boss ? '<span class="ch-badge" style="border-color:var(--coral);color:var(--coral);background:rgba(251,113,133,.14);margin-right:6px">BOSS TRAY RUSH · 2X PTS</span>' : '') +
+              '<span class="ch-badge" style="margin-bottom:0">CAFETERIA RUSH · PLATE RACE · +SPEED BONUS</span>' +
+            '</div>' +
+            '<span class="cafe-race-clock" id="cafeClock">RACE CLOCK: ' + limitSec + 's</span>' +
+          '</div>' +
+          '<div class="cafe-race-track"><div class="cafe-race-fill" id="cafeRaceFill"></div></div>' +
+          '<div class="cafe-brief"><b>ORDER TICKET:</b> ' + esc(c.brief) + '<div class="cafe-specs" id="cafeSpecs"></div></div>' +
+          '<div class="cafe-arena">' +
+            '<div>' +
+              '<div class="cafe-plate-box" id="cafeDropBox" ondragover="Clinic.cafeDragOver(event)" ondragleave="Clinic.cafeDragLeave()" ondrop="Clinic.cafeDrop(event)">' +
+                '<div class="cafe-plate-head"><h4>Canada\'s Food Guide Plate</h4><span class="cafe-totals" id="cafeTotals">0 items · $0.00</span></div>' +
+                '<div class="tray-surface">' +
+                  '<div class="ceramic-plate">' +
+                    '<div class="plate-sec veg"><span class="z-lbl">1/2 Veg &amp; Fruit</span><div class="plate-items" id="cpVeg"></div></div>' +
+                    '<div class="plate-sec grain"><span class="z-lbl">1/4 Grains</span><div class="plate-items" id="cpGrain"></div></div>' +
+                    '<div class="plate-sec protein"><span class="z-lbl">1/4 Protein</span><div class="plate-items" id="cpPro"></div></div>' +
+                  '</div>' +
+                  '<div class="coaster-col">' +
+                    '<div class="drink-coaster"><span class="z-lbl">Drink &amp; Sides</span><div class="plate-items" id="cpSide"></div></div>' +
+                    '<div class="tray-tip">Drag foods onto the plate or click +.<br>Click any plated food to remove.</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="cafe-serve-bar">' +
+                  '<button class="btn-sec" id="cafeClearBtn" type="button" onclick="Clinic.cafeClear()">Clear</button>' +
+                  '<button class="btn-cafe-serve" id="chSubmit" type="button" onclick="Clinic.submitCafe()">RING BELL &amp; SERVE!</button>' +
+                '</div>' +
+                '<div class="mono" id="cafeHint" style="font-size:.7rem;color:#94a3b8;text-align:center">Turn every ticket pill green before time runs out!</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="cafe-grid">' + c._foods.map((f, i) => (
+              '<button class="cafe-item" type="button" id="cfi' + i + '" draggable="true" ondragstart="Clinic.cafeDragStart(event,' + i + ')" onclick="Clinic.toggleCafe(' + i + ')">' +
+              '<img class="cf-img" src="' + CAFE_ASSET_BASE + 'foods/' + esc(f.id) + '.jpg" alt="' + esc(f.name) + '" loading="lazy">' +
+              '<span class="cf-body"><b>' + esc(f.name) + '</b>' +
+              '<span class="mono cf-meta">$' + f.cost.toFixed(2) + ' · ' + f.pro + 'g pro · ' + f.fib + 'g fib · ' + f.sugDv + '% sug · ' + f.sodDv + '% Na' +
+              (f.caf ? ' · ' + f.caf + 'mg caf' : '') + '</span></span>' +
+              '<span class="cf-add">+</span></button>'
+            )).join('') + '</div>' +
+          '</div>' +
+        '</div>';
+      renderCafePlate();
     }
 
     el('cFeed').className = 'feedback';
@@ -1384,7 +1606,8 @@ const Clinic = (function(){
   }
 
   function resolveOutcome(c, ok, rightDesc, bonusMult){
-    const rapidLeft = (ok && shift && shift.dept === 'rapid' && timerDeadline) ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : 0;
+    const isTimed = shift && (shift.dept === 'rapid' || (c && c.kind === 'cafe'));
+    const rapidLeft = (ok && isTimed && timerDeadline) ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : 0;
     stopCaseTimer();
     if(c.boss) bonusMult = (bonusMult || 1) * 2;   // BOSS CASES award double points
     shift.locked = true;
@@ -1404,7 +1627,7 @@ const Clinic = (function(){
       shift.bestStreak = Math.max(shift.bestStreak, shift.streak);
       const streakMult = shift.streak >= 6 ? 3 : (shift.streak >= 3 ? 2 : (shift.streak >= 2 ? 1.5 : 1));
       const basePts = 100 * c.tier;
-      const speedBonus = shift.dept === 'rapid' ? Math.min(30, rapidLeft) : 0;
+      const speedBonus = isTimed ? Math.min(45, rapidLeft) : 0;
       const pts = Math.round(basePts * streakMult * shift.mult * (bonusMult || 1)) + speedBonus;
       shift.score += pts;
       if(shift.score > (profile.bestScore || 0)) profile.bestScore = shift.score;
@@ -1573,7 +1796,7 @@ const Clinic = (function(){
   }
 
   boot();
-  return { signIn, switchAccount, goLobby, startShift, startRapid, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike, toggleRx, pickTriage, pickOrder, resetOrder, moveDial, submitChallenge, pickEsc, pickEscReason, pickMatchLeft, pickMatchRight, pickMyth, toggleCafe, submitCafe };
+  return { signIn, switchAccount, goLobby, startShift, startRapid, replay, pick, nextPatient, endShift, loadLeaderboard, toggleSize, toggleRead, closeStrike, toggleRx, pickTriage, pickOrder, resetOrder, moveDial, submitChallenge, pickEsc, pickEscReason, pickMatchLeft, pickMatchRight, pickMyth, toggleCafe, submitCafe, cafeDragStart, cafeDragOver, cafeDragLeave, cafeDrop, cafeRemove, cafeClear };
 })();
 </script>
 </body>
