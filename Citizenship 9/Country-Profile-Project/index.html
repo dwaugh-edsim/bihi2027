@@ -1933,12 +1933,17 @@
       });
     }
 
-    function sha256Short(str) {
-      if (!window.crypto || !crypto.subtle) return Promise.resolve("");
-      var bytes = new TextEncoder().encode(String(str || "").trim().toLowerCase());
-      return crypto.subtle.digest("SHA-256", bytes).then(function (buf) {
-        return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("").slice(0, 16);
-      }).catch(function () { return ""; });
+    function emailHash(str) {
+      var s = "r8cpp|" + String(str || "").trim().toLowerCase();
+      var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      for (var i = 0; i < s.length; i++) {
+        var ch = s.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return ((h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0"));
     }
 
     function renderPublishedAwards() {
@@ -2001,25 +2006,23 @@
       myAward = null;
       renderPublishedAwards();
       if (!sec || SKIPNET) return;
-      var hashPromise = identity && identity.email ? sha256Short(identity.email) : Promise.resolve("");
-      Promise.all([
-        hashPromise,
-        fetch(MASTER_URL + "?action=get_class_log").then(function (r) { return r.json(); }).catch(function () { return null; })
-      ]).then(function (res) {
-        myEmailHash = res[0] || "";
-        var j = res[1];
-        var slides = (j && j.slides) || {};
-        var row = slides["CIT9-CPP-AWARDS-" + sec];
-        if (row && row.announcements) {
-          try {
-            var parsed = JSON.parse(row.announcements);
-            if (parsed && Array.isArray(parsed.awards)) {
-              publishedAwards = parsed.awards;
-            }
-          } catch (e) {}
-        }
-        renderPublishedAwards();
-      });
+      myEmailHash = (identity && identity.email) ? emailHash(identity.email) : "";
+      fetch(MASTER_URL + "?action=get_class_log")
+        .then(function (r) { return r.json(); })
+        .catch(function () { return null; })
+        .then(function (j) {
+          var slides = (j && j.slides) || {};
+          var row = slides["CIT9-CPP-AWARDS-" + sec];
+          if (row && row.announcements) {
+            try {
+              var parsed = JSON.parse(row.announcements);
+              if (parsed && Array.isArray(parsed.awards)) {
+                publishedAwards = parsed.awards;
+              }
+            } catch (e) {}
+          }
+          renderPublishedAwards();
+        });
     }
 
     function chooseClass(sec) {
