@@ -206,13 +206,16 @@ function renderTopics() {
     return `<article class="topic-card${pickedCls}" data-region="${_esc(t.region)}" tabindex="0" role="button"
       aria-label="${_esc(t.country)}: ${_esc(t.issue)}"
       onclick="openTopic(${t.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTopic(${t.id});}">
-      <div class="topic-card-top">
+      <div class="topic-thumb">
+        <img class="thumb-img" src="images/topics/${_esc(t.iso)}.jpg" alt="${_esc(t.country)} - ${_esc(t.issue)}" loading="lazy">
         <img class="flag" src="images/flags/${_esc(t.iso)}.svg" alt="Flag of ${_esc(t.country)}" loading="lazy">
         <div class="topic-badges">${rankBadge}${tncBadge}<span class="topic-region">${_esc(t.region)}</span></div>
       </div>
-      <h4>${_esc(t.country)}</h4>
-      <p class="topic-issue">${_esc(t.issue)}</p>
-      <span class="topic-more">View questions &rarr;</span>
+      <div class="topic-body">
+        <h4>${_esc(t.country)}</h4>
+        <p class="topic-issue">${_esc(t.issue)}</p>
+        <span class="topic-more">Open full briefing &rarr;</span>
+      </div>
     </article>`;
   }
 
@@ -271,8 +274,8 @@ function pickRandomTopic() {
 function openTopic(id) {
   const t = TOPICS.find(x => x.id === id);
   if (!t) return;
-  const modal = document.getElementById("topic-modal");
-  if (!modal.classList.contains("open")) {
+  const screen = document.getElementById("topic-modal");
+  if (!screen.classList.contains("open")) {
     _topicState.lastFocus = document.activeElement;
   }
   _topicState.activeId = t.id;
@@ -280,6 +283,11 @@ function openTopic(id) {
   const list = _topicState.shown.some(x => x.id === t.id) ? _topicState.shown : TOPICS;
   const idx = list.findIndex(x => x.id === t.id);
 
+  const heroImg = document.getElementById("modal-hero-img");
+  if (heroImg) {
+    heroImg.src = "images/topics/" + t.iso + ".jpg";
+    heroImg.alt = t.country + " - " + t.issue;
+  }
   document.getElementById("modal-flag").src = "images/flags/" + t.iso + ".svg";
   document.getElementById("modal-flag").alt = "Flag of " + t.country;
   document.getElementById("modal-title").textContent = t.country;
@@ -291,27 +299,43 @@ function openTopic(id) {
 
   const qs = t.qs.split(/\?\s+/).map(s => s.trim().replace(/\?+$/, "")).filter(Boolean);
   document.getElementById("modal-qs").innerHTML =
-    qs.map(s => "<li>" + _esc(s) + "?</li>").join("");
+    qs.map((s, qi) =>
+      '<li class="cs-q-card"><span class="cs-q-num">Q' + (qi + 1) + '</span><span>' + _esc(s) + '?</span></li>'
+    ).join("");
+
   const tncWrap = document.getElementById("modal-tnc-wrap");
   const tncEl = document.getElementById("modal-tnc");
+  const tncBadge = document.getElementById("modal-tnc-badge");
   if (tncWrap && tncEl) {
     if (t.tnc) {
       tncEl.textContent = t.tnc;
       tncWrap.hidden = false;
+      if (tncBadge) tncBadge.hidden = false;
     } else {
       tncEl.textContent = "";
       tncWrap.hidden = true;
+      if (tncBadge) tncBadge.hidden = true;
     }
   }
   document.getElementById("modal-src").textContent = t.src;
+
+  const mapEl = document.getElementById("modal-slide-map");
+  if (mapEl) {
+    mapEl.innerHTML =
+      '<div><strong>Slide 3 (The Issue):</strong> Scale ' + _esc(t.issue) + ' to ' + _esc(t.country) + ' with 1-2 real numbers.</div>' +
+      '<div><strong>Slide 4 (Core - Action/Inaction):</strong> What has ' + _esc(t.country) + '\'s government actually DONE (laws, spending, treaties, enforcement)?</div>' +
+      '<div><strong>Slide 5 (Consequences):</strong> Intended vs. unintended effects, short vs. long term, and who carries the cost.</div>' +
+      '<div><strong>Slide 6 (Canada + Why Care):</strong> Compare Canada\'s record on ' + _esc(t.issue) + (t.tnc ? ' and connect the TNC link back to Canadian life.' : ' and explain why Canadians should care.') + '</div>';
+  }
 
   const claimNote = document.getElementById("modal-claim-note");
   if (claimNote) claimNote.textContent = "";
   if (typeof window.syncModalBidButtons === "function") window.syncModalBidButtons(t.id);
 
-  modal.classList.add("open");
+  screen.classList.add("open");
+  screen.scrollTop = 0;
   document.body.style.overflow = "hidden";
-  const closeBtn = modal.querySelector(".modal-close");
+  const closeBtn = screen.querySelector(".modal-close");
   if (closeBtn) closeBtn.focus();
 }
 
