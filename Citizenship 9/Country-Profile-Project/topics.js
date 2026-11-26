@@ -213,16 +213,21 @@ function renderTopics() {
 
   function cardHTML(t) {
     const tncBadge = t.tnc ? `<span class="topic-tnc-pill" title="Includes a Transnational Corporation (TNC) link">TNC</span>` : "";
+    const award = typeof window.getAwardForCountry === "function" ? window.getAwardForCountry(t.country) : null;
     const rank = typeof window.getBidRankForTopic === "function" ? window.getBidRankForTopic(t.id) : 0;
-    const rankBadge = rank ? `<span class="topic-rank-pill">#${rank} Pick</span>` : "";
-    const pickedCls = rank ? " is-picked" : "";
+    const statusBadge = award
+      ? (award.isMine
+          ? `<span class="topic-mine-pill">YOUR COUNTRY</span>`
+          : `<span class="topic-taken-pill">CLAIMED &middot; ${_esc(award.firsts)}</span>`)
+      : (rank ? `<span class="topic-rank-pill">#${rank} Pick</span>` : "");
+    const pickedCls = award && award.isMine ? " is-mine" : (rank ? " is-picked" : "");
     return `<article class="topic-card${pickedCls}" data-region="${_esc(t.region)}" tabindex="0" role="button"
       aria-label="${_esc(t.country)}: ${_esc(t.issue)}"
       onclick="openTopic(${t.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTopic(${t.id});}">
       <div class="topic-thumb">
         <img class="thumb-img" src="images/topics/${_esc(t.iso)}.jpg" alt="${_esc(t.country)} - ${_esc(t.issue)}" loading="lazy">
         <img class="flag" src="images/flags/${_esc(t.iso)}.svg" alt="Flag of ${_esc(t.country)}" loading="lazy">
-        <div class="topic-badges">${rankBadge}${tncBadge}<span class="topic-region">${_esc(t.region)}</span></div>
+        <div class="topic-badges">${statusBadge}${tncBadge}<span class="topic-region">${_esc(t.region)}</span></div>
       </div>
       <div class="topic-body">
         <h4>${_esc(t.country)}</h4>

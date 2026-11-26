@@ -702,6 +702,43 @@
   }
   .topic-body { padding: 0.8rem 0.95rem 0.9rem; display: flex; flex-direction: column; flex: 1 1 auto; }
   .topic-rank-pill { font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: var(--green); padding: 0.14rem 0.44rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .topic-mine-pill { font-family: var(--mono); font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #052E16; background: #4ADE80; padding: 0.15rem 0.48rem; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .topic-taken-pill { font-family: var(--mono); font-size: 0.57rem; font-weight: 700; letter-spacing: 0.04em; color: #FEF3C7; background: rgba(15, 23, 42, 0.86); border: 1px solid rgba(251, 191, 36, 0.55); padding: 0.14rem 0.44rem; border-radius: 4px; }
+  .topic-card.is-mine { border-color: #16A34A; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35); }
+
+  /* FINAL PUBLISHED COUNTRY ASSIGNMENTS (FIRST NAMES ONLY) */
+  .my-award-banner {
+    background: linear-gradient(135deg, #064E3B 0%, #0F766E 100%);
+    color: #fff; border: 2px solid #34D399; border-radius: 14px;
+    padding: 1.1rem 1.35rem; margin-bottom: 1.15rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    box-shadow: 0 10px 28px rgba(6, 78, 59, 0.22);
+  }
+  .my-award-left { display: flex; align-items: center; gap: 0.95rem; }
+  .my-award-flag { width: 54px; height: 54px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.3); flex-shrink: 0; }
+  .my-award-k { font-family: var(--mono); font-size: 0.67rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #6EE7B7; }
+  .my-award-banner h3 { font-family: var(--slab); font-size: 1.45rem; color: #fff; margin: 0.1rem 0 0.2rem; line-height: 1.15; }
+  .my-award-sub { font-size: 0.88rem; color: #D1FAE5; margin: 0; }
+
+  .class-awards-box {
+    background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--green);
+    border-radius: 12px; padding: 1.1rem 1.25rem; margin: 1.15rem 0 1.4rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .class-awards-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+  .class-awards-head h3 { margin: 0; font-size: 1.12rem; }
+  .class-awards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.65rem; }
+  .ca-chip {
+    display: flex; align-items: center; gap: 0.65rem;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+    padding: 0.55rem 0.75rem; cursor: pointer; text-align: left;
+    transition: border-color 0.12s ease, transform 0.12s ease;
+  }
+  .ca-chip:hover { border-color: var(--blue); transform: translateY(-1px); }
+  .ca-chip.mine { border-color: var(--green); background: var(--green-bg); box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+  .ca-chip img { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); flex-shrink: 0; }
+  .ca-chip b { display: block; font-size: 0.88rem; color: var(--ink); line-height: 1.2; }
+  .ca-chip span { display: block; font-family: var(--mono); font-size: 0.69rem; color: var(--muted); margin-top: 2px; }
   .topic-tnc-pill { font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: rgba(37, 99, 235, 0.92); padding: 0.14rem 0.42rem; border-radius: 4px; }
   .topic-card .topic-region { font-family: var(--mono); font-size: 0.59rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #F8FAFC; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(4px); padding: 0.15rem 0.44rem; border-radius: 4px; }
   .topic-card h4 { font-family: var(--slab); font-size: 1.06rem; margin: 0 0 0.22rem; }
@@ -1053,6 +1090,18 @@
 
     <!-- TAB 1: OVERVIEW -->
     <section class="view-panel active" id="panel-overview" role="tabpanel">
+      <div class="my-award-banner" id="my-award-banner" hidden>
+        <div class="my-award-left">
+          <img class="my-award-flag" id="my-award-flag" src="" alt="" hidden>
+          <div>
+            <div class="my-award-k" id="my-award-k">YOUR FINAL ASSIGNED COUNTRY</div>
+            <h3 id="my-award-country">Country</h3>
+            <p class="my-award-sub" id="my-award-sub"></p>
+          </div>
+        </div>
+        <button type="button" class="btn gold" id="my-award-open-btn" onclick="App.openMyAward()">Open My Country Briefing &rarr;</button>
+      </div>
+
       <div class="overview-banner">
         <div>
           <span class="sec-label">Citizenship 9 &bull; Term 2 Global Project</span>
@@ -1069,6 +1118,14 @@
           <button type="button" class="btn gold" onclick="App.showTab('topics')">1. Browse 43 Topics &rarr;</button>
           <button type="button" class="btn ghost" onclick="App.showTab('bid')">2. Submit Top-3 Pitch</button>
         </div>
+      </div>
+
+      <div class="class-awards-box" id="class-awards-box" hidden>
+        <div class="class-awards-head">
+          <h3 id="class-awards-title">Confirmed Class Country Assignments</h3>
+          <span class="meta-chip" id="class-awards-count">0 assigned</span>
+        </div>
+        <div class="class-awards-grid" id="class-awards-grid"></div>
       </div>
 
       <h3>Start here: your first steps (do these in order)</h3>
@@ -1671,7 +1728,7 @@
   </div>
 </div>
 
-<script src="topics.js?v=20261126b"></script>
+<script src="topics.js?v=20261126c"></script>
 <script>
   function escHtml(s) {
     return String(s == null ? "" : s)
@@ -1684,6 +1741,7 @@
   var App = (function () {
     var IDENTITY_URL = "https://script.google.com/a/macros/gnspes.ca/s/AKfycbxzrLHgG2_vq8lh3VFB7SfPvbqXnn1atuz5S61oGlLul_l_jmlhrRc7Nwww__k9f5L0Rw/exec";
     var VAULT_URL = "https://script.google.com/macros/s/AKfycbwO6rPhp8e8T7-PLJhTkL1cKHd3W8DeufUKmFwpKsgZZhdSDXwRgRWrqp_2dlxQXiwp0w/exec";
+    var MASTER_URL = "https://script.google.com/macros/s/AKfycby8XaHRRj07UUQ-4NTK7AH4s2qVp3GKe6XRyMA_tGLap52ZUWYg2faJbVhIB7Ea7_VJ/exec";
     var TASK_NAME = "CIT9-CountryProfile-Top3";
     var ALLOWED_ORIGIN = "https://dwaugh-edsim.github.io";
     var ID_KEY = "r8id";
@@ -1700,6 +1758,9 @@
     var displayName = "";
     var popupRef = null;
     var picks = { 1: 0, 2: 0, 3: 0 };
+    var publishedAwards = [];
+    var myAward = null;
+    var myEmailHash = "";
 
     function atobUrl(s) {
       s = s.replace(/-/g, "+").replace(/_/g, "/");
@@ -1872,6 +1933,95 @@
       });
     }
 
+    function sha256Short(str) {
+      if (!window.crypto || !crypto.subtle) return Promise.resolve("");
+      var bytes = new TextEncoder().encode(String(str || "").trim().toLowerCase());
+      return crypto.subtle.digest("SHA-256", bytes).then(function (buf) {
+        return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("").slice(0, 16);
+      }).catch(function () { return ""; });
+    }
+
+    function renderPublishedAwards() {
+      var banner = document.getElementById("my-award-banner");
+      var box = document.getElementById("class-awards-box");
+      var grid = document.getElementById("class-awards-grid");
+      myAward = null;
+      if (myEmailHash && publishedAwards.length) {
+        myAward = publishedAwards.find(function (a) {
+          return Array.isArray(a.hashes) && a.hashes.indexOf(myEmailHash) !== -1;
+        }) || null;
+      }
+
+      if (banner) {
+        if (myAward) {
+          var topicMatch = TOPICS.find(function (t) { return t.country.toLowerCase() === String(myAward.country || "").toLowerCase(); });
+          var flagEl = document.getElementById("my-award-flag");
+          if (flagEl) {
+            if (topicMatch) {
+              flagEl.src = "images/flags/" + topicMatch.iso + ".svg";
+              flagEl.alt = "Flag of " + topicMatch.country;
+              flagEl.hidden = false;
+            } else {
+              flagEl.hidden = true;
+            }
+          }
+          document.getElementById("my-award-k").textContent = "YOUR FINAL ASSIGNED COUNTRY · " + selectedSection;
+          document.getElementById("my-award-country").textContent = myAward.country + (myAward.issue ? (" - " + myAward.issue) : "");
+          document.getElementById("my-award-sub").textContent = "Team: " + (myAward.firsts || displayName) + " · Confirmed by Mr. Waugh";
+          var openBtn = document.getElementById("my-award-open-btn");
+          if (openBtn) openBtn.hidden = !topicMatch;
+          banner.hidden = false;
+        } else {
+          banner.hidden = true;
+        }
+      }
+
+      if (box && grid) {
+        if (!publishedAwards.length) {
+          box.hidden = true;
+        } else {
+          document.getElementById("class-awards-title").textContent = selectedSection + " Confirmed Country Assignments";
+          document.getElementById("class-awards-count").textContent = publishedAwards.length + " assigned";
+          grid.innerHTML = publishedAwards.map(function (a) {
+            var t = TOPICS.find(function (x) { return x.country.toLowerCase() === String(a.country || "").toLowerCase(); });
+            var mine = myAward && myAward.country === a.country;
+            var imgTag = t ? '<img src="images/flags/' + escHtml(t.iso) + '.svg" alt="">' : '';
+            var clickAttr = t ? ' onclick="openTopic(' + t.id + ')"' : '';
+            return '<button type="button" class="ca-chip' + (mine ? ' mine' : '') + '"' + clickAttr + '>' +
+              imgTag + '<div><b>' + escHtml(a.country) + '</b><span>' + escHtml(a.firsts || "Assigned") + (mine ? ' (You)' : '') + '</span></div></button>';
+          }).join("");
+          box.hidden = false;
+        }
+      }
+      if (typeof window.refreshTopicCards === "function") window.refreshTopicCards();
+    }
+
+    function loadPublishedAwards(sec) {
+      publishedAwards = [];
+      myAward = null;
+      renderPublishedAwards();
+      if (!sec || SKIPNET) return;
+      var hashPromise = identity && identity.email ? sha256Short(identity.email) : Promise.resolve("");
+      Promise.all([
+        hashPromise,
+        fetch(MASTER_URL + "?action=get_class_log").then(function (r) { return r.json(); }).catch(function () { return null; })
+      ]).then(function (res) {
+        myEmailHash = res[0] || "";
+        var j = res[1];
+        var slides = (j && j.slides) || {};
+        var row = slides["CIT9-CPP-AWARDS-" + sec];
+        if (row && row.announcements) {
+          try {
+            var parsed = JSON.parse(row.announcements);
+            if (parsed && Array.isArray(parsed.awards)) {
+              publishedAwards = parsed.awards;
+            }
+          } catch (e) {}
+        }
+        renderPublishedAwards();
+      });
+    }
+
     function chooseClass(sec) {
       selectedSection = normalizeSection(sec);
       if (!selectedSection) return;
@@ -1879,6 +2029,7 @@
       document.getElementById("app-sec-pill").textContent = selectedSection;
       document.getElementById("bid-section").value = selectedSection;
       showScreen("app");
+      loadPublishedAwards(selectedSection);
       var hashTab = (location.hash || "").replace(/^#/, "");
       showTab(VALID_TABS.indexOf(hashTab) >= 0 ? hashTab : "overview");
     }
@@ -1889,6 +2040,7 @@
         selectedSection = val;
         document.getElementById("app-sec-pill").textContent = val;
         try { sessionStorage.setItem(SEC_KEY, val); } catch (e) {}
+        loadPublishedAwards(val);
       }
     }
 
@@ -2068,11 +2220,22 @@
         if (picks[3] === topicId) return 3;
         return 0;
       },
+      getAwardForCountry: function (country) {
+        var hit = publishedAwards.find(function (a) { return String(a.country || "").toLowerCase() === String(country || "").toLowerCase(); });
+        if (!hit) return null;
+        return { firsts: hit.firsts || "Assigned", isMine: Boolean(myAward && myAward.country === hit.country) };
+      },
+      openMyAward: function () {
+        if (!myAward) return;
+        var t = TOPICS.find(function (x) { return x.country.toLowerCase() === String(myAward.country || "").toLowerCase(); });
+        if (t) openTopic(t.id);
+      },
       syncModalButtons: syncModalButtons
     };
   })();
 
   window.getBidRankForTopic = App.getRank;
+  window.getAwardForCountry = App.getAwardForCountry;
   window.syncModalBidButtons = App.syncModalButtons;
 
   /* Modal keyboard shortcuts */
