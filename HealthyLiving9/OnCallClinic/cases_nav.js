@@ -399,7 +399,7 @@ window.ONCALL_CASES.push(
       "Check in with two close mutual friends privately to figure out the best plan before calling any service"
     ],
     ans:0, pearl:"Start with 'I believe you. It is not your fault. You are not alone.' Never interrogate or blame clothing, alcohol, or freezing; respect their pace and offer confidential Halifax/NS resources like Avalon Sexual Assault Centre, IWK, or a trusted adult." },
-  { id:"nav36", dept:"nav", tier:4, patient:"Severe Allergic Reaction in the Cafeteria", complaint:"Classmate ate an unmarked cookie; hives, lip swelling, wheezing",
+  { id:"nav36", dept:"nav", tier:4, boss:true, patient:"Severe Allergic Reaction in the Cafeteria", complaint:"Classmate ate an unmarked cookie; hives, lip swelling, wheezing",
     vitals:"CO8 Emergency Triage | Carries EpiPen in backpack",
     quote:"My classmate is wheezing and says their throat feels tight right after eating a cookie. Someone suggested an antihistamine pill first to see if it settles.",
     q:"What is the immediate life-saving protocol for suspected anaphylaxis?",

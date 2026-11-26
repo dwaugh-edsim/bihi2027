@@ -376,7 +376,7 @@ window.ONCALL_CASES.push(
       "No: patients without a family doctor must visit a hospital emergency room for birth control."
     ],
     ans:0, pearl:"Nova Scotia expanded pharmacist prescribing so people without a family doctor can get timely assessment and prescriptions for hormonal contraception, emergency contraception, and common health needs." },
-  { id:"rep34", dept:"repro", tier:4, patient:"Marcus, 16", complaint:"HIV prevention medications",
+  { id:"rep34", dept:"repro", tier:4, boss:true, patient:"Marcus, 16", complaint:"HIV prevention medications",
     vitals:"Sexual health clinic | Reading lobby poster",
     quote:"I saw both 'PrEP' and 'PEP' on the clinic wall poster. How do those two HIV prevention medications differ?",
     q:"Match the two HIV prevention medications accurately:",

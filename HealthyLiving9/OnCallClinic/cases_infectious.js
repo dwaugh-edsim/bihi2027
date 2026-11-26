@@ -234,7 +234,7 @@ window.ONCALL_CASES.push(
     q:"Why does measles still cause outbreaks at 82% coverage?",
     opts:["Measles spreads so efficiently by air that herd immunity requires roughly 95% coverage","An 82% rate only blocks winter outbreaks, because warm air helps measles travel farther","Vaccine protection fades in most adults, leaving less than half the town truly immune","Herd immunity only applies to bacterial illnesses, while viral outbreaks need 100% coverage"],
     ans:0, pearl:"The more contagious a germ is (higher R0), the higher the immunity threshold needed to prevent community spread." },
-  { id:"inf38", dept:"infectious", tier:4, patient:"Travel Clinic, Halifax", complaint:"Returning from tropical trip with cyclic high fevers",
+  { id:"inf38", dept:"infectious", tier:4, boss:true, patient:"Travel Clinic, Halifax", complaint:"Returning from tropical trip with cyclic high fevers",
     vitals:"Visited malaria-endemic region | Did not finish antimalarial pills",
     quote:"I thought I just caught a winter cold on the plane home, but my fever spikes hard every 48 hours.",
     q:"What is the Chief of Medicine's diagnostic priority?",

@@ -394,7 +394,7 @@ window.ONCALL_CASES.push(
     ],
     ans:0, pearl:"Sleep and mental health form a two-way (bidirectional) loop. Persistent insomnia paired with hopelessness warrants both supportive sleep habits and real help from a family doctor, counsellor, 811, or Kids Help Phone." },
 
-  { id:"slp33", dept:"sleep", tier:4, patient:"Grayscale & Friction Engineering", complaint:"Student redesigning their own phone environment",
+  { id:"slp33", dept:"sleep", tier:4, boss:true, patient:"Grayscale & Friction Engineering", complaint:"Student redesigning their own phone environment",
     vitals:"Hook Machine counter-strategy",
     quote:"Willpower fails at 11 PM when I'm tired. How do I beat trillion-dollar app design?",
     q:"Which behavioural-design strategy most reliably counters persuasive apps late at night?",
