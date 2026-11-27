@@ -617,6 +617,48 @@ window.CAFETERIA_DATA = (function () {
       id: 'ord_36', title: 'Grand Master Dietitian Audit', customer: 'Province-Wide Finals',
       brief: 'Ultimate test: 2 veg/fruit, 28g+ protein, 12g+ fibre, max $5.50, max 18% DV sodium, max 15% DV sat fat, max 18% DV sugar, nut-free, zero traps!',
       rules: { minVeg: 2, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 28, minFibG: 12, maxBudget: 5.50, maxSodDv: 18, maxSugDv: 18, maxSatDv: 15, reqTag: 'nut-free', maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_37', title: 'One-Swap Fix: Sodium Bomb', customer: 'Track Meet Runner',
+      swap: true,
+      preloaded: ['v_apple', 'p_chicken', 'm_ramen', 'd_water'],
+      brief: 'This tray is ONE item away from perfect! That instant noodle cup blasts the sodium limit (80% DV). Yank it and swap in one better food for a +100 Surgical Swap bonus!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, maxSodDv: 25, maxSugDv: 25, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_38', title: 'One-Swap Fix: Cereal Sugar Trap', customer: 'Morning Study Group',
+      swap: true,
+      preloaded: ['v_berries', 'p_eggs', 'g_multigrain', 'd_water'],
+      brief: 'This tray is ONE item away from perfect! That sugary "multigrain" cereal is refined white flour with 16% DV sugar. Yank it and swap in one real whole grain for +100 Surgical Swap!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, minFibG: 6, maxSodDv: 30, maxSugDv: 20, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_39', title: 'One-Swap Fix: Caffeine Crash', customer: 'Robotics Build Night',
+      swap: true,
+      preloaded: ['v_carrots', 'm_turkey_wrap', 'g_brownrice', 'd_energy'],
+      brief: 'This tray is ONE item away from perfect! The VOLT-X energy drink adds 180 mg caffeine on a zero-caffeine ticket. Yank it and swap in one smart drink for +100 Surgical Swap!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, maxSodDv: 30, maxSugDv: 25, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_40', title: 'One-Swap Fix: Peanut Alert', customer: 'Field Trip Allergy Table',
+      swap: true,
+      preloaded: ['v_pear', 'p_peanut', 'g_brownrice', 'd_water'],
+      brief: 'This tray is ONE item away from perfect! The peanut butter cup breaks the strict nut-free table rule. Yank it and swap in one nut-free protein for +100 Surgical Swap!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 15, maxSodDv: 30, maxSugDv: 25, reqTags: ['nut-free'], maxCaf: 0 }
+    },
+    {
+      id: 'ord_41', title: 'One-Swap Fix: Fried and Fatty', customer: 'Hockey Practice',
+      swap: true,
+      preloaded: ['v_broccoli', 'p_nuggets', 'g_ww_pasta', 'd_water'],
+      brief: 'This tray is ONE item away from perfect! Deep-fried nuggets spike saturated fat to 25% DV and add 30% DV sodium. Yank them and swap in one clean protein for +100 Surgical Swap!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, maxSodDv: 30, maxSugDv: 25, maxSatDv: 15, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_42', title: 'One-Swap Fix: Over Budget', customer: 'Cafeteria Budget Boss',
+      swap: true,
+      preloaded: ['v_carrots', 'm_salmon_poke', 'g_oats', 'd_water'],
+      brief: 'This tray is ONE item away from perfect, but the $3.25 poke bowl pushes the total over the $4.00 budget! Yank it and swap in one affordable protein for +100 Surgical Swap!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 15, maxBudget: 4.00, maxSodDv: 30, maxSugDv: 25, maxCaf: 0 }
     }
   ];
 
@@ -659,5 +701,83 @@ window.CAFETERIA_DATA = (function () {
     'High sodium (15%+ DV) hides in soups, noodles, sauces, and processed meats.'
   ];
 
-  return { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ, NUTRITION_TIPS };
+  const CUSTOMERS = {
+    cust_01: {
+      name: 'Marco', role: 'Soccer Striker',
+      like: { re: 'banana|orange|watermelon', txt: 'fruit', line: 'Yes! Fresh fruit keeps my legs flying in the second half!' },
+      dislike: { re: 'broccoli|brussels', txt: 'broccoli', line: 'Aw man, steamed broccoli right before soccer? Tough chew, Chef!' }
+    },
+    cust_02: {
+      name: 'Maya', role: 'Track Sprinter',
+      like: { re: 'oats|chia|pancake|berr', txt: 'oats and berries', line: 'Oats and berries! Clean sprint fuel with zero stomach ache!' },
+      dislike: { re: 'tuna|sardine', txt: 'fishy smells', line: 'Whoa, tinned fish before track? Everyone in lane 4 can smell it!' }
+    },
+    cust_03: {
+      name: 'Jonah', role: 'Band Drummer',
+      like: { re: 'burrito|turk_burr|corn_tort|ww_wrap', txt: 'wraps and burritos', line: 'A wrap I can hold with one hand while holding drumsticks! Awesome!' },
+      dislike: { re: 'cottage|ricotta', txt: 'cottage cheese', line: 'Curds and whey? Not really my jam before jazz band, Chef.' }
+    },
+    cust_04: {
+      name: 'Dev', role: 'Robotics Captain',
+      like: { re: 'sushi|edamame|soba|miso|bibimbap', txt: 'Japanese and Korean', line: 'Elite choice! Sushi and Japanese/Korean dishes power our whole robot build!' },
+      dislike: { re: 'beef_chili', txt: 'chili', line: 'Heavy chili right over the circuit boards? Dangerously messy, Chef!' }
+    },
+    cust_05: {
+      name: 'Theo', role: 'Drama Club Lead',
+      like: { re: 'pasta|caprese|tomato', txt: 'tomato dishes', line: 'Bravo! Encore! Fresh tomato flavour deserves a standing ovation!' },
+      dislike: { re: 'kalechips|seaweed', txt: 'kale chips', line: 'Dry kale leaves before a monologue? My throat is crying!' }
+    },
+    cust_06: {
+      name: 'Cole', role: 'Skateboarder',
+      like: { re: 'shawarma|falafel|hummus|pita', txt: 'Middle Eastern', line: 'Sick! Shawarma, hummus, and pita are top-tier lunch fuel!' },
+      dislike: { re: 'g_oats|chia_oats', txt: 'oatmeal at lunch', line: 'Oatmeal at noon? Feels like I overslept until Period 4!' }
+    },
+    cust_07: {
+      name: 'Sofia', role: 'Art Club',
+      like: { re: 'kiwi|mango|pineapple|berr|spinach', txt: 'colourful produce', line: 'Look at that palette! Bright fruit and greens taste as good as they look!' },
+      dislike: { re: 'brownrice|barley', txt: 'all-brown plates', line: 'So beige, Chef! Give my plate at least a splash of colour!' }
+    },
+    cust_08: {
+      name: 'Ethan', role: 'Library Bookworm',
+      like: { re: 'tomato_soup|lentil|stew|pumpkin', txt: 'warm soups', line: 'Warm, cozy bowl for quiet reading hour. Thank you, Chef!' },
+      dislike: { re: 'snap|cucumber', txt: 'loud crunchy food', line: 'CRUNCH! Everyone in the quiet reading corner just glared at me!' }
+    },
+    cust_09: {
+      name: 'Sam', role: 'Hockey Forward',
+      like: { re: 'chicken|turkey|beef', txt: 'meat', line: 'Now THAT is hockey fuel! Solid protein for three hard periods!' },
+      dislike: { re: 'quinoa', txt: 'quinoa', line: 'Tiny little seeds rolling off my fork? Give me real bite, Chef!' }
+    },
+    cust_10: {
+      name: 'Okafor', role: 'Science Teacher',
+      like: { re: 'salmon|sardine|avocado', txt: 'omega-3 foods', line: 'Brain-cell membrane science on a plate! Love the omega-3s!' },
+      dislike: { re: 'sparkling', txt: 'fizzy water', line: 'Too fizzy before afternoon lab demo! Still water next time please.' }
+    },
+    cust_11: {
+      name: 'MacLeod', role: 'Principal',
+      like: { re: 'grilled_cheese|egg_muffin|tomato_soup', txt: 'classics', line: 'Ah, a comforting cafeteria classic done the healthy way!' },
+      dislike: { re: 'sushi|seaweed|miso', txt: 'seaweed', line: 'I appreciate the nutrition, though seaweed is not my favourite!' }
+    },
+    cust_12: {
+      name: 'River', role: 'Eco Club',
+      like: { re: 'lentil|chickpea|blackbean|falafel|tofu', txt: 'plant protein', line: 'Low-footprint plant power! Huge win for us and the planet!' },
+      dislike: { re: 'beef|turkey|chicken|salmon|tuna|sardine', txt: 'meat and fish', line: 'Hey, I eat mostly plant-based for the Eco Club, remember?' }
+    },
+    cust_13: {
+      name: 'Amara', role: 'Culture Club',
+      like: { re: 'curry|pho|dumpling|bibimbap|shawarma|sushi|pierogi|tzatziki', txt: 'global dishes', line: 'Amazing! Global flavours make every lunch feel like a celebration!' },
+      dislike: { re: 'popcorn|rye|pretzel', txt: 'plain crackers', line: 'Just plain dry crackers? Where is the seasoning and spice, Chef?' }
+    },
+    cust_14: {
+      name: 'Malik', role: 'Basketball Centre',
+      like: { re: 'beef_chili|burrito|chicken_pasta|turk_burr', txt: 'hearty bowls', line: 'Boom! Big hearty bowl to fuel tip-off after school!' },
+      dislike: { re: 'v_salad|cucumber|v_spinach', txt: 'light salads', line: 'I am 6 foot 2! A bowl of lettuce will not last me till Period 5!' }
+    },
+    cust_15: {
+      name: 'Fournier', role: 'School Dietitian',
+      like: { re: 'spinach|broccoli|brussels|kale', txt: 'dark greens', line: 'Dark leafy and cruciferous greens! Textbook micronutrient game!' },
+      dislike: { re: 'popcorn|pretzel|seaweed', txt: 'snack food as lunch', line: 'Snack packs on a dietitian inspection tray? Come on, Chef!' }
+    }
+  };
+
+  return { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ, NUTRITION_TIPS, CUSTOMERS };
 })();
