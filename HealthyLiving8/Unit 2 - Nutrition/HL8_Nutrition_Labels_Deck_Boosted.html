@@ -14,6 +14,23 @@
   }
   .b-slide.active { opacity: 1; pointer-events: auto; z-index: 1; }
   .b-slide img { max-width: 100vw; max-height: 100vh; width: auto; height: auto; object-fit: contain; display: block; }
+  .b-slide.has-hdr { flex-direction: column; padding: 14px 24px 8px; gap: 6px; }
+  .b-slide.has-hdr img { max-height: calc(100vh - 92px); max-width: 100%; }
+  .slide-hdr {
+    width: 100%; max-width: min(1480px, calc((100vh - 92px) * 16 / 9));
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 4px 12px 6px; border-left: 4px solid #2dd4bf;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.25));
+    border-radius: 6px;
+  }
+  .slide-hdr .kicker {
+    font-size: clamp(11px, 1.15vw, 14px); font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #2dd4bf;
+  }
+  .slide-hdr h1 {
+    font-size: clamp(22px, 2.7vw, 38px); font-weight: 800; line-height: 1.12;
+    color: #f8fafc; letter-spacing: -0.01em;
+  }
   #hud {
     position: fixed; bottom: 14px; right: 16px; z-index: 10; display: flex; align-items: center; gap: 8px;
     background: rgba(15, 23, 42, 0.84); border: 1px solid rgba(148, 163, 184, 0.25);
@@ -40,10 +57,34 @@
 </div>
 <script>
 const SLIDES = ["HL8_Nutrition_Labels_Deck_boosted/slide_01.png", "HL8_Nutrition_Labels_Deck_boosted/slide_02.png", "HL8_Nutrition_Labels_Deck_boosted/slide_03.png", "HL8_Nutrition_Labels_Deck_boosted/slide_04.png", "HL8_Nutrition_Labels_Deck_boosted/slide_05.png", "HL8_Nutrition_Labels_Deck_boosted/slide_06.png", "HL8_Nutrition_Labels_Deck_boosted/slide_07.png", "HL8_Nutrition_Labels_Deck_boosted/slide_08.png", "HL8_Nutrition_Labels_Deck_boosted/slide_09.png", "HL8_Nutrition_Labels_Deck_boosted/slide_10.png", "HL8_Nutrition_Labels_Deck_boosted/slide_11.png", "HL8_Nutrition_Labels_Deck_boosted/slide_12.png", "HL8_Nutrition_Labels_Deck_boosted/slide_13.png"];
+const HEADERS = {
+  2: { k: "Healthy Living 8 \u00b7 Outcome CO2 \u00b7 Health Behaviours", t: "Fuel or Trap? Reading Food Labels" },
+  3: { k: "Nutrition Basics \u00b7 Term 1 of 4", t: "Calories: Your Body's Energy Unit" },
+  4: { k: "Nutrition Basics \u00b7 Term 2 of 4", t: "Carbs: Fast Crash vs. Slow Fuel" },
+  5: { k: "Nutrition Basics \u00b7 Term 3 of 4", t: "Protein: The Body's Builder" },
+  7: { k: "Mythbusting", t: "Sugar in Fruit: Is It a Problem?" },
+  8: { k: "How Canadian Labels Work", t: "Label Rule 1: Serving Size First" },
+  9: { k: "How Canadian Labels Work", t: "Label Rule 2: The 5% / 15% Rule" },
+  12: { k: "Mythbusting & Safety", t: "Fueling vs. Restricting: Two Opposite Traps" },
+  13: { k: "Room 8 Investigation", t: "Gallery Walk: Label Autopsy (10 Stations)" }
+};
 const stage = document.getElementById('stage');
 const frames = SLIDES.map((src, i) => {
   const d = document.createElement('div');
-  d.className = 'b-slide';
+  const hdr = HEADERS[i + 1];
+  d.className = 'b-slide' + (hdr ? ' has-hdr' : '');
+  if (hdr) {
+    const h = document.createElement('div');
+    h.className = 'slide-hdr';
+    const k = document.createElement('div');
+    k.className = 'kicker';
+    k.textContent = hdr.k;
+    const h1 = document.createElement('h1');
+    h1.textContent = hdr.t;
+    h.appendChild(k);
+    h.appendChild(h1);
+    d.appendChild(h);
+  }
   const img = document.createElement('img');
   img.src = src; img.alt = 'Slide ' + (i + 1);
   d.appendChild(img); stage.appendChild(d);

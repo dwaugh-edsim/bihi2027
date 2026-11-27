@@ -63,6 +63,80 @@
     margin-top:14px; padding:12px 14px; background:#f8fafc; border:2px solid #e2e8f0;
     border-radius:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   }
+  .howto-strip {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px;
+  }
+  @media (max-width:760px) { .howto-strip { grid-template-columns:1fr; } }
+  .howto-step {
+    background:#fffbeb; border:1.5px solid #fde68a; border-radius:10px; padding:10px 12px;
+    font-size:.8rem; font-weight:600; color:#451a03; line-height:1.38;
+  }
+  .howto-step b { display:block; font-family:'JetBrains Mono',monospace; font-size:.7rem; text-transform:uppercase; color:#b45309; margin-bottom:2px; }
+  .coach-bar {
+    display:none; background:linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+    border:2px solid #d97706; border-radius:12px; padding:7px 12px;
+    font-size:.81rem; font-weight:800; color:#78350f;
+    align-items:center; gap:10px; box-shadow:0 3px 10px rgba(217,119,6,0.18);
+  }
+  .coach-bar.show { display:flex; }
+  .coach-avatar {
+    width:42px; height:42px; border-radius:50%; object-fit:cover;
+    border:2.5px solid #b45309; background:#fff; flex-shrink:0;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  }
+  .tier-badge-sm {
+    width:22px; height:22px; border-radius:50%; object-fit:cover;
+    border:1.5px solid rgba(255,255,255,0.55); vertical-align:middle; margin-right:6px;
+  }
+  .hud-chip.tier { display:inline-flex; align-items:center; }
+  .tier-toast {
+    position:fixed; top:58px; left:50%; transform:translateX(-50%) translateY(-18px);
+    z-index:160; display:none; align-items:center; gap:12px;
+    background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#fff;
+    border:3px solid #fbbf24; border-radius:16px; padding:10px 18px;
+    box-shadow:0 14px 36px rgba(0,0,0,0.45);
+    opacity:0; transition:transform .28s ease, opacity .28s ease;
+  }
+  .tier-toast.show { display:flex; opacity:1; transform:translateX(-50%) translateY(0); }
+  .tier-toast img { width:52px; height:52px; border-radius:50%; border:2.5px solid #fbbf24; object-fit:cover; }
+  .tier-toast .tt-k { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:800; color:#fbbf24; text-transform:uppercase; }
+  .tier-toast .tt-v { font-family:'Roboto Slab',serif; font-size:1.08rem; font-weight:900; }
+  .score-burst {
+    position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+    pointer-events:none; z-index:40; font-family:'Roboto Slab',serif; font-weight:900;
+    font-size:2rem; color:#fef08a; text-shadow:0 3px 0 #14532d, 0 6px 18px rgba(0,0,0,0.45);
+    animation:burstUp .95s ease-out forwards;
+  }
+  @keyframes burstUp {
+    0% { opacity:0; transform:translate(-50%,-20%) scale(0.6); }
+    25% { opacity:1; transform:translate(-50%,-55%) scale(1.12); }
+    100% { opacity:0; transform:translate(-50%,-125%) scale(0.98); }
+  }
+  .confetti-bit {
+    position:absolute; width:9px; height:9px; border-radius:2px; pointer-events:none; z-index:39;
+    animation:confFall .9s ease-out forwards;
+  }
+  @keyframes confFall {
+    0% { opacity:1; transform:translate(0,0) rotate(0deg) scale(1); }
+    100% { opacity:0; transform:translate(var(--dx), var(--dy)) rotate(340deg) scale(0.5); }
+  }
+  @keyframes readyPulse {
+    0%, 100% { box-shadow:0 4px 0 #14532d, 0 0 0 0 rgba(34,197,94,0.55); }
+    50% { box-shadow:0 4px 0 #14532d, 0 0 0 9px rgba(34,197,94,0); }
+  }
+  .btn-serve.ready { animation:readyPulse 1.25s infinite; }
+  .ceramic-plate.plate-ready {
+    box-shadow:
+      0 0 0 5px #4ade80,
+      0 0 28px rgba(74,222,128,0.55),
+      0 12px 28px rgba(0,0,0,0.45),
+      inset 0 0 0 2px #cbd5e1;
+  }
+  .nf-diet {
+    margin-top:9px; padding:8px 10px; border-radius:6px; font-size:.79rem; font-weight:700;
+    background:#eff6ff; border-left:4px solid var(--accent); color:#1e3a8a; line-height:1.4;
+  }
+  .nf-diet.warn { background:#fef2f2; border-left-color:var(--bad); color:#7f1d1d; }
   .chef-inp {
     padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:.9rem;
     font-weight:700; background:#fff;
@@ -130,6 +204,7 @@
   }
   .hud-chip.tier { color:#f472b6; border-color:#be185d; background:rgba(190,24,93,0.16); }
   .hud-chip.timer { color:#fbbf24; border-color:#d97706; background:rgba(217,119,6,0.16); }
+  .hud-chip.timer.paused { color:#fde68a; border-color:#f59e0b; background:rgba(245,158,11,0.34); }
   .hud-chip.score { color:#4ade80; border-color:#16a34a; background:rgba(22,163,74,0.16); }
   .hud-chip.streak { color:#38bdf8; border-color:#0284c7; background:rgba(2,132,199,0.16); }
   .hud-chip.sync { color:#94a3b8; font-size:.72rem; }
@@ -153,18 +228,31 @@
   /* LEFT: TICKET + REAL CERAMIC PLATE TRAY */
   .left-col { display:flex; flex-direction:column; gap:8px; min-height:0; overflow-y:auto; padding-right:2px; }
   .curveball-bar {
-    display:none; background:#fef2f2; border:2px solid var(--bad); border-radius:10px;
-    padding:8px 12px; font-size:.82rem; font-weight:700; color:#7f1d1d;
-    box-shadow:0 3px 10px rgba(185,28,28,0.15);
+    display:none; background:linear-gradient(90deg, #fef2f2 0%, #fee2e2 100%);
+    border:2px solid var(--bad); border-radius:12px;
+    padding:7px 12px; font-size:.81rem; font-weight:700; color:#7f1d1d;
+    box-shadow:0 3px 10px rgba(185,28,28,0.18); align-items:center; gap:10px;
   }
-  .curveball-bar.show { display:block; }
-  .curveball-bar b { font-family:'JetBrains Mono',monospace; font-size:.74rem; text-transform:uppercase; display:block; margin-bottom:2px; }
+  .curveball-bar.show { display:flex; }
+  .cb-ico {
+    width:44px; height:44px; border-radius:10px; object-fit:cover;
+    border:2px solid var(--bad); background:#fff; flex-shrink:0;
+  }
+  .curveball-bar b { font-family:'JetBrains Mono',monospace; font-size:.73rem; text-transform:uppercase; display:block; margin-bottom:2px; }
 
   .ticket {
     background:#fffdf0; border:2px solid #18181b; border-top:6px solid #f59e0b; border-radius:12px;
-    padding:10px 14px; box-shadow:0 4px 14px rgba(15,23,42,.10);
+    padding:10px 13px; box-shadow:0 4px 14px rgba(15,23,42,.10);
   }
   .ticket.boss { background:#fffbeb; border-color:#b45309; border-top-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.18); }
+  .ticket-row { display:flex; align-items:flex-start; gap:11px; }
+  .t-avatar {
+    width:62px; height:62px; border-radius:14px; object-fit:cover;
+    border:2.5px solid #f59e0b; background:#fff; flex-shrink:0;
+    box-shadow:0 3px 10px rgba(15,23,42,0.18);
+  }
+  .ticket.boss .t-avatar { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,0.22); }
+  .ticket-main { flex:1; min-width:0; }
   .ticket-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:3px; }
   .t-badge {
     font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:800;
@@ -320,6 +408,8 @@
     box-shadow:0 1px 4px rgba(0,0,0,0.3);
   }
   .plate-token:hover .pt-x { display:flex; }
+  .plate-token.trap img { border-color:var(--bad); box-shadow:0 0 0 2px var(--bad), 0 3px 10px rgba(185,28,28,.45); }
+  .plate-token.trap .pt-name { background:#fee2e2; color:#7f1d1d; }
   .tray-empty { font-size:.64rem; color:#94a3b8; font-style:italic; text-align:center; }
 
   .serve-bar { display:flex; gap:10px; align-items:center; }
@@ -392,6 +482,35 @@
     font-weight:900; font-size:1rem; cursor:pointer; flex-shrink:0;
   }
   .fc-add:hover { background:var(--ok); }
+  .fc-inspect {
+    width:24px; height:24px; border-radius:50%; border:1.5px solid var(--line);
+    background:#fff; color:var(--muted); font-weight:900; font-size:.72rem; font-style:italic;
+    cursor:pointer; flex-shrink:0; line-height:1;
+  }
+  .fc-inspect:hover { border-color:var(--accent); color:var(--accent); }
+  @media (pointer:coarse) {
+    .fc-add { width:38px; height:38px; font-size:1.25rem; }
+    .fc-inspect { width:34px; height:34px; font-size:.85rem; }
+    .food-card { padding:9px 10px; gap:10px; }
+    .hud-btn { padding:9px 14px; font-size:.86rem; }
+  }
+
+  .best-strip {
+    display:none; margin-top:12px; padding:10px 14px; border-radius:10px;
+    background:#f0fdf4; border:2px solid #bbf7d0; color:#14532d;
+    font-size:.86rem; font-weight:700; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .best-strip .bs-k {
+    font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:.07em; color:#15803d;
+  }
+  .mode-btn.continue {
+    width:100%; margin-top:14px; text-align:left;
+    background:linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+    border-color:#ca8a04; box-shadow:0 4px 0 #ca8a04;
+  }
+  .mode-btn.continue:hover { box-shadow:0 7px 0 #ca8a04; }
+  .mode-btn.continue .m-tag { color:#a16207; }
 
   /* MODALS (LABEL + INSPECTOR POP-QUIZ) */
   .modal-bg {
@@ -428,14 +547,32 @@
   /* END SCREEN */
   #endScreen {
     display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px;
-    background:radial-gradient(circle at 20% 15%, #f0fdf4 0%, #f4f2ec 65%);
+    background:
+      linear-gradient(160deg, rgba(15,23,42,0.72) 0%, rgba(20,83,45,0.62) 100%),
+      url('assets/victory_banner.jpg') center/cover no-repeat fixed;
   }
   .end-card {
-    max-width:740px; width:100%; background:#fff; border:2px solid var(--ink);
-    border-radius:16px; padding:30px 34px; box-shadow:0 12px 32px rgba(24,24,27,.10);
+    max-width:760px; width:100%; background:#fff; border:3px solid #18181b;
+    border-radius:20px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.45);
   }
-  .end-rank { font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:800; color:var(--ok); text-transform:uppercase; }
-  .end-score { font-family:'Roboto Slab',serif; font-size:3rem; font-weight:900; margin:4px 0 10px; }
+  .end-banner {
+    position:relative; height:175px;
+    background:url('assets/victory_banner.jpg') center/cover no-repeat;
+    display:flex; align-items:flex-end; gap:16px; padding:18px 28px;
+  }
+  .end-banner::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(15,23,42,0.12) 0%, rgba(15,23,42,0.84) 100%);
+  }
+  .end-banner > * { position:relative; z-index:2; }
+  .end-medal {
+    width:82px; height:82px; border-radius:50%; object-fit:cover;
+    border:3.5px solid #fbbf24; background:#0f172a; flex-shrink:0;
+    box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  }
+  .end-body { padding:22px 30px 28px; }
+  .end-rank { font-family:'JetBrains Mono',monospace; font-size:.8rem; font-weight:800; color:#fde047; text-transform:uppercase; letter-spacing:.06em; }
+  .end-score { font-family:'Roboto Slab',serif; font-size:2.65rem; font-weight:900; color:#fff; line-height:1.05; text-shadow:0 3px 12px rgba(0,0,0,0.5); }
   .end-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0 18px; }
   .end-stat { background:#fafaf9; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; text-align:center; }
   .end-stat .k { font-family:'JetBrains Mono',monospace; font-size:.64rem; text-transform:uppercase; color:var(--muted); font-weight:800; }
@@ -453,14 +590,20 @@
       <div class="pill-top">HL8 &middot; Room 8 Kitchen Arcade</div>
       <h1>Cafeteria Rush</h1>
       <div class="splash-chips">
-        <span class="sp-chip">90 Real Foods</span>
-        <span class="sp-chip">24 Lunch Tickets</span>
+        <span class="sp-chip">122 Real Foods</span>
+        <span class="sp-chip">36 Lunch Tickets</span>
         <span class="sp-chip">4 Kitchen Tiers</span>
-        <span class="sp-chip">Health Inspector Quizzes</span>
+        <span class="sp-chip">16 Inspector Quizzes</span>
       </div>
     </div>
     <div class="start-body">
-      <p class="start-sub">Plate balanced Canada's Food Guide lunches under lunch-rush pressure! Read real Nutrition Facts labels, dodge sneaky sugar &amp; sodium traps, and climb from Prep Cook to Iron Chef.</p>
+      <p class="start-sub">Plate balanced Canada's Food Guide lunches under lunch-rush pressure! Read real Canadian Nutrition Facts labels, dodge sneaky sugar, sodium &amp; sat-fat traps, and climb from Prep Cook to Iron Chef.</p>
+
+      <div class="howto-strip">
+        <div class="howto-step"><b>Step 1 &middot; Read the Ticket</b>Check the order's target pills (protein, fibre, budget, allergies, sodium/sugar caps).</div>
+        <div class="howto-step"><b>Step 2 &middot; Inspect &amp; Plate</b>Click a food to read its Nutrition Label, <b>+</b> to add it, or drag it onto the plate. On a touch screen: tap the card to add, tap <b>i</b> to read the label.</div>
+        <div class="howto-step"><b>Step 3 &middot; Ring Bell &amp; Serve!</b>Turn every spec pill <b>GREEN</b>, then hit Serve! Use zero repeat foods for a <b>+100 Fresh Variety</b> bonus.</div>
+      </div>
 
       <div class="auth-bar">
         <button class="btn-signin" id="signInBtn" onclick="Game.signIn()">Sign in with @gnspes.ca</button>
@@ -474,6 +617,14 @@
         <input class="chef-inp" id="chefName" maxlength="24" placeholder="Chef nickname (optional)" style="width:200px;">
         <span class="auth-status" id="authStatus">Guest mode (sign in to save to teacher dashboard)</span>
       </div>
+      <div class="best-strip" id="bestStrip"></div>
+
+      <button class="mode-btn continue" id="continueBtn" style="display:none" onclick="Game.resume()">
+        <div class="m-tag">Saved Shift &middot; Lunch Rush</div>
+        <h3>Continue Where You Left Off</h3>
+        <p id="continueInfo"></p>
+        <span class="mode-go">Resume Shift &rarr;</span>
+      </button>
 
       <div class="mode-grid">
         <button class="mode-btn primary" onclick="Game.start('rush')">
@@ -489,7 +640,7 @@
           <span class="mode-go">Climb the Ladder &rarr;</span>
         </button>
         <button class="mode-btn practice" onclick="Game.start('practice')">
-          <div class="m-tag">No Timer &middot; All 24 Orders</div>
+          <div class="m-tag">No Timer &middot; All 36 Orders</div>
           <h3>Practice Kitchen</h3>
           <p>Read labels and test swaps at your own pace with zero clock pressure.</p>
           <span class="mode-go">Open Kitchen &rarr;</span>
@@ -514,22 +665,29 @@
     <div class="hud-chip" id="hServed">SERVED: 0</div>
     <div class="hud-chip sync" id="hSync">LOCAL</div>
     <div class="hud-spacer"></div>
+    <button class="hud-btn" onclick="Game.openGuide()">? Guide</button>
     <button class="hud-btn" onclick="Game.skipOrder()">Skip (-50)</button>
-    <button class="hud-btn" onclick="Game.finish()">End Shift</button>
+    <button class="hud-btn" onclick="Game.confirmEnd()">End Shift</button>
   </div>
 
   <div class="arena">
     <!-- LEFT: CURVEBALL + TICKET + PLATE -->
     <div class="left-col">
+      <div class="coach-bar" id="coachBar"></div>
       <div class="curveball-bar" id="cbBar"></div>
 
       <div class="ticket" id="ticketCard">
-        <div class="ticket-top">
-          <span class="t-badge" id="tNum">TICKET #1</span>
-          <span class="t-cust" id="tCust">Customer</span>
+        <div class="ticket-row">
+          <img class="t-avatar" id="tAvatar" src="assets/customers/cust_01.jpg" alt="Customer">
+          <div class="ticket-main">
+            <div class="ticket-top">
+              <span class="t-badge" id="tNum">TICKET #1</span>
+              <span class="t-cust" id="tCust">Customer</span>
+            </div>
+            <h2 id="tTitle">Order Title</h2>
+            <div class="ticket-brief" id="tBrief">Order instructions</div>
+          </div>
         </div>
-        <h2 id="tTitle">Order Title</h2>
-        <div class="ticket-brief" id="tBrief">Order instructions</div>
         <div class="spec-list" id="tSpecs"></div>
       </div>
 
@@ -567,21 +725,22 @@
 
       <div class="serve-bar">
         <button class="btn-clear" onclick="Game.clearTray()">Clear Tray</button>
-        <button class="btn-serve" onclick="Game.serve()">RING BELL &amp; SERVE! &rarr;</button>
+        <button class="btn-serve" id="serveBtn" onclick="Game.serve()">RING BELL &amp; SERVE! &rarr;</button>
       </div>
     </div>
 
     <!-- RIGHT: 90-FOOD PANTRY -->
     <div class="right-col">
       <div class="pantry-controls">
-        <input class="search-inp" id="searchInp" placeholder="Search 90 foods (salmon, lentils, ramen, yogurt)...">
+        <input class="search-inp" id="searchInp" placeholder="Search 122 foods (shawarma, salmon, lentils, boba, oats)...">
         <button class="tag-tab" data-tag="nut-free" onclick="Game.toggleTag(this)">Nut-Free</button>
         <button class="tag-tab" data-tag="vegetarian" onclick="Game.toggleTag(this)">Veggie</button>
         <button class="tag-tab" data-tag="dairy-free" onclick="Game.toggleTag(this)">Dairy-Free</button>
         <button class="tag-tab" data-tag="gluten-free" onclick="Game.toggleTag(this)">GF</button>
+        <button class="tag-tab" data-tag="global" onclick="Game.toggleTag(this)">Global</button>
       </div>
       <div class="cat-tabs" id="catTabs">
-        <button class="cat-tab active" data-cat="all" onclick="Game.setCat(this)">All (90)</button>
+        <button class="cat-tab active" data-cat="all" onclick="Game.setCat(this)">All (122)</button>
         <button class="cat-tab" data-cat="veg" onclick="Game.setCat(this)">Veg &amp; Fruit</button>
         <button class="cat-tab" data-cat="protein" onclick="Game.setCat(this)">Proteins</button>
         <button class="cat-tab" data-cat="grain" onclick="Game.setCat(this)">Grains</button>
@@ -604,24 +763,62 @@
   <div class="nf-card" id="quizBody"></div>
 </div>
 
+<!-- TIER-UP TOAST -->
+<div class="tier-toast" id="tierToast">
+  <img id="ttImg" src="assets/badges/tier_2.jpg" alt="Tier Badge">
+  <div>
+    <div class="tt-k">KITCHEN PROMOTION!</div>
+    <div class="tt-v" id="ttName">TIER 2 &middot; LINE CHEF</div>
+  </div>
+</div>
+
+<!-- HOW TO PLAY GUIDE MODAL -->
+<div class="modal-bg" id="guideModal" onclick="if(event.target===this) Game.closeGuide()">
+  <div class="nf-card" style="max-width:520px;">
+    <div style="display:flex;align-items:center;gap:12px;border-bottom:4px solid #000;padding-bottom:10px;margin-bottom:10px;">
+      <img src="assets/customers/cust_16.jpg" alt="Chef Coach" style="width:62px;height:62px;border-radius:50%;object-fit:cover;border:2.5px solid #18181b;flex-shrink:0;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:800;color:var(--warn);text-transform:uppercase;">HEAD CHEF BRIEFING</div>
+        <div style="font-family:'Roboto Slab',serif;font-size:1.35rem;font-weight:900;">Chef's Quick Guide</div>
+      </div>
+    </div>
+    <div style="font-size:.86rem;line-height:1.5;display:flex;flex-direction:column;gap:8px;">
+      <div><b>1. Canada's Food Guide Plate:</b> Aim for <b>1/2 Veg &amp; Fruit</b>, <b>1/4 Whole Grains</b>, <b>1/4 Protein</b>, and a smart drink (water, plain milk, kefir, or unsweetened soy).</div>
+      <div><b>2. Read the Labels:</b> Click any food card to inspect its Canadian Nutrition Facts. Remember: <b>5% DV or less = a little</b>, <b>15% DV or more = a lot</b>. Watch out for sugar splitting and "multigrain" white flour!</div>
+      <div><b>3. Plate &amp; Remove:</b> Drag any food onto the plate or click <b>+</b>. Click any plated food token to take it off.</div>
+      <div><b>4. Climb 4 Kitchen Tiers:</b> Watch out for <b>Supply Shortage Curveballs</b>, <b>Trap Audits</b>, and <b>Health Inspector Pop-Quizzes (+150 pts)</b>. Use zero repeat foods from your last tray for <b>+100 Fresh Variety</b>!</div>
+    </div>
+    <div class="nf-actions">
+      <button style="background:#18181b;color:#fff;border:none;" onclick="Game.closeGuide()">Got It! Back to Kitchen</button>
+    </div>
+  </div>
+</div>
+
 <!-- END SCREEN -->
 <div id="endScreen">
   <div class="end-card">
-    <div class="end-rank" id="endRank">HEAD NUTRITIONIST</div>
-    <div class="end-score" id="endScore">0 PTS</div>
-    <p id="endNote" style="font-weight:600;color:var(--muted);"></p>
-    <div class="end-grid">
-      <div class="end-stat"><div class="k">Trays Served</div><div class="v" id="eServed">0</div></div>
-      <div class="end-stat"><div class="k">Highest Tier</div><div class="v" id="eTier">1</div></div>
-      <div class="end-stat"><div class="k">Label Quiz</div><div class="v" id="eQuiz">0/0</div></div>
-      <div class="end-stat"><div class="k">Best Streak</div><div class="v" id="eStreak">0</div></div>
+    <div class="end-banner">
+      <img class="end-medal" id="endMedal" src="assets/badges/tier_1.jpg" alt="Chef Rank Medal">
+      <div>
+        <div class="end-rank" id="endRank">HEAD NUTRITIONIST</div>
+        <div class="end-score" id="endScore">0 PTS</div>
+      </div>
     </div>
-    <div class="lb-box">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Local High Scores (This Chromebook)</div>
-      <div id="localLb"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-      <button class="btn-serve" style="flex:1" onclick="location.reload()">Play Again (New Shuffle)</button>
+    <div class="end-body">
+      <p id="endNote" style="font-weight:600;color:var(--muted);"></p>
+      <div class="end-grid">
+        <div class="end-stat"><div class="k">Trays Served</div><div class="v" id="eServed">0</div></div>
+        <div class="end-stat"><div class="k">Highest Tier</div><div class="v" id="eTier">1</div></div>
+        <div class="end-stat"><div class="k">Label Quiz</div><div class="v" id="eQuiz">0/0</div></div>
+        <div class="end-stat"><div class="k">Best Streak</div><div class="v" id="eStreak">0</div></div>
+      </div>
+      <div class="lb-box">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Local High Scores (This Chromebook)</div>
+        <div id="localLb"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button class="btn-serve" style="flex:1" onclick="location.reload()">Play Again (New Shuffle)</button>
+      </div>
     </div>
   </div>
 </div>
@@ -633,9 +830,13 @@ window.Game = (function () {
   const VAULT_URL    = 'https://script.google.com/macros/s/AKfycbzhCVthh1eWPNo2apOZPTJPhMDVcyL7Q7PrSxIlhiEbauTbXnEJBJcUCSAnPg2X4cZi/exec';
   const TASK_NAME    = 'HL8-Cafeteria-Rush';
 
-  const { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ } = window.CAFETERIA_DATA;
+  const { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ, NUTRITION_TIPS } = window.CAFETERIA_DATA;
   const foodById = {};
   FOODS.forEach(f => { foodById[f.id] = f; });
+  const orderById = {};
+  ORDERS.forEach(o => { orderById[o.id] = o; });
+  const IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window);
+  const CP_KEY = 'r8_caf_rush_cp';
 
   let identity = null;
   let popupRef = null;
@@ -645,8 +846,64 @@ window.Game = (function () {
   let queue = [], orderIdx = 0, tray = [], lastTrayIds = new Set();
   let score = 0, streak = 0, bestStreak = 0, served = 0, fails = 0, trapsCaught = 0;
   let quizRight = 0, quizTotal = 0, quizPool = [];
-  let activeCurveball = null, secLeft = 300, timerInt = null, orderStartMs = 0;
+  let activeCurveball = null, secLeft = 300, timerInt = null, orderStartMs = 0, lastTierSeen = 1;
   let activeCat = 'all', activeTags = new Set();
+  let uiBound = false;
+
+  function customerAvatar(ord) {
+    const s = ((ord.customer || '') + ' ' + (ord.title || '')).toLowerCase();
+    if (/soccer|football/.test(s)) return 'cust_01';
+    if (/track|runner|sprint|cross-country|athlete/.test(s)) return 'cust_02';
+    if (/band|music|drum|choir/.test(s)) return 'cust_03';
+    if (/robot|code|stem|chess|math|gaming/.test(s)) return 'cust_04';
+    if (/drama|theatre|stage|improv/.test(s)) return 'cust_05';
+    if (/skate|board|bike|bmx/.test(s)) return 'cust_06';
+    if (/art|paint|draw|design/.test(s)) return 'cust_07';
+    if (/book|library|study|exam|test/.test(s)) return 'cust_08';
+    if (/hockey|rink|ice/.test(s)) return 'cust_09';
+    if (/science|lab|teacher|coach|staff/.test(s)) return 'cust_10';
+    if (/principal|office|vice|admin/.test(s)) return 'cust_11';
+    if (/veg|plant|eco|green|garden/.test(s)) return 'cust_12';
+    if (/global|world|cultural|intl|international|flavour/.test(s)) return 'cust_13';
+    if (/basket|volley|gym|hoop/.test(s)) return 'cust_14';
+    if (/audit|inspector|dietitian|trap|boss|master/.test(s)) return 'cust_15';
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 14;
+    return 'cust_' + String(h + 1).padStart(2, '0');
+  }
+
+  function showTierToast(t) {
+    const el = document.getElementById('tierToast');
+    if (!el) return;
+    document.getElementById('ttImg').src = 'assets/badges/tier_' + t + '.jpg';
+    document.getElementById('ttName').textContent = tierLabel(t);
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  function celebrateServe(pts) {
+    const box = document.getElementById('plateDrop');
+    if (!box) return;
+    const burst = document.createElement('div');
+    burst.className = 'score-burst';
+    burst.textContent = '+' + pts + ' PTS!';
+    box.appendChild(burst);
+    setTimeout(() => burst.remove(), 980);
+    const cols = ['#fbbf24', '#4ade80', '#38bdf8', '#f472b6', '#fb923c', '#a78bfa'];
+    for (let i = 0; i < 18; i++) {
+      const bit = document.createElement('div');
+      bit.className = 'confetti-bit';
+      const ang = (Math.PI * 2 * i) / 18 + (Math.random() - 0.5) * 0.3;
+      const dist = 65 + Math.random() * 85;
+      bit.style.left = '50%';
+      bit.style.top = '48%';
+      bit.style.background = cols[i % cols.length];
+      bit.style.setProperty('--dx', Math.round(Math.cos(ang) * dist) + 'px');
+      bit.style.setProperty('--dy', Math.round(Math.sin(ang) * dist - 25) + 'px');
+      box.appendChild(bit);
+      setTimeout(() => bit.remove(), 920);
+    }
+  }
 
   // ---- PATH B GOOGLE SIGN-IN ----
   const ALLOWED_ORIGIN = 'https://dwaugh-edsim.github.io';
@@ -708,7 +965,8 @@ window.Game = (function () {
         profile = Object.assign(profile, j.data);
         if (profile.section) document.getElementById('secSel').value = profile.section;
       }
-    }).catch(() => {});
+      renderBestStrip();
+    }).catch(() => { renderBestStrip(); });
   }
 
   function signIn() {
@@ -761,10 +1019,10 @@ window.Game = (function () {
   }
 
   function buildProgressiveQueue() {
-    const t1 = shuffle(ORDERS.filter(o => ['ord_01','ord_02','ord_14'].includes(o.id)));
-    const t2 = shuffle(ORDERS.filter(o => ['ord_03','ord_05','ord_06','ord_08','ord_09','ord_10','ord_13','ord_20'].includes(o.id)));
-    const t3 = shuffle(ORDERS.filter(o => o.preloaded || ['ord_15','ord_16','ord_19','ord_23'].includes(o.id)));
-    const t4 = shuffle(ORDERS.filter(o => ['ord_12','ord_18','ord_22','ord_24'].includes(o.id)));
+    const t1 = shuffle(ORDERS.filter(o => ['ord_01','ord_02','ord_14','ord_25','ord_29'].includes(o.id)));
+    const t2 = shuffle(ORDERS.filter(o => ['ord_03','ord_05','ord_06','ord_08','ord_09','ord_10','ord_13','ord_20','ord_27','ord_32'].includes(o.id)));
+    const t3 = shuffle(ORDERS.filter(o => o.preloaded || ['ord_15','ord_16','ord_19','ord_23','ord_30','ord_31','ord_34'].includes(o.id)));
+    const t4 = shuffle(ORDERS.filter(o => ['ord_12','ord_18','ord_22','ord_24','ord_35','ord_36'].includes(o.id)));
     return [].concat(t1.slice(0, 2), t2.slice(0, 3), t3.slice(0, 3), t4, t2.slice(3), t3.slice(3), t1.slice(2));
   }
 
@@ -799,33 +1057,165 @@ window.Game = (function () {
     queue = buildProgressiveQueue();
     if (mode === 'sprint') queue = queue.slice(0, 10);
     quizPool = shuffle(INSPECTOR_QUIZ);
-    orderIdx = 0; score = 0; streak = 0; bestStreak = 0; served = 0; fails = 0; trapsCaught = 0;
+    orderIdx = 0; score = 0; streak = 0; bestStreak = 0; served = 0; fails = 0; trapsCaught = 0; lastTierSeen = 1;
     quizRight = 0; quizTotal = 0; lastTrayIds = new Set();
     profile.shifts = (profile.shifts || 0) + 1;
+    try { localStorage.removeItem(CP_KEY); } catch (e) {}
 
     document.getElementById('startScreen').style.display = 'none';
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'flex';
     document.getElementById('hSync').textContent = identity ? 'VAULT READY' : 'LOCAL';
 
+    secLeft = mode === 'rush' ? 300 : 0;
+    beginClock();
+
+    if (!uiBound) {
+      uiBound = true;
+      setupDropzone();
+      document.getElementById('searchInp').addEventListener('input', renderPantry);
+    }
+    loadOrder();
+  }
+
+  function modalOpen() {
+    return ['labelModal', 'quizModal', 'guideModal'].some(id => {
+      const el = document.getElementById(id);
+      return el && el.classList.contains('open');
+    });
+  }
+
+  function beginClock() {
+    if (timerInt) { clearInterval(timerInt); timerInt = null; }
     if (mode === 'rush') {
-      secLeft = 300; updateTimerUi();
-      timerInt = setInterval(() => { secLeft--; updateTimerUi(); if (secLeft <= 0) finish(); }, 1000);
+      updateTimerUi();
+      timerInt = setInterval(() => {
+        if (!modalOpen()) {
+          secLeft--;
+          if (secLeft <= 0) { updateTimerUi(); finish(); return; }
+        }
+        updateTimerUi();
+      }, 1000);
     } else if (mode === 'sprint') {
-      secLeft = 0; updateTimerUi();
-      timerInt = setInterval(() => { secLeft++; updateTimerUi(); }, 1000);
+      updateTimerUi();
+      timerInt = setInterval(() => {
+        if (!modalOpen()) secLeft++;
+        updateTimerUi();
+      }, 1000);
     } else {
       document.getElementById('hTimer').textContent = 'PRACTICE';
+      document.getElementById('hTimer').classList.remove('paused');
     }
-
-    setupDropzone();
-    document.getElementById('searchInp').addEventListener('input', renderPantry);
-    loadOrder();
   }
 
   function updateTimerUi() {
     const m = Math.floor(secLeft / 60), s = secLeft % 60;
-    document.getElementById('hTimer').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    const el = document.getElementById('hTimer');
+    el.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    if (mode !== 'practice') el.classList.toggle('paused', modalOpen());
+  }
+
+  function cardTap(id) {
+    if (IS_TOUCH) addToTray(id);
+    else openLabel(id);
+  }
+
+  function saveCheckpoint() {
+    if (mode !== 'rush') return;
+    try {
+      const cp = {
+        v: 1, mode, ts: Date.now(),
+        queueIds: queue.map(o => o.id), orderIdx,
+        score, streak, bestStreak, served, fails, trapsCaught,
+        quizRight, quizTotal,
+        quizIdxs: quizPool.map(q => INSPECTOR_QUIZ.indexOf(q)),
+        secLeft, chefName,
+        section: document.getElementById('secSel').value || '',
+        trayIds: tray.map(f => f.id),
+        lastTrayIds: Array.from(lastTrayIds),
+        curveballId: activeCurveball ? activeCurveball.id : null
+      };
+      localStorage.setItem(CP_KEY, JSON.stringify(cp));
+    } catch (e) {}
+  }
+
+  function loadCheckpoint() {
+    try {
+      const raw = localStorage.getItem(CP_KEY);
+      if (!raw) return null;
+      const cp = JSON.parse(raw);
+      if (!cp || cp.v !== 1 || cp.mode !== 'rush' || !Array.isArray(cp.queueIds)) return null;
+      return cp;
+    } catch (e) { return null; }
+  }
+
+  function showContinue() {
+    const cp = loadCheckpoint();
+    const btn = document.getElementById('continueBtn');
+    if (!cp || !btn) return;
+    const m = Math.floor((cp.secLeft || 0) / 60), s = (cp.secLeft || 0) % 60;
+    document.getElementById('continueInfo').textContent =
+      'Ticket #' + (cp.orderIdx + 1) + ' next \u00B7 ' + (cp.score || 0) + ' pts \u00B7 ' + (cp.served || 0) + ' served \u00B7 ' +
+      (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + ' left \u00B7 saved ' + new Date(cp.ts).toLocaleTimeString();
+    btn.style.display = 'flex';
+  }
+
+  function resume() {
+    const cp = loadCheckpoint();
+    if (!cp) return;
+    mode = 'rush';
+    chefName = cp.chefName || 'Chef';
+    document.getElementById('chefName').value = chefName;
+    if (cp.section) document.getElementById('secSel').value = cp.section;
+    queue = cp.queueIds.map(id => orderById[id]).filter(Boolean);
+    if (!queue.length) return;
+    orderIdx = cp.orderIdx || 0;
+    score = cp.score || 0; streak = cp.streak || 0; bestStreak = cp.bestStreak || 0;
+    served = cp.served || 0; fails = cp.fails || 0; trapsCaught = cp.trapsCaught || 0;
+    quizRight = cp.quizRight || 0; quizTotal = cp.quizTotal || 0;
+    quizPool = (cp.quizIdxs || []).map(i => INSPECTOR_QUIZ[i]).filter(Boolean);
+    lastTierSeen = currentTier();
+    tray = (cp.trayIds || []).map(id => foodById[id]).filter(Boolean);
+    lastTrayIds = new Set(cp.lastTrayIds || []);
+    activeCurveball = cp.curveballId ? (CURVEBALLS.find(c => c.id === cp.curveballId) || null) : null;
+    secLeft = Math.max(1, cp.secLeft || 1);
+
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('endScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    document.getElementById('hSync').textContent = identity ? 'VAULT READY' : 'LOCAL';
+
+    beginClock();
+    if (!uiBound) {
+      uiBound = true;
+      setupDropzone();
+      document.getElementById('searchInp').addEventListener('input', renderPantry);
+    }
+    loadOrder({ keepTray: true, keepCurveball: true });
+  }
+
+  function confirmEnd() {
+    if (window.confirm('End shift now? Your Lunch Rush is auto-saved - you can resume it from the start screen.')) {
+      finish();
+    }
+  }
+
+  function renderBestStrip() {
+    const el = document.getElementById('bestStrip');
+    if (!el) return;
+    let best = profile.bestScore || 0, rank = profile.bestRank || '', label = 'YOUR BEST SHIFT (SAVED)';
+    if (!best) {
+      try {
+        const lb = JSON.parse(localStorage.getItem('r8_caf_rush_lb') || '[]');
+        if (lb.length && lb[0].score > 0) { best = lb[0].score; rank = getRank(best); label = 'THIS CHROMEBOOK BEST'; }
+      } catch (e) {}
+    }
+    if (!best) { el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    el.innerHTML = '<span class="bs-k">' + label + '</span>' +
+      '<span>' + best + ' pts &middot; ' + (rank || getRank(best)) + '</span>' +
+      '<span>Tier ' + (profile.maxTier || 1) + ' &middot; ' + (profile.totalServed || 0) + ' trays served</span>' +
+      (profile.quizTotal ? '<span>Inspector quiz ' + (profile.quizRight || 0) + '/' + profile.quizTotal + '</span>' : '');
   }
 
   function setupDropzone() {
@@ -839,7 +1229,8 @@ window.Game = (function () {
     });
   }
 
-  function loadOrder() {
+  function loadOrder(opts) {
+    opts = opts || {};
     if (orderIdx >= queue.length) {
       if (mode === 'rush') { queue = buildProgressiveQueue(); orderIdx = 0; }
       else { finish(); return; }
@@ -848,23 +1239,27 @@ window.Game = (function () {
     const t = currentTier();
 
     // Activate a Supply Shortage Curveball on Tier 3+ (every 2nd non-preloaded ticket)
-    activeCurveball = null;
-    if (t >= 3 && !ord.preloaded && orderIdx % 2 === 1) {
-      activeCurveball = CURVEBALLS[Math.floor(Math.random() * CURVEBALLS.length)];
+    if (!opts.keepCurveball) {
+      activeCurveball = null;
+      if (t >= 3 && !ord.preloaded && orderIdx % 2 === 1) {
+        activeCurveball = CURVEBALLS[Math.floor(Math.random() * CURVEBALLS.length)];
+      }
     }
     const cbBar = document.getElementById('cbBar');
     if (activeCurveball) {
       cbBar.className = 'curveball-bar show';
-      cbBar.innerHTML = '<b>KITCHEN CURVEBALL: ' + activeCurveball.title + '</b>' + activeCurveball.msg;
+      cbBar.innerHTML = '<img class="cb-ico" src="assets/curveball_alert.jpg" alt="Kitchen Curveball"><div><b>KITCHEN CURVEBALL: ' + activeCurveball.title + '</b>' + activeCurveball.msg + '</div>';
     } else {
       cbBar.className = 'curveball-bar';
       cbBar.innerHTML = '';
     }
 
-    tray = (ord.preloaded || []).map(id => foodById[id]).filter(Boolean);
+    if (!opts.keepTray) tray = (ord.preloaded || []).map(id => foodById[id]).filter(Boolean);
     orderStartMs = Date.now();
     const tCard = document.getElementById('ticketCard');
     tCard.classList.toggle('boss', t === 4);
+    const av = document.getElementById('tAvatar');
+    if (av) { av.src = 'assets/customers/' + customerAvatar(ord) + '.jpg'; av.alt = ord.customer; }
     document.getElementById('tNum').textContent = (t === 4 ? 'BOSS TICKET (2x) ' : '') + (mode === 'sprint' ? ('#' + (orderIdx + 1) + '/' + queue.length) : ('#' + (served + 1)));
     document.getElementById('tCust').textContent = ord.customer;
     document.getElementById('tTitle').textContent = ord.title;
@@ -878,8 +1273,9 @@ window.Game = (function () {
   }
 
   function updateHud() {
+    const t = currentTier();
     const mult = streak >= 5 ? 3 : streak >= 3 ? 2 : streak >= 2 ? 1.5 : 1;
-    document.getElementById('hTier').textContent = tierLabel(currentTier());
+    document.getElementById('hTier').innerHTML = '<img class="tier-badge-sm" src="assets/badges/tier_' + t + '.jpg" alt="Tier ' + t + '">' + tierLabel(t);
     document.getElementById('hScore').textContent = score + ' PTS';
     document.getElementById('hStreak').textContent = 'STREAK ' + streak + ' (x' + mult + ')';
     document.getElementById('hServed').textContent = 'SERVED: ' + served;
@@ -912,12 +1308,13 @@ window.Game = (function () {
     });
     document.getElementById('pantryGrid').innerHTML = list.map(f => {
       const out = isBanned(f.id);
-      return '<div class="food-card' + (out ? ' sold-out' : '') + '" draggable="' + (!out) + '" ondragstart="Game.dragStart(event,\'' + f.id + '\')" onclick="Game.openLabel(\'' + f.id + '\')">' +
+      return '<div class="food-card' + (out ? ' sold-out' : '') + '" draggable="' + (!out) + '" ondragstart="Game.dragStart(event,\'' + f.id + '\')" onclick="Game.cardTap(\'' + f.id + '\')">' +
         '<img class="fc-ico" src="assets/foods/' + f.id + '.jpg" alt="' + f.name + '" loading="lazy">' +
         '<div class="fc-info">' +
           '<div class="fc-name">' + (out ? '[SOLD OUT] ' : '') + f.name + '</div>' +
           '<div class="fc-meta">$' + f.cost.toFixed(2) + ' &middot; ' + f.pro + 'g pro &middot; ' + f.sodDv + '% Na &middot; ' + f.sugDv + '% sug</div>' +
         '</div>' +
+        '<button class="fc-inspect" title="Read Nutrition Label" onclick="event.stopPropagation();Game.openLabel(\'' + f.id + '\')">i</button>' +
         '<button class="fc-add" title="Add to tray" onclick="event.stopPropagation();Game.addToTray(\'' + f.id + '\')">+</button>' +
       '</div>';
     }).join('') || '<div style="grid-column:1/-1;color:var(--muted);padding:18px;font-weight:600;">No matching foods. Clear a filter or search term.</div>';
@@ -938,13 +1335,13 @@ window.Game = (function () {
 
   function evaluateTray(ord) {
     const r = ord.rules;
-    let cost = 0, pro = 0, fib = 0, sugDv = 0, sodDv = 0, caf = 0;
+    let cost = 0, pro = 0, fib = 0, sugDv = 0, sodDv = 0, satDv = 0, caf = 0;
     let vegCnt = 0, proCnt = 0, grainCnt = 0, hasWaterDrink = false;
     const traps = [], checks = [];
 
     tray.forEach(f => {
       cost += f.cost; pro += f.pro; fib += f.fib;
-      sugDv += f.sugDv; sodDv += f.sodDv; caf += f.caf;
+      sugDv += f.sugDv; sodDv += f.sodDv; satDv += f.satDv; caf += f.caf;
       if (f.zone === 'veg') vegCnt++;
       if (f.zone === 'protein') proCnt++;
       if (f.zone === 'grain' || f.tags.includes('whole-grain')) grainCnt++;
@@ -955,13 +1352,18 @@ window.Game = (function () {
     if (r.minVeg) checks.push({ lbl: 'Veg/Fruit ' + vegCnt + '/' + r.minVeg, ok: vegCnt >= r.minVeg, failMsg: 'Add at least ' + r.minVeg + ' veg/fruit item(s).' });
     if (r.minPro) checks.push({ lbl: 'Protein Item ' + proCnt + '/' + r.minPro, ok: proCnt >= r.minPro, failMsg: 'Include a protein food.' });
     if (r.minGrain) checks.push({ lbl: 'Whole Grain ' + grainCnt + '/' + r.minGrain, ok: grainCnt >= r.minGrain, failMsg: 'Include a 100% whole grain.' });
-    if (r.needWaterDrink) checks.push({ lbl: 'Smart Drink', ok: hasWaterDrink, failMsg: 'Add water, plain milk, or unsweetened soy.' });
+    if (r.needWaterDrink) checks.push({ lbl: 'Smart Drink', ok: hasWaterDrink, failMsg: 'Add water, plain milk, kefir, or unsweetened soy.' });
     if (r.minProG) checks.push({ lbl: 'Protein ' + pro + 'g/' + r.minProG + 'g', ok: pro >= r.minProG, failMsg: 'Protein is ' + pro + 'g (need ' + r.minProG + 'g+).' });
     if (r.minFibG) checks.push({ lbl: 'Fibre ' + fib + 'g/' + r.minFibG + 'g', ok: fib >= r.minFibG, failMsg: 'Fibre is ' + fib + 'g (need ' + r.minFibG + 'g+).' });
     if (r.maxSodDv != null) checks.push({ lbl: 'Sodium ' + sodDv + '%/' + r.maxSodDv + '% DV', ok: sodDv <= r.maxSodDv, failMsg: 'Sodium is ' + sodDv + '% DV (max ' + r.maxSodDv + '%).' });
     if (r.maxSugDv != null) checks.push({ lbl: 'Sugar ' + sugDv + '%/' + r.maxSugDv + '% DV', ok: sugDv <= r.maxSugDv, failMsg: 'Sugar is ' + sugDv + '% DV (max ' + r.maxSugDv + '%).' });
+    if (r.maxSatDv != null) checks.push({ lbl: 'Sat Fat ' + satDv + '%/' + r.maxSatDv + '% DV', ok: satDv <= r.maxSatDv, failMsg: 'Saturated fat is ' + satDv + '% DV (max ' + r.maxSatDv + '%).' });
     if (r.maxBudget != null) checks.push({ lbl: 'Budget $' + cost.toFixed(2) + '/$' + r.maxBudget.toFixed(2), ok: cost <= r.maxBudget + 0.001, failMsg: 'Over budget ($' + cost.toFixed(2) + ' vs $' + r.maxBudget.toFixed(2) + ').' });
     if (r.maxCaf != null) checks.push({ lbl: 'Caffeine ' + caf + 'mg', ok: caf <= r.maxCaf, failMsg: 'Contains ' + caf + 'mg caffeine.' });
+    if (r.needAnyTag) {
+      const hasAny = tray.some(f => f.tags.includes(r.needAnyTag));
+      checks.push({ lbl: r.needAnyTag.toUpperCase() + ' DISH', ok: hasAny, failMsg: 'Include at least 1 ' + r.needAnyTag + ' dish (use the Global filter!).' });
+    }
 
     const reqTags = r.reqTags ? r.reqTags : (r.reqTag ? [r.reqTag] : []);
     reqTags.forEach(tag => {
@@ -972,14 +1374,39 @@ window.Game = (function () {
       checks.push({ lbl: traps.length ? ('TRAPS: ' + traps.length) : '0 Traps', ok: traps.length === 0, failMsg: traps.length ? ('Label trap: ' + traps[0].name + ' (' + traps[0].trapNote + ')') : '' });
     }
     const freshBonus = served > 0 && tray.length > 0 && tray.every(f => !lastTrayIds.has(f.id));
-    return { cost, pro, fib, sugDv, sodDv, checks, traps, freshBonus, passed: checks.every(c => c.ok) };
+    return { cost, pro, fib, sugDv, sodDv, satDv, vegCnt, proCnt, grainCnt, hasWaterDrink, checks, traps, freshBonus, passed: checks.every(c => c.ok) };
+  }
+
+  function updateCoach(ev) {
+    const bar = document.getElementById('coachBar');
+    if (served > 0) { bar.className = 'coach-bar'; return; }
+    bar.className = 'coach-bar show';
+    let msg = '';
+    if (ev.passed) {
+      msg = '<b>FIRST-TRAY COACH:</b> Every spec pill is GREEN! Click the glowing green "RING BELL & SERVE!" button below.';
+    } else if (ev.vegCnt < 1) {
+      msg = '<b>FIRST-TRAY COACH (Step 1):</b> Add a Veg or Fruit from the right (click any food to inspect its Nutrition Label, or click +).';
+    } else if (ev.proCnt < 1 || ev.grainCnt < 1) {
+      msg = '<b>FIRST-TRAY COACH (Step 2):</b> Nice! Now add a Protein and a 100% Whole Grain (check the tabs on the right).';
+    } else if (!ev.hasWaterDrink) {
+      msg = '<b>FIRST-TRAY COACH (Step 3):</b> Add a Smart Drink from the Drinks tab (water, plain milk, kefir, or unsweetened soy).';
+    } else {
+      const firstBad = ev.checks.find(c => !c.ok);
+      msg = '<b>FIRST-TRAY COACH (Almost there!):</b> ' + (firstBad ? firstBad.failMsg : 'Check the red spec pills above.');
+    }
+    bar.innerHTML = '<img class="coach-avatar" src="assets/customers/cust_16.jpg" alt="Chef Coach"><div>' + msg + '</div>';
   }
 
   function renderTray() {
     const ord = queue[orderIdx];
     const ev = evaluateTray(ord);
+    updateCoach(ev);
+    const plateEl = document.querySelector('.ceramic-plate');
+    if (plateEl) plateEl.classList.toggle('plate-ready', ev.passed);
+    const serveBtn = document.getElementById('serveBtn');
+    if (serveBtn) serveBtn.classList.toggle('ready', ev.passed);
     document.getElementById('plateTotals').textContent =
-      '$' + ev.cost.toFixed(2) + ' \u00B7 ' + ev.pro + 'g Pro \u00B7 ' + ev.fib + 'g Fib \u00B7 ' + ev.sodDv + '% Na \u00B7 ' + ev.sugDv + '% Sug';
+      '$' + ev.cost.toFixed(2) + ' \u00B7 ' + ev.pro + 'g Pro \u00B7 ' + ev.fib + 'g Fib \u00B7 ' + ev.sodDv + '% Na \u00B7 ' + ev.sugDv + '% Sug \u00B7 ' + ev.satDv + '% Sat';
 
     let pills = ev.checks.map(c =>
       '<span class="spec-pill ' + (c.ok ? 'ok' : (tray.length ? 'bad' : '')) + '">' + (c.ok ? '\u2713 ' : '') + c.lbl + '</span>'
@@ -995,7 +1422,7 @@ window.Game = (function () {
     ['veg', 'protein', 'grain', 'drink'].forEach(z => {
       const el = document.getElementById('z_' + z);
       el.innerHTML = zones[z].length ? zones[z].map(item =>
-        '<div class="plate-token" onclick="Game.removeFromTray(' + item.i + ')" title="Click to remove ' + item.f.name + '">' +
+        '<div class="plate-token' + (item.f.tags.includes('trap') ? ' trap' : '') + '" onclick="Game.removeFromTray(' + item.i + ')" title="' + (item.f.tags.includes('trap') ? 'LABEL TRAP: ' + item.f.trapNote + ' Click to remove ' : 'Click to remove ') + item.f.name + '">' +
           '<img src="assets/foods/' + item.f.id + '.jpg" alt="' + item.f.name + '">' +
           '<span class="pt-x">&times;</span>' +
           '<span class="pt-name">' + item.f.name + '</span>' +
@@ -1023,11 +1450,19 @@ window.Game = (function () {
       const pts = Math.round((200 + speedBonus + varietyBonus) * mult * bossMult);
       score += pts;
       lastTrayIds = new Set(tray.map(f => f.id));
+      celebrateServe(pts);
+      const newTier = currentTier();
+      if (newTier > lastTierSeen) {
+        lastTierSeen = newTier;
+        showTierToast(newTier);
+      }
 
       fb.className = 'feedback-banner show pass';
-      fb.textContent = '3 STARS! +' + pts + ' PTS' + (varietyBonus ? ' (Fresh Variety +100!)' : '') + (bossMult === 2 ? ' (BOSS 2x!)' : '') + ' | Streak x' + mult;
+      const tip = (NUTRITION_TIPS && NUTRITION_TIPS.length) ? (' Tip: ' + NUTRITION_TIPS[served % NUTRITION_TIPS.length]) : '';
+      fb.textContent = '3 STARS! +' + pts + ' PTS' + (varietyBonus ? ' (Fresh Variety +100!)' : '') + (bossMult === 2 ? ' (BOSS 2x!)' : '') + ' | Streak x' + mult + tip;
       updateHud();
       saveToVault();
+      saveCheckpoint();
 
       setTimeout(() => {
         orderIdx++;
@@ -1086,14 +1521,26 @@ window.Game = (function () {
   }
 
   function skipOrder() {
-    score = Math.max(0, score - 50); streak = 0; orderIdx++; loadOrder();
+    score = Math.max(0, score - 50); streak = 0; orderIdx++; saveCheckpoint(); loadOrder();
   }
 
   function dvClass(v) { return v <= 5 ? 'dv-low' : v >= 15 ? 'dv-high' : 'dv-mid'; }
 
+  function dietitianNote(f) {
+    if (f.trapNote) return { warn: true, txt: 'Label Watch: ' + f.trapNote };
+    if (f.sodDv >= 15 || f.sugDv >= 15 || f.satDv >= 15) return { warn: true, txt: '15% DV Rule: One or more nutrients here hit 15% DV (a lot) - balance the rest of your tray!' };
+    if (f.pro >= 15 && f.fib >= 5) return { warn: false, txt: 'Power Combo: High protein for muscle repair + strong fibre for steady afternoon energy.' };
+    if (f.pro >= 15) return { warn: false, txt: 'Muscle & Growth Fuel: Strong protein helps repair muscles and keeps you full between classes.' };
+    if (f.fib >= 5) return { warn: false, txt: 'Steady Energy: High fibre slows sugar absorption and supports gut health.' };
+    if (f.tags.includes('whole-grain')) return { warn: false, txt: 'Brain Fuel: 100% whole grains deliver complex carbs for sustained focus.' };
+    if (f.tags.includes('water-drink')) return { warn: false, txt: 'Smart Hydration: Water and unsweetened milk/soy hydrate without free-sugar crashes.' };
+    return { warn: false, txt: 'Whole-Food Pick: Vitamins, minerals, and hydration with low sodium and low saturated fat.' };
+  }
+
   function openLabel(id) {
     const f = foodById[id];
     if (!f) return;
+    const dn = dietitianNote(f);
     document.getElementById('nfBody').innerHTML =
       '<div class="nf-title-row"><img class="nf-ico" src="assets/foods/' + f.id + '.jpg" alt="' + f.name + '"><div class="nf-title">' + f.name + '</div></div>' +
       '<div class="nf-serv"><span>Serving: ' + f.serving + '</span><span>Cost: $' + f.cost.toFixed(2) + '</span></div>' +
@@ -1105,6 +1552,7 @@ window.Game = (function () {
       '<div class="nf-row"><span>Saturated Fat</span><span class="dv-tag ' + dvClass(f.satDv) + '">' + f.satDv + '% DV</span></div>' +
       (f.caf ? '<div class="nf-row"><span>Caffeine</span><span class="dv-tag dv-high">' + f.caf + ' mg</span></div>' : '') +
       '<div class="nf-ing"><b>Ingredients (by weight):</b> ' + f.ing + '</div>' +
+      '<div class="nf-diet' + (dn.warn ? ' warn' : '') + '">' + dn.txt + '</div>' +
       '<div class="nf-tags">' + f.tags.filter(t => t !== 'trap').map(t => '<span class="nf-tag">' + t + '</span>').join('') + '</div>' +
       '<div class="nf-actions">' +
         '<button style="background:#f4f4f5;border:1.5px solid #d4d4d8;" onclick="Game.closeLabel()">Close</button>' +
@@ -1114,6 +1562,8 @@ window.Game = (function () {
   }
 
   function closeLabel() { document.getElementById('labelModal').classList.remove('open'); }
+  function openGuide() { document.getElementById('guideModal').classList.add('open'); }
+  function closeGuide() { document.getElementById('guideModal').classList.remove('open'); }
 
   function getRank(s) {
     if (s >= 3200) return 'IRON CHEF NUTRITIONIST';
@@ -1126,8 +1576,12 @@ window.Game = (function () {
   function finish() {
     if (timerInt) { clearInterval(timerInt); timerInt = null; }
     saveToVault();
+    try { localStorage.removeItem(CP_KEY); } catch (e) {}
+    renderBestStrip();
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('endScreen').style.display = 'flex';
+    const medal = document.getElementById('endMedal');
+    if (medal) medal.src = 'assets/badges/tier_' + currentTier() + '.jpg';
     document.getElementById('endRank').textContent = chefName + ' \u00B7 ' + getRank(score);
     document.getElementById('endScore').textContent = score + ' PTS';
     document.getElementById('endNote').textContent = 'You served ' + served + ' balanced trays across ' + tierLabel(currentTier()) + '.';
@@ -1148,7 +1602,9 @@ window.Game = (function () {
   }
 
   initAuth();
-  return { signIn, start, setCat, toggleTag, dragStart, addToTray, removeFromTray, clearTray, serve, skipOrder, openLabel, closeLabel, answerQuiz, closeQuiz, finish };
+  showContinue();
+  renderBestStrip();
+  return { signIn, start, resume, confirmEnd, cardTap, setCat, toggleTag, dragStart, addToTray, removeFromTray, clearTray, serve, skipOrder, openLabel, closeLabel, openGuide, closeGuide, answerQuiz, closeQuiz, finish };
 })();
 </script>
 </body>

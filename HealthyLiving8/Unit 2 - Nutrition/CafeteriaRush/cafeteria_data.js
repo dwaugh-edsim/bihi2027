@@ -320,7 +320,112 @@ window.CAFETERIA_DATA = (function () {
     F('s_pickle', 'Crunchy Dill Pickle Spear', '🥒', 'side', 'side', 0.65, '1 large spear (65 g)', 10, 0, 1, 1, 1, 520, 23, 0, 0,
       ['nut-free','vegetarian','dairy-free','gluten-free','trap'],
       'Cucumber, water, vinegar, salt, garlic, dill.',
-      'Low calories, huge sodium: one spear is 23% DV sodium!')
+      'Low calories, huge sodium: one spear is 23% DV sodium!'),
+
+    // ================= GLOBAL, BREAKFAST & EXTRA VARIETY (+32 = 122 TOTAL) =================
+    F('m_shawarma', 'Chicken Shawarma Whole-Wheat Wrap', '🌯', 'main', 'protein', 2.95, '1 wrap (230 g)', 390, 27, 6, 4, 4, 440, 19, 12, 0,
+      ['nut-free','dairy-free','whole-grain','global'],
+      'Whole wheat flatbread, spiced grilled chicken, pickled turnip, lettuce, tomato, garlic tahini.'),
+    F('m_sushi', 'Avocado & Cucumber Brown-Rice Sushi', '🍣', 'main', 'grain', 2.60, '6 pieces (180 g)', 280, 6, 6, 4, 4, 310, 13, 6, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-grain','global'],
+      'Whole grain brown sushi rice, nori seaweed, Hass avocado, cucumber, rice vinegar.'),
+    F('m_curry', 'Chickpea Coconut Curry & Brown Rice', '🍛', 'main', 'protein', 2.70, '1 bowl (310 g)', 410, 14, 11, 5, 5, 340, 15, 16, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-grain','global'],
+      'Chickpeas, brown rice, tomatoes, light coconut milk, spinach, onion, garam masala.'),
+    F('m_pho', 'Lean Beef & Rice Noodle Pho', '🍜', 'main', 'protein', 2.85, '1 bowl (360 g)', 350, 24, 3, 3, 3, 520, 23, 8, 0,
+      ['nut-free','dairy-free','gluten-free','global'],
+      'Low-sodium beef bone broth, rice noodles, lean sliced beef, bean sprouts, Thai basil, lime.'),
+    F('m_dumplings', 'Steamed Veggie & Tofu Dumplings (6)', '🥟', 'main', 'protein', 2.25, '6 pieces (165 g)', 260, 12, 4, 3, 3, 390, 17, 4, 0,
+      ['nut-free','vegetarian','dairy-free','global'],
+      'Whole wheat wrapper, firm tofu, napa cabbage, shiitake mushroom, ginger, green onion.'),
+    F('m_tzatziki', 'Greek Tzatziki & Whole-Wheat Pita Plate', '🥙', 'main', 'protein', 2.30, '1 plate (210 g)', 290, 14, 6, 5, 5, 310, 13, 10, 0,
+      ['nut-free','vegetarian','whole-grain','global'],
+      '100% whole wheat pita, plain Greek yogurt, cucumber, garlic, dill, cherry tomatoes.'),
+    F('m_bibimbap', 'Korean Veggie & Egg Bibimbap Bowl', '🍚', 'main', 'protein', 2.85, '1 bowl (320 g)', 420, 17, 8, 5, 5, 390, 17, 10, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-grain','global'],
+      'Brown rice, spinach, carrots, bean sprouts, shiitake mushrooms, soft-boiled egg, sesame oil.'),
+    F('m_butterchick', 'Heavy Cream Butter Chicken & White Naan', '🍛', 'main', 'protein', 3.25, '1 plate (350 g)', 690, 26, 2, 11, 11, 1120, 49, 65, 0,
+      ['nut-free','global','trap'],
+      'Chicken, heavy whipping cream, butter, tomato paste, sugar, salt, enriched white naan bread.',
+      'Heavy cream + butter + white naan hit 65% DV saturated fat and 49% DV sodium!'),
+    F('m_springroll', 'Deep-Fried Pork Spring Rolls (4)', '🥟', 'main', 'side', 2.15, '4 rolls (140 g)', 410, 9, 2, 6, 6, 760, 33, 32, 0,
+      ['nut-free','dairy-free','global','trap'],
+      'Enriched white wheat wrapper, pork, palm oil, cabbage, sugar, salt, sweet chili dipping sauce.',
+      'Deep-fried rolls + sweet sauce pack 33% DV sodium and 32% DV sat fat.'),
+    F('m_falafel_tab', 'Falafel & Parsley Tabouleh Plate', '🧆', 'main', 'protein', 2.55, '1 plate (240 g)', 340, 13, 9, 3, 3, 320, 14, 5, 0,
+      ['nut-free','vegetarian','dairy-free','whole-grain','global'],
+      'Baked chickpea falafel, whole grain bulgur wheat, fresh parsley, tomato, mint, lemon, olive oil.'),
+    F('m_pierogi', 'Whole-Wheat Potato Pierogies & Peas', '🥟', 'main', 'grain', 2.20, '5 pierogies (210 g)', 320, 11, 7, 3, 3, 370, 16, 10, 0,
+      ['nut-free','vegetarian','whole-grain','global'],
+      'Whole wheat dough, mashed potato, light cheddar, green peas, caramelized onion.'),
+    F('m_miso', 'Tofu & Seaweed Miso Soup Cup', '🍲', 'main', 'protein', 1.45, '1 cup (250 mL)', 95, 8, 2, 2, 2, 460, 20, 2, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','global'],
+      'Water, fermented soybean miso paste, silken tofu, wakame seaweed, green onion.'),
+    F('g_chia_oats', 'Overnight Chia & Berry Oats', '🥣', 'grain', 'grain', 1.55, '1 jar (220 g)', 240, 9, 9, 7, 7, 45, 2, 4, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-grain'],
+      '100% whole grain rolled oats, chia seeds, unsweetened soy beverage, blueberries.'),
+    F('g_pancakes', 'Whole-Grain Banana Oat Pancakes (2)', '🥞', 'grain', 'grain', 1.65, '2 pancakes (140 g)', 230, 8, 5, 6, 6, 180, 8, 5, 0,
+      ['nut-free','vegetarian','whole-grain'],
+      'Whole grain oat flour, mashed banana, egg, 2% milk, baking powder, cinnamon.'),
+    F('p_smoked_salm', 'Smoked Salmon & Whole-Grain Toast', '🐟', 'protein', 'protein', 2.50, '1 slice (115 g)', 220, 18, 4, 2, 2, 430, 19, 8, 0,
+      ['nut-free','whole-grain'],
+      '100% whole grain sprouted bread, Atlantic smoked salmon, light cream cheese, capers, dill.'),
+    F('v_pumpkin', 'Roasted Pumpkin & Ginger Soup', '🎃', 'veg', 'veg', 1.40, '1 cup (250 mL)', 115, 3, 5, 6, 6, 210, 9, 2, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food'],
+      'Roasted pumpkin, carrot, onion, fresh ginger, low-sodium vegetable broth, pumpkin seeds.'),
+    F('m_turk_burr', 'Turkey & Black Bean Whole-Wheat Burrito', '🌯', 'main', 'protein', 2.80, '1 burrito (250 g)', 390, 27, 9, 3, 3, 410, 18, 10, 0,
+      ['nut-free','dairy-free','whole-grain'],
+      '100% whole wheat tortilla, lean ground turkey, black beans, brown rice, tomato salsa, lettuce.'),
+    F('p_soba_edam', 'Chilled Edamame & Soba Noodle Salad', '🍜', 'protein', 'protein', 2.40, '1 bowl (240 g)', 310, 17, 7, 3, 3, 280, 12, 3, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-grain','global'],
+      '100% buckwheat soba noodles, shelled edamame, shredded carrot, cucumber, sesame ginger dressing.'),
+    F('p_sardines', 'Atlantic Sardines & Rye Crackers', '🐟', 'protein', 'protein', 1.65, '1 tin + 4 crackers (110 g)', 240, 21, 4, 0, 0, 310, 13, 12, 0,
+      ['nut-free','dairy-free','whole-grain'],
+      'Wild Atlantic sardines in water, whole grain rye crackers, lemon wedge.'),
+    F('p_ricotta', 'Whipped Ricotta & Berry Whole-Grain Toast', '🍓', 'protein', 'protein', 1.75, '1 slice (125 g)', 210, 11, 5, 6, 6, 170, 7, 14, 0,
+      ['nut-free','vegetarian','whole-grain'],
+      '100% whole grain toast, part-skim ricotta cheese, fresh strawberries, chia seeds.'),
+    F('s_donut', 'Glazed Sprinkled Frosted Donut', '🍩', 'side', 'side', 1.60, '1 donut (75 g)', 340, 4, 1, 28, 28, 290, 13, 42, 0,
+      ['nut-free','vegetarian','trap'],
+      'Enriched white flour, sugar, palm oil shortening, icing sugar, corn syrup, artificial colour.',
+      'Refined flour + icing + shortening: 28% DV sugar and 42% DV saturated fat!'),
+    F('m_poutine', 'Loaded Bacon Cafeteria Poutine', '🍟', 'main', 'side', 3.40, '1 bowl (340 g)', 780, 21, 5, 4, 4, 1580, 69, 85, 0,
+      ['nut-free','trap'],
+      'Deep-fried potatoes, cheddar cheese curds, beef gravy mix (salt, modified corn starch), bacon bits.',
+      '69% DV sodium and 85% DV saturated fat in a single bowl!'),
+    F('v_brussels', 'Roasted Maple-Mustard Brussels Sprouts', '🥬', 'veg', 'veg', 1.15, '1 cup (110 g)', 85, 4, 4, 5, 5, 95, 4, 1, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food'],
+      'Brussels sprouts, olive oil, grainy Dijon mustard, tiny drizzle of pure maple syrup.'),
+    F('v_mango_bean', 'Mango, Black Bean & Bell Pepper Salad', '🥭', 'veg', 'veg', 1.45, '1 cup (165 g)', 145, 5, 6, 12, 12, 70, 3, 0, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food'],
+      'Fresh mango, black beans, red bell pepper, red onion, lime juice, cilantro.'),
+    F('v_pineapple', 'Fresh Pineapple Chunks', '🍍', 'veg', 'veg', 1.10, '1 cup (165 g)', 82, 1, 2, 16, 16, 2, 0, 0, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food'],
+      'Fresh golden pineapple.'),
+    F('v_caprese', 'Cherry Tomatoes & Bocconcini Cup', '🍅', 'veg', 'veg', 1.55, '1 cup (140 g)', 135, 9, 2, 4, 4, 140, 6, 18, 0,
+      ['nut-free','vegetarian','gluten-free'],
+      'Cherry tomatoes, fresh mini mozzarella (bocconcini), basil leaves, olive oil.'),
+    F('s_kalechips', 'Baked Kale & Sea Salt Chips', '🥬', 'side', 'veg', 1.25, '1 bag (25 g)', 110, 4, 3, 1, 1, 130, 6, 3, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food'],
+      'Curly kale, olive oil, nutritional yeast, pinch of sea salt.'),
+    F('d_kefir', 'Plain Probiotic Kefir Drink', '🥛', 'drink', 'drink', 1.35, '250 mL', 110, 11, 0, 9, 9, 115, 5, 10, 0,
+      ['nut-free','vegetarian','gluten-free','water-drink'],
+      'Partly skimmed milk, live probiotic kefir cultures, vitamin D3.'),
+    F('d_matcha', 'Sweetened Iced Matcha Latte (Large)', '🍵', 'drink', 'drink', 3.45, '473 mL', 360, 9, 1, 44, 44, 190, 8, 28, 85,
+      ['nut-free','vegetarian','gluten-free','trap'],
+      'Whole milk, sugar, sweetened matcha green tea powder (sugar, ground green tea), vanilla syrup.',
+      'Green looks healthy, but the first ingredient in the matcha powder is sugar (44% DV sugar + 85 mg caffeine)!'),
+    F('d_boba', 'Brown Sugar Bubble Tea with Pearls', '🧋', 'drink', 'drink', 4.25, '500 mL', 470, 5, 0, 62, 62, 160, 7, 32, 65,
+      ['nut-free','vegetarian','gluten-free','trap'],
+      'Whole milk, tapioca pearls, brown sugar syrup, glucose-fructose, black tea, creamer.',
+      'Dessert in a cup: 62% DV sugar and 32% DV saturated fat!'),
+    F('s_yogtube', 'Neon Berry Squeezable Yogurt Tube', '🍓', 'side', 'side', 0.85, '1 tube (60 g)', 70, 2, 0, 11, 11, 40, 2, 4, 0,
+      ['nut-free','vegetarian','gluten-free','trap'],
+      'Milk, sugar, modified corn starch, glucose-fructose, beet juice colour, artificial flavour.',
+      'Only 2 g protein with two added sugars (sugar + glucose-fructose)!'),
+    F('s_seaweed', 'Roasted Sesame Seaweed Snacks', '🍙', 'side', 'veg', 0.95, '1 pack (10 g)', 50, 2, 2, 0, 0, 110, 5, 2, 0,
+      ['nut-free','vegetarian','dairy-free','gluten-free','whole-food','global'],
+      'Roasted nori seaweed, sesame oil, sea salt.')
   ];
 
   // ================= 24 CAFETERIA ORDER TICKETS =================
@@ -449,14 +554,79 @@ window.CAFETERIA_DATA = (function () {
       id: 'ord_24', title: 'Iron Chef Final Inspection', customer: 'School Board Dietitian',
       brief: 'Master level: 2 veg/fruit items, 26g+ protein, 10g+ fibre, max $5.50, max 20% DV sodium, max 18% DV sugar, nut-free, zero traps!',
       rules: { minVeg: 2, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 26, minFibG: 10, maxBudget: 5.50, maxSodDv: 20, maxSugDv: 18, reqTag: 'nut-free', maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_25', title: 'Global Flavours Day', customer: 'Culture Club Lunch',
+      brief: 'Celebrate world food! Include at least 1 global dish (shawarma, sushi, curry, bibimbap, falafel, pho, dumplings), 18g+ protein, and under 30% DV sodium.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, maxSodDv: 30, maxSugDv: 25, needAnyTag: 'global', maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_26', title: 'Fix the Poutine & Boba Trap!', customer: 'Trap Audit #6',
+      brief: 'Loaded poutine + brown sugar bubble tea hits 117% DV saturated fat and 76% DV sodium! Clear the traps and rebuild a real meal.',
+      preloaded: ['m_poutine', 'd_boba'],
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, maxSodDv: 25, maxSugDv: 20, maxSatDv: 20, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_27', title: 'Low Saturated Fat Challenge', customer: 'Heart-Healthy Spec',
+      brief: 'Keep total saturated fat at 15% DV or lower while still hitting 20g+ protein, 8g+ fibre, whole grain, and veg/fruit.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, minFibG: 8, maxSodDv: 28, maxSugDv: 22, maxSatDv: 15, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_28', title: 'Fix the Donut & Matcha Trap!', customer: 'Trap Audit #7',
+      brief: 'A frosted donut + sweetened matcha latte + yogurt tube looks like a cafe snack, but has 83% DV sugar and 85 mg caffeine. Fix it!',
+      preloaded: ['s_donut', 'd_matcha', 's_yogtube'],
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, minFibG: 6, maxSodDv: 28, maxSugDv: 20, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_29', title: 'Breakfast-for-Lunch Rush', customer: 'Morning Fuel Fan',
+      brief: 'Build a balanced breakfast-style lunch: whole grain (oats, pancakes, or toast), 18g+ protein, fruit/veg, smart drink, max 20% DV sugar.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, minFibG: 7, maxSodDv: 25, maxSugDv: 20, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_30', title: 'Regional Track Finals (35g+ Pro)', customer: 'Varsity Track Team',
+      brief: 'Heavy training day: 35g+ protein, 10g+ fibre, whole grain, veg/fruit, under 35% DV sodium, zero caffeine.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 35, minFibG: 10, maxSodDv: 35, maxSugDv: 25, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_31', title: 'Ultra-Fibre 15g+ Challenge', customer: 'Gut Health Spec',
+      brief: 'Hit 15g+ fibre (beans, lentils, berries, quinoa, veggies, chia oats!) with 18g+ protein and under 25% DV sodium.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, minFibG: 15, maxSodDv: 25, maxSugDv: 22, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_32', title: 'Super-Tight $3.50 Budget Boss', customer: 'Cafeteria Saver',
+      brief: 'Can you build a full Food Guide lunch for $3.50 or less? Veg/fruit, 15g+ protein, whole grain, and free tap water!',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 15, maxBudget: 3.50, maxSodDv: 30, maxSugDv: 25, maxCaf: 0 }
+    },
+    {
+      id: 'ord_33', title: 'Fix the Heavy Curry & Spring Rolls!', customer: 'Trap Audit #8',
+      brief: 'Heavy cream butter chicken + deep-fried spring rolls = 97% DV sat fat and 82% DV sodium! Swap for cleaner global flavours.',
+      preloaded: ['m_butterchick', 'm_springroll'],
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 20, maxSodDv: 30, maxSatDv: 20, maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_34', title: 'Plant-Based Global Bowl', customer: 'Eco-Kitchen Crew',
+      brief: 'Vegetarian AND dairy-free, include a global dish, 18g+ protein, 10g+ fibre, under 28% DV sodium.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 18, minFibG: 10, maxSodDv: 28, reqTags: ['vegetarian','dairy-free'], needAnyTag: 'global', maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_35', title: 'Dairy-Free + Low Sat Fat', customer: 'Clean Fuel Spec',
+      brief: '100% dairy-free, max 12% DV saturated fat, 22g+ protein, whole grain, veg/fruit, zero traps.',
+      rules: { minVeg: 1, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 22, maxSodDv: 28, maxSatDv: 12, reqTag: 'dairy-free', maxCaf: 0, noTraps: true }
+    },
+    {
+      id: 'ord_36', title: 'Grand Master Dietitian Audit', customer: 'Province-Wide Finals',
+      brief: 'Ultimate test: 2 veg/fruit, 28g+ protein, 12g+ fibre, max $5.50, max 18% DV sodium, max 15% DV sat fat, max 18% DV sugar, nut-free, zero traps!',
+      rules: { minVeg: 2, minPro: 1, minGrain: 1, needWaterDrink: true, minProG: 28, minFibG: 12, maxBudget: 5.50, maxSodDv: 18, maxSugDv: 18, maxSatDv: 15, reqTag: 'nut-free', maxCaf: 0, noTraps: true }
     }
   ];
 
   const CURVEBALLS = [
-    { id:'cb_meat', title:'DELIVERY DELAY: Poultry & Fish Sold Out!', msg:'Chicken, salmon, turkey, and tuna did not arrive on the truck. Pivot to plant proteins, eggs, or dairy for this tray!', banIds:['p_chicken','p_salmon','p_turkey','p_tuna','m_turkey_wrap','m_salmon_poke','m_chicken_pasta'] },
-    { id:'cb_water', title:'FOUNTAIN MAINTENANCE: Tap Water Off!', msg:'The cafeteria water fountain is being serviced. Pick another smart drink (plain milk, unsweetened soy, or sparkling water)!', banIds:['d_water'] },
-    { id:'cb_rice', title:'RICE COOKER DOWN!', msg:'No brown rice or wild rice for this ticket. Use quinoa, whole wheat pita/pasta, oats, corn tortillas, or barley!', banIds:['g_brownrice','g_wildrice','m_burrito_bowl','m_stirfry'] },
-    { id:'cb_fruit', title:'ORCHARD TRUCK LATE: Apples & Bananas Out!', msg:'Apples and bananas are sold out right now. Grab berries, veggies, salad, sweet potato, or pear instead!', banIds:['v_apple','v_banana','s_applesauce'] }
+    { id:'cb_meat', title:'DELIVERY DELAY: Poultry & Fish Sold Out!', msg:'Chicken, salmon, turkey, and tuna did not arrive on the truck. Pivot to plant proteins, eggs, or dairy for this tray!', banIds:['p_chicken','p_salmon','p_turkey','p_tuna','m_turkey_wrap','m_salmon_poke','m_chicken_pasta','m_shawarma','m_turk_burr','p_smoked_salm','p_sardines'] },
+    { id:'cb_water', title:'FOUNTAIN MAINTENANCE: Tap Water Off!', msg:'The cafeteria water fountain is being serviced. Pick another smart drink (plain milk, kefir, unsweetened soy, or sparkling water)!', banIds:['d_water'] },
+    { id:'cb_rice', title:'RICE COOKER DOWN!', msg:'No brown rice or wild rice for this ticket. Use quinoa, whole wheat pita/pasta, oats, corn tortillas, or barley!', banIds:['g_brownrice','g_wildrice','m_burrito_bowl','m_stirfry','m_curry','m_bibimbap'] },
+    { id:'cb_fruit', title:'ORCHARD TRUCK LATE: Apples & Bananas Out!', msg:'Apples and bananas are sold out right now. Grab berries, veggies, salad, sweet potato, mango, or pear instead!', banIds:['v_apple','v_banana','s_applesauce'] },
+    { id:'cb_dairy', title:'DAIRY COOLER BROKEN!', msg:'Milk, yogurt, kefir, and cheese are offline for this ticket. Use soy beverage, tap water, and plant/meat proteins!', banIds:['d_milk','d_kefir','p_greek','p_cottage','s_cheese','p_ricotta','v_caprese','m_tzatziki'] },
+    { id:'cb_wheat', title:'BAKERY OVEN DOWN: No Wheat Bread/Wraps!', msg:'Pitas, wraps, rolls, and wheat pasta are out. Pivot to quinoa, brown rice, corn tortillas, oats, or buckwheat soba!', banIds:['g_ww_pita','g_ww_pasta','g_ww_bun','g_ww_wrap','m_turkey_wrap','m_chicken_pasta','m_shawarma','m_turk_burr'] }
   ];
 
   const INSPECTOR_QUIZ = [
@@ -467,8 +637,27 @@ window.CAFETERIA_DATA = (function () {
     { q:'How are ingredients ordered on a Canadian food label?', opts:['Alphabetical order','Most expensive to cheapest','By weight, heaviest first','By healthiness'], ans:2, note:'Ingredients are always listed by weight from most to least.' },
     { q:'Why is a whole apple a better everyday choice than 100% pure apple juice?', opts:['Juice has no calories','Whole apples keep the fibre, which slows down sugar absorption','Apples have 20g protein','Juice has 80% DV sodium'], ans:1, note:'Juicing removes the fibre and concentrates free sugars.' },
     { q:'A cereal box says "MULTIGRAIN" on the front, but the first ingredient is "Enriched white wheat flour." Is it a whole grain?', opts:['Yes, multigrain always means whole grain','No, look for "100% whole grain" as the first ingredient','Only if it has 15% DV sugar','Only if it is nut-free'], ans:1, note:'"Multigrain" just means multiple grains (often refined white flours). Look for "whole grain" first.' },
-    { q:'An energy drink has 0 g sugar and 180 mg caffeine. Why is it still a red flag for Grade 8s?', opts:['Zero sugar means zero energy','180 mg caffeine exceeds safe teen limits and hurts sleep & heart rate','It has too much fibre','It contains peanuts'], ans:1, note:'Zero sugar does not make a high-caffeine energy drink safe for teens.' }
+    { q:'An energy drink has 0 g sugar and 180 mg caffeine. Why is it still a red flag for Grade 8s?', opts:['Zero sugar means zero energy','180 mg caffeine exceeds safe teen limits and hurts sleep & heart rate','It has too much fibre','It contains peanuts'], ans:1, note:'Zero sugar does not make a high-caffeine energy drink safe for teens.' },
+    { q:'What is the main job of CARBOHYDRATES in your body?', opts:['Build bone enamel','Primary fuel for your brain and muscles','Replace water during sports','Store vitamin D'], ans:1, note:'Complex carbs (whole grains, fruit, beans) give steady energy for your brain and muscles.' },
+    { q:'What is the main job of PROTEIN in your body?', opts:['Instant sugar rush','Build and repair muscles, tissues, and immune cells','Hydrate you faster than water','Lower fibre intake'], ans:1, note:'Protein is essential for growth, muscle repair, and feeling full between classes.' },
+    { q:'Why does your body actually NEED healthy unsaturated fats (like salmon, avocado, olive oil, seeds)?', opts:['It does not need any fat at all','To support brain function, hormones, and absorb vitamins A, D, E, K','To raise sodium levels','To replace whole grains'], ans:1, note:'Healthy unsaturated fats are essential for teen brain growth and vitamin absorption; limit saturated/trans fats.' },
+    { q:'What are the proportions on Canada\'s Food Guide plate?', opts:['1/2 protein, 1/4 grains, 1/4 veg','1/2 vegetables & fruit, 1/4 whole grains, 1/4 protein','1/2 dairy, 1/2 meat','Equal thirds of snacks, drinks, and mains'], ans:1, note:'Canada\'s Food Guide recommends 1/2 veg & fruit, 1/4 whole grains, 1/4 protein, and water as your drink of choice.' },
+    { q:'What is a "calorie" on a food label?', opts:['A type of unhealthy fat','A unit of energy your body uses to think, move, and grow','The amount of sugar in grams','A vitamin supplement'], ans:1, note:'Calories are simply fuel/energy - growing teens need enough real fuel every day, not crash diets.' },
+    { q:'Why do extreme crash diets or skipping meals backfire for teens?', opts:['They slow metabolism, drain focus/mood, and harm growth','They double your protein automatically','They are recommended by Canada\'s Food Guide','They add extra fibre'], ans:0, note:'Teens are growing fast - fueling consistently with balanced meals supports both physical and mental health.' },
+    { q:'A sweetened iced matcha latte is bright green. Why might it still be a label trap?', opts:['Green tea has too much fibre','Sweetened matcha powder often lists sugar as the #1 ingredient + adds caffeine','Milk has 80% DV sodium','It is always gluten-free'], ans:1, note:'Always check the label and ingredients - healthy colours and words do not guarantee low sugar!' },
+    { q:'Which nutrient helps keep digestion healthy, keeps you full longer, and slows down blood sugar spikes?', opts:['Sodium','Fibre','Caffeine','Saturated fat'], ans:1, note:'Fibre (found in whole grains, beans, lentils, veggies, and whole fruit) is your steady-energy superpower.' }
   ];
 
-  return { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ };
+  const NUTRITION_TIPS = [
+    'Pairing whole grains + protein keeps blood sugar steady all afternoon!',
+    '5% DV or less is a little; 15% DV or more is a lot on Canadian labels.',
+    'Whole fruit beats fruit juice because fibre slows down sugar absorption.',
+    'Healthy fats (salmon, avocado, seeds, olive oil) fuel your growing brain!',
+    'Canada\'s Food Guide: 1/2 veg & fruit, 1/4 whole grains, 1/4 protein, water first.',
+    'Ingredients are listed by weight - watch for sugar splitting across 3-4 names!',
+    'Calories are energy your brain and muscles need to grow, focus, and play.',
+    'High sodium (15%+ DV) hides in soups, noodles, sauces, and processed meats.'
+  ];
+
+  return { FOODS, ORDERS, CURVEBALLS, INSPECTOR_QUIZ, NUTRITION_TIPS };
 })();
