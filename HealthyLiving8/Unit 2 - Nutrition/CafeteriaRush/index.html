@@ -189,9 +189,72 @@
   #gameScreen {
     display:none; height:100vh; flex-direction:column; overflow:hidden;
     background:
-      linear-gradient(180deg, rgba(248,250,252,0.72) 0%, rgba(241,245,249,0.82) 100%),
-      url('assets/kitchen_bg.jpg') center/cover no-repeat;
+      linear-gradient(180deg, rgba(15,23,42,0.38) 0%, rgba(15,23,42,0.52) 100%),
+      url('assets/kitchen_bg.jpg?v=20261127a') center/cover no-repeat;
+    transition:box-shadow .3s ease;
   }
+  #gameScreen.fever {
+    box-shadow:inset 0 0 0 5px #f59e0b, inset 0 0 42px rgba(245,158,11,0.42);
+  }
+  .hud-chip.fever {
+    display:none; background:linear-gradient(90deg, #f59e0b, #ef4444); color:#fff;
+    border-color:#fef08a; animation:feverPulse .8s ease-in-out infinite alternate;
+  }
+  #gameScreen.fever .hud-chip.fever { display:inline-flex; }
+  @keyframes feverPulse { from { transform:scale(1); } to { transform:scale(1.06); } }
+
+  /* CUSTOMER SPEECH BUBBLE + PATIENCE BAR + TASTE STARS */
+  .cust-bubble {
+    margin-top:6px; padding:5px 10px; border-radius:9px;
+    background:#f8fafc; border:1.5px solid #cbd5e1;
+    font-size:.77rem; font-weight:700; color:#334155;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .cust-bubble.yum { background:#dcfce7; border-color:#16a34a; color:#14532d; }
+  .cust-bubble.warn { background:#fef3c7; border-color:#d97706; color:#78350f; }
+  .cust-bubble.mad { background:#fee2e2; border-color:#dc2626; color:#7f1d1d; }
+  .patience-track {
+    height:6px; width:100%; background:#e2e8f0; border-radius:999px;
+    overflow:hidden; margin-top:7px; display:none;
+  }
+  .patience-track.show { display:block; }
+  .patience-fill {
+    height:100%; width:100%; background:#16a34a;
+    transition:width .9s linear, background-color .3s ease;
+  }
+  .patience-fill.mid { background:#f59e0b; }
+  .patience-fill.low { background:#dc2626; }
+  .taste-pill {
+    font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:800;
+    padding:3px 9px; border-radius:999px; border:1.5px solid rgba(255,255,255,0.22);
+    background:rgba(15,23,42,0.7); color:#fef08a; white-space:nowrap;
+  }
+  .taste-pill.yum { background:#15803d; border-color:#4ade80; color:#fff; }
+  .taste-pill.ok { background:#1e3a8a; border-color:#60a5fa; color:#e0f2fe; }
+  .taste-pill.gross { background:#991b1b; border-color:#f87171; color:#fef2f2; animation:feverPulse .6s ease-in-out infinite alternate; }
+  .food-card.restock { opacity:.48; background:#f1f5f9; border-style:dashed; }
+  .food-card.restock .fc-add { background:#94a3b8; cursor:not-allowed; }
+  .restock-tag {
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:800;
+    background:#e2e8f0; color:#475569; padding:1px 5px; border-radius:4px; margin-right:4px;
+  }
+
+  /* LABEL SHOWDOWN DUEL MODAL */
+  .duel-card-wrap { max-width:700px; width:100%; background:#fff; border:3px solid #18181b; border-radius:16px; padding:18px 20px; box-shadow:0 24px 60px rgba(0,0,0,.55); }
+  .duel-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+  @media (max-width:640px) { .duel-grid { grid-template-columns:1fr; } }
+  .duel-opt {
+    text-align:left; background:#f8fafc; border:2.5px solid #cbd5e1; border-radius:13px;
+    padding:12px; cursor:pointer; transition:transform .12s, border-color .12s, background .12s;
+  }
+  .duel-opt:hover:not(:disabled) { transform:translateY(-2px); border-color:var(--accent); background:#eff6ff; }
+  .duel-opt.ok { border-color:var(--ok); background:#dcfce7; }
+  .duel-opt.bad { border-color:var(--bad); background:#fee2e2; }
+  .duel-top { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .duel-top img { width:54px; height:54px; border-radius:10px; object-fit:cover; border:2px solid #cbd5e1; background:#fff; }
+  .duel-name { font-family:'Roboto Slab',serif; font-weight:900; font-size:.98rem; line-height:1.2; }
+  .duel-stats { font-family:'JetBrains Mono',monospace; font-size:.71rem; color:#334155; display:grid; gap:3px; }
+  .duel-ing { font-size:.73rem; color:#57534e; margin-top:6px; border-top:1px dashed #cbd5e1; padding-top:5px; }
   .hud {
     background:linear-gradient(90deg, #0f172a 0%, #1e293b 100%); color:#fff;
     padding:8px 16px; display:flex; align-items:center;
@@ -663,9 +726,11 @@
     <div class="hud-chip timer" id="hTimer">05:00</div>
     <div class="hud-chip score" id="hScore">0 PTS</div>
     <div class="hud-chip streak" id="hStreak">STREAK x1</div>
+    <div class="hud-chip fever" id="hFever">FEVER MODE!</div>
     <div class="hud-chip" id="hServed">SERVED: 0</div>
     <div class="hud-chip sync" id="hSync">LOCAL</div>
     <div class="hud-spacer"></div>
+    <button class="hud-btn" id="muteBtn" onclick="Game.toggleMute()">SFX: ON</button>
     <button class="hud-btn" onclick="Game.openGuide()">? Guide</button>
     <button class="hud-btn" onclick="Game.skipOrder()">Skip (-50)</button>
     <button class="hud-btn" onclick="Game.confirmEnd()">End Shift</button>
@@ -679,7 +744,7 @@
 
       <div class="ticket" id="ticketCard">
         <div class="ticket-row">
-          <img class="t-avatar" id="tAvatar" src="assets/customers/cust_01.jpg" alt="Customer">
+          <img class="t-avatar" id="tAvatar" src="assets/customers/cust_01.jpg?v=20261127a" alt="Customer">
           <div class="ticket-main">
             <div class="ticket-top">
               <span class="t-badge" id="tNum">TICKET #1</span>
@@ -689,6 +754,8 @@
             <div class="ticket-brief" id="tBrief">Order instructions</div>
           </div>
         </div>
+        <div class="cust-bubble" id="custBubble"><span id="custQuote">"Make it healthy AND tasty, Chef!"</span></div>
+        <div class="patience-track" id="patienceTrack"><div class="patience-fill" id="patienceFill"></div></div>
         <div class="spec-list" id="tSpecs"></div>
       </div>
 
@@ -696,8 +763,11 @@
 
       <div class="plate-box" id="plateDrop">
         <div class="plate-head">
-          <h3>Your Cafeteria Tray (Drag foods onto the plate or click +)</h3>
-          <div class="plate-totals" id="plateTotals">$0.00 &middot; 0g Pro &middot; 0g Fib</div>
+          <h3>Your Cafeteria Tray</h3>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span class="taste-pill" id="tasteBadge">TASTE: ---</span>
+            <div class="plate-totals" id="plateTotals">$0.00 &middot; 0g Pro &middot; 0g Fib</div>
+          </div>
         </div>
         <div class="tray-surface">
           <div class="ceramic-plate" aria-label="Canada's Food Guide Dinner Plate">
@@ -725,7 +795,7 @@
       </div>
 
       <div class="serve-bar">
-        <button class="btn-clear" onclick="Game.clearTray()">Clear Tray</button>
+        <button class="btn-clear" id="clearBtn" onclick="Game.clearTray()">Clear Tray</button>
         <button class="btn-serve" id="serveBtn" onclick="Game.serve()">RING BELL &amp; SERVE! &rarr;</button>
       </div>
     </div>
@@ -762,6 +832,11 @@
 <!-- HEALTH INSPECTOR POP-QUIZ MODAL -->
 <div class="modal-bg" id="quizModal">
   <div class="nf-card" id="quizBody"></div>
+</div>
+
+<!-- LABEL SHOWDOWN DUEL MODAL -->
+<div class="modal-bg" id="duelModal">
+  <div class="duel-card-wrap" id="duelBody"></div>
 </div>
 
 <!-- TIER-UP TOAST -->
@@ -1038,18 +1113,146 @@ window.Game = (function () {
     return t === 4 ? 'TIER 4 \u00B7 IRON CHEF (2x)' : t === 3 ? 'TIER 3 \u00B7 SOUS CHEF' : t === 2 ? 'TIER 2 \u00B7 LINE CHEF' : 'TIER 1 \u00B7 PREP COOK';
   }
 
-  function beep(good) {
+  function beep(good) { sfx(good ? 'serve' : 'fail'); }
+
+  let muted = false;
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function toggleMute() {
+    muted = !muted;
+    const b = document.getElementById('muteBtn');
+    if (b) b.textContent = muted ? 'SFX: OFF' : 'SFX: ON';
+  }
+  function sfx(type) {
+    if (muted) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator(), gain = ctx.createGain();
-      osc.type = good ? 'triangle' : 'sawtooth';
-      osc.frequency.setValueAtTime(good ? 587 : 210, ctx.currentTime);
-      if (good) osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.07, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.24);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 0.25);
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const playTone = (freq, dur, wave, vol, delay) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.type = wave || 'triangle';
+        osc.frequency.setValueAtTime(freq, now + (delay || 0));
+        g.gain.setValueAtTime(vol || 0.06, now + (delay || 0));
+        g.gain.exponentialRampToValueAtTime(0.001, now + (delay || 0) + dur);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(now + (delay || 0)); osc.stop(now + (delay || 0) + dur + 0.02);
+      };
+      if (type === 'plate') { playTone(520, 0.07, 'sine', 0.045, 0); }
+      else if (type === 'serve') { playTone(587, 0.12, 'triangle', 0.07, 0); playTone(880, 0.2, 'triangle', 0.07, 0.08); }
+      else if (type === 'yum') { playTone(523, 0.1, 'triangle', 0.07, 0); playTone(659, 0.1, 'triangle', 0.07, 0.07); playTone(784, 0.12, 'triangle', 0.07, 0.14); playTone(1046, 0.22, 'triangle', 0.08, 0.21); }
+      else if (type === 'fever') { playTone(440, 0.09, 'square', 0.04, 0); playTone(554, 0.09, 'square', 0.04, 0.07); playTone(659, 0.09, 'square', 0.04, 0.14); playTone(880, 0.24, 'triangle', 0.08, 0.21); }
+      else if (type === 'complain') { playTone(310, 0.16, 'sawtooth', 0.055, 0); playTone(260, 0.18, 'sawtooth', 0.055, 0.14); playTone(195, 0.28, 'sawtooth', 0.06, 0.28); }
+      else { playTone(210, 0.22, 'sawtooth', 0.06, 0); }
     } catch (e) {}
+  }
+
+  // ---- TASTE & MEAL HARMONY ENGINE ("DOES IT TASTE GOOD?") ----
+  const LABEL_DUELS = [
+    { a:'g_multigrain', b:'g_oats', winner:'b', q:'Which breakfast grain gives real whole-grain steady energy?', note:'Warm Cinnamon Oatmeal is 100% whole grain oats (4g fibre, 2% DV sugar). "Multigrain" Honey Crunch starts with white flour and packs 16% DV sugar!' },
+    { a:'v_caesar', b:'v_salad', winner:'b', q:'Both are salads! Which one avoids the sodium and saturated fat trap?', note:'The heavy bacon Caesar salad hits 39% DV sodium and 30% DV sat fat from dressing and bacon bits.' },
+    { a:'p_pro_bar', b:'p_chicken', winner:'b', q:'Which protein gives cleaner muscle fuel without candy-bar sugar?', note:'Grilled chicken packs 26g protein with 0% sugar. The chocolate protein bar hides 22% DV sugar and 25% DV sat fat!' },
+    { a:'m_ramen', b:'m_lentil_stew', winner:'b', q:'Which warm bowl fuels your afternoon without a sodium bomb?', note:'Instant ramen packs 80% DV sodium in ONE cup! Moroccan lentil stew delivers 16g protein and 12g fibre for only 13% DV sodium.' },
+    { a:'d_chocmilk', b:'d_milk', winner:'b', q:'Which dairy drink hydrates without a sugar spike?', note:'Plain 2% milk gives 9g protein with natural milk sugars only. Chocolate milk jumps to 24%+ DV sugar from added syrups.' },
+    { a:'g_white_bagel', b:'m_egg_muffin', winner:'b', q:'Which grab-and-go option keeps you full through Period 5?', note:'The whole wheat egg & spinach sandwich has more protein, double the fibre, and half the saturated fat of a jumbo white bagel & cream cheese.' },
+    { a:'m_poutine', b:'m_burrito_bowl', winner:'b', q:'Both are filling cafeteria bowls. Which one actually fuels your brain?', note:'The black bean & brown rice bowl gives 13g fibre and 16g protein with low sat fat, while poutine is a sat-fat and sodium trap.' },
+    { a:'d_boba', b:'d_soy', winner:'b', q:'Which cold drink is the smarter everyday choice?', note:'Unsweetened fortified soy has 8g protein and 1% DV sugar, while brown sugar boba is a dessert in a cup!' }
+  ];
+  let duelPool = [], activeDuel = null, duelTimer = null, duelSec = 15, patienceSec = 45, complaints = 0, feverActive = false;
+
+  function evaluateTaste(list) {
+    if (!list || !list.length) return { stars: 0, label: 'TASTE: ---', cls: '', complaint: '', praise: '', bonus: 0 };
+    let scoreT = 3.5;
+    const issues = [];
+    const perks = [];
+
+    const isFish = f => /salmon|tuna|sardine|sushi|poke|smoked_salm/i.test(f.id + ' ' + f.name);
+    const isSweetBfast = f => /oats|pancake|berr|yogurt|smoothie|muffin|donut|granola|chia|applesauce|banana|apple|peach|mango|pear|fruit/i.test(f.id + ' ' + f.name);
+    const isOatOrYogurt = f => /oats|pancake|yogurt|cottage|chia|smoothie/i.test(f.id + ' ' + f.name);
+    const isSavoury = f => f.cat === 'main' || /chicken|turkey|egg|bean|lentil|tofu|hummus|falafel|curry|wrap|soup|stew|taco|shawarma|pho|bibimbap|dumpling|edamame|cheese|tuna|salmon|sardine|meat|beef|pork|chili/i.test(f.id + ' ' + f.name);
+    const isPlainDry = f => /rice|quinoa|barley|rye|cracker|pita|wrap|bun|tort|popcorn|carrot|celery|cucumber|snap|broccoli/i.test(f.id + ' ' + f.name) && f.cat !== 'main';
+    const isDrink = f => f.cat === 'drink';
+    const isSauceDipOrMain = f => f.cat === 'main' || /hummus|guac|avocado|salsa|tzatziki|curry|stew|soup|chili|salad|poke|stirfry|pasta|wrap|sandwich|muffin|burrito|shawarma|bibimbap|pho|falafel/i.test(f.id + ' ' + f.name);
+
+    const hasFish = list.some(isFish);
+    const hasOatYog = list.some(isOatOrYogurt);
+    const drinkCnt = list.filter(isDrink).length;
+    const idCounts = {};
+    list.forEach(f => { idCounts[f.id] = (idCounts[f.id] || 0) + 1; });
+    const hasDup = Object.values(idCounts).some(c => c >= 2);
+    const nonDrinks = list.filter(f => !isDrink(f));
+    const allDry = nonDrinks.length >= 3 && nonDrinks.every(isPlainDry) && !list.some(isSauceDipOrMain);
+
+    if (hasFish && hasOatYog) {
+      scoreT -= 2.2;
+      issues.push('Fish next to sweet oatmeal/yogurt?! My taste buds are calling 911!');
+    }
+    if (drinkCnt >= 2) {
+      scoreT -= 1.6;
+      issues.push('Two drinks on one tray? Am I eating lunch or training for a swimming pool?!');
+    }
+    if (hasDup) {
+      scoreT -= 1.5;
+      issues.push('Double scoops of the exact same item? Mix it up, Chef!');
+    }
+    if (allDry) {
+      scoreT -= 1.6;
+      issues.push('So dry and plain! Add a real main dish, dip, or juicy fruit!');
+    }
+    if (list.length >= 6) {
+      scoreT -= 1.0;
+      issues.push('I cannot even carry this mountain of 6+ items to my table!');
+    }
+
+    const hasVeg = list.some(f => f.zone === 'veg');
+    const hasPro = list.some(f => f.zone === 'protein');
+    const hasGrain = list.some(f => f.zone === 'grain' || f.tags.includes('whole-grain'));
+    const hasMain = list.some(isSauceDipOrMain);
+    const hasGlobal = list.some(f => f.tags.includes('global'));
+    const hasSweetPair = list.some(isOatOrYogurt) && list.some(f => /berr|banana|apple|mango|pear|fruit/i.test(f.id + ' ' + f.name)) && !hasFish;
+
+    if (!issues.length) {
+      if (hasMain && hasVeg && hasGrain && drinkCnt === 1) {
+        scoreT += 1.2;
+        perks.push('Balanced, colourful, and genuinely delicious!');
+      } else if (hasVeg && hasPro && hasGrain && drinkCnt === 1 && list.some(isSavoury)) {
+        scoreT += 0.9;
+        perks.push('Solid flavour combo - I would actually eat this!');
+      }
+      if (hasGlobal && hasVeg) {
+        scoreT += 0.4;
+        perks.push('Global flavours + fresh crunch? Chef\'s kiss!');
+      } else if (hasSweetPair) {
+        scoreT += 0.5;
+        perks.push('Breakfast-for-lunch combo slaps!');
+      }
+    }
+
+    const stars = Math.max(1, Math.min(5, Math.round(scoreT)));
+    const starTxt = '\u2605'.repeat(stars) + '\u2606'.repeat(5 - stars);
+    if (stars >= 5) return { stars, label: starTxt + ' YUM (+75)', cls: 'yum', complaint: '', praise: perks[0] || 'Chef\'s kiss! 5-star lunch!', bonus: 75 };
+    if (stars >= 3) return { stars, label: starTxt + ' TASTY', cls: 'ok', complaint: '', praise: perks[0] || 'Looks tasty and appetizing!', bonus: 0 };
+    return { stars, label: starTxt + ' GROSS!', cls: 'gross', complaint: issues[0] || 'Weird combo, Chef - would YOU eat this?!', praise: '', bonus: 0 };
+  }
+
+  function updatePatienceUi() {
+    const track = document.getElementById('patienceTrack');
+    const fill = document.getElementById('patienceFill');
+    if (!track || !fill) return;
+    if (mode === 'practice') { track.classList.remove('show'); return; }
+    track.classList.add('show');
+    const pct = Math.max(0, Math.min(100, (patienceSec / 45) * 100));
+    fill.style.width = pct + '%';
+    fill.className = 'patience-fill' + (patienceSec <= 12 ? ' low' : patienceSec <= 24 ? ' mid' : '');
+    if (patienceSec <= 12 && tray.length < 3) {
+      const b = document.getElementById('custBubble'), q = document.getElementById('custQuote');
+      if (b && q && !b.classList.contains('mad')) {
+        b.className = 'cust-bubble warn';
+        q.textContent = '"Hurry, Chef! The lunch bell rings in ' + patienceSec + 's!"';
+      }
+    }
   }
 
   function start(selectedMode) {
@@ -1058,8 +1261,10 @@ window.Game = (function () {
     queue = buildProgressiveQueue();
     if (mode === 'sprint') queue = queue.slice(0, 10);
     quizPool = shuffle(INSPECTOR_QUIZ);
+    duelPool = shuffle(LABEL_DUELS.filter(d => foodById[d.a] && foodById[d.b]));
     orderIdx = 0; score = 0; streak = 0; bestStreak = 0; served = 0; fails = 0; trapsCaught = 0; lastTierSeen = 1;
-    quizRight = 0; quizTotal = 0; lastTrayIds = new Set();
+    quizRight = 0; quizTotal = 0; lastTrayIds = new Set(); complaints = 0; feverActive = false; patienceSec = 45;
+    document.getElementById('gameScreen').classList.remove('fever');
     profile.shifts = (profile.shifts || 0) + 1;
     try { localStorage.removeItem(CP_KEY); } catch (e) {}
 
@@ -1080,7 +1285,7 @@ window.Game = (function () {
   }
 
   function modalOpen() {
-    return ['labelModal', 'quizModal', 'guideModal'].some(id => {
+    return ['labelModal', 'quizModal', 'duelModal', 'guideModal'].some(id => {
       const el = document.getElementById(id);
       return el && el.classList.contains('open');
     });
@@ -1093,6 +1298,7 @@ window.Game = (function () {
       timerInt = setInterval(() => {
         if (!modalOpen()) {
           secLeft--;
+          if (patienceSec > 0) { patienceSec--; updatePatienceUi(); }
           if (secLeft <= 0) { updateTimerUi(); finish(); return; }
         }
         updateTimerUi();
@@ -1100,12 +1306,16 @@ window.Game = (function () {
     } else if (mode === 'sprint') {
       updateTimerUi();
       timerInt = setInterval(() => {
-        if (!modalOpen()) secLeft++;
+        if (!modalOpen()) {
+          secLeft++;
+          if (patienceSec > 0) { patienceSec--; updatePatienceUi(); }
+        }
         updateTimerUi();
       }, 1000);
     } else {
       document.getElementById('hTimer').textContent = 'PRACTICE';
       document.getElementById('hTimer').classList.remove('paused');
+      updatePatienceUi();
     }
   }
 
@@ -1257,10 +1467,19 @@ window.Game = (function () {
 
     if (!opts.keepTray) tray = (ord.preloaded || []).map(id => foodById[id]).filter(Boolean);
     orderStartMs = Date.now();
+    patienceSec = 45;
+    updatePatienceUi();
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+      const isAudit = !!(ord.preloaded && ord.preloaded.length);
+      clearBtn.disabled = isAudit;
+      clearBtn.title = isAudit ? 'Trap Audit: click individual trap items on the plate to yank them!' : 'Clear the whole tray';
+      clearBtn.textContent = isAudit ? 'Click Traps to Yank' : 'Clear Tray';
+    }
     const tCard = document.getElementById('ticketCard');
     tCard.classList.toggle('boss', t === 4);
     const av = document.getElementById('tAvatar');
-    if (av) { av.src = 'assets/customers/' + customerAvatar(ord) + '.jpg'; av.alt = ord.customer; }
+    if (av) { av.src = 'assets/customers/' + customerAvatar(ord) + '.jpg?v=20261127a'; av.alt = ord.customer; }
     document.getElementById('tNum').textContent = (t === 4 ? 'BOSS TICKET (2x) ' : '') + (mode === 'sprint' ? ('#' + (orderIdx + 1) + '/' + queue.length) : ('#' + (served + 1)));
     document.getElementById('tCust').textContent = ord.customer;
     document.getElementById('tTitle').textContent = ord.title;
@@ -1298,6 +1517,9 @@ window.Game = (function () {
   function isBanned(id) {
     return activeCurveball && activeCurveball.banIds.includes(id);
   }
+  function isRestocking(id) {
+    return mode !== 'practice' && id !== 'd_water' && lastTrayIds.has(id);
+  }
 
   function renderPantry() {
     const q = (document.getElementById('searchInp').value || '').trim().toLowerCase();
@@ -1309,14 +1531,16 @@ window.Game = (function () {
     });
     document.getElementById('pantryGrid').innerHTML = list.map(f => {
       const out = isBanned(f.id);
-      return '<div class="food-card' + (out ? ' sold-out' : '') + '" draggable="' + (!out) + '" ondragstart="Game.dragStart(event,\'' + f.id + '\')" onclick="Game.cardTap(\'' + f.id + '\')">' +
+      const restock = !out && isRestocking(f.id);
+      const locked = out || restock;
+      return '<div class="food-card' + (out ? ' sold-out' : (restock ? ' restock' : '')) + '" draggable="' + (!locked) + '" ondragstart="Game.dragStart(event,\'' + f.id + '\')" onclick="Game.cardTap(\'' + f.id + '\')">' +
         '<img class="fc-ico" src="assets/foods/' + f.id + '.jpg" alt="' + f.name + '" loading="lazy">' +
         '<div class="fc-info">' +
-          '<div class="fc-name">' + (out ? '[SOLD OUT] ' : '') + f.name + '</div>' +
+          '<div class="fc-name">' + (out ? '[SOLD OUT] ' : (restock ? '<span class="restock-tag">RESTOCK</span>' : '')) + f.name + '</div>' +
           '<div class="fc-meta">$' + f.cost.toFixed(2) + ' &middot; ' + f.pro + 'g pro &middot; ' + f.sodDv + '% Na &middot; ' + f.sugDv + '% sug</div>' +
         '</div>' +
         '<button class="fc-inspect" title="Read Nutrition Label" onclick="event.stopPropagation();Game.openLabel(\'' + f.id + '\')">i</button>' +
-        '<button class="fc-add" title="Add to tray" onclick="event.stopPropagation();Game.addToTray(\'' + f.id + '\')">+</button>' +
+        '<button class="fc-add" title="' + (restock ? 'Restocking for 1 tray - pick a fresh food!' : 'Add to tray') + '" onclick="event.stopPropagation();Game.addToTray(\'' + f.id + '\')">+</button>' +
       '</div>';
     }).join('') || '<div style="grid-column:1/-1;color:var(--muted);padding:18px;font-weight:600;">No matching foods. Clear a filter or search term.</div>';
   }
@@ -1324,15 +1548,21 @@ window.Game = (function () {
   function dragStart(ev, id) { ev.dataTransfer.setData('text/plain', id); }
 
   function addToTray(id) {
-    if (isBanned(id)) return;
+    if (isBanned(id) || isRestocking(id)) return;
     const f = foodById[id];
     if (!f || tray.length >= 8) return;
     tray.push(f);
+    sfx('plate');
     renderTray();
   }
 
-  function removeFromTray(idx) { tray.splice(idx, 1); renderTray(); }
-  function clearTray() { tray = []; renderTray(); }
+  function removeFromTray(idx) { tray.splice(idx, 1); sfx('plate'); renderTray(); }
+  function clearTray() {
+    const ord = queue[orderIdx];
+    if (ord && ord.preloaded && ord.preloaded.length) return;
+    tray = [];
+    renderTray();
+  }
 
   function evaluateTray(ord) {
     const r = ord.rules;
@@ -1401,11 +1631,33 @@ window.Game = (function () {
   function renderTray() {
     const ord = queue[orderIdx];
     const ev = evaluateTray(ord);
+    const taste = evaluateTaste(tray);
     updateCoach(ev);
+    const tb = document.getElementById('tasteBadge');
+    if (tb) { tb.textContent = taste.label; tb.className = 'taste-pill ' + taste.cls; }
+    const cb = document.getElementById('custBubble'), cq = document.getElementById('custQuote');
+    if (cb && cq) {
+      if (!tray.length) {
+        cb.className = 'cust-bubble';
+        cq.textContent = ord.preloaded ? '"Hey! Check these labels and yank the sneaky traps!"' : '"Make it healthy AND actually taste good, Chef!"';
+      } else if (taste.stars <= 2) {
+        cb.className = 'cust-bubble mad';
+        cq.textContent = '"' + taste.complaint + '"';
+      } else if (ev.passed && taste.stars >= 5) {
+        cb.className = 'cust-bubble yum';
+        cq.textContent = '"' + taste.praise + ' Ring that bell!"';
+      } else if (ev.passed) {
+        cb.className = 'cust-bubble yum';
+        cq.textContent = '"Specs look good! Ready to serve!"';
+      } else {
+        cb.className = 'cust-bubble';
+        cq.textContent = '"Ooh, looking tasty so far..."';
+      }
+    }
     const plateEl = document.querySelector('.ceramic-plate');
-    if (plateEl) plateEl.classList.toggle('plate-ready', ev.passed);
+    if (plateEl) plateEl.classList.toggle('plate-ready', ev.passed && taste.stars >= 3);
     const serveBtn = document.getElementById('serveBtn');
-    if (serveBtn) serveBtn.classList.toggle('ready', ev.passed);
+    if (serveBtn) serveBtn.classList.toggle('ready', ev.passed && taste.stars >= 3);
     document.getElementById('plateTotals').textContent =
       '$' + ev.cost.toFixed(2) + ' \u00B7 ' + ev.pro + 'g Pro \u00B7 ' + ev.fib + 'g Fib \u00B7 ' + ev.sodDv + '% Na \u00B7 ' + ev.sugDv + '% Sug \u00B7 ' + ev.satDv + '% Sat';
 
@@ -1435,20 +1687,51 @@ window.Game = (function () {
   function serve() {
     const ord = queue[orderIdx];
     const ev = evaluateTray(ord);
+    const taste = evaluateTaste(tray);
     const fb = document.getElementById('fbBanner');
+    const t = currentTier();
     if (ev.passed) {
-      beep(true);
-      const t = currentTier();
-      streak++;
-      if (streak > bestStreak) bestStreak = streak;
+      // Tier 3-4 customers REFUSE 1-2 star cursed plates!
+      if (taste.stars <= 2 && t >= 3) {
+        sfx('complain');
+        streak = 0; fails++; complaints++;
+        feverActive = false;
+        document.getElementById('gameScreen').classList.remove('fever');
+        fb.className = 'feedback-banner show fail';
+        fb.textContent = 'CUSTOMER COMPLAINT - SENT BACK! "' + taste.complaint + '" (Healthy math, but nobody will eat that combo! Fix the taste to 3+ stars.)';
+        updateHud();
+        return;
+      }
+
+      const complained = taste.stars <= 2;
+      if (complained) {
+        sfx('complain');
+        streak = 0;
+        complaints++;
+        feverActive = false;
+        document.getElementById('gameScreen').classList.remove('fever');
+      } else {
+        streak++;
+        if (streak > bestStreak) bestStreak = streak;
+        if (streak >= 3 && !feverActive) {
+          feverActive = true;
+          document.getElementById('gameScreen').classList.add('fever');
+          if (mode === 'rush') secLeft += 15;
+          sfx('fever');
+        } else {
+          sfx(taste.stars >= 5 ? 'yum' : 'serve');
+        }
+      }
+
       served++;
       if (ord.preloaded) trapsCaught += ord.preloaded.length;
       const mult = streak >= 5 ? 3 : streak >= 3 ? 2 : streak >= 2 ? 1.5 : 1;
       const bossMult = t === 4 ? 2 : 1;
       const elapsedSec = (Date.now() - orderStartMs) / 1000;
-      const speedBonus = elapsedSec < 25 ? 80 : elapsedSec < 45 ? 40 : 0;
+      const speedBonus = elapsedSec < 22 ? 80 : elapsedSec < 38 ? 40 : 0;
       const varietyBonus = ev.freshBonus ? 100 : 0;
-      const pts = Math.round((200 + speedBonus + varietyBonus) * mult * bossMult);
+      const tasteAdj = complained ? -75 : taste.bonus;
+      const pts = Math.max(50, Math.round((200 + speedBonus + varietyBonus + tasteAdj) * mult * bossMult));
       score += pts;
       lastTrayIds = new Set(tray.map(f => f.id));
       celebrateServe(pts);
@@ -1458,29 +1741,108 @@ window.Game = (function () {
         showTierToast(newTier);
       }
 
-      fb.className = 'feedback-banner show pass';
-      const tip = (NUTRITION_TIPS && NUTRITION_TIPS.length) ? (' Tip: ' + NUTRITION_TIPS[served % NUTRITION_TIPS.length]) : '';
-      fb.textContent = '3 STARS! +' + pts + ' PTS' + (varietyBonus ? ' (Fresh Variety +100!)' : '') + (bossMult === 2 ? ' (BOSS 2x!)' : '') + ' | Streak x' + mult + tip;
+      if (complained) {
+        fb.className = 'feedback-banner show fail';
+        fb.textContent = 'CUSTOMER COMPLAINED! "' + taste.complaint + '" (+' + pts + ' pts, -75 taste penalty, streak lost!)';
+      } else {
+        fb.className = 'feedback-banner show pass';
+        const tip = (NUTRITION_TIPS && NUTRITION_TIPS.length) ? (' Tip: ' + NUTRITION_TIPS[served % NUTRITION_TIPS.length]) : '';
+        fb.textContent = (taste.stars >= 5 ? '5-STAR CHEF\'S KISS! +' : '3 STARS! +') + pts + ' PTS' +
+          (taste.bonus ? ' (+75 YUM!)' : '') +
+          (varietyBonus ? ' (+100 Fresh!)' : '') +
+          (streak === 3 && mode === 'rush' ? ' (FEVER +15s!)' : '') +
+          (bossMult === 2 ? ' (BOSS 2x!)' : '') + ' | Streak x' + mult + tip;
+      }
       updateHud();
       saveToVault();
       saveCheckpoint();
 
       setTimeout(() => {
         orderIdx++;
-        if (served > 0 && served % 3 === 0 && quizPool.length && orderIdx < queue.length) {
-          openInspectorQuiz();
+        if (served > 0 && served % 3 === 0 && orderIdx < queue.length) {
+          if (served % 6 === 3 && duelPool.length) openLabelDuel();
+          else if (quizPool.length) openInspectorQuiz();
+          else loadOrder();
         } else {
           loadOrder();
         }
-      }, 950);
+      }, complained ? 1350 : 950);
     } else {
-      beep(false);
+      sfx('fail');
       streak = 0; fails++;
+      feverActive = false;
+      document.getElementById('gameScreen').classList.remove('fever');
       const bad = ev.checks.filter(c => !c.ok).map(c => c.failMsg).slice(0, 2);
       fb.className = 'feedback-banner show fail';
       fb.textContent = 'TICKET SENT BACK! ' + bad.join(' ');
       updateHud();
     }
+  }
+
+  // ---- 15-SECOND LABEL SHOWDOWN DUEL ----
+  function openLabelDuel() {
+    activeDuel = duelPool.shift();
+    if (!activeDuel) { loadOrder(); return; }
+    const fa = foodById[activeDuel.a], fbFood = foodById[activeDuel.b];
+    if (!fa || !fbFood) { loadOrder(); return; }
+    duelSec = 15;
+    const cardHtml = (key, f) =>
+      '<button class="duel-opt" id="dopt_' + key + '" onclick="Game.answerDuel(\'' + key + '\')">' +
+        '<div class="duel-top"><img src="assets/foods/' + f.id + '.jpg" alt="' + f.name + '"><div class="duel-name">' + f.name + '</div></div>' +
+        '<div class="duel-stats">' +
+          '<span>Calories: <b>' + f.kcal + '</b> &middot; Protein: <b>' + f.pro + 'g</b> &middot; Fibre: <b>' + f.fib + 'g</b></span>' +
+          '<span>Sugar: <b>' + f.sugDv + '% DV</b> &middot; Sodium: <b>' + f.sodDv + '% DV</b> &middot; Sat Fat: <b>' + f.satDv + '% DV</b></span>' +
+        '</div>' +
+        '<div class="duel-ing"><b>1st Ingredients:</b> ' + f.ing.split(',').slice(0, 3).join(', ') + '</div>' +
+      '</button>';
+    document.getElementById('duelBody').innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:2px solid #e4e4e7;padding-bottom:8px;">' +
+        '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;font-weight:800;color:#b45309;text-transform:uppercase;">LABEL SHOWDOWN DUEL (+175 BONUS)</div>' +
+        '<div style="font-family:\'Roboto Slab\',serif;font-size:1.12rem;font-weight:900;margin-top:2px;">' + activeDuel.q + '</div></div>' +
+        '<span class="hud-chip timer" id="duelClock">15s</span>' +
+      '</div>' +
+      '<div class="duel-grid">' + cardHtml('a', fa) + cardHtml('b', fbFood) + '</div>' +
+      '<div id="dFb" style="font-size:.86rem;font-weight:700;"></div>';
+    document.getElementById('duelModal').classList.add('open');
+    if (duelTimer) clearInterval(duelTimer);
+    duelTimer = setInterval(() => {
+      duelSec--;
+      const cl = document.getElementById('duelClock');
+      if (cl) cl.textContent = duelSec + 's';
+      if (duelSec <= 0) {
+        clearInterval(duelTimer); duelTimer = null;
+        if (activeDuel) answerDuel('timeout');
+      }
+    }, 1000);
+  }
+
+  function answerDuel(pick) {
+    if (!activeDuel) return;
+    if (duelTimer) { clearInterval(duelTimer); duelTimer = null; }
+    const d = activeDuel; activeDuel = null;
+    quizTotal++;
+    const ok = pick === d.winner;
+    ['a', 'b'].forEach(k => {
+      const b = document.getElementById('dopt_' + k);
+      if (b) {
+        b.disabled = true;
+        if (k === d.winner) b.classList.add('ok');
+        else if (k === pick) b.classList.add('bad');
+      }
+    });
+    if (ok) { score += 175; quizRight++; sfx('yum'); } else { sfx('fail'); }
+    document.getElementById('dFb').innerHTML =
+      '<div style="color:' + (ok ? 'var(--ok)' : 'var(--bad)') + ';margin-bottom:8px;">' +
+        (ok ? '+175 SHOWDOWN BONUS! ' : (pick === 'timeout' ? 'Time up! ' : 'Sneaky label trap! ')) + d.note +
+      '</div><button class="btn-serve" style="width:100%;padding:9px;" onclick="Game.closeDuel()">Back to Kitchen &rarr;</button>';
+    updateHud();
+    saveToVault();
+  }
+
+  function closeDuel() {
+    if (duelTimer) { clearInterval(duelTimer); duelTimer = null; }
+    document.getElementById('duelModal').classList.remove('open');
+    loadOrder();
   }
 
   // ---- HEALTH INSPECTOR POP-QUIZ ----
@@ -1605,7 +1967,7 @@ window.Game = (function () {
   initAuth();
   showContinue();
   renderBestStrip();
-  return { signIn, start, resume, confirmEnd, cardTap, setCat, toggleTag, dragStart, addToTray, removeFromTray, clearTray, serve, skipOrder, openLabel, closeLabel, openGuide, closeGuide, answerQuiz, closeQuiz, finish };
+  return { signIn, start, resume, confirmEnd, cardTap, setCat, toggleTag, dragStart, addToTray, removeFromTray, clearTray, serve, skipOrder, openLabel, closeLabel, openGuide, closeGuide, answerQuiz, closeQuiz, answerDuel, closeDuel, toggleMute, finish };
 })();
 </script>
 </body>
