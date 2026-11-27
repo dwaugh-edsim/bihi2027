@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Healthy Living 8 - Choose Your Shift | Room 8</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090d14;
+    --ink:#f4f1ea;
+    --muted:#cbd5e1;
+    --teal:#2dd4bf;
+    --teal-dark:#04241f;
+    --amber:#f59e0b;
+    --green:#22c55e;
+    --green-dark:#052e16;
+    --line:rgba(255,255,255,.16);
+    --f-body:'Inter',system-ui,sans-serif;
+    --f-slab:'Fraunces',Georgia,serif;
+    --f-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hidden}
+
+  .shell{
+    display:flex;
+    flex-direction:column;
+    height:100dvh;
+    width:100vw;
+    position:relative;
+  }
+
+  /* Floating top header pill */
+  .top-pill{
+    position:absolute;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:7px 18px;
+    border-radius:999px;
+    background:rgba(9,13,20,.82);
+    backdrop-filter:blur(10px);
+    border:1.5px solid rgba(255,255,255,.22);
+    box-shadow:0 12px 32px rgba(0,0,0,.55);
+    font-family:var(--f-mono);
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#fff;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .top-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+
+  /* Full-screen 50/50 split arena */
+  .split{
+    flex:1;
+    min-height:0;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    position:relative;
+  }
+
+  /* Center divider badge */
+  .vs-badge{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:15;
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    background:rgba(9,13,20,.92);
+    border:2px solid rgba(245,158,11,.75);
+    box-shadow:0 0 0 6px rgba(9,13,20,.45), 0 12px 28px rgba(0,0,0,.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--f-slab);
+    font-weight:900;
+    font-size:1.05rem;
+    color:var(--amber);
+    letter-spacing:.04em;
+    pointer-events:none;
+  }
+
+  .pane{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    padding:clamp(22px,3.6vw,48px);
+    text-decoration:none;
+    color:var(--ink);
+    overflow:hidden;
+    isolation:isolate;
+    transition:filter .25s ease;
+  }
+  .pane.left{border-right:1.5px solid rgba(255,255,255,.18)}
+  .pane.right{border-left:1.5px solid rgba(255,255,255,.18)}
+
+  .pane-bg{
+    position:absolute;
+    inset:0;
+    z-index:-2;
+    background-size:cover;
+    background-position:center;
+    transition:transform .55s cubic-bezier(.2,.8,.2,1), filter .4s ease;
+    filter:brightness(.88) saturate(1.08);
+  }
+  .pane.left .pane-bg{background-image:url('assets/hub_oncall_hl8.jpg')}
+  .pane.right .pane-bg{background-image:url('assets/hub_cafeteria_rush.jpg')}
+
+  /* Rich readability vignette + subtle top sheen */
+  .pane::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:-1;
+    transition:opacity .35s ease;
+  }
+  .pane.left::before{
+    background:
+      radial-gradient(circle at 25% 20%, rgba(45,212,191,.16), transparent 55%),
+      linear-gradient(180deg, rgba(7,12,22,.28) 0%, rgba(7,12,22,.35) 38%, rgba(7,12,22,.88) 76%, rgba(7,12,22,.96) 100%);
+  }
+  .pane.right::before{
+    background:
+      radial-gradient(circle at 75% 20%, rgba(245,158,11,.18), transparent 55%),
+      linear-gradient(180deg, rgba(16,12,7,.24) 0%, rgba(12,15,18,.34) 38%, rgba(10,16,14,.86) 76%, rgba(8,14,12,.96) 100%);
+  }
+
+  .pane:hover .pane-bg,
+  .pane:focus-visible .pane-bg{
+    transform:scale(1.055);
+    filter:brightness(1.02) saturate(1.16);
+  }
+  .pane:focus-visible{outline:3px solid #fff;outline-offset:-4px}
+
+  /* Subtle top accent glow on hover */
+  .pane::after{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:4px;
+    opacity:.75;
+    transition:opacity .25s ease, height .25s ease;
+  }
+  .pane.left::after{background:linear-gradient(90deg,var(--teal),#38bdf8)}
+  .pane.right::after{background:linear-gradient(90deg,var(--amber),var(--green))}
+  .pane:hover::after{opacity:1;height:6px}
+
+  .pane-content{
+    max-width:560px;
+    position:relative;
+    z-index:2;
+  }
+
+  .opt-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--f-mono);
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding:5px 12px;
+    border-radius:999px;
+    margin-bottom:12px;
+    backdrop-filter:blur(6px);
+  }
+  .pane.left .opt-tag{
+    background:rgba(45,212,191,.18);
+    border:1.5px solid rgba(45,212,191,.65);
+    color:#99f6e4;
+  }
+  .pane.right .opt-tag{
+    background:rgba(245,158,11,.2);
+    border:1.5px solid rgba(245,158,11,.7);
+    color:#fde68a;
+  }
+
+  .pane h1{
+    font-family:var(--f-slab);
+    font-size:clamp(2rem,3.6vw,3.35rem);
+    font-weight:900;
+    line-height:1.05;
+    color:#fff;
+    text-shadow:0 4px 24px rgba(0,0,0,.65);
+    margin-bottom:10px;
+  }
+  .pane p.lead{
+    font-size:clamp(.95rem,1.2vw,1.12rem);
+    line-height:1.45;
+    color:#e2e8f0;
+    margin-bottom:16px;
+    text-shadow:0 2px 12px rgba(0,0,0,.7);
+  }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .chip{
+    font-family:var(--f-mono);
+    font-size:.7rem;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:7px;
+    background:rgba(15,23,42,.72);
+    border:1px solid rgba(255,255,255,.22);
+    color:#f8fafc;
+    backdrop-filter:blur(6px);
+  }
+
+  .cta{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--f-body);
+    font-size:1rem;
+    font-weight:800;
+    padding:13px 24px;
+    border-radius:12px;
+    letter-spacing:.02em;
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .pane.left .cta{
+    background:linear-gradient(135deg,#2dd4bf 0%,#14b8a6 100%);
+    color:var(--teal-dark);
+    box-shadow:0 8px 24px rgba(45,212,191,.35);
+  }
+  .pane.right .cta{
+    background:linear-gradient(135deg,#f59e0b 0%,#22c55e 100%);
+    color:#052010;
+    box-shadow:0 8px 24px rgba(34,197,94,.32);
+  }
+  .pane:hover .cta{
+    transform:translateY(-2px);
+    filter:brightness(1.08);
+  }
+  .cta .arr{font-size:1.15rem;transition:transform .18s ease}
+  .pane:hover .cta .arr{transform:translateX(4px)}
+
+  /* Bottom Outcome Banner */
+  .outcome-bar{
+    flex:none;
+    background:linear-gradient(90deg,#0b1320 0%,#0f1b24 50%,#0b1a14 100%);
+    border-top:2px solid rgba(245,158,11,.55);
+    padding:13px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+    z-index:20;
+    box-shadow:0 -10px 30px rgba(0,0,0,.55);
+  }
+  .outcome-badge{
+    font-family:var(--f-mono);
+    font-size:.7rem;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#052010;
+    background:linear-gradient(135deg,#f59e0b,#22c55e);
+    padding:4px 11px;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .outcome-text{
+    font-family:var(--f-slab);
+    font-size:clamp(.92rem,1.25vw,1.12rem);
+    font-weight:700;
+    color:#fff;
+    text-align:center;
+  }
+
+  /* Mobile / narrow portrait fallback */
+  @media(max-width:780px){
+    html,body{overflow:auto}
+    .shell{height:auto;min-height:100dvh}
+    .top-pill{position:static;transform:none;margin:10px auto 0;display:flex;width:fit-content}
+    .split{grid-template-columns:1fr;min-height:auto}
+    .pane{min-height:46vh;border:0;border-bottom:1.5px solid rgba(255,255,255,.16)}
+    .vs-badge{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top-pill"><span class="dot"></span>Room 8 &middot; Healthy Living 8 &middot; Choose Your Shift</div>
+
+  <main class="split">
+    <div class="vs-badge" aria-hidden="true">OR</div>
+
+    <!-- LEFT HALF: OPTION A - GRADE 8 ON-CALL CLINIC -->
+    <a class="pane left" id="optA" href="OnCallClinic/index.html" aria-label="Option A: On-Call Room 8 Clinic for Grade 8">
+      <div class="pane-bg"></div>
+      <div class="pane-content">
+        <div class="opt-tag">Option A &middot; Grade 8 (801-804) &middot; Key [A]</div>
+        <h1>On-Call: Room 8 Clinic</h1>
+        <p class="lead">Step into the exam room as the Grade 8 On-Call Doctor. Diagnose Junction scenarios, Infectious Disease, Sleep &amp; Screens, NS Triage, and Cafeteria Crossover trays.</p>
+        <div class="chips">
+          <span class="chip">39 Junction Scenarios</span>
+          <span class="chip">353 Total Cases</span>
+          <span class="chip">Boss Cases (2x Pts)</span>
+          <span class="chip">Read Aloud</span>
+        </div>
+        <span class="cta">Enter the Clinic <span class="arr">&rarr;</span></span>
+      </div>
+    </a>
+
+    <!-- RIGHT HALF: OPTION B - CAFETERIA RUSH -->
+    <a class="pane right" id="optB" href="Unit%202%20-%20Nutrition/CafeteriaRush/index.html" aria-label="Option B: Cafeteria Rush Room 8 Kitchen">
+      <div class="pane-bg"></div>
+      <div class="pane-content">
+        <div class="opt-tag">Option B &middot; Unit 2 Nutrition &middot; Key [B]</div>
+        <h1>Cafeteria Rush</h1>
+        <p class="lead">Run the Room 8 Kitchen line! Build real Canada's Food Guide plates against the clock, pass Health Inspector label audits, and survive 6 lunch-rush curveballs.</p>
+        <div class="chips">
+          <span class="chip">122 Illustrated Foods</span>
+          <span class="chip">36 Lunch Tickets</span>
+          <span class="chip">Real Nutrition Facts</span>
+          <span class="chip">4 Chef Tiers</span>
+        </div>
+        <span class="cta">Start Kitchen Shift <span class="arr">&rarr;</span></span>
+      </div>
+    </a>
+  </main>
+
+  <footer class="outcome-bar">
+    <span class="outcome-badge">HL8 Outcome CO2 &middot; Nutrition</span>
+    <span class="outcome-text">"Learners will evaluate the impact of nutrition and food choices on short-term and long-term health."</span>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('keydown', function(e){
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = (e.key || '').toLowerCase();
+  if(k === 'a' || k === '1'){ document.getElementById('optA').click(); }
+  else if(k === 'b' || k === '2'){ document.getElementById('optB').click(); }
+});
+</script>
+</body>
+</html>
